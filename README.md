@@ -37,6 +37,7 @@ Here, every major topic is tied to **how it appears in real physiology.**
 
 ## Repository Structure
 
+```
 MCAT/
 │
 ├── biochemistry/
@@ -57,7 +58,7 @@ MCAT/
 │
 └── practice/
     └── question-breakdowns.md        # MCAT → ICU/OR scenario conversions
-
+```
 
 Each section is self-contained but built on the same clinical logic.
 
