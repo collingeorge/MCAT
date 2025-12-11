@@ -1,3 +1,7 @@
+[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+[![Status: Active Development](https://img.shields.io/badge/Status-Active-green.svg)]()
+[![Focus: MCAT Biochemistry](https://img.shields.io/badge/Focus-MCAT_Biochemistry-blue.svg)]()
+
 # MCAT Clinical Mastery Notes  
 *A complete, high-yield MCAT study system built on clinical reasoning, ICU physiology, and medical pattern recognition.*
 
