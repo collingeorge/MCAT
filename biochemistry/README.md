@@ -1,143 +1,162 @@
 [![Section: Biochemistry](https://img.shields.io/badge/Section-Biochemistry-blue.svg)]()
-[![MCAT Content: 80–90% Coverage](https://img.shields.io/badge/MCAT_Coverage-80–90%25-success.svg)]()
+[![MCAT Content: 90% Coverage](https://img.shields.io/badge/MCAT_Coverage-~90%25-success.svg)]()
 [![Clinical Framework](https://img.shields.io/badge/Framework-Clinical_Reasoning-orange.svg)]()
-[![Last Updated](https://img.shields.io/badge/Updated-2025_Dec-purple.svg)]()
+[![Updated](https://img.shields.io/badge/Updated-Jan_2026-purple.svg)]()
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
-# Clinically Necessary Biochemistry for the MCAT
-*A clinical reasoning framework that turns biochemistry into ICU/OR physiology rather than memorization.*
+# Clinically Necessary Biochemistry for the MCAT  
+*A clinical reasoning framework that turns biochemistry into ICU/OR physiology — instead of brute memorization.*
 
-This guide distills **all biochemistry content required for 80–90% of MCAT questions** into a compact set of clinical mechanisms.  
-No memorization walls. No trivia.  
-Just **patterns your brain already understands from physiology and critical care.**
+This guide distills **all biochemistry content required for ~80–90% of MCAT questions** into a compact set of clinical mechanisms.  
+No memorization walls.  
+No trivia.  
+Just **patterns your brain already understands from physiology, pharmacology, and critical care.**
 
 ---
 
-# 0. Essential Amino Acid Functional Groups
-This is the ONLY amino acid information you need to answer MCAT mechanism questions.
+# 0. Essential Amino Acid Functional Groups  
+(Only the mechanistic properties the MCAT actually tests.)
 
 ### Basic / Positively Charged (Catalytic, Nucleophilic)
-- **Lysine (K)** — primary amine → Schiff base formation, nucleophilic attack  
-- **Arginine (R)** — guanidinium → strong ionic interactions  
-- **Histidine (H)** — imidazole → proton shuttle near physiological pH  
+- **Lysine (K)** — primary amine; forms **Schiff bases**, nucleophilic attack  
+- **Arginine (R)** — guanidinium; strong ionic interactions  
+- **Histidine (H)** — imidazole; proton shuttle near physiological pH  
 
 ### Acidic / Negatively Charged
 - **Aspartate (D), Glutamate (E)**  
 Used in acid–base catalysis and salt bridges.
 
 ### Polar Uncharged (H-bonding, phosphorylation, disulfide bonds)
-- **Serine, Threonine, Tyrosine** — OH groups → phosphorylation  
+- **Serine, Threonine, Tyrosine** — OH → phosphorylation  
 - **Cysteine** — thiol → disulfide bonds  
-- **Asparagine, Glutamine** — amides → specificity interactions  
+- **Asparagine, Glutamine** — amides → specificity  
 
 ### Hydrophobic (Membrane structure, aggregation)
-Leu, Ile, Val, Phe, Met, Trp, Ala, Tyr  
-Stabilize membranes, drive folding, cause aggregation when exposed.
+Leu, Ile, Val, Phe, Met, Ala, Tyr, Trp  
+Stabilize membranes, drive folding, promote aggregation if exposed.
 
 ### Structural Specialties
-- **Proline** — rigid, causes kinks  
-- **Glycine** — flexible, used in turns & collagen  
+- **Proline** — rigid; freezes local backbone → positions neighboring residues  
+- **Glycine** — flexible; used in turns & collagen  
 
 ---
 
-# 1. Amino Acids = Clinical Drugs + Protein Structure Problems
-What you memorize: only **3 categories**
+# 1. Amino Acids = Clinical Drugs + Protein Structure Problems  
+Memorize **only three categories**:
 
 ### A. Charged (Acid/Base) → Catalysis & Binding
-Determine:
-- catalytic residues  
+Used for:
 - nucleophilic attack  
-- Schiff base formation (Lysine)  
-- drug interaction points  
-
-**Clinical mapping:** succinylcholine binding, local anesthetic ionization.
+- proton transfer  
+- Schiff base formation (lysine)  
+- drug interaction sites  
 
 ### B. Hydrophobic → Membrane + Aggregation
-Explain:
-- membrane spanning  
+Explains:
+- membrane-spanning regions  
 - receptor stability  
-- amyloid / prion misfolding  
+- misfolding (Alzheimer’s, prions)  
 
-### C. Aromatic → UV + Signaling
-Explain:
-- 280 nm absorbance  
-- catecholamine precursors  
+### C. Aromatic → UV + Signaling  
+280 nm absorbance; catecholamine precursors.
 
 ---
 
 # 2. Enzymes = Drug Kinetics (OR Pharmacology)
-**Km = affinity**  
-**Vmax = saturation**
 
-Patterns:
-- **Competitive:** ↑Km, Vmax same  
-- **Noncompetitive:** Km same, ↓Vmax  
+### Core Patterns
+- **Km = affinity**  
+- **Vmax = saturation**  
 
-Clinical mapping: cyanide → Complex IV inhibition.
+### Inhibition Patterns
+| Type | Km | Vmax | Notes |
+|------|----|------|-------|
+| **Competitive** | ↑Km | same | Same Vmax, worse affinity |
+| **Noncompetitive** | same | ↓Vmax | Removes active enzyme |
+| **Uncompetitive** | ↓Km | ↓Vmax | Binds ES complex only (MCAT favorite) |
+
+Clinical mapping: cyanide = noncompetitive inhibition of Complex IV.
 
 ---
 
-# 3. Metabolism = ICU Physiology
-Learn by *clinical state*, not memorizing pathways.
+# 3. Metabolism = ICU Physiology (Not Pathway Memorization)
 
-### A. Glycolysis → Hypoxia → Lactate
+### A. Glycolysis → Hypoxia → Lactate  
 (sepsis, trauma, hemorrhage)
 
-### B. TCA Cycle Failure
-(cyanide, propofol infusion syndrome, ischemia)
+### B. TCA Failure  
+(propofol infusion syndrome, cyanide, ischemia)
 
-### C. β-Oxidation → Ketones
+### C. β-Oxidation → Ketones  
 (fasting, catecholamines)
 
-### D. Pentose Phosphate Pathway → NADPH
+### D. Pentose Phosphate Pathway → NADPH  
 (G6PD deficiency, oxidative stress)
 
 ---
 
-# 4. Electron Transport Chain = Oxygen Delivery
+# **3B. What CAN and CANNOT Become Glucose** *(New high-yield section)*
+
+### **Gluconeogenic precursors (CAN → glucose)**
+- **Glycerol** (from triglycerides)  
+- **All glucogenic amino acids**  
+- **Propionate (odd-chain fatty acids)**  
+
+### **NOT gluconeogenic**
+- **Acetyl-CoA**  
+- **Even-chain fatty acids**  
+- **Ketone bodies**  
+
+Clinical mapping: DKA, starvation, fasting physiology.
+
+---
+
+# 4. Electron Transport Chain = Oxygen Delivery  
 Flow: **b → c₁ → c → a → a₃ → O₂**
 
 Blocked by:
 - cyanide (a₃)  
-- CO (O₂ binding)  
+- CO (prevents O₂ binding)  
 - ischemia (ATP collapse)
 
 ---
 
-# 5. ATP Requires Magnesium
+# 5. ATP Requires Magnesium  
 Mg²⁺ is required for:
 - ATP binding  
-- kinase reactions  
-- polymerases  
+- kinase catalysis  
+- polymerase activity  
 
-Mg = ATP’s stabilizing partner (never allosteric).
+Mg = ATP stabilizer (never allosteric).
 
 ---
 
-# 6. Protein Folding = Heat Shock Protein Logic
-Rubisco/GroEL = human HSP60/HSP70 behavior.
-
+# 6. Protein Folding = Heat Shock Protein Logic  
 FRET patterns:
 - **High FRET → compact/misfolded**  
-- **Low FRET → unfolding/refolding**
+- **Low FRET → refolding/unfolding**
 
-Chaperones consume ATP.
-
-Clinical mapping: MH, sepsis fever, reperfusion injury.
+Chaperones (HSP60/70) consume ATP.
 
 ---
 
-# 7. DNA/RNA Mutations = Clinical Outcomes
-- **Silent**  
-- **Missense**  
-- **Nonsense**  
-- **Frameshift**
+# 7. DNA/RNA Rules the MCAT Actually Tests
 
-Focus on **clinical consequences**, not memorization.
+### Mechanism of DNA polymerase (NEW)
+- DNA synthesis is **5′ → 3′**  
+- The **3′-OH of the growing strand attacks the 5′ α-phosphate** of the incoming dNTP  
+
+Mutations:
+- Silent  
+- Missense  
+- Nonsense  
+- Frameshift  
+
+Focus on *clinical consequences*, not memorization.
 
 ---
 
-# 8. Transcription & Translation = Antibiotic Mechanisms
+# 8. Transcription & Translation = Antibiotic Mechanisms  
 - Rifampin → RNA polymerase  
 - Macrolides → 50S  
 - Tetracyclines → 30S  
@@ -147,50 +166,35 @@ Focus on **clinical consequences**, not memorization.
 
 # 9. Membrane Transport = ICU Electrolyte Behavior
 
-### Primary Active Transport  
-Na⁺/K⁺ ATPase (digoxin)
+### Primary Active:  
+Na⁺/K⁺ ATPase (digoxin inhibits)
 
-### Secondary Active Transport  
+### Secondary Active:  
 Na⁺/glucose cotransport (DKA physiology)
 
-### Simple Diffusion  
-Gases & anesthetics
+### Simple Diffusion:  
+Gases, anesthetics, hydrophobic molecules
 
 ---
 
-## Ion Channel Gating (High-Yield MCAT Mechanism)
-Ion channels open and close based on predictable gating rules.
+# **Ion Channel Gating (High-Yield MCAT Mechanism)**  
+(NEW section added from Question 3)
 
-### 1. Ligand-Gated Channels  
-Open when a ligand binds.  
-Examples:
-- **cGMP-gated Na⁺/Ca²⁺ channels** (phototransduction)  
-- Nicotinic ACh receptor  
-- GABA\_A receptor  
+### 1. Ligand-gated  
+Examples: cGMP-gated Na⁺/Ca²⁺ channels, GABA-A, nicotinic ACh
 
-### 2. Voltage-Gated Channels  
-Open with changes in membrane potential.  
-Examples:
-- Na⁺ channels (action potentials)  
-- Ca²⁺ channels  
-- K⁺ channels  
+### 2. Voltage-gated  
+Na⁺, Ca²⁺, K⁺ channels
 
-### 3. Mechanically-Gated Channels  
-Open when stretched.  
-Examples:
-- Touch receptors  
-- Cochlear hair cells  
+### 3. Mechanically-gated  
+Stretch receptors, cochlear hair cells
 
-### 4. Gap Junction Channels  
-Direct cell-to-cell ion flow.  
-Examples:
-- Cardiac myocytes (connexins)
-
-**Clinical mapping:** cardiac conduction, neuromuscular transmission, anesthetic physiology.
+### 4. Gap junction channels  
+Cardiac conduction (connexins)
 
 ---
 
-# 10. Signal Pathways = Hormones You Manage Clinically
+# 10. Hormone Signaling Pathways (Clinical Logic)
 
 ### GPCR → cAMP  
 Epinephrine, glucagon
@@ -199,21 +203,19 @@ Epinephrine, glucagon
 Insulin, growth factors
 
 ### Steroid Receptors  
-Cortisol, aldosterone
-
-**Pattern:** Know the hormone class → know the mechanism.
+Cortisol, aldosterone (intracellular → nuclear response)
 
 ---
 
-# Complete Biochemistry “Clinical Cheat System”
+# Complete Biochemistry “Clinical Cheat System”  
 Everything ties to:
 
 - ICU physiology  
 - OR pharmacology  
 - metabolic shifts  
-- oxygen delivery  
-- cellular stress  
 - mitochondrial failure  
+- oxygen delivery  
 - protein structure  
+- cellular stress  
 
-This is **clinical biochemistry**, not memorization — and exactly how the MCAT rewards pattern recognition.
+This is **pattern recognition**, not memorization — exactly how the MCAT rewards clinical thinkers.
