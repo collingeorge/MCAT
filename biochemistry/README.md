@@ -1,226 +1,230 @@
 # Clinically Necessary Biochemistry for the MCAT  
-*A clinical reasoning approach to MCAT biochemistry — the “cheat without cheating” system.*
+*A clinical reasoning framework that turns biochemistry into ICU/OR physiology rather than memorization.*
 
-This guide distills **all biochemistry content you actually need** for 80–90% of MCAT questions by reframing it in **clinical, physiological, and ICU/OR-relevant patterns**.  
-No memorization walls. No abstract trivia.  
-Just **mechanisms your brain already understands**.
-
----
-
-## 1. Amino Acids = Clinical Drugs + Protein Structure Problems
-
-### What you memorize: **3 categories**
+This guide distills **all biochemistry content required for 80–90% of MCAT questions** into a compact set of **clinical mechanisms**.  
+No memorization walls. No trivia.  
+Just **patterns your brain already understands from physiology and critical care.**
 
 ---
 
-### **A. Charged (Acid/Base) → Drug Binding Sites**
-These determine:
+# 0. Essential Amino Acid Functional Groups  
+*This is the ONLY amino acid information you need to answer MCAT mechanism questions.*
 
+### **Basic / Positively Charged (Catalytic, Nucleophilic)**
+- **Lysine (K)** — primary amine → **Schiff base formation**, nucleophilic attack  
+- **Arginine (R)** — guanidinium → strong ionic interactions  
+- **Histidine (H)** — imidazole → proton shuttle near physiological pH  
+
+### **Acidic / Negatively Charged**
+- **Aspartate (D)**  
+- **Glutamate (E)**  
+*Used in acid–base catalysis and salt bridges.*
+
+### **Polar Uncharged (H-bonding, phosphorylation, disulfide bonds)**
+- **Serine (S)**, **Threonine (T)**, **Tyrosine (Y)** — OH groups → phosphorylation  
+- **Cysteine (C)** — thiol → disulfide bonds  
+- **Asparagine (N)**, **Glutamine (Q)** — amides → specificity interactions  
+
+### **Hydrophobic (Membrane structure, aggregation)**
+- **Leu, Ile, Val, Phe, Met, Trp, Ala, Tyr**  
+*Stabilize membranes, drive protein folding, cause aggregation when exposed.*
+
+### **Structural Specialties**
+- **Proline** — rigid, causes kinks  
+- **Glycine** — flexible, used in turns & collagen  
+
+---
+
+# 1. Amino Acids = Clinical Drugs + Protein Structure Problems
+
+### What you memorize: **only 3 categories**
+
+## A. Charged (Acid/Base) → Catalysis & Binding  
+Determine:
 - active sites  
 - catalytic residues  
-- drug interactions  
+- nucleophilic attack  
+- Schiff base formation (**Lysine**)  
+- drug interaction points  
 
-**Clinical mapping:**
-
+**Clinical mapping:**  
 - succinylcholine binding  
 - local anesthetic ionization  
-- misfolded proteins when charged residues mutate  
+- misfolded proteins from charged-residue mutations  
 
 ---
 
-### **B. Hydrophobic → Membrane + Aggregation**
+## B. Hydrophobic → Membrane + Aggregation  
 Examples: **Leu, Ile, Val, Phe**
 
-**Clinical mapping:**
-
-- why anesthetics partition into fat  
-- why misfolded proteins aggregate (Alzheimer’s, prions)  
-- why membrane receptors hold shape  
+Used for:
+- membrane spanning  
+- receptor stability  
+- protein misfolding (Alzheimer’s, prions)  
 
 ---
 
-### **C. Aromatics → UV Absorption + Signaling**
+## C. Aromatic → UV Absorption + Signaling  
 Amino acids: **Tyr, Trp, Phe**
 
-**Clinical mapping:**
-
+Used for:
 - protein quantification (280 nm)  
-- catecholamine structure and synthesis  
+- catecholamine precursor backbone  
+- intrinsic fluorescence  
 
 ---
 
-## 2. Enzymes = Drug Kinetics
-
-Michaelis–Menten behaves like **OR drug metabolism**.
+# 2. Enzymes = Drug Kinetics (OR Pharmacology)
 
 - **Km = affinity**  
-  - Low Km → tight binding (e.g., propofol receptor affinity)
+  Low Km → tight binding (propofol-like affinity)
 
 - **Vmax = saturation**  
-  - High drug dose → zero-order elimination → toxicity  
+  High drug dose → zero-order kinetics → toxicity  
 
----
-
-### **Competitive Inhibition**  
+### Competitive Inhibition  
 - ↑ Km  
 - Vmax unchanged  
 **Example:** flumazenil vs benzodiazepines
 
-### **Noncompetitive Inhibition**  
+### Noncompetitive Inhibition  
 - Km unchanged  
 - ↓ Vmax  
-**Example:** cyanide blocking ETC complex IV
+**Example:** cyanide blocking Complex IV (cytochrome a₃)
 
 ---
 
-## 3. Metabolism = ICU Physiology
+# 3. Metabolism = ICU Physiology
 
-Do not memorize pathways — memorize **clinical states**.
+Learn by **clinical state**, not pathway diagrams.
 
----
+## A. Glycolysis → Hypoxia → Lactate  
+O₂ ↓ → Pyruvate → Lactate  
+Occurs in: septic shock, trauma, hemorrhage  
 
-### **A. Glycolysis → Hypoxia → Lactate**
-O₂ ↓  
-→ Pyruvate → Lactate  
-**Seen in:** septic shock, trauma, hemorrhage
-
----
-
-### **B. TCA Cycle = Mitochondrial Function**
+## B. TCA Cycle = Mitochondrial Function  
 Fails in:
-
 - cyanide toxicity  
 - propofol infusion syndrome  
 - severe sepsis  
 - ischemia  
 
----
+## C. β-Oxidation = Fasting + Catecholamines  
+Stress hormones use fat:  
+↑ β-oxidation → ↑ ketones → glucose sparing  
 
-### **C. β-Oxidation = Fasting + Catecholamines**
-Stress hormones use **fat**, not glucose.
-
-β-oxidation ↑  
-→ ketones ↑  
-→ glucose spared
-
----
-
-### **D. Pentose Phosphate Pathway = Antioxidant Defense**
-**Clinical mapping:**
-
+## D. Pentose Phosphate Pathway = Antioxidant Defense  
+Produces: **NADPH**  
+Clinical:  
 - G6PD deficiency → hemolysis  
-- oxidative stress in the ICU  
+- ICU oxidative stress  
 
 ---
 
-## 4. Electron Transport Chain = Oxygen Delivery
+# 4. Electron Transport Chain = Oxygen Delivery
 
-The ETC is simply **oxygen use**.
+ETC is just **oxygen utilization**.
 
 Electron flow:  
-**b → c1 → c → a → a3 → O₂**
+**b → c₁ → c → a → a₃ → O₂**
 
-**Clinical correlates:**
-
-- cyanide blocks **a3** → no ATP → lactic acidosis  
-- CO poisoning → no O₂ acceptance → ETC collapse  
-- ischemia → mitochondrial failure → troponin leaks  
+Clinical correlations:
+- cyanide blocks **a₃** → no ATP → lactic acidosis  
+- CO poisoning → O₂ cannot bind → ETC stops  
+- ischemia → mitochondrial collapse → troponin leaks  
 
 ---
 
-## 5. ATP Requires Magnesium
+# 5. ATP Requires Magnesium
 
-Mg²⁺ is always required for:
-
+Mg²⁺ needed for:
 - ATP binding  
 - kinase reactions  
-- DNA/RNA polymerase function  
-- rubisco (UWorld example)
+- DNA/RNA polymerases  
+- ribozyme stabilization  
 
-**Mg = stabilizer**  
-Not allosteric. Always a **cofactor**.
+**Mg = ATP’s structural stabilizer**  
+(never allosteric)
 
 ---
 
-## 6. Protein Folding = HSPs in Fever & Sepsis
+# 6. Protein Folding = Heat Shock Protein Logic
 
-Rubisco/GroEL = human **heat-shock proteins (HSPs)**.
+Rubisco/GroEL = human **HSP60/HSP70** behavior.
 
-**Key patterns:**
-
-- **High FRET** → compact, misfolded  
+### FRET patterns:
+- **High FRET** → compact/misfolded  
 - **Low FRET** → unfolded/refolding  
-- chaperones use **ATP** to refold proteins  
 
-**Clinical equivalents:**
+### Chaperones use **ATP** to refold proteins.
 
+Clinical equivalents:
 - malignant hyperthermia  
 - sepsis fever  
-- ischemia reperfusion  
-- ER stress in critically ill patients  
+- reperfusion injury  
+- ER stress  
 
 ---
 
-## 7. DNA/RNA Mutations = Clinical Protein Outcomes
+# 7. DNA/RNA Mutations = Clinical Outcomes
 
-Forget memorizing every type.  
-Remember **clinical consequences**.
+- **Silent:** no protein change  
+- **Missense:** AA change (e.g., sickle cell Glu→Val)  
+- **Nonsense:** early STOP → truncated protein  
+- **Frameshift:** catastrophic misfolding → degradation  
 
-- **Silent:** no effect  
-- **Missense:** single AA change (e.g., sickle cell Glu→Val)  
-- **Nonsense:** early STOP → truncated receptors  
-- **Frameshift:** severe misfolding → degradation  
+Think: **clinical consequence → not memorization.**
 
 ---
 
-## 8. Transcription & Translation = Antibiotic Mechanisms
+# 8. Transcription & Translation = Antibiotic Mechanisms
 
-MCAT loves these analogies.
-
-- **Rifampin** → inhibits RNA polymerase  
-- **Macrolides** → inhibit 50S  
-- **Tetracyclines** → inhibit 30S  
+- **Rifampin** → RNA polymerase inhibitor  
+- **Macrolides** → 50S inhibitors  
+- **Tetracyclines** → 30S inhibitors  
 - **Aminoglycosides** → misreading (frameshift-like errors)  
 
 ---
 
-## 9. Membrane Transport = ICU Electrolyte Behavior
+# 9. Membrane Transport = ICU Electrolyte Behavior
 
-### **Primary active transport**  
-Na⁺/K⁺ ATPase  
-**Clinical:** digoxin
+## Primary Active Transport  
+**Na⁺/K⁺ ATPase**  
+Clinical: digoxin  
 
-### **Secondary active transport**  
-Na⁺/glucose cotransport  
-**Clinical:** DKA rehydration physiology
+## Secondary Active Transport  
+**Na⁺/glucose cotransport**  
+Clinical: DKA rehydration physiology  
 
-### **Simple diffusion**  
-Gases & anesthetics cross membranes this way.
+## Simple Diffusion  
+- gasses  
+- anesthetics  
+- small hydrophobic molecules  
 
 ---
 
-## 10. Signal Pathways = Hormones You Manage Clinically
+# 10. Signal Pathways = Hormones You Manage Clinically
 
-### **GPCR → cAMP**  
+## GPCR → cAMP  
 - epinephrine  
 - glucagon  
 
-### **Tyrosine Kinase**  
+## Tyrosine Kinase  
 - insulin  
 - growth factors  
 
-### **Steroid Receptors**  
+## Steroid Receptors  
 - cortisol  
 - aldosterone  
 
-**Pattern:**  
-Don’t memorize enzymes — memorize **hormone classes and their signaling logic**.
+Pattern:  
+**Think hormone *class*, not enzyme names.**
 
 ---
 
 # Complete Biochemistry “Clinical Cheat System”
 
-This system is intentionally minimal and tightly tied to:
+A minimal, mechanism-based framework tied to:
 
 - ICU physiology  
 - OR pharmacology  
@@ -230,6 +234,6 @@ This system is intentionally minimal and tightly tied to:
 - mitochondrial failure  
 - protein structure  
 
-This is how clinicians think — and how the MCAT rewards you for thinking.
+This is biochemistry the way clinicians learn it — and the way the MCAT rewards it.
 
 ---
