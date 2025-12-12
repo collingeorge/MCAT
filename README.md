@@ -1,5 +1,5 @@
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
-![Version](https://img.shields.io/badge/Version-1.0-blue.svg)
+![Version](https://img.shields.io/badge/Version-Active_Development-blue.svg)
 ![Last Updated](https://img.shields.io/badge/Updated-Dec_2025-purple.svg)
 ![Status](https://img.shields.io/badge/Status-Active_Study_Project-green.svg)
 
@@ -141,6 +141,9 @@ If you understand the patterns,
 you understand the exam.  
 If you understand the mechanisms,  
 you never forget them.
+
+## Practice Resources
+This framework was iteratively refined using paid third-party MCAT practice resources (eg, UWorld) to identify high-yield reasoning patterns and common conceptual traps. No proprietary content is reproduced.
 
 ## Citation
 If you use or adapt this material, please cite:
