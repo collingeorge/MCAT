@@ -177,3 +177,32 @@ This is **clinical biochemistry**:
 - Identify the system
 - Eliminate impossible mechanisms
 - Choose the most physiologically consistent answer
+
+---
+
+## 9. High-Energy Molecules & Hydrolysis Factors
+| Molecule | Energy Release Factors |
+|----------|-------------------------|
+| **ATP** | Resonance + charge repulsion relief |
+| **Creatine phosphate** | Resonance only |
+| **PEP** | Resonance + keto–enol tautomerization |
+
+**Rule:** If tautomerization mentioned for creatine → ❌
+
+---
+
+## 10. ∆G & Reversibility
+| Reaction Type | ∆G | Behavior |
+|---------------|----|----------|
+| **Reversible** | Near 0 | Same enzyme both directions |
+| **Irreversible** | Large negative | Forward only; reverse needs bypass |
+
+**Rule:** Same enzyme both ways → ∆G ≈ 0
+
+---
+
+## 11. Nitrogen Disposal & Urea Cycle
+- **Source of urea:** Amino acid breakdown → ammonia → urea
+- **Clinical relevance:** BUN reflects protein catabolism & renal clearance
+
+**Rule:** If asked “source of urea” → protein, not carbs/fats/nucleotides
