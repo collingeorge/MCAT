@@ -5,224 +5,175 @@
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
 # Clinically Necessary Biochemistry for the MCAT  
-*A clinical reasoning framework that turns biochemistry into ICU/OR physiology rather than memorization.*
+*A clinical reasoning framework that converts biochemistry into ICU/OR physiology rather than memorization.*
 
-This guide distills **all biochemistry content required for 80–90% of MCAT questions** into a compact set of clinical mechanisms.  
-No memorization walls. No trivia.  
-Just **patterns your brain already understands from physiology and critical care.**
+This guide distills **the biochemistry required for ~80–90% of MCAT questions** into high-yield clinical mechanisms.  
+It is designed for **rapid elimination of incorrect answer choices**, not encyclopedic recall.
+
+> Goal: eliminate ≥2 answer choices immediately → ≥50% probability even under uncertainty.
 
 ---
 
-# 0. Essential Amino Acid Functional Groups  
-This is the **ONLY** amino acid information you need to answer MCAT mechanism questions.
+## 0. Essential Amino Acid Functional Groups  
+This is the **ONLY amino acid framework required** for MCAT reasoning.
 
-### Basic / Positively Charged (Catalytic, Nucleophilic)
-- **Lysine (K)** — primary amine → Schiff base formation, nucleophilic attack  
+### Basic / Positively Charged (DNA binding, catalysis)
+- **Lysine (K)** — primary amine → Schiff base formation  
 - **Arginine (R)** — guanidinium → strong ionic interactions  
 - **Histidine (H)** — imidazole → proton shuttle near physiological pH  
 
+**Rule:** DNA-binding peptides = **rich in Lys/Arg**
+
+---
+
 ### Acidic / Negatively Charged
-- **Aspartate (D), Glutamate (E)** → acid–base catalysis, salt bridges  
-- **Phosphomimetics:** Ser/Thr/Tyr → **Glu/Asp** (mimics negative phosphate)
+- **Aspartate (D), Glutamate (E)**  
+  → acid–base catalysis, salt bridges  
+- **Phosphomimetics:** Glu/Asp mimic phosphorylated Ser/Thr/Tyr
 
-### Polar Uncharged (H-bonding, phosphorylation, disulfide bonds)
-- **Serine, Threonine, Tyrosine** — OH → phosphorylation  
-- **Cysteine** — thiol → disulfide bonds  
-- **Asparagine, Glutamine** — amide specificity  
+---
 
-### Hydrophobic (Membrane structure, aggregation)
+### Polar Uncharged
+- **Ser, Thr, Tyr** — phosphorylation sites  
+- **Cysteine** — disulfide bonds (oxidation-dependent)  
+- **Asparagine, Glutamine** — amide specificity (NOT charged)
+
+---
+
+### Hydrophobic (Membrane & TM helices)
 Leu, Ile, Val, Phe, Met, Trp, Ala, Tyr  
-Stabilize membranes, drive folding, cause aggregation when exposed.  
-- **Transmembrane helices:** almost exclusively **hydrophobic AAs**
+
+- Drive folding
+- Stabilize membranes
+- **Transmembrane helices = almost entirely hydrophobic AAs**
+
+---
 
 ### Structural Specialties
-- **Proline** — rigid, creates helix kinks  
-- **Glycine** — flexible, used in turns & collagen  
+- **Proline** — rigid, helix breaker  
+  - Only amino acid with a **secondary amine**
+- **Glycine** — flexible, turns, collagen
 
 ---
 
-# 0.5 Essential Carbohydrate Structures (MCAT-High-Yield)
-- **Ribose in nucleotides = pentofuranose** (5-membered ring)  
-- Pyranose = 6-membered ring (e.g., glucose)  
-- Furanose = 5-membered ring  
-- Used to answer nucleotide, RNA, DNA identity questions  
+## 0.5 Essential Carbohydrate Structures (MCAT High-Yield)
+- **Ribose (RNA, ATP) = pentofuranose**
+- **Deoxyribose = pentofuranose**
+- **Glucose = hexopyranose**
+
+**Rule:**  
+> Nucleotides → 5 carbons → furanose
 
 ---
 
-# Protein Secondary Structure (Core MCAT Rule)
-- **α-helices and β-sheets are stabilized by hydrogen bonds between backbone amide and carbonyl groups**  
-(not side-chain interactions)
+## Protein Secondary Structure (Must-Know)
+- **α-helices & β-sheets are stabilized by BACKBONE hydrogen bonds**
+- Side chains do **not** stabilize secondary structure
+
+**Elimination rule:**  
+If answer mentions side-chain bonding → ❌
 
 ---
 
-# 1. Amino Acids = Clinical Drugs + Protein Structure Problems  
-What you memorize: only **3 categories**
-
-### A. Charged (Acid/Base) → Catalysis & Binding
-Determine:
-- catalytic residues  
-- nucleophilic attack  
-- Schiff base formation (Lysine)  
-- drug interaction points  
-
-**Clinical:** succinylcholine binding, local anesthetic ionization.
-
-### B. Hydrophobic → Membrane + Aggregation
-- membrane spanning  
-- receptor stability  
-- amyloid / prion misfolding  
-
-### C. Aromatic → UV + Signaling  
-- 280 nm absorbance  
-- catecholamine precursors  
-
----
-
-# 2. Enzymes = Drug Kinetics (OR Pharmacology)
+## 1. Enzymes = Drug Kinetics
 **Km = affinity**  
-**Vmax = saturation**
+**Vmax = capacity**
 
 ### Inhibition Patterns
-- **Competitive:** ↑Km, Vmax same  
-- **Noncompetitive:** Km same, ↓Vmax  
-- **Uncompetitive:** ↓Km and ↓Vmax (parallel LB plot lines)
-
-### Cooperativity (additive update)
-- **Sigmoidal curve = cooperative binding**  
-- Binding affinity **increases** after first ligand binds  
-- Used for: Na⁺/K⁺ ATPase, hemoglobin, allosteric enzymes  
+| Type | Km | Vmax |
+|---|---|---|
+| Competitive | ↑ | same |
+| Noncompetitive | same | ↓ |
+| Uncompetitive | ↓ | ↓ |
 
 ---
 
-# 3. Metabolism = ICU Physiology  
-Learn by *clinical state*, not memorizing pathways.
+### Cooperativity
+- **Sigmoidal curve = cooperative binding**
+- Seen in:
+  - Hemoglobin
+  - Na⁺/K⁺ ATPase
+  - Allosteric enzymes
 
-### A. Glycolysis → Hypoxia → Lactate  
-(sepsis, trauma, hemorrhage)
+---
 
-### B. TCA Cycle Failure  
-(cyanide, propofol infusion syndrome, ischemia)
+## 2. Metabolism = ICU Physiology
 
-### C. β-Oxidation → Ketones  
-(fasting, catecholamines)  
-**Chain length rule:**  
-- **Fatty acid carbons = 2 × acetyl-CoA produced**  
-- No isomerase needed → **fully saturated chain**
+### Fed State (Insulin)
+- ↑ glycolysis
+- ↓ gluconeogenesis
 
-### D. Pentose Phosphate Pathway → NADPH  
-(G6PD deficiency, oxidative stress)
+**Key rule:**  
+> Net glucose catabolism occurs by **inhibiting gluconeogenesis enzymes**, not glycolysis enzymes.
 
-### Glycogen Breakdown (added mini-section)
+---
+
+### Glycogen Breakdown
 - **Glycogen phosphorylase** → releases G1P  
 - **Debranching enzyme** → handles α-1,6 branches  
-- **Phosphoglucomutase** → converts G1P ⇄ G6P (not monomer release)
+- **Phosphoglucomutase** → G1P ⇄ G6P (NOT monomer release)
 
 ---
 
-# 4. Electron Transport Chain = Oxygen Delivery  
-Flow: **b → c₁ → c → a → a₃ → O₂**
-
-Blocked by:
-- cyanide (a₃)  
-- CO (O₂ binding)  
-- ischemia (ATP collapse)
+### β-Oxidation (MCAT math rule)
+- **# acetyl-CoA = carbons ÷ 2**
+- No isomerization → fully saturated fatty acid
 
 ---
 
-# 5. ATP Requires Magnesium  
-Mg²⁺ needed for:  
-- ATP binding  
-- kinase reactions  
-- polymerases  
-
-Mg = ATP’s stabilizing partner (never allosteric).
+## 3. Membrane Proteins & Transport
+- **Transmembrane helices = hydrophobic**
+- **Extracellular/cytosolic domains = charged/polar**
 
 ---
 
-# 6. Protein Folding = Heat Shock Protein Logic  
-Rubisco/GroEL = human HSP60/HSP70 behavior.
+## 4. ATP Requires Magnesium
+- ATP binding
+- Kinases
+- Polymerases
 
-FRET patterns:  
-- **High FRET → compact/misfolded**  
-- **Low FRET → unfolding/refolding**
-
-Clinical mapping: MH, sepsis fever, reperfusion injury.
+Mg²⁺ stabilizes ATP (never allosteric).
 
 ---
 
-# 7. DNA/RNA Mutations = Clinical Outcomes
-- **Silent**  
-- **Missense**  
-- **Nonsense**  
-- **Frameshift**  
-
-Focus on **clinical consequences**, not memorization.
+## 5. Protein Folding & Disulfides
+- **Disulfide bonds require oxidation**
+- Oxidizing agents → ↑ dimerization
+- Reducing agents (DTT) → break disulfides
 
 ---
 
-# 8. Transcription & Translation = Antibiotic Mechanisms  
-- Rifampin → RNA polymerase  
-- Macrolides → 50S  
-- Tetracyclines → 30S  
-- Aminoglycosides → misreading  
+## 6. Solid-Phase Peptide Synthesis
+- Built **C → N terminus**
+- **Condensation reaction**
+- **Water is released**
+
+**Elimination rule:**  
+Hydrolysis = breaking bonds  
+Peptide synthesis = forming bonds → condensation
 
 ---
 
-# 9. Membrane Transport = ICU Electrolyte Behavior
-
-### Primary Active Transport  
-Na⁺/K⁺ ATPase (digoxin)
-
-### Secondary Active Transport  
-Na⁺/glucose cotransport (DKA physiology)
-
-### Simple Diffusion  
-Gases & anesthetics
+## 7. pI & Phosphorylation
+- Adding phosphate → **adds negative charge**
+- **pI decreases after phosphorylation**
 
 ---
 
-## Ion Channel Gating (High-Yield MCAT Mechanism)
-### 1. Ligand-Gated Channels  
-- cGMP-gated Na⁺/Ca²⁺ (phototransduction)
-
-### 2. Voltage-Gated Channels  
-- Na⁺, Ca²⁺, K⁺
-
-### 3. Mechanically-Gated Channels  
-- touch receptors, hair cells  
-
-### 4. Gap Junctions  
-- cardiac myocytes (connexins)
+## 8. Data Interpretation Rules (Critical)
+- If membrane absent → no electrochemical gradient possible
+- Sigmoidal activity curve → changing ligand affinity
+- Bar charts: compare **order**, not magnitude
 
 ---
 
-# 10. Signal Pathways = Hormones You Manage Clinically
-
-### GPCR → cAMP  
-Epinephrine, glucagon
-
-### Tyrosine Kinase  
-Insulin, growth factors
-
-### Steroid Receptors  
-Cortisol, aldosterone
-
-### Added Rule: pI & Phosphorylation  
-- **Adding phosphate → lowers isoelectric point (adds negative charge)**
-
-**Pattern:** Know the hormone class → know the mechanism.
+## Acknowledgment
+This framework was refined using high-quality third-party practice materials, including **UWorld**, whose question design and explanations are invaluable for identifying MCAT-relevant reasoning patterns. No proprietary content is reproduced here.
 
 ---
 
-# Complete Biochemistry “Clinical Cheat System”
-Everything ties to:
-
-- ICU physiology  
-- OR pharmacology  
-- metabolic shifts  
-- oxygen delivery  
-- cellular stress  
-- mitochondrial failure  
-- protein structure  
-
-This is **clinical biochemistry**, not memorization — and exactly how the MCAT rewards pattern recognition.
+## Final Principle
+This is **clinical biochemistry**:
+- Identify the system
+- Eliminate impossible mechanisms
+- Choose the most physiologically consistent answer
