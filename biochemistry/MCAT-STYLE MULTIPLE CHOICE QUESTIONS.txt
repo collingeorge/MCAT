@@ -1,0 +1,141 @@
+## MCAT-STYLE MULTIPLE CHOICE QUESTIONS - HIGH YIELD BIOCHEMISTRY
+
+A protein has an isoelectric point (pI) of 6.5. At pH 8.0, which direction will this protein migrate during electrophoresis? (A) Toward the positive electrode (anode) (B) Toward the negative electrode (cathode) (C) Remains stationary (D) Migrates equally in both directions	A - At pH 8.0 (above pI of 6.5), protein is negatively charged and migrates toward positive electrode (anode)
+
+A local anesthetic fails to provide adequate pain relief in an infected tissue abscess (pH 6.0). Which explanation best accounts for this? (A) Infection denatures the anesthetic molecule (B) Low pH increases ionization, reducing membrane permeability (C) Bacteria metabolize the anesthetic (D) Inflammation increases blood flow, washing away the drug	B - At low pH, anesthetic becomes protonated/ionized → cannot cross lipid membranes effectively
+
+A researcher mutates Glu→Lys at an enzyme's active site. Which property change is most likely? (A) Net charge changes by +1 (B) Net charge changes by +2 (C) Hydrophobicity increases (D) No significant charge change	B - Glu (−1) → Lys (+1) = net change of +2 charges; largest possible charge change from single substitution
+
+Which amino acid substitution would LEAST likely disrupt protein structure? (A) Pro→Gly in an α-helix (B) Leu→Ile in the hydrophobic core (C) Cys→Ser in a disulfide bond (D) His→Ala in the active site	B - Both Leu and Ile are hydrophobic; conservative substitution in core maintains structure
+
+A patient with scurvy presents with bleeding gums and poor wound healing. Which biochemical process is directly impaired? (A) Disulfide bond formation in collagen (B) Hydroxylation of proline and lysine in collagen (C) Cross-linking of elastin fibers (D) Glycosylation of collagen molecules	B - Vitamin C (ascorbic acid) is cofactor for prolyl and lysyl hydroxylases; required for stable collagen triple helix
+
+An enzyme shows Km = 10 mM and Vmax = 100 μmol/min. A competitive inhibitor is added. Which outcome is expected? (A) Km = 20 mM, Vmax = 100 μmol/min (B) Km = 10 mM, Vmax = 50 μmol/min (C) Km = 5 mM, Vmax = 50 μmol/min (D) Both Km and Vmax unchanged	A - Competitive inhibition increases Km (decreased apparent affinity) but does not change Vmax (can be overcome with more substrate)
+
+Methanol poisoning is treated with ethanol administration. What is the mechanism? (A) Ethanol displaces methanol from binding sites (B) Ethanol competitively inhibits alcohol dehydrogenase (C) Ethanol increases methanol excretion (D) Ethanol neutralizes toxic metabolites	B - Ethanol competes with methanol for alcohol dehydrogenase active site, preventing formation of toxic formaldehyde and formic acid
+
+A Lineweaver-Burk plot shows two lines intersecting on the y-axis. What type of inhibition is present? (A) Competitive (B) Noncompetitive (C) Uncompetitive (D) Mixed	A - Intersection on y-axis (same 1/Vmax) with different x-intercepts (different Km) indicates competitive inhibition
+
+An enzyme reaction plateaus despite increasing substrate concentration. Which factor limits the reaction rate? (A) Substrate solubility (B) Product inhibition (C) Enzyme concentration (kcat) (D) Cofactor availability	C - At saturation, all active sites occupied; only increasing enzyme concentration (Vmax = kcat × [E]) increases rate
+
+A patient in septic shock has persistent lactic acidosis despite adequate oxygen delivery. What is the most likely mechanism? (A) Increased glycolysis due to hypoxia (B) Mitochondrial dysfunction impairing oxidative phosphorylation (C) Decreased lactate clearance by the liver (D) Inhibition of pyruvate dehydrogenase	B - Sepsis causes mitochondrial dysfunction → cells cannot use oxygen effectively → rely on anaerobic glycolysis → lactate accumulation
+
+During a marathon, an athlete's muscle produces large amounts of lactate. Where is this lactate converted back to glucose? (A) Muscle (B) Liver (C) Kidney (D) Heart	B - Cori cycle: muscle lactate → blood → liver gluconeogenesis → glucose → blood → muscle
+
+A patient with Type 1 diabetes develops diabetic ketoacidosis (DKA). Which metabolic pathway is primarily responsible? (A) Increased glycolysis (B) Unchecked β-oxidation and ketogenesis (C) Impaired gluconeogenesis (D) Enhanced protein catabolism	B - Lack of insulin → cannot use glucose → increased lipolysis and β-oxidation → excess acetyl-CoA → ketogenesis
+
+Where does fatty acid synthesis occur in the cell? (A) Mitochondrial matrix (B) Cytosol (C) Endoplasmic reticulum (D) Peroxisomes	B - Fatty acid synthesis occurs in cytosol using acetyl-CoA (exported from mitochondria as citrate) and NADPH
+
+A patient with G6PD deficiency develops hemolytic anemia after taking an oxidative drug. What is the underlying mechanism? (A) Inability to generate NADPH for glutathione reduction (B) Impaired glycolysis in red blood cells (C) Defective hemoglobin synthesis (D) Increased oxidative phosphorylation	A - G6PD catalyzes first step of pentose phosphate pathway → generates NADPH → reduces glutathione → protects against oxidative stress
+
+Cyanide poisoning prevents cells from using oxygen. Which component of the electron transport chain is directly inhibited? (A) Complex I (B) Complex II (C) Complex III (D) Complex IV	D - Cyanide binds to cytochrome c oxidase (Complex IV), preventing electron transfer to oxygen
+
+A patient receives DNP as a weight loss supplement and develops hyperthermia. What is the mechanism? (A) Increased metabolic rate (B) Uncoupling of proton gradient from ATP synthesis (C) Inhibition of ATP synthase (D) Enhanced glycolysis	B - DNP uncouples ETC by allowing protons to cross inner mitochondrial membrane without producing ATP → energy released as heat
+
+Brown adipose tissue generates heat through which protein? (A) ATP synthase (B) UCP1 (thermogenin) (C) Cytochrome c oxidase (D) Carnitine acyltransferase	B - UCP1 uncouples oxidative phosphorylation in brown fat, generating heat instead of ATP (nonshivering thermogenesis)
+
+A chronic alcoholic develops lactic acidosis. Which vitamin deficiency is most likely responsible? (A) Vitamin B1 (thiamine) (B) Vitamin B2 (riboflavin) (C) Vitamin B3 (niacin) (D) Vitamin B6 (pyridoxine)	A - Thiamine deficiency impairs pyruvate dehydrogenase → pyruvate cannot enter TCA → converted to lactate instead
+
+What is the primary function of NADPH in cells? (A) ATP generation (B) Biosynthetic reactions and antioxidant defense (C) Electron transport chain (D) Gluconeogenesis	B - NADPH used for fatty acid synthesis, cholesterol synthesis, nucleotide synthesis, and reducing glutathione (antioxidant)
+
+During prolonged fasting (>48 hours), which fuel source becomes primary? (A) Glucose (B) Amino acids (C) Fatty acids (D) Ketone bodies	C - After glycogen depletion, fatty acid oxidation becomes primary fuel source; brain adapts to use ketone bodies
+
+Insulin activates which of the following pathways? (A) Gluconeogenesis (B) Glycogenolysis (C) Glycogen synthesis (D) β-oxidation	C - Insulin promotes anabolic processes: glycogen synthesis, fatty acid synthesis, glycolysis (fed state/glucose storage)
+
+A patient with liver failure develops hyperammonemia. Which cycle is impaired? (A) TCA cycle (B) Urea cycle (C) Cori cycle (D) Citric acid cycle	B - Urea cycle (liver) converts toxic ammonia to urea for excretion; liver failure → ammonia accumulation → neurotoxicity
+
+Glucagon stimulates all of the following EXCEPT: (A) Gluconeogenesis (B) Glycogenolysis (C) β-oxidation (D) Glycogen synthesis	D - Glucagon promotes catabolic processes (fasting state): gluconeogenesis, glycogenolysis, β-oxidation; inhibits glycogen synthesis
+
+Why can't muscle directly release free glucose into the bloodstream during fasting? (A) Lacks glucagon receptors (B) Lacks glucose-6-phosphatase (C) Lacks glycogen phosphorylase (D) Lacks hexokinase	B - Muscle lacks G6Pase → cannot dephosphorylate G6P to free glucose (only liver and kidney have G6Pase)
+
+Refeeding syndrome in a malnourished patient causes which electrolyte disturbance? (A) Hyperkalemia (B) Hypophosphatemia (C) Hypernatremia (D) Hypercalcemia	B - Insulin surge during refeeding → phosphate shifts into cells for ATP synthesis → severe hypophosphatemia → organ failure
+
+A frameshift mutation results from: (A) Silent substitution (B) Missense substitution (C) Insertion/deletion not divisible by 3 (D) Nonsense substitution	C - Frameshift occurs when nucleotide insertion/deletion is not a multiple of 3 → shifts reading frame → completely altered protein
+
+A nonsense mutation would most likely result in: (A) Single amino acid change (B) Premature termination of translation (C) Silent mutation (D) Frameshift	B - Nonsense mutation creates premature STOP codon → truncated protein
+
+Which cells express telomerase, allowing unlimited replication? (A) Differentiated somatic cells (B) Neurons (C) Stem cells and cancer cells (D) Red blood cells	C - Telomerase active in stem cells (self-renewal) and cancer cells (unlimited division); absent in most somatic cells
+
+Rifampin treats tuberculosis by inhibiting: (A) DNA polymerase (B) RNA polymerase (C) Ribosome (D) Cell wall synthesis	B - Rifampin inhibits bacterial RNA polymerase → prevents transcription
+
+Tetracycline antibiotics work by: (A) Inhibiting 50S ribosomal subunit (B) Inhibiting 30S ribosomal subunit (C) Blocking peptide bond formation (D) Causing premature chain termination	B - Tetracyclines bind 30S ribosomal subunit → prevent tRNA binding → block translation
+
+A Western blot is used to: (A) Detect specific DNA sequences (B) Detect specific RNA sequences (C) Detect specific proteins (D) Amplify DNA	C - Western blot uses antibodies to detect specific proteins after SDS-PAGE separation
+
+SDS-PAGE separates proteins based on: (A) Charge only (B) Size only (C) Isoelectric point (D) Hydrophobicity	B - SDS denatures proteins and coats them with uniform negative charge → separation by size/molecular weight only
+
+Ion exchange chromatography separates proteins based on: (A) Size (B) Charge (C) Hydrophobicity (D) Binding affinity	B - Cation exchange binds positively charged proteins; anion exchange binds negatively charged proteins
+
+PCR requires which heat-stable DNA polymerase? (A) DNA polymerase I (B) DNA polymerase III (C) Taq polymerase (D) Reverse transcriptase	C - Taq polymerase from Thermus aquaticus survives high temperatures required for PCR denaturation cycles
+
+A patient presents with hepatomegaly and fasting hypoglycemia. Which enzyme deficiency is most likely? (A) Glucose-6-phosphatase (glycogen storage disease Type I) (B) Pyruvate kinase (C) Hexokinase (D) Phosphofructokinase	A - Von Gierke disease (Type I GSD): G6Pase deficiency → cannot release glucose from liver glycogen → fasting hypoglycemia + hepatomegaly
+
+Phenylketonuria (PKU) results from deficiency of: (A) Tyrosine hydroxylase (B) Phenylalanine hydroxylase (C) Homogentisate oxidase (D) Tyrosinase	B - PKU: phenylalanine hydroxylase deficiency → cannot convert Phe to Tyr → phenylalanine accumulation → intellectual disability if untreated
+
+A patient with elevated methylmalonic acid (MMA) most likely has deficiency of: (A) Folate (B) Vitamin B6 (C) Vitamin B12 (D) Vitamin C	C - B12 (cobalamin) is cofactor for methylmalonyl-CoA mutase; deficiency → MMA accumulation
+
+Megaloblastic anemia with hypersegmented neutrophils suggests deficiency of: (A) Iron (B) Vitamin B6 (C) Folate or Vitamin B12 (D) Vitamin K	C - Folate and B12 required for DNA synthesis; deficiency → impaired cell division → large immature RBCs (megaloblasts)
+
+A patient on isoniazid (TB treatment) develops peripheral neuropathy. Which vitamin should be supplemented? (A) Vitamin B1 (thiamine) (B) Vitamin B2 (riboflavin) (C) Vitamin B6 (pyridoxine) (D) Vitamin B12 (cobalamin)	C - Isoniazid depletes vitamin B6 → peripheral neuropathy; B6 supplementation prevents this side effect
+
+Biotin is a cofactor for which type of enzyme? (A) Dehydrogenases (B) Carboxylases (C) Decarboxylases (D) Kinases	B - Biotin required for carboxylation reactions (e.g., pyruvate carboxylase, acetyl-CoA carboxylase)
+
+Digoxin increases cardiac contractility by inhibiting: (A) Voltage-gated calcium channels (B) Na⁺/K⁺-ATPase (C) Calcium-ATPase (D) Sodium channels	B - Digoxin inhibits Na⁺/K⁺-ATPase → increased intracellular Na⁺ → reduced Na⁺/Ca²⁺ exchange → increased intracellular Ca²⁺ → stronger contraction
+
+Secondary active transport of glucose into intestinal cells requires: (A) Direct ATP hydrolysis (B) Sodium gradient (C) Potassium gradient (D) Chloride gradient	B - SGLT (sodium-glucose cotransporter) uses Na⁺ gradient (created by Na⁺/K⁺-ATPase) to drive glucose uptake
+
+Which molecules cross cell membranes by simple diffusion? (A) Glucose (B) Amino acids (C) Oxygen and carbon dioxide (D) Sodium ions	C - Small nonpolar molecules (O₂, CO₂, anesthetics) cross lipid bilayer by simple diffusion
+
+GPCRs (G-protein coupled receptors) activate which second messenger? (A) IP3 (B) cAMP (C) Ca²⁺ (D) DAG	B - GPCRs typically activate Gs → adenylyl cyclase → cAMP → PKA pathway (e.g., epinephrine, glucagon)
+
+Insulin receptor is classified as: (A) GPCR (B) Tyrosine kinase receptor (C) Steroid receptor (D) Ligand-gated ion channel	B - Insulin receptor is receptor tyrosine kinase → autophosphorylation → MAPK cascade activation
+
+Cortisol (steroid hormone) exerts its effects by: (A) Binding cell surface receptor (B) Activating adenylyl cyclase (C) Binding intracellular receptor → nucleus (D) Opening ion channels	C - Steroid hormones are lipophilic → cross membrane → bind intracellular/nuclear receptors → alter gene transcription
+
+IP3 (inositol trisphosphate) signaling releases which ion? (A) Sodium (B) Potassium (C) Calcium (D) Chloride	C - IP3 binds receptors on endoplasmic reticulum → releases Ca²⁺ stores → triggers cellular responses
+
+Which statement about cholesterol in membranes is correct? (A) Decreases fluidity at all temperatures (B) Increases fluidity at low temperatures, decreases at high temperatures (C) Only affects membrane thickness (D) Has no effect on membrane properties	B - Cholesterol acts as fluidity buffer: increases fluidity when cold (prevents tight packing), decreases when hot (restricts movement)
+
+A patient's muscle biopsy shows inability to break down glycogen. Which enzyme is most likely deficient? (A) Glycogen synthase (B) Glycogen phosphorylase (C) Hexokinase (D) Phosphofructokinase	B - Glycogen phosphorylase breaks down glycogen to G1P; deficiency (McArdle disease) → cannot mobilize glycogen → exercise intolerance
+
+The Cori cycle converts: (A) Glucose to lactate in liver (B) Lactate to glucose in liver (C) Amino acids to glucose in muscle (D) Fatty acids to ketones in liver	B - Cori cycle: muscle lactate → blood → liver gluconeogenesis → glucose → redistributes to tissues
+
+A dehydrated patient shows elevated BUN (blood urea nitrogen). This reflects increased: (A) Protein synthesis (B) Protein catabolism and/or decreased renal clearance (C) Fatty acid oxidation (D) Ketogenesis	B - BUN reflects protein breakdown (produces ammonia → urea) and kidney function (clearance); elevated in dehydration, renal failure, or increased catabolism
+
+Propofol infusion syndrome disrupts: (A) Glycolysis only (B) Gluconeogenesis only (C) Fatty acid oxidation and electron transport chain (D) Amino acid metabolism	C - PRIS: impaired FA oxidation + mitochondrial dysfunction → lactic acidosis, rhabdomyolysis, cardiac failure
+
+Aspirin irreversibly inhibits COX enzymes. Why does its effect last longer than reversible inhibitors? (A) Higher binding affinity (B) Requires new enzyme synthesis to restore activity (C) Metabolized more slowly (D) Binds multiple sites	B - Irreversible inhibition (covalent modification) → activity restored only by synthesizing new enzyme
+
+Warfarin inhibits vitamin K epoxide reductase. Which process is affected? (A) Collagen synthesis (B) Clotting factor γ-carboxylation (C) Heme synthesis (D) Steroid hormone synthesis	B - Vitamin K required for γ-carboxylation of clotting factors II, VII, IX, X; warfarin prevents this → anticoagulation
+
+Why can't the brain use fatty acids as fuel? (A) Lacks mitochondria (B) Fatty acids cannot cross blood-brain barrier (C) No fatty acid oxidation enzymes (D) Too metabolically active	B - Long-chain fatty acids bound to albumin cannot cross BBB; brain uses glucose and (during fasting) ketone bodies
+
+During starvation, the brain adapts to use which alternative fuel? (A) Amino acids (B) Fatty acids (C) Ketone bodies (D) Lactate	C - After ~3 days fasting, brain adapts to use ketone bodies (acetoacetate, β-hydroxybutyrate) → glucose-sparing
+
+A protein is denatured by urea. Which bonds are disrupted? (A) Peptide bonds (B) Disulfide bonds (C) Hydrogen bonds and hydrophobic interactions (D) All covalent bonds	C - Denaturants disrupt noncovalent interactions (H-bonds, ionic bonds, hydrophobic); peptide bonds remain intact (high activation energy)
+
+Which amino acid is the precursor to GABA (major inhibitory neurotransmitter)? (A) Glutamine (B) Glutamate (C) Glycine (D) Aspartate	B - Glutamate decarboxylase converts glutamate → GABA
+
+Aromatic amino acids (Phe, Tyr, Trp) absorb UV light at: (A) 260 nm (B) 280 nm (C) 320 nm (D) 400 nm	B - Aromatic amino acids absorb UV at 280 nm; used to measure protein concentration spectrophotometrically
+
+Which amino acid substitution would most likely cause a significant charge change? (A) Ser → Thr (B) Leu → Ile (C) Asp → Lys (D) Val → Ala	C - Asp (−1) → Lys (+1) = net change of +2; acidic to basic is largest charge swing
+
+Proline disrupts which secondary structure? (A) β-sheets (B) α-helices (C) Random coils (D) β-turns	B - Proline lacks amide H → cannot donate H-bond → introduces kink, disrupts α-helix
+
+A patient with Marfan syndrome has defective fibrillin-1. What stabilizes this protein? (A) Hydrogen bonds (B) Disulfide bonds (C) Hydrophobic interactions (D) Ionic bonds	B - Extracellular structural proteins (fibrillin, collagen) stabilized by disulfide bonds
+
+Heat shock proteins (HSPs) require which molecule to refold proteins? (A) GTP (B) ATP (C) NAD+ (D) FAD	B - HSPs are ATP-dependent chaperones; use ATP hydrolysis to refold misfolded proteins
+
+Misfolded proteins are degraded by: (A) Lysosomes (B) Proteasome (C) Peroxisomes (D) Autophagosomes	B - Ubiquitin tags misfolded proteins → proteasome degrades them into peptides
+
+FADH₂ donates electrons to which ETC complex? (A) Complex I (B) Complex II (C) Complex III (D) Complex IV	B - FADH₂ from succinate dehydrogenase feeds electrons into Complex II (bypasses Complex I)
+
+Oligomycin inhibits: (A) Complex I (B) Complex III (C) Complex IV (D) ATP synthase	D - Oligomycin blocks ATP synthase (F₀F₁-ATPase) → proton gradient builds up, ETC slows
+
+Antimycin A inhibits: (A) Complex I (B) Complex II (C) Complex III (D) Complex IV	C - Antimycin A blocks electron transfer in Complex III (cytochrome bc1)
+
+Which organelle contains enzymes for both steps of the urea cycle? (A) Mitochondria only (B) Cytosol only (C) Both mitochondria and cytosol (D) Peroxisomes	C - Urea cycle enzymes split between mitochondria (carbamoyl phosphate synthetase, ornithine transcarbamylase) and cytosol
+
+A child with maple syrup urine disease cannot metabolize: (A) Aromatic amino acids (B) Branched-chain amino acids (Leu, Ile, Val) (C) Sulfur-containing amino acids (D) Basic amino acids	B - MSUD: branched-chain α-keto acid dehydrogenase deficiency → cannot break down Leu, Ile, Val → buildup → sweet-smelling urine
+
+Homocystinuria clinically resembles which syndrome? (A) Ehlers-Danlos (B) Marfan syndrome (C) Osteogenesis imperfecta (D) Williams syndrome	B - Homocystinuria causes tall stature, lens dislocation, skeletal abnormalities (Marfan-like); due to cystathionine synthase deficiency
