@@ -24,3 +24,22 @@ Biosignaling · Carbohydrates · Lipids · DNA & RNA · Replication · Repair ·
 
 ---
 *For MCAT prep use only. Not affiliated with AAMC or MileDown.*
+
+---
+
+## Interactive Quiz App
+
+**→ [Launch MCAT Biochemistry Quiz](https://collingeorge.github.io/MCAT/)**
+
+A standalone MCAT-style multiple choice quiz built from the MileDown Biochemistry flashcard deck. No login, no API key, works offline.
+
+**Features:**
+- 123 MCQs across 18 Biochemistry subjects
+- Estimated MCAT scaled score (118–132) with percentile after each session
+- Cumulative performance tracking across sessions
+- Subject-level strength and weakness analysis
+- Drill Weak Areas mode — auto-filters to your lowest-scoring subjects
+
+**Subjects:** Biosignaling · Carbohydrates · Lipids · DNA & RNA · Replication · Repair · Transcription · Translation · Gene Regulation · Lab Techniques · Cell Membrane · Glycolysis · Gluconeogenesis · Glycogen · Acetyl-CoA · TCA Cycle · ETC · PPP · Urea Cycle · Lipid Metabolism · Amino Acids · Proteins · Enzymes
+
+*Biology, General Chemistry, Organic Chemistry, Physics, and Psychology & Sociology sections in active development.*
