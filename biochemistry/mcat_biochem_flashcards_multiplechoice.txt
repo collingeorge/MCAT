@@ -1,0 +1,486 @@
+## PROTEIN CHEMISTRY & AMINO ACIDS
+
+At pH lower than a protein's pI, what net charge does the protein carry? (A) Positive (B) Negative (C) Neutral (D) Variable	A - Below pI → protein gains protons → net positive charge. Rule: pH < pI = positive
+
+At pH higher than a protein's pI, what net charge does the protein carry? (A) Positive (B) Negative (C) Neutral (D) Variable	B - Above pI → protein loses protons → net negative charge. Rule: pH > pI = negative
+
+What happens to acidic amino acid side chains (Asp, Glu) at low pH? (A) Become deprotonated and negative (B) Become protonated and neutral (C) Remain unchanged (D) Form disulfide bonds	B - Low pH → protonation of -COO⁻ → -COOH (neutral). Rule: acidic residues neutralized at low pH
+
+What happens to basic amino acid side chains (Lys, Arg, His) at low pH? (A) Become deprotonated and neutral (B) Become protonated and positively charged (C) Remain neutral (D) Form salt bridges	B - Low pH → protonation of amine groups → NH₃⁺ (positive). Rule: basic residues charged at low pH
+
+Why does changing pH alter protein solubility? (A) Breaks peptide bonds (B) Changes hydrophobicity (C) Changing net charge alters electrostatic repulsion (D) Denatures all proteins	C - Charge changes affect protein-protein interactions; isoelectric point → minimum solubility. Rule: charge → repulsion → solubility
+
+In ion-exchange chromatography, what determines binding strength? (A) Size (B) Hydrophobicity (C) Net charge relative to column type (D) Molecular weight	C - Cation exchange binds (+); anion exchange binds (−); strength depends on charge density. Rule: charge match determines binding
+
+Which amino acid contains a primary amine used for Schiff base formation? (A) Histidine (B) Lysine (C) Arginine (D) Asparagine	B - Lysine ε-amino group forms Schiff bases (imines) with aldehydes/ketones. Rule: Lys = nucleophilic amine
+
+Which amino acid category is involved in catalysis, nucleophilic attack, and Schiff base chemistry? (A) Hydrophobic (B) Aromatic (C) Basic charged residues (especially Lysine) (D) Acidic charged	C - Lys, His, Arg provide nucleophilic/basic groups for catalysis. Rule: basic = catalytic
+
+Which amino acid acts as a proton shuttle near physiologic pH? (A) Lysine (B) Arginine (C) Histidine (D) Aspartate	C - His pKa ~6 → can accept/donate protons at pH 7. Rule: His = pH 7 buffer
+
+Which amino acid has a guanidinium group for strong ionic interactions? (A) Lysine (B) Arginine (C) Histidine (D) Glutamate	B - Arg guanidinium is positively charged, forms strong salt bridges. Rule: Arg = strongest positive charge
+
+Which amino acids are acidic and negatively charged? (A) Lys, Arg (B) Aspartate, Glutamate (C) Ser, Thr (D) Phe, Tyr	B - Asp and Glu have carboxyl groups (−COO⁻) at pH 7. Rule: D and E = acidic
+
+Which amino acids have OH groups used for phosphorylation? (A) Cys, Met (B) Asn, Gln (C) Serine, Threonine, Tyrosine (D) Leu, Ile, Val	C - Ser, Thr, Tyr hydroxyl groups are phosphorylation targets. Rule: STY = phosphorylation sites
+
+Which amino acid's thiol forms disulfide bonds? (A) Methionine (B) Serine (C) Cysteine (D) Threonine	C - Cys -SH groups oxidize to form Cys-S-S-Cys. Rule: Cys = disulfide bonds
+
+Which amino acids contain amide side chains? (A) Asp, Glu (B) Asparagine, Glutamine (C) Lys, Arg (D) Ser, Thr	B - Asn and Gln have -CONH₂ groups. Rule: N and Q = amides
+
+Which amino acids are aromatic? (A) Leu, Ile, Val (B) Phenylalanine, Tyrosine, Tryptophan (C) Ser, Thr, Cys (D) Asp, Glu, Asn	B - Phe, Tyr, Trp have aromatic rings. Rule: F, Y, W = aromatic
+
+Which two amino acids are structural modifiers? (A) Leu, Ile (B) Asp, Glu (C) Proline (kink), Glycine (flexibility) (D) Ser, Thr	C - Pro introduces kinks; Gly allows flexibility. Rule: P = rigid kink, G = flexible
+
+Which amino acids drive membrane insertion and hydrophobic collapse? (A) Asp, Glu, Lys (B) Ser, Thr, Asn (C) Leu, Ile, Val, Phe, Met, Trp, Ala (D) His, Arg, Gln	C - Hydrophobic residues partition into lipid bilayers and protein cores. Rule: LIVFMWA = hydrophobic core
+
+What amino acid category forms catalytic sites and drug binding regions? (A) Hydrophobic (B) Charged amino acids (C) Aromatic only (D) Small amino acids	B - Charged residues (D, E, K, R, H) in active sites for catalysis and ionic drug interactions. Rule: charged = active sites
+
+Mutation of charged residues usually disrupts what? (A) Membrane insertion (B) Catalysis or protein folding (C) Disulfide bonds (D) Phosphorylation	B - Charge changes affect electrostatic interactions critical for structure/function. Rule: charge mutation = function loss
+
+Which amino acids are strongly hydrophobic? (A) Ser, Thr, Asn (B) Leu, Ile, Val, Phe (C) Lys, Arg, His (D) Asp, Glu, Gln	B - LIVF = most hydrophobic; partition into membranes and cores. Rule: branched/aromatic nonpolar = hydrophobic
+
+Hydrophobic collapse failure leads to what pathology? (A) Scurvy (B) Sickle cell (C) Protein aggregation (Alzheimer's) (D) PKU	C - Misfolded hydrophobic regions exposed → aggregation (amyloid, prions). Rule: failed folding = aggregation
+
+Which amino acids absorb UV light at 280 nm? (A) All amino acids (B) Tryptophan, Tyrosine, Phenylalanine (C) Charged amino acids (D) Hydrophobic amino acids	B - Aromatic rings absorb UV; used for protein concentration measurement. Rule: W, Y, (F) = 280 nm
+
+Aromatic amino acids form precursors to what hormone family? (A) Steroids (B) Catecholamines (C) Insulin (D) Glucagon	B - Tyr → DOPA → dopamine, norepinephrine, epinephrine. Rule: Tyr = catecholamine precursor
+
+Why do disulfide bonds matter clinically? (A) Energy storage (B) Stabilize extracellular proteins (insulin, antibodies) (C) Facilitate glycolysis (D) Transport oxygen	B - Oxidizing extracellular environment allows Cys-Cys bonds for stability. Rule: disulfides = extracellular stability
+
+Which amino acid is precursor to GABA? (A) Glycine (B) Glutamate (C) Aspartate (D) Glutamine	B - Glutamate decarboxylase: Glu → GABA (inhibitory neurotransmitter). Rule: Glu → GABA
+
+Mutation of proline often disrupts what? (A) Charge interactions (B) Disulfide bonds (C) Secondary structure (D) Phosphorylation	C - Pro kink disrupts α-helices; mutations alter structure. Rule: Pro mutation = structure disruption
+
+Glycine is critical for what structural protein? (A) Hemoglobin (B) Insulin (C) Collagen (D) Actin	C - Every 3rd residue in collagen is Gly (allows tight triple helix). Rule: Gly = collagen flexibility
+
+Scurvy affects hydroxylation of which amino acids? (A) Ser, Thr (B) Proline and lysine (C) Cys, Met (D) Asp, Glu	B - Vitamin C cofactor for prolyl/lysyl hydroxylases in collagen. Rule: scurvy = Pro/Lys hydroxylation
+
+Why is vitamin C needed for collagen? (A) Cross-linking (B) Hydroxylation → stable triple helix (C) Glycosylation (D) Disulfide formation	B - Hydroxyproline and hydroxylysine stabilize collagen via H-bonds. Rule: Vit C = collagen stability
+
+## PROTEIN STRUCTURE
+
+Primary structure is defined by what bonds? (A) Hydrogen bonds (B) Peptide bonds (C) Disulfide bonds (D) Ionic bonds	B - Covalent peptide bonds link amino acids in sequence. Rule: 1° = peptide bonds
+
+Secondary structure is stabilized by what? (A) Disulfide bonds (B) Hydrogen bonds (backbone) (C) Hydrophobic interactions (D) Ionic bonds	B - α-helix and β-sheet stabilized by backbone N-H···O=C H-bonds. Rule: 2° = backbone H-bonds (not side chains)
+
+Tertiary structure is stabilized by which interactions? (A) Peptide bonds only (B) Hydrogen bonds only (C) Hydrophobic interactions, ionic bonds, disulfide bonds (D) Covalent bonds only	C - Side chain interactions fold the protein. Rule: 3° = side chain interactions
+
+Quaternary structure involves what? (A) Single polypeptide folding (B) Assembly of multiple subunits (C) Peptide bond formation (D) Disulfide bonds only	B - Multiple polypeptides associate (e.g., hemoglobin tetramer). Rule: 4° = multi-subunit assembly
+
+Heat shock proteins require what to refold proteins? (A) GTP (B) ATP (C) NAD⁺ (D) FAD	B - HSPs are ATP-dependent chaperones. Rule: HSP = ATP-dependent
+
+High FRET indicates what? (A) Unfolded protein (B) Compact/misfolded conformation (C) Complete denaturation (D) No protein present	B - High FRET = close fluorophore proximity (compact). Rule: high FRET = compact
+
+Low FRET indicates what? (A) Compact folding (B) Unfolded/refolding (C) Native state (D) Aggregation	B - Low FRET = distant fluorophores (extended). Rule: low FRET = unfolded
+
+Misfolding exposes what regions? (A) Charged residues (B) Hydrophobic residues (C) Glycosylation sites (D) Disulfide bonds	B - Normally buried hydrophobic regions exposed → aggregation risk. Rule: misfolding = exposed hydrophobic
+
+What degrades misfolded proteins? (A) Ribosomes (B) Proteasome (ubiquitin-tagged) (C) Golgi (D) Peroxisomes	B - Ubiquitin tags → 26S proteasome degrades. Rule: ubiquitin → proteasome
+
+Why does denaturation not break peptide bonds? (A) Peptides are too strong (B) Peptide bond hydrolysis has high activation energy (C) No water present (D) GTP required	B - Peptide bonds thermodynamically unstable but kinetically stable (need proteases). Rule: denaturation = noncovalent only
+
+Why are transmembrane helices enriched in hydrophobic amino acids? (A) Stronger structure (B) To minimize energetic cost in lipid bilayer (C) For signaling (D) Random distribution	B - Hydrophobic residues interact favorably with lipid tails. Rule: TM helix = hydrophobic
+
+## ENZYME KINETICS
+
+Km is substrate concentration at what point? (A) Vmax (B) 1/2 Vmax (C) 1/4 Vmax (D) 2× Vmax	B - Km = [S] when v = 1/2 Vmax. Rule: Km = half-saturation point
+
+Low Km indicates what? (A) Low affinity (B) High affinity (C) Low Vmax (D) High Vmax	B - Low Km = high affinity (reaches 1/2 Vmax at low [S]). Rule: low Km = tight binding
+
+Competitive inhibition changes what? (A) Vmax only (B) Km only (C) Km ↑, Vmax same (D) Both decrease	C - Inhibitor competes for active site; overcome with high [S]. Rule: competitive = Km↑ Vmax same
+
+Noncompetitive inhibition changes what? (A) Km only (B) Vmax ↓, Km same (C) Both increase (D) Neither changes	B - Inhibitor binds allosteric site; reduces enzyme efficiency. Rule: noncompetitive = Vmax↓ Km same
+
+Parallel lines on a Lineweaver-Burk plot indicate what type of inhibition? (A) Competitive (B) Noncompetitive (C) Uncompetitive (D) Mixed	C - Uncompetitive: same slope, different intercepts. Rule: parallel LB = uncompetitive
+
+Suicide inhibitors are what? (A) Competitive reversible (B) Noncompetitive reversible (C) Irreversible inhibitors (D) Allosteric activators	C - Covalently modify active site permanently. Rule: suicide = irreversible
+
+Clinical example of irreversible inhibition? (A) Aspirin on COX (B) Organophosphates inhibiting acetylcholinesterase (C) Statins on HMG-CoA reductase (D) Warfarin	B - Nerve agents covalently modify AChE serine. Rule: organophosphates = irreversible AChE inhibition
+
+Catalysts lower what? (A) ΔG (B) Activation energy (Ea) (C) Product concentration (D) Substrate concentration	B - Enzymes lower Ea, not ΔG. Rule: catalyst = ↓Ea, ΔG unchanged
+
+Do catalysts change ΔG? (A) Yes, decrease it (B) Yes, increase it (C) No (D) Only at high temperatures	C - Catalysts change rate, not equilibrium. Rule: catalyst ≠ ΔG change
+
+Allosteric enzymes show what curve? (A) Hyperbolic (B) Sigmoidal (C) Linear (D) Exponential	B - Cooperative binding produces S-shaped curve. Rule: allosteric = sigmoidal
+
+Hemoglobin demonstrates what binding type? (A) Competitive (B) Noncompetitive (C) Cooperative binding (D) Irreversible	C - O₂ binding to one subunit increases affinity of others. Rule: Hb = cooperative
+
+Enzyme saturation occurs when? (A) [S] = Km (B) All active sites occupied (C) [S] = 0 (D) [E] = 0	B - High [S] → all enzymes bound → Vmax reached. Rule: saturation = all sites full
+
+What increases Vmax? (A) More substrate (B) More enzyme (C) More inhibitor (D) Lower temperature	B - Vmax = kcat × [E]. Rule: Vmax ∝ [enzyme]
+
+What determines Vmax? (A) [S] (B) Km (C) kcat (turnover number) (D) [Inhibitor]	C - kcat = catalytic efficiency of enzyme. Rule: Vmax = kcat × [E]
+
+If phosphorylation increases enzyme activity, what property changed? (A) Size only (B) Charge and conformation (C) Substrate affinity only (D) Nothing	B - Adds negative charge → conformational change. Rule: phosphorylation = charge/structure change
+
+If increasing substrate concentration does not increase reaction rate, what is limiting? (A) Substrate (B) Product (C) Vmax (enzyme concentration) (D) pH	C - Enzyme saturated; only more enzyme helps. Rule: saturated = enzyme-limited
+
+If the same enzyme catalyzes a reaction in both directions, what is true of ΔG? (A) Large negative (B) Large positive (C) ΔG approximately zero (D) Undefined	C - Near-equilibrium reactions; enzyme catalyzes both ways. Rule: reversible = ΔG ≈ 0
+
+What determines reaction direction when ΔG is approximately zero? (A) Enzyme concentration (B) Temperature (C) Relative substrate and product concentrations (D) pH only	C - Mass action: reaction shifts based on [S] vs [P]. Rule: ΔG≈0 → direction by [S]/[P]
+
+## METABOLISM - COMPARTMENTALIZATION
+
+Where does glycolysis occur? (A) Mitochondrial matrix (B) Cytosol (C) Nucleus (D) Peroxisome	B - Glucose → pyruvate in cytoplasm. Rule: glycolysis = cytosol
+
+Where does β-oxidation occur? (A) Cytosol (B) Mitochondrial matrix (C) ER (D) Peroxisome	B - Fatty acids oxidized in mitochondria. Rule: β-oxidation = mitochondria
+
+Where does the electron transport chain operate? (A) Outer mitochondrial membrane (B) Inner mitochondrial membrane (C) Cytosol (D) ER	B - ETC complexes embedded in inner membrane. Rule: ETC = inner membrane
+
+Where does fatty acid synthesis occur? (A) Mitochondrial matrix (B) Cytosol (C) ER (D) Peroxisome	B - Acetyl-CoA → FA in cytoplasm. Rule: FA synthesis = cytosol
+
+Where does the urea cycle occur? (A) Mitochondria only (B) Cytosol only (C) Mitochondria and cytosol (D) Peroxisomes	C - CPS I/OTC in mitochondria; rest in cytosol. Rule: urea cycle = both compartments
+
+Where does gluconeogenesis occur? (A) Muscle (B) Liver & kidney (C) Brain (D) Adipose	B - Only tissues with G6Pase and PEPCK. Rule: gluconeogenesis = liver/kidney
+
+Where is glycogen stored? (A) Adipose only (B) Brain only (C) Liver and muscle (D) Kidney only	C - Liver for blood glucose; muscle for local energy. Rule: glycogen = liver/muscle
+
+## METABOLISM - COFACTORS & ELECTRON CARRIERS
+
+NADH is primarily used for what purpose? (A) Biosynthesis (B) ATP generation during catabolism (C) Antioxidant defense (D) Gluconeogenesis	B - NADH → ETC → ATP (catabolic). Rule: NADH = ATP production
+
+NADPH is primarily used for what purpose? (A) ATP generation (B) Biosynthesis and antioxidant defense (C) Glycolysis (D) β-oxidation	B - FA synthesis, glutathione reduction. Rule: NADPH = anabolic/antioxidant
+
+Which electron transport chain complex does FADH₂ donate electrons to? (A) Complex I (B) Complex II (C) Complex III (D) Complex IV	B - Succinate dehydrogenase = Complex II. Rule: FADH₂ → Complex II
+
+ATP requires what cofactor? (A) Ca²⁺ (B) Mg²⁺ (C) Zn²⁺ (D) Fe²⁺	B - Mg²⁺ stabilizes ATP phosphates. Rule: ATP needs Mg²⁺
+
+If a protein is studied in detergent micelles, what key feature is absent? (A) Hydrophobic interactions (B) Electrochemical gradient (C) Protein structure (D) Enzymatic activity	B - No membrane → no proton gradient. Rule: no membrane = no gradient
+
+## METABOLISM - PATHWAYS
+
+Main product of anaerobic glycolysis? (A) Pyruvate (B) Lactate (C) Acetyl-CoA (D) Ethanol	B - Pyruvate → lactate regenerates NAD⁺. Rule: anaerobic = lactate
+
+Purpose of fermentation? (A) Produce ATP (B) Regenerate NAD⁺ (C) Produce NADH (D) Synthesize glucose	B - NAD⁺ needed for glycolysis to continue. Rule: fermentation = NAD⁺ regeneration
+
+What enters TCA cycle from pyruvate? (A) Lactate (B) Acetyl-CoA (C) Oxaloacetate (D) Citrate	B - PDH: pyruvate → acetyl-CoA + CO₂. Rule: TCA entry = acetyl-CoA
+
+Rate-limiting enzyme of glycolysis? (A) Hexokinase (B) PFK-1 (C) Pyruvate kinase (D) Aldolase	B - Phosphofructokinase-1 (main control point). Rule: glycolysis rate-limit = PFK-1
+
+Rate-limiting enzyme of TCA cycle? (A) Citrate synthase (B) Isocitrate dehydrogenase (C) Succinate dehydrogenase (D) Malate dehydrogenase	B - Isocitrate → α-ketoglutarate (regulated step). Rule: TCA rate-limit = isocitrate DH
+
+Rate-limiting enzyme of pentose phosphate pathway? (A) Transketolase (B) G6PD (C) 6-phosphogluconate dehydrogenase (D) Ribose-5-phosphate isomerase	B - Glucose-6-phosphate dehydrogenase (first step). Rule: PPP rate-limit = G6PD
+
+PPP produces what? (A) ATP (B) NADPH (C) FADH₂ (D) Lactate	B - Generates NADPH and ribose-5-phosphate. Rule: PPP = NADPH production
+
+NADPH protects against what? (A) Hypoxia (B) Oxidative stress (C) Acidosis (D) Hypothermia	B - Reduces glutathione → neutralizes ROS. Rule: NADPH = antioxidant defense
+
+Ketogenesis occurs when? (A) Fed state (B) β-oxidation exceeds TCA capacity (C) High insulin (D) After meals	B - Excess acetyl-CoA → ketone bodies (fasting/starvation). Rule: ketogenesis = excess acetyl-CoA
+
+What enzyme frees glucose from glycogen? (A) Glycogen synthase (B) Glycogen phosphorylase (C) Hexokinase (D) Glucose-6-phosphatase	B - Phosphorylase: glycogen → G1P. Rule: glycogen breakdown = phosphorylase
+
+Muscle lacks what enzyme for glucose release? (A) Hexokinase (B) Phosphofructokinase (C) G6Pase (D) Lactate dehydrogenase	C - No G6Pase → can't release free glucose. Rule: muscle no G6Pase = glucose trapped
+
+Cori cycle converts what to glucose? (A) Amino acids (B) Lactate (C) Fatty acids (D) Ketones	B - Muscle lactate → liver glucose. Rule: Cori cycle = lactate → glucose
+
+Main fuel after 48h fasting? (A) Glucose (B) Amino acids (C) FA oxidation (D) Lactate	C - Adipose FFA becomes primary fuel. Rule: prolonged fasting = fatty acids
+
+## HORMONAL REGULATION
+
+Insulin promotes? (A) Gluconeogenesis (B) Glycogenolysis (C) Glycolysis, glycogenesis, FA synthesis (D) Ketogenesis	C - Fed state: storage and anabolism. Rule: insulin = store
+
+Glucagon promotes? (A) Glycolysis (B) Gluconeogenesis, glycogenolysis, β-oxidation (C) Glycogen synthesis (D) FA synthesis	B - Fasting state: mobilize fuel. Rule: glucagon = mobilize
+
+Epinephrine acts like glucagon except where? (A) Liver (B) Muscle (C) Adipose (D) Brain	B - Epi affects muscle glycogen; glucagon doesn't (no receptors). Rule: Epi = muscle + liver
+
+Insulin activates what glycogen enzyme? (A) Glycogen phosphorylase (B) Glycogen synthase (C) Hexokinase (D) G6Pase	B - Promotes glycogen storage. Rule: insulin → glycogen synthase
+
+## CLINICAL METABOLISM
+
+High lactate in sepsis indicates failure of what? (A) Glycolysis (B) Oxidative phosphorylation (C) Gluconeogenesis (D) FA synthesis	B - Mitochondrial dysfunction → anaerobic metabolism. Rule: sepsis lactate = ETC failure
+
+Liver failure impairs what? (A) Glycolysis (B) Urea cycle (C) Glycogenolysis (D) FA oxidation	B - Cannot convert ammonia → urea. Rule: liver failure = ↑ammonia
+
+Hyperammonemia affects what organ the most? (A) Heart (B) Liver (C) Brain (D) Kidney	C - Ammonia crosses BBB → neurotoxic. Rule: hyperammonemia = brain toxicity
+
+Propofol infusion syndrome disrupts what? (A) Glycolysis (B) Gluconeogenesis (C) FA oxidation + ETC (D) Urea cycle	C - Impaired mitochondrial metabolism. Rule: PRIS = FA oxidation + ETC
+
+DKA results from unchecked what? (A) Glycolysis (B) β-oxidation and ketogenesis (C) Gluconeogenesis (D) Glycogenolysis	B - No insulin → uncontrolled lipolysis. Rule: DKA = excess ketones
+
+Why is glycolysis high in sepsis? (A) High insulin (B) Anaerobic metabolism (C) Excess glucose (D) Low lactate	B - Mitochondrial dysfunction forces glycolysis. Rule: sepsis = anaerobic glycolysis
+
+Hypothermia slows metabolism by decreasing what? (A) Blood flow only (B) Enzyme kinetics (C) Substrate availability (D) Hormone release	B - Temperature-dependent reaction rates (Q₁₀). Rule: cold = slower kinetics
+
+Type 1 diabetes causes what metabolic shift? (A) Fed state (B) Ketosis (C) Glycogen storage (D) Protein synthesis	B - No insulin → mimics starvation. Rule: T1DM = ketosis
+
+Refeeding syndrome shifts what ion? (A) Sodium (B) Potassium (C) Phosphate (D) Calcium	C - Insulin drives phosphate into cells. Rule: refeeding = hypophosphatemia
+
+Why does hypophosphatemia cause organ failure? (A) Calcium imbalance (B) ATP depletion (C) Sodium loss (D) Acidosis	B - Phosphate needed for ATP synthesis. Rule: low PO₄ = low ATP
+
+Hepatomegaly + hypoglycemia in child? (A) T1DM (B) Glycogen storage disease (C) PKU (D) MSUD	B - Cannot mobilize liver glycogen (often G6Pase deficiency). Rule: big liver + hypoglycemia = GSD
+
+## ELECTRON TRANSPORT CHAIN
+
+ETC pumps protons into what space? (A) Matrix (B) Intermembrane space (C) Cytosol (D) ER lumen	B - Creates gradient across inner membrane. Rule: ETC = pump to IMS
+
+What enzyme synthesizes ATP? (A) Complex IV (B) ATP synthase (C) Hexokinase (D) Creatine kinase	B - F₀F₁-ATPase uses proton gradient. Rule: ATP synthase = Complex V
+
+Uncouplers do what? (A) Inhibit ETC (B) Dissipate proton gradient → heat (C) Increase ATP (D) Block glycolysis	B - Allow protons through without ATP synthesis. Rule: uncoupler = heat not ATP
+
+Chemical uncoupler example? (A) Cyanide (B) DNP (C) Oligomycin (D) Rotenone	B - 2,4-dinitrophenol. Rule: DNP = classic uncoupler
+
+Brown fat uses what protein? (A) ATP synthase (B) UCP1 (C) Complex IV (D) Hexokinase	B - Uncoupling protein 1 (thermogenin). Rule: brown fat = UCP1
+
+Rotenone inhibits what complex? (A) Complex I (B) Complex II (C) Complex III (D) Complex IV	A - NADH dehydrogenase inhibitor. Rule: rotenone = Complex I
+
+Antimycin inhibits what complex? (A) Complex I (B) Complex II (C) Complex III (D) Complex IV	C - Cytochrome bc₁ inhibitor. Rule: antimycin = Complex III
+
+Cyanide/CO inhibit what complex? (A) Complex I (B) Complex II (C) Complex III (D) Complex IV	D - Cytochrome c oxidase inhibitor. Rule: CN/CO = Complex IV
+
+Oligomycin inhibits what? (A) Complex I (B) Complex III (C) ATP synthase (D) Complex IV	C - Blocks F₀ channel of ATP synthase. Rule: oligomycin = ATP synthase
+
+## VITAMINS & COFACTORS
+
+Thiamine deficiency impairs what enzyme complex? (A) Complex I (B) PDH (C) ATP synthase (D) Hexokinase	B - TPP cofactor for pyruvate dehydrogenase. Rule: thiamine = PDH cofactor
+
+Biotin is required for what? (A) Oxidation (B) Carboxylation (C) Decarboxylation (D) Phosphorylation	B - CO₂ addition reactions. Rule: biotin = carboxylase cofactor
+
+FAD comes from what vitamin? (A) B1 (B) B2 (riboflavin) (C) B3 (D) B6	B - Riboflavin → FAD/FMN. Rule: B2 = FAD
+
+NAD⁺ comes from what vitamin? (A) B1 (B) B2 (C) B3 (niacin) (D) B6	C - Niacin → NAD⁺/NADP⁺. Rule: B3 = NAD⁺
+
+Alcohol metabolism increases what ratio? (A) NAD⁺/NADH (B) NADH/NAD⁺ (C) ATP/ADP (D) FAD/FADH₂	B - Alcohol DH and acetaldehyde DH consume NAD⁺. Rule: alcohol = ↑NADH/NAD⁺
+
+High NADH pushes which reaction? (A) Lactate → pyruvate (B) Pyruvate → lactate (C) Pyruvate → acetyl-CoA (D) Glucose → pyruvate	B - High NADH favors lactate production. Rule: ↑NADH = ↑lactate
+
+B12 deficiency impairs what pathways? (A) Glycolysis (B) Methionine synthase & MMA breakdown (C) FA synthesis (D) Glycogenolysis	B - Homocysteine → methionine; methylmalonyl-CoA → succinyl-CoA. Rule: B12 = methionine synthase + MMA
+
+Folate deficiency causes what anemia? (A) Microcytic (B) Megaloblastic (C) Hemolytic (D) Aplastic	B - Impaired DNA synthesis → large immature RBCs. Rule: folate = megaloblastic anemia
+
+Elevated MMA indicates deficiency of? (A) Folate (B) B6 (C) Vitamin B12 (D) Vitamin C	C - B12 cofactor for methylmalonyl-CoA mutase. Rule: ↑MMA = B12 deficiency
+
+## MOLECULAR BIOLOGY - DNA/RNA
+
+DNA polymerase synthesizes in what direction? (A) 3'→5' (B) 5'→3' (C) Both directions (D) Random	B - New strand grows 5'→3' (adds to 3'-OH). Rule: DNA pol = 5'→3' synthesis
+
+Transcription proceeds in what direction? (A) 3'→5' template read (B) 5'→3' RNA synthesis (C) Both (D) Neither	B - RNA polymerase reads 3'→5', synthesizes 5'→3'. Rule: transcription = 5'→3' synthesis
+
+mRNA read in what direction? (A) 3'→5' (B) 5'→3' (C) Both (D) Depends on gene	B - Ribosome reads 5'→3'. Rule: translation = 5'→3' reading
+
+Nonsense mutation effect? (A) Silent (B) Early STOP codon (C) One amino acid change (D) Frameshift	B - Creates UAA/UAG/UGA → truncated protein. Rule: nonsense = premature stop
+
+Missense mutation changes what? (A) Nothing (B) One amino acid (C) Reading frame (D) mRNA stability	B - Single nucleotide → different codon → different AA. Rule: missense = 1 AA change
+
+Frameshift results from what? (A) Silent mutation (B) Single nucleotide substitution (C) Indel not divisible by 3 (D) Intron splicing	C - Insertion/deletion shifts reading frame. Rule: frameshift = indel not ÷3
+
+Frameshift disease example? (A) Sickle cell (B) Tay-Sachs (C) PKU (D) Von Gierke	B - Hexosaminidase A frameshift. Rule: Tay-Sachs = frameshift example
+
+Telomerase active in what cells? (A) All somatic cells (B) Stem cells, cancer cells (C) Neurons only (D) Muscle only	B - Maintains telomeres for unlimited division. Rule: telomerase = stem/cancer
+
+Start codon? (A) UAA (B) AUG (Met) (C) UGA (D) UAG	B - AUG codes for methionine (translation start). Rule: AUG = start
+
+Shine-Dalgarno sequence found where? (A) Eukaryotes (B) Prokaryotes (C) Both (D) Neither	B - Ribosome binding site upstream of AUG. Rule: Shine-Dalgarno = prokaryotes only
+
+Poly-A tail function? (A) Translation initiation (B) Stability & export (C) Splicing (D) Degradation signal	B - Protects from exonucleases, aids export. Rule: poly-A = stability
+
+## MOLECULAR BIOLOGY - ANTIBIOTICS
+
+Rifampin inhibits what? (A) DNA polymerase (B) RNA polymerase (C) Ribosome (D) Cell wall	B - Bacterial RNA polymerase β-subunit. Rule: rifampin = transcription block
+
+Macrolides inhibit what? (A) 30S ribosome (B) 50S ribosome (C) RNA polymerase (D) DNA gyrase	B - Bind 50S → block translocation. Rule: macrolides = 50S
+
+Tetracyclines inhibit what? (A) 50S ribosome (B) 30S ribosome (C) RNA polymerase (D) DNA polymerase	B - Block aminoacyl-tRNA binding to 30S. Rule: tetracyclines = 30S
+
+Aminoglycosides cause what? (A) Translation block (B) Misreading of mRNA (C) Transcription block (D) DNA damage	B - Distort 30S → wrong amino acids inserted. Rule: aminoglycosides = misreading
+
+Chloramphenicol inhibits what? (A) RNA polymerase (B) 30S ribosome (C) Peptidyl transferase (D) DNA gyrase	C - Blocks peptide bond formation on 50S. Rule: chloramphenicol = peptidyl transferase
+
+Puromycin causes what? (A) Misreading (B) Premature chain termination (C) Transcription block (D) DNA damage	B - Mimics aminoacyl-tRNA → causes release. Rule: puromycin = early termination
+
+## CELL SIGNALING & TRANSPORT
+
+Primary active transport example? (A) Glucose transporter (B) Na⁺/K⁺ ATPase (C) Aquaporin (D) Ion channel	B - Uses ATP directly to pump ions. Rule: primary active = direct ATP use
+
+Drug that inhibits Na/K ATPase? (A) Aspirin (B) Digoxin (C) Warfarin (D) Insulin	B - Cardiac glycoside. Rule: digoxin = Na/K ATPase inhibitor
+
+Secondary active transport example? (A) Na⁺/K⁺ ATPase (B) Na⁺/glucose cotransport (C) Simple diffusion (D) Facilitated diffusion	B - SGLT uses Na⁺ gradient. Rule: secondary active = ion gradient-driven
+
+Facilitated diffusion uses what? (A) ATP directly (B) Channels/transporters (C) Vesicles (D) Active pumps	B - Passive transport via proteins (no ATP). Rule: facilitated = passive through protein
+
+Simple diffusion moves what? (A) Glucose (B) Ions (C) Gases and anesthetics (D) Proteins	C - Small nonpolar molecules cross lipid bilayer. Rule: simple diffusion = small nonpolar
+
+Endocytosis relies on what? (A) Aquaporin (B) Na⁺/K⁺ ATPase (C) Clathrin (D) ATP synthase	C - Clathrin-coated pits/vesicles. Rule: endocytosis = clathrin
+
+GPCRs activate what? (A) Tyrosine kinase (B) cAMP (C) DNA transcription (D) Ion channels	B - Gs → adenylyl cyclase → cAMP. Rule: GPCR = cAMP
+
+GPCR hormones? (A) Insulin, IGF (B) Epinephrine, glucagon (C) Cortisol, testosterone (D) T3, T4	B - Bind GPCRs → cAMP signaling. Rule: Epi/glucagon = GPCR
+
+Tyrosine kinase receptors activate what? (A) cAMP (B) MAPK cascade (C) Ion channels (D) Adenylyl cyclase	B - Autophosphorylation → Ras/MAPK. Rule: RTK = MAPK
+
+Hormones using TK receptors? (A) Epinephrine, glucagon (B) Insulin, growth factors (C) Cortisol, aldosterone (D) T3, T4	B - Insulin, IGF, EGF, PDGF. Rule: insulin/growth factors = RTK
+
+Steroid receptors bind where? (A) Cell surface (B) Inside the cell → nucleus (C) Mitochondria (D) ER lumen	B - Lipophilic hormones cross membrane. Rule: steroids = intracellular receptors
+
+Example steroid hormone? (A) Insulin (B) Glucagon (C) Cortisol (D) Epinephrine	C - Cortisol, testosterone, estrogen, aldosterone. Rule: cortisol = steroid
+
+IP3/DAG releases what ion? (A) Na⁺ (B) K⁺ (C) Ca²⁺ (D) Cl⁻	C - IP3 → ER Ca²⁺ release. Rule: IP3 = Ca²⁺ release
+
+Phospholipids form what structure? (A) Micelles only (B) Bilayers (C) Liposomes only (D) Monolayers	B - Amphipathic molecules → bilayer membranes. Rule: phospholipids = bilayers
+
+Cholesterol stabilizes membranes at high temp? (A) No (B) Yes (C) Only at low temp (D) No effect	B - Restricts movement → decreases fluidity at high temp. Rule: cholesterol = fluidity buffer
+
+Cholesterol increases fluidity at low temp? (A) No (B) Yes (C) Only at high temp (D) No effect	B - Prevents tight packing at low temp. Rule: cholesterol = fluidity buffer
+
+Saturated fats do what to fluidity? (A) Increase (B) Decrease (C) No effect (D) Variable	B - Straight chains pack tightly → rigid. Rule: saturated = less fluid
+
+Unsaturated fats do what? (A) Decrease fluidity (B) Increase fluidity (C) No effect (D) Denature proteins	B - Kinks prevent tight packing → fluid. Rule: unsaturated = more fluid
+
+## PROTEIN TECHNIQUES
+
+SDS-PAGE separates proteins by what? (A) Charge (B) Size (C) pI (D) Hydrophobicity	B - SDS coats with uniform negative charge. Rule: SDS-PAGE = size only
+
+Western blot detects what? (A) DNA (B) RNA (C) Proteins (D) Lipids	C - Antibody-based protein detection. Rule: Western = proteins
+
+Northern blot detects what? (A) DNA (B) RNA (C) Proteins (D) Carbohydrates	B - Probe-based RNA detection. Rule: Northern = RNA
+
+Southern blot detects what? (A) DNA (B) RNA (C) Proteins (D) Lipids	A - Probe-based DNA detection. Rule: Southern = DNA
+
+ELISA measures what? (A) DNA quantity (B) RNA levels (C) Protein concentration (D) Lipid content	C - Enzyme-linked immunosorbent assay. Rule: ELISA = protein quantification
+
+Gel filtration chromatography separates by? (A) Charge (B) Size (large elute first) (C) Hydrophobicity (D) pI	B - Size exclusion: large molecules excluded from beads. Rule: gel filtration = size (large first)
+
+Ion exchange chromatography separates by? (A) Size (B) Charge (C) Molecular weight (D) Shape	B - Electrostatic interactions with resin. Rule: ion exchange = charge
+
+PCR amplifies what? (A) RNA (B) Proteins (C) DNA (D) Lipids	C - Polymerase chain reaction. Rule: PCR = DNA amplification
+
+What enzyme is required for PCR? (A) DNA ligase (B) Reverse transcriptase (C) Taq polymerase (D) Restriction enzyme	C - Thermostable DNA polymerase. Rule: PCR = Taq polymerase
+
+DNA sequencing relies on what principle? (A) Hybridization (B) Chain termination (ddNTPs) (C) Amplification (D) Ligation	B - Sanger sequencing uses dideoxynucleotides. Rule: sequencing = ddNTP termination
+
+## METABOLIC DISEASES
+
+OTC deficiency causes what? (A) Hypoglycemia (B) High ammonia (C) Lactic acidosis (D) Ketoacidosis	B - Ornithine transcarbamylase (urea cycle). Rule: OTC deficiency = hyperammonemia
+
+Maple syrup urine disease affects metabolism of? (A) Aromatic AAs (B) Branched-chain AAs (C) Acidic AAs (D) Basic AAs	B - Leu, Ile, Val metabolism blocked. Rule: MSUD = branched-chain AAs
+
+Homocystinuria resembles what syndrome? (A) Down syndrome (B) Marfan's (C) Turner syndrome (D) Klinefelter	B - Tall, lens dislocation, skeletal abnormalities. Rule: homocystinuria = Marfan-like
+
+PKU deficiency enzyme? (A) Tyrosine hydroxylase (B) Phenylalanine hydroxylase (C) Tryptophan hydroxylase (D) DOPA decarboxylase	B - Phe → Tyr conversion blocked. Rule: PKU = Phe hydroxylase deficiency
+
+## 1. Carbohydrate Structure & Chemistry (Currently absent!)
+
+Which monosaccharides are aldoses? (A) Glucose, galactose, ribose (B) Fructose only (C) All hexoses (D) None
+Answer: A - Aldoses have aldehyde groups. Rule: glucose/galactose/ribose = aldoses
+
+Which monosaccharide is a ketose? (A) Glucose (B) Fructose (C) Galactose (D) Ribose
+Answer: B - Fructose has ketone group at C2. Rule: fructose = ketose
+
+What bond links monosaccharides in disaccharides? (A) Peptide (B) Glycosidic (C) Ester (D) Phosphodiester
+Answer: B - Glycosidic bonds form between -OH groups. Rule: sugar bonds = glycosidic
+
+Lactose is composed of which monosaccharides? (A) Glucose + glucose (B) Glucose + fructose (C) Glucose + galactose (D) Fructose + galactose
+Answer: C - Lactose = glucose-galactose (milk sugar). Rule: lactose = Gal-Glc
+
+Sucrose is composed of which monosaccharides? (A) Glucose + glucose (B) Glucose + fructose (C) Glucose + galactose (D) Fructose + galactose
+Answer: B - Sucrose = glucose-fructose (table sugar). Rule: sucrose = Glc-Fru
+
+What enzyme is deficient in lactose intolerance? (A) Sucrase (B) Lactase (C) Maltase (D) Amylase
+Answer: B - Lactase cleaves lactose → glucose + galactose. Rule: lactose intolerance = lactase deficiency
+
+Classic galactosemia is caused by deficiency of? (A) Galactokinase (B) Galactose-1-phosphate uridyltransferase (C) UDP-galactose epimerase (D) Lactase
+Answer: B - Cannot convert Gal-1-P → UDP-galactose. Rule: classic galactosemia = transferase deficiency
+
+What are the symptoms of classic galactosemia? (A) Hypoglycemia only (B) Cataracts, intellectual disability, hepatomegaly (C) Hemolytic anemia (D) Ketoacidosis
+Answer: B - Galactitol accumulation → cataracts; Gal-1-P toxic to liver/brain. Rule: galactosemia = cataracts + liver/brain
+
+## 2. Glycolysis Regulation Details
+
+What activates PFK-1? (A) ATP, citrate (B) AMP, F-2,6-BP (C) Glucagon (D) NADH
+Answer: B - Low energy signals activate glycolysis. Rule: AMP/F-2,6-BP activate PFK-1
+
+What inhibits PFK-1? (A) AMP (B) F-2,6-BP (C) ATP, citrate (D) ADP
+Answer: C - High energy/biosynthetic precursors inhibit. Rule: ATP/citrate inhibit PFK-1
+
+What does PFK-2 produce? (A) F-6-P (B) F-1,6-BP (C) F-2,6-BP (D) Glucose
+Answer: C - F-2,6-BP is the regulatory molecule (not glycolytic intermediate). Rule: PFK-2 makes F-2,6-BP
+
+How does insulin affect PFK-2/F-2,6-BPase? (A) Activates phosphatase domain (B) Activates kinase domain (C) Inhibits both (D) No effect
+Answer: B - Dephosphorylation → active PFK-2 → ↑F-2,6-BP → ↑glycolysis. Rule: insulin = PFK-2 active
+
+How does glucagon affect PFK-2/F-2,6-BPase? (A) Activates kinase (B) Activates phosphatase domain (C) No effect (D) Activates both
+Answer: B - Phosphorylation → active F-2,6-BPase → ↓F-2,6-BP → ↑gluconeogenesis. Rule: glucagon = FBPase-2 active
+
+## 3. Fatty Acid Synthesis Details
+
+What is the committed step of fatty acid synthesis? (A) Citrate → acetyl-CoA (B) Acetyl-CoA → malonyl-CoA (C) Malonyl-CoA → palmitate (D) Palmitate → stearate
+Answer: B - Acetyl-CoA carboxylase (ACC) is rate-limiting. Rule: ACC = committed step FA synthesis
+
+What activates acetyl-CoA carboxylase? (A) Glucagon (B) Citrate (C) Palmitoyl-CoA (D) AMP
+Answer: B - Citrate signals fed state/available substrate. Rule: citrate activates ACC
+
+What inhibits acetyl-CoA carboxylase? (A) Citrate (B) Insulin (C) Palmitoyl-CoA, AMP (D) Acetyl-CoA
+Answer: C - Product inhibition + low energy. Rule: palmitoyl-CoA/AMP inhibit ACC
+
+Where does acetyl-CoA for FA synthesis come from? (A) β-oxidation (B) Citrate from mitochondria (C) Glycolysis directly (D) Ketone bodies
+Answer: B - Citrate → acetyl-CoA via citrate lyase (cytosol). Rule: FA synthesis acetyl-CoA from citrate
+
+What reducing equivalent powers fatty acid synthesis? (A) NADH (B) FADH₂ (C) NADPH (D) ATP
+Answer: C - NADPH from PPP and malic enzyme. Rule: FA synthesis uses NADPH
+
+## 4. Amino Acid Derivatives
+
+Tyrosine is a precursor to which neurotransmitters? (A) Serotonin, melatonin (B) Dopamine, norepinephrine, epinephrine (C) GABA, glutamate (D) Acetylcholine
+Answer: B - Tyr → DOPA → dopamine → NE → Epi. Rule: Tyr = catecholamines
+
+Tryptophan is a precursor to? (A) Dopamine (B) GABA (C) Serotonin, melatonin (D) Histamine
+Answer: C - Trp → 5-HTP → serotonin → melatonin. Rule: Trp = serotonin/melatonin
+
+What amino acid is the precursor to histamine? (A) Histidine (B) Tyrosine (C) Tryptophan (D) Glutamate
+Answer: A - His → histamine (decarboxylation). Rule: His = histamine
+
+What enzyme converts Phe to Tyr? (A) Tyrosine hydroxylase (B) Phenylalanine hydroxylase (C) DOPA decarboxylase (D) Tryptophan hydroxylase
+Answer: B - Phe hydroxylase (deficient in PKU). Rule: Phe → Tyr via Phe hydroxylase
+
+## 5. Hemoglobin & Cooperative Binding (expand what you have)
+
+What causes the rightward shift in the oxygen-hemoglobin dissociation curve? (A) ↑pH, ↓CO₂, ↓2,3-BPG (B) ↓pH, ↑CO₂, ↑2,3-BPG, ↑temp (C) Fetal hemoglobin (D) CO poisoning
+Answer: B - Right shift = ↓O₂ affinity (easier release to tissues). Rule: "CADET face RIGHT" (CO₂, Acid, 2,3-DPG, Exercise, Temperature)
+
+What is the Bohr effect? (A) CO₂ increases O₂ affinity (B) ↓pH decreases O₂ affinity (C) Temperature has no effect (D) 2,3-BPG increases affinity
+Answer: B - H⁺ stabilizes T (tense) state → releases O₂. Rule: Bohr = H⁺/CO₂ → release O₂
+
+What binds to hemoglobin in CO poisoning? (A) O₂ with higher affinity (B) CO with 200× higher affinity (C) CO₂ (D) H⁺
+Answer: B - CO binds tightly, prevents O₂ binding, left-shifts curve. Rule: CO = extreme left shift
+
+Where does 2,3-BPG bind hemoglobin? (A) Heme iron (B) Between β subunits (C) α subunits (D) Outside the protein
+Answer: B - Stabilizes T state between β chains. Rule: 2,3-BPG binds central cavity
+
+## 6. More Molecular Biology
+
+What does a spliceosome do? (A) Cuts DNA (B) Removes introns from pre-mRNA (C) Adds poly-A tail (D) Translates mRNA
+Answer: B - snRNPs recognize splice sites, remove introns. Rule: spliceosome = remove introns
+
+What is alternative splicing? (A) Errors in splicing (B) Different exon combinations → multiple proteins from one gene (C) Removal of poly-A tail (D) Bacterial-only process
+Answer: B - Allows protein diversity from single gene. Rule: alternative splicing = multiple proteins/gene
+
+What is the wobble position? (A) 1st codon base (B) 2nd codon base (C) 3rd codon base (D) Stop codon
+Answer: C - 3rd position allows non-Watson-Crick pairing. Rule: wobble = 3rd position
+
+Why is the genetic code degenerate? (A) Multiple codons per amino acid (B) One codon multiple AAs (C) No stop codons (D) Random
+Answer: A - Redundancy protects against mutations. Rule: degenerate = multiple codons/AA
+
+## 7. More Clinical Correlations
+
+What causes lactic acidosis in thiamine deficiency? (A) Blocked ETC (B) PDH cannot convert pyruvate → acetyl-CoA (C) Increased glycolysis (D) Liver failure
+Answer: B - Pyruvate → lactate instead of entering TCA. Rule: no thiamine = no PDH = lactic acidosis
+
+What is the mechanism of metformin-associated lactic acidosis? (A) Inhibits Complex I (B) Increases glycolysis (C) Blocks gluconeogenesis (D) All of above
+Answer: D - Complex I inhibition → anaerobic metabolism. Rule: metformin = Complex I inhibitor
+
+Why does aspirin cause metabolic acidosis? (A) Direct H⁺ release (B) Uncouples oxidative phosphorylation (C) Blocks TCA (D) Inhibits gluconeogenesis
+Answer: B - Salicylates uncouple at toxic doses → lactic acidosis. Rule: aspirin toxicity = uncoupling
+
+What distinguishes Type A from Type B lactic acidosis? (A) Severity (B) Tissue hypoxia vs metabolic dysfunction (C) pH level (D) Treatment
+Answer: B - Type A = ↓O₂ delivery; Type B = metabolic (toxins, thiamine deficiency). Rule: A = hypoxia, B = metabolic
+
+## 8. More Signal Transduction
+
+What does PKA phosphorylate in glycogen metabolism? (A) Glycogen synthase (inactivates) (B) Phosphorylase kinase (activates) (C) Both A and B (D) Neither
+Answer: C - PKA promotes breakdown, inhibits synthesis. Rule: PKA = breakdown
+
+What effect does Ca²⁺ have on phosphorylase kinase? (A) Inhibits it (B) Activates it (via calmodulin) (C) No effect (D) Denatures it
+Answer: B - Ca²⁺-calmodulin activates → glycogen breakdown. Rule: Ca²⁺ = activate phosphorylase kinase
+
+What is the JAK-STAT pathway used for? (A) Metabolic regulation (B) Cytokine signaling → gene transcription (C) Apoptosis (D) Membrane transport
+Answer: B - Cytokine receptors → JAK → STAT → nucleus. Rule: JAK-STAT = cytokine signaling
