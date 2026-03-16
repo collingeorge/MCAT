@@ -3,136 +3,344 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MCAT Biochemistry Quiz</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>MCAT Biochemistry — Clinical Mastery Quiz</title>
 <style>
+/* ── CM-STYLE-01 DESIGN SYSTEM ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#07090f;--surface:#0d1117;--border:rgba(255,255,255,0.07);
-  --accent:#3dd6f5;--accent2:#8b7cf6;--green:#2dd4a0;--red:#f5614e;
-  --amber:#f5c842;--text:#dce6f0;--muted:#4a5568;--dim:#1a2035;
+  /* CM-STYLE-01 Color Palette */
+  --navy:       #1B3A5C;   /* Primary — Deep Teal-Navy */
+  --navy-mid:   #2E5484;   /* Secondary — Navy Mid */
+  --slate:      #4A5568;   /* Body Secondary — Slate Gray */
+  --amber-dark: #7A5C00;   /* Accent — Deep Amber (evidence grades) */
+  --amber-warm: #7A4000;   /* Warm box border */
+  --blue-light: #E8F0F8;   /* Table Alt — Light Clinical Blue */
+  --page-bg:    #F4F7FB;   /* Warm White background */
+  --white:      #FFFFFF;
+  --sage:       #EAF4EC;   /* Confirmed fill */
+  --amber-fill: #FEF3E2;   /* Caveat / limits fill */
+  --red-fill:   #FDECEC;   /* Prohibited / error fill */
+
+  /* Functional aliases */
+  --bg:         var(--page-bg);
+  --surface:    var(--white);
+  --border:     #D1DCE8;
+  --border-med: #B8C8D8;
+  --text:       #1A2332;
+  --text-body:  #2D3748;
+  --muted:      var(--slate);
+  --green:      #1A6B3A;
+  --green-fill: var(--sage);
+  --red:        #B91C1C;
+  --amber:      var(--amber-dark);
+  --dim:        #D8E4EE;
+  --accent:     var(--navy);
+  --accent2:    var(--navy-mid);
 }
+
 html{font-size:16px}
-body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;min-height:100vh;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(61,214,245,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(61,214,245,0.025) 1px,transparent 1px);background-size:52px 52px;pointer-events:none;z-index:0}
-.wrap{position:relative;z-index:1;max-width:740px;margin:0 auto;padding:0 20px 80px}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* Subtle ruled paper texture — clinical notebook feel */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(27,58,92,0.03) 1px, transparent 1px);
+  background-size:100% 32px;
+  pointer-events:none;z-index:0;
+}
+
+.wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:0 24px 80px}
 
 /* ── HOME ── */
-.home-hero{padding:56px 0 36px;text-align:center}
-.hero-badge{display:inline-block;font-size:10px;letter-spacing:.18em;color:var(--accent);border:1px solid rgba(61,214,245,.2);padding:5px 14px;border-radius:3px;margin-bottom:22px;text-transform:uppercase}
-.hero-title{font-family:'Syne',sans-serif;font-size:clamp(48px,9vw,80px);font-weight:800;line-height:1;letter-spacing:-.03em;color:#fff;margin-bottom:10px}
-.hero-title span{color:var(--accent)}
-.hero-sub{font-size:12px;color:var(--muted);letter-spacing:.06em;margin-bottom:6px}
-.hero-count{font-size:11px;color:var(--accent2);letter-spacing:.1em}
+.home-hero{padding:48px 0 32px}
+.hero-badge{
+  display:inline-block;font-size:9px;letter-spacing:.2em;
+  color:var(--navy-mid);border:1px solid var(--navy-mid);
+  padding:4px 12px;margin-bottom:18px;text-transform:uppercase;
+  font-weight:700;background:rgba(46,84,132,.06);
+}
+.hero-title{
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:clamp(32px,6vw,52px);font-weight:700;line-height:1.1;
+  color:var(--navy);margin-bottom:6px;letter-spacing:-.01em;
+}
+.hero-title span{color:var(--navy-mid)}
+.hero-divider{
+  width:48px;height:3px;background:var(--navy);
+  margin:14px 0 14px;
+}
+.hero-sub{font-size:12px;color:var(--slate);letter-spacing:.04em;margin-bottom:4px;font-style:italic}
+.hero-count{font-size:11px;color:var(--navy-mid);letter-spacing:.08em;font-weight:700}
 
-.config-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:16px}
-.section-label{font-size:10px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:14px;font-weight:700}
-.config-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+/* Cards */
+.config-card{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-left:3px solid var(--navy);
+  padding:18px 22px;margin-bottom:14px;
+}
+.section-label{
+  font-size:9px;letter-spacing:.2em;color:var(--navy);
+  text-transform:uppercase;margin-bottom:12px;font-weight:700;
+}
+.config-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .config-header .section-label{margin-bottom:0}
 .micro-row{display:flex;gap:8px}
-.micro-btn{padding:4px 10px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:4px;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:.06em;transition:all .15s}
-.micro-btn:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
+.micro-btn{
+  padding:3px 10px;background:var(--blue-light);
+  border:1px solid var(--border-med);
+  color:var(--navy-mid);font-family:Arial,Helvetica,sans-serif;
+  font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.06em;
+  text-transform:uppercase;transition:all .15s;
+}
+.micro-btn:hover{background:var(--navy);color:var(--white);border-color:var(--navy)}
 
-.count-row{display:flex;gap:10px;flex-wrap:wrap}
-.count-btn{padding:10px 22px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Space Mono',monospace;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s}
-.count-btn:hover{color:var(--text)}
-.count-btn.active{background:rgba(61,214,245,.1);border-color:rgba(61,214,245,.4);color:var(--accent)}
+/* Count buttons */
+.count-row{display:flex;gap:8px;flex-wrap:wrap}
+.count-btn{
+  padding:9px 20px;background:var(--white);
+  border:1px solid var(--border-med);
+  color:var(--slate);font-family:Arial,Helvetica,sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;
+}
+.count-btn:hover{border-color:var(--navy);color:var(--navy)}
+.count-btn.active{
+  background:var(--navy);border-color:var(--navy);
+  color:var(--white);
+}
 
-.subject-grid{display:flex;flex-wrap:wrap;gap:8px}
-.subject-chip{padding:6px 12px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:5px;color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;letter-spacing:.03em;transition:all .15s;user-select:none}
-.subject-chip:hover{color:var(--text)}
-.subject-chip.on{background:rgba(139,124,246,.1);border-color:rgba(139,124,246,.35);color:#b8aff8}
-.avail{font-size:11px;color:var(--muted);margin-top:12px;letter-spacing:.04em}
+/* Subject chips */
+.subject-grid{display:flex;flex-wrap:wrap;gap:6px}
+.subject-chip{
+  padding:5px 11px;background:var(--white);
+  border:1px solid var(--border-med);
+  color:var(--slate);font-family:Arial,Helvetica,sans-serif;
+  font-size:11px;cursor:pointer;transition:all .15s;user-select:none;
+}
+.subject-chip:hover{border-color:var(--navy-mid);color:var(--navy)}
+.subject-chip.on{
+  background:var(--blue-light);border-color:var(--navy);
+  color:var(--navy);font-weight:700;
+}
+.avail{font-size:11px;color:var(--slate);margin-top:10px;letter-spacing:.03em}
 
-.start-btn{width:100%;padding:17px;background:linear-gradient(135deg,#3dd6f5,#8b7cf6);border:none;border-radius:10px;color:#07090f;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:transform .15s,opacity .15s;margin-top:4px}
-.start-btn:hover{transform:translateY(-1px);opacity:.9}
-.start-btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
+/* Start button */
+.start-btn{
+  width:100%;padding:15px;
+  background:var(--navy);
+  border:none;color:var(--white);
+  font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;cursor:pointer;
+  transition:background .15s,transform .1s;margin-top:6px;
+}
+.start-btn:hover{background:var(--navy-mid);transform:translateY(-1px)}
+.start-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
 
-/* ── QUIZ ── */
-.quiz-header{position:sticky;top:0;background:rgba(7,9,15,.9);backdrop-filter:blur(14px);z-index:20;border-bottom:1px solid var(--border);padding-bottom:12px;margin:0 -20px;padding-left:20px;padding-right:20px}
-.progress-track{height:2px;background:var(--dim);margin-bottom:12px}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s ease}
+/* ── QUIZ HEADER ── */
+.quiz-header{
+  position:sticky;top:0;
+  background:rgba(244,247,251,.97);
+  backdrop-filter:blur(8px);z-index:20;
+  border-bottom:2px solid var(--navy);
+  padding-bottom:10px;margin:0 -24px;
+  padding-left:24px;padding-right:24px;
+}
+.progress-track{height:3px;background:var(--dim);margin-bottom:10px}
+.progress-fill{height:100%;background:var(--navy);transition:width .4s ease}
 .quiz-meta{display:flex;justify-content:space-between;align-items:center}
-.qm-counter{font-size:11px;color:var(--muted);letter-spacing:.1em}
-.qm-subject{font-size:11px;color:var(--accent2);letter-spacing:.05em;text-align:center;max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.qm-score{font-size:11px;color:var(--green);letter-spacing:.06em}
+.qm-counter{font-size:10px;color:var(--slate);letter-spacing:.1em;font-weight:700;text-transform:uppercase}
+.qm-subject{
+  font-size:10px;color:var(--navy-mid);letter-spacing:.05em;
+  text-align:center;max-width:230px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;font-weight:700;text-transform:uppercase;
+}
+.qm-score{font-size:10px;color:var(--green);letter-spacing:.06em;font-weight:700}
 
-.quiz-body{padding-top:26px;display:flex;flex-direction:column;gap:14px}
+.quiz-body{padding-top:24px;display:flex;flex-direction:column;gap:12px}
 
-.question-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:26px 28px 22px;position:relative;overflow:hidden}
-.question-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
-.question-text{font-family:'Syne',sans-serif;font-size:17px;font-weight:600;line-height:1.65;color:#eef2f8}
+/* Question box — accent box style from CM-STYLE-01 */
+.question-box{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-left:4px solid var(--navy);
+  padding:24px 26px 20px;
+  position:relative;
+}
+.question-text{
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:15px;font-weight:700;line-height:1.65;color:var(--text);
+}
 
-.choices{display:flex;flex-direction:column;gap:10px}
-.choice-btn{display:flex;align-items:flex-start;gap:14px;padding:13px 18px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;text-align:left;font-family:'Space Mono',monospace;font-size:13px;color:#94a3b8;cursor:pointer;transition:background .15s,border-color .15s,color .15s;line-height:1.6;width:100%}
-.choice-btn:hover:not(:disabled){background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14);color:var(--text)}
+/* Choices */
+.choices{display:flex;flex-direction:column;gap:8px}
+.choice-btn{
+  display:flex;align-items:flex-start;gap:12px;padding:12px 16px;
+  background:var(--white);border:1px solid var(--border-med);
+  text-align:left;font-family:Arial,Helvetica,sans-serif;font-size:13px;
+  color:var(--text-body);cursor:pointer;
+  transition:background .12s,border-color .12s;line-height:1.55;width:100%;
+}
+.choice-btn:hover:not(:disabled){
+  background:var(--blue-light);border-color:var(--navy-mid);color:var(--navy);
+}
 .choice-btn:disabled{cursor:default}
-.choice-btn.correct{background:rgba(45,212,160,.1);border-color:rgba(45,212,160,.45);color:#6ef0c8}
-.choice-btn.wrong{background:rgba(245,97,78,.09);border-color:rgba(245,97,78,.35);color:#f9968a}
-.choice-lbl{flex-shrink:0;width:24px;height:24px;background:rgba(255,255,255,.08);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);margin-top:1px}
-.choice-btn.correct .choice-lbl{background:rgba(45,212,160,.18);color:var(--green)}
-.choice-btn.wrong .choice-lbl{background:rgba(245,97,78,.18);color:var(--red)}
-.choice-mark{flex-shrink:0;font-size:15px;margin-top:3px}
+.choice-btn.correct{
+  background:var(--sage);border-color:#1A6B3A;color:#1A4024;
+  border-left:4px solid #1A6B3A;
+}
+.choice-btn.wrong{
+  background:var(--red-fill);border-color:#B91C1C;color:#7F1D1D;
+  border-left:4px solid #B91C1C;
+}
+.choice-lbl{
+  flex-shrink:0;width:22px;height:22px;
+  background:var(--blue-light);border:1px solid var(--border-med);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:var(--navy);margin-top:1px;
+}
+.choice-btn.correct .choice-lbl{background:#C6E8CE;border-color:#1A6B3A;color:#1A4024}
+.choice-btn.wrong .choice-lbl{background:#FCD5D5;border-color:#B91C1C;color:#7F1D1D}
+.choice-mark{flex-shrink:0;font-size:14px;margin-top:3px}
 
-.explanation-box{background:rgba(61,214,245,.05);border:1px solid rgba(61,214,245,.15);border-radius:10px;padding:18px 20px;animation:fadeUp .22s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
-.exp-label{font-size:9px;letter-spacing:.2em;color:var(--accent);font-weight:700;margin-bottom:8px;text-transform:uppercase}
-.exp-text{font-size:13px;color:#b0bec5;line-height:1.75;margin-bottom:10px}
-.orig-card{font-size:11px;color:var(--muted);line-height:1.6;border-top:1px solid var(--border);padding-top:10px}
-.orig-card b{color:#475569;letter-spacing:.04em}
+/* Explanation — confirmed finding box style */
+.explanation-box{
+  background:var(--blue-light);
+  border:1px solid var(--border);
+  border-left:4px solid var(--navy);
+  padding:16px 18px;
+  animation:fadeUp .2s ease;
+  margin-top:4px;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.exp-label{
+  font-size:8px;letter-spacing:.22em;color:var(--navy);
+  font-weight:700;margin-bottom:8px;text-transform:uppercase;
+}
+.exp-text{font-size:13px;color:var(--text-body);line-height:1.75;margin-bottom:8px}
+.orig-card{font-size:11px;color:var(--slate);line-height:1.6;border-top:1px solid var(--border-med);padding-top:8px}
 
-.next-btn{width:100%;padding:14px;background:rgba(61,214,245,.07);border:1px solid rgba(61,214,245,.22);border-radius:10px;color:var(--accent);font-family:'Space Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .15s}
-.next-btn:hover{background:rgba(61,214,245,.13)}
+.next-btn{
+  width:100%;padding:13px;
+  background:var(--white);border:1px solid var(--navy);
+  color:var(--navy);font-family:Arial,Helvetica,sans-serif;
+  font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  cursor:pointer;transition:background .15s,color .15s;
+}
+.next-btn:hover{background:var(--navy);color:var(--white)}
 
 /* ── RESULTS ── */
-.results-hero{text-align:center;padding:48px 0 28px}
-.score-pct{font-family:'Syne',sans-serif;font-size:90px;font-weight:800;line-height:1;letter-spacing:-.04em;color:#fff}
-.score-grade{font-size:13px;letter-spacing:.22em;font-weight:700;text-transform:uppercase;margin-top:8px}
-.score-sub{font-size:13px;color:var(--muted);margin-top:6px}
+.results-hero{text-align:center;padding:44px 0 24px}
+.r-label{font-size:9px;letter-spacing:.2em;color:var(--navy-mid);text-transform:uppercase;margin-bottom:10px;font-weight:700}
+.score-pct{
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:80px;font-weight:700;line-height:1;color:var(--navy);
+}
+.score-grade{font-size:12px;letter-spacing:.2em;font-weight:700;text-transform:uppercase;margin-top:8px}
+.score-sub{font-size:13px;color:var(--slate);margin-top:6px}
 
-.results-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:16px}
+.results-card{
+  background:var(--white);border:1px solid var(--border);
+  border-left:3px solid var(--navy);
+  padding:18px 22px;margin-bottom:14px;
+}
 .subject-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-.sr-name{width:190px;flex-shrink:0;font-size:11px;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sr-bar-wrap{flex:1;height:6px;background:var(--dim);border-radius:3px;overflow:hidden}
-.sr-bar-fill{height:100%;border-radius:3px;transition:width .7s ease}
-.sr-pct{width:38px;text-align:right;font-size:11px;color:var(--muted)}
+.sr-name{width:190px;flex-shrink:0;font-size:11px;color:var(--text-body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sr-bar-wrap{flex:1;height:5px;background:var(--dim);overflow:hidden}
+.sr-bar-fill{height:100%;transition:width .7s ease}
+.sr-pct{width:38px;text-align:right;font-size:11px;color:var(--slate)}
 
-.weak-banner{margin-top:14px;padding:12px 16px;background:rgba(245,97,78,.07);border:1px solid rgba(245,97,78,.2);border-radius:8px;font-size:11px;color:#f9a8a0;line-height:1.7}
-.missed-item{padding:14px 0;border-bottom:1px solid var(--border)}
+/* Weak banner — warm/caveat box */
+.weak-banner{
+  margin-top:12px;padding:11px 14px;
+  background:var(--amber-fill);
+  border:1px solid rgba(122,64,0,.2);
+  border-left:3px solid var(--amber-warm);
+  font-size:11px;color:#5C3A00;line-height:1.7;
+}
+.missed-item{padding:13px 0;border-bottom:1px solid var(--border)}
 .missed-item:last-child{border-bottom:none}
-.missed-q{font-size:13px;color:var(--text);margin-bottom:6px;line-height:1.6}
+.missed-q{font-size:13px;color:var(--text);margin-bottom:6px;line-height:1.6;font-weight:700}
 .missed-correct{font-size:12px;color:var(--green);margin-bottom:3px}
 .missed-wrong{font-size:12px;color:var(--red)}
-.all-correct{font-size:13px;color:var(--green);padding:8px 0}
+.all-correct{font-size:13px;color:var(--green);padding:8px 0;font-weight:700}
 
-.new-quiz-btn{width:100%;padding:17px;background:linear-gradient(135deg,#3dd6f5,#8b7cf6);border:none;border-radius:10px;color:#07090f;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:transform .15s,opacity .15s;margin-top:8px}
-.new-quiz-btn:hover{transform:translateY(-1px);opacity:.9}
-.footer{text-align:center;padding:28px 0 0;font-size:10px;color:var(--muted);letter-spacing:.07em}
-.footer a{color:var(--accent2);text-decoration:none}
+.new-quiz-btn{
+  width:100%;padding:15px;
+  background:var(--navy);border:none;color:var(--white);
+  font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;cursor:pointer;
+  transition:background .15s,transform .1s;margin-top:8px;
+}
+.new-quiz-btn:hover{background:var(--navy-mid);transform:translateY(-1px)}
+.footer{
+  text-align:center;padding:24px 0 0;
+  font-size:9px;color:var(--slate);letter-spacing:.08em;
+  border-top:1px solid var(--border);margin-top:12px;
+}
+.footer a{color:var(--navy-mid);text-decoration:none}
 
 /* ── SCREENS ── */
-#screen-quiz,#screen-results{display:none}
+#screen-quiz,#screen-results,#screen-passage{display:none}
 
 /* ── MODE TOGGLE ── */
-.mode-toggle{display:flex;gap:0;margin-bottom:16px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
-.mode-btn{flex:1;padding:12px;background:transparent;border:none;color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .2s}
-.mode-btn.active{background:rgba(61,214,245,.1);color:var(--accent)}
-.mode-btn:first-child{border-right:1px solid var(--border)}
+.mode-toggle{
+  display:flex;gap:0;margin-bottom:14px;
+  border:1px solid var(--border-med);overflow:hidden;
+}
+.mode-btn{
+  flex:1;padding:12px;background:var(--white);border:none;
+  color:var(--slate);font-family:Arial,Helvetica,sans-serif;
+  font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  cursor:pointer;transition:all .2s;
+}
+.mode-btn.active{background:var(--navy);color:var(--white)}
+.mode-btn:first-child{border-right:1px solid var(--border-med)}
+.mode-btn:hover:not(.active){background:var(--blue-light);color:var(--navy)}
 
 /* ── PASSAGE UI ── */
-.passage-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 26px;margin-bottom:16px;position:relative;overflow:hidden}
-.passage-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent))}
-.passage-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#fff;margin-bottom:6px}
-.passage-topic{font-size:10px;letter-spacing:.15em;color:var(--accent2);text-transform:uppercase;margin-bottom:14px}
-.passage-text{font-size:13px;color:#94a3b8;line-height:1.85;border-top:1px solid var(--border);padding-top:14px}
-.passage-sticky{position:sticky;top:56px;z-index:15;background:rgba(7,9,15,.95);backdrop-filter:blur(14px);padding:10px 0 14px;margin:0 0 16px}
-.p-progress{font-size:11px;color:var(--muted);letter-spacing:.08em;margin-bottom:6px}
-.passage-selector{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
-.psel-btn{padding:8px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;transition:all .15s;text-align:left}
-.psel-btn:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
-.psel-btn.active{background:rgba(139,124,246,.1);border-color:rgba(139,124,246,.35);color:#b8aff8}
-.psel-btn.done{border-color:rgba(45,212,160,.3);color:var(--green)}
+.passage-card{
+  background:var(--white);border:1px solid var(--border);
+  border-left:4px solid var(--navy-mid);
+  padding:20px 24px;margin-bottom:14px;position:relative;
+}
+.passage-title{
+  font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;
+  color:var(--navy);margin-bottom:4px;
+}
+.passage-topic{
+  font-size:9px;letter-spacing:.18em;color:var(--navy-mid);
+  text-transform:uppercase;margin-bottom:12px;font-weight:700;
+}
+.passage-text{
+  font-size:13px;color:var(--text-body);line-height:1.85;
+  border-top:1px solid var(--border);padding-top:12px;
+}
+.passage-sticky{
+  position:sticky;top:56px;z-index:15;
+  background:rgba(244,247,251,.97);backdrop-filter:blur(8px);
+  padding:8px 0 12px;margin:0 0 14px;
+}
+.p-progress{font-size:11px;color:var(--slate);letter-spacing:.06em;margin-bottom:6px}
+.passage-selector{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.psel-btn{
+  padding:10px 14px;background:var(--white);
+  border:1px solid var(--border-med);
+  color:var(--text-body);font-family:Arial,Helvetica,sans-serif;
+  font-size:11px;cursor:pointer;transition:all .15s;text-align:left;
+}
+.psel-btn:hover{border-color:var(--navy);color:var(--navy);background:var(--blue-light)}
+.psel-btn.active{
+  background:var(--blue-light);border-color:var(--navy);
+  color:var(--navy);border-left:3px solid var(--navy);
+}
+.psel-btn.done{border-color:var(--green);color:var(--green)}
 
 </style>
 </head>
@@ -142,9 +350,10 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <div id="screen-home">
   <div class="wrap">
     <div class="home-hero">
-      <div class="hero-badge">MileDown Biochemistry · 200+ Questions</div>
-      <h1 class="hero-title">MCAT<span>PREP</span></h1>
-      <p class="hero-sub">MCAT-Style Multiple Choice · Instant · No Login Required</p>
+      <div class="hero-badge">MileDown Biochemistry · 468 Recall + 23 Passage Questions</div>
+      <h1 class="hero-title">MCAT <span>Biochemistry</span></h1>
+      <div class="hero-divider"></div>
+      <p class="hero-sub">Clinical Mastery Quiz System · Collin Blaine George</p>
       <p class="hero-count" id="total-count"></p>
     </div>
 
@@ -217,7 +426,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div class="results-card" id="r-missed"></div>
     <div style="display:flex;gap:12px;margin-top:4px">
       <button class="new-quiz-btn" style="flex:1" onclick="goHome()">← NEW QUIZ</button>
-      <button class="new-quiz-btn" style="flex:1;background:linear-gradient(135deg,#2dd4a0,#0ea5e9);color:#07090f" onclick="drillWeak()">DRILL WEAK AREAS</button>
+      <button class="new-quiz-btn" style="flex:1;background:linear-gradient(135deg,#2dd4a0,#0ea5e9);color:#1B3A5C" onclick="drillWeak()">DRILL WEAK AREAS</button>
     </div>
     <button class="new-quiz-btn" style="margin-top:10px;background:rgba(255,255,255,.06);color:var(--muted);font-size:12px" onclick="resetStats()">RESET ALL CUMULATIVE STATS</button>
     <div class="footer">MileDown Biochemistry · Open Source · <a href="https://github.com" target="_blank">GitHub</a></div>
@@ -773,7 +982,7 @@ function startQuiz() {
 }
 
 function show(id) {
-  ['screen-home','screen-quiz','screen-results'].forEach(s=>{
+  ['screen-home','screen-quiz','screen-results','screen-passage'].forEach(s=>{
     document.getElementById(s).style.display = s===id ? 'block' : 'none';
   });
 }
@@ -940,7 +1149,7 @@ function showResults() {
     <div class="section-label">ESTIMATED MCAT SCORE — B/B SECTION</div>
     <div style="display:flex;align-items:center;gap:28px;padding:8px 0 12px">
       <div style="text-align:center">
-        <div style="font-family:'Syne',sans-serif;font-size:64px;font-weight:800;line-height:1;color:${sc}">${mcatScore}</div>
+        <div style="font-family:Arial,Helvetica,sans-serif;font-size:64px;font-weight:800;line-height:1;color:${sc}">${mcatScore}</div>
         <div style="font-size:10px;letter-spacing:.1em;color:var(--muted);margin-top:4px">SCALED SCORE</div>
       </div>
       <div style="flex:1">
@@ -1584,7 +1793,7 @@ function showPassageResults() {
   document.getElementById('pp-question-box').innerHTML = `
     <div style="text-align:center;padding:32px 0 24px">
       <div style="font-size:10px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:10px">PASSAGE COMPLETE</div>
-      <div style="font-family:'Syne',sans-serif;font-size:72px;font-weight:800;line-height:1;color:${col}">${pct}%</div>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:72px;font-weight:800;line-height:1;color:${col}">${pct}%</div>
       <div style="font-size:13px;color:var(--muted);margin-top:8px">${cor} / ${tot} correct · ${p.title}</div>
     </div>
     <div class="results-card">
@@ -1600,7 +1809,7 @@ function showPassageResults() {
     </div>
     <div style="display:flex;gap:12px;margin-top:8px">
       <button class="new-quiz-btn" style="flex:1" onclick="goHome()">← HOME</button>
-      <button class="new-quiz-btn" style="flex:1;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#07090f" onclick="startPassage()">RETRY PASSAGE</button>
+      <button class="new-quiz-btn" style="flex:1;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#1B3A5C" onclick="startPassage()">RETRY PASSAGE</button>
     </div>`;
 
   document.getElementById('pp-fill').style.width='100%';
