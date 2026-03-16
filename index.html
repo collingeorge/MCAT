@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCAT Biochemistry Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090f;--surface:#0d1117;--border:rgba(255,255,255,0.07);
+  --accent:#3dd6f5;--accent2:#8b7cf6;--green:#2dd4a0;--red:#f5614e;
+  --amber:#f5c842;--text:#dce6f0;--muted:#4a5568;--dim:#1a2035;
+}
+html{font-size:16px}
+body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(61,214,245,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(61,214,245,0.025) 1px,transparent 1px);background-size:52px 52px;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:740px;margin:0 auto;padding:0 20px 80px}
+
+/* ── HOME ── */
+.home-hero{padding:56px 0 36px;text-align:center}
+.hero-badge{display:inline-block;font-size:10px;letter-spacing:.18em;color:var(--accent);border:1px solid rgba(61,214,245,.2);padding:5px 14px;border-radius:3px;margin-bottom:22px;text-transform:uppercase}
+.hero-title{font-family:'Syne',sans-serif;font-size:clamp(48px,9vw,80px);font-weight:800;line-height:1;letter-spacing:-.03em;color:#fff;margin-bottom:10px}
+.hero-title span{color:var(--accent)}
+.hero-sub{font-size:12px;color:var(--muted);letter-spacing:.06em;margin-bottom:6px}
+.hero-count{font-size:11px;color:var(--accent2);letter-spacing:.1em}
+
+.config-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:16px}
+.section-label{font-size:10px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:14px;font-weight:700}
+.config-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.config-header .section-label{margin-bottom:0}
+.micro-row{display:flex;gap:8px}
+.micro-btn{padding:4px 10px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:4px;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:.06em;transition:all .15s}
+.micro-btn:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
+
+.count-row{display:flex;gap:10px;flex-wrap:wrap}
+.count-btn{padding:10px 22px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Space Mono',monospace;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s}
+.count-btn:hover{color:var(--text)}
+.count-btn.active{background:rgba(61,214,245,.1);border-color:rgba(61,214,245,.4);color:var(--accent)}
+
+.subject-grid{display:flex;flex-wrap:wrap;gap:8px}
+.subject-chip{padding:6px 12px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:5px;color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;letter-spacing:.03em;transition:all .15s;user-select:none}
+.subject-chip:hover{color:var(--text)}
+.subject-chip.on{background:rgba(139,124,246,.1);border-color:rgba(139,124,246,.35);color:#b8aff8}
+.avail{font-size:11px;color:var(--muted);margin-top:12px;letter-spacing:.04em}
+
+.start-btn{width:100%;padding:17px;background:linear-gradient(135deg,#3dd6f5,#8b7cf6);border:none;border-radius:10px;color:#07090f;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:transform .15s,opacity .15s;margin-top:4px}
+.start-btn:hover{transform:translateY(-1px);opacity:.9}
+.start-btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
+
+/* ── QUIZ ── */
+.quiz-header{position:sticky;top:0;background:rgba(7,9,15,.9);backdrop-filter:blur(14px);z-index:20;border-bottom:1px solid var(--border);padding-bottom:12px;margin:0 -20px;padding-left:20px;padding-right:20px}
+.progress-track{height:2px;background:var(--dim);margin-bottom:12px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s ease}
+.quiz-meta{display:flex;justify-content:space-between;align-items:center}
+.qm-counter{font-size:11px;color:var(--muted);letter-spacing:.1em}
+.qm-subject{font-size:11px;color:var(--accent2);letter-spacing:.05em;text-align:center;max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qm-score{font-size:11px;color:var(--green);letter-spacing:.06em}
+
+.quiz-body{padding-top:26px;display:flex;flex-direction:column;gap:14px}
+
+.question-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:26px 28px 22px;position:relative;overflow:hidden}
+.question-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.question-text{font-family:'Syne',sans-serif;font-size:17px;font-weight:600;line-height:1.65;color:#eef2f8}
+
+.choices{display:flex;flex-direction:column;gap:10px}
+.choice-btn{display:flex;align-items:flex-start;gap:14px;padding:13px 18px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;text-align:left;font-family:'Space Mono',monospace;font-size:13px;color:#94a3b8;cursor:pointer;transition:background .15s,border-color .15s,color .15s;line-height:1.6;width:100%}
+.choice-btn:hover:not(:disabled){background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14);color:var(--text)}
+.choice-btn:disabled{cursor:default}
+.choice-btn.correct{background:rgba(45,212,160,.1);border-color:rgba(45,212,160,.45);color:#6ef0c8}
+.choice-btn.wrong{background:rgba(245,97,78,.09);border-color:rgba(245,97,78,.35);color:#f9968a}
+.choice-lbl{flex-shrink:0;width:24px;height:24px;background:rgba(255,255,255,.08);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);margin-top:1px}
+.choice-btn.correct .choice-lbl{background:rgba(45,212,160,.18);color:var(--green)}
+.choice-btn.wrong .choice-lbl{background:rgba(245,97,78,.18);color:var(--red)}
+.choice-mark{flex-shrink:0;font-size:15px;margin-top:3px}
+
+.explanation-box{background:rgba(61,214,245,.05);border:1px solid rgba(61,214,245,.15);border-radius:10px;padding:18px 20px;animation:fadeUp .22s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.exp-label{font-size:9px;letter-spacing:.2em;color:var(--accent);font-weight:700;margin-bottom:8px;text-transform:uppercase}
+.exp-text{font-size:13px;color:#b0bec5;line-height:1.75;margin-bottom:10px}
+.orig-card{font-size:11px;color:var(--muted);line-height:1.6;border-top:1px solid var(--border);padding-top:10px}
+.orig-card b{color:#475569;letter-spacing:.04em}
+
+.next-btn{width:100%;padding:14px;background:rgba(61,214,245,.07);border:1px solid rgba(61,214,245,.22);border-radius:10px;color:var(--accent);font-family:'Space Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .15s}
+.next-btn:hover{background:rgba(61,214,245,.13)}
+
+/* ── RESULTS ── */
+.results-hero{text-align:center;padding:48px 0 28px}
+.score-pct{font-family:'Syne',sans-serif;font-size:90px;font-weight:800;line-height:1;letter-spacing:-.04em;color:#fff}
+.score-grade{font-size:13px;letter-spacing:.22em;font-weight:700;text-transform:uppercase;margin-top:8px}
+.score-sub{font-size:13px;color:var(--muted);margin-top:6px}
+
+.results-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:16px}
+.subject-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.sr-name{width:190px;flex-shrink:0;font-size:11px;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sr-bar-wrap{flex:1;height:6px;background:var(--dim);border-radius:3px;overflow:hidden}
+.sr-bar-fill{height:100%;border-radius:3px;transition:width .7s ease}
+.sr-pct{width:38px;text-align:right;font-size:11px;color:var(--muted)}
+
+.weak-banner{margin-top:14px;padding:12px 16px;background:rgba(245,97,78,.07);border:1px solid rgba(245,97,78,.2);border-radius:8px;font-size:11px;color:#f9a8a0;line-height:1.7}
+.missed-item{padding:14px 0;border-bottom:1px solid var(--border)}
+.missed-item:last-child{border-bottom:none}
+.missed-q{font-size:13px;color:var(--text);margin-bottom:6px;line-height:1.6}
+.missed-correct{font-size:12px;color:var(--green);margin-bottom:3px}
+.missed-wrong{font-size:12px;color:var(--red)}
+.all-correct{font-size:13px;color:var(--green);padding:8px 0}
+
+.new-quiz-btn{width:100%;padding:17px;background:linear-gradient(135deg,#3dd6f5,#8b7cf6);border:none;border-radius:10px;color:#07090f;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:transform .15s,opacity .15s;margin-top:8px}
+.new-quiz-btn:hover{transform:translateY(-1px);opacity:.9}
+.footer{text-align:center;padding:28px 0 0;font-size:10px;color:var(--muted);letter-spacing:.07em}
+.footer a{color:var(--accent2);text-decoration:none}
+
+/* ── SCREENS ── */
+#screen-quiz,#screen-results{display:none}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="screen-home">
+  <div class="wrap">
+    <div class="home-hero">
+      <div class="hero-badge">MileDown Biochemistry · 200+ Questions</div>
+      <h1 class="hero-title">MCAT<span>PREP</span></h1>
+      <p class="hero-sub">MCAT-Style Multiple Choice · Instant · No Login Required</p>
+      <p class="hero-count" id="total-count"></p>
+    </div>
+
+    <div class="config-card">
+      <div class="section-label">Questions per Session</div>
+      <div class="count-row">
+        <button class="count-btn active" onclick="setCount(10,this)">10</button>
+        <button class="count-btn" onclick="setCount(20,this)">20</button>
+        <button class="count-btn" onclick="setCount(30,this)">30</button>
+        <button class="count-btn" onclick="setCount(50,this)">50</button>
+        <button class="count-btn" onclick="setCount(999,this)">ALL</button>
+      </div>
+    </div>
+
+    <div class="config-card">
+      <div class="config-header">
+        <div class="section-label">Subjects</div>
+        <div class="micro-row">
+          <button class="micro-btn" onclick="selectAll()">ALL</button>
+          <button class="micro-btn" onclick="clearAll()">CLEAR</button>
+        </div>
+      </div>
+      <div class="subject-grid" id="subject-grid"></div>
+      <div class="avail" id="avail"></div>
+    </div>
+
+    <button class="start-btn" id="start-btn" onclick="startQuiz()">START QUIZ →</button>
+    <div class="footer">MileDown Biochemistry Deck &nbsp;·&nbsp; Open Source &nbsp;·&nbsp; <a href="https://github.com" target="_blank">GitHub</a></div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz">
+  <div class="quiz-header">
+    <div class="progress-track"><div class="progress-fill" id="pfill" style="width:0%"></div></div>
+    <div class="quiz-meta">
+      <span class="qm-counter" id="qm-counter">1 / 10</span>
+      <span class="qm-subject" id="qm-subject"></span>
+      <span class="qm-score" id="qm-score">✓ 0/0</span>
+    </div>
+  </div>
+  <div class="wrap"><div class="quiz-body" id="quiz-body"></div></div>
+</div>
+
+<!-- RESULTS -->
+<div id="screen-results">
+  <div class="wrap">
+    <div class="results-hero">
+      <div class="r-label" style="font-size:10px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:10px">SESSION COMPLETE</div>
+      <div class="score-pct" id="r-pct">0%</div>
+      <div class="score-grade" id="r-grade"></div>
+      <div class="score-sub" id="r-sub"></div>
+    </div>
+    <div class="results-card" id="r-mcat-score"></div>
+    <div class="results-card" id="r-cumulative"></div>
+    <div class="results-card" id="r-breakdown"></div>
+    <div class="results-card" id="r-sw"></div>
+    <div class="results-card" id="r-missed"></div>
+    <div style="display:flex;gap:12px;margin-top:4px">
+      <button class="new-quiz-btn" style="flex:1" onclick="goHome()">← NEW QUIZ</button>
+      <button class="new-quiz-btn" style="flex:1;background:linear-gradient(135deg,#2dd4a0,#0ea5e9);color:#07090f" onclick="drillWeak()">DRILL WEAK AREAS</button>
+    </div>
+    <button class="new-quiz-btn" style="margin-top:10px;background:rgba(255,255,255,.06);color:var(--muted);font-size:12px" onclick="resetStats()">RESET ALL CUMULATIVE STATS</button>
+    <div class="footer">MileDown Biochemistry · Open Source · <a href="https://github.com" target="_blank">GitHub</a></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+//  QUESTION BANK  — 200+ MCAT-style MCQs
+//  Format: { q, choices:[A,B,C,D], ans (0-3), exp, s (subject) }
+// ════════════════════════════════════════════════════════════════
+const QB = [
+
+// ── BIOSIGNALING ─────────────────────────────────────────────
+{s:"Biosignaling",q:"Which of the following best describes the mechanism of G protein-coupled receptors (GPCRs)?",choices:["They directly phosphorylate cytoplasmic substrates after ligand binding","They detect extracellular molecules and activate internal signal transduction pathways via second messengers","They form ion channels that open upon ligand binding","They translocate to the nucleus and act as transcription factors"],ans:1,exp:"GPCRs detect extracellular ligands (first messengers) and activate intracellular signal transduction cascades through second messengers such as cAMP. They do not directly phosphorylate substrates or form ion channels."},
+
+{s:"Biosignaling",q:"Epinephrine acts as which type of messenger in G protein-coupled receptor signaling?",choices:["Second messenger","Third messenger","First messenger","Allosteric effector"],ans:2,exp:"Epinephrine is the first messenger (the extracellular ligand) that binds the GPCR. cAMP or IP3 generated downstream are the second messengers."},
+
+{s:"Biosignaling",q:"Enzyme-linked receptors initiate intracellular signaling primarily by:",choices:["Opening ion channels upon ligand binding","Activating adenylyl cyclase directly","Initiating second messenger cascades after extracellular ligand binding","Binding to G proteins on the cytoplasmic face"],ans:2,exp:"Enzyme-linked receptors (e.g., receptor tyrosine kinases) bind extracellular ligands and initiate second messenger cascades. Unlike GPCRs, they possess intrinsic enzymatic activity (e.g., kinase activity) rather than coupling to G proteins."},
+
+{s:"Biosignaling",q:"Ligand-gated ion channels differ from voltage-gated ion channels in that they:",choices:["Open in response to a specific binding substance rather than changes in membrane potential","Are found exclusively in neurons","Require ATP hydrolysis to open","Only permit Na+ ions to pass"],ans:0,exp:"Ligand-gated ion channels open when a specific molecule (usually a hormone or neurotransmitter) binds to them. Voltage-gated channels open in response to changes in membrane potential."},
+
+// ── CARBOHYDRATES ─────────────────────────────────────────────
+{s:"Carbohydrates",q:"Two monosaccharides are epimers. This means they:",choices:["Are mirror images of each other at every chiral center","Differ at exactly one chiral carbon","Are non-superimposable mirror images","Differ only at the anomeric carbon"],ans:1,exp:"Epimers are a subtype of diastereomers that differ at exactly one chiral carbon. Anomers are a further subset of epimers that differ specifically at the anomeric carbon."},
+
+{s:"Carbohydrates",q:"Which of the following correctly describes the relationship between enantiomers?",choices:["Non-superimposable, not mirror images","Superimposable mirror images","Non-superimposable mirror images","Differ at one chiral center only"],ans:2,exp:"Enantiomers are stereoisomers that are non-superimposable mirror images of each other. Diastereomers are non-superimposable but are NOT mirror images."},
+
+{s:"Carbohydrates",q:"Mutarotation of glucose refers to:",choices:["Conversion of glucose to fructose by isomerase","Spontaneous interconversion between the alpha and beta anomeric forms","Oxidation of the anomeric carbon to a carboxylic acid","Phosphorylation of glucose at the C-6 position"],ans:1,exp:"Mutarotation is the spontaneous shift between alpha and beta anomeric forms through the open-chain (acyclic) intermediate. It results in an equilibrium mixture with a characteristic optical rotation."},
+
+{s:"Carbohydrates",q:"Which of the following is a NON-reducing sugar?",choices:["Glucose","Galactose","Sucrose","Maltose"],ans:2,exp:"Sucrose is non-reducing because both anomeric carbons are involved in the glycosidic bond, leaving no free -OH at the anomeric carbon. All other listed disaccharides and monosaccharides have a free anomeric -OH and are reducing sugars."},
+
+{s:"Carbohydrates",q:"An anomeric carbon is best defined as:",choices:["A carbon that bears a phosphate group in the cyclic form","A carbon that is a stereocenter in the acyclic form but not in the cyclic form","A carbon that is not a stereocenter in the acyclic form but becomes one in the cyclic form","The carbon bonded to the ring oxygen in a pyranose"],ans:2,exp:"The anomeric carbon is not a stereocenter in the open-chain form but becomes one upon ring closure (cyclization), creating alpha and beta anomers."},
+
+{s:"Carbohydrates",q:"Nearly all naturally occurring carbohydrates exist in which configuration?",choices:["L-configuration","D-configuration","R-configuration","S-configuration"],ans:1,exp:"The D and L nomenclature is based on the configuration of glyceraldehyde. Nearly all carbohydrates in nature are in the D-configuration."},
+
+{s:"Carbohydrates",q:"Cellulose and starch are both polymers of glucose, yet cellulose cannot be digested by humans. The key structural difference is:",choices:["Cellulose uses alpha-1,4 glycosidic bonds; starch uses beta-1,4 bonds","Cellulose uses beta-1,4 glycosidic bonds; starch uses alpha-1,4 bonds","Cellulose is a disaccharide; starch is a monosaccharide","Cellulose contains fructose monomers; starch contains glucose monomers"],ans:1,exp:"Cellulose is composed of beta-1,4 glycosidic bonds, which humans lack the enzyme (cellulase) to break. Starch uses alpha-1,4 bonds that human amylases can hydrolyze."},
+
+// ── LIPIDS ────────────────────────────────────────────────────
+{s:"Lipids",q:"Which statement correctly describes the relationship between fatty acid saturation and membrane fluidity?",choices:["Saturated fatty acids increase membrane fluidity by preventing tight packing","Unsaturated fatty acids decrease fluidity due to their straight chains","Saturated fatty acids pack tightly, decreasing fluidity; unsaturated fatty acids introduce kinks that increase fluidity","Membrane fluidity is unrelated to fatty acid saturation"],ans:2,exp:"Saturated fatty acids have straight chains that pack tightly, reducing fluidity. Cis double bonds in unsaturated fatty acids introduce kinks that prevent tight packing, increasing fluidity."},
+
+{s:"Lipids",q:"Cholesterol's effect on membrane fluidity is temperature-dependent. At LOW temperatures, cholesterol:",choices:["Crystallizes with fatty acid tails, dramatically reducing fluidity","Prevents fatty acid chains from crystallizing, thereby increasing fluidity","Has no effect on membrane fluidity","Exits the bilayer entirely"],ans:1,exp:"At low temperatures, cholesterol inserts between fatty acid chains and prevents them from coming together and crystallizing, thereby maintaining fluidity. At high temperatures, it does the opposite — it restricts movement and reduces fluidity."},
+
+{s:"Lipids",q:"Which of the following lipids contains a sphingosine backbone rather than a glycerol backbone?",choices:["Phosphatidylcholine","Phosphatidylethanolamine","Sphingomyelin","Triacylglycerol"],ans:2,exp:"Sphingomyelin is a sphingolipid with a sphingosine backbone. Phosphatidylcholine and phosphatidylethanolamine are glycerophospholipids with glycerol backbones. Triacylglycerol also uses glycerol."},
+
+{s:"Lipids",q:"Steroids are structurally characterized by:",choices:["A glycerol backbone esterified to three fatty acids","Three cyclohexane rings and one cyclopentane ring fused together","Two benzene rings with a phosphate head group","A sphingosine backbone with a sugar unit"],ans:1,exp:"All steroids share the basic structure of three fused cyclohexane rings and one cyclopentane ring ('three rooms and a garage'). Cholesterol is the primary precursor to steroid hormones."},
+
+{s:"Lipids",q:"Saponification is best described as:",choices:["Phosphorylation of triacylglycerols by kinase enzymes","Ester hydrolysis of triacylglycerols using a strong base","Oxidation of fatty acids in the mitochondria","Glycosylation of membrane lipids"],ans:1,exp:"Saponification is base-promoted ester hydrolysis of triacylglycerols using strong bases like NaOH or KOH. The products are glycerol and fatty acid salts (soaps)."},
+
+{s:"Lipids",q:"What structural feature allows micelle formation to be thermodynamically favorable?",choices:["Release of energy from covalent bond formation between lipid tails","Increase in entropy of surrounding water molecules as they are freed from ordering around hydrophobic surfaces","Decrease in entropy as lipids organize into a sphere","Hydrogen bond formation between lipid head groups"],ans:1,exp:"Micelle formation is driven by an increase in entropy (ΔS > 0). When hydrophobic tails cluster together, they reduce their contact with water, freeing water molecules to move more randomly. The overall ΔG is negative."},
+
+{s:"Lipids",q:"Prostaglandins are classified as which type of lipid-derived signaling molecule?",choices:["Steroids","Eicosanoids","Retinoids","Phosphoinositides"],ans:1,exp:"Prostaglandins are eicosanoids — lipid compounds derived from 20-carbon fatty acids (arachidonic acid). They regulate cAMP levels and affect smooth muscle contraction, body temperature, pain, and the sleep-wake cycle."},
+
+{s:"Lipids",q:"The four fat-soluble vitamins are:",choices:["A, B, C, D","A, D, E, K","B12, D, E, K","C, D, E, K"],ans:1,exp:"The fat-soluble vitamins are A, D, E, and K (mnemonic: ADEK). They are stored in fatty tissues and the liver. All other vitamins (B-complex, C) are water-soluble."},
+
+// ── DNA & RNA STRUCTURE ───────────────────────────────────────
+{s:"DNA & RNA",q:"Which of the following correctly states Chargaff's rules?",choices:["The amount of adenine equals the amount of cytosine","In double-stranded DNA, purines equal pyrimidines (A=T, G=C)","The ratio of guanine to cytosine varies between species","Single-stranded RNA follows the same base pairing rules as DNA"],ans:1,exp:"Chargaff's rules state that in double-stranded DNA, A=T and G=C. Therefore, the total number of purines (A+G) equals the total number of pyrimidines (T+C). This is due to complementary base pairing."},
+
+{s:"DNA & RNA",q:"How many hydrogen bonds hold together a G-C base pair versus an A-T base pair?",choices:["G-C: 2; A-T: 3","G-C: 3; A-T: 2","G-C: 3; A-T: 3","G-C: 2; A-T: 2"],ans:1,exp:"Guanine-Cytosine pairs are held by 3 hydrogen bonds; Adenine-Thymine (or Adenine-Uracil in RNA) pairs are held by 2 hydrogen bonds. This is why higher G-C content increases DNA melting temperature."},
+
+{s:"DNA & RNA",q:"A nucleotide differs from a nucleoside in that a nucleotide:",choices:["Contains a deoxyribose sugar rather than ribose","Has one or more phosphate groups attached","Pairs only with purines","Is found only in RNA, not DNA"],ans:1,exp:"A nucleoside consists of a nitrogenous base + sugar only. A nucleotide is a nucleoside with 1-3 phosphate groups added (e.g., AMP, ADP, ATP). All energy currency molecules like ATP are nucleotides."},
+
+{s:"DNA & RNA",q:"Which of the following is a pyrimidine found in DNA but NOT in RNA?",choices:["Cytosine","Uracil","Thymine","Adenine"],ans:2,exp:"Thymine is a pyrimidine found only in DNA. RNA contains uracil instead. Cytosine is a pyrimidine found in both. Adenine is a purine, not a pyrimidine."},
+
+{s:"DNA & RNA",q:"Telomeres are located at the ends of chromosomes and serve to:",choices:["Anchor chromosomes to the nuclear membrane","Initiate DNA replication","Prevent unraveling of chromosomal DNA; they shorten with each replication cycle","Hold sister chromatids together during mitosis"],ans:2,exp:"Telomeres are repetitive G-C rich sequences at chromosome ends that protect chromosomal DNA from degradation. They shorten with each replication cycle (Hayflick limit); telomerase can partially reverse this."},
+
+{s:"DNA & RNA",q:"Centromeres are chromosomal structures that:",choices:["Protect chromosome ends from degradation","Hold sister chromatids together until they are separated during anaphase","Initiate transcription of nearby genes","Serve as origins of DNA replication"],ans:1,exp:"Centromeres are located in the middle of chromosomes and hold sister chromatids together with high-GC-content DNA, ensuring proper chromosome segregation during cell division."},
+
+{s:"DNA & RNA",q:"Which structural level of nucleic acid organization is responsible for the double helix shape of DNA?",choices:["Primary structure (linear sequence)","Secondary structure (interactions between bases within the molecule)","Tertiary structure (3D coordinates of atoms)","Quaternary structure (interactions with other molecules)"],ans:1,exp:"The secondary structure of nucleic acids is defined by interactions between bases (hydrogen bonding, base stacking), which is responsible for the double helix. Primary structure is just the sequence; tertiary is the full 3D fold."},
+
+// ── DNA REPLICATION ───────────────────────────────────────────
+{s:"DNA Replication",q:"Which enzyme is responsible for unwinding the DNA double helix by breaking hydrogen bonds between base pairs?",choices:["Topoisomerase","DNA polymerase","Helicase","DNA primase"],ans:2,exp:"Helicase breaks the hydrogen bonds between nitrogenous bases to separate the two DNA strands. Topoisomerase relieves the torsional stress ahead of the replication fork by cutting and rejoining DNA strands."},
+
+{s:"DNA Replication",q:"Why is an RNA primer required for DNA replication?",choices:["DNA polymerase can only add nucleotides to an existing 3'-OH group","RNA polymerase is more accurate than DNA polymerase","The lagging strand cannot be synthesized without an RNA template","DNA polymerase requires ATP rather than dNTPs"],ans:0,exp:"DNA polymerase can only extend an existing strand — it cannot start de novo. RNA primase synthesizes a short RNA primer with a free 3'-OH that DNA polymerase can then extend."},
+
+{s:"DNA Replication",q:"Okazaki fragments are:",choices:["Short sequences used to terminate DNA replication","Short newly synthesized DNA fragments on the lagging strand that are later joined by DNA ligase","RNA primers that initiate leading strand synthesis","Mismatched bases excised during mismatch repair"],ans:1,exp:"The lagging strand is synthesized discontinuously in short segments called Okazaki fragments, each starting with an RNA primer. DNA polymerase fills in the gaps after primer removal, and DNA ligase joins the fragments."},
+
+{s:"DNA Replication",q:"DNA polymerase reads the template strand in which direction?",choices:["5' to 3'","3' to 5'","Either direction, depending on the strand","Bidirectionally from the origin"],ans:1,exp:"DNA polymerase reads the template strand 3' to 5' and synthesizes the new strand 5' to 3'. This means the leading strand is synthesized continuously 5'→3', while the lagging strand requires Okazaki fragments."},
+
+{s:"DNA Replication",q:"Which of the following correctly distinguishes eukaryotic from prokaryotic DNA replication?",choices:["Prokaryotes use multiple origins of replication; eukaryotes use one","Eukaryotes use multiple origins of replication; prokaryotes use one","Both use a single origin of replication","Eukaryotes do not require DNA ligase"],ans:1,exp:"Eukaryotic chromosomes are large and linear, so they use multiple origins of replication to complete replication efficiently. Prokaryotes have a single circular chromosome with one origin (oriC)."},
+
+// ── DNA REPAIR ────────────────────────────────────────────────
+{s:"DNA Repair",q:"Nucleotide excision repair (NER) is specifically used to fix:",choices:["Single base mismatches from replication errors","Helix-distorting lesions such as thymine dimers caused by UV radiation","Double-strand breaks from ionizing radiation","Cytosine deamination to uracil"],ans:1,exp:"NER fixes helix-deforming lesions like thymine dimers. It works as a 'cut-and-patch' process using excision endonuclease. Base excision repair (BER) handles non-deforming lesions like cytosine deamination."},
+
+{s:"DNA Repair",q:"Base excision repair is used primarily to fix which type of DNA lesion?",choices:["Thymine dimers from UV exposure","Nondeforming lesions such as cytosine deamination (creating an AP site)","Double-strand breaks","Mismatched bases from replication errors"],ans:1,exp:"BER removes a single damaged base using a DNA glycosylase, creating an apurinic/apyrimidinic (AP) site. AP endonuclease then removes the damaged region, which is filled in with correct bases."},
+
+{s:"DNA Repair",q:"An oncogene is best described as:",choices:["A gene encoding proteins that repair DNA damage","A mutated form of a proto-oncogene that promotes excessive cell cycling","A gene that codes for proteins reducing cell cycling","A viral gene inserted into the host genome"],ans:1,exp:"Oncogenes arise from gain-of-function mutations in proto-oncogenes (normal genes regulating cell growth). They constitutively promote cell division — analogous to a stuck accelerator pedal."},
+
+{s:"DNA Repair",q:"Tumor suppressor genes function to:",choices:["Promote cell division in response to growth factors","Reduce cell cycling or promote DNA repair; their loss removes cell-cycle brakes","Encode proteins that migrate to sites of DNA damage","Activate telomerase to extend chromosome life"],ans:1,exp:"Tumor suppressor genes (e.g., p53, Rb) act as brakes on the cell cycle. Mutations that inactivate them (loss-of-function) remove these restraints, contributing to uncontrolled cell growth."},
+
+// ── TRANSCRIPTION & RNA PROCESSING ───────────────────────────
+{s:"Transcription & Translation",q:"According to the central dogma, genetic information flows in which direction?",choices:["Protein → RNA → DNA","RNA → DNA → Protein","DNA → RNA → Protein","DNA → Protein → RNA"],ans:2,exp:"The central dogma states DNA is transcribed into RNA, which is translated into protein. Reverse transcriptase (used by retroviruses) allows RNA → DNA, which is an exception to the unidirectional flow."},
+
+{s:"Transcription & Translation",q:"The genetic code is described as 'degenerate.' This means:",choices:["Multiple amino acids can be coded by the same codon","Multiple codons can code for the same amino acid","The code contains errors that are tolerated","Some codons code for no amino acid at all"],ans:1,exp:"Degeneracy (redundancy) means that most amino acids are encoded by more than one codon. This provides protection against point mutations, especially at the third 'wobble' position."},
+
+{s:"Transcription & Translation",q:"Which codon initiates translation, and what amino acid does it encode?",choices:["UAA — no amino acid (stop)","AUG — Methionine","GUA — Valine","UGA — no amino acid (stop)"],ans:1,exp:"AUG is the universal start codon that encodes methionine (Met). In prokaryotes, the first amino acid is N-formylmethionine. UAA, UAG, and UGA are all stop (termination) codons."},
+
+{s:"Transcription & Translation",q:"Wobble base pairing refers to:",choices:["Hydrogen bond flexibility at the first position of the anticodon","Non-standard base pairing at the third (3') position of the codon, allowing one tRNA to recognize multiple codons","Mismatched bases tolerated during DNA replication","The ability of adenine to pair with either thymine or uracil"],ans:1,exp:"Wobble occurs at the third base of the codon (5' base of the anticodon). Non-standard base pairing here allows one tRNA to recognize multiple codons differing only at the 3rd position, contributing to codon degeneracy."},
+
+{s:"Transcription & Translation",q:"Alternative splicing allows a single gene to produce multiple proteins by:",choices:["Changing the promoter sequence used for transcription","Selectively including or excluding different exons from the mature mRNA","Modifying the protein after translation","Using different start codons in the same mRNA"],ans:1,exp:"Alternative splicing occurs during RNA processing in eukaryotes. By selectively retaining or removing different exons (and sometimes introns), a single gene can give rise to multiple distinct mRNA isoforms and proteins."},
+
+{s:"Transcription & Translation",q:"The 5' cap and poly-A tail on eukaryotic mRNA serve primarily to:",choices:["Provide the ribosome-binding site for translation initiation","Signal the mRNA for nuclear export only","Protect mRNA from degradation and facilitate translation","Mark the mRNA for destruction after one round of translation"],ans:2,exp:"The 7-methylguanosine 5' cap and poly-A tail protect the mRNA from exonucleases, facilitate nuclear export, and promote ribosome recruitment for translation initiation."},
+
+{s:"Transcription & Translation",q:"Which of the following correctly describes the difference between exons and introns?",choices:["Exons stay in the nucleus; introns exit and form mRNA","Introns code for protein; exons are non-coding spacers","Exons code for protein and exit the nucleus in mRNA; introns are non-coding and removed during processing","Both exons and introns are translated into protein"],ans:2,exp:"After transcription, introns are spliced out and exons are joined to form mature mRNA that exits the nucleus. 'Exons exit; introns intervene (stay)' is a useful mnemonic."},
+
+// ── TRANSLATION ───────────────────────────────────────────────
+{s:"Transcription & Translation",q:"Prokaryotic and eukaryotic ribosomes differ in size. Which of the following is correct?",choices:["Prokaryotes: 80S (60S + 40S); Eukaryotes: 70S (50S + 30S)","Prokaryotes: 70S (50S + 30S); Eukaryotes: 80S (60S + 40S)","Both are 70S","Both are 80S"],ans:1,exp:"Prokaryotic ribosomes are 70S (50S large + 30S small subunits). Eukaryotic ribosomes are 80S (60S large + 40S small). Note: Svedberg units are not additive, which is why 50+30≠80."},
+
+{s:"Transcription & Translation",q:"In translation elongation, the tRNA carries its amino acid into which ribosomal site?",choices:["P site (peptidyl site)","E site (exit site)","A site (aminoacyl site)","D site (decoding site)"],ans:2,exp:"Incoming aminoacyl-tRNAs enter the A (aminoacyl) site. The growing polypeptide is held in the P (peptidyl) site. After peptide bond formation, the deacylated tRNA moves to the E (exit) site before leaving."},
+
+{s:"Transcription & Translation",q:"In prokaryotic translation, initiation involves the 30S subunit binding to which sequence?",choices:["The 5' cap","The Kozak sequence","The Shine-Dalgarno sequence","The TATA box"],ans:2,exp:"Prokaryotic translation initiation requires the 30S ribosomal subunit to recognize the Shine-Dalgarno sequence (5'-AGGAGG-3') upstream of the AUG start codon. Eukaryotes use the 5' cap and Kozak sequence instead."},
+
+{s:"Transcription & Translation",q:"A point mutation that converts a codon to a stop codon is called a:",choices:["Missense mutation","Silent mutation","Nonsense mutation","Frameshift mutation"],ans:2,exp:"A nonsense mutation creates a premature stop codon, truncating the protein. A missense mutation changes one amino acid to another. A silent mutation causes no amino acid change. A frameshift alters the reading frame."},
+
+{s:"Transcription & Translation",q:"A frameshift mutation is most likely to cause which of the following?",choices:["A single amino acid substitution","No change in protein sequence due to wobble","Alteration of all downstream amino acids and usually a premature stop codon","Insertion of the same amino acid at multiple positions"],ans:2,exp:"Inserting or deleting a single nucleotide shifts the reading frame of all subsequent codons, completely altering the downstream amino acid sequence and frequently introducing a premature stop codon."},
+
+// ── GENE REGULATION ───────────────────────────────────────────
+{s:"Gene Regulation",q:"The lac operon is expressed (turned ON) when:",choices:["Lactose is absent and glucose is high","Lactose is present and glucose is low","Both lactose and glucose are absent","Glucose is high regardless of lactose levels"],ans:1,exp:"The lac operon has two controls: (1) allolactose (from lactose) removes the repressor, and (2) low glucose causes cAMP levels to rise, activating CAP protein. Both conditions must be met for maximal expression."},
+
+{s:"Gene Regulation",q:"Histone acetylation affects gene expression by:",choices:["Condensing chromatin and silencing gene expression","Loosening chromatin structure and increasing accessibility for transcription","Methylating DNA at CpG sites to silence genes","Recruiting repressor proteins to the promoter"],ans:1,exp:"Acetylation of lysine residues on histones neutralizes their positive charge, reducing interaction with the negatively charged DNA backbone. This loosens chromatin (euchromatin state) and enhances transcription."},
+
+{s:"Gene Regulation",q:"DNA methylation generally has which effect on gene expression?",choices:["Activates transcription by recruiting RNA polymerase","Silences gene expression by decreasing chromatin accessibility","Increases the rate of DNA replication","Promotes alternative splicing of nearby genes"],ans:1,exp:"Methylation of cytosine residues (especially at CpG islands in promoters) is associated with gene silencing. It decreases chromatin accessibility and prevents transcription factor binding."},
+
+{s:"Gene Regulation",q:"Which statement correctly describes an inducible operon versus a repressible operon?",choices:["An inducible operon is normally ON and is repressed by a corepressor","A repressible operon is normally OFF and is turned on by an inducer","An inducible operon is normally OFF; an inducer removes the repressor to turn it ON","Both types are constitutively expressed in bacteria"],ans:2,exp:"An inducible operon (e.g., lac operon) is OFF by default; an inducer (e.g., allolactose) deactivates the repressor to turn it on. A repressible operon (e.g., trp operon) is ON by default; a corepressor activates the repressor to turn it off."},
+
+// ── LAB TECHNIQUES ────────────────────────────────────────────
+{s:"Lab Techniques",q:"Which blotting technique is used to detect a specific DNA sequence?",choices:["Northern blot","Western blot","Southern blot","Eastern blot"],ans:2,exp:"Southern blotting detects specific DNA sequences. Northern blotting detects RNA. Western blotting detects proteins. Mnemonic: Southern=DNA, Northern=RNA, Western=Protein (compass directions)."},
+
+{s:"Lab Techniques",q:"In SDS-PAGE, proteins are separated based primarily on:",choices:["Charge and size","Isoelectric point","Mass only, because SDS denatures proteins and gives them uniform negative charge","Native three-dimensional shape"],ans:2,exp:"SDS (sodium dodecyl sulfate) denatures proteins and coats them with a uniform negative charge proportional to their size. Therefore, they migrate through the polyacrylamide gel based on mass alone."},
+
+{s:"Lab Techniques",q:"PCR amplification of DNA requires which of the following in the annealing step?",choices:["DNA ligase to join Okazaki fragments","Short oligonucleotide primers complementary to the target sequence","Restriction endonucleases to cut the template","RNA polymerase to synthesize the new strand"],ans:1,exp:"During the annealing step (55-65°C), short oligonucleotide primers bind (anneal) to complementary sequences flanking the target region. Taq polymerase then extends from these primers during the extension step (72°C)."},
+
+{s:"Lab Techniques",q:"Which of the following describes the correct order of steps in a PCR cycle?",choices:["Annealing → Denaturation → Extension","Extension → Annealing → Denaturation","Denaturation → Annealing → Extension","Denaturation → Extension → Annealing"],ans:2,exp:"PCR cycle: (1) Denaturation at ~96°C to separate DNA strands, (2) Annealing at 55-65°C for primers to bind, (3) Extension at 72°C for Taq polymerase to synthesize new DNA."},
+
+{s:"Lab Techniques",q:"In gel electrophoresis, which molecules migrate farthest toward the positive electrode?",choices:["Large, highly negatively charged molecules","Small molecules with low negative charge","Small, negatively charged molecules","Large molecules regardless of charge"],ans:2,exp:"In gel electrophoresis, negatively charged molecules (DNA, RNA, SDS-coated proteins) migrate toward the positive anode. Smaller molecules migrate faster and travel farther through the gel matrix."},
+
+{s:"Lab Techniques",q:"Sanger sequencing relies on which principle to terminate DNA synthesis?",choices:["RNA primers that cannot be extended beyond a certain length","Dideoxynucleotides (ddNTPs) that lack a 3'-OH group and terminate chain elongation","Restriction enzymes that cut at specific sequences","Temperature cycling that prevents polymerase from extending past a certain length"],ans:1,exp:"Sanger sequencing uses chain-terminating dideoxynucleotides (ddNTPs). Because they lack the 3'-OH required for phosphodiester bond formation, they terminate DNA synthesis at specific positions corresponding to each base."},
+
+// ── CELL MEMBRANE ─────────────────────────────────────────────
+{s:"Cell Membrane",q:"According to the fluid mosaic model, which of the following is TRUE regarding membrane proteins?",choices:["All membrane proteins are permanently fixed in position","Transmembrane proteins span the entire bilayer and are often glycoproteins","Peripheral proteins are embedded in the hydrophobic core","Membrane proteins move faster than membrane lipids"],ans:1,exp:"Transmembrane proteins span the entire phospholipid bilayer and often have carbohydrate chains attached (glycoproteins) on the extracellular face. Peripheral proteins associate with the membrane surface but do not span it."},
+
+{s:"Cell Membrane",q:"Which cell junction allows for rapid exchange of ions and small molecules between adjacent cells?",choices:["Tight junctions","Desmosomes","Gap junctions","Adherens junctions"],ans:2,exp:"Gap junctions form channels (connexons) between adjacent cells, allowing direct cytoplasmic communication — rapid exchange of ions, second messengers, and small metabolites. They are critical in cardiac muscle for coordinated contraction."},
+
+{s:"Cell Membrane",q:"A cell is placed in a hypotonic solution. Which of the following will occur?",choices:["Water moves out of the cell by osmosis; the cell shrinks","Water moves into the cell by osmosis; the cell swells","Solutes move into the cell by facilitated diffusion","No net movement because the cell is already in equilibrium"],ans:1,exp:"In a hypotonic solution, the solute concentration outside is lower than inside the cell. Water moves by osmosis from areas of low solute (high water potential) to high solute (low water potential) — into the cell."},
+
+{s:"Cell Membrane",q:"Secondary active transport differs from primary active transport in that:",choices:["Secondary active transport directly uses ATP; primary uses ion gradients","Secondary active transport uses the energy of an existing ion gradient (e.g., Na+); primary uses ATP directly","Secondary active transport only moves ions; primary moves all molecules","They are identical processes with different names"],ans:1,exp:"Primary active transport (e.g., Na+/K+ ATPase) directly hydrolyzes ATP. Secondary active transport (e.g., Na+/glucose cotransporter) harnesses the electrochemical gradient of one ion (created by primary transport) to move another molecule."},
+
+{s:"Cell Membrane",q:"The Na+/K+ ATPase pump moves ions in which direction per cycle?",choices:["3 K+ out, 2 Na+ in","2 Na+ out, 3 K+ in","3 Na+ out, 2 K+ in","2 K+ out, 3 Na+ in"],ans:2,exp:"The Na+/K+ ATPase exports 3 Na+ out of the cell and imports 2 K+ per ATP hydrolyzed. This electrogenic pump maintains the resting membrane potential and the electrochemical gradients essential for cell function."},
+
+{s:"Cell Membrane",q:"Pinocytosis and phagocytosis are both forms of endocytosis. How do they differ?",choices:["Pinocytosis ingests large solid particles; phagocytosis ingests fluids","Pinocytosis ingests liquids via vesicles; phagocytosis ingests large solid materials","Pinocytosis requires ATP; phagocytosis does not","They are identical processes"],ans:1,exp:"Pinocytosis ('cell drinking') involves the ingestion of liquids and small dissolved molecules via small vesicles. Phagocytosis ('cell eating') involves the engulfment of large solid particles such as bacteria or dead cells."},
+
+// ── GLYCOLYSIS ────────────────────────────────────────────────
+{s:"Metabolism: Glycolysis",q:"What is the net ATP yield from glycolysis of one glucose molecule?",choices:["4 ATP","2 ATP","6 ATP","38 ATP"],ans:1,exp:"Glycolysis requires 2 ATP (investment phase) and produces 4 ATP (payoff phase), for a net gain of 2 ATP. It also produces 2 NADH and 2 pyruvate per glucose."},
+
+{s:"Metabolism: Glycolysis",q:"Phosphofructokinase-1 (PFK-1) catalyzes the committed step of glycolysis. Which of the following is an allosteric INHIBITOR of PFK-1?",choices:["AMP","Fructose 2,6-bisphosphate","ADP","Citrate"],ans:3,exp:"PFK-1 is inhibited by ATP (high energy state) and citrate (TCA cycle intermediate signaling sufficient acetyl-CoA). It is activated by AMP and fructose 2,6-bisphosphate (indicating low energy and high glucose, respectively)."},
+
+{s:"Metabolism: Glycolysis",q:"Hexokinase, the first enzyme of glycolysis, is product-inhibited by:",choices:["ATP","Glucose 6-phosphate","Pyruvate","Fructose 1,6-bisphosphate"],ans:1,exp:"Hexokinase (and glucokinase in the liver) is inhibited by its product, glucose 6-phosphate. This prevents unnecessary phosphorylation of glucose when glycolytic intermediates are already accumulating."},
+
+{s:"Metabolism: Glycolysis",q:"Which enzyme catalyzes the committed step of glycolysis — the point of no return?",choices:["Hexokinase","Phosphoglucose isomerase","Phosphofructokinase-1 (PFK-1)","Pyruvate kinase"],ans:2,exp:"PFK-1 catalyzes the irreversible phosphorylation of fructose 6-phosphate to fructose 1,6-bisphosphate. This is the committed step — after this point, the molecule must complete glycolysis and cannot be redirected to glycogen synthesis."},
+
+{s:"Metabolism: Glycolysis",q:"Under anaerobic conditions, pyruvate is converted to lactate in animals. What is the purpose of this reaction?",choices:["To produce additional ATP from pyruvate","To regenerate NAD+ so glycolysis can continue","To feed pyruvate into the TCA cycle","To store energy as glycogen"],ans:1,exp:"Lactate dehydrogenase converts pyruvate to lactate while regenerating NAD+ from NADH. This is critical under anaerobic conditions because glycolysis requires NAD+ to continue, and the ETC is not available to reoxidize NADH."},
+
+{s:"Metabolism: Glycolysis",q:"The storage form of glucose in animals is:",choices:["Starch","Cellulose","Glycogen","Fructose 1,6-bisphosphate"],ans:2,exp:"Animals store glucose as glycogen, primarily in the liver (for blood glucose regulation) and muscle (for local energy use). Plants store glucose as starch. Cellulose is a structural polysaccharide."},
+
+// ── GLUCONEOGENESIS ───────────────────────────────────────────
+{s:"Metabolism: Gluconeogenesis",q:"Gluconeogenesis is stimulated primarily during which physiological states?",choices:["Postprandial (fed) state and high glucose","Fasting, starvation, low-carbohydrate diets, and intense exercise","Immediately after a high-carbohydrate meal","High insulin states"],ans:1,exp:"Gluconeogenesis is activated when glucose is scarce — fasting, starvation, prolonged exercise, or low-carb diets. Glucagon and cortisol stimulate it; insulin inhibits it."},
+
+{s:"Metabolism: Gluconeogenesis",q:"In gluconeogenesis, why must pyruvate be first converted to oxaloacetate before becoming phosphoenolpyruvate (PEP)?",choices:["Because pyruvate cannot be phosphorylated directly","Because the pyruvate kinase reaction is irreversible; the pathway must bypass it using pyruvate carboxylase + PEPCK","Because oxaloacetate is required as a TCA cycle intermediate","Because PEP can only be synthesized in the mitochondria"],ans:1,exp:"Pyruvate kinase (which converts PEP → pyruvate in glycolysis) is irreversible. Gluconeogenesis must bypass this step by using pyruvate carboxylase to form oxaloacetate, then PEPCK to form PEP — a two-enzyme workaround."},
+
+{s:"Metabolism: Gluconeogenesis",q:"Gluconeogenesis occurs primarily in which organs?",choices:["Heart and skeletal muscle","Brain and adipose tissue","Liver, kidneys, and intestines","Spleen and lungs"],ans:2,exp:"The liver is the primary site of gluconeogenesis. The kidneys contribute significantly during prolonged fasting. The intestines have minimal but measurable gluconeogenic activity."},
+
+// ── GLYCOGEN METABOLISM ───────────────────────────────────────
+{s:"Metabolism: Glycogen",q:"Glycogen synthase creates which type of glycosidic linkage in glycogen synthesis?",choices:["Alpha-1,6 glycosidic bonds (branching)","Beta-1,4 glycosidic bonds","Alpha-1,4 glycosidic bonds (linear chain extension)","Beta-1,6 glycosidic bonds"],ans:2,exp:"Glycogen synthase adds glucose units via alpha-1,4 glycosidic bonds (linear extension). Branching enzyme creates the branch points by forming alpha-1,6 glycosidic bonds, increasing the number of free ends for rapid glucose release."},
+
+{s:"Metabolism: Glycogen",q:"During glycogenolysis, glycogen phosphorylase cleaves which type of bond?",choices:["Alpha-1,6 bonds at branch points","Beta-1,4 bonds in the linear chain","Alpha-1,4 bonds to release glucose 1-phosphate","Phosphodiester bonds in the glycogen backbone"],ans:2,exp:"Glycogen phosphorylase cleaves alpha-1,4 glycosidic bonds using phosphorolysis, releasing glucose 1-phosphate. The debranching enzyme handles the alpha-1,6 bonds at branch points."},
+
+{s:"Metabolism: Glycogen",q:"Glycogenolysis in the liver is stimulated by glucagon. The overall purpose is to:",choices:["Store excess glucose as glycogen during the fed state","Release glucose into the bloodstream to raise blood glucose levels during fasting","Provide energy directly to liver cells","Synthesize glycogen for export to muscle"],ans:1,exp:"Glucagon (released when blood glucose is low) activates glycogenolysis in the liver via cAMP/PKA signaling. Glucose is released into the bloodstream to maintain blood glucose levels for glucose-dependent tissues like the brain."},
+
+// ── ACETYL-CoA ────────────────────────────────────────────────
+{s:"Metabolism: Acetyl-CoA",q:"Pyruvate dehydrogenase complex (PDC) converts pyruvate to acetyl-CoA. PDC is INACTIVATED by:",choices:["Dephosphorylation by pyruvate dehydrogenase phosphatase","High ratios of NAD+/NADH","Phosphorylation by pyruvate dehydrogenase kinase","Low acetyl-CoA levels"],ans:2,exp:"PDC is inactivated (turned off) when phosphorylated by pyruvate dehydrogenase kinase (PDK). PDK is activated by high acetyl-CoA, high NADH, and high ATP — signals that the cell has sufficient energy and does not need more acetyl-CoA."},
+
+{s:"Metabolism: Acetyl-CoA",q:"Acetyl-CoA can be produced from which three sources?",choices:["Glucose, glycogen, and galactose","Amino acids, pyruvate, and fatty acids","Ketone bodies, DNA, and RNA","Urea, ammonia, and CO2"],ans:1,exp:"Acetyl-CoA is produced from: (1) pyruvate via PDC, (2) fatty acids via beta-oxidation, and (3) ketogenic amino acid catabolism. It is the central metabolic hub feeding into the TCA cycle and fatty acid synthesis."},
+
+{s:"Metabolism: Acetyl-CoA",q:"Acetyl-CoA generated in the mitochondria during fatty acid synthesis must be transported to the cytosol. This is accomplished via the:",choices:["Carnitine shuttle","Citrate shuttle","Malate-aspartate shuttle","Glycerol-3-phosphate shuttle"],ans:1,exp:"Acetyl-CoA cannot cross the inner mitochondrial membrane directly. It is condensed with oxaloacetate to form citrate, which is exported via the citrate shuttle. In the cytosol, ATP-citrate lyase cleaves citrate back to acetyl-CoA and oxaloacetate."},
+
+// ── TCA CYCLE ─────────────────────────────────────────────────
+{s:"Metabolism: TCA Cycle",q:"The tricarboxylic acid (TCA) cycle is also known as the:",choices:["Urea cycle","Calvin cycle","Krebs cycle","Pentose phosphate pathway"],ans:2,exp:"The TCA cycle has three names: TCA cycle (because citric acid has 3 carboxyl groups), Krebs cycle (after Hans Krebs who elucidated it), and citric acid cycle. It is not related to the urea cycle or Calvin cycle."},
+
+{s:"Metabolism: TCA Cycle",q:"Per turn of the TCA cycle starting with one acetyl-CoA, how many NADH and FADH2 are produced?",choices:["2 NADH and 2 FADH2","3 NADH and 1 FADH2","2 NADH and 1 FADH2","4 NADH and 2 FADH2"],ans:1,exp:"Per TCA cycle turn: 3 NADH (isocitrate dehydrogenase, alpha-ketoglutarate dehydrogenase, malate dehydrogenase), 1 FADH2 (succinate dehydrogenase), and 1 GTP. These electron carriers then feed the ETC."},
+
+{s:"Metabolism: TCA Cycle",q:"The rate-limiting enzyme of the TCA cycle is:",choices:["Citrate synthase","Succinyl-CoA synthetase","Isocitrate dehydrogenase","Malate dehydrogenase"],ans:2,exp:"Isocitrate dehydrogenase is the rate-limiting (pace-setting) enzyme of the TCA cycle. It is activated by ADP and NAD+ (signals of low energy) and inhibited by ATP and NADH (signals of high energy)."},
+
+{s:"Metabolism: TCA Cycle",q:"The TCA cycle occurs in which cellular compartment in eukaryotes?",choices:["Cytosol","Outer mitochondrial membrane","Mitochondrial matrix","Nucleus"],ans:2,exp:"In eukaryotes, the TCA cycle enzymes are located in the mitochondrial matrix (except succinate dehydrogenase, which is embedded in the inner mitochondrial membrane). In prokaryotes, the equivalent reactions occur in the cytoplasm."},
+
+{s:"Metabolism: TCA Cycle",q:"Citrate synthase catalyzes which reaction in the TCA cycle?",choices:["Isocitrate → alpha-ketoglutarate + CO2","Oxaloacetate + acetyl-CoA → citrate + CoA","Succinate → fumarate","Malate → oxaloacetate"],ans:1,exp:"Citrate synthase catalyzes the condensation of oxaloacetate and acetyl-CoA to produce citrate and CoA. This is the entry point of acetyl-CoA into the TCA cycle."},
+
+// ── ELECTRON TRANSPORT CHAIN ─────────────────────────────────
+{s:"Metabolism: ETC",q:"In the electron transport chain, oxygen serves as the:",choices:["First electron donor","Primary proton pump","Final electron acceptor, being reduced to water at Complex IV","Source of energy for ATP synthesis at Complex II"],ans:2,exp:"Oxygen is the terminal electron acceptor in aerobic respiration. At Complex IV (cytochrome c oxidase), electrons are transferred from cytochrome c to O2, reducing it to water. Without oxygen, the ETC stops."},
+
+{s:"Metabolism: ETC",q:"NADH entering the ETC at Complex I produces approximately how many ATP?",choices:["1.5 ATP","2.5 ATP","3.5 ATP","4 ATP"],ans:1,exp:"NADH produces approximately 2.5 ATP when oxidized by the ETC (passing through Complexes I, III, and IV). FADH2 produces ~1.5 ATP because it enters at Complex II, bypassing Complex I and its proton pumping."},
+
+{s:"Metabolism: ETC",q:"Which ETC complex is also a component of the TCA cycle?",choices:["Complex I (NADH dehydrogenase)","Complex II (succinate dehydrogenase)","Complex III (cytochrome reductase)","Complex IV (cytochrome oxidase)"],ans:1,exp:"Complex II is succinate dehydrogenase, which also catalyzes the succinate → fumarate step in the TCA cycle. Notably, Complex II is NOT a proton pump, which is why FADH2 produces less ATP than NADH."},
+
+{s:"Metabolism: ETC",q:"ATP synthase (Complex V) synthesizes ATP using:",choices:["Direct electron transfer from NADH","The proton gradient across the inner mitochondrial membrane (proton-motive force)","Substrate-level phosphorylation","The phosphorylation of ADP by GTP"],ans:1,exp:"ATP synthase uses the proton-motive force (PMF) — the electrochemical gradient of H+ across the inner mitochondrial membrane built by the ETC — to drive ATP synthesis via chemiosmosis. This is oxidative phosphorylation."},
+
+{s:"Metabolism: ETC",q:"Cyanide is a lethal poison because it:",choices:["Inhibits Complex I, preventing NADH oxidation","Inhibits ATP synthase, preventing ATP production","Binds to Complex IV (cytochrome oxidase), blocking electron transfer to oxygen","Uncouples the proton gradient from ATP synthesis"],ans:2,exp:"Cyanide (and carbon monoxide) inhibits Complex IV by binding to the heme iron of cytochrome c oxidase, blocking electron transfer to O2. This halts the entire ETC and oxidative phosphorylation, rapidly depleting cellular ATP."},
+
+// ── PENTOSE PHOSPHATE PATHWAY ─────────────────────────────────
+{s:"Metabolism: PPP",q:"The pentose phosphate pathway (HMP shunt) produces which two major products?",choices:["ATP and pyruvate","NADPH and ribose 5-phosphate","Acetyl-CoA and FADH2","Oxaloacetate and citrate"],ans:1,exp:"The PPP produces NADPH (for reductive biosynthesis and antioxidant defense) and ribose 5-phosphate (for nucleotide synthesis). It does not produce ATP directly."},
+
+{s:"Metabolism: PPP",q:"The rate-limiting enzyme of the pentose phosphate pathway is:",choices:["Transketolase","Glucose 6-phosphate dehydrogenase","Glucose 6-phosphatase","Fructose 1,6-bisphosphatase"],ans:1,exp:"Glucose 6-phosphate dehydrogenase (G6PD) catalyzes the first and rate-limiting step of the PPP, converting glucose 6-phosphate to 6-phosphogluconolactone while producing NADPH. G6PD deficiency causes hemolytic anemia."},
+
+{s:"Metabolism: PPP",q:"The pentose phosphate pathway occurs in which cellular compartment?",choices:["Mitochondrial matrix","Nucleus","Cytosol","Endoplasmic reticulum"],ans:2,exp:"The PPP occurs entirely in the cytosol. NADPH produced here is used for fatty acid synthesis (also in the cytosol) and for reducing glutathione (antioxidant defense in red blood cells)."},
+
+// ── UREA CYCLE ────────────────────────────────────────────────
+{s:"Metabolism: Urea Cycle",q:"The urea cycle is primarily responsible for:",choices:["Synthesizing urea for use as an osmolyte in the kidney","Detoxifying ammonia (from amino acid catabolism) into urea for urinary excretion","Recycling nitrogen from nucleotide breakdown","Converting urea back into amino acids"],ans:1,exp:"Amino acid catabolism produces ammonia (NH3), which is toxic. The urea cycle (hepatic) converts ammonia into urea, which is water-soluble and non-toxic at normal concentrations, then excreted in urine."},
+
+{s:"Metabolism: Urea Cycle",q:"The urea cycle connects to the TCA cycle through which shared intermediates?",choices:["Acetyl-CoA and citrate","Pyruvate and oxaloacetate","Fumarate and oxaloacetate","Succinate and malate"],ans:2,exp:"Fumarate produced in the urea cycle (from argininosuccinate) can enter the TCA cycle, and oxaloacetate from the TCA cycle can be transaminated to aspartate, which enters the urea cycle. This metabolic link is called the Krebs bicycle."},
+
+// ── LIPID METABOLISM ─────────────────────────────────────────
+{s:"Lipid Metabolism",q:"Beta-oxidation of fatty acids occurs in which cellular compartment?",choices:["Cytosol","Smooth ER","Mitochondrial matrix","Peroxisome only"],ans:2,exp:"Beta-oxidation (fatty acid oxidation) occurs primarily in the mitochondrial matrix. Long-chain fatty acids must be activated to acyl-CoA and transported into the mitochondria via the carnitine shuttle to undergo beta-oxidation."},
+
+{s:"Lipid Metabolism",q:"Which shuttle system is required for long-chain fatty acids to enter the mitochondrial matrix?",choices:["Citrate shuttle","Malate-aspartate shuttle","Carnitine shuttle","Glycerol-3-phosphate shuttle"],ans:2,exp:"Long-chain acyl-CoA cannot cross the inner mitochondrial membrane directly. Carnitine acyltransferase I (on the outer membrane) transfers the acyl group to carnitine; the acylcarnitine is transported in, and carnitine acyltransferase II regenerates acyl-CoA inside."},
+
+{s:"Lipid Metabolism",q:"A 16-carbon saturated fatty acid (palmitate) undergoes complete beta-oxidation. How many rounds of beta-oxidation are required?",choices:["6","7","8","16"],ans:1,exp:"Each round of beta-oxidation removes 2 carbons as acetyl-CoA. A C16 fatty acid requires 7 rounds (not 8, because the last round yields 2 acetyl-CoA simultaneously). This produces 8 acetyl-CoA, 7 NADH, and 7 FADH2."},
+
+{s:"Lipid Metabolism",q:"LDL is considered 'bad cholesterol' because it:",choices:["Removes cholesterol from tissues and returns it to the liver","Delivers large amounts of cholesterol to peripheral tissues, where excess can accumulate in arterial walls","Contains more protein than lipid, making it less soluble","Is primarily composed of triglycerides rather than cholesterol"],ans:1,exp:"LDL transports cholesterol from the liver to peripheral tissues. When LDL levels are elevated, excess cholesterol can deposit in arterial walls, forming plaques. HDL performs the reverse — it picks up excess cholesterol and returns it to the liver."},
+
+{s:"Lipid Metabolism",q:"HMG-CoA reductase is the target of statin drugs because it is:",choices:["The rate-limiting enzyme of fatty acid synthesis","The rate-controlling enzyme of the mevalonate pathway, which produces cholesterol","The enzyme that converts LDL to HDL","The enzyme that degrades cholesterol for excretion"],ans:1,exp:"HMG-CoA reductase catalyzes the rate-limiting step of the mevalonate pathway: HMG-CoA → mevalonate. This pathway produces cholesterol and other isoprenoids. Statins competitively inhibit this enzyme to reduce hepatic cholesterol synthesis."},
+
+{s:"Lipid Metabolism",q:"Ketone bodies are produced primarily when:",choices:["Glucose is abundant and acetyl-CoA enters the TCA cycle readily","Fatty acid oxidation produces excess acetyl-CoA during prolonged fasting, and the TCA cycle cannot process it all","Insulin levels are high after a meal","Glycolysis is maximally active"],ans:1,exp:"During prolonged fasting or starvation, excessive beta-oxidation generates more acetyl-CoA than the TCA cycle can handle (due to low oxaloacetate). Excess acetyl-CoA is converted to ketone bodies (acetoacetate, beta-hydroxybutyrate, acetone) by the liver."},
+
+{s:"Lipid Metabolism",q:"Chylomicrons are assembled in intestinal epithelial cells and function to:",choices:["Transport lipids from the liver to peripheral tissues via the bloodstream","Carry long-chain fatty acids absorbed from digestion through the lymphatic system into circulation","Remove excess cholesterol from blood vessel walls","Digest dietary fat in the small intestine lumen"],ans:1,exp:"Chylomicrons are the largest lipoproteins. They are assembled in enterocytes after fat absorption and transported through the lymphatic system (via lacteals) into the bloodstream, delivering dietary lipids to peripheral tissues."},
+
+// ── AMINO ACIDS ───────────────────────────────────────────────
+{s:"Amino Acids",q:"Which amino acid is the only one that is NOT chiral?",choices:["Alanine","Proline","Glycine","Serine"],ans:2,exp:"Glycine has two hydrogen atoms on its alpha-carbon, making it symmetric and therefore achiral. All other standard amino acids have four different substituents on the alpha-carbon and are chiral (L-configuration in nature)."},
+
+{s:"Amino Acids",q:"The isoelectric point (pI) of an amino acid is the pH at which the amino acid:",choices:["Has a net positive charge","Has a net negative charge","Exists as a zwitterion with net zero charge","Is fully protonated"],ans:2,exp:"At the pI, the amino acid exists as a zwitterion — the amino group is protonated (+) and the carboxyl group is deprotonated (-), giving a net charge of zero. This is also the pH at which the amino acid has minimal solubility and zero electrophoretic mobility."},
+
+{s:"Amino Acids",q:"Which of the following amino acids are positively charged at physiological pH?",choices:["Aspartate, glutamate","Lysine, arginine, histidine","Serine, threonine, tyrosine","Phenylalanine, tryptophan, valine"],ans:1,exp:"The positively charged (basic) amino acids are Lysine (K), Arginine (R), and Histidine (H). Aspartate and glutamate are negatively charged. Serine, threonine, and tyrosine are polar neutral. The aromatic hydrophobics are uncharged."},
+
+{s:"Amino Acids",q:"Tryptophan is unique among amino acids because it:",choices:["Contains a guanidinium group and is the most basic amino acid","Contains an indole ring, emits fluorescent light, and is the precursor to serotonin","Forms disulfide bonds with other tryptophan residues","Is the only D-amino acid found in proteins"],ans:1,exp:"Tryptophan contains an indole bicyclic ring system, is aromatic, emits UV fluorescence (~350 nm), and serves as the precursor to serotonin and melatonin. Arginine has the guanidinium group; cysteine forms disulfide bonds."},
+
+{s:"Amino Acids",q:"Histidine's side chain has a pKa of approximately 6.0. This makes it particularly important for:",choices:["Forming disulfide bridges in proteins","Acting as a general acid/base catalyst in enzyme active sites near physiological pH","Providing hydrophobic interactions in protein cores","Binding metal ions like Fe2+ in hemoglobin only"],ans:1,exp:"Histidine's imidazole group (pKa ~6.0) is uniquely positioned to accept or donate protons at physiological pH (~7.4). This makes it essential for acid-base catalysis in enzyme active sites (e.g., serine proteases, carbonic anhydrase)."},
+
+{s:"Amino Acids",q:"Proline's unique structural feature causes it to:",choices:["Form disulfide bonds with adjacent cysteines","Interrupt alpha-helices and beta-sheets, creating turns and kinks in protein secondary structure","Provide a positive charge that stabilizes the active site of enzymes","Be the only amino acid that absorbs visible light"],ans:1,exp:"Proline has a pyrrolidine ring that forms a cyclic structure by bonding the amino group to the side chain. This rigidity introduces a fixed bond angle that cannot participate in standard hydrogen bonding, disrupting regular secondary structures."},
+
+// ── PROTEINS ──────────────────────────────────────────────────
+{s:"Proteins",q:"The primary structure of a protein is stabilized by which type of bond?",choices:["Hydrogen bonds","Disulfide bonds","Peptide bonds (covalent amide bonds)","Hydrophobic interactions"],ans:2,exp:"Primary structure is the amino acid sequence itself, held together by peptide bonds — covalent amide bonds formed between the carboxyl group of one amino acid and the amino group of the next, with loss of water."},
+
+{s:"Proteins",q:"Alpha-helices and beta-pleated sheets are examples of which level of protein structure?",choices:["Primary structure","Secondary structure","Tertiary structure","Quaternary structure"],ans:1,exp:"Secondary structure refers to local folding patterns stabilized by hydrogen bonding between backbone amide and carbonyl groups. Alpha-helices and beta-sheets are the two main secondary structures."},
+
+{s:"Proteins",q:"Denaturation of a protein involves loss of which structural levels?",choices:["Primary structure only","Secondary structure only","Secondary, tertiary, and quaternary structure (but NOT primary)","All structural levels including peptide bonds"],ans:2,exp:"Denaturation disrupts non-covalent interactions (hydrogen bonds, hydrophobic interactions, ionic interactions) responsible for secondary, tertiary, and quaternary structure. Peptide bonds (primary structure) are covalent and are not broken during typical denaturation."},
+
+{s:"Proteins",q:"Disulfide bonds form between two residues of which amino acid?",choices:["Methionine","Cysteine","Serine","Glutamate"],ans:1,exp:"Disulfide bonds (S-S bonds) form between the thiol (-SH) groups of two cysteine residues upon oxidation. They contribute to tertiary and quaternary structure stability, and are particularly important in extracellular proteins."},
+
+{s:"Proteins",q:"The tertiary structure of a protein is primarily stabilized by:",choices:["Peptide bonds","Hydrogen bonds between backbone atoms","Hydrophobic interactions among nonpolar side chains","Ionic interactions between phosphate groups"],ans:2,exp:"Tertiary structure (the 3D shape of a single polypeptide) is primarily stabilized by hydrophobic interactions — nonpolar side chains cluster in the protein interior away from water. Hydrogen bonds, ionic interactions, and disulfide bonds also contribute."},
+
+{s:"Proteins",q:"Hemoglobin is a classic example of which protein structural level?",choices:["Primary (amino acid sequence)","Secondary (alpha-helices)","Tertiary (single polypeptide fold)","Quaternary (multiple subunit interaction)"],ans:3,exp:"Hemoglobin has quaternary structure — it consists of four polypeptide subunits (2 alpha + 2 beta chains), each with a heme prosthetic group. The cooperative oxygen binding of hemoglobin arises from this quaternary structure."},
+
+// ── ENZYMES ───────────────────────────────────────────────────
+{s:"Enzymes",q:"Which statement about enzymes is FALSE?",choices:["Enzymes lower the activation energy of reactions","Enzymes are unchanged after catalysis","Enzymes alter the equilibrium position of reactions","Enzymes can catalyze both the forward and reverse reactions"],ans:2,exp:"Enzymes change the rate of reactions but do NOT alter the equilibrium position (ΔG). They lower the activation energy (Ea), allowing reactions to proceed faster, but the thermodynamic favorability (ΔG) of the reaction is unchanged."},
+
+{s:"Enzymes",q:"Km represents:",choices:["The maximum reaction velocity when all enzyme active sites are saturated","The substrate concentration at which reaction velocity is half of Vmax","The equilibrium constant of the enzyme-substrate binding reaction","The rate constant for product release"],ans:1,exp:"Km (Michaelis constant) is the substrate concentration [S] at which the reaction velocity is Vmax/2. A low Km indicates high affinity (the enzyme achieves half-max activity at low substrate); a high Km indicates low affinity."},
+
+{s:"Enzymes",q:"In competitive inhibition, a competitive inhibitor:",choices:["Binds only to the enzyme-substrate complex at the allosteric site","Binds to the active site and decreases both Km and Vmax","Binds to the active site, increasing apparent Km but leaving Vmax unchanged","Permanently inactivates the enzyme by forming a covalent bond"],ans:2,exp:"Competitive inhibitors compete with the substrate for the active site. They can be outcompeted by increasing substrate concentration, so Vmax is unchanged. However, more substrate is required to achieve Vmax/2, so apparent Km increases."},
+
+{s:"Enzymes",q:"Noncompetitive inhibition differs from competitive inhibition in that a noncompetitive inhibitor:",choices:["Binds the active site and can be overcome by adding more substrate","Binds an allosteric site and reduces Vmax without changing Km","Permanently destroys the enzyme","Only inhibits the enzyme when substrate is already bound"],ans:1,exp:"A noncompetitive inhibitor binds an allosteric site (distinct from the active site) on either the free enzyme or enzyme-substrate complex. It reduces Vmax (fewer functional enzyme molecules) but does not change Km because substrate binding is unaffected."},
+
+{s:"Enzymes",q:"On a Lineweaver-Burk (double reciprocal) plot, the x-intercept equals:",choices:["Vmax","1/Vmax","-1/Km","Km"],ans:2,exp:"The Lineweaver-Burk plot graphs 1/V vs 1/[S]. The y-intercept = 1/Vmax, the x-intercept = -1/Km, and the slope = Km/Vmax. It allows graphical determination of kinetic parameters but amplifies error at low substrate concentrations."},
+
+{s:"Enzymes",q:"Which type of enzyme inhibition shows decreased Vmax AND decreased Km compared to the uninhibited enzyme?",choices:["Competitive inhibition","Noncompetitive inhibition","Uncompetitive inhibition","Mixed inhibition"],ans:2,exp:"Uncompetitive inhibitors bind only to the enzyme-substrate complex. This paradoxically decreases both Vmax and Km by the same factor. The Lineweaver-Burk plot shows parallel lines for competitive vs. uninhibited enzyme."},
+
+{s:"Enzymes",q:"A kinase enzyme catalyzes which reaction?",choices:["Removal of a phosphate group from a substrate using water","Transfer of a phosphate group from ATP to a substrate","Cleavage of a carbon-carbon bond without water","Joining of two molecules with ATP hydrolysis"],ans:1,exp:"Kinases are transferases that transfer the gamma-phosphate from ATP to a substrate (phosphorylation). Phosphatases do the reverse (dephosphorylation). Phosphorylation is a key regulatory mechanism in signaling and metabolism."},
+
+{s:"Enzymes",q:"An enzyme that catalyzes a REDOX reaction involving electron transfer is classified as:",choices:["A transferase","A hydrolase","An isomerase","An oxidoreductase"],ans:3,exp:"Oxidoreductases catalyze oxidation-reduction reactions involving electron transfer. Examples include dehydrogenases (remove H2 and electrons), oxidases, reductases, and peroxidases. They are the most common class of enzymes."},
+
+{s:"Enzymes",q:"Feedback inhibition is best described as:",choices:["An enzyme being inhibited by the substrate of the previous step","An enzyme being inhibited by high concentrations of a product from later in the same pathway","Competitive inhibition by the immediate product","An enzyme activating itself as product accumulates"],ans:1,exp:"Feedback (product) inhibition is a regulatory mechanism where the end product of a metabolic pathway inhibits an early enzyme in that same pathway. It prevents overproduction of the end product and conserves cellular resources."},
+
+{s:"Enzymes",q:"Zymogens (proenzymes) are:",choices:["Active enzymes stored in lysosomes","Inactive enzyme precursors that are activated by proteolytic cleavage","Allosteric enzymes that require cofactors to function","Enzymes that only function at extremely low pH"],ans:1,exp:"Zymogens are inactive enzyme precursors. They are activated by proteolytic cleavage that removes an inhibitory peptide, revealing the active site. Examples include pepsinogen → pepsin, trypsinogen → trypsin, and prothrombin → thrombin."},
+
+];
+
+// ════════════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════════════
+let qCount = 10;
+let selectedSubjects = new Set();
+let queue = [];
+let idx = 0;
+let correct = 0;
+let total = 0;
+let results = [];
+let answered = false;
+
+const ALL_SUBJECTS = [...new Set(QB.map(c=>c.s))].sort();
+selectedSubjects = new Set(ALL_SUBJECTS);
+
+// ════════════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════════════
+document.getElementById('total-count').textContent = QB.length + ' questions ready';
+buildSubjectGrid();
+updateAvail();
+
+function buildSubjectGrid() {
+  const g = document.getElementById('subject-grid');
+  g.innerHTML = '';
+  ALL_SUBJECTS.forEach(s => {
+    const b = document.createElement('button');
+    b.className = 'subject-chip' + (selectedSubjects.has(s) ? ' on' : '');
+    b.textContent = s;
+    b.dataset.s = s;
+    b.onclick = () => toggleSubject(s, b);
+    g.appendChild(b);
+  });
+}
+
+function updateAvail() {
+  const n = QB.filter(c=>selectedSubjects.has(c.s)).length;
+  document.getElementById('avail').textContent = n + ' questions available';
+  document.getElementById('start-btn').disabled = n === 0;
+}
+
+function toggleSubject(s, btn) {
+  if (selectedSubjects.has(s)) {
+    if (selectedSubjects.size > 1) { selectedSubjects.delete(s); btn.classList.remove('on'); }
+  } else {
+    selectedSubjects.add(s); btn.classList.add('on');
+  }
+  updateAvail();
+}
+
+function selectAll() { selectedSubjects = new Set(ALL_SUBJECTS); buildSubjectGrid(); updateAvail(); }
+function clearAll()  { selectedSubjects = new Set([ALL_SUBJECTS[0]]); buildSubjectGrid(); updateAvail(); }
+
+function setCount(n, btn) {
+  qCount = n;
+  document.querySelectorAll('.count-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ════════════════════════════════════════════════════════════════
+//  QUIZ
+// ════════════════════════════════════════════════════════════════
+function shuffle(a) { return [...a].sort(()=>Math.random()-.5); }
+
+function startQuiz() {
+  const pool = shuffle(QB.filter(c=>selectedSubjects.has(c.s)));
+  queue = qCount >= 999 ? pool : pool.slice(0, qCount);
+  idx = 0; correct = 0; total = 0; results = []; answered = false;
+  show('screen-quiz');
+  renderQuestion();
+}
+
+function show(id) {
+  ['screen-home','screen-quiz','screen-results'].forEach(s=>{
+    document.getElementById(s).style.display = s===id ? 'block' : 'none';
+  });
+}
+
+function updateHeader() {
+  const pct = (idx/queue.length)*100;
+  document.getElementById('pfill').style.width = pct+'%';
+  document.getElementById('qm-counter').textContent = (idx+1)+' / '+queue.length;
+  document.getElementById('qm-subject').textContent = queue[idx]?.s || '';
+  document.getElementById('qm-score').textContent = '✓ '+correct+'/'+total;
+}
+
+function renderQuestion() {
+  answered = false;
+  updateHeader();
+  const q = queue[idx];
+  const labels = ['A','B','C','D'];
+  const body = document.getElementById('quiz-body');
+  const choices = labels.map((l,i) => `
+    <button class="choice-btn" id="cb-${l}" onclick="pick(${i})">
+      <span class="choice-lbl">${l}</span>
+      <span>${q.choices[i]}</span>
+    </button>`).join('');
+  body.innerHTML = `
+    <div class="question-box">
+      <div class="question-text">${q.q}</div>
+    </div>
+    <div class="choices">${choices}</div>
+    <div id="exp-area"></div>
+    <div id="nxt-area"></div>`;
+}
+
+function pick(chosen) {
+  if (answered) return;
+  answered = true;
+  const q = queue[idx];
+  const isRight = chosen === q.ans;
+  total++;
+  if (isRight) correct++;
+  document.getElementById('qm-score').textContent = '✓ '+correct+'/'+total;
+  results.push({ q, chosen, right: isRight });
+  const labels = ['A','B','C','D'];
+  labels.forEach((l,i) => {
+    const btn = document.getElementById('cb-'+l);
+    btn.disabled = true;
+    if (i === q.ans) {
+      btn.classList.add('correct');
+      btn.innerHTML += '<span class="choice-mark" style="color:var(--green)">✓</span>';
+    } else if (i === chosen) {
+      btn.classList.add('wrong');
+      btn.innerHTML += '<span class="choice-mark" style="color:var(--red)">✗</span>';
+    }
+  });
+  document.getElementById('exp-area').innerHTML = `
+    <div class="explanation-box">
+      <div class="exp-label">Explanation</div>
+      <div class="exp-text">${q.exp}</div>
+      <div class="orig-card"><b>SUBJECT:</b> ${q.s}</div>
+    </div>`;
+  const isLast = idx+1 >= queue.length;
+  document.getElementById('nxt-area').innerHTML = `
+    <button class="next-btn" onclick="nextQ()">${isLast ? 'FINISH →' : 'NEXT →'}</button>`;
+}
+
+function nextQ() {
+  if (idx+1 >= queue.length) { showResults(); return; }
+  idx++;
+  renderQuestion();
+}
+
+function goHome() { show('screen-home'); }
+
+// ════════════════════════════════════════════════════════════════
+//  CUMULATIVE STATS  (persisted in localStorage)
+// ════════════════════════════════════════════════════════════════
+function loadStats() {
+  try { return JSON.parse(localStorage.getItem('mcat_stats') || '{}'); } catch(e) { return {}; }
+}
+function saveStats(s) {
+  try { localStorage.setItem('mcat_stats', JSON.stringify(s)); } catch(e) {}
+}
+function resetStats() {
+  if (!confirm('Reset all cumulative statistics? This cannot be undone.')) return;
+  localStorage.removeItem('mcat_stats');
+  alert('Stats reset.');
+}
+
+// ════════════════════════════════════════════════════════════════
+//  MCAT SCORE ESTIMATION
+//  Maps raw % correct → estimated scaled score 118–132
+//  Modeled on AAMC B/B section distribution
+// ════════════════════════════════════════════════════════════════
+function pctToMCAT(pct) {
+  // Piecewise linear: 118 floor at 0%, 132 ceiling at 100%
+  // Real MCAT scoring is adaptive but this gives useful practice feedback
+  const table = [
+    [0,118],[35,119],[42,120],[49,121],[55,122],[61,123],
+    [66,124],[71,125],[75,126],[79,127],[83,128],[87,129],
+    [91,130],[95,131],[99,132],[100,132]
+  ];
+  for (let i=1;i<table.length;i++) {
+    if (pct <= table[i][0]) {
+      const [p0,s0] = table[i-1];
+      const [p1,s1] = table[i];
+      const frac = (pct-p0)/(p1-p0);
+      return Math.round(s0 + frac*(s1-s0));
+    }
+  }
+  return 132;
+}
+function mcatPercentile(score) {
+  const map = {118:1,119:3,120:8,121:15,122:26,123:38,124:51,125:63,126:74,127:83,128:90,129:94,130:97,131:99,132:100};
+  return map[score] || 1;
+}
+function scoreColor(score) {
+  if (score>=128) return 'var(--green)';
+  if (score>=125) return 'var(--accent)';
+  if (score>=122) return 'var(--amber)';
+  return 'var(--red)';
+}
+
+// ════════════════════════════════════════════════════════════════
+//  DRILL WEAK AREAS
+// ════════════════════════════════════════════════════════════════
+function drillWeak() {
+  const stats = loadStats();
+  // Find subjects with <70% cumulative accuracy
+  const weakSubjects = new Set(
+    Object.entries(stats)
+      .filter(([s,d]) => d.t>=3 && Math.round(d.c/d.t*100)<70)
+      .map(([s]) => s)
+  );
+  if (weakSubjects.size === 0) {
+    alert('No weak areas identified yet — need at least 3 questions per subject. Keep quizzing!');
+    return;
+  }
+  selectedSubjects = weakSubjects;
+  startQuiz();
+}
+
+// ════════════════════════════════════════════════════════════════
+//  RESULTS
+// ════════════════════════════════════════════════════════════════
+function showResults() {
+  show('screen-results');
+
+  const tot = results.length;
+  const cor = results.filter(r=>r.right).length;
+  const pct = Math.round(cor/tot*100);
+  const mcatScore = pctToMCAT(pct);
+  const percentile = mcatPercentile(mcatScore);
+
+  // ── Session header ──
+  const grade = pct>=90?'EXCELLENT':pct>=80?'STRONG':pct>=70?'GOOD':pct>=60?'FAIR':'NEEDS WORK';
+  const gc = pct>=90?'var(--green)':pct>=80?'var(--green)':pct>=70?'var(--accent)':pct>=60?'var(--amber)':'var(--red)';
+  document.getElementById('r-pct').textContent = pct+'%';
+  document.getElementById('r-grade').textContent = grade;
+  document.getElementById('r-grade').style.color = gc;
+  document.getElementById('r-sub').textContent = cor+' correct out of '+tot+' questions';
+
+  // ── MCAT Scaled Score Card ──
+  const sc = scoreColor(mcatScore);
+  document.getElementById('r-mcat-score').innerHTML = `
+    <div class="section-label">ESTIMATED MCAT SCORE — B/B SECTION</div>
+    <div style="display:flex;align-items:center;gap:28px;padding:8px 0 12px">
+      <div style="text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-size:64px;font-weight:800;line-height:1;color:${sc}">${mcatScore}</div>
+        <div style="font-size:10px;letter-spacing:.1em;color:var(--muted);margin-top:4px">SCALED SCORE</div>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:13px;color:#94a3b8;margin-bottom:6px">118 ────────────── 132</div>
+        <div style="height:10px;background:var(--dim);border-radius:5px;overflow:hidden;position:relative">
+          <div style="height:100%;width:${((mcatScore-118)/14*100).toFixed(1)}%;background:${sc};border-radius:5px;transition:width .8s ease"></div>
+          <div style="position:absolute;top:0;left:${((mcatScore-118)/14*100).toFixed(1)}%;transform:translateX(-50%);width:2px;height:100%;background:#fff;opacity:.6"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:10px;gap:16px;flex-wrap:wrap">
+          <div style="text-align:center">
+            <div style="font-size:18px;font-weight:700;color:${sc}">${percentile}<sup style="font-size:11px">th</sup></div>
+            <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">PERCENTILE</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--text)">${pct}%</div>
+            <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">RAW SCORE</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--text)">${cor}/${tot}</div>
+            <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">CORRECT</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--red)">${tot-cor}</div>
+            <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">INCORRECT</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--muted);border-top:1px solid var(--border);padding-top:10px;line-height:1.6">
+      Score range 118–132 · Estimated from raw % using AAMC B/B section distribution · Practice tool only — not predictive of official score
+    </div>`;
+
+  // ── Update cumulative stats ──
+  const stats = loadStats();
+  const sessionSubjects = {};
+  results.forEach(r=>{
+    const s = r.q.s;
+    if (!stats[s]) stats[s]={c:0,t:0,sessions:0};
+    if (!sessionSubjects[s]) sessionSubjects[s]={c:0,t:0};
+    stats[s].t++; sessionSubjects[s].t++;
+    if(r.right){ stats[s].c++; sessionSubjects[s].c++; }
+  });
+  Object.keys(sessionSubjects).forEach(s=>{ stats[s].sessions=(stats[s].sessions||0)+1; });
+  saveStats(stats);
+
+  // ── Cumulative Stats Card ──
+  const cumTot = Object.values(stats).reduce((a,v)=>a+v.t,0);
+  const cumCor = Object.values(stats).reduce((a,v)=>a+v.c,0);
+  const cumPct = cumTot>0 ? Math.round(cumCor/cumTot*100) : 0;
+  const cumMCAT = pctToMCAT(cumPct);
+  const cumColor = scoreColor(cumMCAT);
+  document.getElementById('r-cumulative').innerHTML = `
+    <div class="section-label">CUMULATIVE PERFORMANCE — ALL SESSIONS</div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;padding:6px 0 10px">
+      <div style="text-align:center;min-width:60px">
+        <div style="font-size:28px;font-weight:700;font-family:'Syne',sans-serif;color:${cumColor}">${cumMCAT}</div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">CUMULATIVE<br>MCAT EST.</div>
+      </div>
+      <div style="text-align:center;min-width:60px">
+        <div style="font-size:28px;font-weight:700;color:var(--text)">${cumPct}%</div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">OVERALL<br>ACCURACY</div>
+      </div>
+      <div style="text-align:center;min-width:60px">
+        <div style="font-size:28px;font-weight:700;color:var(--accent)">${cumCor}</div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">TOTAL<br>CORRECT</div>
+      </div>
+      <div style="text-align:center;min-width:60px">
+        <div style="font-size:28px;font-weight:700;color:var(--text)">${cumTot}</div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">TOTAL<br>QUESTIONS</div>
+      </div>
+    </div>
+    <div style="height:6px;background:var(--dim);border-radius:3px;overflow:hidden">
+      <div style="height:100%;width:${cumPct}%;background:${cumColor};border-radius:3px;transition:width .8s ease"></div>
+    </div>`;
+
+  // ── Subject breakdown ──
+  const allSubjects = Object.entries(stats).map(([s,d])=>({
+    s, c:d.c, t:d.t, p:Math.round(d.c/d.t*100),
+    sessionC: sessionSubjects[s]?.c||0, sessionT: sessionSubjects[s]?.t||0
+  })).sort((a,b)=>a.p-b.p);
+
+  let bhtml = '<div class="section-label">SUBJECT BREAKDOWN — CUMULATIVE</div>';
+  allSubjects.forEach(({s,c,t,p})=>{
+    const col = p>=80?'var(--green)':p>=60?'var(--amber)':'var(--red)';
+    const badge = p>=80?'STRONG':p>=60?'FAIR':'WEAK';
+    const badgeCol = p>=80?'rgba(45,212,160,.15)':p>=60?'rgba(245,200,66,.15)':'rgba(245,97,78,.15)';
+    const badgeBorder = p>=80?'rgba(45,212,160,.3)':p>=60?'rgba(245,200,66,.3)':'rgba(245,97,78,.3)';
+    bhtml += `
+      <div class="subject-row" style="margin-bottom:12px">
+        <div class="sr-name" style="width:180px">${s}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+            <div class="sr-bar-wrap" style="flex:1"><div class="sr-bar-fill" style="width:${p}%;background:${col}"></div></div>
+            <div class="sr-pct" style="width:46px;text-align:right">${c}/${t}</div>
+            <div style="font-size:9px;letter-spacing:.1em;padding:2px 7px;border-radius:3px;background:${badgeCol};border:1px solid ${badgeBorder};color:${col};flex-shrink:0">${badge}</div>
+          </div>
+          <div style="font-size:10px;color:var(--muted)">${p}% accuracy</div>
+        </div>
+      </div>`;
+  });
+  document.getElementById('r-breakdown').innerHTML = bhtml;
+
+  // ── Strengths & Weaknesses ──
+  const strong = allSubjects.filter(x=>x.t>=3&&x.p>=80).sort((a,b)=>b.p-a.p).slice(0,5);
+  const weak = allSubjects.filter(x=>x.t>=3&&x.p<70).sort((a,b)=>a.p-b.p).slice(0,5);
+  const needMore = allSubjects.filter(x=>x.t<3);
+
+  let swHtml = '<div class="section-label">STRENGTHS & IMPROVEMENT AREAS</div>';
+  if (strong.length) {
+    swHtml += `<div style="font-size:11px;color:var(--green);letter-spacing:.08em;margin-bottom:8px;margin-top:4px">✓ STRENGTHS</div>`;
+    strong.forEach(({s,p})=>{
+      swHtml += `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <span style="color:var(--text)">${s}</span>
+        <span style="color:var(--green);font-weight:700">${p}%</span></div>`;
+    });
+  }
+  if (weak.length) {
+    swHtml += `<div style="font-size:11px;color:var(--red);letter-spacing:.08em;margin-bottom:8px;margin-top:16px">⚠ NEEDS WORK</div>`;
+    weak.forEach(({s,p,t})=>{
+      swHtml += `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <span style="color:var(--text)">${s}</span>
+        <span style="color:var(--red);font-weight:700">${p}% (${t} seen)</span></div>`;
+    });
+    swHtml += `<div style="margin-top:12px;padding:12px;background:rgba(245,97,78,.07);border:1px solid rgba(245,97,78,.2);border-radius:8px;font-size:12px;color:#f9a8a0;line-height:1.7">
+      Drill these areas using the button below. Consistent practice brings them to 80%+ before test day.</div>`;
+  }
+  if (!strong.length && !weak.length) {
+    swHtml += `<div style="font-size:13px;color:var(--muted);padding:12px 0">Answer at least 3 questions per subject to generate strength/weakness analysis.</div>`;
+  }
+  if (needMore.length) {
+    swHtml += `<div style="font-size:11px;color:var(--muted);margin-top:14px">Subjects needing more data (< 3 questions): ${needMore.map(x=>x.s).join(', ')}</div>`;
+  }
+  document.getElementById('r-sw').innerHTML = swHtml;
+
+  // ── Missed questions ──
+  const missed = results.filter(r=>!r.right);
+  let mhtml = `<div class="section-label">MISSED THIS SESSION (${missed.length})</div>`;
+  if (!missed.length) {
+    mhtml += '<div class="all-correct">✓ Perfect session — no missed questions!</div>';
+  } else {
+    missed.forEach(r=>{
+      mhtml += `<div class="missed-item">
+        <div style="font-size:10px;color:var(--accent2);letter-spacing:.08em;margin-bottom:4px">${r.q.s}</div>
+        <div class="missed-q">${r.q.q}</div>
+        <div class="missed-correct">✓ ${r.q.choices[r.q.ans]}</div>
+        <div class="missed-wrong">✗ ${r.q.choices[r.chosen]}</div>
+      </div>`;
+    });
+  }
+  document.getElementById('r-missed').innerHTML = mhtml;
+}
+</script>
+</body>
+</html>
