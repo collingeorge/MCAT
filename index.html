@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MCAT Biochemistry — Clinical Mastery Quiz</title>
+<title>MCAT Study App</title>
 <style>
 /* ── CM-STYLE-01 DESIGN SYSTEM ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -304,8 +304,39 @@ body::before{
 .mode-btn:first-child{border-right:1px solid var(--border-med)}
 .mode-btn:hover:not(.active){background:var(--blue-light);color:var(--navy)}
 
-/* ── PASSAGE UI ── */
-.passage-card{
+/* ── GROUPED PASSAGE SELECTOR ── */
+.pgroup{margin-bottom:18px}
+.pgroup:last-child{margin-bottom:0}
+.pgroup-label{
+  font-size:9px;letter-spacing:.2em;color:var(--white);
+  font-weight:700;text-transform:uppercase;
+  background:var(--navy);padding:5px 10px;
+  display:inline-block;margin-bottom:8px;
+}
+.pgroup-list{display:flex;flex-direction:column;gap:6px}
+.psel-btn{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;background:var(--white);
+  border:1px solid var(--border-med);border-left:3px solid transparent;
+  color:var(--text-body);font-family:Arial,Helvetica,sans-serif;
+  font-size:12px;cursor:pointer;transition:all .15s;text-align:left;
+  width:100%;
+}
+.psel-btn:hover{border-color:var(--navy);border-left-color:var(--navy);background:var(--blue-light);color:var(--navy)}
+.psel-btn.active{
+  background:var(--blue-light);border-color:var(--navy);
+  border-left-color:var(--navy);color:var(--navy);font-weight:700;
+}
+.psel-btn.done{border-left-color:var(--green)}
+.psel-meta{display:flex;align-items:center;gap:10px;flex-shrink:0;margin-left:8px}
+.psel-count{
+  font-size:10px;font-weight:700;color:var(--slate);
+  background:var(--blue-light);border:1px solid var(--border-med);
+  padding:2px 7px;letter-spacing:.04em;
+}
+.psel-score{font-size:10px;color:var(--green);font-weight:700;letter-spacing:.04em}
+.psel-name{flex:1;font-size:12px;line-height:1.4}
+
   background:var(--white);border:1px solid var(--border);
   border-left:4px solid var(--navy-mid);
   padding:20px 24px;margin-bottom:14px;position:relative;
@@ -342,6 +373,84 @@ body::before{
 }
 .psel-btn.done{border-color:var(--green);color:var(--green)}
 
+/* ── GROUPED SUBJECT SELECTOR ── */
+.sg-outer{margin-bottom:0;border-bottom:1px solid var(--border)}
+.sg-outer:last-child{border-bottom:none}
+
+.sg-subject-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 16px;background:var(--navy);
+  cursor:pointer;user-select:none;border:none;width:100%;
+  text-align:left;transition:background .15s;
+}
+.sg-subject-row:hover{background:var(--navy-mid)}
+.sg-subject-name{
+  font-size:10px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--white);
+  font-family:Arial,Helvetica,sans-serif;
+}
+.sg-subject-meta{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.sg-subject-count{font-size:10px;color:rgba(255,255,255,.6);letter-spacing:.06em}
+.sg-chevron{font-size:10px;color:rgba(255,255,255,.7);transition:transform .2s;display:inline-block}
+.sg-chevron.open{transform:rotate(180deg)}
+.sg-select-all{
+  font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,255,255,.85);background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.25);padding:3px 8px;cursor:pointer;
+  font-family:Arial,Helvetica,sans-serif;transition:all .15s;
+}
+.sg-select-all:hover{background:rgba(255,255,255,.25);color:#fff}
+
+.sg-topics{display:none}
+.sg-topics.open{display:block}
+
+.sg-topic-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 16px 9px 22px;
+  background:var(--blue-light);border-bottom:1px solid var(--border);
+  cursor:pointer;user-select:none;
+}
+.sg-topic-row:hover{background:#dce8f5}
+.sg-topic-name{
+  font-size:11px;font-weight:700;color:var(--navy);
+  font-family:Arial,Helvetica,sans-serif;flex:1;
+}
+.sg-topic-meta{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.sg-topic-count{font-size:10px;color:var(--slate)}
+.sg-topic-chevron{font-size:9px;color:var(--navy-mid);transition:transform .2s;display:inline-block}
+.sg-topic-chevron.open{transform:rotate(180deg)}
+.sg-topic-sel-all{
+  font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--navy-mid);background:var(--white);
+  border:1px solid var(--navy-mid);padding:2px 7px;cursor:pointer;
+  font-family:Arial,Helvetica,sans-serif;transition:all .15s;
+}
+.sg-topic-sel-all:hover{background:var(--navy-mid);color:#fff}
+
+.sg-subtopics{display:none;background:var(--white)}
+.sg-subtopics.open{display:block}
+
+.sg-chips{display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px 10px 28px;border-bottom:1px solid var(--border)}
+
+.sg-chip{
+  padding:5px 10px;background:var(--white);
+  border:1px solid var(--border-med);
+  color:var(--slate);font-family:Arial,Helvetica,sans-serif;
+  font-size:11px;cursor:pointer;transition:all .15s;user-select:none;
+  display:inline-flex;align-items:center;gap:5px;
+}
+.sg-chip:hover{border-color:var(--navy);color:var(--navy);background:var(--blue-light)}
+.sg-chip.on{background:var(--navy);border-color:var(--navy);color:var(--white);font-weight:700}
+.sg-chip-count{font-size:9px;opacity:.65;font-weight:400}
+.sg-chip.on .sg-chip-count{opacity:.75}
+
+.sg-avail{
+  padding:9px 14px;background:var(--blue-light);
+  border-top:1px solid var(--border-med);
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:11px;color:var(--navy);font-weight:700;letter-spacing:.04em;
+}
+
 </style>
 </head>
 <body>
@@ -350,15 +459,15 @@ body::before{
 <div id="screen-home">
   <div class="wrap">
     <div class="home-hero">
-      <div class="hero-badge">MileDown Biochemistry · 1,249 Recall + 64 Passage Questions</div>
-      <h1 class="hero-title">MCAT <span>Biochemistry</span></h1>
+      <div class="hero-badge">MileDown Complete Deck · 1,249 Recall + 64 Passage Questions</div>
+      <h1 class="hero-title">MCAT <span>Study App</span></h1>
       <div class="hero-divider"></div>
-      <p class="hero-sub">Clinical Mastery Quiz System · Collin Blaine George</p>
+      <p class="hero-sub">Clinical Mastery Quiz System · Collin B. George</p>
       <p class="hero-count" id="total-count"></p>
     </div>
 
     <div class="mode-toggle">
-      <button class="mode-btn active" id="btn-recall" onclick="setMode('recall')">RECALL MODE<br><span style="font-size:9px;font-weight:400;opacity:.7">468 Flashcard MCQs</span></button>
+      <button class="mode-btn active" id="btn-recall" onclick="setMode('recall')">RECALL MODE<br><span style="font-size:9px;font-weight:400;opacity:.7">1,249 Flashcard MCQs</span></button>
       <button class="mode-btn" id="btn-passage" onclick="setMode('passage')">PASSAGE MODE<br><span style="font-size:9px;font-weight:400;opacity:.7">64 AAMC-Style Questions</span></button>
     </div>
     <div id="recall-config">
@@ -377,23 +486,20 @@ body::before{
       <div class="config-header">
         <div class="section-label">Subjects</div>
         <div class="micro-row">
-          <button class="micro-btn" onclick="selectAll()">ALL</button>
-          <button class="micro-btn" onclick="clearAll()">CLEAR</button>
+          <button class="micro-btn" onclick="sgSelectAll()">ALL</button>
+          <button class="micro-btn" onclick="sgClearAll()">CLEAR</button>
         </div>
       </div>
-      <div class="subject-grid" id="subject-grid"></div>
-      <div class="avail" id="avail"></div>
+      <div id="subject-grid"></div>
+      <div class="sg-avail" id="avail"><span id="avail-text">0 questions available</span></div>
     </div>
 
     </div><!-- end recall-config -->
     <div id="passage-config" style="display:none">
-      <div class="config-card">
-        <div class="section-label">Select Passage</div>
-        <div class="passage-selector" id="passage-selector"></div>
-      </div>
+      <div class="config-card" id="passage-selector"></div>
     </div>
     <button class="start-btn" id="start-btn" onclick="startSession()">START →</button>
-    <div class="footer">MileDown Biochemistry Deck &nbsp;·&nbsp; Open Source &nbsp;·&nbsp; <a href="https://github.com" target="_blank">GitHub</a></div>
+    <div class="footer">MCAT Study App &nbsp;·&nbsp; Open Source &nbsp;·&nbsp; <a href="https://github.com/collingeorge/MCAT" target="_blank">GitHub</a></div>
   </div>
 </div>
 
@@ -907,738 +1013,6 @@ const QB = [
   {s:'DNA & RNA',q:'_____ is a fast and inexpensive technique used to amplify , or make many copies of, a specific target region of DNA in the lab',choices:['In situ hybridization','Polymerase chain reaction (PCR)','Sanger sequencing','Southern blotting'],ans:1,exp:'The correct answer is Polymerase chain reaction (PCR). **Polymerase chain reaction (PCR)** is a fast and inexpensive technique used to amplify , or make many copies of, a specific target region of DNA in the lab'},
   {s:'DNA & RNA',q:'PCR relies on a thermostable DNA polymerase called _____',choices:['Phi29 polymerase','T4 DNA polymerase','Klenow fragment','Taq polymerase'],ans:3,exp:'The correct answer is Taq polymerase. PCR relies on a thermostable DNA polymerase called **Taq polymerase**'},
   {s:'DNA & RNA',q:'Give the three steps and the temperatures of each step in a PCR cycle : 1. _____ at _____°C 2. _____ at _____°C 3. _____ at _____°C',choices:['Proteolysis','Glycosylation','Denaturation','Renaturation'],ans:2,exp:'The correct answer is Denaturation. Give the three steps and the temperatures of each step in a PCR cycle : 1. **Denaturation** at **Denaturation**°C 2. **Denaturation** at **Denaturation**°C 3. **Denaturation** at **Denaturation**°C'},
-];
-
-// ════════════════════════════════════════════════════════════════
-//  STATE
-// ════════════════════════════════════════════════════════════════
-let qCount = 10;
-let selectedSubjects = new Set();
-let queue = [];
-let idx = 0;
-let correct = 0;
-let total = 0;
-let results = [];
-let answered = false;
-
-const ALL_SUBJECTS = [...new Set(QB.map(c=>c.s))].sort();
-selectedSubjects = new Set(ALL_SUBJECTS);
-
-// ════════════════════════════════════════════════════════════════
-//  INIT
-// ════════════════════════════════════════════════════════════════
-document.getElementById('total-count').textContent = QB.length + ' questions ready';
-buildSubjectGrid();
-updateAvail();
-
-function buildSubjectGrid() {
-  const g = document.getElementById('subject-grid');
-  g.innerHTML = '';
-  ALL_SUBJECTS.forEach(s => {
-    const b = document.createElement('button');
-    b.className = 'subject-chip' + (selectedSubjects.has(s) ? ' on' : '');
-    b.textContent = s;
-    b.dataset.s = s;
-    b.onclick = () => toggleSubject(s, b);
-    g.appendChild(b);
-  });
-}
-
-function updateAvail() {
-  const n = QB.filter(c=>selectedSubjects.has(c.s)).length;
-  document.getElementById('avail').textContent = n + ' questions available';
-  document.getElementById('start-btn').disabled = n === 0;
-}
-
-function toggleSubject(s, btn) {
-  if (selectedSubjects.has(s)) {
-    if (selectedSubjects.size > 1) { selectedSubjects.delete(s); btn.classList.remove('on'); }
-  } else {
-    selectedSubjects.add(s); btn.classList.add('on');
-  }
-  updateAvail();
-}
-
-function selectAll() { selectedSubjects = new Set(ALL_SUBJECTS); buildSubjectGrid(); updateAvail(); }
-function clearAll()  { selectedSubjects = new Set([ALL_SUBJECTS[0]]); buildSubjectGrid(); updateAvail(); }
-
-function setCount(n, btn) {
-  qCount = n;
-  document.querySelectorAll('.count-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
-// ════════════════════════════════════════════════════════════════
-//  QUIZ
-// ════════════════════════════════════════════════════════════════
-function shuffle(a) { return [...a].sort(()=>Math.random()-.5); }
-
-function startQuiz() {
-  const pool = shuffle(QB.filter(c=>selectedSubjects.has(c.s)));
-  queue = qCount >= 999 ? pool : pool.slice(0, qCount);
-  idx = 0; correct = 0; total = 0; results = []; answered = false;
-  show('screen-quiz');
-  renderQuestion();
-}
-
-function show(id) {
-  ['screen-home','screen-quiz','screen-results','screen-passage'].forEach(s=>{
-    document.getElementById(s).style.display = s===id ? 'block' : 'none';
-  });
-}
-
-function updateHeader() {
-  const pct = (idx/queue.length)*100;
-  document.getElementById('pfill').style.width = pct+'%';
-  document.getElementById('qm-counter').textContent = (idx+1)+' / '+queue.length;
-  document.getElementById('qm-subject').textContent = queue[idx]?.s || '';
-  document.getElementById('qm-score').textContent = '✓ '+correct+'/'+total;
-}
-
-function renderQuestion() {
-  answered = false;
-  updateHeader();
-  const q = queue[idx];
-  const labels = ['A','B','C','D'];
-  const body = document.getElementById('quiz-body');
-  const choices = labels.map((l,i) => `
-    <button class="choice-btn" id="cb-${l}" onclick="pick(${i})">
-      <span class="choice-lbl">${l}</span>
-      <span>${q.choices[i]}</span>
-    </button>`).join('');
-  body.innerHTML = `
-    <div class="question-box">
-      <div class="question-text">${q.q}</div>
-    </div>
-    <div class="choices">${choices}</div>
-    <div id="exp-area"></div>
-    <div id="nxt-area"></div>`;
-}
-
-function pick(chosen) {
-  if (answered) return;
-  answered = true;
-  const q = queue[idx];
-  const isRight = chosen === q.ans;
-  total++;
-  if (isRight) correct++;
-  document.getElementById('qm-score').textContent = '✓ '+correct+'/'+total;
-  results.push({ q, chosen, right: isRight });
-  const labels = ['A','B','C','D'];
-  labels.forEach((l,i) => {
-    const btn = document.getElementById('cb-'+l);
-    btn.disabled = true;
-    if (i === q.ans) {
-      btn.classList.add('correct');
-      btn.innerHTML += '<span class="choice-mark" style="color:var(--green)">✓</span>';
-    } else if (i === chosen) {
-      btn.classList.add('wrong');
-      btn.innerHTML += '<span class="choice-mark" style="color:var(--red)">✗</span>';
-    }
-  });
-  document.getElementById('exp-area').innerHTML = `
-    <div class="explanation-box">
-      <div class="exp-label">Explanation</div>
-      <div class="exp-text">${q.exp}</div>
-      <div class="orig-card"><b>SUBJECT:</b> ${q.s}</div>
-    </div>`;
-  const isLast = idx+1 >= queue.length;
-  document.getElementById('nxt-area').innerHTML = `
-    <button class="next-btn" onclick="nextQ()">${isLast ? 'FINISH →' : 'NEXT →'}</button>`;
-}
-
-function nextQ() {
-  if (idx+1 >= queue.length) { showResults(); return; }
-  idx++;
-  renderQuestion();
-}
-
-function goHome() { show('screen-home'); }
-
-// ════════════════════════════════════════════════════════════════
-//  CUMULATIVE STATS  (persisted in localStorage)
-// ════════════════════════════════════════════════════════════════
-function loadStats() {
-  try { return JSON.parse(localStorage.getItem('mcat_stats') || '{}'); } catch(e) { return {}; }
-}
-function saveStats(s) {
-  try { localStorage.setItem('mcat_stats', JSON.stringify(s)); } catch(e) {}
-}
-function resetStats() {
-  if (!confirm('Reset all cumulative statistics? This cannot be undone.')) return;
-  localStorage.removeItem('mcat_stats');
-  alert('Stats reset.');
-}
-
-// ════════════════════════════════════════════════════════════════
-//  MCAT SCORE ESTIMATION
-//  Maps raw % correct → estimated scaled score 118–132
-//  Modeled on AAMC B/B section distribution
-// ════════════════════════════════════════════════════════════════
-function pctToMCAT(pct) {
-  // Piecewise linear: 118 floor at 0%, 132 ceiling at 100%
-  // Real MCAT scoring is adaptive but this gives useful practice feedback
-  const table = [
-    [0,118],[35,119],[42,120],[49,121],[55,122],[61,123],
-    [66,124],[71,125],[75,126],[79,127],[83,128],[87,129],
-    [91,130],[95,131],[99,132],[100,132]
-  ];
-  for (let i=1;i<table.length;i++) {
-    if (pct <= table[i][0]) {
-      const [p0,s0] = table[i-1];
-      const [p1,s1] = table[i];
-      const frac = (pct-p0)/(p1-p0);
-      return Math.round(s0 + frac*(s1-s0));
-    }
-  }
-  return 132;
-}
-function mcatPercentile(score) {
-  const map = {118:1,119:3,120:8,121:15,122:26,123:38,124:51,125:63,126:74,127:83,128:90,129:94,130:97,131:99,132:100};
-  return map[score] || 1;
-}
-function scoreColor(score) {
-  if (score>=128) return 'var(--green)';
-  if (score>=125) return 'var(--accent)';
-  if (score>=122) return 'var(--amber)';
-  return 'var(--red)';
-}
-
-// ════════════════════════════════════════════════════════════════
-//  DRILL WEAK AREAS
-// ════════════════════════════════════════════════════════════════
-function drillWeak() {
-  const stats = loadStats();
-  // Find subjects with <70% cumulative accuracy
-  const weakSubjects = new Set(
-    Object.entries(stats)
-      .filter(([s,d]) => d.t>=3 && Math.round(d.c/d.t*100)<70)
-      .map(([s]) => s)
-  );
-  if (weakSubjects.size === 0) {
-    alert('No weak areas identified yet — need at least 3 questions per subject. Keep quizzing!');
-    return;
-  }
-  selectedSubjects = weakSubjects;
-  startQuiz();
-}
-
-// ════════════════════════════════════════════════════════════════
-//  RESULTS
-// ════════════════════════════════════════════════════════════════
-function showResults() {
-  show('screen-results');
-
-  const tot = results.length;
-  const cor = results.filter(r=>r.right).length;
-  const pct = Math.round(cor/tot*100);
-  const mcatScore = pctToMCAT(pct);
-  const percentile = mcatPercentile(mcatScore);
-
-  // ── Session header ──
-  const grade = pct>=90?'EXCELLENT':pct>=80?'STRONG':pct>=70?'GOOD':pct>=60?'FAIR':'NEEDS WORK';
-  const gc = pct>=90?'var(--green)':pct>=80?'var(--green)':pct>=70?'var(--accent)':pct>=60?'var(--amber)':'var(--red)';
-  document.getElementById('r-pct').textContent = pct+'%';
-  document.getElementById('r-grade').textContent = grade;
-  document.getElementById('r-grade').style.color = gc;
-  document.getElementById('r-sub').textContent = cor+' correct out of '+tot+' questions';
-
-  // ── MCAT Scaled Score Card ──
-  const sc = scoreColor(mcatScore);
-  document.getElementById('r-mcat-score').innerHTML = `
-    <div class="section-label">ESTIMATED MCAT SCORE — B/B SECTION</div>
-    <div style="display:flex;align-items:center;gap:28px;padding:8px 0 12px">
-      <div style="text-align:center">
-        <div style="font-family:Arial,Helvetica,sans-serif;font-size:64px;font-weight:800;line-height:1;color:${sc}">${mcatScore}</div>
-        <div style="font-size:10px;letter-spacing:.1em;color:var(--muted);margin-top:4px">SCALED SCORE</div>
-      </div>
-      <div style="flex:1">
-        <div style="font-size:13px;color:#94a3b8;margin-bottom:6px">118 ────────────── 132</div>
-        <div style="height:10px;background:var(--dim);border-radius:5px;overflow:hidden;position:relative">
-          <div style="height:100%;width:${((mcatScore-118)/14*100).toFixed(1)}%;background:${sc};border-radius:5px;transition:width .8s ease"></div>
-          <div style="position:absolute;top:0;left:${((mcatScore-118)/14*100).toFixed(1)}%;transform:translateX(-50%);width:2px;height:100%;background:#fff;opacity:.6"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-top:10px;gap:16px;flex-wrap:wrap">
-          <div style="text-align:center">
-            <div style="font-size:18px;font-weight:700;color:${sc}">${percentile}<sup style="font-size:11px">th</sup></div>
-            <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">PERCENTILE</div>
-          </div>
-          <div style="text-align:center">
-            <div style="font-size:18px;font-weight:700;color:var(--text)">${pct}%</div>
-            <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">RAW SCORE</div>
-          </div>
-          <div style="text-align:center">
-            <div style="font-size:18px;font-weight:700;color:var(--text)">${cor}/${tot}</div>
-            <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">CORRECT</div>
-          </div>
-          <div style="text-align:center">
-            <div style="font-size:18px;font-weight:700;color:var(--red)">${tot-cor}</div>
-            <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">INCORRECT</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div style="font-size:10px;color:var(--muted);border-top:1px solid var(--border);padding-top:10px;line-height:1.6">
-      Score range 118–132 · Estimated from raw % using AAMC B/B section distribution · Practice tool only — not predictive of official score
-    </div>`;
-
-  // ── Update cumulative stats ──
-  const stats = loadStats();
-  const sessionSubjects = {};
-  results.forEach(r=>{
-    const s = r.q.s;
-    if (!stats[s]) stats[s]={c:0,t:0,sessions:0};
-    if (!sessionSubjects[s]) sessionSubjects[s]={c:0,t:0};
-    stats[s].t++; sessionSubjects[s].t++;
-    if(r.right){ stats[s].c++; sessionSubjects[s].c++; }
-  });
-  Object.keys(sessionSubjects).forEach(s=>{ stats[s].sessions=(stats[s].sessions||0)+1; });
-  saveStats(stats);
-
-  // ── Cumulative Stats Card ──
-  const cumTot = Object.values(stats).reduce((a,v)=>a+v.t,0);
-  const cumCor = Object.values(stats).reduce((a,v)=>a+v.c,0);
-  const cumPct = cumTot>0 ? Math.round(cumCor/cumTot*100) : 0;
-  const cumMCAT = pctToMCAT(cumPct);
-  const cumColor = scoreColor(cumMCAT);
-  document.getElementById('r-cumulative').innerHTML = `
-    <div class="section-label">CUMULATIVE PERFORMANCE — ALL SESSIONS</div>
-    <div style="display:flex;gap:16px;flex-wrap:wrap;padding:6px 0 10px">
-      <div style="text-align:center;min-width:60px">
-        <div style="font-size:28px;font-weight:700;font-family:'Syne',sans-serif;color:${cumColor}">${cumMCAT}</div>
-        <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">CUMULATIVE<br>MCAT EST.</div>
-      </div>
-      <div style="text-align:center;min-width:60px">
-        <div style="font-size:28px;font-weight:700;color:var(--text)">${cumPct}%</div>
-        <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">OVERALL<br>ACCURACY</div>
-      </div>
-      <div style="text-align:center;min-width:60px">
-        <div style="font-size:28px;font-weight:700;color:var(--accent)">${cumCor}</div>
-        <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">TOTAL<br>CORRECT</div>
-      </div>
-      <div style="text-align:center;min-width:60px">
-        <div style="font-size:28px;font-weight:700;color:var(--text)">${cumTot}</div>
-        <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">TOTAL<br>QUESTIONS</div>
-      </div>
-    </div>
-    <div style="height:6px;background:var(--dim);border-radius:3px;overflow:hidden">
-      <div style="height:100%;width:${cumPct}%;background:${cumColor};border-radius:3px;transition:width .8s ease"></div>
-    </div>`;
-
-  // ── Subject breakdown ──
-  const allSubjects = Object.entries(stats).map(([s,d])=>({
-    s, c:d.c, t:d.t, p:Math.round(d.c/d.t*100),
-    sessionC: sessionSubjects[s]?.c||0, sessionT: sessionSubjects[s]?.t||0
-  })).sort((a,b)=>a.p-b.p);
-
-  let bhtml = '<div class="section-label">SUBJECT BREAKDOWN — CUMULATIVE</div>';
-  allSubjects.forEach(({s,c,t,p})=>{
-    const col = p>=80?'var(--green)':p>=60?'var(--amber)':'var(--red)';
-    const badge = p>=80?'STRONG':p>=60?'FAIR':'WEAK';
-    const badgeCol = p>=80?'rgba(45,212,160,.15)':p>=60?'rgba(245,200,66,.15)':'rgba(245,97,78,.15)';
-    const badgeBorder = p>=80?'rgba(45,212,160,.3)':p>=60?'rgba(245,200,66,.3)':'rgba(245,97,78,.3)';
-    bhtml += `
-      <div class="subject-row" style="margin-bottom:12px">
-        <div class="sr-name" style="width:180px">${s}</div>
-        <div style="flex:1">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-            <div class="sr-bar-wrap" style="flex:1"><div class="sr-bar-fill" style="width:${p}%;background:${col}"></div></div>
-            <div class="sr-pct" style="width:46px;text-align:right">${c}/${t}</div>
-            <div style="font-size:9px;letter-spacing:.1em;padding:2px 7px;border-radius:3px;background:${badgeCol};border:1px solid ${badgeBorder};color:${col};flex-shrink:0">${badge}</div>
-          </div>
-          <div style="font-size:10px;color:var(--muted)">${p}% accuracy</div>
-        </div>
-      </div>`;
-  });
-  document.getElementById('r-breakdown').innerHTML = bhtml;
-
-  // ── Strengths & Weaknesses ──
-  const strong = allSubjects.filter(x=>x.t>=3&&x.p>=80).sort((a,b)=>b.p-a.p).slice(0,5);
-  const weak = allSubjects.filter(x=>x.t>=3&&x.p<70).sort((a,b)=>a.p-b.p).slice(0,5);
-  const needMore = allSubjects.filter(x=>x.t<3);
-
-  let swHtml = '<div class="section-label">STRENGTHS & IMPROVEMENT AREAS</div>';
-  if (strong.length) {
-    swHtml += `<div style="font-size:11px;color:var(--green);letter-spacing:.08em;margin-bottom:8px;margin-top:4px">✓ STRENGTHS</div>`;
-    strong.forEach(({s,p})=>{
-      swHtml += `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px">
-        <span style="color:var(--text)">${s}</span>
-        <span style="color:var(--green);font-weight:700">${p}%</span></div>`;
-    });
-  }
-  if (weak.length) {
-    swHtml += `<div style="font-size:11px;color:var(--red);letter-spacing:.08em;margin-bottom:8px;margin-top:16px">⚠ NEEDS WORK</div>`;
-    weak.forEach(({s,p,t})=>{
-      swHtml += `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px">
-        <span style="color:var(--text)">${s}</span>
-        <span style="color:var(--red);font-weight:700">${p}% (${t} seen)</span></div>`;
-    });
-    swHtml += `<div style="margin-top:12px;padding:12px;background:rgba(245,97,78,.07);border:1px solid rgba(245,97,78,.2);border-radius:8px;font-size:12px;color:#f9a8a0;line-height:1.7">
-      Drill these areas using the button below. Consistent practice brings them to 80%+ before test day.</div>`;
-  }
-  if (!strong.length && !weak.length) {
-    swHtml += `<div style="font-size:13px;color:var(--muted);padding:12px 0">Answer at least 3 questions per subject to generate strength/weakness analysis.</div>`;
-  }
-  if (needMore.length) {
-    swHtml += `<div style="font-size:11px;color:var(--muted);margin-top:14px">Subjects needing more data (< 3 questions): ${needMore.map(x=>x.s).join(', ')}</div>`;
-  }
-  document.getElementById('r-sw').innerHTML = swHtml;
-
-  // ── Missed questions ──
-  const missed = results.filter(r=>!r.right);
-  let mhtml = `<div class="section-label">MISSED THIS SESSION (${missed.length})</div>`;
-  if (!missed.length) {
-    mhtml += '<div class="all-correct">✓ Perfect session — no missed questions!</div>';
-  } else {
-    missed.forEach(r=>{
-      mhtml += `<div class="missed-item">
-        <div style="font-size:10px;color:var(--accent2);letter-spacing:.08em;margin-bottom:4px">${r.q.s}</div>
-        <div class="missed-q">${r.q.q}</div>
-        <div class="missed-correct">✓ ${r.q.choices[r.q.ans]}</div>
-        <div class="missed-wrong">✗ ${r.q.choices[r.chosen]}</div>
-      </div>`;
-    });
-  }
-  document.getElementById('r-missed').innerHTML = mhtml;
-}
-
-// ════════════════════════════════════════════════════════════════
-//  PASSAGE DATA
-// ════════════════════════════════════════════════════════════════
-const PASSAGES = [
-
-// ══════════════════════════════════════════════════════════════
-// PASSAGE 1: AMINO ACIDS & PROTEINS
-// Topic: PKU, phenylalanine metabolism, protein structure
-// ══════════════════════════════════════════════════════════════
-{
-  id:'p_aa_1',
-  topic:'Amino Acids & Proteins',
-  title:'Phenylketonuria and Aromatic Amino Acid Metabolism',
-  passage:`A 3-week-old infant is referred for evaluation after newborn screening returns an elevated phenylalanine level of 28 mg/dL (reference <2 mg/dL). The infant is feeding normally and appears clinically well. Genetic testing confirms compound heterozygous mutations in the PAH gene encoding phenylalanine hydroxylase (PAH), which normally catalyzes the hydroxylation of phenylalanine to tyrosine using tetrahydrobiopterin (BH4) as a cofactor. Without treatment, excess phenylalanine is transaminated to phenylpyruvate, which accumulates in the CNS. The infant is started on a phenylalanine-restricted diet with tyrosine supplementation.
-
-PAH requires BH4 as an electron donor. A minority of PKU cases result not from PAH mutations but from defects in BH4 synthesis or regeneration. These patients do not respond to phenylalanine restriction alone because BH4 is also required by tyrosine hydroxylase and tryptophan hydroxylase.`,
-  questions:[
-    {
-      q:"The attending physician explains that tyrosine must be supplemented in this infant's diet. Which of the following best explains why tyrosine becomes conditionally essential in PKU?",
-      choices:[
-        "Tyrosine is normally synthesized from tryptophan, which is also deficient in PKU",
-        "PAH deficiency blocks conversion of phenylalanine to tyrosine, eliminating the primary biosynthetic route",
-        "The phenylalanine-restricted diet eliminates all dietary protein, including tyrosine",
-        "Excess phenylalanine competitively inhibits tyrosine uptake at the blood-brain barrier"
-      ],
-      ans:1,
-      exp:"Tyrosine is normally a non-essential amino acid because it is synthesized from phenylalanine by PAH. When PAH is deficient, this route is blocked and tyrosine must be obtained entirely from diet — making it conditionally essential. The restricted diet reduces phenylalanine intake but does not supply enough tyrosine to compensate."
-    },
-    {
-      q:"A patient with BH4 synthesis deficiency is placed on phenylalanine restriction but continues to deteriorate neurologically despite normal phenylalanine levels. Which neurotransmitters are most likely deficient in this patient?",
-      choices:[
-        "Glutamate and GABA",
-        "Acetylcholine and histamine",
-        "Dopamine, norepinephrine, epinephrine, and serotonin",
-        "Glycine and aspartate"
-      ],
-      ans:2,
-      exp:"BH4 is a cofactor for three hydroxylases: PAH (phenylalanine→tyrosine), tyrosine hydroxylase (tyrosine→L-DOPA, rate-limiting step in catecholamine synthesis), and tryptophan hydroxylase (tryptophan→5-HTP, rate-limiting step in serotonin synthesis). BH4 deficiency therefore depletes dopamine, norepinephrine, epinephrine, AND serotonin — explaining why phenylalanine restriction alone is insufficient."
-    },
-    {
-      q:"Phenylpyruvate accumulates in untreated PKU via transamination of phenylalanine. Which enzyme class catalyzes this reaction?",
-      choices:[
-        "Oxidoreductase",
-        "Hydrolase",
-        "Transferase",
-        "Lyase"
-      ],
-      ans:2,
-      exp:"Transamination transfers an amino group from an amino acid (phenylalanine) to an alpha-keto acid (alpha-ketoglutarate), producing a new amino acid (glutamate) and a new keto acid (phenylpyruvate). This is a group-transfer reaction catalyzed by an aminotransferase — a member of the transferase enzyme class. These enzymes require pyridoxal phosphate (PLP, vitamin B6) as a cofactor."
-    },
-    {
-      q:"Phenylalanine is classified as an aromatic, nonpolar amino acid. Which of the following amino acids shares the property of containing an aromatic ring and also serves as a direct precursor to a monoamine neurotransmitter?",
-      choices:[
-        "Leucine",
-        "Histidine",
-        "Tryptophan",
-        "Methionine"
-      ],
-      ans:2,
-      exp:"Tryptophan contains an indole ring system (aromatic) and is the direct precursor to serotonin (5-HT) via tryptophan hydroxylase. Tyrosine (also aromatic, synthesized from phenylalanine) is the precursor to catecholamines. Histidine contains an imidazole ring and is the precursor to histamine, but histamine is not a classical monoamine neurotransmitter in the CNS context being tested here."
-    },
-    {
-      q:"On SDS-PAGE, the PAH protein migrates as a single band at approximately 52 kDa. A researcher adds 2-mercaptoethanol to the sample before running the gel. Under which condition would PAH most likely migrate differently than without 2-mercaptoethanol?",
-      choices:[
-        "PAH is a monomer — 2-mercaptoethanol has no effect on migration",
-        "PAH contains intrachain disulfide bonds — 2-mercaptoethanol linearizes the protein, causing slower migration",
-        "PAH contains interchain disulfide bonds linking subunits — without 2-ME, a higher MW band would appear",
-        "2-mercaptoethanol increases SDS binding, increasing the apparent molecular weight"
-      ],
-      ans:2,
-      exp:"2-mercaptoethanol (beta-ME) reduces disulfide bonds. If PAH subunits are linked by interchain disulfide bonds, omitting 2-ME would cause the multimeric form to migrate as a higher MW band. PAH is actually a homotetramer; without reducing agent, disulfide-linked dimers or tetramers would appear at higher MW positions. Intrachain disulfide bonds would affect migration speed if they constrain conformation, but interchain bonds are what cause distinct higher-MW bands on SDS-PAGE."
-    }
-  ]
-},
-
-// ══════════════════════════════════════════════════════════════
-// PASSAGE 2: ENZYMOLOGY
-// Topic: Enzyme kinetics, inhibition, regulation
-// ══════════════════════════════════════════════════════════════
-{
-  id:'p_enz_1',
-  topic:'Enzymology',
-  title:'Methotrexate, Dihydrofolate Reductase, and Enzyme Inhibition',
-  passage:`Methotrexate (MTX) is a chemotherapeutic and immunosuppressive agent that functions as a structural analog of dihydrofolate (DHF). It binds dihydrofolate reductase (DHFR) with approximately 1000-fold greater affinity than the natural substrate DHF. DHFR catalyzes the NADPH-dependent reduction of DHF to tetrahydrofolate (THF), which is required for synthesis of thymidylate and purines. Inhibition of DHFR depletes THF, halting DNA synthesis in rapidly dividing cells.
-
-In kinetic studies, addition of MTX increases the apparent Km of DHFR for DHF from 5 μM to 120 μM while Vmax remains unchanged at high DHF concentrations. Leucovorin (folinic acid), a pre-reduced folate that bypasses DHFR, is administered as a "rescue" agent after high-dose MTX therapy to restore THF pools in normal tissues without reactivating the inhibited enzyme.`,
-  questions:[
-    {
-      q:"Based on the kinetic data described, methotrexate acts as which type of inhibitor of DHFR?",
-      choices:[
-        "Noncompetitive inhibitor — Vmax decreases, Km unchanged",
-        "Uncompetitive inhibitor — both Vmax and Km decrease",
-        "Competitive inhibitor — Vmax unchanged, apparent Km increases",
-        "Irreversible inhibitor — permanent loss of enzyme activity"
-      ],
-      ans:2,
-      exp:"The data show Vmax unchanged and apparent Km increased from 5 to 120 μM — the hallmark of competitive inhibition. A competitive inhibitor binds the active site (competing with substrate), increases apparent Km (more substrate needed to reach Vmax/2), but can be overcome by excess substrate (Vmax unchanged). MTX is a structural analog of DHF and binds the active site, consistent with competitive inhibition, though its extremely high affinity makes it functionally near-irreversible at therapeutic doses."
-    },
-    {
-      q:"On a Lineweaver-Burk (double-reciprocal) plot, how would the addition of methotrexate change the appearance of the DHFR kinetic curve?",
-      choices:[
-        "The line shifts upward parallel to the uninhibited line (same slope, different y-intercept)",
-        "The line rotates to intersect at the y-axis — same y-intercept (1/Vmax), different x-intercept (−1/Km)",
-        "The line rotates to intersect at the x-axis — same x-intercept (−1/Km), different y-intercept",
-        "The slope decreases, reflecting increased catalytic efficiency"
-      ],
-      ans:1,
-      exp:"On a Lineweaver-Burk plot (1/V vs 1/[S]): competitive inhibition produces lines that intersect at the y-axis (same 1/Vmax = same Vmax) but with a steeper slope (increased Km/Vmax ratio), moving the x-intercept closer to zero (less negative −1/Km, reflecting higher apparent Km). Noncompetitive = intersect at x-axis. Uncompetitive = parallel lines."
-    },
-    {
-      q:"Leucovorin rescue is administered 24 hours after high-dose MTX. It restores THF pools in normal tissues but does not reverse MTX inhibition of DHFR. Which of the following best explains why leucovorin is effective despite not displacing MTX from DHFR?",
-      choices:[
-        "Leucovorin is a competitive inhibitor of MTX and displaces it from the active site",
-        "Leucovorin is a pre-reduced folate (THF equivalent) that supplies the product of the DHFR reaction directly, bypassing the blocked enzyme",
-        "Leucovorin activates an alternative DHFR isoform that is insensitive to MTX",
-        "Leucovorin chelates MTX in the serum, reducing its bioavailability"
-      ],
-      ans:1,
-      exp:"Leucovorin (5-formyl-THF) is already in the reduced form — it is the functional equivalent of THF, the product of the DHFR reaction. By supplying THF directly, it bypasses the MTX-blocked DHFR step entirely, restoring one-carbon metabolism for thymidylate and purine synthesis. Tumor cells take up leucovorin less efficiently than normal cells, providing selective rescue."
-    },
-    {
-      q:"DHFR requires NADPH as a cofactor. NADPH is primarily produced by which metabolic pathway, and at which enzyme is this pathway regulated?",
-      choices:[
-        "Glycolysis; phosphofructokinase",
-        "TCA cycle; isocitrate dehydrogenase",
-        "Pentose phosphate pathway; glucose 6-phosphate dehydrogenase",
-        "Beta-oxidation; carnitine acyltransferase I"
-      ],
-      ans:2,
-      exp:"The pentose phosphate pathway (HMP shunt) is the primary source of cytosolic NADPH. The rate-limiting enzyme is glucose 6-phosphate dehydrogenase (G6PD). NADPH is critical for reductive biosynthesis (fatty acid synthesis, steroid synthesis) and for regenerating reduced glutathione (antioxidant defense). G6PD deficiency impairs NADPH production, making RBCs vulnerable to oxidative hemolysis."
-    }
-  ]
-},
-
-// ══════════════════════════════════════════════════════════════
-// PASSAGE 3: METABOLISM & BIOENERGETICS
-// Topic: TCA, ETC, substrate-level vs oxidative phosphorylation
-// ══════════════════════════════════════════════════════════════
-{
-  id:'p_met_1',
-  topic:'Metabolism & Bioenergetics',
-  title:'Cyanide Poisoning and Mitochondrial Energy Production',
-  passage:`A 34-year-old laboratory worker presents to the emergency department with sudden-onset headache, confusion, seizures, and lactic acidosis (serum lactate 18 mmol/L, reference <2). Coworkers report a chemical spill involving hydrogen cyanide (HCN) approximately 30 minutes prior. Cyanide binds with high affinity to the ferric (Fe³⁺) form of cytochrome a₃ in Complex IV of the electron transport chain, preventing electron transfer to molecular oxygen.
-
-Treatment is initiated with hydroxocobalamin, which binds cyanide to form cyanocobalamin (vitamin B12), and sodium thiosulfate. The patient is also given 100% oxygen. Despite complex IV being completely inhibited, the patient's cardiac myocytes continue to produce small amounts of ATP for approximately 12 minutes after cyanide exposure.`,
-  questions:[
-    {
-      q:"Which of the following best explains the severe lactic acidosis observed in this patient?",
-      choices:[
-        "Cyanide directly activates lactate dehydrogenase, converting pyruvate to lactate",
-        "Complex IV inhibition halts the ETC, causing NADH accumulation, NAD+ depletion, and forcing pyruvate reduction to lactate to regenerate NAD+",
-        "Cyanide inhibits pyruvate dehydrogenase, preventing pyruvate entry into the TCA cycle",
-        "Lactic acidosis results from cyanide binding to hemoglobin, reducing oxygen delivery to tissues"
-      ],
-      ans:1,
-      exp:"When Complex IV is inhibited, electrons cannot be transferred to O2. The entire ETC backs up — NADH accumulates and NAD+ is depleted. Without NAD+, the TCA cycle and pyruvate dehydrogenase cannot function. Pyruvate accumulates and is reduced to lactate by lactate dehydrogenase using NADH, regenerating the NAD+ needed to sustain glycolysis. This produces the severe anion-gap lactic acidosis seen in cyanide poisoning."
-    },
-    {
-      q:"The passage states cardiac myocytes continue producing ATP for ~12 minutes after complete Complex IV inhibition. Which mechanism accounts for this continued ATP production?",
-      choices:[
-        "Continued oxidative phosphorylation using residual oxygen in the mitochondrial matrix",
-        "Substrate-level phosphorylation from glycolysis (pyruvate kinase, phosphoglycerate kinase) and the TCA cycle (succinyl-CoA synthetase)",
-        "ATP diffusion from adjacent unaffected cells via gap junctions",
-        "Activation of the creatine kinase reaction converting creatine phosphate to ATP"
-      ],
-      ans:1,
-      exp:"Oxidative phosphorylation (ATP synthase driven by the proton gradient) requires ETC function — it stops immediately when Complex IV is inhibited. However, substrate-level phosphorylation is ETC-independent: glycolysis produces ATP via phosphoglycerate kinase and pyruvate kinase, and the TCA cycle produces GTP via succinyl-CoA synthetase. These reactions continue briefly until substrate runs out or NAD+ is depleted. The creatine phosphate system is also relevant but is not substrate-level phosphorylation."
-    },
-    {
-      q:"A researcher measures the P/O ratio (ATP produced per oxygen atom consumed) in isolated mitochondria before and after partial Complex I inhibition with rotenone. Which result would be expected?",
-      choices:[
-        "P/O ratio increases because less oxygen is consumed per ATP produced",
-        "P/O ratio is unchanged because ATP synthase function is not directly affected",
-        "P/O ratio decreases because fewer protons are pumped per electron pair, reducing the proton gradient available to drive ATP synthase",
-        "P/O ratio increases because FADH2 substrates bypass Complex I and produce more ATP per oxygen"
-      ],
-      ans:2,
-      exp:"Complex I pumps 4H+ per electron pair from NADH into the intermembrane space. Inhibiting Complex I reduces proton pumping, diminishing the proton-motive force available to drive ATP synthase. With less proton gradient per oxygen consumed, fewer ATP molecules are synthesized per O2 — the P/O ratio decreases. FADH2 bypasses Complex I (enters at Complex II) and already has a lower P/O ratio (~1.5 vs ~2.5 for NADH)."
-    },
-    {
-      q:"Which TCA cycle enzyme is directly inhibited by the accumulated NADH that results from ETC blockade, and what is the consequence for the cycle?",
-      choices:[
-        "Citrate synthase; accumulation of oxaloacetate and depletion of acetyl-CoA",
-        "Isocitrate dehydrogenase (rate-limiting enzyme); TCA cycle slows and intermediates accumulate upstream",
-        "Fumarase; fumarate accumulates and the urea cycle is disrupted",
-        "Succinyl-CoA synthetase; GTP production stops and the cycle continues normally"
-      ],
-      ans:1,
-      exp:"Isocitrate dehydrogenase (IDH), the rate-limiting TCA enzyme, is allosterically inhibited by high NADH (product inhibition — NADH is a product of the reaction). High NADH/NAD+ ratio from ETC blockade inhibits IDH and also alpha-ketoglutarate dehydrogenase and malate dehydrogenase. The TCA cycle slows dramatically, intermediates back up, and citrate (which can't be processed) accumulates. This further impairs energy production."
-    },
-    {
-      q:"Hydroxocobalamin (vitamin B12 precursor) is used as an antidote because it has a cobalt center that binds cyanide with high affinity. Which of the following statements about vitamin B12 is correct in the context of normal metabolism?",
-      choices:[
-        "B12 is required for conversion of homocysteine to methionine and methylmalonyl-CoA to succinyl-CoA",
-        "B12 is required for synthesis of NADH in the ETC",
-        "B12 deficiency causes pellagra due to impaired niacin synthesis",
-        "B12 functions as an electron carrier between Complex I and Complex III"
-      ],
-      ans:0,
-      exp:"Vitamin B12 (cobalamin) is required for two reactions: (1) methionine synthase — converts homocysteine to methionine using methylcobalamin (also requires folate); (2) methylmalonyl-CoA mutase — converts methylmalonyl-CoA to succinyl-CoA (enters TCA cycle). B12 deficiency causes megaloblastic anemia, subacute combined degeneration of the spinal cord, and elevated homocysteine plus methylmalonic acid in urine."
-    }
-  ]
-},
-
-// ══════════════════════════════════════════════════════════════
-// PASSAGE 4: NUCLEIC ACIDS & MOLECULAR BIOLOGY
-// Topic: DNA replication, repair, mutations, gene regulation
-// ══════════════════════════════════════════════════════════════
-{
-  id:'p_nuc_1',
-  topic:'Nucleic Acids & Molecular Biology',
-  title:'Lynch Syndrome and DNA Mismatch Repair',
-  passage:`A 38-year-old woman is diagnosed with colorectal cancer. Her family history reveals that her father died of colorectal cancer at age 42 and her paternal aunt had endometrial cancer at age 45. Genetic testing identifies a germline pathogenic variant in the MLH1 gene. The patient is diagnosed with Lynch syndrome (hereditary nonpolyposis colorectal cancer, HNPCC), an autosomal dominant condition caused by heterozygous loss-of-function mutations in mismatch repair (MMR) genes including MLH1, MSH2, MSH6, and PMS2.
-
-Immunohistochemistry of the tumor shows absent MLH1 and PMS2 protein expression, consistent with loss of the wild-type allele in the tumor (two-hit hypothesis). The tumor displays microsatellite instability (MSI-high), a molecular phenotype resulting from defective MMR. MMR normally corrects single base-pair mismatches and small insertions/deletions that arise during DNA replication in G2 phase. MLH1 promoter hypermethylation accounts for the majority of sporadic (non-hereditary) MSI-high colorectal cancers.`,
-  questions:[
-    {
-      q:"Mismatch repair corrects errors introduced during DNA replication. Which phase of the cell cycle does MMR primarily operate in, and how does the system distinguish the newly synthesized (error-containing) strand from the template strand?",
-      choices:[
-        "S phase; the newly synthesized strand is identified by its higher GC content",
-        "G2 phase; in bacteria, newly synthesized DNA is transiently undermethylated at GATC sequences — the unmethylated strand is the one corrected",
-        "G1 phase; the template strand is identified by its association with nucleosomes",
-        "M phase; MMR is activated by the spindle assembly checkpoint"
-      ],
-      ans:1,
-      exp:"MMR occurs in G2 phase after replication is complete. In bacteria, Dam methylase methylates adenine in GATC sequences; newly synthesized DNA is transiently unmethylated, allowing MutH to identify and nick the daughter strand for correction. In eukaryotes (including humans), the mechanism uses strand discontinuities (nicks, gaps from Okazaki fragment processing) rather than methylation to identify the new strand. MSH2 recognizes mismatches; MLH1 coordinates repair."
-    },
-    {
-      q:"The tumor shows loss of both MLH1 and PMS2 protein on immunohistochemistry, but the patient only has a germline MLH1 mutation. Why is PMS2 also absent?",
-      choices:[
-        "PMS2 is encoded on the same chromosome as MLH1 and is co-deleted",
-        "MLH1 and PMS2 form an obligate heterodimer (MutLα); loss of MLH1 causes degradation of PMS2 because it has no stable binding partner",
-        "The tumor has acquired a somatic PMS2 mutation as a second hit",
-        "PMS2 expression is transcriptionally regulated by MLH1 protein"
-      ],
-      ans:1,
-      exp:"MLH1 and PMS2 form the MutLα heterodimer, which is required for MMR. MLH1 is the obligate partner — PMS2 is unstable without MLH1 and is rapidly degraded by the proteasome. Therefore, loss of MLH1 alone leads to loss of both MLH1 and PMS2 protein on IHC. This is why IHC showing absent MLH1+PMS2 strongly suggests a germline or somatic MLH1 alteration."
-    },
-    {
-      q:"Microsatellite instability results from failure to correct small insertions/deletions at repetitive sequences. A frameshift mutation in a tumor suppressor gene within a microsatellite region leads to a premature stop codon. This is classified as which type of mutation?",
-      choices:[
-        "Missense mutation — changes one amino acid",
-        "Silent mutation — no change in amino acid sequence",
-        "Nonsense mutation — creates a premature stop codon from a single base substitution",
-        "Frameshift mutation leading to a downstream nonsense codon"
-      ],
-      ans:3,
-      exp:"An insertion or deletion at a microsatellite shifts the reading frame of all downstream codons (frameshift mutation). The altered reading frame frequently encounters a stop codon downstream, producing a truncated, nonfunctional protein. This is distinct from a primary nonsense mutation (single base substitution directly creating a stop codon). The question specifies a frameshift that creates a premature stop — this is a frameshift mutation with a downstream nonsense codon."
-    },
-    {
-      q:"MLH1 promoter hypermethylation causes the majority of sporadic MSI-high colorectal cancers. DNA methylation at CpG islands in promoters silences gene expression by which mechanism?",
-      choices:[
-        "DNA methylation directly cleaves the MLH1 mRNA, preventing translation",
-        "Methylated cytosine recruits methyl-binding proteins and histone deacetylases, condensing chromatin into transcriptionally silent heterochromatin",
-        "Methylation of adenine at GATC sequences prevents RNA polymerase binding",
-        "Promoter methylation causes alternative splicing that produces a non-functional MLH1 isoform"
-      ],
-      ans:1,
-      exp:"CpG island methylation (5-methylcytosine) recruits methyl-CpG binding proteins (MBDs), which in turn recruit histone deacetylases (HDACs). HDACs remove acetyl groups from histone lysine residues, restoring positive charge and tightening the histone-DNA interaction. This converts euchromatin to transcriptionally silent heterochromatin, preventing RNA polymerase access to the promoter."
-    }
-  ]
-},
-
-// ══════════════════════════════════════════════════════════════
-// PASSAGE 5: CARBOHYDRATES & LIPIDS
-// Topic: Lipid transport, ketogenesis, metabolic state
-// ══════════════════════════════════════════════════════════════
-{
-  id:'p_lip_1',
-  topic:'Carbohydrates & Lipids',
-  title:'Diabetic Ketoacidosis: Lipid Metabolism and Acid-Base Physiology',
-  passage:`A 19-year-old man with type 1 diabetes mellitus presents with a 2-day history of polyuria, polydipsia, nausea, and vomiting. He ran out of insulin 3 days ago. Vital signs: HR 118, BP 94/60, RR 28 (Kussmaul respirations). Labs: glucose 620 mg/dL, pH 7.08, bicarbonate 6 mEq/L, anion gap 32, beta-hydroxybutyrate 8.4 mmol/L (reference <0.5), insulin undetectable, glucagon markedly elevated.
-
-In the absence of insulin, adipose tissue lipoprotein lipase is suppressed and hormone-sensitive lipase (HSL) is activated, releasing free fatty acids (FFAs) into the circulation. FFAs are taken up by the liver, where they undergo beta-oxidation generating excess acetyl-CoA. Because oxaloacetate is depleted by gluconeogenesis, acetyl-CoA cannot enter the TCA cycle and is diverted to ketogenesis via HMG-CoA in the mitochondria.`,
-  questions:[
-    {
-      q:"The passage states that oxaloacetate depletion forces acetyl-CoA into ketogenesis. Why is oxaloacetate depleted during the fasting/diabetic state?",
-      choices:[
-        "Oxaloacetate is consumed by the TCA cycle faster than it can be regenerated from malate",
-        "Oxaloacetate is used as a gluconeogenic substrate — it is converted to PEP by PEPCK for glucose synthesis, removing it from the TCA cycle",
-        "Insulin normally stimulates oxaloacetate synthesis; without insulin it cannot be produced",
-        "Glucagon directly inhibits malate dehydrogenase, preventing oxaloacetate formation"
-      ],
-      ans:1,
-      exp:"During fasting and DKA, glucagon stimulates gluconeogenesis. Oxaloacetate (OAA) is a key gluconeogenic intermediate — PEPCK converts it to phosphoenolpyruvate (PEP) for glucose synthesis. This removes OAA from the mitochondria faster than it can be replenished, collapsing TCA cycle function. Acetyl-CoA from beta-oxidation cannot condense with OAA (citrate synthase step requires OAA), so it is diverted to HMG-CoA and then acetoacetate."
-    },
-    {
-      q:"Beta-hydroxybutyrate is the predominant ketone body in severe DKA (ratio of BHB:acetoacetate ~10:1 in severe acidosis vs ~3:1 normally). Which of the following best explains this shift?",
-      choices:[
-        "Acetoacetate is preferentially excreted in urine, leaving BHB in circulation",
-        "High NADH/NAD+ ratio from massive beta-oxidation drives the equilibrium of the BHB dehydrogenase reaction toward BHB production",
-        "BHB is synthesized by a separate pathway that is upregulated by glucagon",
-        "Acidosis directly activates BHB dehydrogenase by protonating the active site"
-      ],
-      ans:1,
-      exp:"Beta-hydroxybutyrate dehydrogenase catalyzes: acetoacetate + NADH ↔ beta-hydroxybutyrate + NAD+. During massive beta-oxidation (as in DKA), NADH accumulates dramatically, raising the NADH/NAD+ ratio. Le Chatelier's principle drives the equilibrium toward BHB production. This is clinically important: nitroprusside-based urine ketone tests detect only acetoacetate, not BHB — they can underestimate ketosis severity in DKA and show a paradoxical increase as the patient improves (BHB converts back to acetoacetate as NADH/NAD+ normalizes)."
-    },
-    {
-      q:"Lipoprotein lipase (LPL) on capillary endothelium is activated by insulin and is required for triglyceride hydrolysis from chylomicrons and VLDL. Which apolipoprotein serves as the required cofactor that activates LPL?",
-      choices:[
-        "ApoB-100",
-        "ApoE",
-        "ApoC-II",
-        "ApoA-I"
-      ],
-      ans:2,
-      exp:"ApoC-II, present on chylomicrons and VLDL, is the obligate activator of lipoprotein lipase on capillary endothelium. LPL hydrolyzes triglycerides from circulating lipoproteins, releasing FFAs for uptake by muscle and adipose. ApoC-II deficiency causes familial hyperchylomicronemia (Type I hyperlipidemia). ApoB-100 is recognized by LDL receptors; ApoE mediates remnant uptake; ApoA-I activates LCAT on HDL."
-    },
-    {
-      q:"The patient's respiratory rate is 28 with deep, labored breaths (Kussmaul respirations). This is a compensatory response to metabolic acidosis. Which of the following correctly describes the mechanism?",
-      choices:[
-        "Acidosis stimulates aldosterone release, causing respiratory alkalosis as compensation",
-        "Low pH detected by central and peripheral chemoreceptors drives hyperventilation, blowing off CO2 (H2CO3 → H2O + CO2↑), raising blood pH",
-        "Hyperventilation increases oxygen delivery to tissues, enhancing ketone body oxidation",
-        "Deep breathing increases venous return, diluting the acidic blood with normal bicarbonate"
-      ],
-      ans:1,
-      exp:"Metabolic acidosis (low pH, low HCO3-) is sensed by peripheral chemoreceptors (carotid and aortic bodies) and central chemoreceptors in the medulla. The respiratory center responds by increasing rate and depth of breathing. This blows off CO2, which shifts the carbonic acid equilibrium: CO2 + H2O ↔ H2CO3 ↔ H+ + HCO3-. Reducing CO2 shifts the reaction leftward, consuming H+ and raising pH. This respiratory compensation is rapid (minutes to hours) but does not fully correct the acidosis."
-    },
-    {
-      q:"As this patient is treated with insulin and IV fluids, his glucose begins to fall and ketone bodies are cleared. Ketone bodies are oxidized in peripheral tissues via ketolysis. Which of the following tissues CANNOT perform ketolysis and why?",
-      choices:[
-        "Cardiac muscle — lacks the mitochondria needed for ketone oxidation",
-        "Skeletal muscle — lacks the transporters to import ketone bodies",
-        "The liver — lacks succinyl-CoA:3-oxoacid CoA transferase (SCOT), the enzyme required to activate acetoacetate for oxidation",
-        "The brain — cannot oxidize ketone bodies because the blood-brain barrier blocks entry"
-      ],
-      ans:2,
-      exp:"The liver produces ketone bodies but cannot oxidize them. Ketolysis requires succinyl-CoA:3-oxoacid CoA transferase (SCOT), which transfers CoA from succinyl-CoA to acetoacetate, activating it for beta-oxidation. The liver lacks SCOT — this prevents futile cycling of hepatic ketogenesis and ketolysis simultaneously. Cardiac muscle, skeletal muscle, kidneys, and (after adaptation) the brain all express SCOT and can oxidize ketone bodies."
-    }
-  ]
-}
-
-
-// ═══════════════════════════════════════════════════
-// BIOLOGY — 570 questions from MileDown Biology deck
-// ═══════════════════════════════════════════════════
   {s:'Parts of Cell',q:'The nucleoid region is found in _____ and contains _____',choices:['mitochondria / DNA','prokaryotes','eukaryotes / RNA','nucleus / RNA'],ans:1,exp:'The correct answer is prokaryotes. The nucleoid region is found in prokaryotes and contains prokaryotes'},
   {s:'Parts of Cell',q:'The nucleolus makes _____',choices:['mRNA','tRNA','ribosomes','proteins'],ans:2,exp:'The correct answer is ribosomes. The nucleolus makes ribosomes'},
   {s:'Parts of Cell',q:'Peroxisomes _____ material',choices:['transport','replicate','break down','synthesize'],ans:2,exp:'The correct answer is break down. Peroxisomes break down material'},
@@ -2209,10 +1583,6 @@ In the absence of insulin, adipose tissue lipoprotein lipase is suppressed and h
   {s:'Behavioral: Biology and Behavior',q:'_____ refers to the process by which extra neurons and synaptic connections are eliminated in order to increase the efficiency of neuronal transmissions',choices:['Myelination','Neurogenesis','Synaptic pruning','Long-term potentiation'],ans:2,exp:'The correct answer is Synaptic pruning. Synaptic pruning refers to the process by which extra neurons and synaptic connections are eliminated in order to increase the efficiency of neuronal transmissions'},
   {s:'Genetics',q:'Gene–environment interaction is when _____ respond to environmental variation in different ways',choices:['individuals with the same genotype','homozygous individuals only','all members of a population','two different genotypes'],ans:3,exp:'The correct answer is two different genotypes. Gene–environment interaction is when two different genotypes respond to environmental variation in different ways'},
   {s:'Genetics',q:'A study that looks at the interaction between genetic predisposition and environmental events is looking at _____, not epigenetics',choices:['pleiotropy','genetic drift','epistasis','gene-environment interaction'],ans:3,exp:'The correct answer is gene-environment interaction. A study that looks at the interaction between genetic predisposition and environmental events is looking at gene-environment interaction, not epigenetics'},
-
-// ═══════════════════════════════════════════════════
-// GENERAL CHEMISTRY — 211 questions from MileDown
-// ═══════════════════════════════════════════════════
   {s:'General Chemistry',q:'In element notation, A is the _____',choices:['Atomic weight','Atomic number','Neutron number','Mass number'],ans:3,exp:'The correct answer is Mass number. In element notation, A is the Mass number'},
   {s:'Atomic Structure',q:'In element notation, Z is the _____',choices:['neutron number','atomic weight','atomic number','mass number'],ans:2,exp:'The correct answer is atomic number. In element notation, Z is the atomic number'},
   {s:'Atomic Structure',q:'_____ is the weighted average of the masses of an element\'s isotopes',choices:['Atomic number','Molar mass','Mass number','Atomic weight'],ans:3,exp:'The correct answer is Atomic weight. Atomic weight is the weighted average of the masses of an element\'s isotopes'},
@@ -2424,6 +1794,924 @@ In the absence of insulin, adipose tissue lipoprotein lipase is suppressed and h
   {s:'Electrochemistry',q:'_____ is a measure of the tendency of a chemical species gain electrons and be reduced',choices:['Reduction potential','Electromotive force','Oxidation potential','Standard potential'],ans:0,exp:'The correct answer is Reduction potential. Reduction potential is a measure of the tendency of a chemical species gain electrons and be reduced'},
   {s:'Electrochemistry',q:'The _____ is the tendency for a chemical species to be reduced , and is measured in volts at standard conditions',choices:['standard reduction potential','electromotive force','standard oxidation potential','standard cell potential'],ans:0,exp:'The correct answer is standard reduction potential. The standard reduction potential is the tendency for a chemical species to be reduced , and is measured in volts at standard conditions'},
   {s:'Electrochemistry',q:'The _____ is the maximum potential difference between two electrodes of a galvanic or voltaic cell',choices:['oxidation potential','cell resistance','reduction potential','electromotive force (EMF)'],ans:3,exp:'The correct answer is electromotive force (EMF). The electromotive force (EMF) is the maximum potential difference between two electrodes of a galvanic or voltaic cell'},
+];
+
+// ════════════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════════════
+let qCount = 10;
+let selectedTags = new Set();
+let queue = [];
+let idx = 0;
+let correct = 0;
+let total = 0;
+let results = [];
+let answered = false;
+
+// ════════════════════════════════════════════════════════════════
+//  SUBJECT GROUPS DEFINITION
+// ════════════════════════════════════════════════════════════════
+const SUBJECT_GROUPS = [
+  { id:'biochemistry', label:'Biochemistry', topics:[
+    { id:'bc_amino',    label:'Amino Acids & Proteins',        tags:['Amino Acids','Proteins','General'] },
+    { id:'bc_enzymes',  label:'Enzymes', subtopics:[
+      { label:'Mechanism of Action',           tags:['Enzymes'] },
+      { label:'Kinetics (Michaelis-Menten)',    tags:['Enzymes: Kinetics'] },
+      { label:'Inhibition & Regulation',        tags:['Enzymes: Regulation'] },
+    ]},
+    { id:'bc_metab',    label:'Metabolism & Regulation', subtopics:[
+      { label:'Glycolysis',                     tags:['Metabolism: Glycolysis','Metabolism: Monosaccharides','Metabolism: Glucose Transport','Metabolism'] },
+      { label:'Gluconeogenesis',                tags:['Metabolism: Gluconeogenesis'] },
+      { label:'Glycogen Metabolism',            tags:['Metabolism: Glycogen'] },
+      { label:'Acetyl-CoA & PDC',               tags:['Metabolism: Acetyl-CoA'] },
+      { label:'TCA Cycle',                      tags:['Metabolism: TCA Cycle'] },
+      { label:'ETC & Oxidative Phosphorylation',tags:['Metabolism: ETC'] },
+      { label:'Fatty Acids & Beta-Oxidation',   tags:['Metabolism: Fatty Acids'] },
+      { label:'Pentose Phosphate Pathway',      tags:['Metabolism: PPP'] },
+      { label:'Urea Cycle',                     tags:['Metabolism: Urea Cycle'] },
+      { label:'Lipid Metabolism',               tags:['Lipid Metabolism'] },
+    ]},
+    { id:'bc_nucleic',  label:'Nucleotides & Nucleic Acids', subtopics:[
+      { label:'DNA Structure & Chromosomes',    tags:['DNA & RNA: Structure','DNA & RNA: Nucleic Acids','DNA & RNA: Chromosomes'] },
+      { label:'DNA Replication',                tags:['DNA & RNA: Replication'] },
+      { label:'DNA Repair & Mutations',         tags:['DNA & RNA: Repair'] },
+      { label:'Transcription',                  tags:['DNA & RNA: Transcription','DNA & RNA: RNA Processing'] },
+      { label:'Translation',                    tags:['DNA & RNA: Translation','DNA & RNA'] },
+      { label:'Gene Regulation',                tags:['Gene Regulation'] },
+      { label:'Lab Techniques',                 tags:['Lab Techniques'] },
+    ]},
+    { id:'bc_membranes',label:'Biological Membranes', subtopics:[
+      { label:'Membrane Structure & Transport', tags:['Cell Membrane'] },
+      { label:'Lipids & Lipid Structure',       tags:['Lipids'] },
+      { label:'Carbohydrates',                  tags:['Carbohydrates'] },
+      { label:'Biosignaling',                   tags:['Biosignaling'] },
+    ]},
+  ]},
+  { id:'biology', label:'Biology', topics:[
+    { id:'bio_cell',    label:'Cell Biology & Genetics', subtopics:[
+      { label:'Cell Structure & Organelles',    tags:['Parts of Cell','Cytoskeleton','Tissues'] },
+      { label:'Cell Cycle, Mitosis & Meiosis',  tags:['Reproduction: Cell Cycle','Reproduction: Mitosis','Reproduction: Meiosis'] },
+      { label:'Genetics & Inheritance',         tags:['Genetics','Biochemistry: DNA and RNA'] },
+      { label:'Evolution',                      tags:['Evolution'] },
+      { label:'Viruses & Bacteria',             tags:['Viruses and Bacteria'] },
+    ]},
+    { id:'bio_neuro',   label:'Nervous System', subtopics:[
+      { label:'Neuron Structure & Glial Cells', tags:['Nervous System: Structure'] },
+      { label:'Action Potential',               tags:['Nervous System: Action Potential'] },
+      { label:'Synapses',                       tags:['Nervous System: Synapses'] },
+      { label:'Neurotransmitters',              tags:['Nervous System: Neurotransmitters'] },
+      { label:'Sensation & Perception',         tags:['Behavioral: Sensation and Perception','Behavioral: Biology and Behavior'] },
+    ]},
+    { id:'bio_musculo', label:'Musculoskeletal System', subtopics:[
+      { label:'Muscle Types & Control',         tags:['Muscular System'] },
+      { label:'Muscle Contraction',             tags:['Muscular System: Contraction'] },
+      { label:'Bone & Skeletal System',         tags:['Muscular System: Bones'] },
+    ]},
+    { id:'bio_cardio',  label:'Cardiovascular & Respiratory', subtopics:[
+      { label:'Heart, Blood & Circulation',     tags:['Cardiovascular System'] },
+      { label:'Respiratory Pathway',            tags:['Respiratory System: Pathway'] },
+      { label:'Respiratory Physiology',         tags:['Respiratory System','Respiratory System: Bicarbonate Buffer'] },
+    ]},
+    { id:'bio_endo',    label:'Endocrine & Metabolism', subtopics:[
+      { label:'Hormones & Signaling',           tags:['Endocrine','Biochemistry: Metabolism'] },
+      { label:'Reproduction',                   tags:['Reproduction','Reproduction: Organs','Reproduction: Hormones'] },
+      { label:'Development',                    tags:['Development'] },
+      { label:'Thermoregulation',               tags:['Thermoregulation'] },
+    ]},
+    { id:'bio_immune',  label:'Immune System & Digestion', subtopics:[
+      { label:'Innate Immunity',                tags:['Immune System: Innate','Immune System'] },
+      { label:'Adaptive Immunity',              tags:['Immune System: Adaptive','Immune System: Lymphatic System'] },
+      { label:'Digestion',                      tags:['Digestion','Digestion: Stomach','Digestion: Small Intestine','Digestion: Large Intestine','Digestion: Other Organs'] },
+      { label:'Kidney & Skin',                  tags:['Kidney','Skin'] },
+    ]},
+  ]},
+  { id:'gen_chem', label:'General Chemistry', topics:[
+    { id:'gc_atomic',   label:'Atomic Structure & Bonding', subtopics:[
+      { label:'Atomic Structure',               tags:['Atomic Structure','General Chemistry','Constants','Compounds'] },
+      { label:'Quantum Numbers',                tags:['Atomic Structure: Quantum Numbers'] },
+      { label:'Periodic Table & Trends',        tags:['Periodic Table','Periodic Table: Periodic Trends'] },
+      { label:'Chemical Bonding',               tags:['Bonding'] },
+      { label:'Intermolecular Forces',          tags:['Intermolecular Forces'] },
+    ]},
+    { id:'gc_thermo',   label:'Thermochemistry & Equilibrium', subtopics:[
+      { label:'Thermochemistry & Gibbs',        tags:['Thermochemistry'] },
+      { label:'Chemical Kinetics',              tags:['Chemical Kinetics'] },
+      { label:'Equilibrium',                    tags:['Equilibrium'] },
+    ]},
+    { id:'gc_solutions',label:'Solutions & Acid-Base', subtopics:[
+      { label:'Solutions & Colligative Properties', tags:['Solutions','Solutions: Solubility'] },
+      { label:'Acids & Bases',                  tags:['Acids and Bases','Acids and Bases: pH and pKa'] },
+      { label:'Buffers & Titrations',           tags:['Acids and Bases: Buffers and Titrations'] },
+      { label:'REDOX & Electrochemistry',       tags:['REDOX','Electrochemistry'] },
+    ]},
+  ]},
+];
+
+// ════════════════════════════════════════════════════════════════
+//  GROUPED SUBJECT SELECTOR LOGIC
+// ════════════════════════════════════════════════════════════════
+
+function getAllTags() {
+  const tags = new Set();
+  SUBJECT_GROUPS.forEach(sg => sg.topics.forEach(t => {
+    if (t.subtopics) t.subtopics.forEach(st => st.tags.forEach(tag => tags.add(tag)));
+    else if (t.tags) t.tags.forEach(tag => tags.add(tag));
+  }));
+  return tags;
+}
+
+function getTopicTags(si, ti) {
+  const topic = SUBJECT_GROUPS[si].topics[ti];
+  const tags = [];
+  if (topic.subtopics) topic.subtopics.forEach(st => tags.push(...st.tags));
+  else if (topic.tags) tags.push(...topic.tags);
+  return tags;
+}
+
+function getSubjectTags(si) {
+  const tags = [];
+  SUBJECT_GROUPS[si].topics.forEach((t, ti) => tags.push(...getTopicTags(si, ti)));
+  return tags;
+}
+
+function buildSubjectGrid() {
+  selectedTags = getAllTags();
+  renderSubjectGrid();
+}
+
+function renderSubjectGrid() {
+  const box = document.getElementById('subject-grid');
+  const tagCounts = {};
+  QB.forEach(q => { tagCounts[q.s] = (tagCounts[q.s]||0) + 1; });
+  const countTags = tags => tags.reduce((s, t) => s + (tagCounts[t]||0), 0);
+  const allOn = tags => tags.every(t => selectedTags.has(t));
+
+  let html = '';
+  SUBJECT_GROUPS.forEach((sg, si) => {
+    const sgTags = getSubjectTags(si);
+    const sgTotal = countTags(sgTags);
+    const sgOn = allOn(sgTags);
+    html += `<div class="sg-outer">
+      <button class="sg-subject-row" onclick="sgToggle('sg-t-${si}','sg-c-${si}')">
+        <span class="sg-subject-name">${sg.label}</span>
+        <span class="sg-subject-meta">
+          <button class="sg-select-all" onclick="event.stopPropagation();sgToggleSubject(${si},${sgOn})">${sgOn?'DESELECT ALL':'SELECT ALL'}</button>
+          <span class="sg-subject-count">${sgTotal.toLocaleString()}Q</span>
+          <span class="sg-chevron" id="sg-c-${si}">▼</span>
+        </span>
+      </button>
+      <div class="sg-topics" id="sg-t-${si}">`;
+
+    sg.topics.forEach((topic, ti) => {
+      const tTags = getTopicTags(si, ti);
+      const tTotal = countTags(tTags);
+      const tOn = allOn(tTags);
+
+      if (topic.subtopics) {
+        html += `<div class="sg-topic-row" onclick="sgToggle('sg-s-${si}-${ti}','sg-tc-${si}-${ti}')">
+          <span class="sg-topic-name">${topic.label}</span>
+          <span class="sg-topic-meta">
+            <button class="sg-topic-sel-all" onclick="event.stopPropagation();sgToggleTopic(${si},${ti},${tOn})">${tOn?'OFF':'ON'}</button>
+            <span class="sg-topic-count">${tTotal}Q</span>
+            <span class="sg-topic-chevron" id="sg-tc-${si}-${ti}">▼</span>
+          </span>
+        </div>
+        <div class="sg-subtopics" id="sg-s-${si}-${ti}">
+          <div class="sg-chips">`;
+        topic.subtopics.forEach((st, sti) => {
+          const stCount = countTags(st.tags);
+          const stOn = allOn(st.tags);
+          html += `<button class="sg-chip${stOn?' on':''}" onclick="sgToggleSubtopic(${si},${ti},${sti})">
+            ${st.label}<span class="sg-chip-count"> ${stCount}</span></button>`;
+        });
+        html += `</div></div>`;
+      } else {
+        const tOn2 = allOn(topic.tags||[]);
+        html += `<div class="sg-chips" style="padding-left:20px;border-bottom:1px solid var(--border)">
+          <button class="sg-chip${tOn2?' on':''}" onclick="sgToggleTopic2(${si},${ti})">
+            ${topic.label}<span class="sg-chip-count"> ${tTotal}</span></button></div>`;
+      }
+    });
+    html += `</div></div>`;
+  });
+  box.innerHTML = html;
+  updateAvail();
+}
+
+function sgToggle(elId, chevId) {
+  document.getElementById(elId).classList.toggle('open');
+  document.getElementById(chevId).classList.toggle('open');
+}
+function sgToggleSubject(si, wasOn) {
+  getSubjectTags(si).forEach(t => wasOn ? selectedTags.delete(t) : selectedTags.add(t));
+  renderSubjectGrid();
+}
+function sgToggleTopic(si, ti, wasOn) {
+  getTopicTags(si, ti).forEach(t => wasOn ? selectedTags.delete(t) : selectedTags.add(t));
+  renderSubjectGrid();
+}
+function sgToggleSubtopic(si, ti, sti) {
+  const tags = SUBJECT_GROUPS[si].topics[ti].subtopics[sti].tags;
+  const allOn = tags.every(t => selectedTags.has(t));
+  tags.forEach(t => allOn ? selectedTags.delete(t) : selectedTags.add(t));
+  renderSubjectGrid();
+}
+function sgToggleTopic2(si, ti) {
+  const tags = SUBJECT_GROUPS[si].topics[ti].tags || [];
+  const allOn = tags.every(t => selectedTags.has(t));
+  tags.forEach(t => allOn ? selectedTags.delete(t) : selectedTags.add(t));
+  renderSubjectGrid();
+}
+function sgSelectAll() { selectedTags = getAllTags(); renderSubjectGrid(); }
+function sgClearAll()  { selectedTags = new Set(); renderSubjectGrid(); }
+
+// ════════════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════════════
+document.getElementById('total-count').textContent = QB.length.toLocaleString() + ' total questions';
+buildSubjectGrid();
+
+function updateAvail() {
+  const n = QB.filter(q => selectedTags.has(q.s)).length;
+  const el = document.getElementById('avail-text');
+  if (el) el.textContent = n.toLocaleString() + ' questions available';
+  const btn = document.getElementById('start-btn');
+  if (btn) btn.disabled = n === 0;
+}
+
+function setCount(n, btn) {
+  qCount = n;
+  document.querySelectorAll('.count-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ════════════════════════════════════════════════════════════════
+//  QUIZ
+// ════════════════════════════════════════════════════════════════
+function shuffle(a) { return [...a].sort(()=>Math.random()-.5); }
+
+function startQuiz() {
+  const pool = shuffle(QB.filter(q => selectedTags.has(q.s)));
+  queue = qCount >= 999 ? pool : pool.slice(0, qCount);
+  idx = 0; correct = 0; total = 0; results = []; answered = false;
+  show('screen-quiz');
+  renderQuestion();
+}
+
+function show(id) {
+  ['screen-home','screen-quiz','screen-results','screen-passage'].forEach(s=>{
+    document.getElementById(s).style.display = s===id ? 'block' : 'none';
+  });
+}
+
+function updateHeader() {
+  const pct = (idx/queue.length)*100;
+  document.getElementById('pfill').style.width = pct+'%';
+  document.getElementById('qm-counter').textContent = (idx+1)+' / '+queue.length;
+  document.getElementById('qm-subject').textContent = queue[idx]?.s || '';
+  document.getElementById('qm-score').textContent = '✓ '+correct+'/'+total;
+}
+
+function renderQuestion() {
+  answered = false;
+  updateHeader();
+  const q = queue[idx];
+  const labels = ['A','B','C','D'];
+  const body = document.getElementById('quiz-body');
+  const choices = labels.map((l,i) => `
+    <button class="choice-btn" id="cb-${l}" onclick="pick(${i})">
+      <span class="choice-lbl">${l}</span>
+      <span>${q.choices[i]}</span>
+    </button>`).join('');
+  body.innerHTML = `
+    <div class="question-box">
+      <div class="question-text">${q.q}</div>
+    </div>
+    <div class="choices">${choices}</div>
+    <div id="exp-area"></div>
+    <div id="nxt-area"></div>`;
+}
+
+function pick(chosen) {
+  if (answered) return;
+  answered = true;
+  const q = queue[idx];
+  const isRight = chosen === q.ans;
+  total++;
+  if (isRight) correct++;
+  document.getElementById('qm-score').textContent = '✓ '+correct+'/'+total;
+  results.push({ q, chosen, right: isRight });
+  const labels = ['A','B','C','D'];
+  labels.forEach((l,i) => {
+    const btn = document.getElementById('cb-'+l);
+    btn.disabled = true;
+    if (i === q.ans) {
+      btn.classList.add('correct');
+      btn.innerHTML += '<span class="choice-mark" style="color:var(--green)">✓</span>';
+    } else if (i === chosen) {
+      btn.classList.add('wrong');
+      btn.innerHTML += '<span class="choice-mark" style="color:var(--red)">✗</span>';
+    }
+  });
+  document.getElementById('exp-area').innerHTML = `
+    <div class="explanation-box">
+      <div class="exp-label">Explanation</div>
+      <div class="exp-text">${q.exp}</div>
+      <div class="orig-card"><b>SUBJECT:</b> ${q.s}</div>
+    </div>`;
+  const isLast = idx+1 >= queue.length;
+  document.getElementById('nxt-area').innerHTML = `
+    <button class="next-btn" onclick="nextQ()">${isLast ? 'FINISH →' : 'NEXT →'}</button>`;
+}
+
+function nextQ() {
+  if (idx+1 >= queue.length) { showResults(); return; }
+  idx++;
+  renderQuestion();
+}
+
+function goHome() { show('screen-home'); }
+
+// ════════════════════════════════════════════════════════════════
+//  CUMULATIVE STATS  (persisted in localStorage)
+// ════════════════════════════════════════════════════════════════
+function loadStats() {
+  try { return JSON.parse(localStorage.getItem('mcat_stats') || '{}'); } catch(e) { return {}; }
+}
+function saveStats(s) {
+  try { localStorage.setItem('mcat_stats', JSON.stringify(s)); } catch(e) {}
+}
+function resetStats() {
+  if (!confirm('Reset all cumulative statistics? This cannot be undone.')) return;
+  localStorage.removeItem('mcat_stats');
+  alert('Stats reset.');
+}
+
+// ════════════════════════════════════════════════════════════════
+//  MCAT SCORE ESTIMATION
+//  Maps raw % correct → estimated scaled score 118–132
+//  Modeled on AAMC B/B section distribution
+// ════════════════════════════════════════════════════════════════
+function pctToMCAT(pct) {
+  // Piecewise linear: 118 floor at 0%, 132 ceiling at 100%
+  // Real MCAT scoring is adaptive but this gives useful practice feedback
+  const table = [
+    [0,118],[35,119],[42,120],[49,121],[55,122],[61,123],
+    [66,124],[71,125],[75,126],[79,127],[83,128],[87,129],
+    [91,130],[95,131],[99,132],[100,132]
+  ];
+  for (let i=1;i<table.length;i++) {
+    if (pct <= table[i][0]) {
+      const [p0,s0] = table[i-1];
+      const [p1,s1] = table[i];
+      const frac = (pct-p0)/(p1-p0);
+      return Math.round(s0 + frac*(s1-s0));
+    }
+  }
+  return 132;
+}
+function mcatPercentile(score) {
+  const map = {118:1,119:3,120:8,121:15,122:26,123:38,124:51,125:63,126:74,127:83,128:90,129:94,130:97,131:99,132:100};
+  return map[score] || 1;
+}
+function scoreColor(score) {
+  if (score>=128) return 'var(--green)';
+  if (score>=125) return 'var(--accent)';
+  if (score>=122) return 'var(--amber)';
+  return 'var(--red)';
+}
+
+// ════════════════════════════════════════════════════════════════
+//  DRILL WEAK AREAS
+// ════════════════════════════════════════════════════════════════
+function drillWeak() {
+  const stats = loadStats();
+  // Find subjects with <70% cumulative accuracy
+  const weakSubjects = new Set(
+    Object.entries(stats)
+      .filter(([s,d]) => d.t>=3 && Math.round(d.c/d.t*100)<70)
+      .map(([s]) => s)
+  );
+  if (weakSubjects.size === 0) {
+    alert('No weak areas identified yet — need at least 3 questions per subject. Keep quizzing!');
+    return;
+  }
+  selectedTags = weakSubjects;
+  startQuiz();
+}
+
+// ════════════════════════════════════════════════════════════════
+//  RESULTS
+// ════════════════════════════════════════════════════════════════
+function showResults() {
+  show('screen-results');
+
+  const tot = results.length;
+  const cor = results.filter(r=>r.right).length;
+  const pct = Math.round(cor/tot*100);
+  const mcatScore = pctToMCAT(pct);
+  const percentile = mcatPercentile(mcatScore);
+
+  // ── Session header ──
+  const grade = pct>=90?'EXCELLENT':pct>=80?'STRONG':pct>=70?'GOOD':pct>=60?'FAIR':'NEEDS WORK';
+  const gc = pct>=90?'var(--green)':pct>=80?'var(--green)':pct>=70?'var(--accent)':pct>=60?'var(--amber)':'var(--red)';
+  document.getElementById('r-pct').textContent = pct+'%';
+  document.getElementById('r-grade').textContent = grade;
+  document.getElementById('r-grade').style.color = gc;
+  document.getElementById('r-sub').textContent = cor+' correct out of '+tot+' questions';
+
+  // ── MCAT Scaled Score Card ──
+  const sc = scoreColor(mcatScore);
+  document.getElementById('r-mcat-score').innerHTML = `
+    <div class="section-label">ESTIMATED MCAT SCORE — B/B SECTION</div>
+    <div style="display:flex;align-items:center;gap:28px;padding:8px 0 12px">
+      <div style="text-align:center">
+        <div style="font-family:Arial,Helvetica,sans-serif;font-size:64px;font-weight:800;line-height:1;color:${sc}">${mcatScore}</div>
+        <div style="font-size:10px;letter-spacing:.1em;color:var(--muted);margin-top:4px">SCALED SCORE</div>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:13px;color:#94a3b8;margin-bottom:6px">118 ────────────── 132</div>
+        <div style="height:10px;background:var(--dim);border-radius:5px;overflow:hidden;position:relative">
+          <div style="height:100%;width:${((mcatScore-118)/14*100).toFixed(1)}%;background:${sc};border-radius:5px;transition:width .8s ease"></div>
+          <div style="position:absolute;top:0;left:${((mcatScore-118)/14*100).toFixed(1)}%;transform:translateX(-50%);width:2px;height:100%;background:#fff;opacity:.6"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:10px;gap:16px;flex-wrap:wrap">
+          <div style="text-align:center">
+            <div style="font-size:18px;font-weight:700;color:${sc}">${percentile}<sup style="font-size:11px">th</sup></div>
+            <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">PERCENTILE</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--text)">${pct}%</div>
+            <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">RAW SCORE</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--text)">${cor}/${tot}</div>
+            <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">CORRECT</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--red)">${tot-cor}</div>
+            <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">INCORRECT</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--muted);border-top:1px solid var(--border);padding-top:10px;line-height:1.6">
+      Score range 118–132 · Estimated from raw % using AAMC B/B section distribution · Practice tool only — not predictive of official score
+    </div>`;
+
+  // ── Update cumulative stats ──
+  const stats = loadStats();
+  const sessionSubjects = {};
+  results.forEach(r=>{
+    const s = r.q.s;
+    if (!stats[s]) stats[s]={c:0,t:0,sessions:0};
+    if (!sessionSubjects[s]) sessionSubjects[s]={c:0,t:0};
+    stats[s].t++; sessionSubjects[s].t++;
+    if(r.right){ stats[s].c++; sessionSubjects[s].c++; }
+  });
+  Object.keys(sessionSubjects).forEach(s=>{ stats[s].sessions=(stats[s].sessions||0)+1; });
+  saveStats(stats);
+
+  // ── Cumulative Stats Card ──
+  const cumTot = Object.values(stats).reduce((a,v)=>a+v.t,0);
+  const cumCor = Object.values(stats).reduce((a,v)=>a+v.c,0);
+  const cumPct = cumTot>0 ? Math.round(cumCor/cumTot*100) : 0;
+  const cumMCAT = pctToMCAT(cumPct);
+  const cumColor = scoreColor(cumMCAT);
+  document.getElementById('r-cumulative').innerHTML = `
+    <div class="section-label">CUMULATIVE PERFORMANCE — ALL SESSIONS</div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;padding:6px 0 10px">
+      <div style="text-align:center;min-width:60px">
+        <div style="font-size:28px;font-weight:700;font-family:'Syne',sans-serif;color:${cumColor}">${cumMCAT}</div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">CUMULATIVE<br>MCAT EST.</div>
+      </div>
+      <div style="text-align:center;min-width:60px">
+        <div style="font-size:28px;font-weight:700;color:var(--text)">${cumPct}%</div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">OVERALL<br>ACCURACY</div>
+      </div>
+      <div style="text-align:center;min-width:60px">
+        <div style="font-size:28px;font-weight:700;color:var(--accent)">${cumCor}</div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">TOTAL<br>CORRECT</div>
+      </div>
+      <div style="text-align:center;min-width:60px">
+        <div style="font-size:28px;font-weight:700;color:var(--text)">${cumTot}</div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">TOTAL<br>QUESTIONS</div>
+      </div>
+    </div>
+    <div style="height:6px;background:var(--dim);border-radius:3px;overflow:hidden">
+      <div style="height:100%;width:${cumPct}%;background:${cumColor};border-radius:3px;transition:width .8s ease"></div>
+    </div>`;
+
+  // ── Subject breakdown ──
+  const allSubjects = Object.entries(stats).map(([s,d])=>({
+    s, c:d.c, t:d.t, p:Math.round(d.c/d.t*100),
+    sessionC: sessionSubjects[s]?.c||0, sessionT: sessionSubjects[s]?.t||0
+  })).sort((a,b)=>a.p-b.p);
+
+  let bhtml = '<div class="section-label">SUBJECT BREAKDOWN — CUMULATIVE</div>';
+  allSubjects.forEach(({s,c,t,p})=>{
+    const col = p>=80?'var(--green)':p>=60?'var(--amber)':'var(--red)';
+    const badge = p>=80?'STRONG':p>=60?'FAIR':'WEAK';
+    const badgeCol = p>=80?'rgba(45,212,160,.15)':p>=60?'rgba(245,200,66,.15)':'rgba(245,97,78,.15)';
+    const badgeBorder = p>=80?'rgba(45,212,160,.3)':p>=60?'rgba(245,200,66,.3)':'rgba(245,97,78,.3)';
+    bhtml += `
+      <div class="subject-row" style="margin-bottom:12px">
+        <div class="sr-name" style="width:180px">${s}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+            <div class="sr-bar-wrap" style="flex:1"><div class="sr-bar-fill" style="width:${p}%;background:${col}"></div></div>
+            <div class="sr-pct" style="width:46px;text-align:right">${c}/${t}</div>
+            <div style="font-size:9px;letter-spacing:.1em;padding:2px 7px;border-radius:3px;background:${badgeCol};border:1px solid ${badgeBorder};color:${col};flex-shrink:0">${badge}</div>
+          </div>
+          <div style="font-size:10px;color:var(--muted)">${p}% accuracy</div>
+        </div>
+      </div>`;
+  });
+  document.getElementById('r-breakdown').innerHTML = bhtml;
+
+  // ── Strengths & Weaknesses ──
+  const strong = allSubjects.filter(x=>x.t>=3&&x.p>=80).sort((a,b)=>b.p-a.p).slice(0,5);
+  const weak = allSubjects.filter(x=>x.t>=3&&x.p<70).sort((a,b)=>a.p-b.p).slice(0,5);
+  const needMore = allSubjects.filter(x=>x.t<3);
+
+  let swHtml = '<div class="section-label">STRENGTHS & IMPROVEMENT AREAS</div>';
+  if (strong.length) {
+    swHtml += `<div style="font-size:11px;color:var(--green);letter-spacing:.08em;margin-bottom:8px;margin-top:4px">✓ STRENGTHS</div>`;
+    strong.forEach(({s,p})=>{
+      swHtml += `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <span style="color:var(--text)">${s}</span>
+        <span style="color:var(--green);font-weight:700">${p}%</span></div>`;
+    });
+  }
+  if (weak.length) {
+    swHtml += `<div style="font-size:11px;color:var(--red);letter-spacing:.08em;margin-bottom:8px;margin-top:16px">⚠ NEEDS WORK</div>`;
+    weak.forEach(({s,p,t})=>{
+      swHtml += `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <span style="color:var(--text)">${s}</span>
+        <span style="color:var(--red);font-weight:700">${p}% (${t} seen)</span></div>`;
+    });
+    swHtml += `<div style="margin-top:12px;padding:12px;background:rgba(245,97,78,.07);border:1px solid rgba(245,97,78,.2);border-radius:8px;font-size:12px;color:#f9a8a0;line-height:1.7">
+      Drill these areas using the button below. Consistent practice brings them to 80%+ before test day.</div>`;
+  }
+  if (!strong.length && !weak.length) {
+    swHtml += `<div style="font-size:13px;color:var(--muted);padding:12px 0">Answer at least 3 questions per subject to generate strength/weakness analysis.</div>`;
+  }
+  if (needMore.length) {
+    swHtml += `<div style="font-size:11px;color:var(--muted);margin-top:14px">Subjects needing more data (< 3 questions): ${needMore.map(x=>x.s).join(', ')}</div>`;
+  }
+  document.getElementById('r-sw').innerHTML = swHtml;
+
+  // ── Missed questions ──
+  const missed = results.filter(r=>!r.right);
+  let mhtml = `<div class="section-label">MISSED THIS SESSION (${missed.length})</div>`;
+  if (!missed.length) {
+    mhtml += '<div class="all-correct">✓ Perfect session — no missed questions!</div>';
+  } else {
+    missed.forEach(r=>{
+      mhtml += `<div class="missed-item">
+        <div style="font-size:10px;color:var(--accent2);letter-spacing:.08em;margin-bottom:4px">${r.q.s}</div>
+        <div class="missed-q">${r.q.q}</div>
+        <div class="missed-correct">✓ ${r.q.choices[r.q.ans]}</div>
+        <div class="missed-wrong">✗ ${r.q.choices[r.chosen]}</div>
+      </div>`;
+    });
+  }
+  document.getElementById('r-missed').innerHTML = mhtml;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  PASSAGE DATA
+// ════════════════════════════════════════════════════════════════
+const PASSAGES = [
+
+// ══════════════════════════════════════════════════════════════
+// PASSAGE 1: AMINO ACIDS & PROTEINS
+// Topic: PKU, phenylalanine metabolism, protein structure
+// ══════════════════════════════════════════════════════════════
+{
+  id:'p_aa_1',
+  topic:'Amino Acids & Proteins',
+  title:'Phenylketonuria and Aromatic Amino Acid Metabolism',
+  passage:`A 3-week-old infant is referred for evaluation after newborn screening returns an elevated phenylalanine level of 28 mg/dL (reference <2 mg/dL). The infant is feeding normally and appears clinically well. Genetic testing confirms compound heterozygous mutations in the PAH gene encoding phenylalanine hydroxylase (PAH), which normally catalyzes the hydroxylation of phenylalanine to tyrosine using tetrahydrobiopterin (BH4) as a cofactor. Without treatment, excess phenylalanine is transaminated to phenylpyruvate, which accumulates in the CNS. The infant is started on a phenylalanine-restricted diet with tyrosine supplementation.
+
+PAH requires BH4 as an electron donor. A minority of PKU cases result not from PAH mutations but from defects in BH4 synthesis or regeneration. These patients do not respond to phenylalanine restriction alone because BH4 is also required by tyrosine hydroxylase and tryptophan hydroxylase.`,
+  questions:[
+    {
+      q:"The attending physician explains that tyrosine must be supplemented in this infant's diet. Which of the following best explains why tyrosine becomes conditionally essential in PKU?",
+      choices:[
+        "Tyrosine is normally synthesized from tryptophan, which is also deficient in PKU",
+        "PAH deficiency blocks conversion of phenylalanine to tyrosine, eliminating the primary biosynthetic route",
+        "The phenylalanine-restricted diet eliminates all dietary protein, including tyrosine",
+        "Excess phenylalanine competitively inhibits tyrosine uptake at the blood-brain barrier"
+      ],
+      ans:1,
+      exp:"Tyrosine is normally a non-essential amino acid because it is synthesized from phenylalanine by PAH. When PAH is deficient, this route is blocked and tyrosine must be obtained entirely from diet — making it conditionally essential. The restricted diet reduces phenylalanine intake but does not supply enough tyrosine to compensate."
+    },
+    {
+      q:"A patient with BH4 synthesis deficiency is placed on phenylalanine restriction but continues to deteriorate neurologically despite normal phenylalanine levels. Which neurotransmitters are most likely deficient in this patient?",
+      choices:[
+        "Glutamate and GABA",
+        "Acetylcholine and histamine",
+        "Dopamine, norepinephrine, epinephrine, and serotonin",
+        "Glycine and aspartate"
+      ],
+      ans:2,
+      exp:"BH4 is a cofactor for three hydroxylases: PAH (phenylalanine→tyrosine), tyrosine hydroxylase (tyrosine→L-DOPA, rate-limiting step in catecholamine synthesis), and tryptophan hydroxylase (tryptophan→5-HTP, rate-limiting step in serotonin synthesis). BH4 deficiency therefore depletes dopamine, norepinephrine, epinephrine, AND serotonin — explaining why phenylalanine restriction alone is insufficient."
+    },
+    {
+      q:"Phenylpyruvate accumulates in untreated PKU via transamination of phenylalanine. Which enzyme class catalyzes this reaction?",
+      choices:[
+        "Oxidoreductase",
+        "Hydrolase",
+        "Transferase",
+        "Lyase"
+      ],
+      ans:2,
+      exp:"Transamination transfers an amino group from an amino acid (phenylalanine) to an alpha-keto acid (alpha-ketoglutarate), producing a new amino acid (glutamate) and a new keto acid (phenylpyruvate). This is a group-transfer reaction catalyzed by an aminotransferase — a member of the transferase enzyme class. These enzymes require pyridoxal phosphate (PLP, vitamin B6) as a cofactor."
+    },
+    {
+      q:"Phenylalanine is classified as an aromatic, nonpolar amino acid. Which of the following amino acids shares the property of containing an aromatic ring and also serves as a direct precursor to a monoamine neurotransmitter?",
+      choices:[
+        "Leucine",
+        "Histidine",
+        "Tryptophan",
+        "Methionine"
+      ],
+      ans:2,
+      exp:"Tryptophan contains an indole ring system (aromatic) and is the direct precursor to serotonin (5-HT) via tryptophan hydroxylase. Tyrosine (also aromatic, synthesized from phenylalanine) is the precursor to catecholamines. Histidine contains an imidazole ring and is the precursor to histamine, but histamine is not a classical monoamine neurotransmitter in the CNS context being tested here."
+    },
+    {
+      q:"On SDS-PAGE, the PAH protein migrates as a single band at approximately 52 kDa. A researcher adds 2-mercaptoethanol to the sample before running the gel. Under which condition would PAH most likely migrate differently than without 2-mercaptoethanol?",
+      choices:[
+        "PAH is a monomer — 2-mercaptoethanol has no effect on migration",
+        "PAH contains intrachain disulfide bonds — 2-mercaptoethanol linearizes the protein, causing slower migration",
+        "PAH contains interchain disulfide bonds linking subunits — without 2-ME, a higher MW band would appear",
+        "2-mercaptoethanol increases SDS binding, increasing the apparent molecular weight"
+      ],
+      ans:2,
+      exp:"2-mercaptoethanol (beta-ME) reduces disulfide bonds. If PAH subunits are linked by interchain disulfide bonds, omitting 2-ME would cause the multimeric form to migrate as a higher MW band. PAH is actually a homotetramer; without reducing agent, disulfide-linked dimers or tetramers would appear at higher MW positions. Intrachain disulfide bonds would affect migration speed if they constrain conformation, but interchain bonds are what cause distinct higher-MW bands on SDS-PAGE."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════════
+// PASSAGE 2: ENZYMOLOGY
+// Topic: Enzyme kinetics, inhibition, regulation
+// ══════════════════════════════════════════════════════════════
+{
+  id:'p_enz_1',
+  topic:'Enzymology',
+  title:'Methotrexate, Dihydrofolate Reductase, and Enzyme Inhibition',
+  passage:`Methotrexate (MTX) is a chemotherapeutic and immunosuppressive agent that functions as a structural analog of dihydrofolate (DHF). It binds dihydrofolate reductase (DHFR) with approximately 1000-fold greater affinity than the natural substrate DHF. DHFR catalyzes the NADPH-dependent reduction of DHF to tetrahydrofolate (THF), which is required for synthesis of thymidylate and purines. Inhibition of DHFR depletes THF, halting DNA synthesis in rapidly dividing cells.
+
+In kinetic studies, addition of MTX increases the apparent Km of DHFR for DHF from 5 μM to 120 μM while Vmax remains unchanged at high DHF concentrations. Leucovorin (folinic acid), a pre-reduced folate that bypasses DHFR, is administered as a "rescue" agent after high-dose MTX therapy to restore THF pools in normal tissues without reactivating the inhibited enzyme.`,
+  questions:[
+    {
+      q:"Based on the kinetic data described, methotrexate acts as which type of inhibitor of DHFR?",
+      choices:[
+        "Noncompetitive inhibitor — Vmax decreases, Km unchanged",
+        "Uncompetitive inhibitor — both Vmax and Km decrease",
+        "Competitive inhibitor — Vmax unchanged, apparent Km increases",
+        "Irreversible inhibitor — permanent loss of enzyme activity"
+      ],
+      ans:2,
+      exp:"The data show Vmax unchanged and apparent Km increased from 5 to 120 μM — the hallmark of competitive inhibition. A competitive inhibitor binds the active site (competing with substrate), increases apparent Km (more substrate needed to reach Vmax/2), but can be overcome by excess substrate (Vmax unchanged). MTX is a structural analog of DHF and binds the active site, consistent with competitive inhibition, though its extremely high affinity makes it functionally near-irreversible at therapeutic doses."
+    },
+    {
+      q:"On a Lineweaver-Burk (double-reciprocal) plot, how would the addition of methotrexate change the appearance of the DHFR kinetic curve?",
+      choices:[
+        "The line shifts upward parallel to the uninhibited line (same slope, different y-intercept)",
+        "The line rotates to intersect at the y-axis — same y-intercept (1/Vmax), different x-intercept (−1/Km)",
+        "The line rotates to intersect at the x-axis — same x-intercept (−1/Km), different y-intercept",
+        "The slope decreases, reflecting increased catalytic efficiency"
+      ],
+      ans:1,
+      exp:"On a Lineweaver-Burk plot (1/V vs 1/[S]): competitive inhibition produces lines that intersect at the y-axis (same 1/Vmax = same Vmax) but with a steeper slope (increased Km/Vmax ratio), moving the x-intercept closer to zero (less negative −1/Km, reflecting higher apparent Km). Noncompetitive = intersect at x-axis. Uncompetitive = parallel lines."
+    },
+    {
+      q:"Leucovorin rescue is administered 24 hours after high-dose MTX. It restores THF pools in normal tissues but does not reverse MTX inhibition of DHFR. Which of the following best explains why leucovorin is effective despite not displacing MTX from DHFR?",
+      choices:[
+        "Leucovorin is a competitive inhibitor of MTX and displaces it from the active site",
+        "Leucovorin is a pre-reduced folate (THF equivalent) that supplies the product of the DHFR reaction directly, bypassing the blocked enzyme",
+        "Leucovorin activates an alternative DHFR isoform that is insensitive to MTX",
+        "Leucovorin chelates MTX in the serum, reducing its bioavailability"
+      ],
+      ans:1,
+      exp:"Leucovorin (5-formyl-THF) is already in the reduced form — it is the functional equivalent of THF, the product of the DHFR reaction. By supplying THF directly, it bypasses the MTX-blocked DHFR step entirely, restoring one-carbon metabolism for thymidylate and purine synthesis. Tumor cells take up leucovorin less efficiently than normal cells, providing selective rescue."
+    },
+    {
+      q:"DHFR requires NADPH as a cofactor. NADPH is primarily produced by which metabolic pathway, and at which enzyme is this pathway regulated?",
+      choices:[
+        "Glycolysis; phosphofructokinase",
+        "TCA cycle; isocitrate dehydrogenase",
+        "Pentose phosphate pathway; glucose 6-phosphate dehydrogenase",
+        "Beta-oxidation; carnitine acyltransferase I"
+      ],
+      ans:2,
+      exp:"The pentose phosphate pathway (HMP shunt) is the primary source of cytosolic NADPH. The rate-limiting enzyme is glucose 6-phosphate dehydrogenase (G6PD). NADPH is critical for reductive biosynthesis (fatty acid synthesis, steroid synthesis) and for regenerating reduced glutathione (antioxidant defense). G6PD deficiency impairs NADPH production, making RBCs vulnerable to oxidative hemolysis."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════════
+// PASSAGE 3: METABOLISM & BIOENERGETICS
+// Topic: TCA, ETC, substrate-level vs oxidative phosphorylation
+// ══════════════════════════════════════════════════════════════
+{
+  id:'p_met_1',
+  topic:'Metabolism & Bioenergetics',
+  title:'Cyanide Poisoning and Mitochondrial Energy Production',
+  passage:`A 34-year-old laboratory worker presents to the emergency department with sudden-onset headache, confusion, seizures, and lactic acidosis (serum lactate 18 mmol/L, reference <2). Coworkers report a chemical spill involving hydrogen cyanide (HCN) approximately 30 minutes prior. Cyanide binds with high affinity to the ferric (Fe³⁺) form of cytochrome a₃ in Complex IV of the electron transport chain, preventing electron transfer to molecular oxygen.
+
+Treatment is initiated with hydroxocobalamin, which binds cyanide to form cyanocobalamin (vitamin B12), and sodium thiosulfate. The patient is also given 100% oxygen. Despite complex IV being completely inhibited, the patient's cardiac myocytes continue to produce small amounts of ATP for approximately 12 minutes after cyanide exposure.`,
+  questions:[
+    {
+      q:"Which of the following best explains the severe lactic acidosis observed in this patient?",
+      choices:[
+        "Cyanide directly activates lactate dehydrogenase, converting pyruvate to lactate",
+        "Complex IV inhibition halts the ETC, causing NADH accumulation, NAD+ depletion, and forcing pyruvate reduction to lactate to regenerate NAD+",
+        "Cyanide inhibits pyruvate dehydrogenase, preventing pyruvate entry into the TCA cycle",
+        "Lactic acidosis results from cyanide binding to hemoglobin, reducing oxygen delivery to tissues"
+      ],
+      ans:1,
+      exp:"When Complex IV is inhibited, electrons cannot be transferred to O2. The entire ETC backs up — NADH accumulates and NAD+ is depleted. Without NAD+, the TCA cycle and pyruvate dehydrogenase cannot function. Pyruvate accumulates and is reduced to lactate by lactate dehydrogenase using NADH, regenerating the NAD+ needed to sustain glycolysis. This produces the severe anion-gap lactic acidosis seen in cyanide poisoning."
+    },
+    {
+      q:"The passage states cardiac myocytes continue producing ATP for ~12 minutes after complete Complex IV inhibition. Which mechanism accounts for this continued ATP production?",
+      choices:[
+        "Continued oxidative phosphorylation using residual oxygen in the mitochondrial matrix",
+        "Substrate-level phosphorylation from glycolysis (pyruvate kinase, phosphoglycerate kinase) and the TCA cycle (succinyl-CoA synthetase)",
+        "ATP diffusion from adjacent unaffected cells via gap junctions",
+        "Activation of the creatine kinase reaction converting creatine phosphate to ATP"
+      ],
+      ans:1,
+      exp:"Oxidative phosphorylation (ATP synthase driven by the proton gradient) requires ETC function — it stops immediately when Complex IV is inhibited. However, substrate-level phosphorylation is ETC-independent: glycolysis produces ATP via phosphoglycerate kinase and pyruvate kinase, and the TCA cycle produces GTP via succinyl-CoA synthetase. These reactions continue briefly until substrate runs out or NAD+ is depleted. The creatine phosphate system is also relevant but is not substrate-level phosphorylation."
+    },
+    {
+      q:"A researcher measures the P/O ratio (ATP produced per oxygen atom consumed) in isolated mitochondria before and after partial Complex I inhibition with rotenone. Which result would be expected?",
+      choices:[
+        "P/O ratio increases because less oxygen is consumed per ATP produced",
+        "P/O ratio is unchanged because ATP synthase function is not directly affected",
+        "P/O ratio decreases because fewer protons are pumped per electron pair, reducing the proton gradient available to drive ATP synthase",
+        "P/O ratio increases because FADH2 substrates bypass Complex I and produce more ATP per oxygen"
+      ],
+      ans:2,
+      exp:"Complex I pumps 4H+ per electron pair from NADH into the intermembrane space. Inhibiting Complex I reduces proton pumping, diminishing the proton-motive force available to drive ATP synthase. With less proton gradient per oxygen consumed, fewer ATP molecules are synthesized per O2 — the P/O ratio decreases. FADH2 bypasses Complex I (enters at Complex II) and already has a lower P/O ratio (~1.5 vs ~2.5 for NADH)."
+    },
+    {
+      q:"Which TCA cycle enzyme is directly inhibited by the accumulated NADH that results from ETC blockade, and what is the consequence for the cycle?",
+      choices:[
+        "Citrate synthase; accumulation of oxaloacetate and depletion of acetyl-CoA",
+        "Isocitrate dehydrogenase (rate-limiting enzyme); TCA cycle slows and intermediates accumulate upstream",
+        "Fumarase; fumarate accumulates and the urea cycle is disrupted",
+        "Succinyl-CoA synthetase; GTP production stops and the cycle continues normally"
+      ],
+      ans:1,
+      exp:"Isocitrate dehydrogenase (IDH), the rate-limiting TCA enzyme, is allosterically inhibited by high NADH (product inhibition — NADH is a product of the reaction). High NADH/NAD+ ratio from ETC blockade inhibits IDH and also alpha-ketoglutarate dehydrogenase and malate dehydrogenase. The TCA cycle slows dramatically, intermediates back up, and citrate (which can't be processed) accumulates. This further impairs energy production."
+    },
+    {
+      q:"Hydroxocobalamin (vitamin B12 precursor) is used as an antidote because it has a cobalt center that binds cyanide with high affinity. Which of the following statements about vitamin B12 is correct in the context of normal metabolism?",
+      choices:[
+        "B12 is required for conversion of homocysteine to methionine and methylmalonyl-CoA to succinyl-CoA",
+        "B12 is required for synthesis of NADH in the ETC",
+        "B12 deficiency causes pellagra due to impaired niacin synthesis",
+        "B12 functions as an electron carrier between Complex I and Complex III"
+      ],
+      ans:0,
+      exp:"Vitamin B12 (cobalamin) is required for two reactions: (1) methionine synthase — converts homocysteine to methionine using methylcobalamin (also requires folate); (2) methylmalonyl-CoA mutase — converts methylmalonyl-CoA to succinyl-CoA (enters TCA cycle). B12 deficiency causes megaloblastic anemia, subacute combined degeneration of the spinal cord, and elevated homocysteine plus methylmalonic acid in urine."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════════
+// PASSAGE 4: NUCLEIC ACIDS & MOLECULAR BIOLOGY
+// Topic: DNA replication, repair, mutations, gene regulation
+// ══════════════════════════════════════════════════════════════
+{
+  id:'p_nuc_1',
+  topic:'Nucleic Acids & Molecular Biology',
+  title:'Lynch Syndrome and DNA Mismatch Repair',
+  passage:`A 38-year-old woman is diagnosed with colorectal cancer. Her family history reveals that her father died of colorectal cancer at age 42 and her paternal aunt had endometrial cancer at age 45. Genetic testing identifies a germline pathogenic variant in the MLH1 gene. The patient is diagnosed with Lynch syndrome (hereditary nonpolyposis colorectal cancer, HNPCC), an autosomal dominant condition caused by heterozygous loss-of-function mutations in mismatch repair (MMR) genes including MLH1, MSH2, MSH6, and PMS2.
+
+Immunohistochemistry of the tumor shows absent MLH1 and PMS2 protein expression, consistent with loss of the wild-type allele in the tumor (two-hit hypothesis). The tumor displays microsatellite instability (MSI-high), a molecular phenotype resulting from defective MMR. MMR normally corrects single base-pair mismatches and small insertions/deletions that arise during DNA replication in G2 phase. MLH1 promoter hypermethylation accounts for the majority of sporadic (non-hereditary) MSI-high colorectal cancers.`,
+  questions:[
+    {
+      q:"Mismatch repair corrects errors introduced during DNA replication. Which phase of the cell cycle does MMR primarily operate in, and how does the system distinguish the newly synthesized (error-containing) strand from the template strand?",
+      choices:[
+        "S phase; the newly synthesized strand is identified by its higher GC content",
+        "G2 phase; in bacteria, newly synthesized DNA is transiently undermethylated at GATC sequences — the unmethylated strand is the one corrected",
+        "G1 phase; the template strand is identified by its association with nucleosomes",
+        "M phase; MMR is activated by the spindle assembly checkpoint"
+      ],
+      ans:1,
+      exp:"MMR occurs in G2 phase after replication is complete. In bacteria, Dam methylase methylates adenine in GATC sequences; newly synthesized DNA is transiently unmethylated, allowing MutH to identify and nick the daughter strand for correction. In eukaryotes (including humans), the mechanism uses strand discontinuities (nicks, gaps from Okazaki fragment processing) rather than methylation to identify the new strand. MSH2 recognizes mismatches; MLH1 coordinates repair."
+    },
+    {
+      q:"The tumor shows loss of both MLH1 and PMS2 protein on immunohistochemistry, but the patient only has a germline MLH1 mutation. Why is PMS2 also absent?",
+      choices:[
+        "PMS2 is encoded on the same chromosome as MLH1 and is co-deleted",
+        "MLH1 and PMS2 form an obligate heterodimer (MutLα); loss of MLH1 causes degradation of PMS2 because it has no stable binding partner",
+        "The tumor has acquired a somatic PMS2 mutation as a second hit",
+        "PMS2 expression is transcriptionally regulated by MLH1 protein"
+      ],
+      ans:1,
+      exp:"MLH1 and PMS2 form the MutLα heterodimer, which is required for MMR. MLH1 is the obligate partner — PMS2 is unstable without MLH1 and is rapidly degraded by the proteasome. Therefore, loss of MLH1 alone leads to loss of both MLH1 and PMS2 protein on IHC. This is why IHC showing absent MLH1+PMS2 strongly suggests a germline or somatic MLH1 alteration."
+    },
+    {
+      q:"Microsatellite instability results from failure to correct small insertions/deletions at repetitive sequences. A frameshift mutation in a tumor suppressor gene within a microsatellite region leads to a premature stop codon. This is classified as which type of mutation?",
+      choices:[
+        "Missense mutation — changes one amino acid",
+        "Silent mutation — no change in amino acid sequence",
+        "Nonsense mutation — creates a premature stop codon from a single base substitution",
+        "Frameshift mutation leading to a downstream nonsense codon"
+      ],
+      ans:3,
+      exp:"An insertion or deletion at a microsatellite shifts the reading frame of all downstream codons (frameshift mutation). The altered reading frame frequently encounters a stop codon downstream, producing a truncated, nonfunctional protein. This is distinct from a primary nonsense mutation (single base substitution directly creating a stop codon). The question specifies a frameshift that creates a premature stop — this is a frameshift mutation with a downstream nonsense codon."
+    },
+    {
+      q:"MLH1 promoter hypermethylation causes the majority of sporadic MSI-high colorectal cancers. DNA methylation at CpG islands in promoters silences gene expression by which mechanism?",
+      choices:[
+        "DNA methylation directly cleaves the MLH1 mRNA, preventing translation",
+        "Methylated cytosine recruits methyl-binding proteins and histone deacetylases, condensing chromatin into transcriptionally silent heterochromatin",
+        "Methylation of adenine at GATC sequences prevents RNA polymerase binding",
+        "Promoter methylation causes alternative splicing that produces a non-functional MLH1 isoform"
+      ],
+      ans:1,
+      exp:"CpG island methylation (5-methylcytosine) recruits methyl-CpG binding proteins (MBDs), which in turn recruit histone deacetylases (HDACs). HDACs remove acetyl groups from histone lysine residues, restoring positive charge and tightening the histone-DNA interaction. This converts euchromatin to transcriptionally silent heterochromatin, preventing RNA polymerase access to the promoter."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════════
+// PASSAGE 5: CARBOHYDRATES & LIPIDS
+// Topic: Lipid transport, ketogenesis, metabolic state
+// ══════════════════════════════════════════════════════════════
+{
+  id:'p_lip_1',
+  topic:'Carbohydrates & Lipids',
+  title:'Diabetic Ketoacidosis: Lipid Metabolism and Acid-Base Physiology',
+  passage:`A 19-year-old man with type 1 diabetes mellitus presents with a 2-day history of polyuria, polydipsia, nausea, and vomiting. He ran out of insulin 3 days ago. Vital signs: HR 118, BP 94/60, RR 28 (Kussmaul respirations). Labs: glucose 620 mg/dL, pH 7.08, bicarbonate 6 mEq/L, anion gap 32, beta-hydroxybutyrate 8.4 mmol/L (reference <0.5), insulin undetectable, glucagon markedly elevated.
+
+In the absence of insulin, adipose tissue lipoprotein lipase is suppressed and hormone-sensitive lipase (HSL) is activated, releasing free fatty acids (FFAs) into the circulation. FFAs are taken up by the liver, where they undergo beta-oxidation generating excess acetyl-CoA. Because oxaloacetate is depleted by gluconeogenesis, acetyl-CoA cannot enter the TCA cycle and is diverted to ketogenesis via HMG-CoA in the mitochondria.`,
+  questions:[
+    {
+      q:"The passage states that oxaloacetate depletion forces acetyl-CoA into ketogenesis. Why is oxaloacetate depleted during the fasting/diabetic state?",
+      choices:[
+        "Oxaloacetate is consumed by the TCA cycle faster than it can be regenerated from malate",
+        "Oxaloacetate is used as a gluconeogenic substrate — it is converted to PEP by PEPCK for glucose synthesis, removing it from the TCA cycle",
+        "Insulin normally stimulates oxaloacetate synthesis; without insulin it cannot be produced",
+        "Glucagon directly inhibits malate dehydrogenase, preventing oxaloacetate formation"
+      ],
+      ans:1,
+      exp:"During fasting and DKA, glucagon stimulates gluconeogenesis. Oxaloacetate (OAA) is a key gluconeogenic intermediate — PEPCK converts it to phosphoenolpyruvate (PEP) for glucose synthesis. This removes OAA from the mitochondria faster than it can be replenished, collapsing TCA cycle function. Acetyl-CoA from beta-oxidation cannot condense with OAA (citrate synthase step requires OAA), so it is diverted to HMG-CoA and then acetoacetate."
+    },
+    {
+      q:"Beta-hydroxybutyrate is the predominant ketone body in severe DKA (ratio of BHB:acetoacetate ~10:1 in severe acidosis vs ~3:1 normally). Which of the following best explains this shift?",
+      choices:[
+        "Acetoacetate is preferentially excreted in urine, leaving BHB in circulation",
+        "High NADH/NAD+ ratio from massive beta-oxidation drives the equilibrium of the BHB dehydrogenase reaction toward BHB production",
+        "BHB is synthesized by a separate pathway that is upregulated by glucagon",
+        "Acidosis directly activates BHB dehydrogenase by protonating the active site"
+      ],
+      ans:1,
+      exp:"Beta-hydroxybutyrate dehydrogenase catalyzes: acetoacetate + NADH ↔ beta-hydroxybutyrate + NAD+. During massive beta-oxidation (as in DKA), NADH accumulates dramatically, raising the NADH/NAD+ ratio. Le Chatelier's principle drives the equilibrium toward BHB production. This is clinically important: nitroprusside-based urine ketone tests detect only acetoacetate, not BHB — they can underestimate ketosis severity in DKA and show a paradoxical increase as the patient improves (BHB converts back to acetoacetate as NADH/NAD+ normalizes)."
+    },
+    {
+      q:"Lipoprotein lipase (LPL) on capillary endothelium is activated by insulin and is required for triglyceride hydrolysis from chylomicrons and VLDL. Which apolipoprotein serves as the required cofactor that activates LPL?",
+      choices:[
+        "ApoB-100",
+        "ApoE",
+        "ApoC-II",
+        "ApoA-I"
+      ],
+      ans:2,
+      exp:"ApoC-II, present on chylomicrons and VLDL, is the obligate activator of lipoprotein lipase on capillary endothelium. LPL hydrolyzes triglycerides from circulating lipoproteins, releasing FFAs for uptake by muscle and adipose. ApoC-II deficiency causes familial hyperchylomicronemia (Type I hyperlipidemia). ApoB-100 is recognized by LDL receptors; ApoE mediates remnant uptake; ApoA-I activates LCAT on HDL."
+    },
+    {
+      q:"The patient's respiratory rate is 28 with deep, labored breaths (Kussmaul respirations). This is a compensatory response to metabolic acidosis. Which of the following correctly describes the mechanism?",
+      choices:[
+        "Acidosis stimulates aldosterone release, causing respiratory alkalosis as compensation",
+        "Low pH detected by central and peripheral chemoreceptors drives hyperventilation, blowing off CO2 (H2CO3 → H2O + CO2↑), raising blood pH",
+        "Hyperventilation increases oxygen delivery to tissues, enhancing ketone body oxidation",
+        "Deep breathing increases venous return, diluting the acidic blood with normal bicarbonate"
+      ],
+      ans:1,
+      exp:"Metabolic acidosis (low pH, low HCO3-) is sensed by peripheral chemoreceptors (carotid and aortic bodies) and central chemoreceptors in the medulla. The respiratory center responds by increasing rate and depth of breathing. This blows off CO2, which shifts the carbonic acid equilibrium: CO2 + H2O ↔ H2CO3 ↔ H+ + HCO3-. Reducing CO2 shifts the reaction leftward, consuming H+ and raising pH. This respiratory compensation is rapid (minutes to hours) but does not fully correct the acidosis."
+    },
+    {
+      q:"As this patient is treated with insulin and IV fluids, his glucose begins to fall and ketone bodies are cleared. Ketone bodies are oxidized in peripheral tissues via ketolysis. Which of the following tissues CANNOT perform ketolysis and why?",
+      choices:[
+        "Cardiac muscle — lacks the mitochondria needed for ketone oxidation",
+        "Skeletal muscle — lacks the transporters to import ketone bodies",
+        "The liver — lacks succinyl-CoA:3-oxoacid CoA transferase (SCOT), the enzyme required to activate acetoacetate for oxidation",
+        "The brain — cannot oxidize ketone bodies because the blood-brain barrier blocks entry"
+      ],
+      ans:2,
+      exp:"The liver produces ketone bodies but cannot oxidize them. Ketolysis requires succinyl-CoA:3-oxoacid CoA transferase (SCOT), which transfers CoA from succinyl-CoA to acetoacetate, activating it for beta-oxidation. The liver lacks SCOT — this prevents futile cycling of hepatic ketogenesis and ketolysis simultaneously. Cardiac muscle, skeletal muscle, kidneys, and (after adaptation) the brain all express SCOT and can oxidize ketone bodies."
+    }
+  ]
+}
+
 ]; // end PASSAGES
 
 
@@ -2443,21 +2731,6 @@ function setMode(mode) {
   document.getElementById('recall-config').style.display = mode==='recall' ? '' : 'none';
   document.getElementById('passage-config').style.display = mode==='passage' ? '' : 'none';
   if (mode==='passage') buildPassageSelector();
-}
-
-function buildPassageSelector() {
-  const stats = loadStats();
-  const box = document.getElementById('passage-selector');
-  box.innerHTML = PASSAGES.map((p,i) => {
-    const done = stats['passage_'+p.id] ? ' done' : '';
-    const score = stats['passage_'+p.id] ? ` · ${stats['passage_'+p.id].pct}%` : '';
-    return `<button class="psel-btn${done}" onclick="selectPassage(${i})" id="psel-${i}">
-      <div style="font-size:12px;color:var(--text);margin-bottom:3px">${p.title}</div>
-      <div style="font-size:10px;color:var(--accent2)">${p.topic}${score}</div>
-    </button>`;
-  }).join('');
-  // Select first by default
-  if (!selectedPassage) selectPassage(0);
 }
 
 function selectPassage(i) {
@@ -3243,30 +3516,60 @@ Water (H2O) has a bent molecular geometry (bond angle ~104.5°) due to two lone 
 // Merge all passages into unified array
 const ALL_PASSAGES = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES];
 
-// Override passage lookup to use ALL_PASSAGES
-const _origBuildSelector = buildPassageSelector;
 function buildPassageSelector() {
   const stats = loadStats();
   const box = document.getElementById('passage-selector');
-  box.innerHTML = ALL_PASSAGES.map((p,i) => {
-    const done = stats['passage_'+p.id] ? ' done' : '';
-    const score = stats['passage_'+p.id] ? ' · '+stats['passage_'+p.id].pct+'%' : '';
-    return `<button class="psel-btn${done}" onclick="selectPassage(${i})" id="psel-${i}">
-      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px">${p.title}</div>
-      <div style="font-size:10px;color:var(--navy-mid)">${p.topic}${score}</div>
-    </button>`;
-  }).join('');
+
+  // Define groups with subject label and passage indices
+  const groups = [
+    {
+      label: 'Biochemistry',
+      passages: ALL_PASSAGES.filter(p => p.id.startsWith('p_aa') || p.id.startsWith('p_enz') || p.id.startsWith('p_met') || p.id.startsWith('p_nuc') || p.id.startsWith('p_lip'))
+    },
+    {
+      label: 'Biology',
+      passages: ALL_PASSAGES.filter(p => p.id.startsWith('p_bio'))
+    },
+    {
+      label: 'General Chemistry',
+      passages: ALL_PASSAGES.filter(p => p.id.startsWith('p_gchem'))
+    }
+  ];
+
+  let html = '<div class="section-label" style="margin-bottom:14px">Select Passage</div>';
+
+  groups.forEach(group => {
+    if (!group.passages.length) return;
+    html += `<div class="pgroup">`;
+    html += `<div class="pgroup-label">${group.label}</div>`;
+    html += `<div class="pgroup-list">`;
+    group.passages.forEach(p => {
+      const globalIdx = ALL_PASSAGES.indexOf(p);
+      const s = stats['passage_'+p.id];
+      const done = s ? ' done' : '';
+      const scoreHtml = s ? `<span class="psel-score">${s.pct}%</span>` : '';
+      const qCount = p.questions.length;
+      html += `<button class="psel-btn${done}" onclick="selectPassage(${globalIdx})" id="psel-${globalIdx}">
+        <span class="psel-name">${p.title}</span>
+        <span class="psel-meta">
+          ${scoreHtml}
+          <span class="psel-count">${qCount}Q</span>
+        </span>
+      </button>`;
+    });
+    html += `</div></div>`;
+  });
+
+  box.innerHTML = html;
+
   if (selectedPassage === null || selectedPassage >= ALL_PASSAGES.length) selectPassage(0);
-  else {
-    document.querySelectorAll('.psel-btn').forEach((b,j)=>{b.classList.toggle('active',j===selectedPassage);});
-  }
+  else document.querySelectorAll('.psel-btn').forEach((b,j) => b.classList.toggle('active', j === selectedPassage));
 }
 
 function startPassage() {
   if (selectedPassage === null) { alert('Select a passage first.'); return; }
   const p = ALL_PASSAGES[selectedPassage];
-  passageResults = [];
-  passageQIdx = 0;
+  passageResults = []; passageQIdx = 0;
   show('screen-passage');
   renderPassageQuestion();
 }
@@ -3288,8 +3591,7 @@ function renderPassageQuestion() {
     </div>`;
   const choicesHtml = q.choices.map((c,i) => `
     <button class="choice-btn" id="pc-${i}" onclick="answerPassage(${i})">
-      <span class="choice-lbl">${'ABCD'[i]}</span>
-      <span>${c}</span>
+      <span class="choice-lbl">${'ABCD'[i]}</span><span>${c}</span>
     </button>`).join('');
   document.getElementById('pp-question-box').innerHTML = `
     <div class="question-box">
