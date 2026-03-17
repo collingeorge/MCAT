@@ -350,7 +350,7 @@ body::before{
 <div id="screen-home">
   <div class="wrap">
     <div class="home-hero">
-      <div class="hero-badge">MileDown Biochemistry · 1,249 Recall + 23 Passage Questions</div>
+      <div class="hero-badge">MileDown Biochemistry · 1,249 Recall + 64 Passage Questions</div>
       <h1 class="hero-title">MCAT <span>Biochemistry</span></h1>
       <div class="hero-divider"></div>
       <p class="hero-sub">Clinical Mastery Quiz System · Collin Blaine George</p>
@@ -359,7 +359,7 @@ body::before{
 
     <div class="mode-toggle">
       <button class="mode-btn active" id="btn-recall" onclick="setMode('recall')">RECALL MODE<br><span style="font-size:9px;font-weight:400;opacity:.7">468 Flashcard MCQs</span></button>
-      <button class="mode-btn" id="btn-passage" onclick="setMode('passage')">PASSAGE MODE<br><span style="font-size:9px;font-weight:400;opacity:.7">23 AAMC-Style Questions</span></button>
+      <button class="mode-btn" id="btn-passage" onclick="setMode('passage')">PASSAGE MODE<br><span style="font-size:9px;font-weight:400;opacity:.7">64 AAMC-Style Questions</span></button>
     </div>
     <div id="recall-config">
     <div class="config-card">
@@ -2604,6 +2604,743 @@ function showPassageResults() {
   document.getElementById('pp-fill').style.width='100%';
   document.getElementById('pp-counter').textContent = tot+' / '+tot;
   document.getElementById('pp-score').textContent = '✓ '+cor+'/'+tot;
+  window.scrollTo(0,0);
+}
+
+
+// ══════════════════════════════════════════════════════════
+// BIOLOGY & GEN CHEM PASSAGE DATA
+// ══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+// BIOLOGY PASSAGES — 5 passages, 23 questions
+// ═══════════════════════════════════════════════════════════════════
+
+const BIO_PASSAGES = [
+
+// ══════════════════════════════════════════════════
+// PASSAGE B1: Cardiovascular & Respiratory Systems
+// ══════════════════════════════════════════════════
+{
+  id:'p_bio_1',
+  topic:'Cardiovascular & Respiratory Systems',
+  title:'High-Altitude Acclimatization and Oxygen Transport',
+  passage:`A 28-year-old mountaineer ascends to 5,400 meters over 10 days. At baseline (sea level), her hemoglobin is 13.8 g/dL, hematocrit 41%, SpO2 99%, and resting respiratory rate 14 breaths/min. At altitude, barometric pressure falls to approximately 380 mmHg (half of sea level), reducing the partial pressure of inspired oxygen (PiO2) proportionally.
+
+Within hours of arrival, her respiratory rate increases to 22 breaths/min and arterial PCO2 drops from 40 to 28 mmHg, raising arterial pH from 7.40 to 7.52. Over 10 days, her kidneys excrete bicarbonate, her reticulocyte count rises, erythropoietin (EPO) levels peak at day 3, and red blood cell 2,3-BPG concentrations increase by 30%. By day 10, her hemoglobin has risen to 16.2 g/dL and SpO2 stabilized at 91%.
+
+Fetal hemoglobin (HbF) binds 2,3-BPG less avidly than adult hemoglobin (HbA) because its gamma subunits lack the key lysine residue at position 82 that coordinates 2,3-BPG binding in beta subunits.`,
+  questions:[
+    {
+      q:"The mountaineer's respiratory rate increases acutely at altitude. Which chemoreceptors primarily drive this hyperventilation response to hypoxia?",
+      choices:[
+        "Central chemoreceptors in the medulla, which directly sense decreased PO2",
+        "Peripheral chemoreceptors (carotid and aortic bodies), which are primarily sensitive to decreased PaO2",
+        "Pulmonary stretch receptors, which detect decreased lung volume at altitude",
+        "Central chemoreceptors responding to decreased PCO2"
+      ],
+      ans:1,
+      exp:"Peripheral chemoreceptors (carotid bodies primarily, aortic bodies secondarily) are the primary sensors of hypoxemia — they respond directly to decreased PaO2. Central chemoreceptors in the medulla respond primarily to PCO2/pH changes in CSF, not directly to O2. At altitude, the carotid bodies drive hyperventilation, which then lowers PCO2 and raises pH (respiratory alkalosis)."
+    },
+    {
+      q:"The 30% increase in erythrocyte 2,3-BPG at altitude shifts the hemoglobin-oxygen dissociation curve. What is the physiological consequence of this shift at the tissue level?",
+      choices:[
+        "Increased O2 loading in the pulmonary capillaries, raising SpO2",
+        "Rightward shift of the dissociation curve — decreased O2 affinity facilitates O2 unloading to hypoxic tissues",
+        "Leftward shift — increased O2 affinity ensures maximum O2 is retained for vital organs",
+        "No net effect because the Bohr effect already compensates for tissue hypoxia"
+      ],
+      ans:1,
+      exp:"2,3-BPG binds to the central cavity of deoxyhemoglobin, stabilizing the T (tense, low-affinity) state and shifting the curve rightward — lower O2 affinity, higher P50. This facilitates O2 unloading to tissues under hypoxic conditions. The cost is reduced pulmonary loading (lower SpO2), which is acceptable because the primary adaptation goal is maximal O2 delivery to tissues."
+    },
+    {
+      q:"Fetal hemoglobin (HbF) has higher O2 affinity than adult hemoglobin (HbA). Based on the passage, which structural feature most directly explains HbF's resistance to 2,3-BPG?",
+      choices:[
+        "HbF has only two subunits instead of four, reducing allosteric sites",
+        "HbF gamma subunits lack the lysine-82 residue that coordinates 2,3-BPG binding in beta subunits",
+        "HbF contains iron in the Fe²⁺ state exclusively, unlike HbA",
+        "HbF is smaller and cannot accommodate 2,3-BPG in its central cavity"
+      ],
+      ans:1,
+      exp:"HbF (α2γ2) substitutes gamma subunits for beta subunits. The gamma subunit lacks lysine at position 82, a residue critical for coordinating 2,3-BPG binding in the central cavity of HbA (α2β2). Without this interaction, HbF binds 2,3-BPG with much lower affinity, stabilizing the R (relaxed, high-affinity) state and maintaining high O2 affinity — essential for placental O2 transfer from maternal HbA to fetal HbF."
+    },
+    {
+      q:"By day 10, the arterial pH has returned toward 7.40 despite continued hyperventilation and low PCO2. Which renal mechanism mediates this compensation?",
+      choices:[
+        "Increased H+ secretion in the proximal tubule, generating new bicarbonate",
+        "Bicarbonate excretion in the urine — reduced reabsorption lowers plasma HCO3-, correcting respiratory alkalosis",
+        "Increased aldosterone secretion causing sodium-bicarbonate co-reabsorption",
+        "Increased ammonia synthesis to buffer urinary acid"
+      ],
+      ans:1,
+      exp:"Respiratory alkalosis (low PCO2, high pH) is renally compensated by reducing bicarbonate reabsorption in the proximal tubule and excreting HCO3- in urine. This lowers plasma HCO3- from the normal ~24 mEq/L toward ~18 mEq/L, partially restoring pH. This is the 'renal compensation for respiratory alkalosis' and takes 2–5 days, consistent with the timeline described."
+    },
+    {
+      q:"The medulla oblongata is described as the primary respiratory control center. If a drug selectively blocked all central chemoreceptor activity, which blood gas change would most dramatically reduce respiratory drive?",
+      choices:[
+        "Decreased PaO2 from 99 to 60 mmHg",
+        "Increased PaCO2 from 40 to 55 mmHg",
+        "Decreased pH from 7.40 to 7.32",
+        "Decreased PaO2 from 60 to 45 mmHg"
+      ],
+      ans:1,
+      exp:"Central chemoreceptors on the ventral surface of the medulla respond primarily to CO2/pH changes in cerebrospinal fluid. Under normal conditions, rising PCO2 (which lowers CSF pH) is the dominant driver of respiratory rate and depth. Blocking central chemoreceptors would most dramatically impair the hypercapnic ventilatory response. Peripheral chemoreceptors handle hypoxic drive, which is secondary under normoxic conditions."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════
+// PASSAGE B2: Nervous System & Muscle Physiology
+// ══════════════════════════════════════════════════
+{
+  id:'p_bio_2',
+  topic:'Nervous System & Muscle Physiology',
+  title:'Myasthenia Gravis and the Neuromuscular Junction',
+  passage:`Myasthenia gravis (MG) is an autoimmune disorder in which IgG antibodies target nicotinic acetylcholine receptors (nAChRs) at the neuromuscular junction (NMJ). Antibody binding leads to receptor internalization, complement-mediated destruction, and functional blockade. The hallmark is fatigable muscle weakness — weakness that worsens with repeated use — affecting extraocular muscles (ptosis, diplopia), proximal limb muscles, and respiratory muscles.
+
+A 34-year-old woman presents with ptosis and diplopia worsening through the day. Edrophonium (Tensilon), a short-acting acetylcholinesterase inhibitor, temporarily reverses her symptoms. She is started on pyridostigmine, a longer-acting acetylcholinesterase inhibitor. Nerve conduction studies show a characteristic decremental response on repetitive nerve stimulation — amplitude of the compound muscle action potential (CMAP) decreases progressively with each successive stimulus.
+
+At the NMJ, an action potential in the motor neuron triggers Ca2+ influx through voltage-gated calcium channels, causing ACh-containing synaptic vesicles to fuse with the presynaptic membrane and release ACh into the synaptic cleft. ACh binds nAChRs, opens ion channels, and depolarizes the postsynaptic membrane.`,
+  questions:[
+    {
+      q:"Edrophonium rapidly reverses myasthenic weakness by which mechanism?",
+      choices:[
+        "Binding directly to nAChRs and acting as an agonist",
+        "Inhibiting acetylcholinesterase, allowing ACh to accumulate and compete with antibodies for remaining functional receptors",
+        "Stimulating synthesis of new nAChRs in the postsynaptic membrane",
+        "Blocking antibody binding to nAChRs via competitive inhibition"
+      ],
+      ans:1,
+      exp:"Edrophonium (and pyridostigmine) inhibit acetylcholinesterase, the enzyme that degrades ACh in the synaptic cleft. By preventing ACh breakdown, the concentration of ACh increases, allowing it to compete more effectively for the reduced number of functional nAChRs. This temporarily restores neuromuscular transmission. This is the basis of the Tensilon test — a positive response (brief symptom reversal) confirms the diagnosis of MG."
+    },
+    {
+      q:"The decremental CMAP response on repetitive nerve stimulation in MG results from which physiological mechanism?",
+      choices:[
+        "Progressive failure of action potential conduction in the motor nerve axon",
+        "Depletion of presynaptic ACh vesicles with repeated stimulation, reducing the amount of ACh released per stimulus — in the setting of reduced postsynaptic receptor density, this falls below threshold",
+        "Progressive accumulation of Ca2+ in the presynaptic terminal, blocking vesicle fusion",
+        "Postsynaptic hyperpolarization from excessive Cl- influx through nAChRs"
+      ],
+      ans:1,
+      exp:"With repetitive stimulation, ACh quanta released per stimulus normally decreases slightly (presynaptic depletion) — this is normally compensated by the 'safety factor' (excess ACh receptors). In MG, receptor density is reduced, eliminating the safety factor. Each successive stimulus releases less ACh into a membrane with fewer receptors, progressively failing to reach the threshold for muscle fiber action potential — producing the decremental CMAP pattern."
+    },
+    {
+      q:"Skeletal muscle contraction requires Ca2+ binding to troponin. In the normal neuromuscular sequence, from where is the Ca2+ released that initiates contraction?",
+      choices:[
+        "Mitochondria in the muscle fiber",
+        "The extracellular fluid through voltage-gated calcium channels in the sarcolemma",
+        "The sarcoplasmic reticulum, triggered by action potential propagation along T-tubules",
+        "The synaptic vesicles of the motor neuron"
+      ],
+      ans:2,
+      exp:"The muscle action potential propagates along the sarcolemma and down T-tubules. Dihydropyridine receptors (voltage sensors) in the T-tubule membrane sense the depolarization and mechanically activate ryanodine receptors (RyR1) in the adjacent sarcoplasmic reticulum membrane, triggering massive Ca2+ release. Ca2+ binds troponin C, shifting tropomyosin to expose myosin-binding sites on actin, initiating cross-bridge cycling."
+    },
+    {
+      q:"A patient with MG develops respiratory failure requiring intubation. Which respiratory muscle is most critical for generating the negative intrathoracic pressure needed for inspiration?",
+      choices:[
+        "External intercostal muscles",
+        "Internal intercostal muscles",
+        "The diaphragm",
+        "Sternocleidomastoid muscles"
+      ],
+      ans:2,
+      exp:"The diaphragm is the primary muscle of inspiration — its contraction increases the longitudinal dimension of the thoracic cavity, creating negative intrathoracic pressure that drives air into the lungs. It accounts for approximately 70% of resting tidal volume. Inhalation is an active process requiring diaphragmatic contraction. External intercostals assist, while accessory muscles (sternocleidomastoid, scalenes) are recruited during respiratory distress."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════
+// PASSAGE B3: Endocrine & Metabolism
+// ══════════════════════════════════════════════════
+{
+  id:'p_bio_3',
+  topic:'Endocrine System',
+  title:'Type 1 Diabetes and the Hypothalamic-Pituitary-Adrenal Axis',
+  passage:`A 17-year-old male with Type 1 diabetes mellitus (T1DM) presents following a motor vehicle collision. He is found to have a blood glucose of 42 mg/dL (hypoglycemia), despite his insulin pump having delivered no insulin for 6 hours due to pump failure. His cortisol level is 48 μg/dL (reference 7–28), and serum epinephrine is markedly elevated. He is confused, diaphoretic, and tachycardic.
+
+T1DM results from autoimmune destruction of beta-islet cells in the pancreas. The counterregulatory response to hypoglycemia involves glucagon from alpha-islet cells, epinephrine from the adrenal medulla, cortisol from the adrenal cortex, and growth hormone from the anterior pituitary — all acting to raise blood glucose.
+
+Cortisol secretion is governed by the hypothalamic-pituitary-adrenal (HPA) axis: the hypothalamus releases CRH, stimulating the anterior pituitary to release ACTH, which stimulates the adrenal cortex to produce cortisol. Cortisol then feeds back to inhibit both CRH and ACTH (negative feedback). The adrenal medulla secretes catecholamines (epinephrine and norepinephrine) via direct sympathetic neural innervation, independent of the HPA axis.`,
+  questions:[
+    {
+      q:"This patient has T1DM with absent beta-islet cell function. Which counterregulatory response to hypoglycemia is most impaired compared to a non-diabetic patient?",
+      choices:[
+        "Epinephrine secretion from the adrenal medulla",
+        "Cortisol secretion from the adrenal cortex",
+        "Glucagon secretion from alpha-islet cells, which is impaired in long-standing T1DM due to loss of paracrine insulin signaling",
+        "Growth hormone secretion from the anterior pituitary"
+      ],
+      ans:2,
+      exp:"In T1DM, alpha-islet cells lose the paracrine insulin signal (normally released by adjacent beta cells) that helps regulate glucagon secretion. Over time, glucagon secretion in response to hypoglycemia becomes blunted — the first and most important counterregulatory hormone is lost. Epinephrine becomes the dominant counterregulatory hormone in established T1DM, which is why beta-blockers are particularly dangerous in T1DM (they mask epinephrine-mediated hypoglycemia symptoms and blunt the glycemic recovery)."
+    },
+    {
+      q:"The patient's elevated cortisol results from HPA axis activation. Which statement correctly describes cortisol's mechanism of counterregulatory action?",
+      choices:[
+        "Cortisol directly activates glucokinase in hepatocytes, stimulating glycogenolysis",
+        "Cortisol, a steroid hormone, enters cells and acts via nuclear receptors to upregulate genes encoding gluconeogenic enzymes (PEPCK, G6Pase) and promote protein catabolism to supply gluconeogenic substrates",
+        "Cortisol binds membrane receptors and activates cAMP to stimulate glycogen phosphorylase",
+        "Cortisol stimulates insulin secretion to suppress the counterregulatory response"
+      ],
+      ans:1,
+      exp:"Cortisol is a steroid hormone that crosses cell membranes and binds intracellular glucocorticoid receptors. The receptor-hormone complex translocates to the nucleus and acts as a transcription factor, upregulating PEPCK and G6Pase (gluconeogenic enzymes), promoting protein catabolism in muscle (releasing amino acids as gluconeogenic substrates), and promoting lipolysis. These are slow (hours) genomic effects, explaining why cortisol is a chronic counterregulatory hormone."
+    },
+    {
+      q:"The adrenal medulla secretes epinephrine via direct sympathetic innervation rather than through the HPA axis. Epinephrine is classified as which type of hormone, and it exerts its effects via which receptor type?",
+      choices:[
+        "Steroid hormone; nuclear receptor",
+        "Peptide hormone; receptor tyrosine kinase",
+        "Amine hormone derived from tyrosine; adrenergic receptors (GPCRs)",
+        "Amine hormone derived from tryptophan; serotonin receptors"
+      ],
+      ans:2,
+      exp:"Epinephrine is a catecholamine — an amine hormone derived from tyrosine (tyrosine → DOPA → dopamine → norepinephrine → epinephrine) synthesized in the adrenal medulla. Catecholamines are water-soluble and cannot cross cell membranes; they act via adrenergic receptors, which are G protein-coupled receptors (GPCRs). Beta-adrenergic receptors activate adenylyl cyclase (cAMP), while alpha-adrenergic receptors use different G proteins."
+    },
+    {
+      q:"After glucose administration, the patient recovers. His blood glucose rises to 180 mg/dL and insulin is resumed via his pump. Insulin signals liver, muscle, and fat cells to take up glucose. Which downstream signaling pathway does insulin primarily activate to promote glucose uptake in adipose and muscle?",
+      choices:[
+        "cAMP-PKA pathway, promoting GLUT4 translocation",
+        "PI3K-Akt pathway, promoting GLUT4 translocation to the plasma membrane",
+        "MAPK pathway, promoting GLUT2 expression",
+        "JAK-STAT pathway, promoting glycogen synthase activation"
+      ],
+      ans:1,
+      exp:"Insulin binds its receptor tyrosine kinase (IR), causing autophosphorylation and activation. The primary downstream pathway is PI3K → PIP3 → PDK1 → Akt (PKB). Activated Akt phosphorylates AS160, releasing its inhibitory effect on Rab GTPases, leading to GLUT4-containing vesicle translocation to the plasma membrane. This dramatically increases glucose uptake in muscle and adipose. GLUT2 (liver, pancreas) is constitutively expressed and not acutely regulated by insulin."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════
+// PASSAGE B4: Immunology & Genetics
+// ══════════════════════════════════════════════════
+{
+  id:'p_bio_4',
+  topic:'Immunology & Genetics',
+  title:'Sickle Cell Disease: Genetics, Immunity, and Natural Selection',
+  passage:`Sickle cell disease (SCD) is caused by a single nucleotide transversion in the HBB gene on chromosome 11, converting the sixth codon from GAG (glutamate) to GTG (valine). The resulting HbS polymerizes under low-oxygen conditions, distorting red blood cells into a sickle shape. SCD follows autosomal recessive inheritance: heterozygotes (HbAS, sickle cell trait) are largely asymptomatic carriers, while homozygotes (HbSS) have disease.
+
+The sickle cell trait has reached allele frequencies of 10–40% in sub-Saharan Africa because heterozygous carriers have a survival advantage against severe Plasmodium falciparum malaria — a classic example of balancing selection (heterozygote advantage). Falciparum parasites require normal red blood cell physiology for optimal replication; the altered intracellular environment of HbAS red cells impairs parasite development.
+
+Patients with SCD are functionally asplenic due to repeated splenic infarction from sickling, impairing opsonization-dependent clearance of encapsulated bacteria. They require prophylactic penicillin and vaccination against Streptococcus pneumoniae, Haemophilus influenzae type b, and Neisseria meningitidis.`,
+  questions:[
+    {
+      q:"The HbB mutation (GAG→GTG) substitutes valine for glutamate at position 6 of the beta-globin chain. What type of mutation is this, and why does it have such profound structural consequences?",
+      choices:[
+        "Nonsense mutation — creates a premature stop codon, truncating beta-globin",
+        "Frameshift mutation — shifts the reading frame, altering all downstream amino acids",
+        "Missense mutation — a single nucleotide change substitutes a nonpolar hydrophobic residue (valine) for a charged polar residue (glutamate), creating a hydrophobic patch that drives HbS polymerization under hypoxia",
+        "Silent mutation — the amino acid change does not alter protein function"
+      ],
+      ans:2,
+      exp:"GAG→GTG is a missense mutation (one nucleotide change, one amino acid substitution). The key consequence is physicochemical: glutamate (charged, hydrophilic) is replaced by valine (nonpolar, hydrophobic). In deoxygenated HbS, this valine residue inserts into a hydrophobic pocket on an adjacent HbS molecule, driving linear polymerization into rigid fibers that distort the RBC membrane. The HbS mutation also converts the Glu-6 codon, removing a MstII restriction site (used in molecular diagnosis)."
+    },
+    {
+      q:"Two parents are both carriers of sickle cell trait (HbAS). Using Mendelian genetics, what is the probability that their child will have sickle cell disease (HbSS)?",
+      choices:[
+        "0% — carriers cannot produce affected offspring",
+        "25% — one in four offspring will inherit both S alleles",
+        "50% — half of all offspring will be homozygous",
+        "75% — three in four will have at least one S allele"
+      ],
+      ans:1,
+      exp:"Both parents are HbAS (Aa × Aa cross). Possible offspring: AA (25%), AS (50%), SS (25%). The probability of HbSS (disease) is 25%. This is a classic autosomal recessive inheritance pattern. The 50% AS offspring are carriers, and 25% AA offspring are unaffected. A Punnett square: A×A=AA, A×S=AS, S×A=SA, S×S=SS."
+    },
+    {
+      q:"The high frequency of the HbS allele in malaria-endemic regions represents which type of natural selection?",
+      choices:[
+        "Directional selection — favoring the HbS allele in all individuals",
+        "Stabilizing selection — favoring the average phenotype (HbAA)",
+        "Balancing selection (heterozygote advantage) — the HbAS heterozygote has higher fitness than either homozygote in malaria-endemic regions",
+        "Disruptive selection — favoring both extreme phenotypes (HbAA and HbSS)"
+      ],
+      ans:2,
+      exp:"This is the classic example of balancing selection via heterozygote advantage (overdominance). HbSS: disadvantaged (severe hemolytic anemia, organ damage). HbAA: disadvantaged relative to HbAS in malaria regions (full susceptibility to P. falciparum). HbAS: highest fitness (malaria resistance + functional hemoglobin). This maintains both alleles in the population at a stable equilibrium — neither allele is completely eliminated."
+    },
+    {
+      q:"Functional asplenia in SCD impairs clearance of encapsulated bacteria. The spleen normally destroys opsonized bacteria via which immune cell and mechanism?",
+      choices:[
+        "Natural killer cells, via perforin-mediated lysis",
+        "Cytotoxic T cells responding to MHC-I-presented antigens on bacteria",
+        "Macrophages and dendritic cells in the spleen, which phagocytose bacteria opsonized with IgG antibodies and complement (C3b)",
+        "B cells secreting IgM in the marginal zone, causing direct lysis"
+      ],
+      ans:2,
+      exp:"Opsonization-dependent phagocytosis: IgG and complement C3b (opsonins) coat the bacterial surface. Splenic macrophages express Fc receptors (for IgG) and complement receptors (CR1, CR3 for C3b). Binding triggers phagocytosis and intracellular killing. Encapsulated bacteria (S. pneumoniae, H. influenzae, N. meningitidis) are especially dependent on this mechanism because their polysaccharide capsule resists direct phagocytosis. Asplenia removes this primary clearance mechanism."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════
+// PASSAGE B5: Renal Physiology & Digestion
+// ══════════════════════════════════════════════════
+{
+  id:'p_bio_5',
+  topic:'Renal Physiology & Digestion',
+  title:'Nephrotic Syndrome and Gastrointestinal Absorption',
+  passage:`A 45-year-old man presents with bilateral lower extremity edema, frothy urine, and a serum albumin of 1.8 g/dL (reference 3.5–5.0). Urinalysis shows 4+ proteinuria. A 24-hour urine collection reveals protein excretion of 6.8 g/day (nephrotic range: >3.5 g/day). Serum cholesterol is 340 mg/dL. He is diagnosed with nephrotic syndrome secondary to focal segmental glomerulosclerosis (FSGS).
+
+The glomerulus normally acts as a size- and charge-selective filter. Podocyte effacement in nephrotic syndrome disrupts the slit diaphragm, allowing large proteins (particularly albumin) to pass into the filtrate and overwhelm tubular reabsorption. The liver responds to hypoalbuminemia with compensatory lipoprotein synthesis, causing hyperlipidemia.
+
+The patient also reports chronic steatorrhea. Investigation reveals pancreatic exocrine insufficiency — absent secretion of pancreatic lipase, phospholipase A2, and co-lipase. Fat-soluble vitamin levels (A, D, E, K) are deficient. He is started on oral pancreatic enzyme replacement and fat-soluble vitamin supplementation.`,
+  questions:[
+    {
+      q:"The patient has bilateral lower extremity edema despite normal cardiac and hepatic function. Which mechanism best explains the edema in nephrotic syndrome?",
+      choices:[
+        "Increased hydrostatic pressure from sodium and water retention by aldosterone",
+        "Loss of albumin in urine reduces plasma oncotic pressure — fluid moves from capillaries into the interstitium by Starling forces, causing edema",
+        "Lymphatic obstruction from hyperlipidemia deposits in lymph nodes",
+        "Increased capillary permeability from inflammatory cytokines released by damaged glomeruli"
+      ],
+      ans:1,
+      exp:"Starling forces govern fluid movement across capillaries: hydrostatic pressure drives fluid out; oncotic (osmotic) pressure from plasma proteins (primarily albumin) draws fluid in. In nephrotic syndrome, massive urinary albumin loss reduces plasma oncotic pressure. Hydrostatic pressure overwhelms reduced oncotic pressure, driving fluid into the interstitium — edema. The liver cannot synthesize albumin fast enough to compensate. This is 'oncotic pressure-driven' edema, distinct from hydrostatic edema in heart failure."
+    },
+    {
+      q:"Fat-soluble vitamins A, D, E, and K are deficient because pancreatic lipase is absent. These vitamins require which process for intestinal absorption?",
+      choices:[
+        "Active transport via Na+-dependent transporters in the duodenum",
+        "Facilitated diffusion through specific membrane carrier proteins",
+        "Emulsification by bile salts forming micelles, which deliver lipid-soluble vitamins to enterocytes for passive diffusion",
+        "Pinocytosis by enterocytes following binding to intrinsic factor"
+      ],
+      ans:2,
+      exp:"Fat-soluble vitamins (A, D, E, K) are absorbed with dietary fat. Bile salts emulsify fat into micelles; pancreatic lipase hydrolyzes triglycerides. The micelles incorporate fat-soluble vitamins and bring them to the enterocyte brush border, where they passively diffuse across the membrane. Without pancreatic lipase, fat digestion fails; without micelle formation (bile salt deficiency), fat-soluble vitamins cannot be absorbed. Chylomicrons then transport absorbed vitamins via lymphatics."
+    },
+    {
+      q:"The proximal convoluted tubule (PCT) is the site of bulk reabsorption of glucose, amino acids, and water. If serum glucose rises to 400 mg/dL in this patient (who develops secondary diabetes), glucose would appear in the urine. This occurs because:",
+      choices:[
+        "Glucose is actively secreted into the tubule at high serum concentrations",
+        "The filtered glucose load exceeds the maximum tubular reabsorptive capacity (Tm) for glucose, as SGLT2 transporters in the PCT become saturated",
+        "Albumin loss impairs glucose binding in the filtrate, preventing reabsorption",
+        "The loop of Henle, not the PCT, reabsorbs glucose — it is overwhelmed first"
+      ],
+      ans:1,
+      exp:"Glucose is filtered freely at the glomerulus and reabsorbed entirely in the PCT by SGLT2 (90%) and SGLT1 (10%) Na+-glucose cotransporters. The tubular maximum (Tm) for glucose is ~375 mg/min in men. When the filtered load (GFR × plasma glucose) exceeds Tm — typically at plasma glucose above ~180 mg/dL (the 'renal threshold') — glucose appears in the urine (glucosuria). At 400 mg/dL, filtered load far exceeds Tm and glucose spills into urine, causing osmotic diuresis."
+    },
+    {
+      q:"Trypsin is a key enzyme activated in the duodenum that breaks down proteins. It is secreted as the inactive zymogen trypsinogen. Which enzyme activates trypsinogen, and where is this activation enzyme located?",
+      choices:[
+        "Pepsin, secreted by chief cells in the stomach",
+        "Enteropeptidase (enterokinase), a brush-border enzyme on the duodenal mucosa",
+        "Pancreatic lipase, co-secreted with trypsinogen in pancreatic juice",
+        "Cholecystokinin (CCK), which acts directly as a protease"
+      ],
+      ans:1,
+      exp:"Enteropeptidase (enterokinase) is a serine protease anchored in the brush border of duodenal enterocytes. It cleaves a hexapeptide from the N-terminus of trypsinogen, generating active trypsin. Trypsin then autocatalytically activates more trypsinogen and activates other pancreatic zymogens (chymotrypsinogen → chymotrypsin, proelastase → elastase, procarboxypeptidase → carboxypeptidase). This cascade in the duodenum prevents premature protein digestion in the pancreas."
+    }
+  ]
+},
+
+]; // end BIO_PASSAGES
+
+
+// ═══════════════════════════════════════════════════════════════════
+// GENERAL CHEMISTRY PASSAGES — 5 passages, 23 questions
+// ═══════════════════════════════════════════════════════════════════
+
+const GCHEM_PASSAGES = [
+
+// ══════════════════════════════════════════════════
+// PASSAGE G1: Acid-Base & Buffers
+// ══════════════════════════════════════════════════
+{
+  id:'p_gchem_1',
+  topic:'Acids, Bases & Buffers',
+  title:'Bicarbonate Buffering and Arterial Blood Gas Interpretation',
+  passage:`The bicarbonate buffer system is the most important extracellular buffer in human blood, maintaining arterial pH between 7.35 and 7.45. It operates through the equilibrium: CO2(g) + H2O ⇌ H2CO3 ⇌ H+ + HCO3−. The Henderson-Hasselbalch equation describes this: pH = pKa + log([HCO3−]/[H2CO3]). For the bicarbonate system, pKa = 6.1, and [H2CO3] is directly proportional to PCO2 (dissolved CO2).
+
+A 55-year-old man with COPD presents with worsening dyspnea. His arterial blood gas (ABG) shows: pH 7.31, PaCO2 58 mmHg (reference 35–45), PaO2 54 mmHg, HCO3− 28 mEq/L (reference 22–26). His serum chloride is low at 92 mEq/L (reference 98–106).
+
+In the bicarbonate buffer system, the kidneys regulate [HCO3−] on a timescale of hours to days, while the lungs regulate PCO2 within seconds to minutes. An acidic urine pH in this patient confirms active renal compensation.`,
+  questions:[
+    {
+      q:"Based on the ABG values, what is the primary acid-base disorder, and what evidence confirms renal compensation is occurring?",
+      choices:[
+        "Metabolic acidosis with respiratory compensation — low HCO3-, low PCO2",
+        "Respiratory acidosis with metabolic compensation — elevated PCO2 causing low pH, with HCO3- elevated above normal (28 vs reference 22-26) as renal compensation",
+        "Respiratory alkalosis with metabolic compensation — low PCO2, elevated HCO3-",
+        "Mixed metabolic and respiratory acidosis — both PCO2 and HCO3- are abnormal in the same direction"
+      ],
+      ans:1,
+      exp:"Primary disorder: respiratory acidosis — elevated PCO2 (58 mmHg) with pH 7.31 (acidemic). The CO2 accumulates because COPD impairs alveolar ventilation. Renal compensation: kidneys retain HCO3- to buffer the excess H+ — HCO3- is 28 mEq/L, above the normal upper limit of 26. This is metabolic compensation for respiratory acidosis, occurring over days. The acidic urine confirms the kidneys are excreting H+ and retaining HCO3-."
+    },
+    {
+      q:"The Henderson-Hasselbalch equation for the bicarbonate system is pH = 6.1 + log([HCO3−]/[H2CO3]). If this patient's HCO3− were 30 mEq/L and H2CO3 were 1.5 mEq/L (proportional to PCO2 58 mmHg × 0.03), what would the calculated pH be?",
+      choices:[
+        "7.40",
+        "7.10",
+        "7.40 — pH = 6.1 + log(30/1.5) = 6.1 + log(20) = 6.1 + 1.30 = 7.40",
+        "6.40"
+      ],
+      ans:2,
+      exp:"pH = pKa + log([HCO3-]/[H2CO3]) = 6.1 + log(30/1.5) = 6.1 + log(20) = 6.1 + 1.301 ≈ 7.40. This calculation shows how renal compensation (raising HCO3- from 24 to 30) can normalize pH even with elevated PCO2. Clinically: if the ratio [HCO3-]/[H2CO3] = 20/1 (normal), pH = 7.40 regardless of the absolute values — this is why the ratio, not the absolute values, determines pH."
+    },
+    {
+      q:"The patient's low serum chloride (92 mEq/L) in the setting of elevated bicarbonate is explained by the chloride shift. Which statement correctly describes this phenomenon?",
+      choices:[
+        "Chloride enters red blood cells to balance the positive charge of excess H+",
+        "As HCO3- is retained by the kidneys, Cl- is excreted to maintain electroneutrality — the kidney cannot retain both anions simultaneously",
+        "Chloride is consumed in the neutralization reaction CO2 + H2O → H2CO3 → H+ + HCO3-",
+        "Chloride shifts into cells to compensate for hyperkalemia from acidosis"
+      ],
+      ans:1,
+      exp:"Electroneutrality must be maintained in plasma. When the kidneys retain HCO3- (an anion) during metabolic compensation, they must excrete another anion to maintain electrical neutrality — chloride is excreted in the urine. This reciprocal relationship between HCO3- and Cl- in the plasma (hypochloremic metabolic alkalosis accompanies chronic respiratory acidosis) is a direct consequence of the renal compensation mechanism."
+    },
+    {
+      q:"A buffer has maximum buffering capacity when pH = pKa. Why is the bicarbonate buffer (pKa 6.1) so effective at physiological pH 7.4, despite being 1.3 pH units from its pKa?",
+      choices:[
+        "The bicarbonate buffer is actually not effective at pH 7.4 — the phosphate buffer (pKa 6.8) is the main blood buffer",
+        "The bicarbonate system is effective because the lungs can continuously remove CO2 (an open system), allowing the buffer to function far from its pKa without equilibrium limitation",
+        "Albumin and hemoglobin amplify the bicarbonate buffer's capacity by acting as cofactors",
+        "The pKa of the bicarbonate system is actually 7.4 in vivo due to temperature corrections"
+      ],
+      ans:1,
+      exp:"A closed buffer system would indeed be ineffective 1.3 units from pKa. The bicarbonate system is effective because it is OPEN: the lungs continuously exhale CO2, removing H2CO3 and preventing equilibrium. Any increase in H+ is converted to CO2 (blown off by lungs). Any increase in base is countered by CO2 retention (breathe less). This open system removes the equilibrium constraint, making bicarbonate the most important blood buffer despite the pKa mismatch."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════
+// PASSAGE G2: Thermochemistry & Gibbs Free Energy
+// ══════════════════════════════════════════════════
+{
+  id:'p_gchem_2',
+  topic:'Thermochemistry & Gibbs Free Energy',
+  title:'ATP Hydrolysis and Biological Thermodynamics',
+  passage:`Adenosine triphosphate (ATP) is the primary energy currency of the cell. Hydrolysis of the terminal phosphoanhydride bond releases approximately 30.5 kJ/mol under standard conditions (ΔG° = −30.5 kJ/mol). Under physiological conditions (lower [ATP]/[ADP][Pi] ratio than standard), the actual ΔG is closer to −50 to −60 kJ/mol.
+
+ATP hydrolysis is coupled to thermodynamically unfavorable (endergonic) reactions to drive them forward. The Gibbs free energy relationship is: ΔG = ΔH − TΔS. A reaction is spontaneous (favored) when ΔG < 0. The relationship between ΔG° and the equilibrium constant Keq is: ΔG° = −RT ln(Keq).
+
+Muscle contraction provides a biological example: the myosin ATPase cycle requires ATP hydrolysis to release myosin from actin and re-cock the myosin head. In the absence of ATP (rigor mortis), myosin remains tightly bound to actin in a rigor complex. Body temperature is 37°C; the gas constant R = 8.314 J/(mol·K).`,
+  questions:[
+    {
+      q:"The hydrolysis of ATP under standard conditions has ΔG° = −30.5 kJ/mol. What does this negative ΔG° indicate about the reaction?",
+      choices:[
+        "The reaction is endothermic — heat must be supplied to drive it",
+        "The reaction is spontaneous under standard conditions — products (ADP + Pi) are thermodynamically favored over reactants (ATP + H2O)",
+        "The reaction proceeds rapidly under standard conditions — ΔG° determines reaction rate",
+        "The reaction is at equilibrium under standard conditions"
+      ],
+      ans:1,
+      exp:"ΔG° < 0 indicates the reaction is thermodynamically spontaneous (exergonic) under standard conditions — the products have lower free energy than reactants, so the system moves toward products at equilibrium. Critically, ΔG° (or ΔG) says nothing about reaction RATE (kinetics) — that depends on activation energy and enzyme catalysis. ATP hydrolysis is spontaneous but kinetically slow without ATPase enzymes."
+    },
+    {
+      q:"Muscle contraction couples ATP hydrolysis (ΔG = −50 kJ/mol under physiological conditions) to mechanical work. If a particular conformational change in myosin requires +35 kJ/mol of energy input, will the coupled reaction be spontaneous?",
+      choices:[
+        "No — the endergonic reaction requires more energy than ATP can supply, so coupling cannot drive it",
+        "Yes — the total ΔG for the coupled reaction is −50 + 35 = −15 kJ/mol, which is negative, making the overall reaction spontaneous",
+        "It depends on the temperature — the reaction is only spontaneous above 37°C",
+        "No — ATP can only drive reactions requiring less than 7.3 kcal/mol (the standard free energy of hydrolysis)"
+      ],
+      ans:1,
+      exp:"Coupled reactions: the total ΔG is the sum of the individual ΔG values. ATP hydrolysis: ΔG = −50 kJ/mol. Endergonic conformational change: ΔG = +35 kJ/mol. Total: −50 + 35 = −15 kJ/mol < 0 → spontaneous. This is the principle of coupling: ATP hydrolysis 'pays' for thermodynamically unfavorable reactions. The actual physiological ΔG (~−50 kJ/mol) rather than standard ΔG° (~−30.5) is what matters in living cells."
+    },
+    {
+      q:"Using ΔG° = −RT ln(Keq) and ΔG° = −30.5 kJ/mol for ATP hydrolysis at 37°C (310 K), the Keq is approximately 10^5. What does this large Keq indicate?",
+      choices:[
+        "The reaction is very slow — large Keq values indicate kinetic stability",
+        "At equilibrium, the ratio [ADP][Pi]/[ATP] is approximately 10^5 — products overwhelmingly predominate at equilibrium",
+        "The reaction requires a catalyst — large Keq values indicate enzyme dependence",
+        "The reaction is endothermic — large Keq values always indicate positive ΔH"
+      ],
+      ans:1,
+      exp:"Keq = [products]/[reactants] at equilibrium. Keq ≈ 10^5 means [ADP][Pi]/[ATP][H2O] ≈ 10^5 at equilibrium — products overwhelmingly dominate. This is why cells must continuously synthesize ATP (via oxidative phosphorylation and substrate-level phosphorylation) to maintain [ATP] far above equilibrium. Cells keep the [ATP]/[ADP][Pi] ratio high, which keeps the actual ΔG of hydrolysis more negative than ΔG°."
+    },
+    {
+      q:"Rigor mortis occurs when ATP production ceases after death, causing myosin to remain bound to actin. This demonstrates that ATP binding to myosin is required to release it from actin. Based on Gibbs free energy, which statement correctly describes the rigor state?",
+      choices:[
+        "The rigor complex (myosin-actin) has higher free energy than the separated proteins — it is thermodynamically unstable",
+        "The rigor complex represents a lower free energy state than myosin + actin separately — ATP binding is needed to provide energy to disrupt this stable complex",
+        "Temperature change (body cooling after death) is the primary cause of rigor — thermodynamics are irrelevant",
+        "Rigor proves that myosin-actin binding is endergonic and requires ATP for the forward reaction"
+      ],
+      ans:1,
+      exp:"The tight myosin-actin rigor complex is a low free energy (thermodynamically stable) state. ATP binding to myosin induces a conformational change that reduces myosin's affinity for actin (increases the free energy of the myosin-actin complex), releasing myosin. The subsequent hydrolysis of ATP to ADP + Pi re-cocks the myosin head (stores mechanical energy). Without ATP, myosin cannot be released from actin — the system is 'stuck' in the low-energy rigor state."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════
+// PASSAGE G3: Electrochemistry & REDOX
+// ══════════════════════════════════════════════════
+{
+  id:'p_gchem_3',
+  topic:'Electrochemistry & REDOX',
+  title:'Electrochemical Cells and Biological Electron Transport',
+  passage:`The electron transport chain (ETC) in mitochondria can be modeled as a series of electrochemical half-reactions with defined reduction potentials. NADH is oxidized at Complex I (E°' = −0.32 V), and molecular oxygen is reduced at Complex IV (E°' = +0.82 V). The overall cell potential under standard biochemical conditions is E°'cell = E°'cathode − E°'anode = +0.82 − (−0.32) = +1.14 V.
+
+The relationship between standard cell potential and Gibbs free energy is: ΔG° = −nFE°cell, where n is the number of electrons transferred and F is the Faraday constant (96,485 C/mol). For each NADH oxidized, 2 electrons are transferred.
+
+In galvanic cells, oxidation occurs at the anode and reduction at the cathode. Electrons flow spontaneously from anode to cathode through the external circuit. The Nernst equation E = E° − (RT/nF)ln(Q) describes how cell potential varies with concentration.`,
+  questions:[
+    {
+      q:"In the ETC, NADH is oxidized at Complex I and O2 is reduced at Complex IV. In electrochemical terms, which component is the anode and which is the cathode?",
+      choices:[
+        "Complex I is the cathode (reduction of NADH); Complex IV is the anode (oxidation of O2)",
+        "Complex I is the anode (oxidation of NADH); Complex IV is the cathode (reduction of O2)",
+        "Both complexes are cathodes because electrons only flow toward oxygen",
+        "The ETC is an electrolytic cell and these designations do not apply"
+      ],
+      ans:1,
+      exp:"In electrochemical terminology: anode = site of oxidation, cathode = site of reduction. Complex I oxidizes NADH (NADH → NAD+ + H+ + 2e-) — oxidation = anode. Complex IV reduces O2 (O2 + 4H+ + 4e- → 2H2O) — reduction = cathode. Electrons flow from NADH (low reduction potential, −0.32 V) to O2 (high reduction potential, +0.82 V) — spontaneous, like a galvanic cell. The ETC IS a galvanic cell operating in the inner mitochondrial membrane."
+    },
+    {
+      q:"Using ΔG° = −nFE°cell with n = 2 electrons and E°cell = +1.14 V for NADH → O2, what is the calculated ΔG°?",
+      choices:[
+        "ΔG° = −(2)(96,485)(1.14) = −220,000 J/mol = −220 kJ/mol",
+        "ΔG° = +(2)(96,485)(1.14) = +220 kJ/mol",
+        "ΔG° = −(2)(96,485)(1.14) = −52.6 kcal/mol ≈ −220 kJ/mol",
+        "Both A and C are correct representations of the same value"
+      ],
+      ans:3,
+      exp:"ΔG° = −nFE° = −(2 mol e-)(96,485 C/mol)(1.14 V) = −220,000 J/mol = −220 kJ/mol ≈ −52.6 kcal/mol. This large negative ΔG° drives spontaneous electron flow from NADH to O2. This energy is captured as the proton-motive force across the inner mitochondrial membrane and converted to ATP by ATP synthase. The theoretical maximum ATP yield per NADH (~2.5 ATP) represents the fraction of this free energy captured efficiently."
+    },
+    {
+      q:"The Nernst equation shows that cell potential varies with reactant/product concentrations. If the [NADH]/[NAD+] ratio in a mitochondrion decreases (more NADH is oxidized than produced), what happens to the reduction potential at Complex I?",
+      choices:[
+        "The reduction potential becomes more negative — the half-cell becomes a stronger reductant",
+        "The reduction potential becomes less negative (more positive) — decreased NADH concentration reduces the driving force for NADH oxidation",
+        "The reduction potential is unchanged — only temperature affects E via the Nernst equation",
+        "The cell potential at Complex IV increases proportionally"
+      ],
+      ans:1,
+      exp:"Nernst equation for the NADH half-reaction: E = E°' − (RT/nF)ln([NAD+]/[NADH]). Decreasing [NADH] (lower [NADH]/[NAD+]) increases the ln term, making E less negative (more positive) than E°'. This reduces the potential difference driving electron flow from NADH to O2 — the ETC slows. Conversely, high [NADH]/[NAD+] (as in ETC inhibition) makes the NADH electrode more negative, increasing cell potential but without productive electron flow."
+    },
+    {
+      q:"An electrolytic cell requires external electrical energy to drive a non-spontaneous reaction. Which statement about electrolytic vs. galvanic cells is correct?",
+      choices:[
+        "Electrolytic cells have positive E°cell and negative ΔG°; galvanic cells have negative E°cell and positive ΔG°",
+        "In both cell types, oxidation occurs at the cathode",
+        "Galvanic cells have positive E°cell (spontaneous, ΔG° < 0); electrolytic cells have negative E°cell (non-spontaneous, ΔG° > 0) and require applied voltage",
+        "Both cell types use the same electrodes; only the direction of electron flow differs"
+      ],
+      ans:2,
+      exp:"Galvanic (voltaic) cells: spontaneous reaction, positive E°cell, negative ΔG° — produce electrical energy. Electrolytic cells: non-spontaneous reaction, negative E°cell, positive ΔG° — require external electrical energy input. In BOTH types: oxidation at anode, reduction at cathode (consistent convention). The ETC is a galvanic process; the Na+/K+ ATPase is electrolytic (uses ATP energy to pump ions against their gradients)."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════
+// PASSAGE G4: Kinetics & Equilibrium
+// ══════════════════════════════════════════════════
+{
+  id:'p_gchem_4',
+  topic:'Chemical Kinetics & Equilibrium',
+  title:'Enzyme Kinetics as a Model for Chemical Rate Laws',
+  passage:`Enzyme-catalyzed reactions follow principles of chemical kinetics. At low substrate concentrations, enzymatic reactions are first-order (rate proportional to [S]). At saturating substrate, reactions are zero-order (rate = Vmax, independent of [S]). The Michaelis-Menten equation V = Vmax[S]/(Km + [S]) describes this transition.
+
+The Arrhenius equation describes how temperature affects rate constants: k = Ae^(−Ea/RT), where Ea is activation energy, R is the gas constant, and T is absolute temperature. Enzymes lower activation energy without altering ΔG° of the reaction. At body temperature (310 K), a 10°C increase approximately doubles reaction rates for simple chemical reactions (Q10 ≈ 2).
+
+Competitive inhibitors increase apparent Km without changing Vmax. Le Châtelier's Principle governs how equilibria shift in response to stress: adding product drives the reaction leftward, while removing product drives it rightward. The equilibrium constant Keq = [products]/[reactants] at equilibrium, and ΔG° = −RT ln(Keq).`,
+  questions:[
+    {
+      q:"An enzyme has Km = 2 mM and Vmax = 100 μmol/min. At [S] = 2 mM, what fraction of Vmax is the reaction velocity?",
+      choices:[
+        "25% of Vmax — V = 100 × 2/(2+2) = 50, which is 50% of Vmax",
+        "50% of Vmax — when [S] = Km, V = Vmax[S]/(Km+[S]) = Vmax×Km/(2Km) = Vmax/2",
+        "75% of Vmax",
+        "100% of Vmax — the enzyme is saturated at [S] = Km"
+      ],
+      ans:1,
+      exp:"When [S] = Km: V = Vmax × Km / (Km + Km) = Vmax × Km / (2Km) = Vmax/2 = 50 μmol/min. This is the DEFINITION of Km — the substrate concentration giving half-maximal velocity. V/Vmax = 50%. The enzyme is not saturated at [S] = Km; saturation (approaching Vmax) requires [S] >> Km, typically [S] ≥ 10 × Km for >90% Vmax."
+    },
+    {
+      q:"A researcher adds a competitive inhibitor with Ki = 0.5 mM at a concentration of 2 mM. The apparent Km increases from 2 mM to 10 mM. Which experiment would definitively distinguish competitive from noncompetitive inhibition?",
+      choices:[
+        "Measuring the effect of pH on inhibitor binding",
+        "Increasing [S] to saturating concentrations — competitive inhibition is overcome (Vmax unchanged), while noncompetitive inhibition reduces Vmax regardless of [S]",
+        "Measuring enzyme activity at lower temperatures to slow the reaction",
+        "Running SDS-PAGE to determine if the inhibitor causes protein denaturation"
+      ],
+      ans:1,
+      exp:"Competitive inhibitor: binds active site, competes with substrate. At high enough [S], substrate out-competes inhibitor — Vmax is unchanged, only apparent Km increases. Noncompetitive inhibitor: binds allosteric site, reduces Vmax regardless of [S]. Therefore, adding excess substrate distinguishes them: if Vmax is restored → competitive; if Vmax remains decreased → noncompetitive. On a Lineweaver-Burk plot: competitive = same y-intercept (same Vmax), different x-intercept; noncompetitive = same x-intercept (same Km), different y-intercept."
+    },
+    {
+      q:"A reaction has ΔG° = +15 kJ/mol and Keq = 2.5 × 10^-3 at 25°C. Le Châtelier's Principle states that adding more reactant will shift equilibrium toward products. Which additional manipulation would most increase the equilibrium conversion of reactant to product?",
+      choices:[
+        "Adding a catalyst — it lowers activation energy and changes the equilibrium position",
+        "Continuously removing the product from the reaction mixture, shifting equilibrium rightward by Le Châtelier's Principle",
+        "Decreasing temperature — for an endergonic reaction, lower temperature favors products",
+        "Increasing pressure — for all reactions, increased pressure drives conversion to products"
+      ],
+      ans:1,
+      exp:"Continuously removing product reduces [product] below the equilibrium concentration, so Q < Keq. Le Châtelier's Principle: the reaction shifts rightward to restore Q = Keq — generating more product. This is how many biological reactions are driven forward despite unfavorable ΔG° (e.g., coupled reactions, irreversible downstream steps). A catalyst does NOT change equilibrium position — it only speeds approach to equilibrium. Temperature changes do affect Keq, but for an endergonic reaction (ΔH > 0), higher temperature increases Keq."
+    },
+    {
+      q:"The Arrhenius equation shows that increasing temperature increases rate constant k. An enzyme-catalyzed reaction doubles in rate for every 10°C increase up to 37°C, but the rate falls sharply above 42°C. What causes the decrease above 42°C?",
+      choices:[
+        "The equilibrium constant Keq decreases at higher temperatures, making the reaction less favorable",
+        "Enzyme denaturation — disruption of the non-covalent interactions maintaining secondary and tertiary structure eliminates catalytic activity",
+        "Substrate decomposition — substrates are thermolabile above 42°C",
+        "Product inhibition increases at higher temperatures, slowing the reaction"
+      ],
+      ans:1,
+      exp:"Above the optimal temperature, enzyme denaturation occurs. Elevated temperature breaks the non-covalent interactions (hydrogen bonds, hydrophobic interactions, electrostatic interactions) that maintain the protein's 3D structure. This disrupts the precise geometry of the active site, eliminating substrate binding and catalysis. Denaturation is the clinical basis of high fever toxicity and explains why proteins are sterilized by autoclaving. Peptide bonds (primary structure) remain intact during typical denaturation."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════
+// PASSAGE G5: Solutions, Bonding & Atomic Structure
+// ══════════════════════════════════════════════════
+{
+  id:'p_gchem_5',
+  topic:'Solutions, Bonding & Atomic Structure',
+  title:'Osmolarity, Colligative Properties, and Molecular Geometry',
+  passage:`Intravenous fluid therapy requires precise understanding of colligative properties. Normal saline (0.9% NaCl) is isotonic because its osmolarity (~308 mOsm/L) matches blood plasma osmolarity (~290–310 mOsm/L). NaCl dissociates completely in water: NaCl → Na+ + Cl−, contributing 2 moles of particles per mole of solute (van't Hoff factor i = 2). Osmolarity = molarity × i.
+
+Raoult's law states that vapor pressure of a solution equals the mole fraction of solvent times the vapor pressure of pure solvent (P_solution = χ_solvent × P°_solvent). Adding nonvolatile solutes reduces vapor pressure, which in turn elevates boiling point and decreases freezing point — colligative properties that depend on solute particle concentration, not identity.
+
+Water (H2O) has a bent molecular geometry (bond angle ~104.5°) due to two lone pairs on oxygen repelling the O-H bonds. This geometry makes water highly polar, explaining its high surface tension, high specific heat capacity, and excellent solvent properties for ionic and polar molecules.`,
+  questions:[
+    {
+      q:"A 1.0 M glucose solution and a 0.5 M NaCl solution are separated by a semipermeable membrane. In which direction will water flow by osmosis?",
+      choices:[
+        "From glucose to NaCl — glucose is a larger molecule and draws more water",
+        "No net flow — both solutions have the same osmolarity (1.0 mOsm each)",
+        "From NaCl to glucose — NaCl osmolarity = 0.5 × 2 = 1.0 mOsm; glucose osmolarity = 1.0 × 1 = 1.0 mOsm; the solutions are isosmotic",
+        "From glucose to NaCl — NaCl has higher osmolarity because it dissociates"
+      ],
+      ans:2,
+      exp:"Osmolarity = molarity × i. Glucose (non-electrolyte, i=1): 1.0 M × 1 = 1.0 mOsm/L. NaCl (strong electrolyte, i=2): 0.5 M × 2 = 1.0 mOsm/L. The solutions are isosmotic (equal osmolarity). Since osmosis drives water from lower to higher osmolarity, and both sides are equal, there is no net water flow. This illustrates why you must account for dissociation when calculating tonicity — a 0.5 M NaCl solution is isotonic to a 1.0 M glucose solution."
+    },
+    {
+      q:"Adding 1 mole of CaCl2 (which dissociates to Ca²⁺ + 2Cl⁻, i = 3) to 1 kg of water depresses the freezing point more than adding 1 mole of NaCl (i = 2). If the freezing point depression constant for water Kf = 1.86°C/m, what is the freezing point of a 1 molal CaCl2 solution?",
+      choices:[
+        "ΔTf = Kf × m × i = 1.86 × 1 × 3 = 5.58°C below 0°C; freezing point = −5.58°C",
+        "ΔTf = 1.86 × 1 × 2 = 3.72°C below 0°C; freezing point = −3.72°C",
+        "ΔTf = 1.86 × 1 × 1 = 1.86°C below 0°C; freezing point = −1.86°C",
+        "ΔTf = 1.86 × 3 × 2 = 11.16°C below 0°C"
+      ],
+      ans:0,
+      exp:"Freezing point depression: ΔTf = Kf × m × i = 1.86°C/m × 1 m × 3 = 5.58°C. Freezing point = 0 − 5.58 = −5.58°C. CaCl2 produces 3 particles per formula unit (Ca²⁺ + 2Cl⁻), so i=3. This is why CaCl2-based ice melt is more effective than NaCl-based (i=2) — more particles per mole = greater colligative effect. The van't Hoff factor i accounts for complete dissociation; real solutions have i slightly less than theoretical due to ion pairing."
+    },
+    {
+      q:"Water has a bent geometry with a bond angle of ~104.5° rather than the tetrahedral 109.5°. Which molecular orbital concept explains why the lone pairs compress the bond angle below 109.5°?",
+      choices:[
+        "Lone pair electrons occupy p orbitals that are perpendicular to the O-H bonds, physically pushing them together",
+        "VSEPR theory: lone pair-lone pair repulsion > lone pair-bonding pair repulsion > bonding pair-bonding pair repulsion — the two lone pairs on O exert greater repulsion than bonding pairs, compressing the H-O-H angle",
+        "The sp³ hybridization of oxygen makes bond angles exactly 90°, and hydrogen bonding stretches them to 104.5°",
+        "Bond order of O-H bonds is less than 1, allowing greater flexibility in bond angles"
+      ],
+      ans:1,
+      exp:"VSEPR (Valence Shell Electron Pair Repulsion) theory: electron pairs repel each other. Repulsion strength order: lone pair-lone pair (LP-LP) > lone pair-bonding pair (LP-BP) > bonding pair-bonding pair (BP-BP). O in H2O has 2 lone pairs and 2 bonding pairs (4 electron groups → sp³, tetrahedral electron geometry). The 2 lone pairs exert greater repulsion than bonding pairs would, compressing the H-O-H angle from 109.5° to ~104.5°. This explains NH3 (one LP → 107°) and H2O (two LPs → 104.5°)."
+    },
+    {
+      q:"Raoult's law predicts that vapor pressure of a solution decreases when nonvolatile solutes are added. Which colligative property is a direct thermodynamic consequence of this vapor pressure lowering?",
+      choices:[
+        "Osmotic pressure — reduced vapor pressure increases the osmotic gradient across membranes",
+        "Elevated boiling point — the solution must be heated to a higher temperature to raise vapor pressure to atmospheric pressure",
+        "Decreased surface tension — fewer solvent molecules at the surface reduce intermolecular forces",
+        "Increased viscosity — solute particles slow solvent molecule movement"
+      ],
+      ans:1,
+      exp:"Boiling occurs when vapor pressure = atmospheric pressure (760 mmHg at sea level). Adding nonvolatile solute lowers vapor pressure below atmospheric. To restore vapor pressure to 760 mmHg, temperature must increase — the boiling point is elevated. The magnitude: ΔTb = Kb × m × i. This is a direct thermodynamic consequence of Raoult's law. Similarly, freezing point is depressed because the reduced vapor pressure of the solution matches ice's vapor pressure at a lower temperature."
+    }
+  ]
+},
+
+]; // end GCHEM_PASSAGES
+
+
+// Merge all passages into unified array
+const ALL_PASSAGES = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES];
+
+// Override passage lookup to use ALL_PASSAGES
+const _origBuildSelector = buildPassageSelector;
+function buildPassageSelector() {
+  const stats = loadStats();
+  const box = document.getElementById('passage-selector');
+  box.innerHTML = ALL_PASSAGES.map((p,i) => {
+    const done = stats['passage_'+p.id] ? ' done' : '';
+    const score = stats['passage_'+p.id] ? ' · '+stats['passage_'+p.id].pct+'%' : '';
+    return `<button class="psel-btn${done}" onclick="selectPassage(${i})" id="psel-${i}">
+      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px">${p.title}</div>
+      <div style="font-size:10px;color:var(--navy-mid)">${p.topic}${score}</div>
+    </button>`;
+  }).join('');
+  if (selectedPassage === null || selectedPassage >= ALL_PASSAGES.length) selectPassage(0);
+  else {
+    document.querySelectorAll('.psel-btn').forEach((b,j)=>{b.classList.toggle('active',j===selectedPassage);});
+  }
+}
+
+function startPassage() {
+  if (selectedPassage === null) { alert('Select a passage first.'); return; }
+  const p = ALL_PASSAGES[selectedPassage];
+  passageResults = [];
+  passageQIdx = 0;
+  show('screen-passage');
+  renderPassageQuestion();
+}
+
+function renderPassageQuestion() {
+  const p = ALL_PASSAGES[selectedPassage];
+  const q = p.questions[passageQIdx];
+  const tot = p.questions.length;
+  const cor = passageResults.filter(r=>r.right).length;
+  document.getElementById('pp-fill').style.width = (passageQIdx/tot*100)+'%';
+  document.getElementById('pp-counter').textContent = (passageQIdx+1)+' / '+tot;
+  document.getElementById('pp-subject').textContent = p.topic;
+  document.getElementById('pp-score').textContent = '✓ '+cor+'/'+passageQIdx;
+  document.getElementById('pp-passage-box').innerHTML = `
+    <div class="passage-card">
+      <div class="passage-topic">${p.topic}</div>
+      <div class="passage-title">${p.title}</div>
+      <div class="passage-text">${p.passage.replace(/\n/g,'<br><br>')}</div>
+    </div>`;
+  const choicesHtml = q.choices.map((c,i) => `
+    <button class="choice-btn" id="pc-${i}" onclick="answerPassage(${i})">
+      <span class="choice-lbl">${'ABCD'[i]}</span>
+      <span>${c}</span>
+    </button>`).join('');
+  document.getElementById('pp-question-box').innerHTML = `
+    <div class="question-box">
+      <div class="question-text" style="margin-bottom:18px">Question ${passageQIdx+1}: ${q.q}</div>
+      <div class="choices">${choicesHtml}</div>
+      <div id="pp-exp" style="display:none"></div>
+    </div>
+    <button class="next-btn" id="pp-next" style="display:none;margin-top:14px" onclick="nextPassageQ()">
+      ${passageQIdx+1 < tot ? 'NEXT QUESTION →' : 'VIEW RESULTS →'}
+    </button>`;
+  window.scrollTo(0,0);
+}
+
+function showPassageResults() {
+  const p = ALL_PASSAGES[selectedPassage];
+  const tot = passageResults.length;
+  const cor = passageResults.filter(r=>r.right).length;
+  const pct = Math.round(cor/tot*100);
+  const stats = loadStats();
+  if (!stats['passage_'+p.id]) stats['passage_'+p.id]={c:0,t:0,sessions:0};
+  stats['passage_'+p.id].c += cor;
+  stats['passage_'+p.id].t += tot;
+  stats['passage_'+p.id].sessions++;
+  stats['passage_'+p.id].pct = pct;
+  saveStats(stats);
+  const col = pct>=80?'var(--green)':pct>=60?'var(--amber)':'var(--red)';
+  const missed = passageResults.filter(r=>!r.right);
+  document.getElementById('pp-passage-box').innerHTML = '';
+  document.getElementById('pp-question-box').innerHTML = `
+    <div style="text-align:center;padding:32px 0 24px">
+      <div style="font-size:9px;letter-spacing:.2em;color:var(--navy);text-transform:uppercase;margin-bottom:10px;font-weight:700">PASSAGE COMPLETE</div>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:64px;font-weight:700;line-height:1;color:${col}">${pct}%</div>
+      <div style="font-size:13px;color:var(--slate);margin-top:8px">${cor} / ${tot} correct · ${p.title}</div>
+    </div>
+    <div class="results-card">
+      <div class="section-label">MISSED QUESTIONS</div>
+      ${missed.length===0?'<div class="all-correct">✓ Perfect — no missed questions!</div>':
+        missed.map(r=>`<div class="missed-item">
+          <div class="missed-q">${r.q.q}</div>
+          <div class="missed-correct">✓ ${r.q.choices[r.q.ans]}</div>
+          <div class="missed-wrong">✗ ${r.q.choices[r.chosen]}</div>
+          <div style="font-size:11px;color:var(--slate);margin-top:6px;line-height:1.6">${r.q.exp}</div>
+        </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:12px;margin-top:8px">
+      <button class="new-quiz-btn" style="flex:1" onclick="goHome()">← HOME</button>
+      <button class="new-quiz-btn" style="flex:1;background:var(--navy-mid)" onclick="startPassage()">RETRY PASSAGE</button>
+    </div>`;
+  document.getElementById('pp-fill').style.width='100%';
+  document.getElementById('pp-counter').textContent=tot+' / '+tot;
+  document.getElementById('pp-score').textContent='✓ '+cor+'/'+tot;
   window.scrollTo(0,0);
 }
 
