@@ -464,6 +464,7 @@ body::before{
       <div class="hero-divider"></div>
       <p class="hero-sub">Clinical Mastery Quiz System · Collin B. George</p>
       <p class="hero-count" id="total-count"></p>
+      <p id="srs-due-badge" style="font-size:11px;color:var(--accent);font-weight:600;margin:4px 0 0;display:none"></p>
     </div>
 
     <div class="mode-toggle">
@@ -510,6 +511,8 @@ body::before{
     <div class="quiz-meta">
       <span class="qm-counter" id="qm-counter">1 / 10</span>
       <span class="qm-subject" id="qm-subject"></span>
+      <span style="font-size:9px;color:var(--muted);opacity:.6;display:none" id="kb-hint">1-4 · F=flag · Enter=next</span>
+      <span class="qm-timer" id="qm-timer" style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--muted);font-family:Arial,Helvetica,sans-serif">0:00</span>
       <span class="qm-score" id="qm-score">✓ 0/0</span>
     </div>
   </div>
@@ -3107,6 +3110,82 @@ let correct = 0;
 let total = 0;
 let results = [];
 let answered = false;
+let flaggedInSession = new Set(); // indices of flagged questions
+
+// ── Timer state ──
+let sessionStartTime = 0;
+let questionStartTime = 0;
+let questionTimes = [];   // ms per question
+let timerInterval = null;
+
+function startSessionTimer() {
+  sessionStartTime = Date.now();
+  questionStartTime = Date.now();
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+    const m = Math.floor(elapsed / 60);
+    const s = elapsed % 60;
+    const el = document.getElementById('qm-timer');
+    if (el) {
+      el.textContent = m + ':' + String(s).padStart(2,'0');
+      // Warn if per-question average exceeds 1:35 (MCAT pace)
+      const avgSec = elapsed / Math.max(total, 1);
+      el.style.color = avgSec > 95 ? 'var(--red)' : avgSec > 75 ? 'var(--amber)' : 'var(--muted)';
+    }
+  }, 1000);
+}
+
+function stopSessionTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+function recordQuestionTime() {
+  const t = Date.now() - questionStartTime;
+  questionTimes.push(t);
+  questionStartTime = Date.now();
+}
+
+// ── SRS — spaced repetition weights ──
+function loadSRS() {
+  try { return JSON.parse(localStorage.getItem('mcat_srs') || '{}'); } catch(e) { return {}; }
+}
+function saveSRS(s) {
+  try { localStorage.setItem('mcat_srs', JSON.stringify(s)); } catch(e) {}
+}
+function updateSRS(results) {
+  const srs = loadSRS();
+  results.forEach(r => {
+    const key = r.q.q.slice(0,60);
+    if (!srs[key]) srs[key] = { due: 0, interval: 1, streak: 0 };
+    const entry = srs[key];
+    if (r.right) {
+      entry.streak++;
+      entry.interval = Math.min(entry.interval * 2, 30); // cap at 30 days
+    } else {
+      entry.streak = 0;
+      entry.interval = 1; // reset to 1-day interval on miss
+    }
+    entry.due = Date.now() + entry.interval * 86400000;
+  });
+  saveSRS(srs);
+}
+function getSRSBoostPool(pool) {
+  // Returns pool re-weighted: due/overdue questions appear 3x, fresh misses appear 2x
+  const srs = loadSRS();
+  const now = Date.now();
+  const boosted = [];
+  pool.forEach(q => {
+    const key = q.q.slice(0,60);
+    const entry = srs[key];
+    boosted.push(q);
+    if (entry) {
+      if (entry.due <= now && entry.streak === 0) { boosted.push(q); boosted.push(q); } // overdue miss
+      else if (entry.due <= now) { boosted.push(q); } // due review
+    }
+  });
+  return boosted;
+}
 
 // ════════════════════════════════════════════════════════════════
 //  SUBJECT GROUPS DEFINITION
@@ -3258,11 +3337,9 @@ const SUBJECT_GROUPS = [
 // ════════════════════════════════════════════════════════════════
 
 function getAllTags() {
+  // Pull all tags directly from QB to ensure no questions are orphaned
   const tags = new Set();
-  SUBJECT_GROUPS.forEach(sg => sg.topics.forEach(t => {
-    if (t.subtopics) t.subtopics.forEach(st => st.tags.forEach(tag => tags.add(tag)));
-    else if (t.tags) t.tags.forEach(tag => tags.add(tag));
-  }));
+  QB.forEach(q => tags.add(q.s));
   return tags;
 }
 
@@ -3396,6 +3473,18 @@ function sgClearAll()  { selectedTags = new Set(); renderSubjectGrid(); }
 document.getElementById('total-count').textContent = QB.length.toLocaleString() + ' total questions';
 buildSubjectGrid();
 
+// Show SRS due badge
+(function() {
+  const srs = loadSRS();
+  const now = Date.now();
+  const due = Object.values(srs).filter(e => e.due <= now).length;
+  const badge = document.getElementById('srs-due-badge');
+  if (badge && due > 0) {
+    badge.textContent = '↻ ' + due + ' question' + (due>1?'s':'') + ' due for review';
+    badge.style.display = 'block';
+  }
+})();
+
 function updateAvail() {
   const n = QB.filter(q => selectedTags.has(q.s)).length;
   const el = document.getElementById('avail-text');
@@ -3416,10 +3505,38 @@ function setCount(n, btn) {
 function shuffle(a) { return [...a].sort(()=>Math.random()-.5); }
 
 function startQuiz() {
-  const pool = shuffle(QB.filter(q => selectedTags.has(q.s)));
-  queue = qCount >= 999 ? pool : pool.slice(0, qCount);
+  const rawPool = QB.filter(q => selectedTags.has(q.s));
+  const srsPool = getSRSBoostPool(rawPool);
+  const pool = shuffle(srsPool);
+  queue = qCount >= 999 ? pool.slice(0, rawPool.length) : pool.slice(0, qCount);
   idx = 0; correct = 0; total = 0; results = []; answered = false;
+  questionTimes = []; flaggedInSession = new Set();
   show('screen-quiz');
+  startSessionTimer();
+  renderQuestion();
+}
+
+function toggleFlag() {
+  if (flaggedInSession.has(idx)) {
+    flaggedInSession.delete(idx);
+  } else {
+    flaggedInSession.add(idx);
+  }
+  const btn = document.getElementById('flag-btn');
+  if (btn) {
+    btn.textContent = flaggedInSession.has(idx) ? '🚩' : '🏳';
+    btn.style.opacity = flaggedInSession.has(idx) ? '1' : '0.3';
+  }
+}
+
+function drillFlagged() {
+  const flaggedQs = [...flaggedInSession].map(i => queue[i]).filter(Boolean);
+  if (flaggedQs.length === 0) { alert('No flagged questions.'); return; }
+  queue = shuffle([...flaggedQs]);
+  idx = 0; correct = 0; total = 0; results = []; answered = false;
+  questionTimes = []; flaggedInSession = new Set();
+  show('screen-quiz');
+  startSessionTimer();
   renderQuestion();
 }
 
@@ -3448,9 +3565,11 @@ function renderQuestion() {
       <span class="choice-lbl">${l}</span>
       <span>${q.choices[i]}</span>
     </button>`).join('');
+  const isFlagged = flaggedInSession.has(idx);
   body.innerHTML = `
-    <div class="question-box">
-      <div class="question-text">${q.q}</div>
+    <div class="question-box" style="position:relative">
+      <button id="flag-btn" onclick="toggleFlag()" style="position:absolute;top:0;right:0;background:none;border:none;cursor:pointer;font-size:18px;padding:4px 8px;opacity:${isFlagged?'1':'0.3'};transition:opacity .2s" title="Flag for review (F)">${isFlagged?'🚩':'🏳'}</button>
+      <div class="question-text" style="padding-right:36px">${q.q}</div>
     </div>
     <div class="choices">${choices}</div>
     <div id="exp-area"></div>
@@ -3460,12 +3579,15 @@ function renderQuestion() {
 function pick(chosen) {
   if (answered) return;
   answered = true;
+  recordQuestionTime();
+  const kbHint = document.getElementById('kb-hint');
+  if (kbHint) kbHint.style.display = 'inline';
   const q = queue[idx];
   const isRight = chosen === q.ans;
   total++;
   if (isRight) correct++;
   document.getElementById('qm-score').textContent = '✓ '+correct+'/'+total;
-  results.push({ q, chosen, right: isRight });
+  results.push({ q, chosen, right: isRight, timeMs: questionTimes[questionTimes.length-1] });
   const labels = ['A','B','C','D'];
   labels.forEach((l,i) => {
     const btn = document.getElementById('cb-'+l);
@@ -3495,7 +3617,74 @@ function nextQ() {
   renderQuestion();
 }
 
+// ── Keyboard shortcuts ──
+document.addEventListener('keydown', function(e) {
+  const screen = document.querySelector('[id^="screen-"]:not([style*="display:none"]):not([style*="display: none"])');
+  const onQuiz = document.getElementById('screen-quiz') && !document.getElementById('screen-quiz').style.display.includes('none') && document.getElementById('screen-quiz').style.display !== 'none';
+
+  // Answer selection: 1-4 or A-D
+  const keyMap = {'1':0,'2':1,'3':2,'4':3,'a':0,'b':1,'c':2,'d':3};
+  if (keyMap[e.key.toLowerCase()] !== undefined && !answered) {
+    const screenQuiz = document.getElementById('screen-quiz');
+    if (screenQuiz && getComputedStyle(screenQuiz).display !== 'none') {
+      e.preventDefault();
+      pick(keyMap[e.key.toLowerCase()]);
+      return;
+    }
+  }
+
+  // Enter or Space to advance after answering
+  if ((e.key === 'Enter' || e.key === ' ') && answered) {
+    const screenQuiz = document.getElementById('screen-quiz');
+    if (screenQuiz && getComputedStyle(screenQuiz).display !== 'none') {
+      e.preventDefault();
+      nextQ();
+      return;
+    }
+  }
+
+  // F to flag current question
+  if (e.key.toLowerCase() === 'f') {
+    const screenQuiz = document.getElementById('screen-quiz');
+    if (screenQuiz && getComputedStyle(screenQuiz).display !== 'none') {
+      e.preventDefault();
+      toggleFlag();
+      return;
+    }
+  }
+
+  // Escape to go home from results
+  if (e.key === 'Escape') {
+    const screenResults = document.getElementById('screen-results');
+    if (screenResults && getComputedStyle(screenResults).display !== 'none') {
+      goHome();
+    }
+  }
+});
+
 function goHome() { show('screen-home'); }
+
+function exportMissed() {
+  const missed = results.filter(r => !r.right);
+  if (missed.length === 0) { alert('No missed questions to export.'); return; }
+  const date = new Date().toLocaleDateString();
+  const lines = [`MCAT Study App — Missed Questions Review`, `Session: ${date}`, `${missed.length} missed of ${results.length} questions`, ``, `${'═'.repeat(60)}`];
+  missed.forEach((r, i) => {
+    const tStr = r.timeMs ? ` [${(r.timeMs/1000).toFixed(0)}s]` : '';
+    lines.push(``, `${i+1}. [${r.q.s}]${tStr}`);
+    lines.push(`Q: ${r.q.q.replace(/_____/g,'___')}`);
+    lines.push(`✓ Correct: ${r.q.choices[r.q.ans]}`);
+    lines.push(`✗ Your answer: ${r.q.choices[r.chosen]}`);
+    lines.push(`Explanation: ${r.q.exp}`);
+    lines.push(`${'-'.repeat(60)}`);
+  });
+  const blob = new Blob([lines.join(String.fromCharCode(10))], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `MCAT_missed_${date.replace(/\//g,'-')}.txt`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
 
 // ════════════════════════════════════════════════════════════════
 //  CUMULATIVE STATS  (persisted in localStorage)
@@ -3569,8 +3758,17 @@ function drillWeak() {
 //  RESULTS
 // ════════════════════════════════════════════════════════════════
 function showResults() {
+  stopSessionTimer();
+  updateSRS(results);
   show('screen-results');
+  // Show drill-flagged button if any flags
+  setTimeout(() => {
+    const dfBtn = document.getElementById('btn-drill-flagged');
+    if (dfBtn) dfBtn.style.display = flaggedInSession.size > 0 ? 'block' : 'none';
+  }, 100);
 
+  const sessionMs = Date.now() - sessionStartTime;
+  const avgMs = questionTimes.length > 0 ? questionTimes.reduce((a,b)=>a+b,0)/questionTimes.length : 0;
   const tot = results.length;
   const cor = results.filter(r=>r.right).length;
   const pct = Math.round(cor/tot*100);
@@ -3622,19 +3820,39 @@ function showResults() {
     </div>
     <div style="font-size:10px;color:var(--muted);border-top:1px solid var(--border);padding-top:10px;line-height:1.6">
       Score range 118–132 · Estimated from raw % using AAMC B/B section distribution · Practice tool only — not predictive of official score
-    </div>`;
+    </div>
+    ${tot > 0 ? `<div style="display:flex;gap:20px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--border);margin-top:6px">
+      <div style="text-align:center">
+        <div style="font-size:15px;font-weight:700;color:var(--text)">${Math.floor(sessionMs/60000)}:${String(Math.floor((sessionMs%60000)/1000)).padStart(2,'0')}</div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">SESSION TIME</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:15px;font-weight:700;color:${avgMs/1000>95?'var(--red)':avgMs/1000>75?'var(--amber)':'var(--green)'}">${(avgMs/1000).toFixed(0)}s</div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:.07em">AVG / QUESTION</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">MCAT pace: 1:35/q</div>
+        <div style="font-size:10px;color:${avgMs/1000>95?'var(--red)':'var(--green)'}">${avgMs/1000>95?'⚠ Over pace':'✓ On pace'}</div>
+      </div>
+    </div>` : ''}`;
 
   // ── Update cumulative stats ──
   const stats = loadStats();
   const sessionSubjects = {};
   results.forEach(r=>{
     const s = r.q.s;
-    if (!stats[s]) stats[s]={c:0,t:0,sessions:0};
+    if (!stats[s]) stats[s]={c:0,t:0,sessions:0,history:[]};
     if (!sessionSubjects[s]) sessionSubjects[s]={c:0,t:0};
     stats[s].t++; sessionSubjects[s].t++;
     if(r.right){ stats[s].c++; sessionSubjects[s].c++; }
   });
-  Object.keys(sessionSubjects).forEach(s=>{ stats[s].sessions=(stats[s].sessions||0)+1; });
+  Object.keys(sessionSubjects).forEach(s=>{
+    stats[s].sessions=(stats[s].sessions||0)+1;
+    const sPct = Math.round(sessionSubjects[s].c/sessionSubjects[s].t*100);
+    if (!stats[s].history) stats[s].history=[];
+    stats[s].history.push(sPct);
+    if (stats[s].history.length > 8) stats[s].history = stats[s].history.slice(-8);
+  });
   saveStats(stats);
 
   // ── Cumulative Stats Card ──
@@ -4224,18 +4442,41 @@ function showPassageResults() {
       <div style="font-size:13px;color:var(--muted);margin-top:8px">${cor} / ${tot} correct · ${p.title}</div>
     </div>
     <div class="results-card">
+      ${flaggedInSession.size > 0 ? `
+      <div class="section-label" style="margin-top:16px">FLAGGED FOR REVIEW — ${flaggedInSession.size} QUESTION${flaggedInSession.size>1?'S':''}</div>
+      <div style="background:var(--dim);border-radius:8px;padding:12px;margin-bottom:8px">
+        ${[...flaggedInSession].map(fi => {
+          const r2 = results[fi];
+          const q2 = queue[fi];
+          if (!q2) return '';
+          const wasRight = r2 ? r2.right : null;
+          return '<div style="padding:8px 0;border-bottom:1px solid var(--border)">' +
+            '<div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:4px">Q'+(fi+1)+' · '+q2.s+'</div>' +
+            '<div style="font-size:13px;color:var(--text);line-height:1.5">'+q2.q+'</div>' +
+            (wasRight !== null ? '<div style="font-size:11px;margin-top:4px;color:'+(wasRight?'var(--green)':'var(--red)')+';">'+(wasRight?'✓ Answered correctly':'✗ Answered incorrectly')+'</div>' : '') +
+            '</div>';
+        }).join('')}
+      </div>` : ''}
       <div class="section-label">MISSED QUESTIONS</div>
       ${missed.length===0 ? '<div class="all-correct">✓ Perfect — no missed questions!</div>' :
-        missed.map(r=>`
+        missed.map(r=>{
+          const tSec = r.timeMs ? (r.timeMs/1000).toFixed(0) : null;
+          return `
           <div class="missed-item">
-            <div class="missed-q">${r.q.q}</div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div class="missed-q" style="flex:1">${r.q.q}</div>
+              ${tSec ? `<div style="font-size:10px;color:var(--muted);margin-left:10px;white-space:nowrap">${tSec}s</div>` : ''}
+            </div>
             <div class="missed-correct">✓ ${r.q.choices[r.q.ans]}</div>
             <div class="missed-wrong">✗ ${r.q.choices[r.chosen]}</div>
             <div style="font-size:11px;color:#64748b;margin-top:6px;line-height:1.6">${r.q.exp}</div>
-          </div>`).join('')}
+            <div style="font-size:10px;color:var(--accent);margin-top:4px">↻ Will appear more frequently in future sessions</div>
+          </div>`;}).join('')}
     </div>
     <div style="display:flex;gap:12px;margin-top:8px">
       <button class="new-quiz-btn" style="flex:1" onclick="goHome()">← HOME</button>
+      <button class="new-quiz-btn" style="flex:1;background:var(--dim);color:var(--text)" onclick="exportMissed()">↓ EXPORT MISSED</button>
+      <button class="new-quiz-btn" id="btn-drill-flagged" style="flex:1;background:var(--dim);color:var(--text);display:none" onclick="drillFlagged()">🚩 DRILL FLAGGED</button>
       <button class="new-quiz-btn" style="flex:1;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#1B3A5C" onclick="startPassage()">RETRY PASSAGE</button>
     </div>`;
 
@@ -4243,6 +4484,19 @@ function showPassageResults() {
   document.getElementById('pp-counter').textContent = tot+' / '+tot;
   document.getElementById('pp-score').textContent = '✓ '+cor+'/'+tot;
   window.scrollTo(0,0);
+
+  // ── Persist passage results to cumulative stats ──
+  const pStats = loadStats();
+  pResults.forEach(r => {
+    const s = r.q.topic || 'Passage';
+    if (!pStats[s]) pStats[s] = {c:0, t:0, sessions:0};
+    pStats[s].t++;
+    if (r.right) pStats[s].c++;
+  });
+  const pSubjs = [...new Set(pResults.map(r => r.q.topic || 'Passage'))];
+  pSubjs.forEach(s => { pStats[s].sessions = (pStats[s].sessions||0) + 1; });
+  saveStats(pStats);
+  updateSRS(pResults.map(r => ({q:{q:r.q.passage+' '+r.q.q, s:r.q.topic}, right:r.right})));
 }
 
 
@@ -5931,6 +6185,21 @@ function showPassageResults() {
       <div style="font-size:13px;color:var(--slate);margin-top:8px">${cor} / ${tot} correct · ${p.title}</div>
     </div>
     <div class="results-card">
+      ${flaggedInSession.size > 0 ? `
+      <div class="section-label" style="margin-top:16px">FLAGGED FOR REVIEW — ${flaggedInSession.size} QUESTION${flaggedInSession.size>1?'S':''}</div>
+      <div style="background:var(--dim);border-radius:8px;padding:12px;margin-bottom:8px">
+        ${[...flaggedInSession].map(fi => {
+          const r2 = results[fi];
+          const q2 = queue[fi];
+          if (!q2) return '';
+          const wasRight = r2 ? r2.right : null;
+          return '<div style="padding:8px 0;border-bottom:1px solid var(--border)">' +
+            '<div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:4px">Q'+(fi+1)+' · '+q2.s+'</div>' +
+            '<div style="font-size:13px;color:var(--text);line-height:1.5">'+q2.q+'</div>' +
+            (wasRight !== null ? '<div style="font-size:11px;margin-top:4px;color:'+(wasRight?'var(--green)':'var(--red)')+';">'+(wasRight?'✓ Answered correctly':'✗ Answered incorrectly')+'</div>' : '') +
+            '</div>';
+        }).join('')}
+      </div>` : ''}
       <div class="section-label">MISSED QUESTIONS</div>
       ${missed.length===0?'<div class="all-correct">✓ Perfect — no missed questions!</div>':
         missed.map(r=>`<div class="missed-item">
