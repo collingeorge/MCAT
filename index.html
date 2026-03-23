@@ -459,7 +459,7 @@ body::before{
 <div id="screen-home">
   <div class="wrap">
     <div class="home-hero">
-      <div class="hero-badge">MileDown Complete Deck · 2,549 Recall + 124 Passage Questions</div>
+      <div class="hero-badge">MileDown Complete Deck · 2,549 Recall + 184 Passage Questions</div>
       <h1 class="hero-title">MCAT <span>Study App</span></h1>
       <div class="hero-divider"></div>
       <p class="hero-sub">Clinical Mastery Quiz System · Collin B. George</p>
@@ -469,7 +469,7 @@ body::before{
 
     <div class="mode-toggle">
       <button class="mode-btn active" id="btn-recall" onclick="setMode('recall')">RECALL MODE<br><span style="font-size:9px;font-weight:400;opacity:.7">2,549 Flashcard MCQs</span></button>
-      <button class="mode-btn" id="btn-passage" onclick="setMode('passage')">PASSAGE MODE<br><span style="font-size:9px;font-weight:400;opacity:.7">124 AAMC-Style Questions</span></button>
+      <button class="mode-btn" id="btn-passage" onclick="setMode('passage')">PASSAGE MODE<br><span style="font-size:9px;font-weight:400;opacity:.7">184 AAMC-Style Questions</span></button>
     </div>
     <div id="recall-config">
     <div class="config-card">
@@ -6072,7 +6072,916 @@ The gate control theory of pain (Melzack and Wall, 1965) proposes that non-painf
 
 ]; // end BEHAVIORAL_PASSAGES
 
-const ALL_PASSAGES = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES, ...OCHEM_PASSAGES, ...PHYSICS_PASSAGES, ...BEHAVIORAL_PASSAGES];
+const CARS_PASSAGES = [
+
+// ══════════════════════════════════════════════════════════════
+// CARS PASSAGE 1: Philosophy — Free Will and Moral Responsibility
+// ══════════════════════════════════════════════════════════════
+{
+  id:'p_cars_1',
+  topic:'CARS',
+  title:'Determinism and the Conditions for Moral Blame',
+  passage:`The compatibility of determinism with moral responsibility has occupied philosophers for centuries, and the debate has acquired new urgency with the rise of neuroscience. If every mental event is the product of prior physical causes — neural firings determined by genetics and experience — then it is tempting to conclude, as some neuroscientists have, that the concept of moral responsibility is a fiction we would do well to abandon.
+
+This conclusion moves too quickly. The compatibilist tradition, running from Hume through Frankfurt, argues that what matters for responsibility is not the absence of causal determination but the nature of the causal chain. A person acts freely, on this view, when her action flows from her own desires and values rather than from compulsion, manipulation, or incapacity. The kleptomaniac who steals against her own better judgment is unfree not because her action was caused but because it was caused by an impulse that bypassed her reflective agency. The person who donates to charity because she genuinely values generosity acts freely even if neuroscience could, in principle, trace every step of her deliberation to antecedent neural states.
+
+Critics of compatibilism counter that this merely relocates the problem. If the desires and values that constitute a person's "reflective agency" are themselves products of unchosen genetics and socialization, then the compatibilist's freedom amounts to acting in accordance with a self one did not choose to be. This line of argument, associated with Galen Strawson, holds that genuine moral responsibility requires what he calls "ultimate origination" — the ability to be the ultimate cause of one's own character. Since no one satisfies this requirement, robust moral responsibility is impossible.
+
+Yet Strawson's argument may prove too much. The demand for ultimate origination sets a standard that, on reflection, we have no independent reason to accept. We do not require that a river's flow be uncaused in order to distinguish a healthy river from a dammed one; we do not require that a calculation be uncaused in order to distinguish a correct calculation from an incorrect one. The relevant question is not whether a process has antecedent causes but what kind of process it is. Similarly, the relevant question for moral responsibility is not whether a person's character has causes but whether her deliberative capacities are functioning — whether she is responsive to reasons, capable of recognizing the moral dimensions of her situation, and able to act accordingly.
+
+The practical stakes of this debate are considerable. If we abandon moral responsibility, we must reconceive punishment, praise, and blame entirely as forward-looking instruments of behavior modification rather than backward-looking responses to what a person deserves. Some find this reconception liberating; others find it impoverished. What is clear is that the neuroscientific argument against responsibility, while superficially compelling, rests on a philosophical assumption — that causation precludes freedom — that has been contested for centuries and remains far from established.`,
+  questions:[
+    {
+      q:"The author's primary purpose in this passage is to:",
+      choices:[
+        "Prove that compatibilism is the correct theory of free will",
+        "Argue that neuroscience has definitively resolved the free will debate in favor of determinism",
+        "Examine the philosophical debate over moral responsibility and defend a compatibilist position against both hard determinism and the demand for ultimate origination",
+        "Survey competing theories of punishment and argue for a rehabilitative model"
+      ],
+      ans:2,
+      exp:"The author traces the debate from hard determinism through compatibilism to Strawson's ultimate origination argument, ultimately defending compatibilism by arguing that causation does not preclude freedom. The passage is not a survey of punishment theories (D), does not claim neuroscience resolved the debate (B), and stops short of declaring compatibilism proven (A) — the author defends it as more defensible, not conclusively established."
+    },
+    {
+      q:"According to the passage, the compatibilist distinguishes free action from unfree action based on:",
+      choices:[
+        "Whether the action was caused by prior neural events",
+        "Whether the action was caused by the person's own reflective desires and values rather than by compulsion or incapacity",
+        "Whether the person could have predicted the consequences of the action",
+        "Whether the action was ultimately caused by the person's genetics"
+      ],
+      ans:1,
+      exp:"The author states the compatibilist holds that a person acts freely 'when her action flows from her own desires and values rather than from compulsion, manipulation, or incapacity.' The kleptomaniac example illustrates that the problem is not causation per se but the bypassing of reflective agency. Neural causation (A) is explicitly what compatibilism does not require. Predictability (C) and genetic origin (D) are not the compatibilist criteria."
+    },
+    {
+      q:"The author uses the river analogy in paragraph four primarily to:",
+      choices:[
+        "Illustrate that natural processes and human deliberation are identical in kind",
+        "Challenge Strawson's demand for ultimate origination by showing that we do not generally require processes to be uncaused in order to make meaningful distinctions about them",
+        "Support the hard determinist claim that all events, including human choices, are mechanically determined",
+        "Argue that moral responsibility is a natural phenomenon that should be studied empirically"
+      ],
+      ans:1,
+      exp:"The river and calculation analogies are deployed specifically against Strawson's requirement for ultimate origination. The author's point is that we distinguish healthy rivers from dammed ones and correct calculations from incorrect ones without demanding they be uncaused — so the demand for uncaused character is an unexplained special requirement. The analogy does not equate human deliberation with natural processes (A), support hard determinism (C), or call for empirical study (D)."
+    },
+    {
+      q:"Which of the following positions would the author most likely characterize as 'moving too quickly'?",
+      choices:[
+        "The view that compatibilism is insufficient because it does not account for ultimate origination",
+        "The view that moral responsibility requires only that a person's deliberative capacities are functioning",
+        "The view that neuroscientific evidence of neural causation demonstrates that moral responsibility is illusory",
+        "The view that punishment should be reconceived as forward-looking behavior modification"
+      ],
+      ans:2,
+      exp:"The phrase 'moves too quickly' appears in paragraph two, where the author criticizes the inference from neuroscientific determinism to the conclusion that moral responsibility is fiction. The author argues this inference assumes causation precludes freedom — an assumption 'contested for centuries and remains far from established.' Strawson's view (A) is treated more seriously and rebutted on its own terms. The functioning capacities view (B) is the author's own position. The forward-looking punishment view (D) is presented neutrally."
+    },
+    {
+      q:"The passage implies that if Strawson's argument for ultimate origination were accepted, it would:",
+      choices:[
+        "Vindicate the compatibilist position by showing that reflective agency is sufficient for responsibility",
+        "Support neuroscientific reductionism but leave the concept of desert intact",
+        "Undermine not only moral responsibility but also any distinction that relies on the nature of a process rather than the absence of its causes",
+        "Demonstrate that punishment should be abolished rather than reformed"
+      ],
+      ans:2,
+      exp:"The author argues in paragraph four that Strawson's standard 'proves too much' — by requiring that processes be uncaused for distinctions to matter, it would equally undermine distinctions we make about rivers and calculations. If accepted, Strawson's logic would collapse any process-based distinction, not just moral responsibility. The author does not say Strawson's view vindicates compatibilism (A), leaves desert intact (B), or specifically implies abolition of punishment (D) — that is a possible downstream implication but not what the author emphasizes."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════════
+// CARS PASSAGE 2: History — The Myth of Scientific Revolution
+// ══════════════════════════════════════════════════════════════
+{
+  id:'p_cars_2',
+  topic:'CARS',
+  title:'Continuity and Rupture in the History of Science',
+  passage:`The concept of scientific revolution, popularized by Thomas Kuhn's 1962 work, has become so embedded in how we narrate the history of science that it is worth pausing to ask whether it distorts as much as it illuminates. The standard story runs as follows: normal science proceeds by puzzle-solving within an accepted paradigm; anomalies accumulate until a crisis point is reached; a revolutionary new paradigm displaces the old one in a relatively sudden and total fashion. Kuhn's own examples — Copernicus displacing Ptolemy, Lavoisier displacing phlogiston theory, Einstein displacing Newtonian mechanics — have become canonical.
+
+The problem with this narrative is that it is, in significant respects, retrospectively constructed. Historians who have examined the actual archives tell a messier story. The Copernican revolution, for instance, took over a century to consolidate. Copernicus himself retained circular orbits and epicycles; the full heliocentric system required Kepler's ellipses, Galileo's telescopic observations, and Newton's gravitational mechanics to achieve anything like explanatory dominance. The "revolution" was not a moment but a process, and many natural philosophers continued working productively within geocentric frameworks well into the seventeenth century.
+
+The phlogiston case is similarly instructive. Lavoisier did not simply discover that phlogiston was wrong and oxygen was right. He conducted a prolonged, contested campaign to reinterpret a large body of experimental results, many of which had already been obtained by phlogiston theorists. Joseph Priestley, who first isolated what Lavoisier would call oxygen, interpreted it within the phlogiston framework until his death. The persistence of committed and capable scientists in the old paradigm is not, as Kuhn's narrative might suggest, mere irrationality or conservatism; it reflects the genuine difficulty of adjudicating between frameworks that, for a considerable time, are comparably successful at organizing experience.
+
+None of this is to deny that science changes, sometimes radically. It is rather to suggest that the revolution metaphor, with its connotations of sudden, complete, and violent displacement, is a poor guide to how such change actually occurs. Scientific change more often resembles the gradual transformation of a tradition — concepts are stretched, refined, and reinterpreted; what once seemed a fundamental commitment is quietly renegotiated; the new and the old coexist in productive tension for generations. The revolution metaphor encourages us to ask the wrong questions: when did the old paradigm fall? Who was on the right side of history? These are dramatic questions but not necessarily illuminating ones.
+
+What is at stake is not merely historiographical accuracy but our self-understanding as a scientific culture. A culture that understands its past as a series of revolutionary ruptures will have different expectations about how knowledge advances — and different tolerances for uncertainty, coexistence of frameworks, and incremental progress — than one that understands change as gradual and contested. The former risks a kind of temporal arrogance: the assumption that we, standing after the last revolution, are in a uniquely privileged epistemic position. The latter fosters a more productive humility.`,
+  questions:[
+    {
+      q:"The author's central claim in this passage is best described as:",
+      choices:[
+        "Kuhn's paradigm shift model accurately describes all major episodes of scientific change",
+        "The revolution metaphor distorts the history of science by obscuring the gradual, contested, and cumulative nature of scientific change",
+        "Science does not undergo fundamental change — it merely reinterprets existing data",
+        "Historians have proven that the Copernican and Lavoisier episodes were not genuine advances"
+      ],
+      ans:1,
+      exp:"The author argues throughout that the revolution metaphor, while culturally embedded, is historically inaccurate — scientific change is more gradual, contested, and cumulative than the metaphor suggests. The author explicitly states 'none of this is to deny that science changes, sometimes radically' (ruling out C) and does not deny the Copernican and Lavoisier episodes were advances (ruling out D). The author argues Kuhn's model distorts rather than accurately describes (ruling out A)."
+    },
+    {
+      q:"The author mentions Priestley's continued use of the phlogiston framework primarily to:",
+      choices:[
+        "Argue that Priestley was a less capable scientist than Lavoisier",
+        "Demonstrate that the persistence of scientists in an old paradigm reflects genuine difficulty in adjudicating between comparable frameworks, not mere irrationality",
+        "Show that experimental results can be ignored by scientists committed to a particular theory",
+        "Support Kuhn's claim that paradigm shifts are accompanied by total conversion of the scientific community"
+      ],
+      ans:1,
+      exp:"The author explicitly states that Priestley's persistence 'reflects the genuine difficulty of adjudicating between frameworks that, for a considerable time, are comparably successful at organizing experience' — directly countering the implication that holdouts are merely irrational or conservative. The author does not characterize Priestley as less capable (A), does not say results were ignored (C), and uses the example to argue against rather than for Kuhn's total-conversion narrative (D)."
+    },
+    {
+      q:"According to the passage, which of the following questions does the revolution metaphor encourage that the author considers unproductive?",
+      choices:[
+        "What conceptual resources did scientists in the old paradigm use to organize their experience?",
+        "How do new and old frameworks coexist during periods of scientific transition?",
+        "When did the old paradigm fall, and who was on the right side of history?",
+        "What role does incremental progress play in scientific advance?"
+      ],
+      ans:2,
+      exp:"The author explicitly identifies 'when did the old paradigm fall? Who was on the right side of history?' as 'dramatic questions but not necessarily illuminating ones' encouraged by the revolution metaphor. Questions about conceptual resources (A), coexistence of frameworks (B), and incremental progress (D) are the kinds of questions the author's alternative framing would encourage — they are presented positively, not as products of the revolution metaphor."
+    },
+    {
+      q:"The author's attitude toward Kuhn's work can best be described as:",
+      choices:[
+        "Uncritical acceptance — Kuhn's model is presented as essentially correct",
+        "Complete rejection — the author argues Kuhn's contributions have no value",
+        "Critical engagement — the author acknowledges the model's influence while arguing it distorts historical reality in important ways",
+        "Ambivalence — the author cannot decide whether Kuhn's model is useful or harmful"
+      ],
+      ans:2,
+      exp:"The author acknowledges Kuhn's work is 'embedded in how we narrate the history of science' and uses Kuhn's own canonical examples, but argues the model 'distorts as much as it illuminates' and that the revolution metaphor is 'a poor guide to how such change actually occurs.' This is critical engagement, not uncritical acceptance (A), complete rejection (B — the author grants the model's cultural importance), or ambivalence (D — the author has a clear position)."
+    },
+    {
+      q:"The final paragraph shifts the argument by:",
+      choices:[
+        "Introducing a new historical example that contradicts the author's earlier claims",
+        "Conceding that the revolution metaphor is ultimately more accurate than the alternative",
+        "Broadening the stakes from historiographical accuracy to the implications for how scientific culture understands its own knowledge and progress",
+        "Arguing that the revolution metaphor should be replaced with a biological metaphor of gradual evolution"
+      ],
+      ans:2,
+      exp:"Paragraphs two through four focus on historiographical accuracy — what the archives actually show. The final paragraph explicitly expands the stakes: 'what is at stake is not merely historiographical accuracy but our self-understanding as a scientific culture.' The author argues that how we narrate scientific history shapes expectations about knowledge, tolerance for uncertainty, and the risk of 'temporal arrogance.' No new contradicting example is introduced (A), no concession is made (B), and while the author hints at gradualism, no biological metaphor is proposed (D)."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════════
+// CARS PASSAGE 3: Ethics — Obligations to Future Generations
+// ══════════════════════════════════════════════════════════════
+{
+  id:'p_cars_3',
+  topic:'CARS',
+  title:'The Non-Identity Problem and Environmental Ethics',
+  passage:`Among the most vexing problems in moral philosophy is what Derek Parfit called the non-identity problem, which arises whenever our choices affect not only the welfare of future people but the very identities of those people. Consider a policy that depletes natural resources and degrades the environment for the next three centuries, after which the world recovers. The people who will inhabit that degraded world are not the same people who would have existed under a conservation policy — they owe their very existence to the chain of events set in motion by depletion. If those future people are born into a life still worth living, it seems we cannot say we have harmed them; their only alternative was not to exist.
+
+This conclusion strikes most people as clearly wrong. Surely a policy of deliberate resource depletion that condemns future generations to poverty and environmental degradation is morally impermissible, even if we cannot identify a specific person who was made worse off by it. The challenge for moral philosophy is to explain why our intuition is correct without relying on the standard harm principle, which requires a comparison between a person's actual state and some counterfactual condition. Since the relevant future people would not have existed under the alternative policy, they have no counterfactual to appeal to.
+
+Several strategies have been proposed. One is to move from person-affecting principles, which evaluate outcomes solely in terms of their effects on identifiable individuals, to impersonal principles, which evaluate outcomes in terms of total or average welfare. On an impersonal view, a world with more happiness and less suffering is better than one with less, regardless of whether the individuals are the same. This approach handles the non-identity problem neatly but at a cost: it generates counterintuitive conclusions in other cases, including the so-called Repugnant Conclusion, in which a world with a vast population of barely-worth-living lives is ranked higher than a smaller population of very happy people.
+
+Another strategy is to argue that we have obligations not merely to individuals but to types of people — to the category of future persons, or to humanity as a collective entity extended through time. On this view, harming the prospects of future generations is wrong because it violates our obligations to humanity, even if no specific future person can claim to have been wronged. This approach preserves the intuition that resource depletion is wrong but requires developing a coherent account of what it means to wrong a type or category rather than an individual.
+
+A third strategy, less radical than either of the above, is to question whether the harm principle is as central to morality as is commonly assumed. Even if we cannot say that future people are harmed by our policies, we might still say that those policies are wrong because they express vicious character, violate duties of stewardship, or constitute failures of practical wisdom. On this virtue-theoretic approach, the wrongness of destroying the environment is not reducible to harm but is instead a matter of what kind of agents we are and what our relationship to the natural world ought to be.`,
+  questions:[
+    {
+      q:"The non-identity problem, as described in the passage, arises specifically because:",
+      choices:[
+        "Future generations cannot consent to the policies that affect them",
+        "Our choices affect both the welfare and the identities of future people, making it impossible to compare their actual existence with a counterfactual in which they were never born",
+        "Resource depletion causes harm that cannot be measured in monetary terms",
+        "The harm principle cannot be applied to collective harms affecting large numbers of people"
+      ],
+      ans:1,
+      exp:"The author defines the non-identity problem in paragraph one: our choices affect 'not only the welfare of future people but the very identities of those people.' The specific problem is that future people 'owe their very existence' to the depleting policy, so there is no counterfactual state of a specific person being better off. Consent (A) is not mentioned in the passage as the source of the problem. Measurement difficulty (C) is not the issue. The problem is not about collective vs. individual harm per se (D) but about the identity-contingency of future persons."
+    },
+    {
+      q:"According to the passage, the impersonal principles approach resolves the non-identity problem but generates a different difficulty. What is that difficulty?",
+      choices:[
+        "It requires identifying specific individuals who will be harmed by resource depletion",
+        "It cannot account for why consent matters in moral decision-making",
+        "It produces the Repugnant Conclusion, in which a large population of barely-worth-living lives ranks higher than a smaller, very happy population",
+        "It makes environmental policy depend on uncertain empirical predictions about future welfare"
+      ],
+      ans:2,
+      exp:"The author states explicitly that the impersonal approach 'generates counterintuitive conclusions in other cases, including the so-called Repugnant Conclusion, in which a world with a vast population of barely-worth-living lives is ranked higher than a smaller population of very happy people.' Requiring identification of specific individuals (A) is the person-affecting approach's feature, not the impersonal one. Consent (B) and empirical predictions (D) are not mentioned as problems with the impersonal approach."
+    },
+    {
+      q:"The author's presentation of the three strategies (impersonal principles, obligations to types, virtue theory) suggests that the author views them as:",
+      choices:[
+        "Equally valid — any of the three adequately resolves the non-identity problem",
+        "Each involving trade-offs or requiring further development — none is presented as a complete and unproblematic solution",
+        "Progressively worse — the author clearly favors the impersonal principles approach",
+        "All fundamentally misguided — the author implies the harm principle should simply be abandoned"
+      ],
+      ans:1,
+      exp:"Each strategy is presented with its resolution noted alongside its cost or requirement: impersonal principles work 'but at a cost' (Repugnant Conclusion); obligations to types 'requires developing a coherent account' of wronging a category; virtue theory is 'less radical' but sidesteps rather than resolves the core issue. The author presents no clear favorite and identifies problems with each — suggesting B. The author does not rank them as progressively worse (C) or call for abandoning the harm principle altogether (D)."
+    },
+    {
+      q:"Which of the following, if true, would most directly undermine the non-identity problem as described in the passage?",
+      choices:[
+        "Future generations will develop technologies that reverse environmental degradation",
+        "Resource depletion affects not only the identities of future people but also reduces their quality of life below a threshold that makes life worth living",
+        "The harm principle has been rejected by most contemporary moral philosophers",
+        "Future people have stronger preferences about environmental quality than current people"
+      ],
+      ans:1,
+      exp:"The non-identity problem rests on the assumption that future people, though born into a degraded world, still have lives worth living — so they cannot claim to have been harmed relative to nonexistence. If resource depletion reduces their lives below the threshold of being worth living, then they can make the standard harm comparison: their existence-with-depletion is worse than nonexistence. This directly addresses the crux of the problem. Technological reversal (A) is compatible with the non-identity problem. Rejection of the harm principle (C) is a response to the problem, not something that undermines it. Stronger preferences (D) do not resolve the identity-contingency issue."
+    },
+    {
+      q:"The virtue-theoretic strategy described in paragraph five differs from the other two strategies primarily in that it:",
+      choices:[
+        "Accepts the harm principle as central but reinterprets what counts as harm",
+        "Shifts the moral focus from the effects of actions on others to the character of the agent and the nature of our relationship to the natural world",
+        "Relies on impersonal welfare calculations to determine the wrongness of environmental policies",
+        "Argues that future people have rights that can be violated even without being harmed"
+      ],
+      ans:1,
+      exp:"The author describes the virtue-theoretic approach as locating wrongness not in harm but in 'what kind of agents we are and what our relationship to the natural world ought to be' — agent-centered rather than consequence-centered. It explicitly does not accept the harm principle as central (A) — it questions whether harm is 'as central to morality as is commonly assumed.' It does not use welfare calculations (C) — that is the impersonal approach. Rights without harm (D) is closer to the obligations-to-types strategy."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════════
+// CARS PASSAGE 4: Social Science — The Concept of Race
+// ══════════════════════════════════════════════════════════════
+{
+  id:'p_cars_4',
+  topic:'CARS',
+  title:'Race as Social Construction and Biological Category',
+  passage:`Few concepts have generated more confusion in both science and public discourse than race. The consensus position in contemporary biology holds that race, as traditionally conceived — as a set of discrete, heritable biological categories corresponding to continental ancestry — does not map onto human genetic variation in the way the concept implies. Human genetic diversity is clinal rather than categorical: it varies continuously across geography, with neighboring populations sharing more genetic variants than distant ones. The sharp divisions that folk taxonomy imposes on this continuous variation are products of history, migration, and social practice, not natural joints in the biological world.
+
+This does not mean, however, that the word "race" has no legitimate scientific uses. Population geneticists routinely use ancestry-based categories for tracking disease risk, understanding pharmacogenomics, and reconstructing demographic history. When researchers note that BRCA1 mutations occur at higher frequencies in Ashkenazi Jewish populations, or that certain drug metabolism pathways vary systematically across ancestral groups, they are making claims that are empirically well-grounded even if they do not vindicate the folk taxonomy of race. The key distinction is between using ancestral categories as heuristics for understanding the population-level distribution of genetic variants and treating those categories as fixed biological essences.
+
+The social constructionist position, associated with scholars like Ian Hacking and Michael Omi, holds that race is primarily a social and political category — a way of organizing and maintaining hierarchical relationships among groups that has been retrospectively rationalized by appeals to biology. This view does not deny that people have different ancestries or that ancestry correlates with genetic variation; it denies that these biological facts determine or justify the social categories we call races. Race, on this view, is real in the sense that it has real effects — on life outcomes, health, and social experience — but it is real as a social fact, not a natural kind.
+
+The practical implications of this debate are significant for medicine. Studies consistently show that self-identified race correlates with health disparities in ways that cannot be fully explained by socioeconomic factors. African Americans have higher rates of hypertension, preterm birth, and certain cancers than white Americans even after controlling for income and education. Some researchers attribute this to genetic differences; others argue that the chronic physiological stress of experiencing racism — what scholars have called "weathering" — produces measurable biological effects. The former interpretation risks reifying race as a biological category; the latter integrates social and biological causation in ways that better account for the data.
+
+What is clear is that neither a naive biological essentialism nor a social constructionism that dismisses biology altogether does justice to the complexity of the evidence. Race is simultaneously a social construction with real biological consequences and a biological variable that is shot through with social meaning. Any adequate account must hold both truths in tension.`,
+  questions:[
+    {
+      q:"The author's main argument about race in this passage is best described as:",
+      choices:[
+        "Race is a purely biological category that social scientists have wrongly politicized",
+        "Race is a purely social construction with no legitimate biological uses",
+        "Race is simultaneously a social construction with real biological consequences and a biological variable with social meaning, and any adequate account must hold both in tension",
+        "The concept of race should be abandoned entirely in both science and social discourse"
+      ],
+      ans:2,
+      exp:"The final paragraph states the author's conclusion explicitly: 'Race is simultaneously a social construction with real biological consequences and a biological variable that is shot through with social meaning. Any adequate account must hold both truths in tension.' The author explicitly rejects both 'naive biological essentialism' (ruling out A) and 'social constructionism that dismisses biology altogether' (ruling out B). The author does not call for abandonment of the concept (D)."
+    },
+    {
+      q:"According to the passage, what distinguishes a legitimate scientific use of ancestry-based categories from a problematic one?",
+      choices:[
+        "Legitimate uses rely on self-identified race; problematic uses rely on genetic testing",
+        "Legitimate uses treat ancestral categories as heuristics for understanding population-level genetic variant distributions; problematic uses treat those categories as fixed biological essences",
+        "Legitimate uses focus on disease risk only; problematic uses extend to pharmacogenomics and demographic history",
+        "Legitimate uses avoid any reference to continental ancestry; problematic uses invoke it"
+      ],
+      ans:1,
+      exp:"The author states in paragraph two: 'The key distinction is between using ancestral categories as heuristics for understanding the population-level distribution of genetic variants and treating those categories as fixed biological essences.' Self-identification vs. genetic testing (A) is not the distinction drawn. Disease risk, pharmacogenomics, and demographic history are all listed as legitimate uses (ruling out C). Continental ancestry is used legitimately in the examples given (ruling out D)."
+    },
+    {
+      q:"The 'weathering' hypothesis mentioned in paragraph four is presented as an alternative to genetic explanations primarily because it:",
+      choices:[
+        "Demonstrates that African Americans have no genetic differences from white Americans",
+        "Argues that all health disparities are caused by socioeconomic inequality alone",
+        "Integrates social causation — the chronic physiological stress of experiencing racism — into the biological explanation of health disparities, avoiding the reification of race as a fixed biological category",
+        "Proves that self-identified race is a more accurate predictor of health than genetic ancestry"
+      ],
+      ans:2,
+      exp:"The author describes weathering as a hypothesis that 'integrates social and biological causation in ways that better account for the data' and contrasts it with genetic explanations that 'risk reifying race as a biological category.' The weathering hypothesis does not deny genetic differences exist (A), does not attribute disparities solely to socioeconomics (B — it adds a social-biological mechanism beyond socioeconomic factors), and does not make claims about self-identification vs. genetic ancestry as predictors (D)."
+    },
+    {
+      q:"The social constructionist view, as described in the passage, holds that race is 'real as a social fact.' This claim most directly implies that:",
+      choices:[
+        "Social facts are more important than biological facts in all domains of inquiry",
+        "The concept of race has no empirical content and should be treated as purely ideological",
+        "Race has genuine causal power — affecting life outcomes, health, and social experience — even though it is not a natural biological kind",
+        "Individual racial identities are determined entirely by social assignment rather than self-perception"
+      ],
+      ans:2,
+      exp:"The author explains that race 'is real in the sense that it has real effects — on life outcomes, health, and social experience — but it is real as a social fact, not a natural kind.' This means the social constructionist view grants race genuine causal efficacy while denying it is a natural biological category. The passage does not rank social facts above biological facts generally (A). The social constructionist view as described does have empirical content — it just locates the reality in social causation (ruling out B). The passage says nothing about individual identity being purely assigned (D)."
+    },
+    {
+      q:"The author states that human genetic diversity is 'clinal rather than categorical.' In context, this claim is most relevant to which part of the author's overall argument?",
+      choices:[
+        "The argument that ancestry-based categories are useful heuristics in medical research",
+        "The argument that the traditional folk taxonomy of race does not correspond to discrete natural divisions in human genetic variation",
+        "The argument that health disparities between racial groups are caused by racism rather than genetics",
+        "The argument that social constructionism dismisses biology altogether"
+      ],
+      ans:1,
+      exp:"The clinal nature of genetic diversity is introduced in paragraph one as the biological basis for rejecting the folk taxonomy of race as reflecting 'natural joints in the biological world.' The variation 'varies continuously across geography' rather than falling into discrete heritable categories — this is what undermines the traditional biological concept. The clinal claim is not about medical heuristics (A — those are discussed in paragraph two as valid despite clinal variation), not about the cause of health disparities (C), and not about social constructionism's position on biology (D)."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════════
+// CARS PASSAGE 5: Literary Criticism — The Unreliable Narrator
+// ══════════════════════════════════════════════════════════════
+{
+  id:'p_cars_5',
+  topic:'CARS',
+  title:'Unreliability, Irony, and the Reader\'s Position in Modern Fiction',
+  passage:`Wayne Booth's 1961 introduction of the term "unreliable narrator" gave critics a vocabulary for something readers had long felt but struggled to articulate: that the person telling a story may be systematically misleading us, not merely through conscious deception but through self-deception, limited understanding, or moral blindness of which the narrator is unaware. The concept proved enormously generative. In the decades that followed, critics identified unreliable narrators in works ranging from Henry James's governess in The Turn of the Screw to Nabokov's Humbert Humbert to Kazuo Ishiguro's Stevens in The Remains of the Day.
+
+The mechanics of unreliability vary considerably. In some cases, the narrator lies outright; in others, the gap between what the narrator reports and what a careful reader can infer is a product of selective attention, motivated reasoning, or genuine cognitive limitation. Stevens, Ishiguro's repressed English butler, is unreliable not because he fabricates events but because his rigid adherence to professional dignity prevents him from acknowledging his own emotional life or the political compromises he has made. The reader who attends carefully to what Stevens fails to say — to the elisions and evasions — comes to understand him better than he understands himself.
+
+This structure creates a peculiar double consciousness in the reader. We occupy the narrator's perspective closely enough to feel its pull, while simultaneously maintaining sufficient critical distance to perceive its distortions. The pleasure of reading an unreliable narrator is partly the pleasure of detection — of catching the narrator in a revealing inconsistency — but it is also, more troublingly, the pleasure of complicity. For a time, we share the narrator's world, accept its premises, and feel its logic. The discomfort that attends recognition of unreliability is partly discomfort at our own prior acceptance.
+
+Critics have disagreed about whether unreliability is a property of the text or of the reading. A strong textualist position holds that unreliability is encoded in structural signals — ironic juxtapositions, discrepancies between the narrator's self-presentation and the behavior she reports — that competent readers will recognize. On this view, the author constructs the unreliable narrator with the intention that readers will see through the narration. A more reader-centered view holds that unreliability is not a fixed property but an interpretive achievement: the product of a negotiation between the text's affordances and the reader's cultural assumptions, moral sensibilities, and reading protocols.
+
+The latter view has more to recommend it than is commonly acknowledged. Different historical periods, different cultures, and different reading communities have found different narrators unreliable — and have drawn different inferences from the same gaps and inconsistencies. Readers who share Stevens's investment in professional dignity may find him more sympathetic and less self-deceived than readers who do not. What counts as a "revealing inconsistency" is never fully determinate in the text itself; it depends on what the reader brings. This does not collapse unreliability into pure subjectivity — some readings are clearly more defensible than others — but it does suggest that the concept cannot be fully divorced from the historically situated reader.`,
+  questions:[
+    {
+      q:"According to the passage, what distinguishes unreliability caused by self-deception from unreliability caused by conscious deception?",
+      choices:[
+        "Self-deception is more common in first-person narrators; conscious deception is more common in third-person narrators",
+        "Self-deception involves a gap between the narrator's report and inferable reality that the narrator is unaware of; conscious deception involves deliberate fabrication",
+        "Self-deception is a more recent narrative technique; conscious deception is characteristic of earlier literary periods",
+        "Self-deception produces more sympathetic narrators; conscious deception produces more morally complex ones"
+      ],
+      ans:1,
+      exp:"The author defines unreliable narrators in paragraph one as misleading 'not merely through conscious deception but through self-deception, limited understanding, or moral blindness of which the narrator is unaware.' Stevens is the paradigm case: he is unreliable 'not because he fabricates events but because his rigid adherence to professional dignity prevents him from acknowledging his own emotional life.' The distinction is between awareness of the gap (conscious deception) and lack of awareness (self-deception). The other options (A, C, D) are not drawn in the passage."
+    },
+    {
+      q:"The author describes the reader's experience of unreliable narration as involving a 'double consciousness.' This phrase most nearly refers to:",
+      choices:[
+        "The reader's ability to read both primary and secondary texts simultaneously",
+        "The simultaneous occupation of the narrator's perspective and maintenance of critical distance sufficient to perceive its distortions",
+        "The experience of reading a text that has two equally valid interpretations",
+        "The division between conscious and unconscious responses to narrative"
+      ],
+      ans:1,
+      exp:"The author defines 'double consciousness' explicitly in paragraph three: 'We occupy the narrator's perspective closely enough to feel its pull, while simultaneously maintaining sufficient critical distance to perceive its distortions.' This is a tension between immersion and critical distance, not between two texts (A), two valid interpretations (C), or conscious vs. unconscious response (D)."
+    },
+    {
+      q:"The author's discussion of the 'pleasure of complicity' in paragraph three primarily serves to:",
+      choices:[
+        "Argue that unreliable narrators are morally problematic and should be used sparingly",
+        "Suggest that readers who enjoy unreliable narrators have deficient critical faculties",
+        "Complicate the account of the reading experience by acknowledging that readers temporarily share and accept the narrator's distorted worldview before recognizing its unreliability",
+        "Support the textualist position that unreliability is encoded in structural signals"
+      ],
+      ans:2,
+      exp:"The 'pleasure of complicity' — sharing the narrator's world, accepting its premises, feeling its logic — is presented as a troubling but genuine part of reading unreliable narrators. The author notes 'the discomfort that attends recognition of unreliability is partly discomfort at our own prior acceptance.' This complicates the reading experience beyond mere detection, acknowledging the reader's temporary immersion. The author is not arguing unreliable narrators are problematic (A), criticizing readers (B), or building toward the textualist position (D — that argument comes in the following paragraph)."
+    },
+    {
+      q:"The author ultimately favors which view of unreliability — textualist or reader-centered — and on what grounds?",
+      choices:[
+        "Textualist, because structural signals are objectively present in the text regardless of who reads it",
+        "Neither — the author argues the debate is unresolvable and both views are equally defensible",
+        "Reader-centered, because what counts as a revealing inconsistency depends partly on what the reader brings culturally and morally, though some readings remain more defensible than others",
+        "Reader-centered, because the author believes all interpretations are equally valid and unreliability is purely subjective"
+      ],
+      ans:2,
+      exp:"The author states the reader-centered view 'has more to recommend it than is commonly acknowledged' and argues that unreliability 'cannot be fully divorced from the historically situated reader.' But the author also explicitly states 'this does not collapse unreliability into pure subjectivity — some readings are clearly more defensible than others.' This rules out D (pure subjectivity) and A (textualism). The author does not treat the debate as unresolvable (B) — a preference is stated."
+    },
+    {
+      q:"Which of the following would most challenge the reader-centered view of unreliability as described in the passage?",
+      choices:[
+        "Evidence that readers from different cultures find the same narrators unreliable for different reasons",
+        "A study showing that readers who share a narrator's values find her less unreliable than readers who do not",
+        "Evidence that a specific set of textual signals — ironic juxtapositions, self-contradictions — reliably produces recognition of unreliability across all cultural contexts and reading communities",
+        "A finding that unreliable narrators are more common in literary fiction than in genre fiction"
+      ],
+      ans:2,
+      exp:"The reader-centered view holds that unreliability is an 'interpretive achievement' depending on 'cultural assumptions, moral sensibilities, and reading protocols' — not fixed in the text. Evidence that specific textual signals reliably produce recognition of unreliability across all cultures and communities would support the textualist view that unreliability is encoded in structural signals, directly challenging the reader-centered account. Options A and B are consistent with the reader-centered view — they show variation based on reader position. Option D is irrelevant to the textualist/reader-centered debate."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════════
+// CARS PASSAGE 6: Political Theory — Civil Disobedience
+// ══════════════════════════════════════════════════════════════
+{
+  id:'p_cars_6',
+  topic:'CARS',
+  title:'The Justification and Limits of Civil Disobedience',
+  passage:`Civil disobedience — the deliberate, public, nonviolent violation of law in order to protest injustice — occupies a contested space in liberal political theory. On one hand, liberal theory holds that in a just society, citizens have an obligation to obey the law; legitimate grievances should be addressed through legal channels — voting, petition, litigation, legislative advocacy. On the other hand, liberal theory recognizes that no actual society is fully just, that legal channels are sometimes exhausted or foreclosed, and that history's most admired moral exemplars — Gandhi, King, Mandela — deliberately broke the law.
+
+John Rawls, in his influential account, held that civil disobedience is justified when it addresses "substantial and clear injustice," when legal channels have been exhausted without success, and when the disobedient is prepared to accept the legal consequences. The acceptance of punishment, on Rawls's view, is not merely a practical concession but an expression of the disobedient's respect for the rule of law. By accepting punishment, the disobedient acknowledges the general validity of the legal system while maintaining that a specific law or policy is unjust. This position distinguishes civil disobedience from ordinary lawbreaking and from revolution.
+
+Critics have pressed Rawls on the requirement to accept punishment. Howard Zinn argued that this requirement privileges the comfort of the majority and the stability of institutions over the urgency of the injustice being protested. If a law is genuinely unjust, why should its victims be obligated to suffer its penalties in order to make a philosophical point about respect for legal institutions? The requirement of punishment acceptance, on this view, imposes a double burden on those who are already disadvantaged: they must endure both the original injustice and additional legal punishment for protesting it.
+
+The question of what counts as "substantial" injustice creates further difficulties. Rawls assumed a background of a "nearly just" society in which gross injustice is the exception. But critics, particularly from traditions of critical legal studies and critical race theory, have argued that the injustices embedded in American law are not exceptional but systemic — that the legal system itself is a mechanism for maintaining racial and class hierarchy. On this view, the exhaustion-of-legal-channels requirement is not a reasonable procedural condition but a demand to work within a system designed to frustrate certain claims. The Rawlsian framework may be adequate for a society that deviates occasionally from its own just principles; it is less clearly adequate for a society in which the injustice is baked into the principles themselves.
+
+The tension between the obligation to obey law and the obligation to resist injustice is not resolvable by any formula. What civil disobedience cases demand, finally, is moral judgment: the ability to weigh the severity of the injustice, the availability of alternatives, the likely consequences of action and inaction, and the costs imposed on others. Rawls's conditions provide useful heuristics but not an algorithm. The irreducibility of this judgment to rule is, for some, a mark of the concept's genuine moral seriousness.`,
+  questions:[
+    {
+      q:"According to the passage, Rawls's requirement that the civil disobedient accept punishment serves which function?",
+      choices:[
+        "It ensures that civil disobedience is effective as a political strategy",
+        "It expresses respect for the rule of law while maintaining that a specific law or policy is unjust, thereby distinguishing civil disobedience from ordinary lawbreaking and revolution",
+        "It protects the majority from the disruption caused by minority grievances",
+        "It guarantees that only those with genuine grievances will engage in civil disobedience"
+      ],
+      ans:1,
+      exp:"The author states that Rawls's acceptance of punishment 'is not merely a practical concession but an expression of the disobedient's respect for the rule of law' and that 'by accepting punishment, the disobedient acknowledges the general validity of the legal system while maintaining that a specific law or policy is unjust.' The author explicitly identifies this as distinguishing civil disobedience from ordinary lawbreaking and revolution. Political effectiveness (A) is not Rawls's stated rationale. Protecting the majority (C) is part of Zinn's critique, not Rawls's justification. Filtering genuine grievances (D) is not mentioned."
+    },
+    {
+      q:"Howard Zinn's critique of the punishment-acceptance requirement, as described in the passage, is best summarized as:",
+      choices:[
+        "Civil disobedience is always unjustified because it undermines the rule of law",
+        "The requirement imposes a double burden on the already disadvantaged, privileging institutional stability over the urgency of genuine injustice",
+        "Accepting punishment is strategically counterproductive because it legitimizes unjust laws",
+        "Civil disobedience should be replaced by revolution when legal channels are exhausted"
+      ],
+      ans:1,
+      exp:"The author describes Zinn's argument as holding that the punishment requirement 'privileges the comfort of the majority and the stability of institutions over the urgency of the injustice' and 'imposes a double burden on those who are already disadvantaged: they must endure both the original injustice and additional legal punishment.' Zinn does not argue against civil disobedience generally (A), does not make a strategic argument (C), and does not advocate revolution (D)."
+    },
+    {
+      q:"The passage suggests that the Rawlsian framework is most vulnerable to criticism when applied to societies in which:",
+      choices:[
+        "Voting rights are fully protected and legal representation is available to all citizens",
+        "Injustice is occasional and exceptional rather than systemic — the framework handles this case well",
+        "Injustice is systemic and embedded in the legal system itself, making the exhaustion-of-legal-channels requirement a demand to work within a system designed to frustrate certain claims",
+        "Civil disobedience has historically proven effective at changing unjust laws"
+      ],
+      ans:2,
+      exp:"The author states explicitly in paragraph four that the Rawlsian framework 'may be adequate for a society that deviates occasionally from its own just principles; it is less clearly adequate for a society in which the injustice is baked into the principles themselves.' The exhaustion requirement becomes problematic when the system itself is designed to frustrate the claims in question. Option A describes a society where the framework would work well. Option B correctly describes where the framework is adequate, not vulnerable. Option D is irrelevant."
+    },
+    {
+      q:"The author's tone in the final paragraph is best described as:",
+      choices:[
+        "Dogmatic — the author asserts a definitive resolution to the debate",
+        "Dismissive — the author suggests Rawls's conditions are not useful at all",
+        "Measured — the author acknowledges the irresolvability of the tension while affirming the value of Rawls's heuristics and the seriousness of the moral judgment required",
+        "Pessimistic — the author implies that no justified civil disobedience is possible"
+      ],
+      ans:2,
+      exp:"The final paragraph states the tension 'is not resolvable by any formula' and that 'Rawls's conditions provide useful heuristics but not an algorithm.' The author also notes that the irreducibility to rule is 'for some, a mark of the concept's genuine moral seriousness.' This is a measured conclusion that neither resolves the debate dogmatically (A) nor dismisses Rawls (B) nor implies impossibility (D)."
+    },
+    {
+      q:"Which of the following best describes the logical structure of paragraph four?",
+      choices:[
+        "A restatement of Rawls's position followed by unconditional endorsement",
+        "An introduction of a new objection — that systemic injustice undermines the exhaustion-of-channels requirement — which extends and deepens the critique of Rawls begun in paragraph three",
+        "A refutation of Zinn's argument from paragraph three using historical evidence",
+        "A concession that Rawls's framework adequately handles all cases of civil disobedience"
+      ],
+      ans:1,
+      exp:"Paragraph three introduced Zinn's objection to the punishment-acceptance requirement specifically. Paragraph four introduces a distinct but related objection: that the 'substantial injustice' and 'exhaustion of channels' requirements are problematic when injustice is systemic, not exceptional. This extends the critique by questioning not just the punishment requirement but the foundational assumption of a 'nearly just' society. It does not endorse Rawls (A or D) and does not refute Zinn (C)."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════════
+// CARS PASSAGE 7: Anthropology — The Concept of Culture
+// ══════════════════════════════════════════════════════════════
+{
+  id:'p_cars_7',
+  topic:'CARS',
+  title:'Culture, Agency, and the Problem of Cultural Determinism',
+  passage:`The concept of culture has been central to anthropology since its inception, but it has also been a persistent source of theoretical embarrassment. Early anthropological uses of the term — associated with Tylor's 1871 definition of culture as "that complex whole which includes knowledge, belief, art, morals, law, custom, and any other capabilities and habits acquired by man as a member of society" — treated culture as an integrated, bounded system that explained the behavior of those within it. This explanatory ambition was powerful: culture provided a secular, non-biological alternative to racial determinism, explaining human diversity as a product of learned tradition rather than innate nature.
+
+The costs of this explanatory ambition, however, became increasingly apparent over the twentieth century. If culture explains behavior, then individuals within a culture appear as its passive bearers — conduits through which cultural patterns are transmitted and reproduced rather than agents who reflect on, contest, and transform those patterns. The Boasian tradition's emphasis on culture as an autonomous force capable of explaining almost anything came at the cost of the individual human being as a locus of genuine agency. Moreover, the treatment of cultures as bounded wholes obscured the internal diversity, contestation, and power asymmetries within them: the culture of a society is never simply the culture — it is always the culture of some groups imposed on or negotiated against the cultures of others.
+
+Clifford Geertz's semiotic approach offered a partial corrective. For Geertz, culture is not a causal force that produces behavior from the outside but a "web of significance" that provides meaning and context for behavior from the inside. Human beings, on this view, are "animals suspended in webs of significance they themselves have spun." To understand culture is not to identify the laws that govern behavior but to interpret the meanings that actors themselves employ. This move from explanation to interpretation, from cause to meaning, was enormously influential in the humanities and parts of the social sciences.
+
+But Geertz's approach, for all its attractions, replicated some problems of its predecessors. The "web of significance" metaphor, like the integrated-culture concept, implies a coherence and boundedness that actual cultural practices rarely exhibit. Geertz's interpretive method focused on shared public symbols and their meanings but struggled to account for disagreement, coercion, and the role of power in determining whose symbolic interpretations become authoritative. A web of significance woven by whom, maintained by what mechanisms, and contested by whom?
+
+Contemporary approaches increasingly treat culture not as a thing possessed by groups but as a process of ongoing negotiation, contestation, and reproduction. Culture is what people do with symbols, practices, and meanings in specific situations of interest, constraint, and conflict. This processual approach preserves human agency — people are not merely bearers of culture but active interpreters and transformers of it — while avoiding the idealist tendency to treat meaning as floating free of material conditions and power relations.`,
+  questions:[
+    {
+      q:"According to the passage, what was the primary theoretical value of the early anthropological concept of culture?",
+      choices:[
+        "It provided a method for empirically measuring human behavioral differences across societies",
+        "It offered a secular, non-biological alternative to racial determinism, explaining human diversity as a product of learned tradition",
+        "It emphasized the role of individual agency in shaping social norms",
+        "It demonstrated that all human cultures follow universal developmental stages"
+      ],
+      ans:1,
+      exp:"The author states that early culture concepts provided 'a secular, non-biological alternative to racial determinism, explaining human diversity as a product of learned tradition rather than innate nature.' Empirical measurement (A) is not mentioned. Individual agency (C) is precisely what the early concept obscured, according to paragraph two. Universal stages (D) is associated with nineteenth-century evolutionism, not the Boasian tradition described."
+    },
+    {
+      q:"The author argues that treating cultures as 'bounded wholes' created which specific problem?",
+      choices:[
+        "It made cross-cultural comparison impossible",
+        "It obscured internal diversity, contestation, and power asymmetries within cultures, presenting 'the culture' as if it were uniformly shared",
+        "It overstated the role of biological factors in cultural variation",
+        "It prevented anthropologists from conducting fieldwork in complex societies"
+      ],
+      ans:1,
+      exp:"The author states in paragraph two that treating cultures as bounded wholes 'obscured the internal diversity, contestation, and power asymmetries within them: the culture of a society is never simply the culture — it is always the culture of some groups imposed on or negotiated against the cultures of others.' Cross-cultural comparison (A) is not mentioned as a problem. Biology (C) is the problem that culture-as-concept was designed to replace. Fieldwork methods (D) are not discussed."
+    },
+    {
+      q:"Geertz's concept of culture as a 'web of significance' is described in the passage as a partial corrective to the earlier approach primarily because it:",
+      choices:[
+        "Restored the emphasis on biological determinism that the Boasian tradition had eliminated",
+        "Shifted the focus from culture as an external causal force to culture as an internal framework of meaning through which actors interpret their world",
+        "Demonstrated that cultures are not bounded systems but open networks of global exchange",
+        "Provided quantitative methods for measuring cultural change over time"
+      ],
+      ans:1,
+      exp:"The author describes Geertz as moving from culture as 'a causal force that produces behavior from the outside' to a 'web of significance that provides meaning and context for behavior from the inside.' This is the corrective: the shift from external causation to internal interpretation. Geertz did not restore biological determinism (A), argue for global open networks (C), or provide quantitative methods (D)."
+    },
+    {
+      q:"The rhetorical question at the end of paragraph four ('A web of significance woven by whom, maintained by what mechanisms, and contested by whom?') primarily functions to:",
+      choices:[
+        "Endorse Geertz's framework by showing it raises productive questions",
+        "Introduce the processual approach as a superior alternative to Geertz",
+        "Highlight the limitations of Geertz's framework by pointing to what it fails to account for — power, coercion, and whose interpretations become authoritative",
+        "Argue that the concept of culture should be abandoned as theoretically incoherent"
+      ],
+      ans:2,
+      exp:"The rhetorical questions come at the end of a paragraph listing Geertz's limitations: his framework 'struggled to account for disagreement, coercion, and the role of power in determining whose symbolic interpretations become authoritative.' The questions drive this critique home by asking what Geertz's metaphor cannot answer. The paragraph critiques Geertz rather than endorsing him (A). The processual approach is introduced in paragraph five, not through this question (B). The author does not call for abandoning the culture concept (D)."
+    },
+    {
+      q:"The contemporary 'processual approach' described in the final paragraph is presented as superior to earlier approaches primarily because it:",
+      choices:[
+        "Returns to the Tyloran definition of culture as an integrated whole",
+        "Eliminates the concept of culture entirely in favor of individual psychology",
+        "Preserves human agency and accounts for material conditions and power while treating culture as ongoing negotiation rather than a thing possessed",
+        "Focuses exclusively on the symbolic dimensions of human behavior, ignoring economic factors"
+      ],
+      ans:2,
+      exp:"The author describes the processual approach as preserving 'human agency — people are not merely bearers of culture but active interpreters and transformers of it — while avoiding the idealist tendency to treat meaning as floating free of material conditions and power relations.' It is contrasted with the bounded, causal approaches as better handling agency and power. It does not return to Tylor (A), eliminate culture (B), or focus exclusively on symbols while ignoring economics (D — it explicitly incorporates material conditions)."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════════
+// CARS PASSAGE 8: Philosophy of Science — Explanation and Prediction
+// ══════════════════════════════════════════════════════════════
+{
+  id:'p_cars_8',
+  topic:'CARS',
+  title:'The Asymmetry of Explanation and Prediction in Science',
+  passage:`One of the most elegant proposals in twentieth-century philosophy of science was Carl Hempel's deductive-nomological model of explanation. On Hempel's account, to explain a phenomenon is to show that it follows deductively from a set of general laws together with statements of initial conditions. The model's elegance derived from its symmetry thesis: explanation and prediction are, at the logical level, structurally identical. A prediction is a prospective explanation — it says that given these laws and conditions, this phenomenon will occur. An explanation is a retrospective prediction — it says that given these laws and conditions, this phenomenon had to occur. Scientific understanding, on this view, is the understanding afforded by subsumption under law.
+
+Critics identified several problems with this account, the most telling of which was the problem of asymmetries between explanation and prediction. Sylvain Bromberger's flagpole example became canonical: given the height of a flagpole, the angle of the sun, and the laws of optics, we can predict and explain the length of the shadow cast by the pole. But given the length of the shadow, the angle of the sun, and the laws of optics, we can equally well predict and explain the height of the flagpole — despite the fact that the shadow does not explain the height of the flagpole; it is explained by it. The deductive relationships are symmetric; the explanatory relationships are not.
+
+The asymmetry problem suggests that explanation is not simply a matter of logical deduction from laws and conditions but involves a further element — often glossed as "causal direction," "mechanism," or "asymmetric dependence." We explain the shadow by the pole rather than the pole by the shadow because the pole is causally prior; the shadow counterfactually depends on the pole in a way the pole does not depend on the shadow. Removing or shortening the pole would shorten the shadow; removing the shadow — by, say, clouding over — would not affect the height of the pole.
+
+The causal response to the asymmetry problem has its own difficulties. Causation is notoriously difficult to analyze, and there are scientific explanations — in thermodynamics and quantum mechanics, for instance — that appear to be genuinely non-causal. Thermodynamic explanations of why gases expand to fill their containers appeal to statistical regularities and entropic considerations, not to a specific cause of the expansion. Mathematical explanations in biology — why hexagonal cells minimize wax expenditure in honeycombs — seem to explain by citing a mathematical fact rather than a physical cause. If explanation can be non-causal, then causation cannot be the whole story.
+
+Contemporary philosophy of science has largely moved away from the search for a single, unified model of scientific explanation toward a pluralism that acknowledges different types of explanation — causal, statistical, mathematical, unificationist — appropriate to different contexts and disciplines. This pluralism is intellectually modest but may be more accurate: the diversity of scientific practice may simply resist reduction to a single logical form.`,
+  questions:[
+    {
+      q:"Hempel's symmetry thesis, as described in the passage, holds that:",
+      choices:[
+        "Scientific laws are symmetric — they apply equally in all directions",
+        "Explanation and prediction are structurally identical at the logical level — a prediction is a prospective explanation and an explanation is a retrospective prediction",
+        "All scientific explanations can be reduced to mathematical formalisms",
+        "Causal direction is irrelevant to scientific explanation"
+      ],
+      ans:1,
+      exp:"The author defines the symmetry thesis explicitly: 'explanation and prediction are, at the logical level, structurally identical. A prediction is a prospective explanation... An explanation is a retrospective prediction.' This is the logical symmetry between the two activities. The thesis is not about the symmetry of laws (A), mathematical reduction (C), or causal irrelevance (D — that comes later as a problem for causal responses)."
+    },
+    {
+      q:"The flagpole example is introduced in the passage primarily to:",
+      choices:[
+        "Demonstrate that the deductive-nomological model correctly accounts for everyday scientific reasoning",
+        "Show that deductive relationships can be symmetric while explanatory relationships are not, thereby challenging the symmetry thesis",
+        "Argue that optical laws are insufficient for scientific explanation",
+        "Illustrate the importance of initial conditions in scientific prediction"
+      ],
+      ans:1,
+      exp:"The author introduces the flagpole example specifically as a 'problem of asymmetries between explanation and prediction' that constitutes a critique of Hempel. The example shows that shadow-to-pole deduction is equally valid logically but explanatorily backward — the shadow does not explain the pole. This demonstrates that 'explanation is not simply a matter of logical deduction from laws and conditions.' The example challenges, not supports, the DN model (ruling out A). It is not about the adequacy of optical laws (C) or initial conditions specifically (D)."
+    },
+    {
+      q:"According to the passage, how does the 'causal response' to the asymmetry problem explain why we explain the shadow by reference to the pole, rather than vice versa?",
+      choices:[
+        "Because the pole is physically larger than the shadow and therefore causally dominant",
+        "Because the pole is causally prior — removing the pole would shorten the shadow, while removing the shadow would not affect the pole",
+        "Because laws of optics specify that light sources cause shadows rather than the reverse",
+        "Because the deductive relationship from pole to shadow is stronger than from shadow to pole"
+      ],
+      ans:1,
+      exp:"The author states: 'The pole is causally prior; the shadow counterfactually depends on the pole in a way the pole does not depend on the shadow. Removing or shortening the pole would shorten the shadow; removing the shadow — by, say, clouding over — would not affect the height of the pole.' This counterfactual asymmetry grounds the causal direction. Physical size (A) is not the criterion. Optical laws (C) apply symmetrically — the deduction works both ways. The deductive strength is symmetric, not asymmetric (D — the asymmetry problem is precisely that deduction is symmetric)."
+    },
+    {
+      q:"The author mentions thermodynamic and mathematical explanations in paragraph four primarily to:",
+      choices:[
+        "Demonstrate that physics is more advanced than biology as a science",
+        "Show that the causal response to the asymmetry problem is incomplete — some scientific explanations appear genuinely non-causal",
+        "Argue that statistical reasoning is superior to causal reasoning in science",
+        "Support Hempel's deductive-nomological model by showing that laws govern all scientific explanations"
+      ],
+      ans:1,
+      exp:"Paragraph four opens by noting 'the causal response to the asymmetry problem has its own difficulties' and proceeds to give examples of apparently non-causal explanations. The purpose is to show that causation 'cannot be the whole story' of scientific explanation. The examples do not rank physics above biology (A), argue for statistical over causal reasoning generally (C), or support Hempel (D — the passage is engaged in critiquing the DN model)."
+    },
+    {
+      q:"The author describes contemporary philosophy of science's move toward pluralism about explanation as 'intellectually modest.' This phrase implies that:",
+      choices:[
+        "The pluralist position is inadequate and should be replaced with a unified theory",
+        "Pluralism represents an abandonment of the philosophical aspiration for a unified account, which is a concession to complexity rather than a theoretical achievement — though it may be more accurate",
+        "Contemporary philosophers are less rigorous than Hempel's generation",
+        "Pluralism is the most ambitious position currently available in philosophy of science"
+      ],
+      ans:1,
+      exp:"The author describes pluralism as 'intellectually modest but may be more accurate' — paired phrases that suggest acknowledging a concession. Modesty implies giving up the grander aspiration (Hempel's unified model) while gaining accuracy. The author does not say pluralism is inadequate (A — 'may be more accurate' suggests it's defensible). The author is not criticizing contemporary philosophers personally (C). Pluralism is described as modest, not ambitious (D)."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════════
+// CARS PASSAGE 9: Economics/Social — The Limits of Meritocracy
+// ══════════════════════════════════════════════════════════════
+{
+  id:'p_cars_9',
+  topic:'CARS',
+  title:'Meritocracy, Luck, and the Moral Limits of Market Outcomes',
+  passage:`The meritocratic ideal — that social positions and rewards should be allocated according to talent and effort rather than birth, connection, or fortune — has become the dominant legitimating ideology of contemporary liberal democracies. Its appeal is obvious: meritocracy seems to honor the moral intuition that people should be rewarded for what they do rather than for circumstances they did not choose. And in contrast to the hereditary aristocracies it replaced, meritocracy at least gestures toward equality of opportunity.
+
+The philosophical difficulty with meritocracy is that the distinction between what we "do" and the circumstances we did not choose is less clean than it appears. Natural talent — the cognitive and physical endowments that enable high performance — is not chosen; it is allocated by a genetic lottery. The family into which one is born, the education one receives, the social networks one inherits — all of these shape the development and expression of whatever talents one has. If we follow this reasoning, meritocratic outcomes begin to look less like the fruits of desert and more like the fruits of luck: the luck of good genes, good parents, and a favorable social position.
+
+John Rawls drew the implication directly: no one deserves their natural talents in the morally robust sense because no one chose them. The intuitive appeal of merit-based reward rests on an illusion — the illusion that talent is the product of the self rather than the precipitate of unchosen circumstances. On Rawls's view, the natural distribution of talents is "neither just nor unjust" — it is simply a fact about the world. What justice requires is that this morally arbitrary distribution not translate into drastically unequal life outcomes. The difference principle — that inequalities are just only if they benefit the least advantaged members of society — is Rawls's response to this arbitrariness.
+
+Critics of this line of argument — including Michael Walzer and Michael Sandel — worry that it is corrosive of the social meanings that attach to achievement. If high performance is reducible to genetic luck and favorable circumstance, then excellence ceases to be genuinely admirable; we would no more admire a great athlete for her performance than we admire a person for being tall. This "corrosiveness objection" captures a real tension: the Rawlsian argument, taken to its logical conclusion, seems to dissolve the category of desert entirely, leaving us with a world in which people are compensated for their contributions not because they deserve them but because incentives are necessary to elicit socially useful behavior.
+
+The resolution, if there is one, lies in distinguishing different senses of desert. We can acknowledge that no one deserves their natural talents in the sense of having earned them through prior choices, while maintaining that people can still deserve the fruits of their effort given their talents. The runner who trains obsessively deserves to win — in the effort sense — even if she did not deserve the natural speed that made such training productive. Retaining this weaker sense of desert preserves space for genuine admiration and achievement while acknowledging the role of unchosen circumstances in producing them.`,
+  questions:[
+    {
+      q:"The author describes meritocracy as 'the dominant legitimating ideology of contemporary liberal democracies.' In context, 'legitimating' most nearly means:",
+      choices:[
+        "Making something legally permissible",
+        "Providing the justification or moral rationale that makes social arrangements appear valid and acceptable",
+        "Ensuring that democratic elections are fairly conducted",
+        "Measuring outcomes against an objective standard of merit"
+      ],
+      ans:1,
+      exp:"In this context, a 'legitimating ideology' is one that provides justification — it makes social arrangements appear morally valid. The author goes on to explain meritocracy's appeal as a justification for reward allocation. Legal permissibility (A) is a narrower meaning not relevant here. Electoral fairness (C) and objective measurement (D) are not what the passage means by legitimating."
+    },
+    {
+      q:"According to the passage, Rawls concluded that natural talents are 'morally arbitrary' because:",
+      choices:[
+        "Natural talents are distributed unequally across racial and gender groups",
+        "Natural talents cannot be measured objectively and therefore cannot ground desert claims",
+        "No one chooses their natural talents — they are the product of an unchosen genetic lottery — and therefore cannot ground claims of moral desert in the robust sense",
+        "Natural talents are irrelevant to economic productivity in a modern economy"
+      ],
+      ans:2,
+      exp:"The author states Rawls's argument directly: 'no one deserves their natural talents in the morally robust sense because no one chose them.' The natural distribution is 'neither just nor unjust — it is simply a fact about the world.' This is grounded in the unchosen nature of talents, not their distribution across groups (A), their measurability (B), or their economic relevance (D)."
+    },
+    {
+      q:"The 'corrosiveness objection' raised by Walzer and Sandel holds that the Rawlsian argument:",
+      choices:[
+        "Is politically dangerous because it would justify redistributive taxation",
+        "Undermines the social meaning of achievement by reducing excellence to genetic luck, making genuine admiration and desert conceptually impossible",
+        "Is logically incoherent because it simultaneously affirms and denies the value of talent",
+        "Fails to account for the role of effort in producing high performance"
+      ],
+      ans:1,
+      exp:"The author describes the corrosiveness objection as the worry that Rawls's argument means 'excellence ceases to be genuinely admirable; we would no more admire a great athlete for her performance than we admire a person for being tall.' It 'dissolves the category of desert entirely.' This is about the social meanings attached to achievement, not political taxation (A), logical incoherence (C), or effort (D — the effort point is part of the author's own resolution in paragraph five)."
+    },
+    {
+      q:"The author's proposed resolution in paragraph five distinguishes between two senses of desert. Which of the following best captures this distinction?",
+      choices:[
+        "Deserving talents through prior choices vs. deserving outcomes regardless of effort",
+        "Deserving natural endowments (which no one can do) vs. deserving the fruits of effort given one's endowments (which people can do)",
+        "Individual desert vs. collective desert across social groups",
+        "Deserving economic rewards vs. deserving social recognition"
+      ],
+      ans:1,
+      exp:"The author distinguishes between deserving one's natural talents 'in the sense of having earned them through prior choices' (which no one can do) and deserving 'the fruits of their effort given their talents' (which people can do). The runner example illustrates: she didn't deserve her speed but deserves her win given her training. This is precisely the distinction in option B. Options C and D introduce distinctions not made in the passage."
+    },
+    {
+      q:"Which of the following would most strengthen the argument made in paragraphs two and three that meritocratic outcomes reflect luck more than desert?",
+      choices:[
+        "Evidence that high-income individuals work longer hours than low-income individuals",
+        "A study showing that self-made billionaires attribute their success primarily to hard work",
+        "Research demonstrating that a large proportion of the variance in lifetime earnings is explained by parental income, zip code of birth, and genetic factors rather than individual effort",
+        "Data showing that educational attainment is the strongest predictor of lifetime earnings"
+      ],
+      ans:2,
+      exp:"Paragraphs two and three argue that meritocratic outcomes reflect 'the luck of good genes, good parents, and a favorable social position.' Evidence that parental income, birth location, and genetics explain a large portion of earnings variance would directly support this — showing that outcomes track unchosen circumstances more than individual effort. Long working hours (A) and self-attribution (B) would support the meritocratic view. Educational attainment as predictor (D) is ambiguous — education itself reflects inherited advantage, so it could support either side, but it is a weaker and more indirect support than C."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════════
+// CARS PASSAGE 10: Art History — Authenticity and Forgery
+// ══════════════════════════════════════════════════════════════
+{
+  id:'p_cars_10',
+  topic:'CARS',
+  title:'The Aesthetics of Authenticity: What Art Forgery Reveals',
+  passage:`In 1937, Han van Meegeren completed a painting he titled The Supper at Emmaus, in a style he had spent years perfecting — that of the seventeenth-century Dutch master Johannes Vermeer. The painting was authenticated by the leading Vermeer scholar of the day, Abraham Bredius, and sold for a price equivalent to several million dollars in current terms. It hung in a museum for years, admired by visitors and critics as a major discovery. When van Meegeren confessed to the forgery in 1945, the Emmaus was overnight transformed from a masterwork to a curiosity. Nothing about the physical object had changed; what changed was its history.
+
+This case raises a question that has fascinated aestheticians ever since: does authenticity matter to aesthetic value, or is it a kind of snobbery — a preference for provenance over perception? Nelson Goodman argued that in some art forms, authenticity is aesthetically relevant even if the perceiver cannot currently detect the difference between original and forgery. His argument turned on the concept of a "symptom of the aesthetic": if two objects are perceptually identical now but differ in their history, that difference may make them perceptually distinguishable in principle, as techniques of analysis improve. Moreover, for Goodman, every aesthetic experience involves learning to perceive correctly, and knowing a work is a forgery changes the way we should look at it — attending to what we know about how it was made and what it expresses.
+
+Alfred Lessing took a more deflationary view. For Lessing, the value of authentic works derives not from their perceptual properties but from their art-historical significance — their position in the development of an artist's oeuvre, their influence on subsequent work, their role in the history of ideas. The forgery, however technically accomplished, occupies no position in this history; it contributes nothing to our understanding of how Vermeer developed as an artist or influenced his contemporaries, because Vermeer did not paint it. On this view, the aesthetic demotion of the Emmaus is not irrational; we are not merely revising our estimate of the painting's financial value — we are recognizing that it cannot do what we thought it could do.
+
+A more radical response questions whether authenticity-based valuation reflects a broader cultural ideology rather than a genuine aesthetic principle. Denis Dutton has argued that the concept of the authentic artwork is historically specific — it emerged with the Romantic cult of individual genius, which tied the value of an art object to the expressive history of its production by a singular creative mind. Pre-modern cultures valued skill and tradition over originality; Islamic geometric art, medieval icon painting, and Aboriginal sand paintings are not degraded by being reproduced or collectively produced. The insistence that only the original object has full aesthetic standing may say more about the cultural values of modern Western art institutions than about the intrinsic properties of art objects.
+
+The van Meegeren case continues to generate productive discomfort because it forces us to articulate what we think art is for. If art is for providing a certain kind of perceptual or emotional experience, then a perfect forgery serves that purpose as well as the original. If art is for connecting us to a particular human history — the mind and hand of a specific artist, working in a specific moment — then the forgery fails on its most important dimension. Our response to forgery may be the most honest test of which of these we actually believe.`,
+  questions:[
+    {
+      q:"The primary purpose of the van Meegeren anecdote in the opening paragraph is to:",
+      choices:[
+        "Argue that art experts are systematically incompetent at authentication",
+        "Illustrate that the aesthetic and monetary value of an artwork can change entirely based on its history rather than its physical properties, establishing the central problem of the passage",
+        "Show that forgery is a victimless crime that should not be criminally prosecuted",
+        "Demonstrate that Vermeer's style was so distinctive that only a genius could replicate it"
+      ],
+      ans:1,
+      exp:"The author ends the anecdote by noting 'nothing about the physical object had changed; what changed was its history' — directly establishing the central puzzle the passage will explore. The anecdote is not primarily about expert incompetence (A), legal status (C), or Vermeer's style (D). It sets up the question of whether authenticity matters to aesthetic value."
+    },
+    {
+      q:"Goodman's argument that authenticity is aesthetically relevant even when a forgery is perceptually indistinguishable rests on which key claim?",
+      choices:[
+        "Forged works always contain detectable technical errors that trained observers can identify",
+        "The monetary value of authentic works depends on their provenance, which affects their aesthetic value",
+        "Knowing a work is a forgery changes how we should look at it, and perceptual indistinguishability now does not preclude distinguishability in principle as analysis improves",
+        "Authentic works are produced with greater intentionality than forgeries"
+      ],
+      ans:2,
+      exp:"The author describes Goodman's argument as twofold: (1) perceptually indistinguishable objects may become distinguishable as techniques improve, and (2) 'knowing a work is a forgery changes the way we should look at it.' Technical errors (A) would undermine the perceptual indistinguishability premise Goodman is addressing. Monetary value (B) is not Goodman's aesthetic argument. Intentionality (D) is not Goodman's argument as described."
+    },
+    {
+      q:"Lessing's position, as described in the passage, implies that the aesthetic demotion of the Emmaus after van Meegeren's confession was:",
+      choices:[
+        "Irrational, because the painting's perceptual properties did not change",
+        "Rational, because the painting cannot do what authentic Vermeers can do — contribute to our understanding of Vermeer's development and influence on art history",
+        "Economically motivated rather than genuinely aesthetic",
+        "A temporary overreaction that would eventually be corrected as the forgery gained its own art-historical standing"
+      ],
+      ans:1,
+      exp:"The author states Lessing's view: 'The aesthetic demotion of the Emmaus is not irrational; we are not merely revising our estimate of the painting's financial value — we are recognizing that it cannot do what we thought it could do.' What it cannot do is 'contribute to our understanding of how Vermeer developed as an artist or influenced his contemporaries.' This supports B. Lessing's view denies it is irrational (A), economically motivated (C), or temporary (D)."
+    },
+    {
+      q:"Denis Dutton's argument is described as 'more radical' than the other positions because it:",
+      choices:[
+        "Claims that forgeries should be valued equally to authentic works in all contexts",
+        "Argues that the authentic-work concept itself reflects a historically specific cultural ideology — the Romantic cult of individual genius — rather than a universal aesthetic principle",
+        "Proposes that museums should disclose the authentic status of all works to visitors",
+        "Suggests that non-Western art forms are aesthetically superior to Western ones"
+      ],
+      ans:1,
+      exp:"The author describes Dutton's position as questioning 'whether authenticity-based valuation reflects a broader cultural ideology rather than a genuine aesthetic principle' and tracing the authentic-artwork concept to 'the Romantic cult of individual genius.' This is more radical because it challenges the premise shared by Goodman and Lessing — that authenticity matters — by historicizing and relativizing it. Dutton does not claim forgeries are always equal (A), propose museum disclosure policy (C), or rank non-Western art above Western (D — he describes non-Western practices as alternatives, not as superior)."
+    },
+    {
+      q:"The author's final paragraph frames the van Meegeren case as 'forcing us to articulate what we think art is for.' This framing suggests that the author views the forgery debate as:",
+      choices:[
+        "Primarily a legal question about intellectual property rights",
+        "Resolvable through better authentication technology",
+        "A diagnostic test for our underlying assumptions about the purpose of art — whether art is for perceptual experience or for connection to human history",
+        "An argument for the superiority of the Lessing position over the Goodman position"
+      ],
+      ans:2,
+      exp:"The author explicitly frames the debate as forcing articulation of 'what we think art is for' and presents two competing answers: perceptual/emotional experience (in which case the forgery serves equally well) vs. connection to a specific human history (in which case the forgery fails fundamentally). The author describes this as 'the most honest test of which of these we actually believe.' Legal issues (A) and technology (B) are not the author's framing. The author does not endorse Lessing over Goodman (D) — both are presented as positions."
+    }
+  ]
+},
+
+]; // end CARS_PASSAGES
+
+const CARS_EXTRA = [
+
+// ══════════════════════════════════════════════════════════════
+// CARS PASSAGE 11: Architecture & Cultural Memory
+// ══════════════════════════════════════════════════════════════
+{
+  id:'p_cars_11',
+  topic:'CARS',
+  title:'Demolition, Preservation, and the Politics of Urban Memory',
+  passage:`In 1963, New York City demolished Pennsylvania Station. The original structure, completed in 1910, was a Beaux-Arts monument modeled on the Baths of Caracalla: a vast hall of travertine columns, coffered ceilings, and natural light flooding through iron-and-glass vaults. Passengers descended into the city through a space that announced arrival as a civic occasion. The replacement — a low-ceilinged warren of corridors beneath Madison Square Garden, opened in 1968 — announced nothing except the imperative to move. The architectural critic Ada Louise Huxtable wrote at the time that one entered the old Penn Station like a god and one now scurried in like a rat.
+
+The demolition provoked outrage that directly precipitated New York's Landmarks Preservation Law of 1965, and similar legislation followed in cities across the country. The preservationist movement that emerged from Penn Station's rubble was not simply nostalgic. Its practitioners made a serious claim: that buildings are not merely containers for activity but are themselves carriers of collective memory and civic meaning. To demolish a significant building is not simply to remove a structure but to excise a form of shared experience — a physical record of how a community once understood its aspirations.
+
+This claim has been contested from several directions. Developers and city planners have argued that the preservationist impulse, taken too far, calcifies cities into museums of themselves, preventing the adaptive reuse and densification that urban vitality requires. Jane Jacobs, whose influence on urban planning has been enormous, was ambivalent about historic preservation precisely because she recognized that what makes cities live is not the preservation of individual buildings but the maintenance of mixed use, human scale, and the fine grain of street life — conditions that can be destroyed by over-regulated preservation districts as surely as by demolition.
+
+A more pointed critique targets the selectivity of preservation. What gets preserved is rarely a neutral sample of the built environment: it tends to be the monumental, the expensive, and the architecturally celebrated — the buildings of commerce, government, and cultural elites. The vernacular architecture of working-class neighborhoods, immigrant communities, and industrial districts is routinely demolished without protest while landmark status is vigorously defended for structures that never served those communities' needs. Critics from traditions of urban social history have argued that preservation, in practice, often functions as a mechanism of gentrification: stabilizing property values and neighborhood character in ways that benefit new, wealthier residents at the expense of those who actually inhabited the preserved spaces.
+
+The tension between preservation and change is, at its core, a dispute about whose memory counts and whose future matters. A city that preserves only its most celebrated buildings enshrines a particular version of its history. A city that demolishes freely forfeits the physical evidence through which alternative histories might be recovered. Neither extreme serves the full range of interests that a democratic city ought to represent. What is required is not a formula but a politics — a process of negotiation among competing claims on space, memory, and future possibility that is accountable to the full diversity of those who inhabit urban places.`,
+  questions:[
+    {
+      q:"The author opens with the Pennsylvania Station example primarily in order to:",
+      choices:[
+        "Argue that Beaux-Arts architecture is superior to modernist design",
+        "Establish, through a concrete case, the stakes of architectural demolition — the loss of civic meaning and collective memory — that the rest of the passage analyzes",
+        "Show that city governments consistently make poor decisions about urban development",
+        "Demonstrate that public outrage is an effective tool for changing preservation policy"
+      ],
+      ans:1,
+      exp:"The Penn Station example is not an end in itself but a vehicle for establishing the passage's central concern: that demolishing significant buildings excises 'a form of shared experience — a physical record of how a community once understood its aspirations.' The contrast between entering 'like a god' and scurrying 'like a rat' dramatizes this stakes. The example does not argue for Beaux-Arts superiority (A), make a general claim about government decision-making (C), or focus primarily on the policy outcome (D — preservation law is mentioned but is not the point of the example)."
+    },
+    {
+      q:"Jane Jacobs's ambivalence about historic preservation, as described in the passage, stemmed from her view that:",
+      choices:[
+        "Individual buildings are more important than street-level urban activity",
+        "Preservation districts can destroy the mixed use, human scale, and street-life conditions that make cities vital — the same conditions that demolition can also destroy",
+        "The preservationist movement was motivated primarily by nostalgia rather than civic concern",
+        "Developers and city planners are better positioned than preservationists to make decisions about the built environment"
+      ],
+      ans:1,
+      exp:"The author states Jacobs 'recognized that what makes cities live is not the preservation of individual buildings but the maintenance of mixed use, human scale, and the fine grain of street life — conditions that can be destroyed by over-regulated preservation districts as surely as by demolition.' Her ambivalence came from seeing preservation as a potential threat to the urban vitality she cared about. She did not prioritize individual buildings over street activity (A — the reverse), attribute nostalgia to preservationists (C), or favor developers (D)."
+    },
+    {
+      q:"The critique of preservation's 'selectivity,' as described in paragraph four, implies that current preservation practice:",
+      choices:[
+        "Protects too many buildings, slowing urban development unnecessarily",
+        "Systematically favors monumental and elite-associated structures while neglecting vernacular and working-class architecture, and in doing so may function as a gentrification mechanism",
+        "Is controlled by architectural historians with no accountability to urban residents",
+        "Fails to apply consistent aesthetic standards across different building types"
+      ],
+      ans:1,
+      exp:"The author states that what gets preserved 'tends to be the monumental, the expensive, and the architecturally celebrated' while 'vernacular architecture of working-class neighborhoods, immigrant communities, and industrial districts is routinely demolished without protest.' This selectivity means preservation 'often functions as a mechanism of gentrification.' The critique is about whose buildings get protected, not about the quantity of preservation (A), about historians controlling the process (C), or about aesthetic inconsistency (D)."
+    },
+    {
+      q:"The author's proposed resolution in the final paragraph is best described as:",
+      choices:[
+        "A clear formula for balancing preservation and demolition based on a building's age and architectural significance",
+        "An acknowledgment that neither pure preservation nor free demolition serves democratic interests, and that what is needed is an accountable political process of negotiation among competing claims",
+        "A call for federal legislation to standardize preservation criteria across American cities",
+        "An argument that community memory should always take precedence over economic development"
+      ],
+      ans:1,
+      exp:"The final paragraph explicitly rejects 'a formula' in favor of 'a politics — a process of negotiation among competing claims on space, memory, and future possibility that is accountable to the full diversity of those who inhabit urban places.' Neither extreme (full preservation or free demolition) is endorsed. No federal legislation is proposed (C), and community memory is not given unconditional precedence over development (D — the author calls for balancing competing claims)."
+    },
+    {
+      q:"Which of the following would the author most likely consider an example of preservation functioning as gentrification, as described in paragraph four?",
+      choices:[
+        "A city grants landmark status to a nineteenth-century factory district, which subsequently attracts affluent residents and boutique businesses while former industrial workers are priced out",
+        "A city demolishes a Beaux-Arts train station to build a sports arena",
+        "A preservation society successfully campaigns to restore a historic African American neighborhood's architecture",
+        "A city requires new construction to match the scale and materials of surrounding historic buildings"
+      ],
+      ans:0,
+      exp:"The author describes preservation functioning as gentrification when it 'stabiliz[es] property values and neighborhood character in ways that benefit new, wealthier residents at the expense of those who actually inhabited the preserved spaces.' A landmark factory district attracting affluent residents while pricing out former workers is exactly this pattern. Demolishing a train station (B) is the opposite of preservation. Restoring a historic African American neighborhood (C) serves the community that inhabited it — the author would likely view this positively. Scale-matching requirements (D) are a form of contextual preservation, not necessarily gentrification."
+    }
+  ]
+},
+
+// ══════════════════════════════════════════════════════════════
+// CARS PASSAGE 12: Natural Sciences for Non-Scientists
+// (History of science with strong authorial voice — no science knowledge needed)
+// ══════════════════════════════════════════════════════════════
+{
+  id:'p_cars_12',
+  topic:'CARS',
+  title:'The Social Life of Scientific Instruments',
+  passage:`We tend to think of scientific instruments as transparent windows onto nature — neutral devices that simply reveal what is already there. The history of science suggests otherwise. Instruments do not merely detect; they constitute. The phenomena that scientists study are, in important ways, artifacts of the tools used to study them. Understanding this does not undermine science; it deepens our appreciation of what scientific knowledge actually is and how it is achieved.
+
+Consider the microscope. When Antonie van Leeuwenhoek first observed microorganisms in the 1670s, he did not simply discover a pre-existing world of tiny creatures that had been waiting, invisibly, for someone to look. He produced a new kind of object — the microscopical animalcule — that existed, as a scientific object, only in relation to the instrument, the technique, the trained eye, and the community of practitioners who could recognize and reproduce the observation. The claim is not the absurd one that microorganisms did not exist before Leeuwenhoek; it is the more careful one that "microorganism" as a scientific object — as something that can be described, classified, argued about, and built upon — came into existence through a specific conjunction of material, social, and conceptual resources.
+
+This view, associated with the philosopher Ian Hacking's concept of "representing and intervening," implies that scientific instruments do not stand passively between the observer and nature. They actively shape what can be seen, what counts as evidence, and what questions can be posed. The design of an instrument embodies theoretical assumptions: a telescope built on the assumption that light travels in straight lines will fail to detect phenomena that require a different optics. Instruments are, in this sense, materialized theories — and they carry the commitments of their makers into every observation made with them.
+
+The social dimensions of instrumentation are equally significant. Access to expensive instruments has never been uniformly distributed. The history of colonial science is, in part, a history of instrument ownership: the ability to conduct systematic astronomical observation, geological survey, or biological classification was concentrated in metropolitan centers and extended to the periphery in ways that shaped what was known about whom. Indigenous knowledge of local flora, fauna, and astronomical phenomena was routinely appropriated without credit, filtered through European instruments and classificatory schemes, and returned as "science" — a process that simultaneously produced knowledge and effaced its sources.
+
+None of this means that scientific knowledge is merely a social construction in the dismissive sense — that it is no more reliable than folklore or that it cannot tell us genuine truths about the world. What it means is that scientific knowledge is achieved knowledge: the product of specific people, in specific places, using specific tools, operating within specific communities of practice. Acknowledging this does not relativize science; it historicizes it. And history, in this case, is not a threat to science but a resource for understanding both its remarkable achievements and its genuine limitations.`,
+  questions:[
+    {
+      q:"The author's central claim about scientific instruments is best summarized as:",
+      choices:[
+        "Instruments introduce systematic errors into scientific observation that must be corrected for",
+        "Instruments are not neutral detectors but active shapers of what can be observed, what counts as evidence, and what scientific objects come into existence",
+        "The development of better instruments is the primary driver of scientific progress",
+        "Instruments are reliable only when operated by trained scientists within established communities of practice"
+      ],
+      ans:1,
+      exp:"The author states in paragraph one that 'instruments do not merely detect; they constitute' and develops this through the Leeuwenhoek example, the Hacking discussion, and the colonial science argument. The claim is about the constitutive role of instruments, not systematic error (A), progress (C), or operator reliability (D — that is mentioned but is not the central claim)."
+    },
+    {
+      q:"The author's claim about Leeuwenhoek is specifically that:",
+      choices:[
+        "Leeuwenhoek fabricated his observations of microorganisms",
+        "Microorganisms did not exist before Leeuwenhoek built his microscope",
+        "The scientific object 'microorganism' — as something describable, classifiable, and arguable — came into existence through a specific conjunction of instrument, technique, trained observation, and community, not through passive detection of a pre-existing category",
+        "Leeuwenhoek's observations were not reproducible and therefore not genuinely scientific"
+      ],
+      ans:2,
+      exp:"The author carefully distinguishes the claim: 'The claim is not the absurd one that microorganisms did not exist before Leeuwenhoek; it is the more careful one that microorganism as a scientific object... came into existence through a specific conjunction of material, social, and conceptual resources.' Fabrication (A) and non-reproducibility (D) are the opposite of what is claimed. The denial that microorganisms existed before Leeuwenhoek (B) is explicitly called 'the absurd' version of the claim, which the author rejects."
+    },
+    {
+      q:"The author describes instruments as 'materialized theories.' This phrase most nearly means that:",
+      choices:[
+        "Scientific theories are ultimately reducible to the instruments used to test them",
+        "The design of an instrument embodies the theoretical assumptions of its makers, so that every observation made with it carries those commitments",
+        "Theoretical science is less valuable than experimental science because theory cannot be tested without instruments",
+        "Instruments become outdated as theories change and must be regularly replaced"
+      ],
+      ans:1,
+      exp:"The author explains 'materialized theories' immediately after using the phrase: 'The design of an instrument embodies theoretical assumptions... Instruments are, in this sense, materialized theories — and they carry the commitments of their makers into every observation made with them.' The phrase means instruments encode theory, not that theories reduce to instruments (A), that experimental science is superior (C), or that instruments become outdated (D)."
+    },
+    {
+      q:"The passage's discussion of colonial science serves primarily to:",
+      choices:[
+        "Argue that European science produced inferior knowledge compared to indigenous knowledge systems",
+        "Illustrate the social and political dimensions of instrument access — showing that who owns instruments shapes what is known and whose knowledge is credited",
+        "Demonstrate that scientific classification schemes are inherently biased and should be abandoned",
+        "Provide a historical example of instruments introducing systematic measurement errors"
+      ],
+      ans:1,
+      exp:"The colonial science paragraph follows the argument about social dimensions of instrumentation and shows that 'access to expensive instruments has never been uniformly distributed' — affecting 'what was known about whom' and enabling appropriation of indigenous knowledge without credit. The point is about power, access, and credit in knowledge production. The author does not claim European science was inferior (A), call for abandoning classification schemes (C), or discuss measurement errors (D)."
+    },
+    {
+      q:"In the final paragraph, the author draws a distinction between science being 'merely a social construction' and science being 'achieved knowledge.' The purpose of this distinction is to:",
+      choices:[
+        "Concede that the author's earlier arguments were overstated and that instruments are in fact neutral",
+        "Argue that social constructionism is a more accurate account of science than realism",
+        "Preempt the objection that acknowledging science's social dimensions relativizes it — distinguishing between dismissive social constructionism and a historicizing approach that respects science's achievements while acknowledging its situatedness",
+        "Demonstrate that scientific knowledge is more reliable than other forms of knowledge"
+      ],
+      ans:2,
+      exp:"The author states: 'None of this means that scientific knowledge is merely a social construction in the dismissive sense... What it means is that scientific knowledge is achieved knowledge.' The distinction preempts the relativism objection — acknowledging social dimensions does not collapse science into folklore. This is a defensive move, not a concession (A), not an endorsement of constructionism over realism (B), and not a comparison with other knowledge forms (D)."
+    }
+  ]
+},
+
+]; // end CARS_EXTRA
+
+const ALL_PASSAGES = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES, ...OCHEM_PASSAGES, ...PHYSICS_PASSAGES, ...BEHAVIORAL_PASSAGES, ...CARS_PASSAGES, ...CARS_EXTRA];
 
 function buildPassageSelector() {
   const stats = loadStats();
@@ -6091,6 +7000,22 @@ function buildPassageSelector() {
     {
       label: 'General Chemistry',
       passages: ALL_PASSAGES.filter(p => p.id.startsWith('p_gchem'))
+    },
+    {
+      label: 'Organic Chemistry',
+      passages: ALL_PASSAGES.filter(p => p.id.startsWith('p_oc'))
+    },
+    {
+      label: 'Physics & Math',
+      passages: ALL_PASSAGES.filter(p => p.id.startsWith('p_ph'))
+    },
+    {
+      label: 'Behavioral Science',
+      passages: ALL_PASSAGES.filter(p => p.id.startsWith('p_bs'))
+    },
+    {
+      label: 'CARS',
+      passages: ALL_PASSAGES.filter(p => p.id.startsWith('p_cars'))
     }
   ];
 
