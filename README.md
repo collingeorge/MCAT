@@ -1,4 +1,4 @@
-[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
 ![Version](https://img.shields.io/badge/Version-Active_Development-blue.svg)
 ![Last Updated](https://img.shields.io/badge/Updated-Mar_2026-purple.svg)
 ![Status](https://img.shields.io/badge/Status-Active_Study_Project-green.svg)
@@ -109,7 +109,9 @@ MileDown MCAT flashcard decks (tab-separated cloze-deletion `.txt` format), 5 fi
 
 ## License
 
-Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+Licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
+
+Free to share and adapt with attribution. Commercial use not permitted.
 
 ## Citation
 
