@@ -1,5 +1,5 @@
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-![Version](https://img.shields.io/badge/Version-2.4-blue.svg)
+![Version](https://img.shields.io/badge/Version-2.5-blue.svg)
 ![Last Updated](https://img.shields.io/badge/Updated-Oct_2026-purple.svg)
 
 # MCAT Study App
@@ -50,6 +50,15 @@ It sits between Anki (pure recall) and UWorld (full exam simulation). You get fa
 - **Asked a different way.** 718 facts have an automatic alternate form, for 3,630 ways to ask the 2,807 facts:
   - 565 definition questions can be reversed: the app shows the term and asks which description fits, with wrong answers drawn from definitions in the same topic;
   - multi-blank questions can be asked one blank at a time, with the other blanks filled in.
+- **Recall first (optional).** Hide the answer choices until you've thought of the answer (Space to reveal). Producing an answer from memory builds stronger retention than recognizing it in a list.
+- **Mistake log.** After a miss, tap why: didn't know it, mixed it up, misread, calculation slip, or ran out of time. The Score report shows your patterns overall and by subject, your most-confused pairs (for example transduction ↔ transformation), and targeted advice. Passage mode is included.
+- **Confidence calibration.** Shows how often your "Knew it", "Unsure" and "Guessed" answers are actually right in each subject, and flags where you're overconfident (the costliest pattern) or underconfident.
+- **Study plan to your test date.** Enter your MCAT date, study days per week, and daily time. The app then:
+  - spreads unseen material over your study days up to a final review phase;
+  - sets a daily question target (new plus due), and sizes the Smart Session to what's left for today;
+  - tracks whether you're on pace;
+  - schedules full-length exams: this app's two first, then the AAMC's four official exams weekly in the final month, always at least 3 days apart.
+- **AAMC content categories.** Every topic is mapped to its primary AAMC content category (1A–10A, plus scientific reasoning skills), with coverage, mastery, and a one-click drill per category. The map also shows categories that recall questions don't cover.
 - **Study your exam mistakes.** Full-length exams don't adapt while you take them, just like the real MCAT. Afterward, one click builds a reinforcement session from the subjects you missed, weighted by how many you missed in each.
 - **Topic mastery map.** Every subtopic is rated as weak, building, solid or mastered, with the next recommended focus. Ratings weigh harder questions more and recent answers most.
 - **Shuffled answers.** Choice order is randomized every time, so you learn the content, not the letter position.
@@ -145,7 +154,7 @@ For MCAT study only. This is not medical, clinical or psychological advice. Cont
 The app's code and original content are licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/): free to share and adapt with attribution, but not for commercial use. Third-party material, including the original MileDown cards, remains subject to its owners' terms.
 
 ## Citation
-George, C. B. (2026). *MCAT Study App* (Version 2.4). https://github.com/collingeorge/MCAT
+George, C. B. (2026). *MCAT Study App* (Version 2.5). https://github.com/collingeorge/MCAT
 
 ---
 *For MCAT practice only. MCAT® is a registered trademark of the Association of American Medical Colleges (AAMC), which does not endorse this project. Not affiliated with the AAMC or MileDown.*

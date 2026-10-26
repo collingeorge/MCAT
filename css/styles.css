@@ -662,3 +662,31 @@ button:focus-visible,[role=button]:focus-visible{outline:2px solid var(--navy-mi
 .exp-confusion{font-size:12px;line-height:1.6;background:var(--amber-fill);border-left:3px solid var(--amber-warm);padding:8px 10px;margin:4px 0 10px;color:#5C3A00}
 .score-sub.reinforce{color:var(--green);font-weight:700}
 .study-misses{border-left-color:var(--green)}
+
+/* ════════ Study tools ════════ */
+.toggle{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:12px;color:var(--text-body);line-height:1.5;cursor:pointer}
+.toggle input{margin-top:3px;width:16px;height:16px;flex-shrink:0;accent-color:var(--navy)}
+.recall-first{background:var(--blue-light);border:1px dashed var(--navy-mid);padding:16px;text-align:center}
+.recall-first p{font-size:13px;color:var(--text-body);margin-bottom:10px}
+.err-row .conf-btn{font-size:10px;padding:5px 9px}
+.advice{font-size:12px;line-height:1.6;background:var(--blue-light);border-left:3px solid var(--navy);padding:10px 12px;margin:10px 0}
+.disc-patterns{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+table.calib,table.aamc{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px}
+table.calib th{text-align:left;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--slate);padding:6px 4px;border-bottom:1px solid var(--border-med)}
+table.calib td,table.aamc td{padding:6px 4px;border-bottom:1px solid var(--border);vertical-align:top}
+table.calib small{color:var(--slate)}
+table.aamc td:first-child{width:44px;color:var(--navy)}
+table.aamc td:nth-child(3){white-space:nowrap;color:var(--slate);font-size:11px}
+table.aamc td:last-child{white-space:nowrap;text-align:right}
+table.aamc td:last-child .micro-btn{margin-left:6px;padding:2px 7px}
+table.aamc tr.gap td{opacity:.65}
+.plan-strip{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between;width:100%;margin:-6px 0 16px;padding:10px 14px;background:var(--white);border:1px solid var(--border-med);font:12px Arial,Helvetica,sans-serif;color:var(--text-body);cursor:pointer;text-align:left}
+.plan-strip:hover{border-color:var(--navy)}
+.plan-strip.empty{color:var(--navy-mid);font-weight:700}
+.plan-strip .ok{color:var(--green);font-weight:700}
+.plan-strip .behind{color:var(--red);font-weight:700}
+.plan-form{display:grid;gap:12px}
+.plan-form label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--navy)}
+.plan-form input,.plan-form select{font:14px Arial,Helvetica,sans-serif;padding:8px 10px;border:1px solid var(--border-med);background:var(--white);color:var(--text);text-transform:none;letter-spacing:0}
+.milestones{font-size:12px;line-height:1.9;padding-left:18px;color:var(--text-body)}
+@media (max-width:640px){table.aamc td:nth-child(2){font-size:11px}table.aamc td:nth-child(3){display:none}}
