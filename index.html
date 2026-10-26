@@ -22,6 +22,7 @@
       <p class="hero-sub">Recall · Passages · Full-length exams · Collin B. George</p>
     </header>
 
+    <div id="home-score"></div>
     <div class="home-actions" id="home-actions"></div>
 
     <div class="mode-toggle" role="tablist" aria-label="Study mode">
@@ -34,9 +35,11 @@
       <div class="config-card">
         <div class="section-label">Questions per session</div>
         <div class="count-row" id="count-row"></div>
-        <p class="muted-note" style="margin-top:10px">Questions due for spaced review come first, then ones you haven't seen. Answer choices are shuffled every time.</p>
+        <div class="section-label" style="margin-top:16px">Practice mix</div>
+        <div class="count-row" id="mix-row"></div>
+        <p class="muted-note" id="mix-note" style="margin-top:10px"></p>
       </div>
-      <div class="config-card">
+      <div class="config-card" id="subject-card">
         <div class="config-header">
           <div class="section-label">Subjects</div>
           <div class="micro-row">

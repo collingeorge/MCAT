@@ -6,6 +6,7 @@ const EXAM1_CP_PASSAGES = [
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_cp_1',
+  subj:'biochemistry',
   type:'passage',
   topic:'C/P',
   title:'Carbonic Anhydrase Kinetics and Sulfonamide Inhibition',
@@ -51,6 +52,7 @@ The sulfonamide –SO₂NH₂ group coordinates directly to the active site Zn²
       exp:"kcat/Km is **catalytic efficiency**, the apparent second-order rate constant when [S] << Km: v ≈ (kcat/Km)[E][S]. For CA II with NPA, 1.4 × 10⁴ s⁻¹ ÷ 4.2 × 10⁻³ M ≈ 3.3 × 10⁶ M⁻¹s⁻¹. The tempting distractor describes kcat alone (the turnover number at saturation); Km alone is the [S] at half-maximal velocity."
     },
     {
+      subj:'organic_chem',
       q:"Electron-withdrawing substituents on the sulfonamide benzene ring increase inhibitor potency by enhancing binding to Zn²⁺. What is the most likely mechanism?",
       choices:[
         "They raise the NH pKa, so more neutral sulfonamide is available to bind Zn²⁺",
@@ -80,6 +82,7 @@ The sulfonamide –SO₂NH₂ group coordinates directly to the active site Zn²
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_cp_2',
+  subj:'physics',
   type:'passage',
   topic:'C/P',
   title:'Stenotic Coronary Artery and Hemodynamic Consequences',
@@ -143,6 +146,7 @@ Percutaneous coronary intervention (PCI) with stent placement restores the LAD d
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_cp_3',
+  subj:'gen_chem',
   type:'passage',
   topic:'C/P',
   title:'The Electron Transport Chain as an Electrochemical System',
@@ -177,6 +181,7 @@ Researchers treated isolated mitochondria with cyanide (CN⁻), which binds with
       exp:"ΔG°' = −nFE°'cell = −(2)(96,485 C/mol)(1.14 V) ≈ −220,000 J/mol = **−220 kJ/mol**. Using n = 1 gives −110 kJ/mol, and dropping the negative sign gives +220 kJ/mol. Since ATP synthesis needs about +30 kJ/mol, this is enough for ~7 ATP in principle, though only ~2.5 ATP per NADH are made in practice."
     },
     {
+      subj:'biochemistry',
       q:"Cyanide inhibits Complex IV by binding Fe³⁺ in cytochrome a₃. What is the immediate downstream consequence for the proton gradient?",
       choices:[
         "It increases, because protons accumulate in the matrix",
@@ -188,6 +193,7 @@ Researchers treated isolated mitochondria with cyanide (CN⁻), which binds with
       exp:"Electron flow and proton pumping are coupled. When cyanide blocks Complex IV, electrons back up and Complexes I and III also stop, so **all pumping ceases**, while protons keep re-entering the matrix through ATP synthase and leak pathways. The gradient therefore collapses, as the passage reports. Complexes I and III cannot keep pumping because their electrons have nowhere to go."
     },
     {
+      subj:'biochemistry',
       q:"DNP acts as a protonophore, dissipating the proton gradient without blocking the ETC. Which observation would best confirm DNP's mechanism?",
       choices:[
         "Decreased O₂ consumption with decreased ATP synthesis",
@@ -217,6 +223,7 @@ Researchers treated isolated mitochondria with cyanide (CN⁻), which binds with
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_cp_4',
+  subj:'gen_chem',
   type:'passage',
   topic:'C/P',
   title:'Arterial Blood Gas Analysis in a Critically Ill Patient',
@@ -280,6 +287,7 @@ A second patient has diabetic ketoacidosis with HCO₃⁻ 8 mEq/L. This patient'
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_cp_5',
+  subj:'physics',
   type:'passage',
   topic:'C/P',
   title:'Fiber Optic Bronchoscopy and Total Internal Reflection',
@@ -343,6 +351,7 @@ During the procedure, the bronchoscopist notices that when a laser pointer (λ =
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_cp_6',
+  subj:'organic_chem',
   type:'passage',
   topic:'C/P',
   title:'Aspirin Synthesis and Hydrolysis Kinetics',
@@ -377,6 +386,7 @@ Pharmacologically, aspirin irreversibly acetylates the serine-530 residue of cyc
       exp:"Pure compounds melt sharply over ≤ 2°C. **Impurities** disrupt the crystal lattice, so the mixture melts lower and over a broader range (melting point depression, analogous to freezing point depression). A 120–128°C range, well below 135°C, signals an impure product, most likely with unreacted salicylic acid. Complete hydrolysis would give salicylic acid itself, which melts higher (~159°C), not lower."
     },
     {
+      subj:'gen_chem',
       q:"At pH 9.0, [OH⁻] = 10⁻⁵ M. Using rate = k[aspirin][OH⁻], if [aspirin] = 0.01 M, what is the initial rate of hydrolysis?",
       choices:[
         "1.5 × 10⁻⁷ mol/L·s",
@@ -388,6 +398,7 @@ Pharmacologically, aspirin irreversibly acetylates the serine-530 residue of cyc
       exp:"rate = k[aspirin][OH⁻] = (1.5 × 10⁻² M⁻¹s⁻¹)(1 × 10⁻² M)(1 × 10⁻⁵ M) = **1.5 × 10⁻⁹ M/s**. The reaction is second order overall (first order in each reactant). Omitting [aspirin] gives 1.5 × 10⁻⁷; at pH 7.4, [OH⁻] ≈ 2.5 × 10⁻⁷ M, so base-catalyzed hydrolysis would be ~40× slower than at pH 9."
     },
     {
+      subj:'biochemistry',
       q:"Aspirin irreversibly acetylates COX at Ser-530. Which amino acid property makes serine an effective target for aspirin's acyl transfer?",
       choices:[
         "Its side-chain carboxyl group acts as a nucleophile",
@@ -406,6 +417,7 @@ Pharmacologically, aspirin irreversibly acetylates the serine-530 residue of cyc
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_cp_7',
+  subj:'gen_chem',
   type:'passage',
   topic:'C/P',
   title:'Thermodynamics of Protein Denaturation',
@@ -469,6 +481,7 @@ A mutant lysozyme with a disulfide bond between residues 3 and 97 (wild-type lac
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_cp_8',
+  subj:'gen_chem',
   type:'passage',
   topic:'C/P',
   title:'X-ray Fluorescence in Clinical Chemistry and Toxicology',
@@ -503,6 +516,7 @@ A separate study used XRF to detect zinc (Zn, Z = 30) in metallothionein-bound p
       exp:"By **Moseley's law**, Kα frequency scales with (Z − 1)². Lead's 82 protons hold its K and L electrons far more tightly than zinc's 30, so the K–L gap is much larger: 8.6 × (81/29)² ≈ 67 keV, close to the observed 72.8 keV. The number of shells is not the cause; the K–L gap is set mainly by nuclear charge, and the K shell is always n = 1."
     },
     {
+      subj:'physics',
       q:"The patient's tibial bone lead is 58 μg/g with a half-life of 10 years. Approximately how many years ago did his peak exposure occur if bone lead stores have been decreasing for 2 half-lives since peak exposure?",
       choices:[
         "5 years ago",
@@ -532,6 +546,7 @@ A separate study used XRF to detect zinc (Zn, Z = 30) in metallothionein-bound p
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_cp_9',
+  subj:'physics',
   type:'passage',
   topic:'C/P',
   title:'Cardiac Pacemakers and Electrical Circuit Principles',
@@ -595,6 +610,7 @@ A patient's pacing threshold increases due to fibrosis at the lead tip. The devi
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_cp_10',
+  subj:'physics',
   type:'passage',
   topic:'C/P',
   title:'PET Scanning and Positron-Electron Annihilation',
@@ -640,6 +656,7 @@ The annihilation photons have energy 511 keV because the rest mass of an electro
       exp:"E = mc² = (9.11 × 10⁻³¹ kg)(3 × 10⁸ m/s)² = 8.2 × 10⁻¹⁴ J; dividing by 1.6 × 10⁻¹⁶ J/keV gives ≈ **511 keV**. The pair's total rest energy is 2 × 511 = 1022 keV, shared equally between two photons, so each photon carries 511 keV. Choosing 1022 keV gives one photon the energy of both."
     },
     {
+      subj:'biochemistry',
       q:"The SUV of 8.2 in the lung nodule indicates high metabolic activity. Which statement best explains why FDG-avid tumors have elevated SUV?",
       choices:[
         "High GLUT1 and hexokinase activity trap FDG as FDG-6-phosphate",
@@ -658,7 +675,7 @@ The annihilation photons have energy 511 keV because the rest mass of an electro
 
 const EXAM1_CP_DISCRETES = [
   {
-    id:'cp_d_1', type:'discrete', topic:'C/P',
+    subj:'gen_chem', id:'cp_d_1', type:'discrete', topic:'C/P',
     q:"A buffer is prepared with 0.10 M acetic acid and 0.10 M sodium acetate (pKa = 4.74). What is the pH of this buffer, and what happens to the pH when a small amount of HCl is added?",
     choices:[
       "pH = 4.74; the pH falls slightly as acetate consumes the added H⁺",
@@ -670,7 +687,7 @@ const EXAM1_CP_DISCRETES = [
     exp:"**Henderson-Hasselbalch**: pH = pKa + log([A⁻]/[HA]) = 4.74 + log(1) = 4.74. Added H⁺ is consumed by acetate (CH₃COO⁻ + H⁺ → CH₃COOH), so [A⁻]/[HA] drops slightly and the pH falls only a little; that resistance is buffer action. 9.26 is the pKb-based value (14 − 4.74), a common mix-up."
   },
   {
-    id:'cp_d_2', type:'discrete', topic:'C/P',
+    subj:'gen_chem', id:'cp_d_2', type:'discrete', topic:'C/P',
     q:"An electron in a hydrogen atom transitions from n=4 to n=2. Which series does this emission belong to, and is the emitted photon in the visible spectrum?",
     choices:[
       "Lyman series; ultraviolet",
@@ -682,7 +699,7 @@ const EXAM1_CP_DISCRETES = [
     exp:"Transitions ending at n = 2 form the **Balmer series**. The photon energy is 13.6 eV × (1/4 − 1/16) = 2.55 eV, so λ = hc/E ≈ 1240 eV·nm/2.55 eV ≈ 486 nm (the blue-green Hβ line), within the visible 400–700 nm range. Lyman lines end at n = 1 (UV) and Paschen lines at n = 3 (IR)."
   },
   {
-    id:'cp_d_3', type:'discrete', topic:'C/P',
+    subj:'gen_chem', id:'cp_d_3', type:'discrete', topic:'C/P',
     q:"Which of the following pairs of molecules can form hydrogen bonds with each other?",
     choices:[
       "CH₄ and CH₄",
@@ -694,7 +711,7 @@ const EXAM1_CP_DISCRETES = [
     exp:"A **hydrogen bond** needs an H on N, O or F (donor) and a lone pair on N, O or F (acceptor). HF's H can donate to the nitrogen lone pair of NH₃ (and NH₃'s H can donate to F). In CCl₄ + H₂O, water could donate, but CCl₄'s chlorine is not an effective H-bond acceptor, so only dipole–induced dipole forces act. CH₄, N₂ and O₂ lack N/O/F–H bonds."
   },
   {
-    id:'cp_d_4', type:'discrete', topic:'C/P',
+    subj:'physics', id:'cp_d_4', type:'discrete', topic:'C/P',
     q:"A ball of mass 2 kg is dropped from a height of 5 m. Just before impact with the ground, what is its kinetic energy? (g = 10 m/s²)",
     choices:[
       "50 J",
@@ -706,7 +723,7 @@ const EXAM1_CP_DISCRETES = [
     exp:"With air resistance neglected (the MCAT default unless stated), **mechanical energy is conserved**: all the initial PE = mgh = 2 × 10 × 5 = 100 J becomes KE at impact. Check: v = √(2gh) = 10 m/s, and ½mv² = ½(2)(10²) = 100 J. Using ½mgh gives the tempting 50 J."
   },
   {
-    id:'cp_d_5', type:'discrete', topic:'C/P',
+    subj:'gen_chem', id:'cp_d_5', type:'discrete', topic:'C/P',
     q:"Which intermolecular force is primarily responsible for the unexpectedly high boiling point of water (100°C) compared to H₂S (−60°C), despite water having a lower molecular weight?",
     choices:[
       "London dispersion forces",
@@ -718,7 +735,7 @@ const EXAM1_CP_DISCRETES = [
     exp:"Each water molecule can donate two and accept two **hydrogen bonds** through its O–H bonds and lone pairs, forming an extensive network that must be broken to vaporize (ΔH_vap ≈ 41 vs. ≈ 19 kJ/mol for H₂S). Sulfur is not electronegative enough for S–H to hydrogen bond, so H₂S relies on weaker dipole–dipole and dispersion forces. Dispersion forces actually favor H₂S, the heavier and more polarizable molecule, so they cannot explain water's higher boiling point."
   },
   {
-    id:'cp_d_6', type:'discrete', topic:'C/P',
+    subj:'gen_chem', id:'cp_d_6', type:'discrete', topic:'C/P',
     q:"An ideal gas occupies 2.0 L at 300 K and 1.0 atm. It is heated at constant pressure to 600 K. What is the new volume?",
     choices:[
       "1.0 L",
@@ -730,7 +747,7 @@ const EXAM1_CP_DISCRETES = [
     exp:"**Charles's law** (constant P and n): V₁/T₁ = V₂/T₂, using kelvin. V₂ = 2.0 L × (600 K/300 K) = 4.0 L; doubling absolute temperature doubles volume. Faster molecules would raise pressure, so the gas expands until pressure is back to 1.0 atm. Getting 1.0 L comes from inverting the ratio."
   },
   {
-    id:'cp_d_7', type:'discrete', topic:'C/P',
+    subj:'organic_chem', id:'cp_d_7', type:'discrete', topic:'C/P',
     q:"A compound has the molecular formula C₄H₈O and shows a strong IR absorption at ~1715 cm⁻¹ and no broad O-H stretch. Which functional group is most consistent with these data?",
     choices:[
       "Alcohol",
@@ -742,7 +759,7 @@ const EXAM1_CP_DISCRETES = [
     exp:"A strong peak near **1715 cm⁻¹** is a C=O stretch, and with no broad O–H band (3200–3550 cm⁻¹ for alcohols, 2500–3300 cm⁻¹ for acids) the compound is a **ketone**, e.g., 2-butanone (CH₃COCH₂CH₃, C₄H₈O). A carboxylic acid would need two oxygens and would show a broad O–H; an ether has no carbonyl. An aldehyde (butanal) is also C₄H₈O but absorbs nearer 1725 cm⁻¹ and shows C–H stretches at ~2720/2820 cm⁻¹."
   },
   {
-    id:'cp_d_8', type:'discrete', topic:'C/P',
+    subj:'biochemistry', id:'cp_d_8', type:'discrete', topic:'C/P',
     q:"In gel electrophoresis of proteins under denaturing (SDS-PAGE) conditions, which property determines migration distance?",
     choices:[
       "Native charge — more negative proteins migrate farther",
@@ -754,7 +771,7 @@ const EXAM1_CP_DISCRETES = [
     exp:"SDS is an anionic detergent that denatures proteins and binds them at a roughly constant ratio (~1.4 g SDS per g protein), giving every protein about the **same charge-to-mass ratio** and a similar rod-like shape. Separation through the gel's pores then depends only on size, so smaller proteins travel farther. Native charge and shape matter in native PAGE, and pI is the basis of isoelectric focusing."
   },
   {
-    id:'cp_d_9', type:'discrete', topic:'C/P',
+    subj:'gen_chem', id:'cp_d_9', type:'discrete', topic:'C/P',
     q:"The rate constant for a first-order reaction is k = 0.0693 min⁻¹. What is the half-life of this reaction?",
     choices:[
       "10 min",
@@ -766,7 +783,7 @@ const EXAM1_CP_DISCRETES = [
     exp:"For a **first-order** reaction, t½ = ln 2/k = 0.693/0.0693 min⁻¹ = 10 min, independent of starting concentration (unlike a second-order reaction, where t½ = 1/(k[A]₀)). 14.4 min is 1/k, the mean lifetime rather than the half-life, and 0.1 min comes from inverting the formula."
   },
   {
-    id:'cp_d_10', type:'discrete', topic:'C/P',
+    subj:'biochemistry', id:'cp_d_10', type:'discrete', topic:'C/P',
     q:"Which statement about enzyme active sites is correct?",
     choices:[
       "It is rigid and exactly complementary to the substrate before binding",
@@ -778,7 +795,7 @@ const EXAM1_CP_DISCRETES = [
     exp:"The **induced-fit model** (Koshland) holds that substrate binding triggers a conformational change that positions catalytic groups, excludes water, and stabilizes the transition state. The rigid lock-and-key picture is the older model and cannot explain these conformational effects. Many enzymes need no metal cofactor, and substrate binding uses a mix of hydrogen bonds, hydrophobic, van der Waals and ionic interactions."
   },
   {
-    id:'cp_d_11', type:'discrete', topic:'C/P',
+    subj:'physics', id:'cp_d_11', type:'discrete', topic:'C/P',
     q:"A sound wave travels from air (v = 343 m/s) into water (v = 1,482 m/s). What happens to its frequency and wavelength?",
     choices:[
       "Frequency increases; wavelength is unchanged",
@@ -790,7 +807,7 @@ const EXAM1_CP_DISCRETES = [
     exp:"**Frequency is set by the source** and does not change at a boundary. Since v = fλ, when v rises from 343 to 1,482 m/s (~4.3×) at constant f, λ increases by the same factor, just as light keeps its frequency while its wavelength changes on refraction. Because wavelength in tissue is long for a given frequency and resolution is limited by wavelength, medical ultrasound uses MHz frequencies to reach millimeter resolution."
   },
   {
-    id:'cp_d_12', type:'discrete', topic:'C/P',
+    subj:'gen_chem', id:'cp_d_12', type:'discrete', topic:'C/P',
     q:"Which of the following correctly describes the relationship between Gibbs free energy (ΔG°') and the equilibrium constant (Keq) for a biochemical reaction?",
     choices:[
       "ΔG°' = RT ln Keq, so Keq > 1 gives ΔG°' > 0",
@@ -802,7 +819,7 @@ const EXAM1_CP_DISCRETES = [
     exp:"**ΔG°' = −RT ln Keq**, so Keq = e^(−ΔG°'/RT). If Keq > 1, ln Keq > 0 and ΔG°' < 0 (products favored at standard conditions); if Keq = 1, ln 1 = 0 and ΔG°' = 0. Dropping the minus sign is the classic error that reverses every conclusion. Under nonstandard conditions use ΔG = ΔG°' + RT ln Q."
   },
   {
-    id:'cp_d_13', type:'discrete', topic:'C/P',
+    subj:'physics', id:'cp_d_13', type:'discrete', topic:'C/P',
     q:"In which situation is the work done by a gas on its surroundings equal to zero?",
     choices:[
       "Isothermal expansion against constant external pressure",
@@ -814,7 +831,7 @@ const EXAM1_CP_DISCRETES = [
     exp:"Pressure–volume work by a gas is W = ∫P dV, so if **ΔV = 0** (isochoric) no work is done whatever happens to P or T, and the first law reduces to ΔU = q. Isothermal and adiabatic expansions both involve ΔV > 0 (positive work by the gas; in the adiabatic case at the expense of internal energy), and isobaric compression has ΔV < 0 (work done on the gas)."
   },
   {
-    id:'cp_d_14', type:'discrete', topic:'C/P',
+    subj:'physics', id:'cp_d_14', type:'discrete', topic:'C/P',
     q:"An object is placed 30 cm in front of a concave mirror with focal length 10 cm. Where is the image formed, and what are its characteristics?",
     choices:[
       "15 cm behind the mirror; virtual, upright, reduced",
@@ -826,7 +843,7 @@ const EXAM1_CP_DISCRETES = [
     exp:"**Mirror equation**: 1/f = 1/do + 1/di → 1/di = 1/10 − 1/30 = 2/30, so di = +15 cm (in front of the mirror, real). Magnification m = −di/do = −15/30 = −0.5: inverted and half-size. An object beyond 2f of a concave mirror always gives a real, inverted, reduced image between f and 2f; a virtual upright image requires the object inside f."
   },
   {
-    id:'cp_d_15', type:'discrete', topic:'C/P',
+    subj:'biology', id:'cp_d_15', type:'discrete', topic:'C/P',
     q:"Warfarin inhibits vitamin K epoxide reductase, preventing regeneration of reduced vitamin K needed for γ-carboxylation of clotting factors II, VII, IX, and X. Which statement best explains why warfarin's anticoagulant effect is delayed 2-3 days after initiating therapy?",
     choices:[
       "Warfarin is absorbed slowly and takes 2–3 days to reach therapeutic levels",
@@ -839,7 +856,7 @@ const EXAM1_CP_DISCRETES = [
   }
 
   ,{
-    id:'cp_d_16', type:'discrete', topic:'C/P',
+    subj:'physics', id:'cp_d_16', type:'discrete', topic:'C/P',
     q:"A proton (mass = 1.67 × 10⁻²⁷ kg, charge = 1.6 × 10⁻¹⁹ C) moves perpendicular to a 0.5 T magnetic field at 2 × 10⁶ m/s. What is the radius of its circular path?",
     choices:[
       "0.042 m",
@@ -851,7 +868,7 @@ const EXAM1_CP_DISCRETES = [
     exp:"The magnetic force supplies the centripetal force: qvB = mv²/r, so **r = mv/qB** = (1.67 × 10⁻²⁷ × 2 × 10⁶)/(1.6 × 10⁻¹⁹ × 0.5) = 3.34 × 10⁻²¹/8 × 10⁻²⁰ ≈ 0.042 m. Leaving B out of the denominator gives 0.021 m, and using B = 0.25 T gives 0.084 m. The same relation underlies mass spectrometry, where different m/q give different radii."
   },
   {
-    id:'cp_d_17', type:'discrete', topic:'C/P',
+    subj:'biochemistry', id:'cp_d_17', type:'discrete', topic:'C/P',
     q:"Which amino acid substitution in an enzyme active site would most likely abolish acid-base catalysis?",
     choices:[
       "Glycine → Alanine",
@@ -905,6 +922,7 @@ const EXAM1_BB_PASSAGES = [
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_bb_1',
+  subj:'biology',
   type:'passage',
   topic:'B/B',
   title:'Nucleotide Excision Repair and Xeroderma Pigmentosum',
@@ -979,6 +997,7 @@ In a complementation assay, fusion of XP-A and XP-C cells restored normal NER ac
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_bb_2',
+  subj:'biochemistry',
   type:'passage',
   topic:'B/B',
   title:'Insulin Receptor Signaling and Type 2 Diabetes',
@@ -1042,6 +1061,7 @@ Researchers measured GLUT4 translocation in adipocytes from healthy controls ver
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_bb_3',
+  subj:'biochemistry',
   type:'passage',
   topic:'B/B',
   title:'Sickle Cell Hemoglobin: Structure, Polymerization, and Therapy',
@@ -1116,6 +1136,7 @@ The researchers also measured oxygen affinity: HbF has a higher O₂ affinity (P
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_bb_4',
+  subj:'biology',
   type:'passage',
   topic:'B/B',
   title:'p53 Tumor Suppressor and the DNA Damage Response',
@@ -1179,6 +1200,7 @@ The R248W mutation changes arginine to tryptophan at a DNA contact residue, prev
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_bb_5',
+  subj:'biochemistry',
   type:'passage',
   topic:'B/B',
   title:'Fatty Acid Oxidation in Fasting and Medium-Chain Acyl-CoA Dehydrogenase Deficiency',
@@ -1242,6 +1264,7 @@ Treatment consists of avoiding fasting >8 hours, high carbohydrate intake during
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_bb_6',
+  subj:'biology',
   type:'passage',
   topic:'B/B',
   title:'Gene Regulation: The lac Operon and Catabolite Repression',
@@ -1305,6 +1328,7 @@ Researchers measured lac operon expression under four conditions and obtained re
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_bb_7',
+  subj:'biology',
   type:'passage',
   topic:'B/B',
   title:'Frank-Starling Mechanism and Heart Failure',
@@ -1368,6 +1392,7 @@ Cardiac output (CO) = SV × HR. Ejection fraction (EF) = SV/EDV × 100%.`,
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_bb_8',
+  subj:'biology',
   type:'passage',
   topic:'B/B',
   title:'MHC Restriction, T Cell Activation, and Autoimmunity',
@@ -1431,6 +1456,7 @@ Researchers designed a tolerogenic nanoparticle (TNP) carrying β-cell peptide +
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_bb_9',
+  subj:'biology',
   type:'passage',
   topic:'B/B',
   title:'Renal Tubular Acidosis and Bicarbonate Handling',
@@ -1494,6 +1520,7 @@ A 28-year-old woman with Sjögren syndrome (autoimmune exocrinopathy) presents w
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_bb_10',
+  subj:'biology',
   type:'passage',
   topic:'B/B',
   title:'Voltage-Gated Ion Channels and Local Anesthetic Mechanisms',
@@ -1517,6 +1544,7 @@ Nerve fibers differ in diameter, myelination, and firing frequency: C fibers (un
       exp:"The driving force on Na⁺ is V_m − E_Na: (−70) − (+60) = −130 mV at rest and −115 mV at threshold, both strongly inward. **Both gradients point inward**: Na⁺ is ~145 mM outside vs. ~12 mM inside, and the interior is negative. Influx slows as V_m approaches E_Na (+60 mV); V_m never exceeds E_Na during the AP. The Na⁺/K⁺-ATPase runs continuously but pumps Na⁺ outward and moves negligible charge during a single AP."
     },
     {
+      subj:'gen_chem',
       q:"Lidocaine has pKa = 7.9. At tissue pH 7.4, what fraction is in the uncharged (membrane-permeant) form?",
       choices:[
         "About 24%",
@@ -1557,7 +1585,7 @@ Nerve fibers differ in diameter, myelination, and firing frequency: C fibers (un
 
 const EXAM1_BB_DISCRETES = [
   {
-    id:'bb_d_1', type:'discrete', topic:'B/B',
+    subj:'biology', id:'bb_d_1', type:'discrete', topic:'B/B',
     q:"During translation, the ribosome catalyzes peptide bond formation between the growing polypeptide chain and the incoming aminoacyl-tRNA. Which ribosomal component has peptidyl transferase activity?",
     choices:[
       "The small-subunit rRNA (16S/18S)",
@@ -1569,7 +1597,7 @@ const EXAM1_BB_DISCRETES = [
     exp:"Peptidyl transferase activity resides in the **large-subunit rRNA** (23S in bacteria, 28S in eukaryotes), making the ribosome a ribozyme; no protein lies close enough to the active site to catalyze the reaction. The small subunit decodes mRNA, and EF-Tu only delivers aminoacyl-tRNA to the A site. Antibiotics such as chloramphenicol bind the bacterial peptidyl transferase center."
   },
   {
-    id:'bb_d_2', type:'discrete', topic:'B/B',
+    subj:'biology', id:'bb_d_2', type:'discrete', topic:'B/B',
     q:"A patient with familial hypercholesterolemia has mutations in the LDL receptor gene. LDL levels are markedly elevated. Which intracellular process is most directly impaired?",
     choices:[
       "Cholesterol synthesis via the mevalonate pathway",
@@ -1581,7 +1609,7 @@ const EXAM1_BB_DISCRETES = [
     exp:"The LDL receptor binds apoB-100 on LDL in clathrin-coated pits; the complex is internalized, the endosome acidifies and releases LDL, the receptor recycles, and LDL goes to lysosomes where cholesteryl esters are hydrolyzed. Without functional receptors, **receptor-mediated endocytosis** fails and plasma LDL rises sharply. Statins inhibit HMG-CoA reductase; the resulting fall in hepatocyte cholesterol activates SREBP-2, which upregulates LDLR (and PCSK9, which is why PCSK9 inhibitors are additive). Familial hypercholesterolemia affects ~1 in 250–500 people."
   },
   {
-    id:'bb_d_3', type:'discrete', topic:'B/B',
+    subj:'biology', id:'bb_d_3', type:'discrete', topic:'B/B',
     q:"Which of the following correctly describes the inheritance pattern of mitochondrial DNA disorders?",
     choices:[
       "Autosomal dominant — one affected allele is sufficient to cause disease",
@@ -1593,7 +1621,7 @@ const EXAM1_BB_DISCRETES = [
     exp:"Mitochondria come almost entirely from the oocyte, and the few sperm mitochondria are destroyed after fertilization, so mtDNA disorders show **maternal inheritance**: an affected mother can pass the mutation to all her children, but an affected father passes it to none. **Heteroplasmy** (a mix of mutant and normal mtDNA) makes severity variable even among siblings. Examples include MELAS, MERRF and Leber hereditary optic neuropathy; cells carry many mtDNA copies, not two, so the recessive model does not apply."
   },
   {
-    id:'bb_d_4', type:'discrete', topic:'B/B',
+    subj:'biochemistry', id:'bb_d_4', type:'discrete', topic:'B/B',
     q:"Glucokinase (hexokinase IV) in hepatocytes differs from hexokinase I in peripheral tissues in which key property?",
     choices:[
       "Glucokinase is inhibited by glucose-6-phosphate, while hexokinase I is not",
@@ -1605,7 +1633,7 @@ const EXAM1_BB_DISCRETES = [
     exp:"**Glucokinase** (liver, pancreatic β cells) has a high Km (~8–10 mM), so its rate rises as blood glucose rises, letting it act as a glucose sensor. **Hexokinase I** has a Km of ~0.1 mM and is saturated at a normal 5 mM glucose. The G6P choice is reversed: hexokinase I is inhibited by G6P and glucokinase is not. Inactivating glucokinase mutations cause MODY2."
   },
   {
-    id:'bb_d_5', type:'discrete', topic:'B/B',
+    subj:'biology', id:'bb_d_5', type:'discrete', topic:'B/B',
     q:"A researcher disrupts the gene encoding signal recognition particle (SRP). Which cellular process would be most directly impaired?",
     choices:[
       "Translation of cytoplasmic proteins",
@@ -1617,7 +1645,7 @@ const EXAM1_BB_DISCRETES = [
     exp:"**SRP** binds the hydrophobic signal sequence as it emerges from the ribosome, pauses translation, and docks the complex at the SRP receptor on the ER, where the chain is threaded through the Sec61 translocon. Without SRP, secretory and membrane proteins are mistargeted, while cytoplasmic proteins (no signal sequence) are made normally. Nuclear import uses nuclear localization signals and importins, not SRP."
   },
   {
-    id:'bb_d_6', type:'discrete', topic:'B/B',
+    subj:'biology', id:'bb_d_6', type:'discrete', topic:'B/B',
     q:"During a nerve conduction study, a patient shows slowed conduction velocity in peripheral motor nerves. Nerve biopsy reveals loss of myelin sheaths. How does demyelination slow conduction velocity?",
     choices:[
       "It destroys the Na⁺ channels that are concentrated in the myelin sheath",
@@ -1629,7 +1657,7 @@ const EXAM1_BB_DISCRETES = [
     exp:"Myelin raises membrane resistance and lowers capacitance between nodes, so current from one node of Ranvier flows **inside the axon** to the next node with little loss, and the AP jumps from node to node (**saltatory conduction**). After demyelination, current leaks across the exposed internode and charges its larger capacitance, so the next node may reach threshold slowly or not at all; conduction slows or blocks, as in multiple sclerosis or Guillain-Barré. Na⁺ channels are clustered at the nodes, not in the myelin itself."
   },
   {
-    id:'bb_d_7', type:'discrete', topic:'B/B',
+    subj:'biology', id:'bb_d_7', type:'discrete', topic:'B/B',
     q:"Which statement correctly describes the relationship between DNA methylation and gene expression in mammals?",
     choices:[
       "Promoter CpG-island methylation generally activates transcription",
@@ -1641,7 +1669,7 @@ const EXAM1_BB_DISCRETES = [
     exp:"In mammals, DNMTs add methyl groups to **cytosine in CpG dinucleotides**. Methylated promoter CpG islands recruit methyl-binding proteins (e.g., MeCP2) and histone deacetylases, compacting chromatin and **silencing** the gene, whereas active promoters are typically unmethylated. Methylation also underlies imprinting and X inactivation, but it is widespread in somatic regulation; cancers silence tumor suppressors such as MLH1 and p16 by promoter hypermethylation."
   },
   {
-    id:'bb_d_8', type:'discrete', topic:'B/B',
+    subj:'biology', id:'bb_d_8', type:'discrete', topic:'B/B',
     q:"A muscle fiber is maximally activated by a motor neuron. At the molecular level, which event directly precedes cross-bridge formation between myosin and actin?",
     choices:[
       "Hydrolysis of ATP by the resting myosin head",
@@ -1653,7 +1681,7 @@ const EXAM1_BB_DISCRETES = [
     exp:"At rest, tropomyosin covers myosin-binding sites on actin, held there by troponin I. An AP opens RyR1 and releases SR Ca²⁺; **Ca²⁺ binds troponin C**, which binds TnI more tightly and pulls TnI's inhibitory region off actin, so tropomyosin shifts and exposes the sites. The myosin head, already cocked by earlier ATP hydrolysis (ADP + Pi bound), then binds actin. Myosin light chain kinase regulates smooth muscle, not skeletal muscle."
   },
   {
-    id:'bb_d_9', type:'discrete', topic:'B/B',
+    subj:'biology', id:'bb_d_9', type:'discrete', topic:'B/B',
     q:"A patient has a mutation causing loss of α-1-antitrypsin (AAT). The primary consequence in the lung is:",
     choices:[
       "Reduced surfactant production, causing respiratory distress syndrome",
@@ -1665,7 +1693,7 @@ const EXAM1_BB_DISCRETES = [
     exp:"α1-Antitrypsin is a **serpin** that inhibits neutrophil elastase. Without it, elastase degrades alveolar elastin, causing panacinar, lower-lobe-predominant **emphysema**; smoking makes it worse by oxidizing AAT's active-site Met-358. Misfolded AAT aggregates accumulate in hepatocytes (causing liver disease), not in the alveoli, and surfactant deficiency is the cause of neonatal respiratory distress syndrome."
   },
   {
-    id:'bb_d_10', type:'discrete', topic:'B/B',
+    subj:'biochemistry', id:'bb_d_10', type:'discrete', topic:'B/B',
     q:"In the urea cycle, carbamoyl phosphate synthetase I (CPS-I) is the rate-limiting enzyme. Which allosteric activator is required for CPS-I activity, and what is its physiological significance?",
     choices:[
       "ATP — a high energy charge signals capacity to run the cycle",
@@ -1677,7 +1705,7 @@ const EXAM1_BB_DISCRETES = [
     exp:"Mitochondrial CPS-I (NH₃ + HCO₃⁻ + 2 ATP → carbamoyl phosphate) is essentially inactive without its allosteric activator **N-acetylglutamate (NAG)**. NAG synthase makes NAG from acetyl-CoA and glutamate and is stimulated by arginine, so heavy protein catabolism (more glutamate and arginine) raises NAG and urea-cycle flux. ATP is a substrate of CPS-I, not its regulator, and NAG synthase deficiency causes hyperammonemia even when the cycle enzymes are intact."
   },
   {
-    id:'bb_d_11', type:'discrete', topic:'B/B',
+    subj:'biology', id:'bb_d_11', type:'discrete', topic:'B/B',
     q:"Which characteristic best defines a tight junction (zonula occludens) and distinguishes it from a desmosome?",
     choices:[
       "Tight junctions use cadherins, while desmosomes use claudins and occludin",
@@ -1689,7 +1717,7 @@ const EXAM1_BB_DISCRETES = [
     exp:"**Tight junctions** (claudins, occludin) form a continuous apical seal that blocks paracellular diffusion and separates apical from basolateral membrane domains. **Desmosomes** are spot welds of desmosomal cadherins (desmoglein, desmocollin) anchored to intermediate filaments, giving mechanical strength but no seal; pemphigus vulgaris targets desmoglein-3. The protein and filament pairings in the distractors are swapped; actin anchors adherens junctions."
   },
   {
-    id:'bb_d_12', type:'discrete', topic:'B/B',
+    subj:'biochemistry', id:'bb_d_12', type:'discrete', topic:'B/B',
     q:"During glycolysis, phosphofructokinase-1 (PFK-1) is the primary rate-limiting enzyme. Which combination of molecules allosterically inhibits PFK-1 to reduce glycolytic flux?",
     choices:[
       "AMP and fructose-2,6-bisphosphate",
@@ -1701,7 +1729,7 @@ const EXAM1_BB_DISCRETES = [
     exp:"**ATP and citrate** inhibit PFK-1: abundant ATP and a backed-up TCA cycle (citrate) signal that the cell does not need more glycolytic flux; H⁺ also inhibits. AMP, ADP and fructose-2,6-bisphosphate (the most potent activator, made by PFK-2 under insulin) are activators, so the AMP/F2,6BP choice lists activators. Fructose-1,6-bisphosphate is PFK-1's product and feed-forward activates pyruvate kinase."
   },
   {
-    id:'bb_d_13', type:'discrete', topic:'B/B',
+    subj:'biochemistry', id:'bb_d_13', type:'discrete', topic:'B/B',
     q:"Mature red blood cells (RBCs) generate ATP exclusively through anaerobic glycolysis. Which metabolic pathway is also uniquely important in RBCs to prevent oxidative damage to hemoglobin?",
     choices:[
       "The TCA cycle, which supplies NADH to reduce glutathione",
@@ -1713,7 +1741,7 @@ const EXAM1_BB_DISCRETES = [
     exp:"The oxidative **pentose phosphate pathway** (via G6PD) makes NADPH, which glutathione reductase uses to keep glutathione reduced (GSH); glutathione peroxidase then uses GSH to destroy H₂O₂ before it oxidizes hemoglobin into Heinz bodies. Red cells lack mitochondria, so the TCA cycle and fatty acid oxidation are absent, and they cannot perform gluconeogenesis. G6PD deficiency (X-linked) causes hemolysis after oxidant stress such as primaquine, dapsone or fava beans."
   },
   {
-    id:'bb_d_14', type:'discrete', topic:'B/B',
+    subj:'biology', id:'bb_d_14', type:'discrete', topic:'B/B',
     q:"A researcher studying embryonic development notes that certain developmental genes are expressed in precise spatial patterns. She discovers that a transcription factor forms a concentration gradient along the anterior-posterior axis, activating different target genes at different concentration thresholds. This molecule is best described as:",
     choices:[
       "A cytokine that coordinates immune cell development",
@@ -1725,7 +1753,7 @@ const EXAM1_BB_DISCRETES = [
     exp:"A **morphogen** forms a concentration gradient, and cells adopt different fates depending on the local concentration crossing different thresholds (Wolpert's French flag model). Bicoid in the Drosophila embryo is a transcription-factor morphogen that activates targets such as hunchback in the anterior; Sonic hedgehog in the neural tube and BMPs are secreted morphogens. A coactivator would not itself form a DNA-binding gradient, and cytokines and RTKs do not by definition encode position."
   },
   {
-    id:'bb_d_15', type:'discrete', topic:'B/B',
+    subj:'biology', id:'bb_d_15', type:'discrete', topic:'B/B',
     q:"Which statement correctly describes the mechanism by which acetylcholine (ACh) terminates its own signal at the neuromuscular junction?",
     choices:[
       "Intact ACh is taken back into the nerve terminal by a reuptake transporter",
@@ -1737,7 +1765,7 @@ const EXAM1_BB_DISCRETES = [
     exp:"Unlike monoamines, which are cleared mainly by reuptake, ACh is inactivated by **hydrolysis**: acetylcholinesterase in the synaptic basal lamina splits it into acetate and choline within milliseconds. Choline is then taken up by the high-affinity choline transporter and reused by choline acetyltransferase. AChE inhibitors (neostigmine for myasthenia gravis; organophosphates in poisoning) prolong ACh action, and MAO acts on monoamines, not ACh."
   },
   {
-    id:'bb_d_16', type:'discrete', topic:'B/B',
+    subj:'biology', id:'bb_d_16', type:'discrete', topic:'B/B',
     q:"A child presents with recurrent bacterial infections, particularly encapsulated organisms (Streptococcus pneumoniae, Haemophilus influenzae, Neisseria meningitidis). Laboratory studies reveal absent serum immunoglobulins and absent B cells but normal T cell numbers and function. What is the most likely diagnosis?",
     choices:[
       "DiGeorge syndrome — thymic aplasia with absent T cells",
@@ -1749,7 +1777,7 @@ const EXAM1_BB_DISCRETES = [
     exp:"X-linked agammaglobulinemia (XLA): BTK (Bruton's tyrosine kinase) mutation → pre-B cell receptor signaling fails → B cell maturation arrests at pro-B/pre-B stage → no mature B cells → no immunoglobulins. Presentation: boys, age 6-12 months (after maternal IgG decays), recurrent infections with polysaccharide-encapsulated bacteria (require opsonization by IgG for phagocytosis) — S. pneumoniae, H. influenzae, N. meningitidis. T cells: normal number and function. Treatment: IVIG replacement. Contrast: DiGeorge (T cell deficiency, viral/fungal infections), SCID (both B and T cells absent), CVID (B cells present but low Ig, adult onset), hyper-IgM (CD40L mutation, normal B cells but cannot class-switch)."
   },
   {
-    id:'bb_d_17', type:'discrete', topic:'B/B',
+    subj:'biology', id:'bb_d_17', type:'discrete', topic:'B/B',
     q:"Which of the following correctly describes the role of telomerase in normal physiology and cancer?",
     choices:[
       "It is active in all somatic cells, so their telomeres never shorten",
@@ -1802,6 +1830,7 @@ const EXAM1_PS_PASSAGES = [
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_ps_1',
+  subj:'psych_soc',
   type:'passage',
   topic:'P/S',
   title:'Attribution Theory and Fundamental Attribution Error in Clinical Settings',
@@ -1865,6 +1894,7 @@ In a follow-up experiment, when medical students themselves missed a scheduled t
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_ps_2',
+  subj:'psych_soc',
   type:'passage',
   topic:'P/S',
   title:'Long-Term Potentiation and the Neurobiology of Memory Consolidation',
@@ -1928,6 +1958,7 @@ Researchers tested memory consolidation using a fear conditioning paradigm in mi
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_ps_3',
+  subj:'research',
   type:'passage',
   topic:'P/S',
   title:'Study Design and Statistical Analysis in Clinical Research',
@@ -1991,6 +2022,7 @@ The researchers noted 15% dropout in the CBT group vs. 8% in TAU. They conducted
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_ps_4',
+  subj:'psych_soc',
   type:'passage',
   topic:'P/S',
   title:'Social Determinants of Health and the Social Gradient',
@@ -2025,6 +2057,7 @@ A study of 8,000 adults found that ACE score was strongly associated with adult 
       exp:"Chronically elevated cortisol promotes **visceral fat deposition and insulin resistance**, which lead to dyslipidemia and hyperglycemia, and it raises blood pressure (partly via mineralocorticoid-receptor effects and sympathetic activity); together this is the **metabolic syndrome** cluster that drives atherosclerosis. Cortisol is a counter-regulatory hormone that raises, not lowers, blood glucose. These cumulative effects are part of what McEwen calls allostatic load."
     },
     {
+      subj:'research',
       q:"The ACE study found a 12-fold increased suicide attempt risk with ≥4 ACEs after adjusting for current SES. What does this adjustment indicate about the relationship between ACEs and suicide risk?",
       choices:[
         "Current SES fully explains the link between ACEs and suicide attempts",
@@ -2054,6 +2087,7 @@ A study of 8,000 adults found that ACE score was strongly associated with adult 
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_ps_5',
+  subj:'psych_soc',
   type:'passage',
   topic:'P/S',
   title:'The Biopsychosocial Model of Schizophrenia',
@@ -2088,6 +2122,7 @@ Diathesis-stress model: individuals with genetic vulnerability (diathesis) devel
       exp:"Per the passage, positive symptoms reflect **mesolimbic** hyperactivity, so D2 blockade there is therapeutic. Blockade elsewhere causes problems: nigrostriatal → extrapyramidal effects (dystonia, akathisia, parkinsonism, tardive dyskinesia); tuberoinfundibular → hyperprolactinemia; mesocortical, already hypoactive → may worsen negative and cognitive symptoms."
     },
     {
+      subj:'research',
       q:"The diathesis-stress model predicts that cannabis use increases schizophrenia risk 2-fold specifically in genetically vulnerable individuals. Which study design would most directly test this interaction?",
       choices:[
         "A cross-sectional survey of current cannabis use and diagnoses",
@@ -2117,6 +2152,7 @@ Diathesis-stress model: individuals with genetic vulnerability (diathesis) devel
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_ps_6',
+  subj:'psych_soc',
   type:'passage',
   topic:'P/S',
   title:'Signal Detection Theory and Perceptual Decision-Making',
@@ -2180,6 +2216,7 @@ Adaptation effects were also studied: after viewing 50 normal mammograms, radiol
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_ps_7',
+  subj:'psych_soc',
   type:'passage',
   topic:'P/S',
   title:'Conformity, Obedience, and Authority in Medical Decision-Making',
@@ -2243,6 +2280,7 @@ Groupthink (Janis) occurs in highly cohesive groups under pressure: overestimati
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_ps_8',
+  subj:'psych_soc',
   type:'passage',
   topic:'P/S',
   title:'Stress, Coping Mechanisms, and Allostatic Load in Chronic Disease',
@@ -2286,6 +2324,7 @@ In a longitudinal study of 1,200 adults in a high-poverty urban neighborhood, al
       exp:"**Dispositional optimism** (a generalized expectation of good outcomes) is linked to active, problem-focused coping, better health behaviors and smaller, shorter cortisol and cardiovascular responses to stress, all of which slow the accumulation of allostatic load. Response bias cannot explain the result, because allostatic load here is a composite of measured biomarkers (cortisol, CRP, BP, HbA1c), not self-report. Adjustment for income shows the effect is not simply that optimists have easier lives."
     },
     {
+      subj:'research',
       q:"The hazard ratio (HR) for cardiovascular disease associated with high allostatic load is 2.4 (95% CI 1.7-3.4). How should this be interpreted?",
       choices:[
         "People with high allostatic load have a 240% absolute risk of CVD",
@@ -2304,6 +2343,7 @@ In a longitudinal study of 1,200 adults in a high-poverty urban neighborhood, al
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_ps_9',
+  subj:'psych_soc',
   type:'passage',
   topic:'P/S',
   title:'Erikson\'s Psychosocial Development and Attachment Theory',
@@ -2365,6 +2405,7 @@ A longitudinal study followed 450 children from age 1 to 25. Secure attachment a
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_ps_10',
+  subj:'psych_soc',
   type:'passage',
   topic:'P/S',
   title:'Health Belief Model and Culturally Competent Care',
@@ -2426,7 +2467,7 @@ The researcher then implemented a culturally tailored intervention involving Chi
 
 const EXAM1_PS_DISCRETES = [
   {
-    id:'ps_d_1', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'ps_d_1', type:'discrete', topic:'P/S',
     q:"According to Piaget's theory of cognitive development, a 4-year-old child watches an experimenter pour water from a short, wide glass into a tall, narrow glass. The child says the tall glass has 'more water.' This demonstrates which cognitive limitation?",
     choices:[
       "Lack of object permanence",
@@ -2438,7 +2479,7 @@ const EXAM1_PS_DISCRETES = [
     exp:"**Conservation** is understanding that quantity stays the same despite changes in appearance. Preoperational children (about 2–7 years) fail because of **centration** (attending only to the taller water level) and **irreversibility** (not mentally pouring it back). Egocentrism is also preoperational but concerns failing to take another's viewpoint (three-mountain task), and object permanence is mastered in the sensorimotor stage."
   },
   {
-    id:'ps_d_2', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'ps_d_2', type:'discrete', topic:'P/S',
     q:"A medical student watches a surgeon perform a technically difficult procedure and thinks 'I could never do that.' Six months later, after watching videos and practicing on a simulator, she successfully performs the procedure. This progression best illustrates Bandura's concept of:",
     choices:[
       "Classical conditioning of surgical cues",
@@ -2450,7 +2491,7 @@ const EXAM1_PS_DISCRETES = [
     exp:"Bandura's **observational learning** (modeling) explains learning by watching the surgeon and the videos, and **self-efficacy**, belief in one's ability to perform a specific task, grew through mastery experiences on the simulator, the strongest source of efficacy. Her initial thought (I could never do that) reflects low self-efficacy that practice reversed. Bandura is not associated with classical conditioning or systematic desensitization, and operant shaping alone ignores the modeling component."
   },
   {
-    id:'ps_d_3', type:'discrete', topic:'P/S',
+    subj:'research', id:'ps_d_3', type:'discrete', topic:'P/S',
     q:"The prevalence of a disease in a population is 1%. A diagnostic test has sensitivity 95% and specificity 90%. A patient tests positive. What is the positive predictive value (approximate)?",
     choices:[
       "About 95%",
@@ -2462,7 +2503,7 @@ const EXAM1_PS_DISCRETES = [
     exp:"Take 10,000 people: 100 have the disease, so true positives = 0.95 × 100 = 95; of 9,900 without it, false positives = 0.10 × 9,900 = 990. **PPV** = 95/(95 + 990) ≈ 8.8%, about 9%. With a low prevalence, false positives from the large healthy group swamp the true positives (the base-rate effect). 95% is the sensitivity and 90% the specificity, neither of which is the PPV."
   },
   {
-    id:'ps_d_4', type:'discrete', topic:'P/S',
+    subj:'research', id:'ps_d_4', type:'discrete', topic:'P/S',
     q:"A researcher measures the correlation between median household income and age-adjusted mortality rate across 50 states. The correlation coefficient r = -0.72. Which interpretation is correct?",
     choices:[
       "Lower income causes higher mortality, as the negative correlation proves",
@@ -2474,7 +2515,7 @@ const EXAM1_PS_DISCRETES = [
     exp:"r = −0.72 is a fairly strong **inverse** association: as median income falls, mortality tends to rise. Correlation does not establish causation, since confounders such as education, healthcare access or diet could drive both. The variance explained is r² ≈ 0.52 (52%), not 72%, and r is not a p-value. Because the data are state-level, applying them to individuals risks the ecological fallacy."
   },
   {
-    id:'ps_d_5', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'ps_d_5', type:'discrete', topic:'P/S',
     q:"Kübler-Ross described five stages of grief. A patient recently diagnosed with terminal cancer says to her oncologist, 'I'll do anything — I'll join every clinical trial, I'll donate to research — just give me 5 more years to see my grandchildren graduate.' Which stage does this best represent?",
     choices:[
       "Denial",
@@ -2486,7 +2527,7 @@ const EXAM1_PS_DISCRETES = [
     exp:"**Bargaining** is an attempt to postpone death or change the outcome through a deal (if I do X, give me Y): here, promising trial participation and donations in exchange for five more years. Denial rejects the diagnosis (this can't be happening), and she has clearly accepted that she is ill. Kübler-Ross's stages are not a fixed sequence; people may skip, repeat or overlap them."
   },
   {
-    id:'ps_d_6', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'ps_d_6', type:'discrete', topic:'P/S',
     q:"Vygotsky's 'Zone of Proximal Development' (ZPD) refers to:",
     choices:[
       "The critical period during which language is most easily acquired",
@@ -2498,7 +2539,7 @@ const EXAM1_PS_DISCRETES = [
     exp:"Vygotsky's **zone of proximal development** spans tasks a child cannot yet do alone but can do with help from a more knowledgeable other. Learning is most effective there, supported by **scaffolding** that is withdrawn as competence grows. Unlike Piaget's stage-based view, Vygotsky stressed that social interaction drives development; the critical-period and concrete-to-formal choices borrow terms from other theories."
   },
   {
-    id:'ps_d_7', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'ps_d_7', type:'discrete', topic:'P/S',
     q:"Which of the following neurotransmitter-function pairings is INCORRECT?",
     choices:[
       "Dopamine — reward and motor control; mesocortical underactivity linked to negative symptoms",
@@ -2510,7 +2551,7 @@ const EXAM1_PS_DISCRETES = [
     exp:"Acetylcholine is not exclusively excitatory, and **muscarinic receptors are metabotropic** (G-protein-coupled); nicotinic receptors are the ionotropic ones. M1/M3/M5 couple to Gq (excitatory) and M2/M4 to Gi (inhibitory), e.g., cardiac M2 receptors slow the heart. The other pairings are correct: mesocortical dopamine underactivity is linked to negative symptoms, GABA is the main inhibitory transmitter enhanced by benzodiazepines, and SSRIs block serotonin reuptake."
   },
   {
-    id:'ps_d_8', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'ps_d_8', type:'discrete', topic:'P/S',
     q:"A public health campaign shows graphic images of smoking-related lung cancer to deter smoking. According to the Elaboration Likelihood Model (ELM), which processing route would be most likely in a motivated, health-conscious individual who carefully considers the evidence?",
     choices:[
       "The peripheral route, driven by cues such as the spokesperson's appeal",
@@ -2522,7 +2563,7 @@ const EXAM1_PS_DISCRETES = [
     exp:"In the **Elaboration Likelihood Model** (Petty and Cacioppo), people with high motivation and ability take the **central route**, scrutinizing argument quality and evidence, and the resulting attitude change is more durable. Low motivation or ability leads to the peripheral route, in which superficial cues (attractiveness, emotional intensity, mental shortcuts) drive persuasion. Social comparison is not one of the ELM's two routes."
   },
   {
-    id:'ps_d_9', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'ps_d_9', type:'discrete', topic:'P/S',
     q:"Which statement correctly describes the relationship between the limbic system and emotional processing?",
     choices:[
       "Emotion arises entirely in the limbic system, with no prefrontal role",
@@ -2534,7 +2575,7 @@ const EXAM1_PS_DISCRETES = [
     exp:"The **amygdala** detects threat and emotional salience and strengthens hippocampal consolidation of emotional events (which is why they are remembered well). The **prefrontal cortex** regulates these responses top-down: ventromedial PFC integrates emotional value into decisions and helps extinguish fear, and dorsolateral PFC supports reappraisal. Weak prefrontal control of the amygdala is implicated in PTSD and depression, which rules out the no-prefrontal-role choice; the amygdala also handles positive salience."
   },
   {
-    id:'ps_d_10', type:'discrete', topic:'P/S',
+    subj:'research', id:'ps_d_10', type:'discrete', topic:'P/S',
     q:"In a randomized controlled trial, a new antidepressant reduces Hamilton Depression Rating Scale (HDRS) scores by 4 points more than placebo (p < 0.001). The minimum clinically important difference for HDRS is 7 points. What is the most appropriate conclusion?",
     choices:[
       "The drug is highly effective, because p < 0.001",
@@ -2546,7 +2587,7 @@ const EXAM1_PS_DISCRETES = [
     exp:"A small p-value shows the 4-point difference is unlikely to be due to chance, not that it matters to patients; with a large sample even trivial differences reach significance. Because 4 points is below the stated **minimum clinically important difference** of 7, the average benefit is statistically real but **clinically small**. An underpowered study would tend to miss effects, not find p < 0.001; if anything this trial may have been large enough to detect a trivial one."
   },
   {
-    id:'ps_d_11', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'ps_d_11', type:'discrete', topic:'P/S',
     q:"Individuals in a crowd behave more aggressively and impulsively than they would alone. They feel anonymous and less personally accountable. This is best described as:",
     choices:[
       "Social facilitation",
@@ -2558,7 +2599,7 @@ const EXAM1_PS_DISCRETES = [
     exp:"**Deindividuation** occurs when anonymity and immersion in a group reduce self-awareness and personal accountability, loosening internal restraints so behavior follows situational and group cues, as in riots or online harassment. Social facilitation is improved performance on easy tasks in others' presence, groupthink is faulty decision-making in cohesive groups, and social loafing is reduced effort on pooled tasks; none involves anonymity-driven disinhibition."
   },
   {
-    id:'ps_d_12', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'ps_d_12', type:'discrete', topic:'P/S',
     q:"A researcher studying health disparities finds that African Americans in her study had a higher rate of uncontrolled hypertension than white Americans, but this difference was eliminated after controlling for healthcare access, income, and implicit physician bias. This finding suggests that:",
     choices:[
       "Race is a biological determinant of hypertension control",
@@ -2570,7 +2611,7 @@ const EXAM1_PS_DISCRETES = [
     exp:"When a gap disappears after adjusting for healthcare access, income and physician bias, those **social and structural factors account for the disparity** in this sample, rather than an inherent biological difference by race. Race in such research functions largely as a social category that tracks exposure to discrimination and disadvantage (including the physiological wear described by the weathering hypothesis). The finding concerns this disparity; it does not show that hypertension lacks any genetic component."
   },
   {
-    id:'ps_d_13', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'ps_d_13', type:'discrete', topic:'P/S',
     q:"Which of the following correctly pairs a defense mechanism with its psychological description?",
     choices:[
       "Reaction formation: unconsciously pushing distressing thoughts out of awareness into the unconscious",
@@ -2582,7 +2623,7 @@ const EXAM1_PS_DISCRETES = [
     exp:"**Projection** is attributing one's own unacceptable feelings to others, so the angry person who sees others as hostile is correctly matched. The other descriptions are shuffled: pushing thoughts out of awareness is repression (not reaction formation); acting opposite to an unacceptable impulse is reaction formation (not rationalization); and justifying behavior with acceptable-sounding reasons is rationalization (not repression)."
   },
   {
-    id:'ps_d_14', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'ps_d_14', type:'discrete', topic:'P/S',
     q:"The halo effect most directly refers to:",
     choices:[
       "Attributing others' behavior to character rather than circumstances",
@@ -2594,7 +2635,7 @@ const EXAM1_PS_DISCRETES = [
     exp:"In the **halo effect** (Thorndike), one positive trait spreads to unrelated judgments; for example, attractive people are rated as more intelligent and honest. The reverse (one negative trait tainting everything) is the horn effect. Overweighting character in explaining others' behavior is the fundamental attribution error, and better performance when observed is social facilitation."
   },
   {
-    id:'ps_d_15', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'ps_d_15', type:'discrete', topic:'P/S',
     q:"According to the DSM-5-TR, which statement correctly describes the relationship between major depressive disorder (MDD) and bereavement?",
     choices:[
       "MDD cannot be diagnosed within 2 months of a loss",
@@ -2606,7 +2647,7 @@ const EXAM1_PS_DISCRETES = [
     exp:"DSM-IV excluded an MDD diagnosis within 2 months of a loss; DSM-5 **removed the bereavement exclusion**, and DSM-5-TR keeps it removed, so MDD can be diagnosed during grief if full criteria are met for ≥ 2 weeks. Clinicians still distinguish grief (waves of sadness tied to the deceased, preserved self-esteem) from MDD (pervasive low mood, worthlessness, anhedonia). **Prolonged grief disorder**, added in DSM-5-TR, is a separate diagnosis with its own criteria."
   },
   {
-    id:'ps_d_16', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'ps_d_16', type:'discrete', topic:'P/S',
     q:"A physician notices that she tends to order more tests for patients who are similar in background to herself (educated professionals) and fewer for working-class patients with limited health literacy, even when clinical presentation is identical. This is most directly an example of:",
     choices:[
       "Statistical discrimination based on group-level risk estimates",
@@ -2618,7 +2659,7 @@ const EXAM1_PS_DISCRETES = [
     exp:"**Implicit bias** consists of automatic associations between social groups and attributes that shape behavior without awareness; the physician only notices the pattern after the fact, and presentations were identical, so no clinical reason justifies the difference. Explicit bias would be a consciously held belief. Statistical discrimination deliberately uses group averages as a risk estimate, and confirmation bias concerns seeking evidence for an existing belief; neither fits an unnoticed difference in test ordering. Structured protocols and decision support can reduce such variation."
   },
   {
-    id:'ps_d_17', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'ps_d_17', type:'discrete', topic:'P/S',
     q:"James-Lange, Cannon-Bard, and Schachter-Singer provide competing theories of emotion. A person who witnesses a car accident begins trembling and then notices their trembling and concludes 'I must be frightened.' Which theory does this sequence support?",
     choices:[
       "Cannon-Bard — arousal and emotion occur simultaneously and independently",
@@ -2634,7 +2675,7 @@ const EXAM1_PS_DISCRETES = [
 // Extra 2 to reach 59 total
 const EXAM1_PS_EXTRA = [
   {
-    id:'ps_d_18', type:'discrete', topic:'P/S',
+    subj:'research', id:'ps_d_18', type:'discrete', topic:'P/S',
     q:"A study finds that neighborhoods with more green space have lower rates of depression. Residents report using parks for exercise and social interaction. Which research design would best establish that green space causes lower depression rates (rather than reverse causation or confounding)?",
     choices:[
       "A cross-sectional survey measuring green space and depression simultaneously",
@@ -2646,7 +2687,7 @@ const EXAM1_PS_EXTRA = [
     exp:"To rule out reverse causation (depressed people moving to less green areas) and confounding (e.g., SES driving both), exposure must vary independently of residents' characteristics. **Random (or as-if random) assignment of new parks**, with depression measured before and after in parks and comparison neighborhoods (a difference-in-differences analysis), approximates a randomized trial. Cross-sectional data cannot establish time order, recall-based retrospective reports are biased, and case-control studies remain open to selection bias and confounding."
   },
   {
-    id:'ps_d_19', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'ps_d_19', type:'discrete', topic:'P/S',
     q:"Émile Durkheim's sociological theory identified four types of suicide based on social integration and moral regulation. A soldier who sacrifices himself for his unit (high social integration, subordinates self to group) is best classified as which type?",
     choices:[
       "Egoistic — too little social integration",

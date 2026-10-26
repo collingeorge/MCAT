@@ -79,6 +79,8 @@ const KEYS = {
   examProgress: id => 'mcat2_exam_' + id,
   examLast: id => 'mcat2_exam_last_' + id,
   examHistory: 'mcat2_exam_history',
+  evidence: 'mcat2_evidence',        // { discipline: {passage:{c,t}, exam:{c,t}} }
+  scoreHistory: 'mcat2_score_history',
 };
 
 // ════════════════════════════════════════════════════════════════
@@ -364,6 +366,138 @@ function weakKeys() {
 }
 
 // ════════════════════════════════════════════════════════════════
+//  MCAT SCORE ESTIMATION
+//  Section scores are built the way the AAMC builds the exam: each
+//  section draws on disciplines in fixed proportions ("What's on the
+//  MCAT Exam?", AAMC). Every discipline gets an MCAT-equivalent score
+//  from the evidence available (full-length > passage > recall), and a
+//  section estimate is the discipline scores weighted by those shares.
+// ════════════════════════════════════════════════════════════════
+const DISCIPLINES = {
+  biochemistry: 'Biochemistry',
+  biology: 'Biology',
+  gen_chem: 'General Chemistry',
+  organic_chem: 'Organic Chemistry',
+  physics: 'Physics',
+  psych_soc: 'Psychology & Sociology',
+  research: 'Research Methods & Statistics',
+  cars: 'CARS (reading & reasoning)',
+};
+const MCAT_SECTIONS = [
+  { id: 'cp', abbrev: 'C/P', label: 'Chemical & Physical Foundations', weights: { gen_chem: 0.30, physics: 0.25, biochemistry: 0.25, organic_chem: 0.15, biology: 0.05 } },
+  { id: 'cars', abbrev: 'CARS', label: 'Critical Analysis & Reasoning Skills', weights: { cars: 1 } },
+  { id: 'bb', abbrev: 'B/B', label: 'Biological & Biochemical Foundations', weights: { biology: 0.65, biochemistry: 0.25, gen_chem: 0.05, organic_chem: 0.05 } },
+  { id: 'ps', abbrev: 'P/S', label: 'Psychological, Social & Biological Foundations', weights: { psych_soc: 0.95, biology: 0.05 } },
+];
+// Single-fact recall items are easier than MCAT items, so recall accuracy maps to a stricter curve
+const RECALL_TO_SCALED = [[0, 118], [50, 118], [58, 119], [64, 120], [69, 121], [73, 122], [77, 123], [80, 124], [83, 125], [86, 126], [89, 127], [91, 128], [93, 129], [95, 130], [97, 131], [99, 132], [100, 132]];
+const EVIDENCE_WEIGHT = { exam: 3, passage: 2, recall: 1 };
+const MIN_ANSWERS = 15;   // per discipline before it counts toward a section estimate
+
+function curveScore(curve, p) {
+  for (let i = 1; i < curve.length; i++) {
+    const [p1, s1] = curve[i];
+    if (p <= p1) {
+      const [p0, s0] = curve[i - 1];
+      return s0 + ((p - p0) / (p1 - p0 || 1)) * (s1 - s0);
+    }
+  }
+  return 132;
+}
+function disciplineOfRecall(q) {
+  if (q.s === 'Research Methods & Statistics') return 'research';
+  return q.subj === 'behavioral' ? 'psych_soc' : q.subj;
+}
+const PASSAGE_DISCIPLINE = [
+  [/^p_(cars|e2cars)/, 'cars'], [/^p_bs/, 'psych_soc'], [/^p_ph/, 'physics'], [/^p_oc/, 'organic_chem'],
+  [/^p_gchem/, 'gen_chem'], [/^p_bio/, 'biology'], [/^p_(aa|enz|met|nuc|lip)/, 'biochemistry'],
+];
+function disciplineOfPassage(p, q) {
+  if (q && q.subj) return q.subj;
+  if (p.subj) return p.subj;
+  const hit = PASSAGE_DISCIPLINE.find(([re]) => re.test(p.id));
+  return hit ? hit[1] : null;
+}
+// Full-length passages carry their discipline on the passage object
+const EXAM_PASSAGE_SUBJ = new Map(
+  [EXAM1_CP_PASSAGES, EXAM1_BB_PASSAGES, EXAM1_PS_PASSAGES, EXAM2_CP_PASSAGES, EXAM2_BB_PASSAGES, EXAM2_PS_PASSAGES]
+    .flat().filter(p => p.subj).map(p => [p.id, p.subj])
+);
+function disciplineOfExamQuestion(sectionId, q) {
+  if (sectionId === 'cars') return 'cars';
+  return q.subj || EXAM_PASSAGE_SUBJ.get(q.passageId) || null;
+}
+function recordEvidence(source, disc, right) {
+  if (!disc) return;
+  const ev = store.get(KEYS.evidence, {});
+  const d = ev[disc] = ev[disc] || {};
+  const s = d[source] = d[source] || { c: 0, t: 0 };
+  s.t++;
+  if (right) s.c++;
+  store.set(KEYS.evidence, ev);
+}
+// Evidence per discipline: { recall:{c,t}, passage:{c,t}, exam:{c,t} }
+function disciplineEvidence() {
+  const out = {};
+  Object.keys(DISCIPLINES).forEach(d => { out[d] = { recall: { c: 0, t: 0 }, passage: { c: 0, t: 0 }, exam: { c: 0, t: 0 } }; });
+  Object.entries(store.get(KEYS.stats, {})).forEach(([k, s]) => {
+    const tag = k.slice(k.indexOf('|') + 1);
+    const subj = k.split('|')[0];
+    const d = tag === 'Research Methods & Statistics' ? 'research' : subj === 'behavioral' ? 'psych_soc' : subj;
+    if (!out[d] || !KEY_COUNTS[k]) return;
+    out[d].recall.c += s.c; out[d].recall.t += s.t;
+  });
+  Object.entries(store.get(KEYS.evidence, {})).forEach(([d, src]) => {
+    if (!out[d]) return;
+    ['passage', 'exam'].forEach(k => { if (src[k]) { out[d][k].c += src[k].c; out[d][k].t += src[k].t; } });
+  });
+  return out;
+}
+function disciplineScore(ev) {
+  let wsum = 0, ssum = 0, n = 0, c = 0;
+  Object.entries(ev).forEach(([src, v]) => {
+    if (!v.t) return;
+    const curve = src === 'recall' ? RECALL_TO_SCALED : RAW_TO_SCALED;
+    const w = EVIDENCE_WEIGHT[src] * v.t;
+    ssum += curveScore(curve, (v.c / v.t) * 100) * w;
+    wsum += w;
+    n += v.t; c += v.c;
+  });
+  return n ? { scaled: ssum / wsum, n, acc: c / n } : { scaled: null, n: 0, acc: null };
+}
+function scoreBand(n) { return n >= 300 ? 1 : n >= 120 ? 2 : 3; }
+function estimateScores() {
+  const ev = disciplineEvidence();
+  const disc = Object.fromEntries(Object.entries(ev).map(([d, e]) => [d, Object.assign(disciplineScore(e), { ev: e })]));
+  const sections = MCAT_SECTIONS.map(sec => {
+    let wsum = 0, ssum = 0, n = 0;
+    const missing = [];
+    Object.entries(sec.weights).forEach(([d, w]) => {
+      if (disc[d].n >= MIN_ANSWERS) { wsum += w; ssum += disc[d].scaled * w; n += disc[d].n; }
+      else missing.push({ d, w, need: MIN_ANSWERS - disc[d].n });
+    });
+    const coverage = wsum;
+    if (coverage < 0.7) return { ...sec, scaled: null, coverage, missing, n };
+    const scaled = Math.round(ssum / wsum);
+    return { ...sec, scaled, band: scoreBand(n), percentile: SECTION_PERCENTILE[sec.id][scaled], coverage, missing, n };
+  });
+  const complete = sections.every(s => s.scaled != null);
+  const total = complete ? sections.reduce((a, s) => a + s.scaled, 0) : null;
+  const totalBand = complete ? Math.round(Math.sqrt(sections.reduce((a, s) => a + s.band * s.band, 0))) : null;
+  return { disc, sections, total, totalBand, totalPercentile: total ? TOTAL_PERCENTILE_MAP[total] : null };
+}
+// Keep one snapshot per day so progress can be charted
+function snapshotEstimate() {
+  const est = estimateScores();
+  if (!est.sections.some(s => s.scaled != null)) return;
+  const hist = store.get(KEYS.scoreHistory, []);
+  const day = new Date().toISOString().slice(0, 10);
+  const entry = { day, total: est.total, sections: Object.fromEntries(est.sections.map(s => [s.id, s.scaled])) };
+  if (hist.length && hist[hist.length - 1].day === day) hist[hist.length - 1] = entry; else hist.push(entry);
+  store.set(KEYS.scoreHistory, hist.slice(-120));
+}
+
+// ════════════════════════════════════════════════════════════════
 //  SCREENS & HOME
 // ════════════════════════════════════════════════════════════════
 const SCREENS = ['screen-home', 'screen-quiz', 'screen-results', 'screen-passage', 'screen-exam', 'screen-exam-results'];
@@ -402,8 +536,9 @@ function renderHome() {
   actions.push(`<button class="action-btn" ${due ? '' : 'disabled'} onclick="startDueReview()">Review due <b>${due}</b></button>`);
   actions.push(`<button class="action-btn" ${flagged ? '' : 'disabled'} onclick="startFlagged()">Flagged <b>${flagged}</b></button>`);
   actions.push(`<button class="action-btn" ${weak ? '' : 'disabled'} onclick="drillWeak()" title="Topics under 70% after at least 5 attempts">Drill weak topics <b>${weak}</b></button>`);
-  actions.push(`<button class="action-btn" onclick="showProgress()">My progress</button>`);
+  actions.push(`<button class="action-btn" onclick="showProgress()">Score report</button>`);
   $('home-actions').innerHTML = actions.join('');
+  $('home-score').innerHTML = scoreStrip();
 
   setMode(prefs.mode);
 }
@@ -425,8 +560,44 @@ function setMode(mode) {
 function renderCountRow() {
   const opts = [10, 20, 30, 50, 100, 0];
   $('count-row').innerHTML = opts.map(n => `<button class="count-btn${prefs.count === n ? ' active' : ''}" onclick="setCount(${n})">${n || 'All'}</button>`).join('');
+  const mix = prefs.mix || 'custom';
+  $('mix-row').innerHTML = [['custom', 'My subjects'], ...Object.entries(PRACTICE_MIXES).map(([id, m]) => [id, m.label])]
+    .map(([id, l]) => `<button class="count-btn small${mix === id ? ' active' : ''}" onclick="setMix('${id}')">${l}</button>`).join('');
+  $('mix-note').innerHTML = mix === 'custom'
+    ? 'Questions due for spaced review come first, then ones you haven\'t seen. Answer choices are shuffled every time.'
+    : `${esc(PRACTICE_MIXES[mix].note)} With "All", a mix session is 59 questions, the length of a real section.`;
+  $('subject-card').hidden = mix !== 'custom';
 }
 function setCount(n) { prefs.count = n; savePrefs(); renderCountRow(); updateAvail(); }
+function setMix(id) { prefs.mix = id; savePrefs(); renderCountRow(); updateAvail(); }
+
+// Recall sessions drawn in the same subject proportions as a real MCAT section.
+// About 10% goes to research methods & statistics, which every science section tests.
+const PRACTICE_MIXES = {
+  cp: { label: 'C/P mix', section: 'cp', note: 'Mixed like the real C/P section: general chemistry, physics, biochemistry, organic chemistry and a little biology, plus research methods.' },
+  bb: { label: 'B/B mix', section: 'bb', note: 'Mixed like the real B/B section: mostly biology and biochemistry, a little general and organic chemistry, plus research methods.' },
+  ps: { label: 'P/S mix', section: 'ps', note: 'Mixed like the real P/S section: psychology and sociology with a little biology, plus research methods.' },
+  all: { label: 'All sciences', section: null, note: 'An even blend of the C/P, B/B and P/S mixes.' },
+};
+function mixWeights(id) {
+  const secs = PRACTICE_MIXES[id].section ? [PRACTICE_MIXES[id].section] : ['cp', 'bb', 'ps'];
+  const w = {};
+  secs.forEach(sid => Object.entries(MCAT_SECTIONS.find(s => s.id === sid).weights)
+    .forEach(([d, v]) => { w[d] = (w[d] || 0) + (v * 0.9) / secs.length; }));
+  w.research = 0.1;
+  return w;
+}
+function buildMix(id, n) {
+  const w = mixWeights(id);
+  const pools = {};
+  QB.forEach(q => { const d = disciplineOfRecall(q); (pools[d] = pools[d] || []).push(q); });
+  // Largest-remainder allocation so counts add up to n
+  const raw = Object.entries(w).map(([d, v]) => ({ d, exact: v * n }));
+  raw.forEach(r => { r.count = Math.floor(r.exact); });
+  let left = n - raw.reduce((a, r) => a + r.count, 0);
+  raw.slice().sort((a, b) => (b.exact - b.count) - (a.exact - a.count)).forEach(r => { if (left > 0) { r.count++; left--; } });
+  return shuffled(raw.flatMap(r => pickQuestions(pools[r.d] || [], r.count)));
+}
 
 // ── Subject selector ──
 function renderSubjectGrid() {
@@ -472,7 +643,9 @@ function updateAvail() {
   const size = prefs.count ? Math.min(prefs.count, n) : n;
   $('avail-text').textContent = `${n.toLocaleString()} questions selected`;
   $('avail-session').textContent = n ? `Session: ${size} question${size === 1 ? '' : 's'}` : '';
-  $('start-btn').disabled = prefs.mode === 'recall' && n === 0;
+  const mixing = (prefs.mix || 'custom') !== 'custom';
+  $('start-btn').disabled = prefs.mode === 'recall' && !mixing && n === 0;
+  $('start-btn').textContent = prefs.mode === 'recall' && mixing ? `Start ${PRACTICE_MIXES[prefs.mix].label} · ${prefs.count || 59} questions →` : 'Start →';
 }
 
 function startSession() {
@@ -490,6 +663,8 @@ function makeView(q) {
   return { q, order, choices: order.map(i => q.choices[i]), ans: order.indexOf(q.ans) };
 }
 function startRecall() {
+  const mix = prefs.mix || 'custom';
+  if (mix !== 'custom') { beginQuiz(buildMix(mix, prefs.count || 59), PRACTICE_MIXES[mix].label); return; }
   const pool = QB.filter(q => selectedKeys.has(q.key));
   if (!pool.length) return;
   beginQuiz(pickQuestions(pool, prefs.count || pool.length), 'Recall');
@@ -601,6 +776,7 @@ function endQuiz() {
 
 function showQuizResults() {
   stopQuizTimer();
+  snapshotEstimate();
   show('screen-results');
   const res = quiz.results;
   const tot = res.length, cor = res.filter(r => r.right).length, p = pct(cor, tot);
@@ -626,8 +802,9 @@ function showQuizResults() {
     <div class="results-card">
       <div class="section-label">This session by subject</div>
       ${Object.entries(bySubj).map(([s, v]) => barRow(SUBJECT_LABEL[s], v.c, v.t)).join('')}
-      <p class="muted-note">Recall questions test isolated facts, so they aren't converted to an MCAT scaled score. Use the full-length exams for a score estimate.</p>
+      <p class="muted-note">A single session is too small to score. Your answers feed the running MCAT estimate below, which uses all your recall, passage and full-length results.</p>
     </div>
+    ${scoreStrip()}
     <div class="btn-row">
       ${missed.length ? `<button class="new-quiz-btn" onclick="retryMissed()">Retry ${plural(missed.length, 'missed question')}</button>` : ''}
       <button class="new-quiz-btn secondary" onclick="goHome()">Home</button>
@@ -709,19 +886,124 @@ function progressCards() {
       ${weak.length ? '<button class="new-quiz-btn" onclick="drillWeak()">Drill weak topics</button>' : ''}
     </div>`;
 }
+// ── MCAT score report ──
+// A 118–132 track with a marker; optional ± band shaded around it
+function scaleBar(scaled, band, color) {
+  if (scaled == null) return '<div class="scale-bar empty"></div>';
+  const x = v => ((Math.min(132, Math.max(118, v)) - 118) / 14) * 100;
+  return `<div class="scale-bar" title="${Math.round(scaled)} on the 118–132 scale">
+    ${band ? `<div class="scale-band" style="left:${x(scaled - band)}%;width:${x(scaled + band) - x(scaled - band)}%"></div>` : ''}
+    <div class="scale-mid"></div>
+    <div class="scale-mark" style="left:${x(scaled)}%;background:${color || scoreColor(Math.round(scaled))}"></div>
+  </div>`;
+}
+function evidenceText(ev) {
+  const parts = [];
+  if (ev.exam.t) parts.push(`${ev.exam.t} full-length`);
+  if (ev.passage.t) parts.push(`${ev.passage.t} passage`);
+  if (ev.recall.t) parts.push(`${ev.recall.t} recall`);
+  return parts.join(' · ') || 'no answers yet';
+}
+function disciplineRow(d, info, weight) {
+  const s = info.scaled == null ? null : Math.round(info.scaled);
+  const enough = info.n >= MIN_ANSWERS;
+  return `<div class="disc-row${enough ? '' : ' thin'}">
+    <div class="disc-name">${esc(DISCIPLINES[d])}${weight != null ? `<span class="disc-weight">${Math.round(weight * 100)}% of section</span>` : ''}</div>
+    <div class="disc-score" style="color:${s ? scoreColor(s) : 'var(--slate)'}">${s ?? '—'}</div>
+    <div class="disc-bar">${scaleBar(info.scaled, enough ? null : 3)}</div>
+    <div class="disc-meta">${info.n ? `${Math.round(info.acc * 100)}% correct · ${evidenceText(info.ev)}` : 'No answers yet'}${info.n && !enough ? ` · <b>${MIN_ANSWERS - info.n} more to count</b>` : ''}</div>
+  </div>`;
+}
+function trendChart(hist) {
+  const pts = hist.filter(h => h.total);
+  if (pts.length < 2) return '';
+  const W = 600, H = 120, pad = 24;
+  const lo = Math.min(...pts.map(p => p.total)) - 4, hi = Math.max(...pts.map(p => p.total)) + 4;
+  const xs = i => pad + (i / (pts.length - 1)) * (W - 2 * pad);
+  const ys = v => H - pad - ((v - lo) / (hi - lo || 1)) * (H - 2 * pad);
+  const line = pts.map((p, i) => `${i ? 'L' : 'M'}${xs(i).toFixed(1)},${ys(p.total).toFixed(1)}`).join(' ');
+  return `<svg class="trend" viewBox="0 0 ${W} ${H}" role="img" aria-label="Estimated total score over time, from ${pts[0].total} to ${pts[pts.length - 1].total}">
+    <path d="${line}" fill="none" stroke="var(--navy)" stroke-width="2.5"/>
+    ${pts.map((p, i) => `<circle cx="${xs(i).toFixed(1)}" cy="${ys(p.total).toFixed(1)}" r="3.5" fill="var(--navy)"><title>${p.day}: ${p.total}</title></circle>`).join('')}
+    <text x="${pad}" y="${H - 4}" class="trend-lbl">${pts[0].day}</text>
+    <text x="${W - pad}" y="${H - 4}" class="trend-lbl" text-anchor="end">${pts[pts.length - 1].day}</text>
+    <text x="${W - pad}" y="${ys(pts[pts.length - 1].total) - 8}" class="trend-val" text-anchor="end">${pts[pts.length - 1].total}</text>
+  </svg>`;
+}
+function scoreReportCards() {
+  const est = estimateScores();
+  const lastFL = store.get(KEYS.examHistory, []).filter(h => h.total).slice(-1)[0];
+  const sectionTile = s => {
+    if (s.scaled == null) {
+      const need = s.missing.filter(m => m.need > 0).sort((a, b) => b.w - a.w).slice(0, 2)
+        .map(m => `${m.need} more ${DISCIPLINES[m.d]}`).join(', ');
+      return `<div class="section-tile dim"><b>${s.abbrev}</b><div class="tile-score">—</div>
+        <span>Not enough data yet</span><span class="tile-need">${s.id === 'cars' ? `Answer ${MIN_ANSWERS - est.disc.cars.n} more CARS passage questions` : `Needs ${need}`}</span></div>`;
+    }
+    return `<div class="section-tile">
+      <b>${s.abbrev}</b>
+      <div class="tile-score" style="color:${scoreColor(s.scaled)}">${s.scaled}<small>±${s.band}</small></div>
+      ${scaleBar(s.scaled, s.band)}
+      <span>${ordinal(s.percentile)} percentile</span>
+      <span>${s.n.toLocaleString()} answers${s.coverage < 0.999 ? ` · ${Math.round(s.coverage * 100)}% of content covered` : ''}</span>
+    </div>`;
+  };
+  return `
+    <div class="results-card score-report">
+      <div class="section-label">Estimated MCAT score</div>
+      <div class="total-row">
+        <div class="total-score">${est.total ?? '—'}${est.total ? `<small>±${est.totalBand}</small>` : ''}</div>
+        <div class="total-meta">${est.total
+          ? `<b>${ordinal(est.totalPercentile)} percentile</b> on the AAMC 472–528 scale<br>Sum of the four section estimates below`
+          : 'A total appears once all four sections have enough answers. Each section needs at least 70% of its content covered.'}
+          ${lastFL ? `<br>Last full-length: <b>${lastFL.total}</b> (${new Date(lastFL.date).toLocaleDateString()})` : ''}</div>
+      </div>
+      <div class="section-grid">${est.sections.map(sectionTile).join('')}</div>
+      ${trendChart(store.get(KEYS.scoreHistory, []))}
+      <details class="how">
+        <summary>How this score is calculated</summary>
+        <p>The AAMC scores each section on 118–132 (midpoint 125) and adds the four for a 472–528 total. Each section draws on fixed shares of content. C/P is 30% general chemistry, 25% physics, 25% biochemistry, 15% organic chemistry and 5% biology. B/B is 65% biology, 25% biochemistry and 5% each general and organic chemistry. P/S is 65% psychology, 30% sociology and 5% biology. CARS is reading and reasoning only.</p>
+        <p>Every subject below gets an MCAT-equivalent score from your answers. Full-length questions count 3×, passage questions 2× and recall questions 1×. Recall questions test single facts, so they're converted on a stricter curve. A section score is its subjects' scores weighted by the shares above. Subjects with fewer than ${MIN_ANSWERS} answers are left out, and a section needs at least 70% of its content covered. The ± range narrows as you answer more.</p>
+        <p>Percentiles are the AAMC ranks in effect May 1, 2026 – April 30, 2027. These are study estimates, not predictions: the AAMC converts raw scores separately for every test form. A full-length exam is the best single indicator.</p>
+      </details>
+    </div>
+    <div class="results-card">
+      <div class="section-label">Score by subject <span class="muted">(MCAT-equivalent, 118–132)</span></div>
+      ${MCAT_SECTIONS.map(sec => `
+        <div class="disc-section"><div class="disc-section-head">${sec.abbrev} · ${esc(sec.label)}</div>
+          ${Object.entries(sec.weights).sort((a, b) => b[1] - a[1]).map(([d, w]) => disciplineRow(d, est.disc[d], sec.id === 'cars' ? null : w)).join('')}
+        </div>`).join('')}
+      <div class="disc-section"><div class="disc-section-head">Scientific reasoning skill · all science sections</div>
+        ${disciplineRow('research', est.disc.research, null)}
+        <p class="muted-note">Research design and statistics are tested inside every science section rather than as a separate share, so this skill is shown on its own and isn't added into a section score.</p>
+      </div>
+    </div>`;
+}
+// Compact one-line version for the home screen and session results
+function scoreStrip() {
+  const est = estimateScores();
+  if (!est.sections.some(s => s.scaled != null)) return '';
+  return `<button class="score-strip" onclick="showProgress()" title="Open your score report">
+    <span class="ss-total"><small>Est. MCAT</small>${est.total ?? '—'}</span>
+    ${est.sections.map(s => `<span class="ss-sec"><small>${s.abbrev}</small>${s.scaled ?? '—'}</span>`).join('')}
+    <span class="ss-go">Score report →</span>
+  </button>`;
+}
 function showProgress() {
   show('screen-results');
+  snapshotEstimate();
   const html = progressCards();
   $('results-body').innerHTML = `
-    <div class="results-hero"><div class="r-label">My progress</div></div>
-    ${html || '<div class="results-card"><p class="muted-note">No answers recorded yet. Finish a few questions and your progress will appear here.</p></div>'}
+    <div class="results-hero"><div class="r-label">Score report & progress</div></div>
+    ${scoreReportCards()}
+    ${html || '<div class="results-card"><p class="muted-note">No recall answers recorded yet. Finish a few questions and your progress will appear here.</p></div>'}
     ${examHistoryCard()}
     <div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div>
     <button class="text-btn danger" onclick="resetProgress()">Reset all progress on this device…</button>`;
 }
 function resetProgress() {
-  if (!confirm('Erase all recall stats, spaced-repetition history, flags, passage scores and exam history on this device? This cannot be undone.')) return;
-  [KEYS.stats, KEYS.srs, KEYS.flags, KEYS.passages, KEYS.examHistory].forEach(k => store.del(k));
+  if (!confirm('Erase all recall stats, spaced-repetition history, flags, passage scores, score estimates and exam history on this device? This cannot be undone.')) return;
+  [KEYS.stats, KEYS.srs, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
   FULL_EXAMS.forEach(e => { store.del(KEYS.examProgress(e.id)); store.del(KEYS.examLast(e.id)); });
   goHome();
 }
@@ -789,6 +1071,7 @@ function answerPassage(chosen) {
   const view = pq.views[pq.idx];
   const right = chosen === view.ans;
   pq.results.push({ view, chosen, right });
+  recordEvidence('passage', disciplineOfPassage(pq.p, view.q), right);
   view.choices.forEach((_, i) => {
     const b = $('pc-' + i);
     b.disabled = true;
@@ -830,7 +1113,8 @@ function showPassageResults() {
     <div class="btn-row">
       <button class="new-quiz-btn" onclick="startPassage()">Retry passage</button>
       <button class="new-quiz-btn secondary" onclick="goHome()">Home</button>
-    </div>`;
+    </div>
+    ${(snapshotEstimate(), scoreStrip())}`;
   window.scrollTo(0, 0);
 }
 
@@ -1046,8 +1330,14 @@ function endSection() {
   stopExamTimer();
   ensureOrders();
   const qs = curQuestions();
+  const sectionId = curSection().id;
   let correct = 0;
-  qs.forEach((q, i) => { const a = exam.answers[exam.si][i]; if (a != null && exam.orders[exam.si][i][a] === q.ans) correct++; });
+  qs.forEach((q, i) => {
+    const a = exam.answers[exam.si][i];
+    const right = a != null && exam.orders[exam.si][i][a] === q.ans;
+    if (right) correct++;
+    recordEvidence('exam', disciplineOfExamQuestion(sectionId, q), right);
+  });
   const p = pct(correct, qs.length);
   exam.results[exam.si] = { correct, total: qs.length, pct: p, scaled: rawToScaled(p), timeMs: exam.elapsed[exam.si] };
   if (exam.si + 1 < examDef().sections.length) {
@@ -1093,6 +1383,7 @@ function finishExam() {
   store.set(KEYS.examHistory, history);
   store.set(KEYS.examLast(def.id), { ei: exam.ei, answers: exam.answers, marked: exam.marked, orders: exam.orders, results: exam.results, date: Date.now() });
   store.del(KEYS.examProgress(def.id));
+  snapshotEstimate();
   showExamResults(store.get(KEYS.examLast(def.id)));
 }
 function openLastExamReview(ei) {
@@ -1128,8 +1419,40 @@ function showExamResults(attempt) {
         <span>Time used ${fmtTime(x.timeMs || 0)} of ${s.timeMin}:00</span>
       </div>`;
     }).join('')}</div>
-    <p class="muted-note">Scaled scores are estimates. The AAMC converts raw scores separately for each test form. Percentiles are the AAMC ranks in effect May 1, 2026 – April 30, 2027.</p>`;
+    <p class="muted-note">Scaled scores are estimates. The AAMC converts raw scores separately for each test form. Percentiles are the AAMC ranks in effect May 1, 2026 – April 30, 2027.</p>
+    ${examBreakdownCard(attempt)}`;
   renderExamReview();
+}
+// Per-section breakdown by discipline and by question type (passage vs discrete)
+function examBreakdownCard(attempt) {
+  const def = FULL_EXAMS[attempt.ei];
+  const blocks = def.sections.map((s, si) => {
+    if (!attempt.results[si]) return '';
+    const qs = sectionQuestions(attempt.ei, si);
+    const byDisc = {}, byType = { passage: { c: 0, t: 0 }, discrete: { c: 0, t: 0 } };
+    qs.forEach((q, i) => {
+      const o = attempt.orders[si] ? attempt.orders[si][i] : q.choices.map((_, k) => k);
+      const a = attempt.answers[si][i];
+      const right = a != null && o[a] === q.ans;
+      const d = disciplineOfExamQuestion(s.id, q) || 'other';
+      byDisc[d] = byDisc[d] || { c: 0, t: 0 };
+      byDisc[d].t++; if (right) byDisc[d].c++;
+      const type = q.passageTitle ? 'passage' : 'discrete';
+      byType[type].t++; if (right) byType[type].c++;
+    });
+    const rows = Object.entries(byDisc).sort((a, b) => b[1].t - a[1].t).map(([d, v]) => {
+      const eq = Math.round(curveScore(RAW_TO_SCALED, (v.c / v.t) * 100));
+      return `<div class="disc-row compact">
+        <div class="disc-name">${esc(DISCIPLINES[d] || 'Other')}<span class="disc-weight">${v.t} question${v.t === 1 ? '' : 's'}</span></div>
+        <div class="disc-score" style="color:${scoreColor(eq)}">${eq}</div>
+        <div class="disc-bar">${scaleBar(eq)}</div>
+        <div class="disc-meta">${v.c}/${v.t} correct (${pct(v.c, v.t)}%)${v.t < 8 ? ' · small sample' : ''}</div>
+      </div>`;
+    }).join('');
+    const typeLine = s.id === 'cars' ? '' : `<p class="muted-note">Passage questions: ${byType.passage.c}/${byType.passage.t} (${pct(byType.passage.c, byType.passage.t)}%) · Discrete questions: ${byType.discrete.c}/${byType.discrete.t} (${pct(byType.discrete.c, byType.discrete.t)}%) · ${Math.round((attempt.results[si].timeMs || 0) / 1000 / qs.length)}s per question (AAMC pace ≈ ${Math.round(s.timeMin * 60 / qs.length)}s)</p>`;
+    return `<div class="disc-section"><div class="disc-section-head">${s.abbrev} · ${esc(s.label)}</div>${rows}${typeLine}</div>`;
+  }).join('');
+  return blocks ? `<div class="results-card"><div class="section-label">Subject breakdown <span class="muted">(MCAT-equivalent of each subject's accuracy)</span></div>${blocks}</div>` : '';
 }
 function setExamReview(field, value) { examReviewState[field] = value; renderExamReview(); }
 function renderExamReview() {

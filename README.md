@@ -1,5 +1,5 @@
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-![Version](https://img.shields.io/badge/Version-2.0-blue.svg)
+![Version](https://img.shields.io/badge/Version-2.1-blue.svg)
 ![Last Updated](https://img.shields.io/badge/Updated-Oct_2026-purple.svg)
 
 # MCAT Study App
@@ -51,8 +51,27 @@ It sits between Anki (pure recall) and UWorld (full exam simulation). You get fa
 - **Keyboard shortcuts:** `1–4` / `A–D` to answer, `Enter` for the next question, `F` to flag. In exams, `←/→` to move between questions and `M` to mark.
 - **Report a problem.** Every explanation has a link that opens a pre-filled GitHub issue.
 
-### About the scores
-Percentile ranks are the [AAMC tables in effect May 1, 2026 – April 30, 2027](https://www.aamc.org/services/mcat-admissions-officers/resources/percentile-ranks). Raw-to-scaled conversion is an **estimate**: the AAMC equates each test form separately, so treat the scaled scores as a rough guide, not a prediction. Recall sessions show accuracy only; isolated fact questions don't map onto a scaled score.
+### MCAT score report
+The **Score report** (home screen) estimates your MCAT the way the AAMC builds it:
+
+- **Section scores (118–132) and total (472–528)** with a ± range and AAMC percentile ranks.
+- **Section estimates follow the AAMC's published content shares:**
+
+  | Section | Content |
+  |---|---|
+  | C/P | 30% general chemistry, 25% physics, 25% biochemistry, 15% organic chemistry, 5% biology |
+  | B/B | 65% biology, 25% biochemistry, 5% general chemistry, 5% organic chemistry |
+  | P/S | 65% psychology, 30% sociology, 5% biology |
+  | CARS | Reading and reasoning only |
+
+- **Score by subject.** Every discipline gets an MCAT-equivalent score (118–132) from all your answers. Full-length questions count 3×, passage questions 2×, and recall questions 1× on a stricter curve, because single-fact recall is easier than MCAT items. Research methods and statistics are shown as a separate skill.
+- **Full-length results** break each section down by subject, by passage vs. standalone questions, and by pace against AAMC timing.
+- **Trend chart** of your estimated total over time.
+- **Section-weighted practice.** The C/P, B/B, P/S and All-sciences mixes draw recall questions in real section proportions. With "All", a session is 59 questions, like a real section.
+
+A section needs at least 15 answers in each subject it counts, and at least 70% of its content covered, before it gets a score.
+
+Percentile ranks are the [AAMC tables in effect May 1, 2026 – April 30, 2027](https://www.aamc.org/services/mcat-admissions-officers/resources/percentile-ranks). All scaled scores are **estimates**: the AAMC equates each test form separately, so use them to track progress, not to predict a test-day score.
 
 ---
 

@@ -7,6 +7,7 @@ const EXAM2_BB_PASSAGES = [
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2bb_1',
+  subj:'biology',
   type:'passage',
   topic:'B/B',
   title:'Prokaryotic Translation and Antibiotic Mechanisms',
@@ -81,6 +82,7 @@ Researchers tested four bacterial isolates against these antibiotics. Isolate A 
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2bb_2',
+  subj:'biology',
   type:'passage',
   topic:'B/B',
   title:'Glucocorticoid Receptor Signaling and Cushing\'s Syndrome',
@@ -144,6 +146,7 @@ A patient has Cushing's syndrome confirmed biochemically. Inferior petrosal sinu
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2bb_3',
+  subj:'biology',
   type:'passage',
   topic:'B/B',
   title:'Complement Activation Pathways and Deficiency Syndromes',
@@ -209,6 +212,7 @@ Paroxysmal nocturnal hemoglobinuria (PNH): somatic mutation in PIG-A gene → im
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2bb_4',
+  subj:'biology',
   type:'passage',
   topic:'B/B',
   title:'CRISPR-Cas9 Mechanism and Applications in Genetic Disease',
@@ -272,6 +276,7 @@ Researchers used CRISPR-Cas9 to correct the sickle cell mutation (HBB, E6V: GAG�
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2bb_5',
+  subj:'biology',
   type:'passage',
   topic:'B/B',
   title:'Oxygen-Hemoglobin Dissociation and Tissue Oxygen Delivery',
@@ -337,6 +342,7 @@ A second patient has carbon monoxide poisoning (COHb = 45%) with SpO₂ 98% by s
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2bb_6',
+  subj:'biology',
   type:'passage',
   topic:'B/B',
   title:'Genetic Imprinting and Uniparental Disomy',
@@ -400,6 +406,7 @@ UPD occurs when both copies of a chromosome are inherited from one parent. UPD c
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2bb_7',
+  subj:'biochemistry',
   type:'passage',
   topic:'B/B',
   title:'Phenylalanine Catabolism and Inborn Errors of Metabolism',
@@ -434,6 +441,7 @@ Alkaptonuria: deficiency of homogentisate oxidase → homogentisic acid accumula
       exp:"BH4 as pleiotropic cofactor: BH4 (tetrahydrobiopterin) is required for: (1) PAH (Phe hydroxylation); (2) Tyrosine hydroxylase (TH: Tyr → L-DOPA, rate-limiting step in catecholamine synthesis); (3) Tryptophan hydroxylase (TPH: Trp → 5-HTP, rate-limiting step in serotonin synthesis); (4) Nitric oxide synthase (NO production). In BH4 deficiency: even if Phe is controlled by diet, TH and TPH cannot function → no dopamine, NE, serotonin synthesis despite adequate amino acid precursors. Treatment requires: Phe restriction + BH4 supplementation (if residual enzyme) + L-DOPA/carbidopa + 5-HTP + folate (dihydropteridine reductase deficiency depletes folate). Sapropterin (synthetic BH4) is FDA-approved for PAH-variant PKU and some BH4 deficiencies."
     },
     {
+      subj:'organic_chem',
       q:"Alkaptonuria is caused by homogentisate oxidase deficiency. Homogentisic acid (HGA) deposits in connective tissue (ochronosis) and polymerizes to form a dark pigment. What chemical property of HGA enables this polymerization?",
       choices:[
         "It carries amino groups and polymerizes by forming peptide bonds",
@@ -463,6 +471,7 @@ Alkaptonuria: deficiency of homogentisate oxidase → homogentisic acid accumula
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2bb_8',
+  subj:'biology',
   type:'passage',
   topic:'B/B',
   title:'Meiosis, Gametogenesis, and Chromosomal Nondisjunction',
@@ -526,6 +535,7 @@ The maternal age effect reflects the extended meiotic arrest: oocytes arrested i
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2bb_9',
+  subj:'biology',
   type:'passage',
   topic:'B/B',
   title:'Gastric Acid Secretion and Peptic Ulcer Disease',
@@ -589,6 +599,7 @@ A 45-year-old man with NSAID-induced gastric ulcer is treated with a proton pump
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2bb_10',
+  subj:'biology',
   type:'passage',
   topic:'B/B',
   title:'Opioid Receptor Signaling and Analgesic Tolerance',
@@ -652,7 +663,7 @@ A clinical trial compared standard morphine to a biased agonist that preferentia
 
 const EXAM2_BB_DISCRETES = [
   {
-    id:'e2bb_d_1', type:'discrete', topic:'B/B',
+    subj:'biology', id:'e2bb_d_1', type:'discrete', topic:'B/B',
     q:"A patient with chronic kidney disease has serum phosphate = 7.8 mg/dL (elevated) and calcium = 7.2 mg/dL (low). Which hormonal axis explains these findings?",
     choices:[
       "Primary hyperparathyroidism, with PTH excess raising phosphate and lowering calcium",
@@ -664,7 +675,7 @@ const EXAM2_BB_DISCRETES = [
     exp:"CKD mineral-bone disorder (CKD-MBD): (1) Reduced GFR → phosphate retention → hyperphosphatemia; (2) Reduced functional renal mass → less 1α-hydroxylase → less 1,25-(OH)₂D₃ (calcitriol) synthesis → impaired intestinal Ca²⁺ and PO₄³⁻ absorption → hypocalcemia; (3) Hyperphosphatemia + hypocalcemia → PTH secretion (secondary hyperparathyroidism) → PTH acts on bone (resorption) and kidney (minimal effect in CKD). Contrast primary hyperparathyroidism, where PTH is the initiating lesion and produces **high** calcium with **low** phosphate — the opposite pattern to this patient's. Elevated FGF23 (fibroblast growth factor 23, phosphaturic hormone) also contributes by inhibiting 1α-hydroxylase. Treatment: phosphate binders, calcitriol supplementation, calcimimetics (cinacalcet, activates Ca-sensing receptor to suppress PTH secretion)."
   },
   {
-    id:'e2bb_d_2', type:'discrete', topic:'B/B',
+    subj:'biochemistry', id:'e2bb_d_2', type:'discrete', topic:'B/B',
     q:"In the polymerase chain reaction (PCR), what is the purpose of the denaturation step, and at what approximate temperature is it performed?",
     choices:[
       "About 95°C, to break the hydrogen bonds and give single-stranded templates",
@@ -676,7 +687,7 @@ const EXAM2_BB_DISCRETES = [
     exp:"PCR three-step cycle: (1) Denaturation (~95°C): thermal energy breaks hydrogen bonds and hydrophobic stacking interactions holding the DNA duplex together → single-stranded templates. 95°C is needed because the G-C base pairs (3 H-bonds) require more energy to denature than A-T (2 H-bonds). (2) Annealing (55-65°C, primer-Tm dependent): primers (short ssDNA oligonucleotides complementary to target sequence flanks) bind their complementary sequences on the ssDNA template by H-bonding; temperature selected to balance specificity (too low = non-specific binding; too high = poor annealing). (3) Extension (72°C): Taq DNA polymerase (thermostable, from Thermus aquaticus) synthesizes new DNA strand from 3' end of primer, reading template 3'→5', synthesizing 5'→3'. Cycle repeats ~30-40 times → exponential amplification."
   },
   {
-    id:'e2bb_d_3', type:'discrete', topic:'B/B',
+    subj:'biochemistry', id:'e2bb_d_3', type:'discrete', topic:'B/B',
     q:"During anaerobic glycolysis, lactate dehydrogenase (LDH) converts pyruvate to lactate using NADH. What is the essential physiological function of this reaction in anaerobic conditions?",
     choices:[
       "Exporting lactate to the liver is what sustains the working muscle's own ATP",
@@ -688,7 +699,7 @@ const EXAM2_BB_DISCRETES = [
     exp:"LDH function in anaerobic glycolysis: The critical constraint is NAD⁺ availability. Glycolysis step 6 (glyceraldehyde-3-phosphate dehydrogenase): G3P + NAD⁺ + Pi → 1,3-BPG + NADH. If NADH accumulates (no O₂ for ETC to reoxidize it), NAD⁺ is depleted → step 6 halts → glycolysis stops → no ATP production. LDH: pyruvate + NADH → lactate + NAD⁺. This NADH → NAD⁺ conversion regenerates the oxidized cofactor needed for glycolysis to continue. Net: glycolysis produces 2 ATP/glucose; LDH makes this sustainable anaerobically. The reaction makes no ATP of its own, and exported lactate does feed hepatic gluconeogenesis (the Cori cycle) but that recycling happens elsewhere and later — it is not what keeps the sprinting myocyte's glycolysis going. Lactate is a metabolic product, not a signal that restores respiration — only restored O₂ delivery does that."
   },
   {
-    id:'e2bb_d_4', type:'discrete', topic:'B/B',
+    subj:'biology', id:'e2bb_d_4', type:'discrete', topic:'B/B',
     q:"Which statement correctly describes the difference between innate and adaptive immunity in terms of specificity and memory?",
     choices:[
       "Innate receptors are epitope-specific and form memory; adaptive ones do not",
@@ -700,7 +711,7 @@ const EXAM2_BB_DISCRETES = [
     exp:"Innate vs. adaptive immune comparison: Innate: PRRs (pattern recognition receptors) are germline-encoded, recognizing conserved PAMPs (lipopolysaccharide, flagellin, CpG DNA, β-glucan). Broad specificity — detects classes of pathogens. No memory (same response on re-exposure). Rapid (minutes-hours). Effectors: neutrophils, macrophages, NK cells, complement, interferons. Adaptive: BCR/TCR are generated by somatic V(D)J recombination → enormous diversity (~10¹⁵ TCR clonotypes) → specific for individual epitopes. Memory formation: long-lived memory B cells (faster Ab production) and memory T cells (rapid effector response) on re-exposure — basis of vaccine immunity. Slower primary response (days-weeks). Innate immunity activates and instructs adaptive immunity (via DCs, cytokines). It is the adaptive arm, not the innate arm, that depends on MHC presentation to T cells. (Trained innate immunity and NK 'memory-like' cells exist, but they are not equivalent to the antigen-specific memory of B and T cells.)"
   },
   {
-    id:'e2bb_d_5', type:'discrete', topic:'B/B',
+    subj:'biochemistry', id:'e2bb_d_5', type:'discrete', topic:'B/B',
     q:"The purine nucleotide AMP can be regenerated by two routes: (1) directly from ADP via myokinase (2 ADP → AMP + ATP), or (2) via de novo purine synthesis. Which route is more energy-efficient for rapid ATP regeneration during muscle contraction?",
     choices:[
       "De novo synthesis, because building new purines maximizes the adenine pool",
@@ -712,7 +723,7 @@ const EXAM2_BB_DISCRETES = [
     exp:"Adenylate kinase (myokinase): 2 ADP ⇌ AMP + ATP. This near-equilibrium reaction is extremely fast (cytoplasmic enzyme, no gene expression required) and serves two functions: (1) Regenerates ATP from ADP accumulation during intense exercise; (2) Produces AMP, which allosterically activates AMP-activated protein kinase (AMPK) → activates catabolism, glucose uptake, fatty acid oxidation. De novo purine synthesis: 10 enzymatic steps, consumes 6 ATP equivalents per purine ring built → expensive. Salvage pathway (HGPRT, APRT): recycles hypoxanthine/guanine/adenine + PRPP → IMP/GMP/AMP; more efficient than de novo but slower than myokinase. Lesch-Nyhan syndrome: HGPRT deficiency → cannot salvage hypoxanthine/guanine → overproduction of uric acid (de novo synthesis runs unchecked) → gout, neurological dysfunction (dopamine neurotransmission impaired in basal ganglia)."
   },
   {
-    id:'e2bb_d_6', type:'discrete', topic:'B/B',
+    subj:'biology', id:'e2bb_d_6', type:'discrete', topic:'B/B',
     q:"A liver biopsy from a patient with suspected Wilson's disease (ATP7B copper transporter deficiency) shows elevated copper and characteristic histological changes. ATP7B normally functions to:",
     choices:[
       "Import copper from the portal blood into hepatocytes for storage",
@@ -724,7 +735,7 @@ const EXAM2_BB_DISCRETES = [
     exp:"Wilson's disease (hepatolenticular degeneration): Autosomal recessive, ATP7B mutation. ATP7B is a P-type ATPase copper transporter in hepatocyte trans-Golgi network. Normal functions: (1) Loads Cu into ceruloplasmin (secreted into blood) — most circulating copper is ceruloplasmin-bound; (2) Excretes excess Cu into bile for elimination. ATP7B deficiency: Cu cannot be incorporated into ceruloplasmin (low serum ceruloplasmin AND low serum total copper) AND Cu cannot be excreted in bile → hepatocyte Cu accumulation → oxidative damage, hepatitis, cirrhosis. Overflow into blood → Cu deposits in cornea (Kayser-Fleischer rings, pathognomonic), basal ganglia/lenticular nucleus (neuropsychiatric), kidneys. Treatment: penicillamine (Cu chelator), zinc (blocks intestinal Cu absorption), liver transplant. Menkes disease: ATP7A deficiency → impaired Cu absorption from intestine → systemic Cu deficiency (kinky hair, neurodegeneration) — opposite phenotype."
   },
   {
-    id:'e2bb_d_7', type:'discrete', topic:'B/B',
+    subj:'biology', id:'e2bb_d_7', type:'discrete', topic:'B/B',
     q:"Which statement correctly describes the mechanism of contact inhibition in normal cells and how it is lost in cancer?",
     choices:[
       "Gap junctions pass a diffusible inhibitory signal between neighbouring cells",
@@ -736,7 +747,7 @@ const EXAM2_BB_DISCRETES = [
     exp:"Contact inhibition of proliferation (CIP): Normal mechanism: cell density → E-cadherin engagement → mechanical signals → Hippo pathway activation (MST1/2 → LATS1/2 → phosphorylate YAP/TAZ → bind 14-3-3 proteins → cytoplasmic retention → cannot coactivate TEAD transcription factors → CTGF, CYR61, other proliferative genes suppressed). Low density or ECM detachment → YAP/TAZ nuclear → proliferation. Cancer: E-cadherin loss (CDH1 mutation/methylation in lobular breast cancer) → loss of upstream Hippo activation; LATS1/2 mutations → YAP/TAZ constitutively nuclear → uncontrolled proliferation (anchorage-independent growth, loss of contact inhibition). Additionally, receptor tyrosine kinases (EGFR, ErbB2 amplification) can override Hippo via PI3K/Akt/mTOR. Merlin (encoded by NF2) is another upstream Hippo activator, lost in neurofibromatosis type 2. Note that contact inhibition is an active signalling response to adhesion, not passive growth-factor exhaustion, and gap junctions mediate metabolic and electrical coupling rather than this arrest."
   },
   {
-    id:'e2bb_d_8', type:'discrete', topic:'B/B',
+    subj:'biochemistry', id:'e2bb_d_8', type:'discrete', topic:'B/B',
     q:"During a sprint, muscle ATP is depleted and creatine phosphate (CP) buffers ATP concentration. The creatine kinase reaction is: CP + ADP ⇌ Creatine + ATP. Which statement about this system is correct?",
     choices:[
       "Stored creatine phosphate can fuel two to three hours of maximal exercise",
@@ -748,7 +759,7 @@ const EXAM2_BB_DISCRETES = [
     exp:"Phosphagen (immediate) energy system: Creatine phosphate (CP, also called phosphocreatine, PCr): highest energy phosphate buffer in muscle. Creatine kinase reaction: CP + ADP → Cr + ATP (forward reaction during exercise); ATP + Cr → CP + ADP (reverse reaction during recovery). Characteristics: (1) Extremely fast — near-equilibrium, no allosteric regulation needed; (2) Duration: ~8-10 seconds of maximal intensity (sprint start, jump, throw); (3) Capacity: ~20-25 mmol CP/kg wet muscle × ~50 kJ/mol → ~1-1.25 kJ/kg; (4) No oxygen required; (5) Recovery: CP resynthesis requires oxidative phosphorylation → t₁/₂ of CP recovery ~30-90 sec; full resynthesis ~3-5 min rest. Creatine supplementation (creatine monohydrate) increases muscle CP stores ~10-20% → modestly improves high-intensity, short-duration performance. Creatine itself is synthesized in liver and kidney from glycine, arginine and methionine and taken up by muscle, but the phosphorylation to creatine phosphate happens inside the myocyte by creatine kinase."
   },
   {
-    id:'e2bb_d_9', type:'discrete', topic:'B/B',
+    subj:'biology', id:'e2bb_d_9', type:'discrete', topic:'B/B',
     q:"Which of the following correctly describes the function of the nuclear pore complex (NPC) in the transport of a newly synthesized mRNA from nucleus to cytoplasm?",
     choices:[
       "Mature mRNA simply diffuses through the open central channel of the pore",
@@ -760,7 +771,7 @@ const EXAM2_BB_DISCRETES = [
     exp:"mRNA nuclear export: Only properly processed mRNAs are exported (quality control step). The exon junction complex (EJC, deposited at splice junctions) marks properly spliced mRNAs. The TREX (transcription-export) complex binds the 5' cap and recruits NXF1 (TAP)/NXT1 (p15) — the main mRNA export receptor. NXF1 interacts with FG-nucleoporins (phenylalanine-glycine repeat proteins that create a selective filter in the NPC channel). Directionality: TREX loaded in nucleus → mRNP translocates through NPC → Dbp5 RNA helicase (at cytoplasmic face, activated by Gle1+IP6) removes NXF1 from mRNA → NXF1 can no longer interact with nuclear FG-nups → cannot re-enter nucleus → unidirectional export. After export: cap-binding protein eIF4F initiates translation in cytoplasm. Small molecules (<~40 kDa) do diffuse through the pore, but an mRNP is far too large and requires this receptor-mediated, energy-consuming route — and nothing crosses the envelope in vesicles."
   },
   {
-    id:'e2bb_d_10', type:'discrete', topic:'B/B',
+    subj:'biochemistry', id:'e2bb_d_10', type:'discrete', topic:'B/B',
     q:"A pregnant woman at 10 weeks gestation has been taking methotrexate (MTX, a dihydrofolate reductase inhibitor) for rheumatoid arthritis. Fetal exposure is a major concern because MTX is teratogenic. Which biological process does MTX most directly impair that makes rapidly dividing fetal cells particularly vulnerable?",
     choices:[
       "It blocks mitochondrial ATP synthesis, on which dividing cells depend most",
@@ -772,7 +783,7 @@ const EXAM2_BB_DISCRETES = [
     exp:"MTX mechanism and teratogenicity: MTX competitively inhibits DHFR → DHF cannot be reduced to THF → THF pool depleted. THF is essential as a one-carbon carrier for: (1) dTMP synthesis: thymidylate synthase uses 5,10-methylene-THF → oxidized to DHF → must be recycled by DHFR; (2) De novo purine synthesis: 10-formyl-THF donates formyl groups at steps 3 and 9 of the purine biosynthetic pathway. Without THF: no dTMP, no purines → no DNA synthesis → cell division halts. Rapidly dividing cells (early embryo: 24-36 hour division time; trophoblast; neural tube closure) are most vulnerable. MTX teratogenicity: spontaneous abortion, neural tube defects, craniofacial malformations, limb defects ('aminopterin syndrome'). MTX must be discontinued ≥3 months before conception. Folinic acid (leucovorin, 5-formyl-THF) rescues MTX toxicity by bypassing DHFR."
   },
   {
-    id:'e2bb_d_11', type:'discrete', topic:'B/B',
+    subj:'biology', id:'e2bb_d_11', type:'discrete', topic:'B/B',
     q:"Gap junctions allow direct cell-to-cell communication. Which molecules can pass through gap junctions, and which cannot?",
     choices:[
       "Anything cytoplasmic passes, including proteins, nucleic acids and organelles",
@@ -784,7 +795,7 @@ const EXAM2_BB_DISCRETES = [
     exp:"Gap junction structure: Connexin proteins form hemichannels (connexons); two hemichannels from adjacent cells align → gap junction channel (~1.5 nm pore diameter). Size cutoff: ~1,000-1,200 Da. Passed: ions → electrical coupling (cardiac and smooth muscle synchronization); second messengers (IP₃, cAMP, cADP-ribose) → coordinated signaling; metabolites (glucose, glutamate, glutathione). Cannot pass: proteins (MW typically >10,000 Da), DNA/RNA, organelles. Functions: cardiac synchronization (loss of connexin 43 → arrhythmias), lens nutrition (avascular → gap junction metabolite supply), astrocyte networks, cancer (tumor suppressor role — reduced gap junction communication is a cancer hallmark). Connexin mutations: Charcot-Marie-Tooth disease (Cx32), cataracts (Cx46/50), deafness (Cx26/30 — GJB2 mutations, most common genetic deafness). Note that passage is passive, down the concentration gradient: gap junctions are channels, not pumps, and need no ATP."
   },
   {
-    id:'e2bb_d_12', type:'discrete', topic:'B/B',
+    subj:'biochemistry', id:'e2bb_d_12', type:'discrete', topic:'B/B',
     q:"In the citric acid cycle, succinyl-CoA synthetase catalyzes: Succinyl-CoA + GDP + Pi → Succinate + CoA + GTP. What type of reaction is this, and why is it significant?",
     choices:[
       "An oxidation — succinyl-CoA loses electrons as it becomes succinate",
@@ -796,7 +807,7 @@ const EXAM2_BB_DISCRETES = [
     exp:"Succinyl-CoA synthetase: The thioester bond in succinyl-CoA (similar in energy to ATP's phosphoanhydride bond) is hydrolyzed. The released energy drives phosphorylation of GDP → GTP (or ADP → ATP in cardiac/skeletal muscle, which express different isoforms). This is substrate-level phosphorylation — phosphate transfer occurs directly from substrate to nucleotide without the proton gradient or electron transport chain. Context in TCA: Per acetyl-CoA cycle: 3 NADH + 1 FADH₂ + 1 GTP + 2 CO₂. GTP → ATP via nucleoside diphosphate kinase (GTP + ADP → GDP + ATP). Total ATP yield from acetyl-CoA (including ETC): ~10 ATP. The succinyl-CoA synthetase step is analogous to the substrate-level phosphorylations in glycolysis (phosphoglycerate kinase and pyruvate kinase). Carbon count and oxidation state are unchanged here — the two TCA decarboxylations happen upstream (isocitrate dehydrogenase and the α-ketoglutarate dehydrogenase complex), and the cycle's oxidations are the NAD⁺/FAD-linked steps."
   },
   {
-    id:'e2bb_d_13', type:'discrete', topic:'B/B',
+    subj:'research', id:'e2bb_d_13', type:'discrete', topic:'B/B',
     q:"A researcher is designing a study to test whether a new anti-inflammatory drug reduces CRP levels in patients with rheumatoid arthritis. She plans to measure CRP at baseline and after 12 weeks of treatment in 40 patients. Which statistical test is most appropriate for comparing baseline to 12-week CRP levels?",
     choices:[
       "Independent-samples t-test, which compares two separate groups of patients",
@@ -808,7 +819,7 @@ const EXAM2_BB_DISCRETES = [
     exp:"Paired t-test: appropriate when the same subjects are measured twice (before-after design, crossover trial, matched pairs). Each patient serves as their own control → between-patient variability (which would inflate the denominator in an independent t-test) is eliminated. The test compares the mean of the within-patient differences (d̄) to zero: t = d̄/(sd/√n). More statistically powerful than independent t-test for same sample size because σ_within < σ_between in most biomedical outcomes. Prerequisites: differences should be approximately normally distributed. Alternative: Wilcoxon signed-rank test if differences are not normal (especially with small n). Independent t-test: different groups (not matched). Chi-square: categorical outcomes (not continuous CRP). ANOVA: >2 groups or time points."
   },
   {
-    id:'e2bb_d_14', type:'discrete', topic:'B/B',
+    subj:'biology', id:'e2bb_d_14', type:'discrete', topic:'B/B',
     q:"The SRY gene on the Y chromosome directs testicular development. In the absence of SRY (46,XX individuals or 46,XY individuals with SRY deletion), what is the default developmental pathway of the gonad?",
     choices:[
       "The bipotential gonad involutes by apoptosis, leaving no gonadal tissue",
@@ -820,7 +831,7 @@ const EXAM2_BB_DISCRETES = [
     exp:"Sex determination: Bipotential gonad → Sertoli cells require SRY → SOX9 activation → testis-determining cascade. Without SRY: WNT4 and RSPO1 stabilize β-catenin in gonadal cells → activates FOXL2 → granulosa cell fate → ovary. SRY actively suppresses WNT4/β-catenin in XY; in XX, SRY absent → default ovarian pathway proceeds. 46,XY complete gonadal dysgenesis (Swyer syndrome): SRY absent or mutated → streak gonads (failed testicular determination) → phenotypic female with infantile Müllerian structures. 46,XX testicular DSD: SRY translocated to X chromosome → SRY positive XX → testis formation → phenotypically male (de la Chapelle syndrome). The 'ovary as default' concept: more nuanced in modern understanding — active ovary-determining factors exist (not purely passive), but the net effect of SRY absence is ovarian development."
   },
   {
-    id:'e2bb_d_15', type:'discrete', topic:'B/B',
+    subj:'biology', id:'e2bb_d_15', type:'discrete', topic:'B/B',
     q:"Which correctly describes the function of the enzyme telomerase and its RNA template component (TERC)?",
     choices:[
       "TERC is the mRNA from which the TERT protein subunit is translated",
@@ -832,7 +843,7 @@ const EXAM2_BB_DISCRETES = [
     exp:"Telomerase structure and function: TERT: reverse transcriptase catalytic subunit (protein, ~130 kDa). TERC (TR/TER): integral RNA component (~450 nt in humans) whose template region reads 3'-AAUCCC-5' (written 5'→3' it is CCCUAA), antiparallel and complementary to the telomere repeat 5'-TTAGGG-3'. Mechanism: (1) TERC aligns with the 3' G-overhang of the telomere; (2) TERT extends that 3' end by copying the 3'-AAUCCC-5' template → adding TTAGGG repeats (RNA→DNA, reverse transcription); (3) Telomerase translocates and repeats; (4) DNA primase + DNA pol alpha extend the complementary C-strand. Telomere extension counteracts end-replication problem (lagging strand cannot replicate the very end → lose ~50-200 bp per division). Active in germline, stem cells, activated lymphocytes. Dyskeratosis congenita: TERC or dyskerin mutations → short telomeres → aplastic anemia, pulmonary fibrosis, cancer predisposition."
   },
   {
-    id:'e2bb_d_16', type:'discrete', topic:'B/B',
+    subj:'biology', id:'e2bb_d_16', type:'discrete', topic:'B/B',
     q:"A 6-year-old child has recurrent sinopulmonary infections, absent tonsils, markedly reduced lymph nodes, and undetectable serum IgG, IgA, IgM. Flow cytometry shows absent CD19+ cells but normal CD3+ cells. What is the most likely diagnosis and underlying defect?",
     choices:[
       "DiGeorge syndrome — thymic aplasia from a 22q11 deletion blocks T cell output",
@@ -844,7 +855,7 @@ const EXAM2_BB_DISCRETES = [
     exp:"XLA (Bruton's agammaglobulinemia): X-linked, males. BTK (Bruton's tyrosine kinase) mutation: BTK is essential for signaling through the pre-B cell receptor (pre-BCR), which is required for differentiation from pro-B to pre-B to immature B cell. Without BTK signaling: B cell development arrested at pro-B/large pre-B cell stage → no circulating B cells (CD19-). T cells: completely normal (BTK not required for T cell development). Clinical: infections begin at 6 months (maternal IgG half-life ~23 days; near-zero maternal IgG at 3-6 months). Recurrent infections with encapsulated organisms (S. pneumoniae, H. influenzae, N. meningitidis, Giardia). Absent/rudimentary tonsils and lymph nodes (no B cell follicles). Treatment: monthly IVIG infusions. Differentiate from CVID (older onset, B cells present) and SCID (T cells also absent)."
   },
   {
-    id:'e2bb_d_17', type:'discrete', topic:'B/B',
+    subj:'biochemistry', id:'e2bb_d_17', type:'discrete', topic:'B/B',
     q:"In the liver, the enzyme glucose-6-phosphatase removes the phosphate from glucose-6-phosphate to release free glucose into the blood. Which metabolic processes depend on this enzyme, and why is it absent in muscle?",
     choices:[
       "It is a glycolytic enzyme in liver, and muscle substitutes a different one",
@@ -861,7 +872,7 @@ const EXAM2_BB_DISCRETES = [
 
 const EXAM2_BB_EXTRA = [
   {
-    id:'e2bb_d_18', type:'discrete', topic:'B/B',
+    subj:'biology', id:'e2bb_d_18', type:'discrete', topic:'B/B',
     q:"During embryonic development, Hox genes specify positional identity along the anterior-posterior axis. Which statement correctly describes Hox gene organization and colinearity?",
     choices:[
       "They are scattered through the genome, so position says nothing about expression",

@@ -6,6 +6,7 @@ const EXAM2_CP_PASSAGES = [
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2cp_1',
+  subj:'gen_chem',
   type:'passage',
   topic:'C/P',
   title:'Osmotic Pressure and Intravenous Fluid Therapy',
@@ -40,6 +41,7 @@ A patient with severe hyponatremia (Na⁺ = 118 mEq/L) is given 3% saline at a c
       exp:"Posm = 2[Na⁺] + glucose/18 + BUN/2.8 = 2(140) + 90/18 + 14/2.8 = 280 + 5 + 5 = 290 mOsm/kg. Normal range 285-295 → this patient is normal. The factor 18 converts glucose from mg/dL to mOsm (MW of glucose = 180 g/mol; 90 mg/dL ÷ 18 = 5 mOsm/kg). The factor 2.8 converts BUN to mOsm (MW of urea = 28 g/mol; 14 mg/dL ÷ 2.8 = 5 mOsm/kg). Forgetting to double Na⁺ (it stands in for its accompanying anions) is the most common error. In hyperglycemia, each 100 mg/dL rise in glucose adds ~5.5 mOsm/kg and draws water out of cells, lowering measured Na⁺ by ~1.6 mEq/L (translocational hyponatremia)."
     },
     {
+      subj:'biology',
       q:"Why does rapid correction of hyponatremia with hypertonic saline cause osmotic demyelination syndrome?",
       choices:[
         "Concentrated Na⁺ in hypertonic saline is chemically toxic to myelin on direct contact",
@@ -51,6 +53,7 @@ A patient with severe hyponatremia (Na⁺ = 118 mEq/L) is given 3% saline at a c
       exp:"In chronic hyponatremia (>48 h), brain cells export organic osmolytes (glutamine, taurine, myo-inositol) to avoid swelling; when plasma osmolality is raised quickly, they cannot re-accumulate these osmolytes fast enough, so water leaves the cells and they shrink, injuring oligodendrocytes and myelin, especially in the pons (central pontine myelinolysis). The cerebral edema choice describes the opposite water shift, which is the danger of untreated hyponatremia or of correcting hypernatremia too fast. This is why chronic hyponatremia is corrected by no more than ~8–10 mEq/L per 24 h."
     },
     {
+      subj:'biochemistry',
       q:"Lactated Ringer's solution contains lactate 28 mEq/L. What is the fate of lactate after IV infusion, and why is this clinically relevant?",
       choices:[
         "It is excreted unchanged in urine, so it has no net effect on acid-base balance",
@@ -69,6 +72,7 @@ A patient with severe hyponatremia (Na⁺ = 118 mEq/L) is given 3% saline at a c
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2cp_2',
+  subj:'physics',
   type:'passage',
   topic:'C/P',
   title:'MRI Physics and Proton Relaxation',
@@ -103,6 +107,7 @@ Gadolinium contrast agents shorten T1 of adjacent protons by providing magnetic 
       exp:"T2-weighted images: tissues with long T2 appear bright. Normal white matter has relatively short T2 (~70 ms at 3T) because myelin creates a structured, restricted water environment (promotes rapid dephasing). MS plaques: (1) Demyelination removes the hydrophobic myelin sheath → more free water in the lesion; (2) Inflammation brings additional extracellular water; (3) Free water has longer T2 → appears bright on T2-WI. This is why T2-WI is the primary sequence for detecting MS plaques, cerebral edema, and most white matter pathology — water content is the dominant contrast mechanism. T1 hypointensity ('black holes') reflects irreversible axonal damage in chronic lesions."
     },
     {
+      subj:'biology',
       q:"Gadolinium contrast enhances signal on T1-weighted MRI by shortening T1 of adjacent protons. A patient with a brain tumor shows ring enhancement after gadolinium injection. What does this indicate?",
       choices:[
         "Gadolinium spreads evenly through the tumor, so the whole mass is actively enhancing",
@@ -132,6 +137,7 @@ Gadolinium contrast agents shorten T1 of adjacent protons by providing magnetic 
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2cp_3',
+  subj:'organic_chem',
   type:'passage',
   topic:'C/P',
   title:'Chirality, Enantiomers, and Pharmacological Activity',
@@ -195,6 +201,7 @@ Chiral separation techniques (chiral HPLC, asymmetric synthesis) and chiral swit
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2cp_4',
+  subj:'biochemistry',
   type:'passage',
   topic:'C/P',
   title:'Enzyme Inhibition Kinetics and Drug Resistance',
@@ -258,6 +265,7 @@ A third resistance mechanism involved downregulation of the reduced folate carri
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2cp_5',
+  subj:'biology',
   type:'passage',
   topic:'C/P',
   title:'Gas Exchange and the Alveolar Gas Equation',
@@ -321,6 +329,7 @@ At high altitude (Denver, 1,600 m, Patm = 630 mmHg), healthy individuals have PA
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2cp_6',
+  subj:'gen_chem',
   type:'passage',
   topic:'C/P',
   title:'Calorimetry and the Thermodynamics of Combustion',
@@ -367,6 +376,7 @@ The combustion of tripalmitin: C₅₁H₉₈O₆ + 72.5O₂ → 51CO₂ + 49H�
       exp:"Δng = moles of gaseous products − moles of gaseous reactants. Glucose: solid, not gas. O₂: 6 moles gas (reactant). CO₂: 6 moles gas (product). H₂O: liquid at standard conditions (298 K, 1 atm), not counted as gas. Δng = 6(CO₂) − 6(O₂) = 0. Therefore ΔH = qv + 0 × RT = qv for glucose combustion. This simplifies the correction between bomb calorimetry (constant volume) and standard enthalpy (constant pressure). For tripalmitin: Δng = 51(CO₂) − 72.5(O₂) = −21.5 → ΔH = qv + (−21.5)RT — a measurable correction."
     },
     {
+      subj:'biology',
       q:"A clinical dietitian uses Atwater factors (carbohydrate = 4 kcal/g, fat = 9 kcal/g, protein = 4 kcal/g) rather than bomb calorimetry values. Why do metabolizable energy values differ from gross combustion values?",
       choices:[
         "Atwater factors are rough estimates that were never based on experimental data",
@@ -385,6 +395,7 @@ The combustion of tripalmitin: C₅₁H₉₈O₆ + 72.5O₂ → 51CO₂ + 49H�
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2cp_7',
+  subj:'physics',
   type:'passage',
   topic:'C/P',
   title:'Doppler Ultrasound in Vascular Diagnosis',
@@ -448,6 +459,7 @@ The degree of carotid stenosis is estimated from PSV: PSV 125-230 cm/s = 50-69% 
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2cp_8',
+  subj:'gen_chem',
   type:'passage',
   topic:'C/P',
   title:'Redox Chemistry in Hemoglobin and Methemoglobinemia',
@@ -482,6 +494,7 @@ A firefighter exposed to smoke (containing CO and NO₂) is brought to the ED. P
       exp:"A pulse oximeter uses 2 wavelengths (660 nm, 940 nm), so it can distinguish only 2 species (OxyHb and DeoxyHb). MetHb absorbs strongly and almost equally at both wavelengths, driving the absorbance ratio toward 1, which the calibration curve maps to ~85% SpO₂; at 32% MetHb the functional saturation is ~65%, so the mid-80s reading is falsely reassuring and does not respond to O₂, while PaO₂ stays normal because dissolved O₂ is unaffected. Co-oximetry (multiple wavelengths) measures OxyHb, DeoxyHb, COHb, and MetHb separately and is required whenever MetHb or CO poisoning is suspected; co-oximetry also uses light, so the light-versus-chemistry choice misses the point."
     },
     {
+      subj:'organic_chem',
       q:"Methylene blue (MB, blue) is reduced by NADPH (2e⁻ + 2H⁺) to leucomethylene blue (LMB, colorless), which then reduces Fe³⁺ to Fe²⁺. Why does this reduction abolish MB's color?",
       choices:[
         "Reduction adds a heavy atom that shifts MB's absorption into the infrared",
@@ -493,6 +506,7 @@ A firefighter exposed to smoke (containing CO and NO₂) is brought to the ED. P
       exp:"MB's blue color comes from an extended conjugated π system across its cationic phenothiazinium rings (it absorbs ~665 nm); two-electron reduction adds H to the central ring nitrogen, breaking the continuous conjugation, so the HOMO–LUMO gap widens and absorption moves into the UV. A sulfone would require oxidation, not reduction, and no heavy atom is added. LMB then donates its electrons to MetHb (Fe³⁺ → Fe²⁺), regenerating MB, which therefore acts catalytically at low doses (1–2 mg/kg)."
     },
     {
+      subj:'biochemistry',
       q:"A G6PD-deficient patient develops methemoglobinemia from dapsone. Why is methylene blue contraindicated, and what alternative treatment exists?",
       choices:[
         "MB competes with G6PD for glucose-6-phosphate; IV glucose is the preferred alternative",
@@ -511,6 +525,7 @@ A firefighter exposed to smoke (containing CO and NO₂) is brought to the ED. P
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2cp_9',
+  subj:'physics',
   type:'passage',
   topic:'C/P',
   title:'Ionizing Radiation in Medicine: Mechanisms and Dosimetry',
@@ -534,6 +549,7 @@ A radiation worker receives annual occupational exposure of 18 mSv. The regulato
       exp:"Equivalent dose (Sv) = Absorbed dose (Gy) × wR for each radiation type, then sum. X-ray: 2 Gy × 1 = 2 Sv. Alpha: 0.05 Gy × 20 = 1 Sv. Total = 2 + 1 = 3 Sv. The wR accounts for linear energy transfer (LET) — alpha particles deposit energy densely along a short track (high LET), causing clustered DNA damage that is more difficult to repair than the sparsely ionizing X-rays (low LET). 0.05 Gy of alpha = 0.05 × 20 = 1 Sv biological effectiveness equivalent to 1 Gy of X-rays — despite smaller absorbed dose, the alpha particles cause comparable biological damage due to high LET."
     },
     {
+      subj:'biology',
       q:"Hydroxyl radicals (·OH) cause most indirect radiation-induced DNA damage. Why are actively dividing cells (especially in G2/M) more radiosensitive than resting cells?",
       choices:[
         "Dividing cells contain more water, so irradiation produces more ·OH",
@@ -574,6 +590,7 @@ A radiation worker receives annual occupational exposure of 18 mSv. The regulato
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2cp_10',
+  subj:'gen_chem',
   type:'passage',
   topic:'C/P',
   title:'Kidney Stones: Solubility Equilibria and Prevention',
@@ -621,6 +638,7 @@ Treatment: increased fluid intake (dilutes urine), potassium citrate (provides c
       exp:"Solubility and ionization: The anionic form (A⁻, urate) is much more soluble than the neutral protonated form (HA, uric acid). Reasons: (1) Charged species interact strongly with polar water → high solubility; (2) Neutral HA molecules can form hydrogen bonds with each other and pack into crystal lattices → low solubility. At pH 5.0: pKa = 5.4 → pH < pKa → majority is HA (71.5%) → approaches/exceeds solubility limit → stone formation. At pH 7.0: 98% urate (A⁻) → highly soluble → far below solubility limit → no stone formation. Treatment: potassium citrate alkalinizes urine → shifts equilibrium toward urate → dramatically increases solubility → prevents and even dissolves uric acid stones (unlike CaOx stones which cannot be dissolved pharmacologically)."
     },
     {
+      subj:'biology',
       q:"Dietary calcium restriction is counterintuitively contraindicated for most calcium oxalate stone formers. What is the mechanism?",
       choices:[
         "Low dietary calcium suppresses PTH, which raises urinary calcium excretion",
@@ -639,7 +657,7 @@ Treatment: increased fluid intake (dilutes urine), potassium citrate (provides c
 
 const EXAM2_CP_DISCRETES = [
   {
-    id:'e2cp_d_1', type:'discrete', topic:'C/P',
+    subj:'gen_chem', id:'e2cp_d_1', type:'discrete', topic:'C/P',
     q:"A reaction has ΔG° = +12 kJ/mol. Which statement correctly describes this reaction under standard conditions?",
     choices:[
       "It is spontaneous, because a ΔG° of only +12 kJ/mol is small",
@@ -651,7 +669,7 @@ const EXAM2_CP_DISCRETES = [
     exp:"ΔG° > 0 → Keq = e^(−ΔG°/RT) < 1 → at standard conditions (1M all species, 25°C), products are thermodynamically disfavored. However, ΔG (actual free energy) = ΔG° + RT ln(Q). If Q << Keq (reactants abundant, products scarce), ΔG can be negative even when ΔG° > 0 → reaction proceeds. This is fundamental to cellular metabolism: many individually unfavorable reactions are coupled to ATP hydrolysis or driven by substrate supply/product removal. ΔG° is a thermodynamic constant; actual spontaneity depends on concentrations. ΔG° is not directly equal to heat (that's ΔH°, enthalpy change)."
   },
   {
-    id:'e2cp_d_2', type:'discrete', topic:'C/P',
+    subj:'physics', id:'e2cp_d_2', type:'discrete', topic:'C/P',
     q:"An electron is traveling at 1% of the speed of light (v = 3 × 10⁶ m/s). What is its de Broglie wavelength? (m_e = 9.11 × 10⁻³¹ kg, h = 6.626 × 10⁻³⁴ J·s)",
     choices:[
       "λ = h/mv = 6.626×10⁻³⁴/2.733×10⁻²⁴ ≈ 2.4×10⁻¹⁰ m",
@@ -663,7 +681,7 @@ const EXAM2_CP_DISCRETES = [
     exp:"de Broglie wavelength: λ = h/(mv) = h/p. λ = 6.626×10⁻³⁴ / (9.11×10⁻³¹ × 3×10⁶) = 6.626×10⁻³⁴ / 2.733×10⁻²⁴ = 2.42×10⁻¹⁰ m = 0.242 nm. This is in the X-ray wavelength range — explaining why electron diffraction can reveal molecular structure (electron beam wavelength ~ atomic bond lengths). The wave-particle duality described by de Broglie applies to all matter; larger objects have immeasurably small wavelengths (λ for a baseball ≈ 10⁻³⁴ m), explaining why quantum effects are negligible in macroscopic objects."
   },
   {
-    id:'e2cp_d_3', type:'discrete', topic:'C/P',
+    subj:'biochemistry', id:'e2cp_d_3', type:'discrete', topic:'C/P',
     q:"NADH is oxidized by complex I of the ETC with ΔG°' = −69.5 kJ/mol. How many moles of ATP (ΔG°'_ATP = +30.5 kJ/mol under standard conditions) could theoretically be synthesized from this energy?",
     choices:[
       "About 1 ATP, since each NADH oxidized always yields exactly one ATP",
@@ -675,7 +693,7 @@ const EXAM2_CP_DISCRETES = [
     exp:"Theoretical maximum = |ΔG°'_rxn| / ΔG°'_ATP = 69.5/30.5 ≈ 2.28 ATP for the NADH → CoQ step under standard conditions. Under cellular conditions ATP synthesis costs ~50–60 kJ/mol, so the real ceiling for this step is lower (~1.2–1.4). The familiar P/O ratio of ~2.5 refers to the entire chain (NADH → O₂, ΔG°' ≈ −220 kJ/mol): ~10 H⁺ are pumped per NADH and ~4 H⁺ are used per ATP (synthesis plus transport), so 10/4 = 2.5; complex I alone pumps 4 of those 10 protons, enough for about 1 ATP."
   },
   {
-    id:'e2cp_d_4', type:'discrete', topic:'C/P',
+    subj:'physics', id:'e2cp_d_4', type:'discrete', topic:'C/P',
     q:"A ball is thrown horizontally from a cliff at 20 m/s. It takes 4 seconds to reach the ground. Ignoring air resistance, what is the horizontal distance traveled? (g = 10 m/s²)",
     choices:[
       "80 m, because x = v_x·t and v_x stays constant at 20 m/s",
@@ -687,7 +705,7 @@ const EXAM2_CP_DISCRETES = [
     exp:"Projectile motion: horizontal and vertical components are independent. Horizontal: no acceleration (ignoring air resistance) → v_x = constant = 20 m/s. x = v_x × t = 20 × 4 = 80 m. Vertical: a_y = −g = −10 m/s². Height: h = ½gt² = ½ × 10 × 16 = 80 m (cliff height). Vertical velocity at impact: v_y = gt = 10 × 4 = 40 m/s. Speed at impact: v = √(20² + 40²) = √(400+1600) = √2000 ≈ 44.7 m/s. The independence of x and y components (Galilean independence) is fundamental to projectile motion problems."
   },
   {
-    id:'e2cp_d_5', type:'discrete', topic:'C/P',
+    subj:'gen_chem', id:'e2cp_d_5', type:'discrete', topic:'C/P',
     q:"Which molecule would be expected to have the highest boiling point, and why?",
     choices:[
       "CH₃CH₃ (ethane, MW 30), because its small size lets it pack efficiently",
@@ -699,7 +717,7 @@ const EXAM2_CP_DISCRETES = [
     exp:"Boiling point depends on intermolecular forces. Methanol (CH₃OH): O-H bond → can donate and accept hydrogen bonds → very strong IMFs. Ethane (CH₃CH₃): only London dispersion → very weak IMFs. Fluoromethane (CH₃F): C-F is polar but F has no H → cannot donate H-bonds, only dipole-dipole. Neon: only London dispersion, very small and polarizable. Ranking by BP: CH₃OH (65°C) >> CH₃F (-78°C) > CH₃CH₃ (-89°C) >> Ne (-246°C). Boiling breaks intermolecular forces, not covalent bonds, so C–F bond strength is irrelevant; with similar molar masses (30–34), hydrogen bonding makes the difference — this illustrates that chemical identity (functional groups) determines IMFs more than molecular weight does."
   },
   {
-    id:'e2cp_d_6', type:'discrete', topic:'C/P',
+    subj:'biology', id:'e2cp_d_6', type:'discrete', topic:'C/P',
     q:"A physician orders a serum electrolyte panel. The 'anion gap' is calculated. Which electrolytes are measured, and what does an elevated anion gap indicate?",
     choices:[
       "AG = Na⁺ − (Cl⁻ + HCO₃⁻); a high AG signals unmeasured anions such as lactate",
@@ -711,7 +729,7 @@ const EXAM2_CP_DISCRETES = [
     exp:"AG = Na⁺ − (Cl⁻ + HCO₃⁻). Normal = 8-12 mEq/L (represents unmeasured anions: albumin ~12, phosphate ~2, sulfate ~1). Elevated AG metabolic acidosis (MUDPILES mnemonic): Methanol, Uremia, DKA, Propylene glycol, INH/Iron, Lactic acidosis, Ethylene glycol, Salicylates. Mechanism: unmeasured anions (lactate, ketoacids, formate) replace HCO₃⁻ in the blood → HCO₃⁻ falls → AG rises while Cl⁻ stays the same. Non-AG (normal AG, hyperchloremic) metabolic acidosis: HCO₃⁻ is replaced by Cl⁻ → AG unchanged; causes: diarrhea, RTA, saline administration."
   },
   {
-    id:'e2cp_d_7', type:'discrete', topic:'C/P',
+    subj:'organic_chem', id:'e2cp_d_7', type:'discrete', topic:'C/P',
     q:"In thin-layer chromatography (TLC), compound A has an Rf = 0.75 and compound B has an Rf = 0.30. Which compound is more polar, and which travels farther up the TLC plate?",
     choices:[
       "Compound A is more polar, and compound A travels farther",
@@ -723,7 +741,7 @@ const EXAM2_CP_DISCRETES = [
     exp:"TLC with silica stationary phase (polar) and nonpolar mobile phase: More polar compounds have stronger interaction with polar silica → stay near origin → lower Rf. Less polar compounds have weaker silica interaction → partition into mobile phase → travel further → higher Rf. Compound A (Rf = 0.75) = less polar (travels farther). Compound B (Rf = 0.30) = more polar (stays near origin, higher affinity for polar silica). This is the basis for polarity-based separation in normal phase chromatography. In reverse phase HPLC (nonpolar stationary phase), the relationship reverses: more polar compounds elute first (lower retention time)."
   },
   {
-    id:'e2cp_d_8', type:'discrete', topic:'C/P',
+    subj:'physics', id:'e2cp_d_8', type:'discrete', topic:'C/P',
     q:"A 70 kg patient requires a loading dose of a drug to achieve a target plasma concentration of 5 mg/L immediately. The drug has a volume of distribution (Vd) of 40 L. What loading dose should be administered?",
     choices:[
       "Loading dose = Cp_target × Vd = 5 mg/L × 40 L = 200 mg",
@@ -735,7 +753,7 @@ const EXAM2_CP_DISCRETES = [
     exp:"Loading dose = target concentration × volume of distribution. LD = Cp × Vd = 5 mg/L × 40 L = 200 mg. Vd is an apparent volume — it reflects how extensively a drug distributes into tissues. Low Vd (3-5 L, plasma volume): drug stays in blood (e.g., warfarin, heparin). High Vd (>40 L): drug extensively distributes into tissues (e.g., amiodarone Vd ~5,000 L; chloroquine ~500 L). The loading dose formula is one of the most clinically important PK calculations. Maintenance dose = Cl × Cp_target, where Cl = clearance. Weight-based dosing is used for some drugs but not when Vd is given directly."
   },
   {
-    id:'e2cp_d_9', type:'discrete', topic:'C/P',
+    subj:'organic_chem', id:'e2cp_d_9', type:'discrete', topic:'C/P',
     q:"Resonance structures of benzene indicate that all C-C bonds are equivalent. The actual carbon-carbon bond length in benzene (140 pm) is between single C-C (154 pm) and double C=C (134 pm) bonds. This is best explained by:",
     choices:[
       "Benzene flips rapidly between two Kekulé structures, averaging the bond lengths",
@@ -747,7 +765,7 @@ const EXAM2_CP_DISCRETES = [
     exp:"The six carbon p orbitals combine into 6 π molecular orbitals (3 bonding, 3 antibonding), and all 6 π electrons fill the bonding MOs, so bond order per C–C = (6 σ bonds + 3 π bonds)/6 bonds = 1.5, giving a length between single and double bonds. Benzene does not flip between Kekulé structures; it has a single ground-state structure, the resonance hybrid, whose delocalization energy is ~36 kcal/mol (~150 kJ/mol) relative to three isolated C=C bonds (from hydrogenation enthalpies). Hückel's rule: aromatic systems have 4n+2 π electrons in a cyclic, planar, fully conjugated ring."
   },
   {
-    id:'e2cp_d_10', type:'discrete', topic:'C/P',
+    subj:'biochemistry', id:'e2cp_d_10', type:'discrete', topic:'C/P',
     q:"A patient with Graves' disease (hyperthyroidism) has elevated T3 and T4 levels, which are synthesized from tyrosine residues of thyroglobulin by iodination and coupling. Propylthiouracil (PTU) and methimazole reduce thyroid hormone synthesis by inhibiting which step?",
     choices:[
       "Iodide uptake into follicular cells by the Na⁺/I⁻ symporter",
@@ -759,7 +777,7 @@ const EXAM2_CP_DISCRETES = [
     exp:"Thyroid hormone synthesis runs: (1) I⁻ uptake by the Na⁺/I⁻ symporter (NIS), blocked by perchlorate and thiocyanate; (2) organification, in which thyroid peroxidase (TPO) oxidizes I⁻ and iodinates thyroglobulin tyrosines → MIT and DIT; (3) TPO-catalyzed coupling (DIT + DIT → T4, MIT + DIT → T3); (4) endocytosis and proteolysis of thyroglobulin to release T3/T4. PTU and methimazole inhibit TPO, blocking both organification and coupling; PTU also inhibits peripheral 5'-deiodinase (T4 → T3), and in Graves' disease TSH-receptor-stimulating antibodies drive the whole pathway."
   },
   {
-    id:'e2cp_d_11', type:'discrete', topic:'C/P',
+    subj:'physics', id:'e2cp_d_11', type:'discrete', topic:'C/P',
     q:"Two resistors (R₁ = 4Ω, R₂ = 12Ω) are connected in parallel across a 12V battery. What is the total current drawn from the battery?",
     choices:[
       "I_total = V/R₁ + V/R₂ = 12/4 + 12/12 = 3 + 1 = 4 A",
@@ -771,7 +789,7 @@ const EXAM2_CP_DISCRETES = [
     exp:"Parallel circuit: voltage is the same across each resistor. Current through R₁: I₁ = V/R₁ = 12/4 = 3 A. Current through R₂: I₂ = V/R₂ = 12/12 = 1 A. Total current: I_total = I₁ + I₂ = 3 + 1 = 4 A. Alternatively: R_parallel = 1/(1/R₁ + 1/R₂) = 1/(0.25+0.083) = 1/0.333 = 3 Ω. I = V/R_total = 12/3 = 4 A ✓. Key: in parallel, equivalent resistance is less than either individual resistance; total current is higher than through either branch alone. In series: R_total = R₁+R₂ = 16 Ω; I = 0.75 A (same through both)."
   },
   {
-    id:'e2cp_d_12', type:'discrete', topic:'C/P',
+    subj:'organic_chem', id:'e2cp_d_12', type:'discrete', topic:'C/P',
     q:"In mass spectrometry, a molecule produces a molecular ion (M⁺) at m/z = 88, and a base peak at m/z = 59. A fragment at m/z = 29 is also observed. The base peak at m/z = 59 is consistent with loss of which group from M⁺?",
     choices:[
       "An ethyl or formyl fragment (29 mass units)",
@@ -783,7 +801,7 @@ const EXAM2_CP_DISCRETES = [
     exp:"The mass lost is M⁺ − fragment = 88 − 59 = 29, which matches C₂H₅ (ethyl) or CHO (formyl); the complementary m/z 29 peak is the same piece carrying the charge. For example, methyl propanoate (CH₃CH₂COOCH₃, MW 88) undergoes α-cleavage next to the carbonyl, losing the ethyl group to give the acylium ion CH₃O–C≡O⁺ at m/z 59. Loss of methoxy (31) would instead give m/z 57, a common competing fragment for methyl esters."
   },
   {
-    id:'e2cp_d_13', type:'discrete', topic:'C/P',
+    subj:'biochemistry', id:'e2cp_d_13', type:'discrete', topic:'C/P',
     q:"Phosphatidylcholine (a major membrane phospholipid) has a choline headgroup, glycerol backbone, a saturated fatty acid (palmitate, C16:0) at sn-1, and an unsaturated fatty acid (oleate, C18:1) at sn-2. Which statement about this phospholipid and membrane fluidity is correct?",
     choices:[
       "The saturated palmitate chain raises fluidity by preventing tight packing",
@@ -795,7 +813,7 @@ const EXAM2_CP_DISCRETES = [
     exp:"Membrane fluidity determinants: (1) Degree of unsaturation: cis double bonds create kinks in fatty acid chains → cannot pack tightly → more fluid. Trans double bonds (less common in biological membranes) pack more like saturated chains. (2) Chain length: shorter chains → more fluid; (3) Cholesterol: at physiological temperature, reduces fluidity of fluid membranes (fills spaces between kinked chains) and increases fluidity of gel-phase membranes. The cis configuration of oleate's double bond at C9 creates a ~30° bend → reduced van der Waals contact area → less cohesion → lower melting temperature (more fluid at body temperature). Fully saturated membranes (e.g., dipalmitoyl-PC, DPPC) are gel-phase at 37°C — much less fluid. Cells regulate membrane composition to maintain appropriate fluidity (homeoviscous adaptation)."
   },
   {
-    id:'e2cp_d_14', type:'discrete', topic:'C/P',
+    subj:'physics', id:'e2cp_d_14', type:'discrete', topic:'C/P',
     q:"A radioactive isotope has a half-life of 6 hours. A sample initially contains 800 mg. How much remains after 24 hours?",
     choices:[
       "50 mg, after 4 half-lives",
@@ -807,7 +825,7 @@ const EXAM2_CP_DISCRETES = [
     exp:"Number of half-lives = 24 hr ÷ 6 hr/half-life = 4 half-lives. Remaining = N₀ × (1/2)^n = 800 × (1/2)⁴ = 800 × 1/16 = 50 mg. This is the basis for: radioisotope dosing in nuclear medicine (¹⁸F t₁/₂ = 110 min, ⁹⁹ᵐTc t₁/₂ = 6 h), radiation safety planning, and pharmacokinetics (drug half-life determines dosing intervals). After 4 half-lives: 50% → 25% → 12.5% → 6.25% of original = 50/800 = 6.25% remaining = 50 mg ✓. Clinical rule of thumb: after 4-5 half-lives, ~94-97% eliminated (or decayed), considered 'complete' for practical purposes."
   },
   {
-    id:'e2cp_d_15', type:'discrete', topic:'C/P',
+    subj:'biochemistry', id:'e2cp_d_15', type:'discrete', topic:'C/P',
     q:"Which amino acid has a side chain pKa of ~6 and is uniquely suited to act as a general acid-base catalyst in enzyme active sites at physiological pH?",
     choices:[
       "Aspartate",
@@ -819,7 +837,7 @@ const EXAM2_CP_DISCRETES = [
     exp:"Histidine's imidazole side chain has a pKa of ~6.0 (5–8 in proteins), so at pH 7.4 it is ~96% neutral yet readily protonated, letting the same residue act as a general base (accepting H⁺) or general acid (donating H⁺); examples include the Asp-His-Ser triad of serine proteases, the His64 proton shuttle of carbonic anhydrase, and His12/His119 of ribonuclease A. Aspartate (pKa ~3.9) is almost fully deprotonated, while lysine (~10.5) and tyrosine (~10.1) are almost fully protonated at pH 7.4, so none can shuttle protons as readily."
   },
   {
-    id:'e2cp_d_16', type:'discrete', topic:'C/P',
+    subj:'gen_chem', id:'e2cp_d_16', type:'discrete', topic:'C/P',
     q:"A weak acid drug has pKa = 9.0. Using the Henderson-Hasselbalch equation, what is its ionization state at physiological pH (7.4), and how does this affect renal excretion?",
     choices:[
       "Mostly ionized (A⁻), so it is trapped in the tubular lumen and excreted rapidly",
@@ -831,7 +849,7 @@ const EXAM2_CP_DISCRETES = [
     exp:"pH < pKa means the weak acid is predominantly in the protonated (un-ionized, HA) form. At pH 7.4, pKa 9.0: [A⁻]/[HA] = 10^(7.4-9.0) = 10^(-1.6) = 0.025. Fraction HA = 1/(1+0.025) = 0.975 = 97.5% un-ionized. Un-ionized HA is lipophilic → crosses membranes → reabsorbed from renal tubule back into blood → slow excretion. To accelerate excretion: alkalinize urine (pH → 8-9) → shifts equilibrium toward A⁻ (ionized) → trapped in tubular lumen → excreted. This is 'ion trapping' — the pharmacokinetic principle used to treat aspirin overdose (sodium bicarbonate alkalinizes urine → ionizes salicylate → excretion)."
   },
   {
-    id:'e2cp_d_17', type:'discrete', topic:'C/P',
+    subj:'biochemistry', id:'e2cp_d_17', type:'discrete', topic:'C/P',
     q:"Which of the following correctly describes the role of entropy in the hydrophobic effect — the tendency of nonpolar molecules to cluster together in aqueous solution?",
     choices:[
       "Nonpolar molecules attract one another through strong London dispersion forces",
@@ -848,7 +866,7 @@ const EXAM2_CP_DISCRETES = [
 
 const EXAM2_CP_EXTRA = [
   {
-    id:'e2cp_d_18', type:'discrete', topic:'C/P',
+    subj:'organic_chem', id:'e2cp_d_18', type:'discrete', topic:'C/P',
     q:"A student is asked to draw the product of reacting 1-butene with HBr in the presence of peroxides. Which product is formed and why?",
     choices:[
       "2-Bromobutane, because Br adds to the more substituted carbon (Markovnikov)",
@@ -860,7 +878,7 @@ const EXAM2_CP_EXTRA = [
     exp:"Peroxides initiate a radical chain (ROOR → 2 RO•; RO• + HBr → ROH + Br•); Br• adds to the terminal CH₂ of 1-butene so that the more stable secondary radical forms at C2, which then abstracts H from HBr to give 1-bromobutane (anti-Markovnikov, the Kharasch peroxide effect). Without peroxides the ionic mechanism gives Markovnikov 2-bromobutane via the secondary carbocation. The effect works only with HBr: with HCl the H-abstraction step is too endothermic, and with HI the addition of I• to the alkene is endothermic; note that a symmetric alkene such as 2-butene would give 2-bromobutane by either mechanism."
   },
   {
-    id:'e2cp_d_19', type:'discrete', topic:'C/P',
+    subj:'gen_chem', id:'e2cp_d_19', type:'discrete', topic:'C/P',
     q:"Boyle's law states that at constant temperature, pressure and volume are inversely related for an ideal gas. A gas occupies 3.0 L at 2.0 atm. What pressure is required to compress it to 1.0 L?",
     choices:[
       "P₂ = P₁V₁/V₂ = (2.0 atm × 3.0 L)/1.0 L = 6.0 atm",
