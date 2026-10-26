@@ -1575,7 +1575,7 @@ document.addEventListener('keydown', e => {
 //  INIT
 // ════════════════════════════════════════════════════════════════
 goHome();
-// Offline cache on the deployed site only (keeps local development uncached)
-if ('serviceWorker' in navigator && location.protocol === 'https:') {
+// Offline cache on the deployed site only (keeps local development uncached; add ?sw to test it locally)
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || new URLSearchParams(location.search).has('sw'))) {
   navigator.serviceWorker.register('sw.js').catch(() => { /* offline support is optional */ });
 }
