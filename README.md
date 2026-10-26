@@ -17,7 +17,7 @@ It sits between Anki (pure recall) and UWorld (full exam simulation). You get fa
 
 | Mode | Content |
 |---|---|
-| **Recall** | 2,549 questions built from the complete MileDown MCAT decks, rewritten as 4-option multiple choice with explanations |
+| **Recall** | 2,549 questions derived from the [MCAT Milesdown](https://ankiweb.net/shared/info/178384887) Anki deck, rewritten as 4-option multiple choice with explanations |
 | **Passages** | 54 passages / 257 questions: 30 science passages and 24 original CARS passages |
 | **Full-length** | 2 timed exams, each 230 questions: C/P 59 · CARS 53 · B/B 59 · P/S 59, with real section times and breaks |
 
@@ -117,7 +117,7 @@ tools/serve.ps1       Tiny local web server for development
 ---
 
 ## Source material
-The recall questions are derived from the community MileDown MCAT Anki flashcard decks (cloze-deletion format). They were converted to multiple choice and substantially edited for accuracy. Credit for the original cards belongs to their creator, and MileDown is not affiliated with this project. All passages, CARS passages and full-length exam items are original.
+The recall questions are derived from the [**MCAT Milesdown** Anki deck by MileDown](https://ankiweb.net/shared/info/178384887) (AnkiWeb shared deck 178384887, 2,884 cloze notes, last updated May 2020). They were converted to multiple choice and substantially edited for accuracy. Credit for the original cards belongs to their creator, and MileDown is not affiliated with this project. All passages, CARS passages and full-length exam items are original.
 
 ## Privacy
 The app collects no personal information. There are no accounts and no analytics, ads or tracking cookies. Progress is stored only in your browser's local storage on your own device, and you can erase it from **Score report → Reset all progress**. The site is hosted on GitHub Pages, which may keep standard server logs under the [GitHub Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement). "Report a problem" opens a **public** GitHub issue.
