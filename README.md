@@ -1,5 +1,5 @@
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-![Version](https://img.shields.io/badge/Version-2.1-blue.svg)
+![Version](https://img.shields.io/badge/Version-2.2-blue.svg)
 ![Last Updated](https://img.shields.io/badge/Updated-Oct_2026-purple.svg)
 
 # MCAT Study App
@@ -117,13 +117,19 @@ tools/serve.ps1       Tiny local web server for development
 ---
 
 ## Source material
-The recall questions come from the MileDown MCAT flashcard decks (cloze-deletion format), converted to multiple choice and edited for accuracy. All passages, CARS passages and full-length exam items are original.
+The recall questions are derived from the community MileDown MCAT Anki flashcard decks (cloze-deletion format). They were converted to multiple choice and substantially edited for accuracy. Credit for the original cards belongs to their creator, and MileDown is not affiliated with this project. All passages, CARS passages and full-length exam items are original.
+
+## Privacy
+The app collects no personal information. There are no accounts and no analytics, ads or tracking cookies. Progress is stored only in your browser's local storage on your own device, and you can erase it from **Score report → Reset all progress**. The site is hosted on GitHub Pages, which may keep standard server logs under the [GitHub Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement). "Report a problem" opens a **public** GitHub issue.
+
+## Disclaimers
+For MCAT study only. This is not medical, clinical or psychological advice. Content is provided as is, and errors are possible. Score estimates are study aids, not predictions of official scores. The full text is on the app's **About & disclaimers** page.
 
 ## License
-Licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/): free to share and adapt with attribution, but not for commercial use.
+The app's code and original content are licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/): free to share and adapt with attribution, but not for commercial use. Third-party material, including the original MileDown cards, remains subject to its owners' terms.
 
 ## Citation
-George, C. B. (2026). *MCAT Study App* (Version 2.0). https://github.com/collingeorge/MCAT
+George, C. B. (2026). *MCAT Study App* (Version 2.2). https://github.com/collingeorge/MCAT
 
 ---
-*For MCAT practice only. Not affiliated with the AAMC or MileDown. MCAT® is a registered trademark of the AAMC.*
+*For MCAT practice only. MCAT® is a registered trademark of the Association of American Medical Colleges (AAMC), which does not endorse this project. Not affiliated with the AAMC or MileDown.*
