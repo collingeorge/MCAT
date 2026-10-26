@@ -1,7 +1,7 @@
 // Offline support, network-first: when online, always fetch the current file (revalidating
 // past the browser's HTTP cache) so new versions show on the first visit; the cached copy
 // is used only when the network fails or takes too long. Bump CACHE when deploying.
-const CACHE = 'mcat-v2.3.1-2026-10-26';
+const CACHE = 'mcat-v2.4-2026-10-26';
 const NETWORK_TIMEOUT_MS = 4000;
 const ASSETS = [
   './', 'index.html', 'css/styles.css', 'js/app.js', 'manifest.webmanifest', 'icon.svg',

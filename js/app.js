@@ -80,6 +80,9 @@ const KEYS = {
   examLast: id => 'mcat2_exam_last_' + id,
   examHistory: 'mcat2_exam_history',
   evidence: 'mcat2_evidence',        // { discipline: {passage:{c,t}, exam:{c,t}} }
+  mem: 'mcat2_memory',               // { questionId: {S, D, last, seen, right, lapses, b, conf, confidentMiss} }
+  mastery: 'mcat2_mastery',          // { "subject|tag": {r, n} }
+  recent: 'mcat2_recent',            // last 30 answers (1/0), for difficulty tuning
   scoreHistory: 'mcat2_score_history',
 };
 
@@ -320,19 +323,112 @@ function scoreColor(scaled) {
 }
 
 // ════════════════════════════════════════════════════════════════
-//  SPACED REPETITION & STATS
+//  ADAPTIVE LEARNING ENGINE
+//  1) Memory model (simplified FSRS): each question has a stability S —
+//     days until the chance of recalling it falls to 90% — and a
+//     difficulty D (1–10). Correctness, confidence and answer time update
+//     both, so solid cards back off quickly and shaky ones return sooner.
+//  2) Topic mastery (Elo-style): one ability rating per topic, updated
+//     against each question's own difficulty.
+//  3) Smart Session: due reviews + weakest high-yield topics + new
+//     material, interleaved and pitched near ~80% predicted success.
 // ════════════════════════════════════════════════════════════════
-const SRS_INTERVAL_DAYS = [0, 1, 3, 7, 16, 35];
-function recordAnswer(q, right) {
-  const srs = store.get(KEYS.srs, {});
-  const e = srs[q.id] || { box: 0, due: 0, seen: 0, right: 0 };
-  e.seen++;
-  if (right) { e.right++; e.box = Math.min(e.box + 1, SRS_INTERVAL_DAYS.length - 1); }
-  else e.box = 0;
-  e.due = Date.now() + SRS_INTERVAL_DAYS[e.box] * DAY;
-  srs[q.id] = e;
-  store.set(KEYS.srs, srs);
+const TARGET_RETENTION = 0.9;
+const sigmoid = x => 1 / (1 + Math.exp(-x));
+const MASTERY_PRIOR = 0.8;          // starting topic rating (≈69% predicted)
+const CONFIDENCE = [['guess', 'Guessed', 'G'], ['unsure', 'Unsure', 'U'], ['knew', 'Knew it', 'K']];
 
+// Old fixed-interval history is converted once so nobody loses progress
+function loadMem() {
+  const mem = store.get(KEYS.mem, null);
+  if (mem) return mem;
+  const days = [0.5, 1, 3, 7, 16, 35];
+  const out = {};
+  Object.entries(store.get(KEYS.srs, {})).forEach(([id, e]) => {
+    const S = days[e.box] ?? 0.5;
+    out[id] = { S, D: 5, last: (e.due || Date.now()) - S * DAY, seen: e.seen || 0, right: e.right || 0, lapses: Math.max(0, (e.seen || 0) - (e.right || 0)) };
+  });
+  store.set(KEYS.mem, out);
+  return out;
+}
+function retrievability(m, now = Date.now()) {
+  if (!m || !m.seen) return null;
+  const days = Math.max(0, (now - m.last) / DAY);
+  return Math.exp((Math.log(TARGET_RETENTION) * days) / Math.max(m.S, 0.05));
+}
+function itemPrior(q) {
+  let b = 0;
+  if ((q.q.match(/_{3,}/g) || []).length >= 2) b += 0.5;
+  if (q.subj === 'equations') b += 0.3;
+  if (q.variant === 'reverse') b += 0.2;
+  return b;
+}
+function itemDifficulty(q, mem) {
+  const m = (mem || loadMem())[q.baseId || q.id];
+  return m && m.b != null ? m.b : itemPrior(q);
+}
+// Grade 0 = wrong, 1 = right but guessed (or slow with no rating), 2 = unsure, 3 = knew it
+function gradeOf(right, conf, ms) {
+  if (!right) return 0;
+  if (conf) return { guess: 1, unsure: 2, knew: 3 }[conf];
+  return ms > 30000 ? 1 : 2;
+}
+function updateMemory(q, right, conf, ms) {
+  const mem = loadMem();
+  const id = q.baseId || q.id;
+  const now = Date.now();
+  const m = mem[id] || { S: 0, D: 5 + itemPrior(q) * 2, last: now, seen: 0, right: 0, lapses: 0 };
+  const g = gradeOf(right, conf, ms);
+  if (!m.seen) m.S = [0.2, 0.6, 2, 5][g];
+  else if (g === 0) { m.lapses++; m.S = Math.max(0.1, m.S * 0.25); }
+  else {
+    const R = retrievability(m, now);
+    // Bigger gains for confident recalls, for harder-to-recall moments, and for easier cards
+    const growth = [0, 1.3, 2.4, 3.6][g] * (1 + 1.5 * (1 - R)) * ((11 - m.D) / 6);
+    m.S = Math.min(365, m.S * Math.max(1.1, growth));
+  }
+  m.D = Math.min(10, Math.max(1, m.D + [1.2, 0.4, -0.2, -0.6][g]));
+  m.seen++;
+  if (right) m.right++;
+  m.last = now;
+  m.conf = conf || null;
+  m.confidentMiss = !right && conf === 'knew';
+
+  // Topic rating vs. item difficulty; a guessed right answer is only partial credit
+  const mast = store.get(KEYS.mastery, {});
+  const t = mast[q.key] || { r: MASTERY_PRIOR, n: 0 };
+  const b = m.b != null ? m.b : itemPrior(q);
+  const p = sigmoid(t.r - b);
+  const y = right ? (g === 1 ? 0.6 : 1) : 0;
+  const k = 0.6 / (1 + t.n / 15) + 0.15;
+  t.r += k * (y - p) * (m.confidentMiss ? 1.25 : 1);
+  t.n++;
+  mast[q.key] = t;
+  m.b = b - 0.15 * (y - p);          // the item's own difficulty adapts slowly to you
+  mem[id] = m;
+  store.set(KEYS.mem, mem);
+  store.set(KEYS.mastery, mast);
+
+  const recent = store.get(KEYS.recent, []);
+  recent.push(right ? 1 : 0);
+  store.set(KEYS.recent, recent.slice(-30));
+}
+function topicMastery(key, mast) {
+  const t = (mast || store.get(KEYS.mastery, {}))[key];
+  if (!t || t.n < 5) return { p: t ? sigmoid(t.r) : null, n: t ? t.n : 0, level: 'new' };
+  const p = sigmoid(t.r);
+  const level = p < 0.6 ? 'weak' : p < 0.75 ? 'building' : p < 0.9 ? 'solid' : 'mastered';
+  return { p, n: t.n, level };
+}
+// How likely you are to get this question right now
+function predictedSuccess(q, mem, mast) {
+  const t = mast[q.key] || { r: MASTERY_PRIOR };
+  const pTopic = sigmoid(t.r - itemDifficulty(q, mem));
+  const m = mem[q.baseId || q.id];
+  return m && m.seen ? 0.5 * retrievability(m) + 0.5 * pTopic : pTopic;
+}
+
+function recordAnswer(q, right) {
   const stats = store.get(KEYS.stats, {});
   const s = stats[q.key] || { c: 0, t: 0 };
   s.t++;
@@ -341,9 +437,9 @@ function recordAnswer(q, right) {
   store.set(KEYS.stats, stats);
 }
 function dueQuestions() {
-  const srs = store.get(KEYS.srs, {});
+  const mem = loadMem();
   const now = Date.now();
-  return QB.filter(q => srs[q.id] && srs[q.id].due <= now);
+  return QB.filter(q => mem[q.id] && retrievability(mem[q.id], now) < TARGET_RETENTION);
 }
 function flaggedIds() { return store.get(KEYS.flags, {}); }
 function toggleFlag(id) {
@@ -355,21 +451,182 @@ function toggleFlag(id) {
 // Due reviews first, then unseen cards, then the soonest-due seen cards
 function pickQuestions(pool, n) {
   if (n >= pool.length) return shuffled(pool);
-  const srs = store.get(KEYS.srs, {});
+  const mem = loadMem();
   const now = Date.now();
   const due = [], fresh = [], later = [];
   pool.forEach(q => {
-    const e = srs[q.id];
-    if (!e) fresh.push(q);
-    else if (e.due <= now) due.push(q);
-    else later.push(q);
+    const R = retrievability(mem[q.id], now);
+    if (R == null) fresh.push(q);
+    else if (R < TARGET_RETENTION) due.push(q);
+    else later.push({ q, R });
   });
-  later.sort((a, b) => srs[a.id].due - srs[b.id].due);
-  return shuffled([...shuffled(due), ...shuffled(fresh), ...later].slice(0, n));
+  later.sort((a, b) => a.R - b.R);
+  return shuffled([...shuffled(due), ...shuffled(fresh), ...later.map(x => x.q)].slice(0, n));
 }
 function weakKeys() {
   const stats = store.get(KEYS.stats, {});
   return Object.entries(stats).filter(([k, s]) => KEY_COUNTS[k] && s.t >= 5 && s.c / s.t < 0.7).map(([k]) => k);
+}
+
+// ── Reverse-direction variants ──
+// Definition cards ("_____ is/are …") can be flipped: show the term and ask
+// which description fits, with descriptions of related terms as distractors.
+let reverseIndex = null;
+function definitionParts(q) {
+  if ((q.q.match(/_{3,}/g) || []).length !== 1 || q.subj === 'equations') return null;
+  const m = q.q.match(/^_{3,}\s+(?:is|are)\s+(.{12,})$/i);
+  const term = String(q.choices[q.ans]);
+  if (!m || term.length > 60 || term.includes(' / ')) return null;
+  const desc = m[1].trim().replace(/[.\s]+$/, '');
+  if (desc.toLowerCase().includes(term.toLowerCase())) return null;
+  return { term, desc: desc.charAt(0).toUpperCase() + desc.slice(1) };
+}
+function buildReverseIndex() {
+  const parts = new Map();
+  QB.forEach(q => { const p = definitionParts(q); if (p) parts.set(q.id, { q, ...p }); });
+  // Topic → its selector group (e.g. "Musculoskeletal System"), for same-area distractors
+  const groupOf = {};
+  SUBJECTS.forEach(s => s.groups.forEach((g, gi) => g.keys.forEach(k => { groupOf[k] = s.id + '#' + gi; })));
+  const byKey = {}, byGroup = {}, bySubj = {};
+  parts.forEach(p => {
+    (byKey[p.q.key] = byKey[p.q.key] || []).push(p);
+    (byGroup[groupOf[p.q.key]] = byGroup[groupOf[p.q.key]] || []).push(p);
+    (bySubj[p.q.subj] = bySubj[p.q.subj] || []).push(p);
+  });
+  reverseIndex = { parts, byKey, byGroup, bySubj, groupOf };
+}
+function reverseVariant(q) {
+  if (!reverseIndex) buildReverseIndex();
+  const base = reverseIndex.parts.get(q.baseId || q.id);
+  if (!base) return null;
+  const termLc = base.term.toLowerCase();
+  const usable = list => (list || []).filter(o => o.q.id !== base.q.id && o.term.toLowerCase() !== termLc && !o.desc.toLowerCase().includes(termLc));
+  // Same topic first, then same topic group, then same subject; prefer similar lengths so length gives nothing away
+  let pool = usable(reverseIndex.byKey[base.q.key]);
+  if (pool.length < 3) pool = pool.concat(usable(reverseIndex.byGroup[reverseIndex.groupOf[base.q.key]]).filter(o => !pool.includes(o)));
+  if (pool.length < 3) pool = pool.concat(usable(reverseIndex.bySubj[base.q.subj]).filter(o => !pool.includes(o)));
+  if (pool.length < 3) return null;
+  const sameArea = pool.filter(o => o.q.key === base.q.key || reverseIndex.groupOf[o.q.key] === reverseIndex.groupOf[base.q.key]);
+  if (sameArea.length >= 3) pool = sameArea;
+  const distractors = pool.slice().sort((a, b) => Math.abs(a.desc.length - base.desc.length) - Math.abs(b.desc.length - base.desc.length))
+    .slice(0, 8).sort(() => Math.random() - 0.5).slice(0, 3).map(o => o.desc);
+  return {
+    ...base.q, id: base.q.id + '~r', baseId: base.q.id, variant: 'reverse',
+    q: `Which description fits **${base.term}**?`,
+    choices: [base.desc, ...distractors], ans: 0,
+    exp: `**${base.term}**: ${base.desc.charAt(0).toLowerCase() + base.desc.slice(1)}. ${base.q.exp}`,
+  };
+}
+
+// ── Smart Session ──
+const REASONS = {
+  'confident-miss': 'You missed this while feeling sure. Fixing these pays off most',
+  'missed-before': 'Missed before and due for review',
+  due: 'Due for review. You may be starting to forget it',
+  weak: 'Weak topic',
+  new: 'New material',
+  related: 'Related to a question you just missed',
+  'reask': 'Re-asking a question you just missed',
+  stretch: 'Keeping solid topics fresh',
+};
+function disciplineYield(d) {
+  const w = MCAT_SECTIONS.reduce((a, s) => a + (s.weights[d] || 0), 0);
+  return d === 'research' ? 0.3 : w;   // research methods appear in every science section
+}
+function recentAccuracy() {
+  const r = store.get(KEYS.recent, []);
+  return r.length >= 8 ? r.reduce((a, b) => a + b, 0) / r.length : null;
+}
+// Aim slightly easier when you're struggling and harder when you're cruising
+function targetSuccess() {
+  const acc = recentAccuracy();
+  return acc == null ? 0.8 : acc < 0.7 ? 0.86 : acc > 0.9 ? 0.72 : 0.8;
+}
+function weakTopicNeeds(mast) {
+  return ALL_KEYS.map(k => {
+    const t = mast[k];
+    const p = t ? sigmoid(t.r) : sigmoid(MASTERY_PRIOR);
+    const [subj, tag] = [k.split('|')[0], k.slice(k.indexOf('|') + 1)];
+    const need = t && t.n >= 2 ? Math.max(0, 0.9 - p) * (0.4 + disciplineYield(disciplineOfKey(subj, tag))) : 0;
+    return { k, p, n: t ? t.n : 0, need };
+  }).filter(x => x.need > 0).sort((a, b) => b.need - a.need);
+}
+function buildSmartSession(n) {
+  const mem = loadMem();
+  const mast = store.get(KEYS.mastery, {});
+  const now = Date.now();
+  const target = targetSuccess();
+  const chosen = new Map();
+  const add = (q, reason) => { if (chosen.size < n && !chosen.has(q.id)) chosen.set(q.id, { q, reason }); };
+  const recentlySeen = q => mem[q.id] && now - mem[q.id].last < 20 * 60000;
+
+  // 1) Due reviews, most-forgotten first; confident misses jump the queue (up to ~45%)
+  QB.filter(q => mem[q.id] && retrievability(mem[q.id], now) < TARGET_RETENTION)
+    .map(q => ({ q, m: mem[q.id], R: retrievability(mem[q.id], now) }))
+    .sort((a, b) => (b.m.confidentMiss ? 1 : 0) - (a.m.confidentMiss ? 1 : 0) || a.R - b.R)
+    .slice(0, Math.ceil(n * 0.45))
+    .forEach(x => add(x.m.lapses && Math.random() < 0.5 ? reverseVariant(x.q) || x.q : x.q,
+      x.m.confidentMiss ? 'confident-miss' : x.m.lapses ? 'missed-before' : 'due'));
+
+  // 2) Weakest high-yield topics: questions pitched closest to the target success rate (to ~80%)
+  const weak = weakTopicNeeds(mast).slice(0, 6);
+  const byKey = {};
+  QB.forEach(q => { (byKey[q.key] = byKey[q.key] || []).push(q); });
+  let round = 0;
+  while (chosen.size < Math.ceil(n * 0.8) && weak.length && round < n) {
+    const t = weak[round % weak.length];
+    const cand = (byKey[t.k] || []).filter(q => !chosen.has(q.id) && !recentlySeen(q))
+      .map(q => ({ q, d: Math.abs(predictedSuccess(q, mem, mast) - target) }))
+      .sort((a, b) => a.d - b.d)[0];
+    if (cand) add(cand.q, 'weak');
+    round++;
+  }
+
+  // 3) New material: pick a discipline in proportion to its MCAT yield (boosted while it
+  //    has little data, so weaknesses are discovered early), then its least-covered topic
+  const discTopics = {};
+  ALL_KEYS.forEach(k => {
+    const d = disciplineOfKey(k.split('|')[0], k.slice(k.indexOf('|') + 1));
+    (discTopics[d] = discTopics[d] || []).push(k);
+  });
+  const answeredIn = d => discTopics[d].reduce((a, k) => a + (mast[k] ? mast[k].n : 0), 0);
+  const discWeights = Object.keys(discTopics).map(d => ({ d, w: Math.max(0.1, disciplineYield(d)) * (answeredIn(d) < 40 ? 2 : 1) }));
+  for (let i = 0; chosen.size < n && i < n * 4; i++) {
+    let r = Math.random() * discWeights.reduce((a, x) => a + x.w, 0);
+    const d = discWeights.find(x => (r -= x.w) <= 0)?.d || discWeights[0].d;
+    const topics = discTopics[d].map(k => {
+      const unseen = (byKey[k] || []).filter(q => !mem[q.id] && !chosen.has(q.id));
+      return { unseen, frac: unseen.length / (byKey[k] || [1]).length + Math.random() * 0.3 };
+    }).filter(x => x.unseen.length).sort((a, b) => b.frac - a.frac);
+    if (topics.length) add(topics[0].unseen[Math.floor(Math.random() * topics[0].unseen.length)], 'new');
+  }
+
+  // 4) Everything seen and nothing due: refresh the least-stable cards
+  if (chosen.size < n) {
+    QB.filter(q => mem[q.id] && !chosen.has(q.id) && !recentlySeen(q))
+      .sort((a, b) => retrievability(mem[a.id], now) - retrievability(mem[b.id], now))
+      .slice(0, n - chosen.size).forEach(q => add(q, 'stretch'));
+  }
+  return interleave([...chosen.values()]);
+}
+// Mix topics so the same topic never appears twice in a row when avoidable
+function interleave(items) {
+  const left = shuffled(items);
+  const out = [];
+  while (left.length) {
+    const prev = out.length ? out[out.length - 1].q.key : null;
+    const i = left.findIndex(x => x.q.key !== prev);
+    out.push(left.splice(i < 0 ? 0 : i, 1)[0]);
+  }
+  return out;
+}
+function relatedQuestion(q, excludeIds) {
+  const mem = loadMem();
+  const mast = store.get(KEYS.mastery, {});
+  const target = targetSuccess();
+  return QB.filter(x => x.key === q.key && x.id !== (q.baseId || q.id) && !excludeIds.has(x.id))
+    .map(x => ({ x, d: Math.abs(predictedSuccess(x, mem, mast) - target) }))
+    .sort((a, b) => a.d - b.d).slice(0, 3).sort(() => Math.random() - 0.5)[0]?.x || null;
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -527,6 +784,7 @@ const openSubjects = new Set();
 function savePrefs() { prefs.selected = [...selectedKeys]; store.set(KEYS.prefs, prefs); }
 
 function goHome() {
+  commitPending();
   stopQuizTimer();
   stopExamTimer();
   show('screen-home');
@@ -545,6 +803,10 @@ function renderHome() {
   const weak = weakKeys().length;
   const inProgress = FULL_EXAMS.find(e => store.get(KEYS.examProgress(e.id), null));
   const actions = [];
+  const focus = weakTopicNeeds(store.get(KEYS.mastery, {}))[0];
+  actions.push(`<button class="action-btn smart" onclick="startSmartSession()" title="Adaptive: due reviews, your weakest high-yield topics and new material">
+    <span><b class="smart-title">▶ Smart Session</b><small>${focus ? `Focus: ${esc(KEY_LABEL[focus.k] || focus.k)}` : 'Adapts to your strengths and weaknesses'}</small></span>
+    <b>${prefs.count || 30}</b></button>`);
   if (inProgress) actions.push(`<button class="action-btn primary" onclick="startExam(${FULL_EXAMS.indexOf(inProgress)})">Resume ${esc(inProgress.title)}</button>`);
   actions.push(`<button class="action-btn" ${due ? '' : 'disabled'} onclick="startDueReview()">Review due <b>${due}</b></button>`);
   actions.push(`<button class="action-btn" ${flagged ? '' : 'disabled'} onclick="startFlagged()">Flagged <b>${flagged}</b></button>`);
@@ -669,11 +931,16 @@ function startSession() {
 // ════════════════════════════════════════════════════════════════
 //  RECALL QUIZ (tutor mode: immediate feedback)
 // ════════════════════════════════════════════════════════════════
-const quiz = { items: [], idx: 0, results: [], answered: false, startedAt: 0, qStart: 0, label: '', timer: null };
+const quiz = { items: [], idx: 0, results: [], answered: false, startedAt: 0, qStart: 0, label: '', timer: null, adaptive: false, extras: 0, pending: null };
 
-function makeView(q) {
+function makeView(q, reason) {
   const order = shuffled(q.choices.map((_, i) => i));
-  return { q, order, choices: order.map(i => q.choices[i]), ans: order.indexOf(q.ans) };
+  return { q, reason: reason || null, order, choices: order.map(i => q.choices[i]), ans: order.indexOf(q.ans) };
+}
+function startSmartSession() {
+  const n = prefs.count || 30;
+  const items = buildSmartSession(n);
+  if (items.length) beginQuiz(items, 'Smart Session', { adaptive: true });
 }
 function startRecall() {
   const mix = prefs.mix || 'custom';
@@ -700,8 +967,10 @@ function retryMissed() {
   const missed = quiz.results.filter(r => !r.right).map(r => r.view.q);
   if (missed.length) beginQuiz(shuffled(missed), 'Retry missed');
 }
-function beginQuiz(questions, label) {
-  Object.assign(quiz, { items: questions.map(makeView), idx: 0, results: [], answered: false, startedAt: Date.now(), label });
+// questions: plain question objects, or {q, reason} items from the Smart Session
+function beginQuiz(questions, label, opts = {}) {
+  const items = questions.map(x => (x && x.q && x.choices === undefined ? makeView(x.q, x.reason) : makeView(x)));
+  Object.assign(quiz, { items, idx: 0, results: [], answered: false, startedAt: Date.now(), label, adaptive: !!opts.adaptive, extras: 0, pending: null });
   show('screen-quiz');
   startQuizTimer();
   renderQuizQuestion();
@@ -729,12 +998,16 @@ function renderQuizQuestion() {
   $('qm-subject').textContent = quiz.label;
   $('qm-score').textContent = `✓ ${correct}/${quiz.results.length}`;
   const flagged = !!flaggedIds()[q.id];
+  const why = view.reason === 'weak'
+    ? `${REASONS.weak}: ${KEY_LABEL[q.key] || q.s}${(() => { const m = topicMastery(q.key); return m.p != null ? ` (${Math.round(m.p * 100)}% predicted)` : ''; })()}`
+    : view.reason ? REASONS[view.reason] : '';
   $('quiz-body').innerHTML = `
     <div class="question-box">
       <div class="q-toolbar">
         <span class="q-tag">${esc(SUBJECT_LABEL[q.subj])} · ${esc(KEY_LABEL[q.key] || q.s)}</span>
         <button class="flag-btn${flagged ? ' on' : ''}" id="flag-btn" onclick="flagCurrent()" aria-pressed="${flagged}" title="Flag for later review (F)">⚑ ${flagged ? 'Flagged' : 'Flag'}</button>
       </div>
+      ${why || q.variant ? `<div class="q-reason">${q.variant ? '<span class="variant-pill">Asked a different way</span>' : ''}${why ? `<span>Why this question: ${esc(why)}</span>` : ''}</div>` : ''}
       <div class="question-text">${fmt(q.q)}</div>
     </div>
     <div class="choices" role="group" aria-label="Answer choices">${choiceButtons(view.choices, 'pick')}</div>
@@ -743,7 +1016,7 @@ function renderQuizQuestion() {
 }
 function flagCurrent() {
   const q = quiz.items[quiz.idx].q;
-  const on = toggleFlag(q.id);
+  const on = toggleFlag(q.baseId || q.id);
   const btn = $('flag-btn');
   btn.classList.toggle('on', on);
   btn.setAttribute('aria-pressed', on);
@@ -754,8 +1027,11 @@ function pick(chosen) {
   quiz.answered = true;
   const view = quiz.items[quiz.idx];
   const right = chosen === view.ans;
-  quiz.results.push({ view, chosen, right, ms: Date.now() - quiz.qStart });
+  const ms = Date.now() - quiz.qStart;
+  quiz.results.push({ view, chosen, right, ms });
   recordAnswer(view.q, right);
+  // Memory and mastery are updated when you move on, so the confidence rating can count
+  quiz.pending = { q: view.q, right, ms, conf: null };
   view.choices.forEach((_, i) => {
     const b = $('cb-' + i);
     b.disabled = true;
@@ -764,10 +1040,50 @@ function pick(chosen) {
   });
   $('qm-score').textContent = `✓ ${quiz.results.filter(r => r.right).length}/${quiz.results.length}`;
   $('exp-area').innerHTML = explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Recall · ${view.q.s}`, view.q.q));
-  const last = quiz.idx + 1 >= quiz.items.length;
-  $('nxt-area').innerHTML = `<button class="next-btn" id="next-btn" onclick="nextQ()">${last ? 'See results →' : 'Next →'}</button>
-    <div class="kb-hint">Keys: 1–4 or A–D to answer · Enter for next · F to flag</div>`;
+  renderNextArea();
   $('next-btn').focus({ preventScroll: true });
+}
+function renderNextArea() {
+  const last = quiz.idx + 1 >= quiz.items.length;
+  const conf = quiz.pending && quiz.pending.conf;
+  $('nxt-area').innerHTML = `
+    <div class="conf-row" role="group" aria-label="How sure were you?">
+      <span class="conf-label">How sure were you?</span>
+      ${CONFIDENCE.map(([id, label, key]) => `<button class="conf-btn${conf === id ? ' on' : ''}" onclick="setConfidence('${id}')" aria-pressed="${conf === id}" title="Key: ${key}">${label}</button>`).join('')}
+    </div>
+    <button class="next-btn" id="next-btn" onclick="nextQ()">${last && !quiz.adaptive ? 'See results →' : 'Next →'}</button>
+    <div class="kb-hint">Keys: 1–4 or A–D to answer · G / U / K for confidence · Enter for next · F to flag</div>`;
+}
+function setConfidence(c) {
+  if (!quiz.pending) return;
+  quiz.pending.conf = c;
+  document.querySelectorAll('.conf-btn').forEach((b, i) => {
+    const on = CONFIDENCE[i][0] === c;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on);
+  });
+}
+// Apply the pending answer to the memory model; in a Smart Session a miss
+// schedules a re-ask (in reverse form when possible) and a related question
+function commitPending() {
+  const p = quiz.pending;
+  if (!p) return;
+  quiz.pending = null;
+  updateMemory(p.q, p.right, p.conf, p.ms);
+  if (!quiz.adaptive || p.right) return;
+  const cap = Math.ceil((quiz.items.length - quiz.extras) / 3);   // at most +1/3 of the planned session
+  const used = new Set(quiz.items.map(v => v.q.baseId || v.q.id));
+  const insertAt = offset => Math.min(quiz.idx + 1 + offset, quiz.items.length);
+  if (quiz.extras < cap) {
+    const rel = relatedQuestion(p.q, used);
+    if (rel) { quiz.items.splice(insertAt(2), 0, makeView(rel, 'related')); quiz.extras++; }
+  }
+  if (quiz.extras < cap) {
+    const base = QB_BY_ID.get(p.q.baseId || p.q.id);
+    const again = (p.q.variant ? base : reverseVariant(base)) || base;
+    quiz.items.splice(insertAt(5), 0, makeView(again, 'reask'));
+    quiz.extras++;
+  }
 }
 function explanationBox(right, answerText, exp, reportUrl) {
   return `<div class="explanation-box ${right ? 'is-right' : 'is-wrong'}" role="status">
@@ -777,17 +1093,20 @@ function explanationBox(right, answerText, exp, reportUrl) {
   </div>`;
 }
 function nextQ() {
+  commitPending();
   if (quiz.idx + 1 >= quiz.items.length) { showQuizResults(); return; }
   quiz.idx++;
   renderQuizQuestion();
   window.scrollTo(0, 0);
 }
 function endQuiz() {
+  commitPending();
   if (quiz.results.length) showQuizResults();
   else goHome();
 }
 
 function showQuizResults() {
+  commitPending();
   stopQuizTimer();
   snapshotEstimate();
   show('screen-results');
@@ -872,9 +1191,9 @@ function progressCards() {
   const bySubj = {};
   valid.forEach(([k, s]) => { const subj = k.split('|')[0]; bySubj[subj] = bySubj[subj] || { c: 0, t: 0 }; bySubj[subj].c += s.c; bySubj[subj].t += s.t; });
   const tot = valid.reduce((a, [, s]) => a + s.t, 0), cor = valid.reduce((a, [, s]) => a + s.c, 0);
-  const srs = store.get(KEYS.srs, {});
-  const seenIds = Object.keys(srs).filter(id => QB_BY_ID.has(id));
-  const mastered = seenIds.filter(id => srs[id].box >= 3).length;
+  const mem = loadMem();
+  const seenIds = Object.keys(mem).filter(id => QB_BY_ID.has(id) && mem[id].seen);
+  const mastered = seenIds.filter(id => mem[id].S >= 21).length;
   const topics = valid.filter(([, s]) => s.t >= 5).map(([k, s]) => ({ k, p: s.c / s.t, s }));
   const weak = topics.filter(x => x.p < 0.7).sort((a, b) => a.p - b.p).slice(0, 8);
   const strong = topics.filter(x => x.p >= 0.85).sort((a, b) => b.p - a.p).slice(0, 5);
@@ -889,7 +1208,7 @@ function progressCards() {
         <div class="stat"><b>${mastered.toLocaleString()}</b><span>mastered*</span></div>
       </div>
       ${SUBJECTS.filter(s => bySubj[s.id]).map(s => barRow(s.label, bySubj[s.id].c, bySubj[s.id].t)).join('')}
-      <p class="muted-note">*Mastered = answered correctly in at least 3 consecutive spaced reviews.</p>
+      <p class="muted-note">*Mastered = memory strong enough that you'd still recall it 3 weeks from now (90% likely).</p>
     </div>
     <div class="results-card">
       <div class="section-label">Strengths & weak topics <span class="muted">(topics with 5+ answers)</span></div>
@@ -992,6 +1311,30 @@ function scoreReportCards() {
       </div>
     </div>`;
 }
+// Topic mastery map: each subtopic chip colored by its mastery level
+const LEVELS = { new: 'Not enough data', weak: 'Weak', building: 'Building', solid: 'Solid', mastered: 'Mastered' };
+function masteryMapCard() {
+  const mast = store.get(KEYS.mastery, {});
+  if (!Object.keys(mast).length) return '';
+  const chipInfo = chip => {
+    let n = 0, w = 0;
+    chip.keys.forEach(k => { const t = mast[k]; if (t) { n += t.n; w += sigmoid(t.r) * t.n; } });
+    if (n < 5) return { n, p: n ? w / n : null, level: 'new' };
+    const p = w / n;
+    return { n, p, level: p < 0.6 ? 'weak' : p < 0.75 ? 'building' : p < 0.9 ? 'solid' : 'mastered' };
+  };
+  const focus = weakTopicNeeds(mast).slice(0, 3);
+  return `<div class="results-card">
+    <div class="section-label">Topic mastery <span class="muted">(predicted chance of answering a typical question correctly)</span></div>
+    <div class="legend">${Object.entries(LEVELS).map(([k, l]) => `<span class="m-chip lvl-${k}">${l}</span>`).join('')}</div>
+    ${focus.length ? `<div class="focus-box"><b>Next focus:</b> ${focus.map(f => `${esc(KEY_LABEL[f.k] || f.k)} (${Math.round(f.p * 100)}%)`).join(' · ')}
+      <button class="micro-btn" onclick="startSmartSession()">Start Smart Session</button></div>` : ''}
+    ${SUBJECTS.map(s => `<div class="m-subject"><div class="m-subject-name">${esc(s.label)}</div><div class="m-chips">
+      ${s.groups.flatMap(g => g.chips).map(c => { const i = chipInfo(c); return `<span class="m-chip lvl-${i.level}" title="${i.n} answers${i.p != null ? ` · ${Math.round(i.p * 100)}% predicted` : ''}">${esc(c.label)}${i.p != null && i.n >= 5 ? ` <small>${Math.round(i.p * 100)}%</small>` : ''}</span>`; }).join('')}
+    </div></div>`).join('')}
+    <p class="muted-note">Mastery weighs harder questions more and recent answers most, and guessed right answers count only partly. The Smart Session uses it to choose what to ask next.</p>
+  </div>`;
+}
 // Compact one-line version for the home screen and session results
 function scoreStrip() {
   const est = estimateScores();
@@ -1009,6 +1352,7 @@ function showProgress() {
   $('results-body').innerHTML = `
     <div class="results-hero"><div class="r-label">Score report & progress</div></div>
     ${scoreReportCards()}
+    ${masteryMapCard()}
     ${html || '<div class="results-card"><p class="muted-note">No recall answers recorded yet. Finish a few questions and your progress will appear here.</p></div>'}
     ${examHistoryCard()}
     <div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div>
@@ -1016,7 +1360,7 @@ function showProgress() {
 }
 function resetProgress() {
   if (!confirm('Erase all recall stats, spaced-repetition history, flags, passage scores, score estimates and exam history on this device? This cannot be undone.')) return;
-  [KEYS.stats, KEYS.srs, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
+  [KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
   FULL_EXAMS.forEach(e => { store.del(KEYS.examProgress(e.id)); store.del(KEYS.examLast(e.id)); });
   goHome();
 }
@@ -1540,7 +1884,7 @@ function showAbout() {
       <h2>License</h2>
       <p>The app's code and original content are licensed under ${link('https://creativecommons.org/licenses/by-nc/4.0/', 'Creative Commons BY-NC 4.0')}. You may share and adapt them for non-commercial purposes with attribution. Third-party material, including the original MileDown cards, remains subject to its owners' terms.</p>
 
-      <p class="muted-note">Version 2.3 · Last updated October 2026</p>
+      <p class="muted-note">Version 2.4 · Last updated October 2026</p>
     </div>
     <div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div>`;
 }
@@ -1558,6 +1902,7 @@ document.addEventListener('keydown', e => {
     if (choice !== undefined && !quiz.answered && choice < quiz.items[quiz.idx].choices.length) { e.preventDefault(); pick(choice); }
     else if ((k === 'enter' || k === ' ') && quiz.answered && e.target.tagName !== 'BUTTON') { e.preventDefault(); nextQ(); }
     else if (k === 'f') { e.preventDefault(); flagCurrent(); }
+    else if (quiz.answered && (k === 'g' || k === 'u' || k === 'k')) { e.preventDefault(); setConfidence({ g: 'guess', u: 'unsure', k: 'knew' }[k]); }
   } else if (activeScreen === 'screen-passage' && pq.views.length) {
     if (choice !== undefined && !pq.answered && pq.idx < pq.views.length && $('pc-0')) { e.preventDefault(); answerPassage(choice); }
     else if ((k === 'enter' || k === ' ') && pq.answered && e.target.tagName !== 'BUTTON' && $('pp-next-btn')) { e.preventDefault(); nextPassageQ(); }

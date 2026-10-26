@@ -1,5 +1,5 @@
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-![Version](https://img.shields.io/badge/Version-2.3-blue.svg)
+![Version](https://img.shields.io/badge/Version-2.4-blue.svg)
 ![Last Updated](https://img.shields.io/badge/Updated-Oct_2026-purple.svg)
 
 # MCAT Study App
@@ -36,7 +36,16 @@ It sits between Anki (pure recall) and UWorld (full exam simulation). You get fa
 
 ## Features
 
-- **Spaced repetition.** Every answer updates a Leitner-style schedule (review after 0 → 1 → 3 → 7 → 16 → 35 days). Sessions show due reviews first, then questions you haven't seen. The home screen shows how many are due.
+- **Smart Session (adaptive).** One button builds a session around you:
+  - questions you're about to forget, with confident mistakes first;
+  - your weakest high-yield topics;
+  - new material, weighted by how much of the MCAT each subject covers.
+
+  Questions are pitched near 80% predicted success: easier when you're struggling, harder when you're cruising. Topics are mixed so the same one never runs back to back. If you miss a question, a related question from the same topic follows shortly after, and the missed fact comes back a few questions later, asked a different way when possible. Each question says why it was chosen.
+- **Memory model.** This is a simplified FSRS-style model that replaced the old fixed intervals. Each question's memory strength and difficulty update from whether you were right, how sure you were, and how long you took. Each card comes back when your chance of recalling it drops to about 90%.
+- **Confidence ratings.** After each answer, tap Guessed, Unsure or Knew it (keys G / U / K). A lucky guess isn't counted as mastery, and a wrong answer you were sure of is prioritized.
+- **Asked a different way.** 565 definition questions can be automatically reversed. The app shows the term and asks which description fits, with wrong answers drawn from definitions in the same topic.
+- **Topic mastery map.** Every subtopic is rated as weak, building, solid or mastered, with the next recommended focus. Ratings weigh harder questions more and recent answers most.
 - **Shuffled answers.** Choice order is randomized every time, so you learn the content, not the letter position.
 - **Teaching explanations.** Each explanation says why the answer is right and usually why the tempting wrong answer is wrong.
 - **Topic selector.** Pick a subject, a topic, or any mix of the 82 subtopics, with live question counts.
@@ -130,7 +139,7 @@ For MCAT study only. This is not medical, clinical or psychological advice. Cont
 The app's code and original content are licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/): free to share and adapt with attribution, but not for commercial use. Third-party material, including the original MileDown cards, remains subject to its owners' terms.
 
 ## Citation
-George, C. B. (2026). *MCAT Study App* (Version 2.3). https://github.com/collingeorge/MCAT
+George, C. B. (2026). *MCAT Study App* (Version 2.4). https://github.com/collingeorge/MCAT
 
 ---
 *For MCAT practice only. MCAT® is a registered trademark of the Association of American Medical Colleges (AAMC), which does not endorse this project. Not affiliated with the AAMC or MileDown.*
