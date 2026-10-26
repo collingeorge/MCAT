@@ -23,6 +23,7 @@
 <script src="../data/qb-biology.js"></script>
 <script src="../data/qb-chemistry.js"></script>
 <script src="../data/qb-physics.js"></script>
+<script src="../data/qb-equations.js"></script>
 <script src="../data/qb-behavioral-1.js"></script>
 <script src="../data/qb-behavioral-2.js"></script>
 <script src="../data/passages-science.js"></script>
@@ -74,6 +75,16 @@
 
   // Recall bank
   const banks = { QB_BIOCHEMISTRY, QB_BIOLOGY, QB_CHEMISTRY, QB_PHYSICS, QB_BEHAVIORAL_1, QB_BEHAVIORAL_2 };
+  if (typeof QB_EQUATIONS !== 'undefined') {
+    banks.QB_EQUATIONS = QB_EQUATIONS;
+    QB_EQUATIONS.forEach((q, i) => {
+      if (!['Physics Equations & Units', 'Chemistry Equations & Constants'].includes(q.s)) err(`QB_EQUATIONS[${i}]`, `unexpected tag "${q.s}"`);
+      if (!['physics', 'gen_chem'].includes(q.disc)) err(`QB_EQUATIONS[${i}]`, `disc must be physics or gen_chem (got "${q.disc}")`);
+    });
+  } else warn('QB_EQUATIONS', 'data/qb-equations.js not loaded');
+  Object.entries(banks).forEach(([name, arr]) => arr.forEach((q, i) => {
+    if (/\[IMAGE/i.test(q.q + q.exp + q.choices.join(' '))) err(`${name}[${i}]`, 'leftover [IMAGE] placeholder');
+  }));
   const rows = [];
   const stems = new Map();
   for (const [name, arr] of Object.entries(banks)) {

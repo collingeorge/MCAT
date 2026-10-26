@@ -203,6 +203,12 @@ const SUBJECTS = [
       { label: 'Research Methods & Statistics', tags: ['Research Methods & Statistics'] },
     ]},
   ]},
+  { id: 'equations', label: 'Essential Equations', groups: [
+    { label: 'Equations, Constants & Units', chips: [
+      { label: 'Physics equations & units', tags: ['Physics Equations & Units'] },
+      { label: 'Chemistry equations & constants', tags: ['Chemistry Equations & Constants'] },
+    ]},
+  ]},
   { id: 'behavioral', label: 'Psychology & Sociology', groups: [
     { label: 'Behavioral Sciences', chips: [
       { label: 'Biological Bases of Behavior', tags: ['Biological Bases of Behavior'] },
@@ -221,7 +227,8 @@ const QB = [];
 const QB_BY_ID = new Map();
 [
   ['biochemistry', QB_BIOCHEMISTRY], ['biology', QB_BIOLOGY], ['chemistry', QB_CHEMISTRY],
-  ['physics', QB_PHYSICS], ['behavioral', QB_BEHAVIORAL_1], ['behavioral', QB_BEHAVIORAL_2],
+  ['physics', QB_PHYSICS], ['equations', typeof QB_EQUATIONS === 'undefined' ? [] : QB_EQUATIONS],
+  ['behavioral', QB_BEHAVIORAL_1], ['behavioral', QB_BEHAVIORAL_2],
 ].forEach(([source, arr]) => arr.forEach(q => {
   const subj = source === 'chemistry' ? (ORGO_TAGS.has(q.s) ? 'organic_chem' : 'gen_chem') : source;
   let id = hashId(q.s + '|' + q.q);
@@ -404,7 +411,14 @@ function curveScore(curve, p) {
   }
   return 132;
 }
+// Discipline for a recall stats key ("subject|tag"); equations carry physics or chemistry by tag
+function disciplineOfKey(subj, tag) {
+  if (tag === 'Research Methods & Statistics') return 'research';
+  if (subj === 'equations') return tag.startsWith('Physics') ? 'physics' : 'gen_chem';
+  return subj === 'behavioral' ? 'psych_soc' : subj;
+}
 function disciplineOfRecall(q) {
+  if (q.disc) return q.disc;
   if (q.s === 'Research Methods & Statistics') return 'research';
   return q.subj === 'behavioral' ? 'psych_soc' : q.subj;
 }
@@ -442,8 +456,7 @@ function disciplineEvidence() {
   Object.keys(DISCIPLINES).forEach(d => { out[d] = { recall: { c: 0, t: 0 }, passage: { c: 0, t: 0 }, exam: { c: 0, t: 0 } }; });
   Object.entries(store.get(KEYS.stats, {})).forEach(([k, s]) => {
     const tag = k.slice(k.indexOf('|') + 1);
-    const subj = k.split('|')[0];
-    const d = tag === 'Research Methods & Statistics' ? 'research' : subj === 'behavioral' ? 'psych_soc' : subj;
+    const d = disciplineOfKey(k.split('|')[0], tag);
     if (!out[d] || !KEY_COUNTS[k]) return;
     out[d].recall.c += s.c; out[d].recall.t += s.t;
   });
@@ -1527,7 +1540,7 @@ function showAbout() {
       <h2>License</h2>
       <p>The app's code and original content are licensed under ${link('https://creativecommons.org/licenses/by-nc/4.0/', 'Creative Commons BY-NC 4.0')}. You may share and adapt them for non-commercial purposes with attribution. Third-party material, including the original MileDown cards, remains subject to its owners' terms.</p>
 
-      <p class="muted-note">Version 2.2 · Last updated October 2026</p>
+      <p class="muted-note">Version 2.3 · Last updated October 2026</p>
     </div>
     <div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div>`;
 }
