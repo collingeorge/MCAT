@@ -474,12 +474,12 @@ function weakKeys() {
 let reverseIndex = null;
 function definitionParts(q) {
   if ((q.q.match(/_{3,}/g) || []).length !== 1 || q.subj === 'equations') return null;
-  const m = q.q.match(/^_{3,}\s+(?:is|are)\s+(.{12,})$/i);
+  const m = q.q.match(/^_{3,}\s+(is|are)\s+(.{12,})$/i);
   const term = String(q.choices[q.ans]);
   if (!m || term.length > 60 || term.includes(' / ')) return null;
-  const desc = m[1].trim().replace(/[.\s]+$/, '');
+  const desc = m[2].trim().replace(/[.\s]+$/, '');
   if (desc.toLowerCase().includes(term.toLowerCase())) return null;
-  return { term, desc: desc.charAt(0).toUpperCase() + desc.slice(1) };
+  return { term, verb: m[1].toLowerCase(), desc: desc.charAt(0).toUpperCase() + desc.slice(1) };
 }
 function buildReverseIndex() {
   const parts = new Map();
@@ -518,6 +518,61 @@ function reverseVariant(q) {
   };
 }
 
+// ── Single-blank rewording of multi-blank cards ──
+// "An oxidizing agent _____ electrons and is _____" → ask one blank at a time,
+// with the other blanks filled in, using that slot's parts from the distractors.
+function slotVariants(q) {
+  const base = QB_BY_ID.get(q.baseId || q.id) || q;
+  const blanks = (base.q.match(/_{3,}/g) || []).length;
+  if (blanks < 2) return [];
+  const split = c => String(c).split(' / ').map(s => s.trim());
+  const key = split(base.choices[base.ans]);
+  if (key.length !== blanks) return [];
+  const out = [];
+  for (let i = 0; i < blanks; i++) {
+    const wrong = [...new Set(base.choices.filter((_, ci) => ci !== base.ans).map(c => split(c)[i]).filter(Boolean))]
+      .filter(w => w.toLowerCase() !== key[i].toLowerCase());
+    if (wrong.length < 3) continue;
+    let n = 0;
+    const stem = base.q.replace(/_{3,}/g, () => (n++ === i ? '_____' : `**${key[n - 1]}**`));
+    out.push({
+      ...base, id: `${base.id}~s${i}`, baseId: base.id, variant: 'slot',
+      q: stem, choices: [key[i], ...wrong.slice(0, 3)], ans: 0,
+    });
+  }
+  return out;
+}
+// Every form a fact can be asked in: original, reversed, or one blank at a time
+function questionForms(q) {
+  const base = QB_BY_ID.get(q.baseId || q.id) || q;
+  return [base, reverseVariant(base), ...slotVariants(base)].filter(Boolean);
+}
+
+// ── Wrong-choice confusion ──
+// If the answer you picked is itself the answer to another card, that card
+// explains what your choice actually means.
+let termIndex = null;
+function normTerm(s) { return String(s).toLowerCase().replace(/<[^>]+>|\*\*/g, '').replace(/[^a-z0-9]+/g, ' ').trim(); }
+function confusionCard(chosenText, q) {
+  if (!termIndex) {
+    termIndex = new Map();
+    QB.forEach(x => {
+      if ((x.q.match(/_{3,}/g) || []).length !== 1) return;
+      const t = normTerm(x.choices[x.ans]);
+      if (t.length >= 3) (termIndex.get(t) || termIndex.set(t, []).get(t)).push(x);
+    });
+  }
+  const baseId = q.baseId || q.id;
+  const list = (termIndex.get(normTerm(chosenText)) || []).filter(x => x.id !== baseId);
+  return list.find(x => x.key === q.key) || list.find(x => x.subj === q.subj) || null;
+}
+// A one-line meaning for a card's answer: its definition, or its stem with the blank filled in
+function meaningOf(card) {
+  const d = definitionParts(card);
+  if (d) return `**${d.term}** ${d.verb} ${d.desc.charAt(0).toLowerCase() + d.desc.slice(1)}.`;
+  return card.q.replace(/_{3,}/, `**${card.choices[card.ans]}**`).replace(/\s*\??$/, '.');
+}
+
 // ── Smart Session ──
 const REASONS = {
   'confident-miss': 'You missed this while feeling sure. Fixing these pays off most',
@@ -527,6 +582,10 @@ const REASONS = {
   new: 'New material',
   related: 'Related to a question you just missed',
   'reask': 'Re-asking a question you just missed',
+  loop: 'Drilling until it sticks',
+  shaky: 'You weren\'t sure last time. Checking it stuck',
+  confusion: 'Clearing up a mix-up: this is the answer you chose by mistake',
+  exam: 'From your full-length exam mistakes',
   stretch: 'Keeping solid topics fresh',
 };
 function disciplineYield(d) {
@@ -931,7 +990,9 @@ function startSession() {
 // ════════════════════════════════════════════════════════════════
 //  RECALL QUIZ (tutor mode: immediate feedback)
 // ════════════════════════════════════════════════════════════════
-const quiz = { items: [], idx: 0, results: [], answered: false, startedAt: 0, qStart: 0, label: '', timer: null, adaptive: false, extras: 0, pending: null };
+const quiz = { items: [], idx: 0, results: [], answered: false, startedAt: 0, qStart: 0, label: '', timer: null, adaptive: false, extras: 0, pending: null,
+  loop: new Map(), shakyDone: new Set(), lastForm: new Map(), cleared: 0 };
+const LOOP_TARGET = 2;   // correct answers in a row before a missed fact is cleared for the session
 
 function makeView(q, reason) {
   const order = shuffled(q.choices.map((_, i) => i));
@@ -963,14 +1024,26 @@ function drillWeak() {
   const pool = QB.filter(q => keys.has(q.key));
   if (pool.length) beginQuiz(pickQuestions(pool, prefs.count || pool.length), 'Weak topics');
 }
+// Missed answers, one per fact (a fact drilled several times appears once)
+function missedResults() {
+  const seen = new Set();
+  return quiz.results.filter(r => !r.right).filter(r => {
+    const id = r.view.q.baseId || r.view.q.id;
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+}
 function retryMissed() {
-  const missed = quiz.results.filter(r => !r.right).map(r => r.view.q);
+  const missed = missedResults().map(r => QB_BY_ID.get(r.view.q.baseId || r.view.q.id) || r.view.q);
   if (missed.length) beginQuiz(shuffled(missed), 'Retry missed');
 }
 // questions: plain question objects, or {q, reason} items from the Smart Session
 function beginQuiz(questions, label, opts = {}) {
   const items = questions.map(x => (x && x.q && x.choices === undefined ? makeView(x.q, x.reason) : makeView(x)));
-  Object.assign(quiz, { items, idx: 0, results: [], answered: false, startedAt: Date.now(), label, adaptive: !!opts.adaptive, extras: 0, pending: null });
+  // Reinforcement (mastery loop, shaky repeats, confusion follow-ups) is on for every study session
+  Object.assign(quiz, { items, idx: 0, results: [], answered: false, startedAt: Date.now(), label, adaptive: opts.adaptive !== false, extras: 0, pending: null,
+    loop: new Map(), shakyDone: new Set(), lastForm: new Map(), cleared: 0 });
   show('screen-quiz');
   startQuizTimer();
   renderQuizQuestion();
@@ -1000,6 +1073,7 @@ function renderQuizQuestion() {
   const flagged = !!flaggedIds()[q.id];
   const why = view.reason === 'weak'
     ? `${REASONS.weak}: ${KEY_LABEL[q.key] || q.s}${(() => { const m = topicMastery(q.key); return m.p != null ? ` (${Math.round(m.p * 100)}% predicted)` : ''; })()}`
+    : view.reason === 'loop' ? `${REASONS.loop} (${view.loopStreak || 0} of ${LOOP_TARGET} correct in a row)`
     : view.reason ? REASONS[view.reason] : '';
   $('quiz-body').innerHTML = `
     <div class="question-box">
@@ -1031,7 +1105,8 @@ function pick(chosen) {
   quiz.results.push({ view, chosen, right, ms });
   recordAnswer(view.q, right);
   // Memory and mastery are updated when you move on, so the confidence rating can count
-  quiz.pending = { q: view.q, right, ms, conf: null };
+  const confusion = right ? null : confusionCard(view.choices[chosen], view.q);
+  quiz.pending = { q: view.q, right, ms, conf: null, confusion };
   view.choices.forEach((_, i) => {
     const b = $('cb-' + i);
     b.disabled = true;
@@ -1039,7 +1114,8 @@ function pick(chosen) {
     else if (i === chosen) b.classList.add('wrong');
   });
   $('qm-score').textContent = `✓ ${quiz.results.filter(r => r.right).length}/${quiz.results.length}`;
-  $('exp-area').innerHTML = explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Recall · ${view.q.s}`, view.q.q));
+  $('exp-area').innerHTML = explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Recall · ${view.q.s}`, view.q.q),
+    confusion ? `You chose <b>${fmt(view.choices[chosen])}</b>. ${fmt(meaningOf(confusion))}` : '');
   renderNextArea();
   $('next-btn').focus({ preventScroll: true });
 }
@@ -1063,31 +1139,64 @@ function setConfidence(c) {
     b.setAttribute('aria-pressed', on);
   });
 }
-// Apply the pending answer to the memory model; in a Smart Session a miss
-// schedules a re-ask (in reverse form when possible) and a related question
+// Apply the pending answer to the memory model, then reinforce within the session:
+//  • a miss enters the mastery loop: it returns a few questions later, in a different
+//    form each time, until answered correctly LOOP_TARGET times in a row;
+//  • the wrong choice you picked, if it is another card's answer, is taught next;
+//  • a right answer you weren't sure of comes back once more to confirm it stuck.
 function commitPending() {
   const p = quiz.pending;
   if (!p) return;
   quiz.pending = null;
   updateMemory(p.q, p.right, p.conf, p.ms);
-  if (!quiz.adaptive || p.right) return;
-  const cap = Math.ceil((quiz.items.length - quiz.extras) / 3);   // at most +1/3 of the planned session
-  const used = new Set(quiz.items.map(v => v.q.baseId || v.q.id));
-  const insertAt = offset => Math.min(quiz.idx + 1 + offset, quiz.items.length);
-  if (quiz.extras < cap) {
-    const rel = relatedQuestion(p.q, used);
-    if (rel) { quiz.items.splice(insertAt(2), 0, makeView(rel, 'related')); quiz.extras++; }
-  }
-  if (quiz.extras < cap) {
-    const base = QB_BY_ID.get(p.q.baseId || p.q.id);
-    const again = (p.q.variant ? base : reverseVariant(base)) || base;
-    quiz.items.splice(insertAt(5), 0, makeView(again, 'reask'));
+  if (!quiz.adaptive) return;
+  const baseId = p.q.baseId || p.q.id;
+  const base = QB_BY_ID.get(baseId);
+  // Budgets: mastery-loop re-asks may grow a session up to 2× its planned length;
+  // optional extras (related, confusion, shaky checks) stop at +50%
+  const planned = quiz.items.length - quiz.extras;
+  const insert = (offset, q, reason, extra = {}) => {
+    const cap = reason === 'loop' ? planned : Math.ceil(planned / 2);
+    if (!q || quiz.extras >= cap) return false;
+    const v = Object.assign(makeView(q, reason), extra);
+    quiz.items.splice(Math.min(quiz.idx + 1 + offset, quiz.items.length), 0, v);
     quiz.extras++;
+    return true;
+  };
+  const upcoming = id => quiz.items.slice(quiz.idx + 1).some(v => (v.q.baseId || v.q.id) === id);
+  // Rotate through the fact's forms so the same wording isn't simply memorized
+  const nextForm = () => {
+    const forms = questionForms(base);
+    const last = quiz.lastForm.get(baseId) || p.q.id;
+    const f = forms.filter(x => x.id !== last && x.id !== p.q.id)[Math.floor(Math.random() * Math.max(1, forms.length - 1))] || forms[0];
+    quiz.lastForm.set(baseId, f.id);
+    return f;
+  };
+  const loop = quiz.loop.get(baseId);
+
+  if (!p.right) {
+    quiz.loop.set(baseId, { streak: 0, misses: (loop ? loop.misses : 0) + 1 });
+    if (!upcoming(baseId)) insert(4, nextForm(), 'loop', { loopStreak: 0 });
+    if (p.confusion && !upcoming(p.confusion.id)) insert(2, p.confusion, 'confusion');
+    else if (!loop) insert(2, relatedQuestion(p.q, new Set(quiz.items.map(v => v.q.baseId || v.q.id))), 'related');
+    return;
+  }
+  if (loop) {
+    loop.streak++;
+    if (loop.streak >= LOOP_TARGET) { quiz.loop.delete(baseId); quiz.cleared++; return; }
+    if (!upcoming(baseId)) insert(5, nextForm(), 'loop', { loopStreak: loop.streak });
+    return;
+  }
+  const shaky = p.conf === 'guess' || p.conf === 'unsure' || (!p.conf && p.ms > 30000);
+  if (shaky && !quiz.shakyDone.has(baseId) && !upcoming(baseId)) {
+    quiz.shakyDone.add(baseId);
+    insert(6, nextForm(), 'shaky');
   }
 }
-function explanationBox(right, answerText, exp, reportUrl) {
+function explanationBox(right, answerText, exp, reportUrl, note) {
   return `<div class="explanation-box ${right ? 'is-right' : 'is-wrong'}" role="status">
     <div class="exp-verdict">${right ? '✓ Correct' : '✗ Incorrect'} <span class="exp-answer">Answer: ${fmt(answerText)}</span></div>
+    ${note ? `<div class="exp-confusion">${note}</div>` : ''}
     <div class="exp-text">${paragraphs(exp)}</div>
     ${reportUrl ? `<a class="report-link" href="${esc(reportUrl)}" target="_blank" rel="noopener">Report a problem with this question</a>` : ''}
   </div>`;
@@ -1120,7 +1229,7 @@ function showQuizResults() {
   // Session breakdown by subject
   const bySubj = {};
   res.forEach(r => { const s = r.view.q.subj; bySubj[s] = bySubj[s] || { c: 0, t: 0 }; bySubj[s].t++; if (r.right) bySubj[s].c++; });
-  const missed = res.filter(r => !r.right);
+  const missed = missedResults();
   const flags = flaggedIds();
   const flaggedHere = res.filter(r => flags[r.view.q.id]);
 
@@ -1130,6 +1239,7 @@ function showQuizResults() {
       <div class="score-pct" style="color:${color}">${p}%</div>
       <div class="score-grade" style="color:${color}">${grade}</div>
       <div class="score-sub">${cor} of ${tot} correct · ${fmtTime(sessionMs)} total · ${Math.round(avg / 1000)}s per question</div>
+      ${quiz.cleared || quiz.loop.size ? `<div class="score-sub reinforce">Reinforced: <b>${quiz.cleared}</b> missed ${quiz.cleared === 1 ? 'fact' : 'facts'} drilled to ${LOOP_TARGET} correct in a row${quiz.loop.size ? ` · <b>${quiz.loop.size}</b> still shaky (they'll come back soon in review)` : ''}</div>` : ''}
     </div>
     <div class="results-card">
       <div class="section-label">This session by subject</div>
@@ -1173,7 +1283,7 @@ function reviewItem({ stem, choices, ans, chosen, exp, tag, passageTitle }) {
   </div>`;
 }
 function exportMissed() {
-  const missed = quiz.results.filter(r => !r.right);
+  const missed = missedResults();
   const lines = ['MCAT Study App — Missed Questions', new Date().toLocaleString(), `${missed.length} missed of ${quiz.results.length}`, ''];
   missed.forEach((r, i) => {
     const q = r.view.q;
@@ -1777,8 +1887,49 @@ function showExamResults(attempt) {
       </div>`;
     }).join('')}</div>
     <p class="muted-note">Scaled scores are estimates. The AAMC converts raw scores separately for each test form. Percentiles are the AAMC ranks in effect May 1, 2026 – April 30, 2027.</p>
+    ${examMissSummary(attempt).total ? `<div class="results-card study-misses">
+      <div class="section-label">Turn mistakes into points</div>
+      <p class="muted-note" style="margin-top:0">The exam itself doesn't adapt, just like the real MCAT. This session does: it targets the subjects you missed, weighted by how many you missed, with the same drill-until-it-sticks reinforcement.</p>
+      <button class="new-quiz-btn" onclick="studyExamMistakes()">Study my mistakes from this exam →</button>
+      ${examMissSummary(attempt).cars ? `<p class="muted-note">CARS isn't fact recall, so for the ${examMissSummary(attempt).cars} CARS misses, use the CARS passages in Passage mode.</p>` : ''}
+    </div>` : ''}
     ${examBreakdownCard(attempt)}`;
   renderExamReview();
+}
+// Missed exam questions counted by discipline (unanswered counts as missed)
+function examMissSummary(attempt) {
+  const def = FULL_EXAMS[attempt.ei];
+  const byDisc = {};
+  let total = 0, cars = 0;
+  def.sections.forEach((s, si) => {
+    if (!attempt.results[si]) return;
+    sectionQuestions(attempt.ei, si).forEach((q, i) => {
+      const o = attempt.orders[si] ? attempt.orders[si][i] : q.choices.map((_, k) => k);
+      const a = attempt.answers[si][i];
+      if (a != null && o[a] === q.ans) return;
+      const d = disciplineOfExamQuestion(s.id, q);
+      if (d === 'cars') { cars++; return; }
+      if (d) { byDisc[d] = (byDisc[d] || 0) + 1; total++; }
+    });
+  });
+  return { byDisc, total, cars };
+}
+// A recall session built from an exam's misses: each discipline gets questions in
+// proportion to its misses, chosen from your weakest topics near the target success rate
+function studyExamMistakes() {
+  const { byDisc, total } = examMissSummary(examReviewState.attempt);
+  if (!total) return;
+  const n = Math.min(40, Math.max(15, Math.round(total * 0.8)));
+  const mem = loadMem(), mast = store.get(KEYS.mastery, {}), target = targetSuccess();
+  const items = [];
+  Object.entries(byDisc).forEach(([d, misses]) => {
+    const share = Math.max(1, Math.round((n * misses) / total));
+    QB.filter(q => disciplineOfRecall(q) === d)
+      .map(q => ({ q, s: Math.abs(predictedSuccess(q, mem, mast) - target) + (mem[q.id] ? 0.1 : 0) + Math.random() * 0.15 }))
+      .sort((a, b) => a.s - b.s).slice(0, share)
+      .forEach(x => items.push({ q: x.q, reason: 'exam' }));
+  });
+  if (items.length) beginQuiz(interleave(items), 'Exam mistakes');
 }
 // Per-section breakdown by discipline and by question type (passage vs discrete)
 function examBreakdownCard(attempt) {
