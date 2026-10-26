@@ -1,0 +1,4 @@
+# Local review workspace (audit findings, agent work files)
+_review/
+.claude/
+

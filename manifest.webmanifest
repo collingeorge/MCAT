@@ -1,0 +1,13 @@
+{
+  "name": "MCAT Study App",
+  "short_name": "MCAT Study",
+  "description": "Spaced-repetition recall questions, AAMC-style passages and timed full-length MCAT practice exams.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F4F7FB",
+  "theme_color": "#1B3A5C",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
