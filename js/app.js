@@ -1519,7 +1519,7 @@ function showAbout() {
 
       <h2>Sources &amp; credits</h2>
       <ul>
-        <li><b>Recall questions</b> are derived from the community MileDown MCAT Anki flashcard decks. They were converted to multiple choice and substantially edited and corrected for this app. Credit for the original cards belongs to their creator. MileDown has no affiliation with this app and has not reviewed or endorsed it. If you created the original decks and would like the credit worded differently, or the material changed or removed, please ${link(REPO_URL + '/issues', 'open an issue')}.</li>
+        <li><b>Recall questions</b> are derived from the <b>MCAT Milesdown</b> Anki deck by MileDown (${link('https://ankiweb.net/shared/info/178384887', 'AnkiWeb shared deck 178384887')}, 2,884 notes, last updated May 2020). Its cloze cards were converted to multiple choice and substantially edited and corrected for this app. Credit for the original cards belongs to their creator. MileDown has no affiliation with this app and has not reviewed or endorsed it. To study the original cards with images and video links, download the deck from AnkiWeb. If you created the original decks and would like the credit worded differently, or the material changed or removed, please ${link(REPO_URL + '/issues', 'open an issue')}.</li>
         <li><b>Passages, CARS passages and full-length exam questions</b> are original to this app.</li>
         <li><b>Percentile ranks and section content shares</b> are taken from published AAMC information, credited above.</li>
       </ul>

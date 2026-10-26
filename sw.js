@@ -1,6 +1,6 @@
 // Offline support: precache the app shell and data, then serve stale-while-revalidate.
 // Bump CACHE when deploying so returning users pick up new content.
-const CACHE = 'mcat-v2.2-2026-10-26';
+const CACHE = 'mcat-v2.2.1-2026-10-26';
 const ASSETS = [
   './', 'index.html', 'css/styles.css', 'js/app.js', 'manifest.webmanifest', 'icon.svg',
   'data/qb-biochemistry.js', 'data/qb-biology.js', 'data/qb-chemistry.js', 'data/qb-physics.js',
