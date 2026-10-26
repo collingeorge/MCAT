@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCAT Data Validator</title>
+<style>
+  body{font:14px/1.5 Arial,Helvetica,sans-serif;margin:24px;color:#1A2332;background:#F4F7FB}
+  h1{font-size:20px;color:#1B3A5C}
+  .ok{color:#1A6B3A}.err{color:#B91C1C}.warn{color:#7A5C00}
+  table{border-collapse:collapse;margin:10px 0}
+  td,th{border:1px solid #D1DCE8;padding:4px 8px;text-align:left;font-size:13px}
+  details{margin:8px 0}
+  li{margin:2px 0;font-size:12px}
+</style>
+</head>
+<body>
+<h1>MCAT data validator</h1>
+<p>Open this page from a local server (e.g. <code>pwsh -File _review/serve.ps1</code>, then <code>http://localhost:8080/tools/validate.html</code>). <b>Errors</b> break the app or mark a right answer wrong; <b>warnings</b> are quality issues to review.</p>
+<div id="out">Running…</div>
+
+<script src="../data/qb-biochemistry.js"></script>
+<script src="../data/qb-biology.js"></script>
+<script src="../data/qb-chemistry.js"></script>
+<script src="../data/qb-physics.js"></script>
+<script src="../data/qb-behavioral-1.js"></script>
+<script src="../data/qb-behavioral-2.js"></script>
+<script src="../data/passages-science.js"></script>
+<script src="../data/passages-cars.js"></script>
+<script src="../data/exam1.js"></script>
+<script src="../data/exam2-cp.js"></script>
+<script src="../data/exam2-bb.js"></script>
+<script src="../data/exam2-ps.js"></script>
+<script src="../data/exams.js"></script>
+<script>
+(function () {
+  const errors = [], warnings = [];
+  const err = (where, msg) => errors.push(`${where}: ${msg}`);
+  const warn = (where, msg) => warnings.push(`${where}: ${msg}`);
+  const short = s => String(s).replace(/<[^>]+>/g, '').slice(0, 70);
+  // Letter references to answer choices (not math like P(A and B) or units like "(C)" for coulombs)
+  const LETTER_REF = /\b(?:[Cc]hoice|[Oo]ption|[Aa]nswer)s?\s*\(?[A-D]\)?(?![A-Za-z])|\([A-D]\)\s+(?:is|are|was|would|could|correctly|incorrectly|states|describes|reverses)\b|\b(?:[Bb]oth|[Nn]either) [A-D] (?:and|nor) [A-D]\b(?! (?:antigens?|alleles?|blood))|^[A-D] is (?:in)?correct/;
+  const PLACEHOLDER = /^(review this concept|refer to notes|see explanation|all of the above|none of the above)$/i;
+
+  function checkQuestion(where, q, opts = {}) {
+    if (!q || typeof q.q !== 'string' || !q.q.trim()) return err(where, 'missing stem');
+    if (!Array.isArray(q.choices) || q.choices.length !== 4) return err(where, `needs 4 choices (has ${q.choices && q.choices.length})`);
+    if (!Number.isInteger(q.ans) || q.ans < 0 || q.ans >= q.choices.length) err(where, `ans ${q.ans} out of range`);
+    const norm = q.choices.map(c => String(c).trim().toLowerCase());
+    if (norm.some(c => !c)) err(where, 'empty choice');
+    if (new Set(norm).size !== norm.length) err(where, `duplicate choices — ${short(q.q)}`);
+    q.choices.forEach(c => { if (PLACEHOLDER.test(String(c).trim())) err(where, `placeholder choice "${c}"`); });
+    if (/both [a-d] and [a-d]|all of the above|none of the above/i.test(q.choices.join(' | '))) warn(where, 'combination/"all of the above" style choice');
+    const exp = String(q.exp || '');
+    if (exp.length < 40) warn(where, `very short explanation — ${short(q.q)}`);
+    if (/^the correct answer is/i.test(exp)) warn(where, 'explanation starts with "The correct answer is"');
+    if (LETTER_REF.test(exp)) err(where, `explanation refers to a choice by letter (choices are shuffled) — ${short(exp)}`);
+    const blanks = (q.q.match(/_{3,}/g) || []).length;
+    if (opts.cloze && blanks >= 2) {
+      const key = String(q.choices[q.ans]);
+      if (key.split(' / ').length !== blanks) err(where, `${blanks} blanks but key "${key}" fills ${key.split(' / ').length}`);
+    }
+    const lens = q.choices.map(c => String(c).length);
+    const others = lens.filter((_, i) => i !== q.ans);
+    const meanOther = others.reduce((a, b) => a + b, 0) / others.length;
+    if (lens[q.ans] > 20 && lens[q.ans] > 1.8 * meanOther) warn(where, `key is ${(lens[q.ans] / meanOther).toFixed(1)}× longer than distractors — ${short(q.q)}`);
+    const key = String(q.choices[q.ans]);
+    if (opts.cloze && q.ans !== undefined) {
+      const caps = q.choices.map(c => /^[A-Z][a-z]/.test(String(c)));
+      if (caps.filter(Boolean).length === 1 && caps[q.ans]) warn(where, `key is the only capitalized choice — ${short(q.q)}`);
+      if (key.length > 4 && q.q.toLowerCase().includes(key.toLowerCase())) warn(where, `key appears in stem — ${short(q.q)}`);
+    }
+  }
+
+  // Recall bank
+  const banks = { QB_BIOCHEMISTRY, QB_BIOLOGY, QB_CHEMISTRY, QB_PHYSICS, QB_BEHAVIORAL_1, QB_BEHAVIORAL_2 };
+  const rows = [];
+  const stems = new Map();
+  for (const [name, arr] of Object.entries(banks)) {
+    const ansDist = [0, 0, 0, 0];
+    arr.forEach((q, i) => {
+      if (!q.s) err(`${name}[${i}]`, 'missing s: tag');
+      checkQuestion(`${name}[${i}]`, q, { cloze: true });
+      ansDist[q.ans] = (ansDist[q.ans] || 0) + 1;
+      const k = String(q.q).trim().toLowerCase();
+      if (stems.has(k)) warn(`${name}[${i}]`, `duplicate stem of ${stems.get(k)}`); else stems.set(k, `${name}[${i}]`);
+    });
+    rows.push([name, arr.length, ansDist.join(' / ')]);
+  }
+
+  // Passages
+  const passages = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES, ...OCHEM_PASSAGES, ...PHYSICS_PASSAGES, ...BEHAVIORAL_PASSAGES, ...CARS_PASSAGES, ...CARS_EXTRA, ...EXAM2_CARS_PASSAGES];
+  const ids = new Set();
+  const passageRows = [];
+  passages.forEach(p => {
+    if (ids.has(p.id)) err(p.id, 'duplicate passage id'); ids.add(p.id);
+    if (!p.passage || p.passage.length < 200) err(p.id, 'missing/short passage text');
+    const words = String(p.passage).split(/\s+/).filter(Boolean).length;
+    p.questions.forEach((q, i) => checkQuestion(`${p.id} Q${i + 1}`, q));
+    passageRows.push([p.id, p.questions.length, words]);
+  });
+
+  // Exams
+  const examRows = [];
+  FULL_EXAMS.forEach(e => e.sections.forEach(s => {
+    let qs = s.questions;
+    if (s.passageIds) {
+      s.passageIds.forEach(id => { if (!ids.has(id)) err(`${e.id} ${s.abbrev}`, `unknown passage ${id}`); });
+      qs = s.passageIds.flatMap(id => (passages.find(p => p.id === id) || { questions: [] }).questions);
+    } else {
+      qs.forEach((q, i) => checkQuestion(`${e.id} ${s.abbrev} Q${i + 1}`, q));
+    }
+    const expected = s.id === 'cars' ? 53 : 59;
+    if (qs.length !== expected) warn(`${e.id} ${s.abbrev}`, `${qs.length} questions (real exam: ${expected})`);
+    const dist = [0, 0, 0, 0]; qs.forEach(q => dist[q.ans]++);
+    examRows.push([`${e.id} ${s.abbrev}`, qs.length, s.timeMin, dist.join(' / ')]);
+  }));
+
+  const table = (head, data) => `<table><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr>${data.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</table>`;
+  const list = (items, cls) => `<ul>${items.map(x => `<li class="${cls}">${x.replace(/</g, '&lt;')}</li>`).join('')}</ul>`;
+  document.getElementById('out').innerHTML = `
+    <h2 class="${errors.length ? 'err' : 'ok'}">${errors.length} errors · <span class="warn">${warnings.length} warnings</span></h2>
+    ${table(['Recall file', 'Questions', 'Key position A/B/C/D'], rows)}
+    ${table(['Exam section', 'Questions', 'Minutes', 'Key position A/B/C/D'], examRows)}
+    <details><summary>Passages (${passages.length})</summary>${table(['id', 'Questions', 'Words'], passageRows)}</details>
+    <details ${errors.length ? 'open' : ''}><summary>Errors (${errors.length})</summary>${list(errors, 'err')}</details>
+    <details><summary>Warnings (${warnings.length})</summary>${list(warnings, 'warn')}</details>`;
+  window.__validation = { errors, warnings };
+})();
+</script>
+</body>
+</html>

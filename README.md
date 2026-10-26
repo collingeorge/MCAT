@@ -1,122 +1,110 @@
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-![Version](https://img.shields.io/badge/Version-Active_Development-blue.svg)
-![Last Updated](https://img.shields.io/badge/Updated-Mar_2026-purple.svg)
-![Status](https://img.shields.io/badge/Status-Active_Study_Project-green.svg)
+![Version](https://img.shields.io/badge/Version-2.0-blue.svg)
+![Last Updated](https://img.shields.io/badge/Updated-Oct_2026-purple.svg)
 
 # MCAT Study App
-*Clinical Mastery Quiz System · Collin B. George*
-
----
+*Recall · Passages · Full-length exams · Collin B. George*
 
 ## → [Launch App](https://collingeorge.github.io/MCAT/)
 
-A standalone, offline-capable MCAT quiz app covering all seven test sections including CARS. No login. No API key. No dependencies. Works offline after first load.
+A free MCAT practice app that runs in the browser: no login, no API key, no build step. After the first visit it works offline and can be installed as an app from the browser menu. Progress is saved on your device.
 
-Built to fill the gap between Anki (pure recall) and UWorld (full exam simulation) — fast flashcard-style MCQs and AAMC-style passage sets in one place.
-
----
-
-## Question Bank
-
-### Recall Mode — 2,549 Questions
-
-All questions converted from the complete MileDown MCAT flashcard decks into 4-option MCQs with subject-specific distractors and explanations.
-
-| Subject | Questions | Topics |
-|---------|-----------|--------|
-| Biochemistry | 465 | Amino Acids & Proteins · Enzymes · Metabolism & Regulation · Nucleotides & Nucleic Acids · Biological Membranes |
-| Biology | 569 | Cell Biology & Genetics · Nervous System · Musculoskeletal · Cardiovascular & Respiratory · Endocrine & Metabolism · Immune System & Digestion |
-| General Chemistry | 209 | Atomic Structure & Bonding · Thermochemistry & Equilibrium · Solutions & Acid-Base |
-| Organic Chemistry | 235 | Bonding & Structure · Stereochemistry · Reactions & Mechanisms · Carbonyl Chemistry · Spectroscopy · Separations |
-| Physics & Math | 258 | Motion, Forces & Energy · Fluids · Electricity & Magnetism · Waves, Sound & Light · Nuclear & Atomic Physics · Research Methods & Statistics |
-| Behavioral Science | 813 | Biological Bases of Behavior · Sensation & Perception · Cognition, Learning & Memory · Emotion, Motivation & Stress · Personality, Development & Disorders · Social Psychology & Society |
-| **Total** | **2,549** | |
-
-### Passage Mode — 184 Questions across 37 Passages
-
-AAMC-style passages with 4–5 questions each. Five passages per science subject, twelve original passages for CARS.
-
-| Subject | Passages | Sample Topics |
-|---------|----------|---------------|
-| Biochemistry | 5 | PKU & Amino Acid Metabolism · Methotrexate & DHFR Kinetics · Cyanide Poisoning & ETC · Lynch Syndrome & DNA Repair · Diabetic Ketoacidosis |
-| Biology | 5 | High-Altitude Acclimatization · Myasthenia Gravis & NMJ · T1DM & HPA Axis · Sickle Cell Disease · Nephrotic Syndrome |
-| General Chemistry | 5 | Bicarbonate Buffer & ABGs · ATP & Thermodynamics · ETC as Electrochemical Cell · Enzyme Kinetics & Equilibrium · Osmolarity & VSEPR |
-| Organic Chemistry | 5 | SN1/SN2 & Stereochemistry · Carbonyl Chemistry · Stereoisomerism in Drug Development · Spectroscopic Identification · Separations & Carboxylic Acids |
-| Physics & Math | 5 | Hemodynamics & Poiseuille Flow · Cardiac Electrophysiology & Circuits · Wave Physics in Diagnostic Imaging · Radioactive Decay & Nuclear Medicine · Clinical Trial Design & Statistics |
-| Behavioral Science | 5 | Neurotransmitter Systems & Psychopharmacology · Conditioning & Memory Consolidation · Social Influence & Obedience · Cognitive & Psychosocial Development · Sensory Processing & Signal Detection |
-| CARS | 12 | Philosophy · History of Science · Ethics · Social Science · Literary Criticism · Political Theory · Anthropology · Philosophy of Science · Economics · Art History · Architecture · History of Scientific Instruments |
-
-#### CARS Passages
-All 12 CARS passages are original, written to AAMC difficulty. No factual knowledge required — all answers are inferrable from the passage text alone. Question types mirror the real MCAT: main idea, author's purpose, function of evidence, inference, strengthen/weaken, and structural analysis.
-
-| # | Domain | Title |
-|---|--------|-------|
-| 1 | Philosophy | Determinism and the Conditions for Moral Blame |
-| 2 | History of Science | Continuity and Rupture in the History of Science |
-| 3 | Ethics | The Non-Identity Problem and Environmental Ethics |
-| 4 | Social Science | Race as Social Construction and Biological Category |
-| 5 | Literary Criticism | Unreliability, Irony, and the Reader's Position in Modern Fiction |
-| 6 | Political Theory | The Justification and Limits of Civil Disobedience |
-| 7 | Anthropology | Culture, Agency, and the Problem of Cultural Determinism |
-| 8 | Philosophy of Science | The Asymmetry of Explanation and Prediction |
-| 9 | Economics/Ethics | Meritocracy, Luck, and the Moral Limits of Market Outcomes |
-| 10 | Art History | The Aesthetics of Authenticity: What Art Forgery Reveals |
-| 11 | Architecture | Demolition, Preservation, and the Politics of Urban Memory |
-| 12 | History of Science | The Social Life of Scientific Instruments |
+It sits between Anki (pure recall) and UWorld (full exam simulation). You get fast recall questions with spaced repetition, AAMC-style passage sets with explanations, and timed full-length practice exams.
 
 ---
 
-## App Features
+## What's inside
 
-### Subject Selector
-Accordion UI in recall mode: Subject → Topic → Subtopic with live question counts. Select any combination before starting a session. All 2,549 questions are accessible — tags are sourced directly from the question bank.
+| Mode | Content |
+|---|---|
+| **Recall** | 2,549 questions built from the complete MileDown MCAT decks, rewritten as 4-option multiple choice with explanations |
+| **Passages** | 54 passages / 257 questions: 30 science passages and 24 original CARS passages |
+| **Full-length** | 2 timed exams, each 230 questions: C/P 59 · CARS 53 · B/B 59 · P/S 59, with real section times and breaks |
 
-### Session Modes
-- **Recall Mode** — 4-option MCQ from flashcard source material. Select 10, 20, 30, 50, or ALL questions per session.
-- **Passage Mode** — Full passage with 4–5 associated questions, grouped by subject. CARS passages appear as their own group with completion tracking and score percentage per passage.
-
-### Stats Dashboard
-Five panels rendered after every session:
-
-1. **MCAT Scaled Score** — Estimated 118–132 score with percentile, visual score bar, session time, and average seconds per question with MCAT pace indicator (1:35/q)
-2. **Cumulative Performance** — Running MCAT estimate across all sessions, total questions answered, overall accuracy (persists via localStorage)
-3. **Subject Breakdown** — Every subject with accuracy bar, STRONG/FAIR/WEAK badge, and sparkline trend over last 8 sessions
-4. **Strengths & Improvement Areas** — Top 5 strong subjects (≥80%, ≥3 questions seen) and top 5 weak subjects (<70%)
-5. **Missed Questions** — Correct answer, your answer, explanation, and time spent per miss
-
-### Additional Features
-- **Spaced repetition** — Missed questions weighted to appear more frequently in future sessions; intervals double on correct answers (capped at 30 days)
-- **Question flagging** — Flag any question mid-session (F key or 🏳 icon); flagged questions reviewed in results and available as a separate drill session
-- **Drill Weak Areas** — One-click mode filtering next session to lowest-scoring subjects
-- **Export Missed Questions** — Downloads .txt file with all misses, explanations, and time spent
-- **Keyboard shortcuts** — 1–4 to answer, Enter/Space to advance, F to flag, Escape to return home
-- **Live progress bar** — Color reflects current session accuracy in real time
-- **SRS due badge** — Home screen shows how many questions are due for spaced repetition review
+### Recall bank by subject
+| Subject | Questions |
+|---|---|
+| Biochemistry | 465 |
+| Biology | 569 |
+| General Chemistry | 209 |
+| Organic Chemistry | 235 |
+| Physics & Math (incl. research methods & statistics) | 258 |
+| Psychology & Sociology | 813 |
 
 ---
 
-## Technical
+## Features
 
-- Single `index.html` file — no framework, no build step, no dependencies
-- Offline-capable after first load
-- localStorage persistence for cumulative stats and passage completion
-- Deployed via GitHub Pages
+- **Spaced repetition.** Every answer updates a Leitner-style schedule (review after 0 → 1 → 3 → 7 → 16 → 35 days). Sessions show due reviews first, then questions you haven't seen. The home screen shows how many are due.
+- **Shuffled answers.** Choice order is randomized every time, so you learn the content, not the letter position.
+- **Teaching explanations.** Each explanation says why the answer is right and usually why the tempting wrong answer is wrong.
+- **Topic selector.** Pick a subject, a topic, or any mix of the 80 subtopics, with live question counts.
+- **Flagging.** Flag any question (F key) and review all flagged questions later from the home screen.
+- **Drill weak topics.** One click drills every topic where you're below 70% after at least 5 attempts.
+- **Progress dashboard.** Shows all-time accuracy, questions seen, questions mastered, accuracy by subject, your weakest and strongest topics, and your exam history.
+- **Full-length exams that behave like test day:**
+  - Section timers that submit automatically at 0:00, plus optional 10/30/10-minute breaks.
+  - Passage on the left and question on the right on wide screens.
+  - "Mark for review", plus a navigator grid of answered, unanswered and marked questions before you end a section.
+  - No feedback until you finish. Then you get section scores and an estimated total, AAMC percentile ranks, and a full answer review you can filter to incorrect or marked questions.
+  - Progress is saved, so you can leave and resume (the timer pauses).
+- **Keyboard shortcuts:** `1–4` / `A–D` to answer, `Enter` for the next question, `F` to flag. In exams, `←/→` to move between questions and `M` to mark.
+- **Report a problem.** Every explanation has a link that opens a pre-filled GitHub issue.
 
-### Source Material
-MileDown MCAT flashcard decks (tab-separated cloze-deletion `.txt` format), 5 files per subject × 6 subjects = 30 source files. Cards parsed, de-duplicated, and converted to MCQ format with subject-specific distractors. CARS passages are original content written to AAMC difficulty standards — no external source material.
+### About the scores
+Percentile ranks are the [AAMC tables in effect May 1, 2026 – April 30, 2027](https://www.aamc.org/services/mcat-admissions-officers/resources/percentile-ranks). Raw-to-scaled conversion is an **estimate**: the AAMC equates each test form separately, so treat the scaled scores as a rough guide, not a prediction. Recall sessions show accuracy only; isolated fact questions don't map onto a scaled score.
 
 ---
+
+## Content quality
+
+In October 2026 the full bank (every recall question, passage and exam item) was audited against the current AAMC content outline, DSM-5-TR and current physiology. The audit led to these changes:
+- **Factual errors and wrong keys fixed** across all modes. Examples: ADH lowers plasma osmolarity; oxytocin causes milk ejection while prolactin drives production; standard conditions are 298 K; pH = pKa at half-equivalence.
+- **Multi-blank cards completed** (about 360): the key now fills every blank.
+- **Distractors rebuilt** so all four choices are plausible and from the same topic, without capitalization or length giveaways.
+- **Explanations rewritten** for every recall question.
+- **CARS:** both exams use 9 passages and 53 questions, as on the real test. Answer keys are no longer the longest choice by default.
+- Sleep staging uses N1/N2/N3/REM, and psychiatric terms follow DSM-5-TR.
+
+Found something that still looks wrong? Use **Report a problem** under the explanation, or [open an issue](https://github.com/collingeorge/MCAT/issues).
+
+---
+
+## Project structure
+
+```
+index.html            App shell
+css/styles.css        Styles
+js/app.js             All app logic (quiz, passages, exams, spaced repetition, stats)
+data/                 Question data, one file per subject or exam section
+  qb-*.js             Recall questions  {s: tag, q, choices[4], ans, exp}
+  passages-*.js       Passage-mode passages  {id, title, topic, passage, questions[]}
+  exam1.js, exam2-*.js, exams.js   Full-length exam sections and definitions
+sw.js, manifest.webmanifest, icon.svg   Offline support / installable app
+tools/validate.html   Data checker (structure, duplicate choices, broken cloze keys, letter references, giveaways)
+tools/serve.ps1       Tiny local web server for development
+```
+
+### Editing questions
+1. Edit the relevant file in `data/`. Keep the `s:` tag (it drives the topic selector). `ans` is the 0-based index of the correct choice; order doesn't matter, because choices are shuffled when shown.
+2. Don't refer to choices by letter in explanations, since the letters change.
+3. Run a local server and open the validator:
+   ```
+   pwsh -File tools/serve.ps1
+   ```
+   Then open http://localhost:8080/tools/validate.html and fix anything listed under **Errors**.
+4. When you deploy, bump `CACHE` in `sw.js` so returning visitors get the update.
+
+---
+
+## Source material
+The recall questions come from the MileDown MCAT flashcard decks (cloze-deletion format), converted to multiple choice and edited for accuracy. All passages, CARS passages and full-length exam items are original.
 
 ## License
-
-Licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
-
-Free to share and adapt with attribution. Commercial use not permitted.
+Licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/): free to share and adapt with attribution, but not for commercial use.
 
 ## Citation
-
-George, C. B. (2026). *MCAT Study App.*  
-https://github.com/collingeorge/MCAT
+George, C. B. (2026). *MCAT Study App* (Version 2.0). https://github.com/collingeorge/MCAT
 
 ---
-*For MCAT prep use only. Not affiliated with AAMC or MileDown.*
+*For MCAT practice only. Not affiliated with the AAMC or MileDown. MCAT® is a registered trademark of the AAMC.*
