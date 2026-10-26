@@ -87,6 +87,7 @@ const KEYS = {
   calib: 'mcat2_calibration',        // { discipline: { knew|unsure|guess|none: {c, t} } }
   plan: 'mcat2_plan',                // { date, days, minutes, start, seenAtStart }
   daily: 'mcat2_daily',              // { 'YYYY-MM-DD': answers }
+  fluency: 'mcat2_fluency',          // { discipline: [ms of recent correct recall answers] }
   scoreHistory: 'mcat2_score_history',
 };
 
@@ -247,6 +248,21 @@ const QB_BY_ID = new Map();
   QB_BY_ID.set(id, q);
 }));
 
+// Authored variants: the same fact asked from another angle (scenario, prediction, EXCEPT),
+// linked to their base question by its exact tag and stem
+const AUTHORED = new Map();   // base id → variant forms
+const VARIANT_KIND = { application: 'apply the concept', prediction: 'predict the effect', scenario: 'clinical or lab scenario', except: 'which is NOT true' };
+(() => {
+  const byStem = new Map(QB.map(q => [q.s + '|' + q.q, q]));
+  [typeof QB_VARIANTS_1 === 'undefined' ? [] : QB_VARIANTS_1, typeof QB_VARIANTS_2 === 'undefined' ? [] : QB_VARIANTS_2]
+    .flat().forEach(v => {
+      const base = byStem.get(v.ofTag + '|' + v.of);
+      if (!base) return;
+      const list = AUTHORED.get(base.id) || AUTHORED.set(base.id, []).get(base.id);
+      list.push({ ...base, id: `${base.id}~a${list.length}`, baseId: base.id, variant: 'authored', kind: v.kind, q: v.q, choices: v.choices, ans: v.ans, exp: v.exp });
+    });
+})();
+
 // Resolve taxonomy chips to keys that actually exist; unmapped tags go to an "Other" chip
 const KEY_COUNTS = {};
 QB.forEach(q => { KEY_COUNTS[q.key] = (KEY_COUNTS[q.key] || 0) + 1; });
@@ -271,7 +287,14 @@ const countKeys = keys => keys.reduce((n, k) => n + (KEY_COUNTS[k] || 0), 0);
 // ════════════════════════════════════════════════════════════════
 //  PASSAGES
 // ════════════════════════════════════════════════════════════════
-const ALL_PASSAGES = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES, ...OCHEM_PASSAGES, ...PHYSICS_PASSAGES, ...BEHAVIORAL_PASSAGES, ...CARS_PASSAGES, ...CARS_EXTRA, ...EXAM2_CARS_PASSAGES];
+const DATA_SETS = typeof DATA_PASSAGES === 'undefined' ? [] : DATA_PASSAGES;
+const ALL_PASSAGES = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES, ...OCHEM_PASSAGES, ...PHYSICS_PASSAGES, ...BEHAVIORAL_PASSAGES, ...DATA_SETS, ...CARS_PASSAGES, ...CARS_EXTRA, ...EXAM2_CARS_PASSAGES];
+const SKILL_LABEL = {
+  'SIRS 1': 'Skill 1: Knowledge of scientific concepts',
+  'SIRS 2': 'Skill 2: Scientific reasoning & problem solving',
+  'SIRS 3': 'Skill 3: Research design & execution',
+  'SIRS 4': 'Skill 4: Data-based & statistical reasoning',
+};
 const PASSAGE_BY_ID = new Map(ALL_PASSAGES.map(p => [p.id, p]));
 const EXAM_PASSAGE_IDS = new Set(FULL_EXAMS.flatMap(e => e.sections.flatMap(s => s.passageIds || [])));
 const PASSAGE_GROUPS = [
@@ -281,6 +304,7 @@ const PASSAGE_GROUPS = [
   { label: 'Organic Chemistry', test: id => id.startsWith('p_oc') },
   { label: 'Physics & Math', test: id => id.startsWith('p_ph') },
   { label: 'Psychology & Sociology', test: id => id.startsWith('p_bs') },
+  { label: 'Data & Reasoning (tables, research design, statistics)', test: id => id.startsWith('p_data') },
   { label: 'CARS — Set 1', test: id => id.startsWith('p_cars') },
   { label: 'CARS — Set 2', test: id => id.startsWith('p_e2cars') },
 ];
@@ -365,6 +389,7 @@ function itemPrior(q) {
   if ((q.q.match(/_{3,}/g) || []).length >= 2) b += 0.5;
   if (q.subj === 'equations') b += 0.3;
   if (q.variant === 'reverse') b += 0.2;
+  if (q.variant === 'authored') b += 0.4;
   return b;
 }
 function itemDifficulty(q, mem) {
@@ -595,7 +620,13 @@ function slotVariants(q) {
 // Every form a fact can be asked in: original, reversed, or one blank at a time
 function questionForms(q) {
   const base = QB_BY_ID.get(q.baseId || q.id) || q;
-  return [base, reverseVariant(base), ...slotVariants(base)].filter(Boolean);
+  return [base, reverseVariant(base), ...slotVariants(base), ...(AUTHORED.get(base.id) || [])].filter(Boolean);
+}
+// A different form of the same fact, preferring an authored angle (for review of lapsed cards)
+function alternateForm(q) {
+  const auth = AUTHORED.get(q.baseId || q.id);
+  if (auth && auth.length) return auth[Math.floor(Math.random() * auth.length)];
+  return reverseVariant(q);
 }
 
 // ── Wrong-choice confusion ──
@@ -674,7 +705,7 @@ function buildSmartSession(n) {
     .map(q => ({ q, m: mem[q.id], R: retrievability(mem[q.id], now) }))
     .sort((a, b) => (b.m.confidentMiss ? 1 : 0) - (a.m.confidentMiss ? 1 : 0) || a.R - b.R)
     .slice(0, Math.ceil(n * 0.45))
-    .forEach(x => add(x.m.lapses && Math.random() < 0.5 ? reverseVariant(x.q) || x.q : x.q,
+    .forEach(x => add(x.m.lapses && Math.random() < 0.6 ? alternateForm(x.q) || x.q : x.q,
       x.m.confidentMiss ? 'confident-miss' : x.m.lapses ? 'missed-before' : 'due'));
 
   // 2) Weakest high-yield topics: questions pitched closest to the target success rate (to ~80%)
@@ -921,6 +952,7 @@ function renderHome() {
   actions.push(`<button class="action-btn" ${due ? '' : 'disabled'} onclick="startDueReview()">Review due <b>${due}</b></button>`);
   actions.push(`<button class="action-btn" ${flagged ? '' : 'disabled'} onclick="startFlagged()">Flagged <b>${flagged}</b></button>`);
   actions.push(`<button class="action-btn" ${weak ? '' : 'disabled'} onclick="drillWeak()" title="Topics under 70% after at least 5 attempts">Drill weak topics <b>${weak}</b></button>`);
+  actions.push(`<button class="action-btn" onclick="startSpeedDrill()" title="${SPEED_N} facts you've learned, ${SPEED_SECONDS} seconds each: builds fast, automatic recall">⚡ Speed drill</button>`);
   actions.push(`<button class="action-btn" onclick="showProgress()">Score report</button>`);
   $('home-actions').innerHTML = actions.join('');
   $('home-score').innerHTML = scoreStrip() + planStrip();
@@ -1055,6 +1087,76 @@ function startSmartSession() {
   const items = buildSmartSession(n);
   if (items.length) beginQuiz(items, 'Smart Session', { adaptive: true });
 }
+// ── Speed drill ──
+// Fluency: facts you already know, against the clock, so recall becomes automatic
+// and frees time for passage reasoning. A timeout counts as a miss ("ran out of time").
+const SPEED_N = 20, SPEED_SECONDS = 20;
+function startSpeedDrill() {
+  const mem = loadMem(), now = Date.now();
+  const known = QB.filter(q => mem[q.id] && mem[q.id].seen && retrievability(mem[q.id], now) >= 0.6);
+  const items = known.length >= SPEED_N ? shuffled(known).slice(0, SPEED_N) : buildSmartSession(SPEED_N);
+  if (items.length) beginQuiz(items, 'Speed drill', { adaptive: false, speed: SPEED_SECONDS * 1000 });
+}
+function startSpeedTimer() {
+  stopSpeedTimer();
+  if (!quiz.speed) return;
+  quiz.speedTimer = setInterval(() => {
+    const left = quiz.speed - (Date.now() - quiz.qStart);
+    const fill = $('speed-fill');
+    if (fill) { fill.style.width = Math.max(0, (left / quiz.speed) * 100) + '%'; fill.classList.toggle('low', left < 5000); }
+    if (left <= 0) { stopSpeedTimer(); pick(null); }
+  }, 200);
+}
+function stopSpeedTimer() { if (quiz.speedTimer) clearInterval(quiz.speedTimer); quiz.speedTimer = null; }
+function recordFluency(q, ms) {
+  const d = disciplineOfRecall(q);
+  const fl = store.get(KEYS.fluency, {});
+  fl[d] = (fl[d] || []).concat(Math.round(ms)).slice(-60);
+  store.set(KEYS.fluency, fl);
+}
+const median = a => { const s = a.slice().sort((x, y) => x - y); return s.length ? s[Math.floor(s.length / 2)] : 0; };
+function fluencyCard() {
+  const rows = Object.entries(store.get(KEYS.fluency, {})).filter(([d, a]) => DISCIPLINES[d] && a.length >= 10)
+    .map(([d, a]) => ({ d, med: median(a), n: a.length })).sort((a, b) => b.med - a.med);
+  if (!rows.length) return '';
+  const max = Math.max(...rows.map(r => r.med), 20000);
+  return `<div class="results-card">
+    <div class="section-label">Recall speed <span class="muted">(median time on correct answers, last 60 per subject)</span></div>
+    ${rows.map(r => {
+      const col = r.med <= 12000 ? 'var(--green)' : r.med <= 20000 ? 'var(--amber)' : 'var(--red)';
+      return `<div class="subject-row"><div class="sr-name">${esc(DISCIPLINES[r.d])}</div>
+        <div class="sr-bar-wrap"><div class="sr-bar-fill" style="width:${(r.med / max) * 100}%;background:${col}"></div></div>
+        <div class="sr-pct">${(r.med / 1000).toFixed(1)}s</div><div class="sr-n">${r.n}</div></div>`;
+    }).join('')}
+    <p class="muted-note">A fact you know well should come back in about 10 seconds. Slow-but-right subjects cost time on test day: use the ⚡ Speed drill to make them automatic.</p>
+  </div>`;
+}
+
+// ── Study-habit nudges ──
+// Spaced practice beats marathon sessions: suggest a short break after ~45 minutes
+const studyClock = { start: 0, last: 0, nudged: false };
+function breakBanner() {
+  const now = Date.now();
+  if (!studyClock.start || now - studyClock.last > 10 * 60000) Object.assign(studyClock, { start: now, nudged: false });
+  studyClock.last = now;
+  if (studyClock.nudged || now - studyClock.start < 45 * 60000) return '';
+  return `<div class="break-banner" id="break-banner" role="status">☕ You've studied for ${Math.round((now - studyClock.start) / 60000)} minutes. A 5–10 minute break (stand up, look away from the screen) helps the last block stick.
+    <button class="micro-btn" onclick="dismissBreak()">Got it</button></div>`;
+}
+function dismissBreak() { studyClock.nudged = true; const b = $('break-banner'); if (b) b.remove(); }
+const STUDY_TIPS = [
+  'Testing yourself (what you just did) builds memory better than rereading notes. Keep most of your study time on questions.',
+  'Spacing beats cramming: a fact reviewed over several days lasts far longer than one drilled many times in one sitting. Trust the review schedule.',
+  'Mixing topics feels harder than blocking one topic at a time, but it is what prepares you to recognize which concept a question is testing.',
+  'After a miss, explain to yourself in one sentence why the right answer is right. Self-explanation turns a mistake into understanding.',
+  'Sleep consolidates what you studied today. A full night\'s sleep is part of your study plan, especially in the final weeks.',
+  'Turn on Recall first for topics you think you know: producing the answer before seeing choices is a stronger test than recognizing it.',
+  'For passages, read the question stem first if you tend to run long, and move on from any question past about 2 minutes. Come back to it at the end.',
+  'Review your full-length exams as carefully as you take them: the review is where most of the score gain happens.',
+  'Short daily sessions add up. 30 focused minutes every day beats a 4-hour session once a week.',
+];
+function studyTip() { return `<div class="tip-card">💡 <b>Study tip:</b> ${STUDY_TIPS[Math.floor(Math.random() * STUDY_TIPS.length)]}</div>`; }
+
 function startRecall() {
   const mix = prefs.mix || 'custom';
   if (mix !== 'custom') { beginQuiz(buildMix(mix, prefs.count || 59), PRACTICE_MIXES[mix].label); return; }
@@ -1094,7 +1196,7 @@ function retryMissed() {
 function beginQuiz(questions, label, opts = {}) {
   const items = questions.map(x => (x && x.q && x.choices === undefined ? makeView(x.q, x.reason) : makeView(x)));
   // Reinforcement (mastery loop, shaky repeats, confusion follow-ups) is on for every study session
-  Object.assign(quiz, { items, idx: 0, results: [], answered: false, startedAt: Date.now(), label, adaptive: opts.adaptive !== false, extras: 0, pending: null,
+  Object.assign(quiz, { items, idx: 0, results: [], answered: false, startedAt: Date.now(), label, adaptive: opts.adaptive !== false, speed: opts.speed || 0, extras: 0, pending: null,
     loop: new Map(), shakyDone: new Set(), lastForm: new Map(), cleared: 0 });
   show('screen-quiz');
   startQuizTimer();
@@ -1104,7 +1206,7 @@ function startQuizTimer() {
   stopQuizTimer();
   quiz.timer = setInterval(() => { $('qm-timer').textContent = fmtTime(Date.now() - quiz.startedAt); }, 1000);
 }
-function stopQuizTimer() { if (quiz.timer) clearInterval(quiz.timer); quiz.timer = null; }
+function stopQuizTimer() { if (quiz.timer) clearInterval(quiz.timer); quiz.timer = null; stopSpeedTimer(); }
 
 function choiceButtons(choices, onclick, opts = {}) {
   return choices.map((c, i) => `
@@ -1127,24 +1229,26 @@ function renderQuizQuestion() {
     ? `${REASONS.weak}: ${KEY_LABEL[q.key] || q.s}${(() => { const m = topicMastery(q.key); return m.p != null ? ` (${Math.round(m.p * 100)}% predicted)` : ''; })()}`
     : view.reason === 'loop' ? `${REASONS.loop} (${view.loopStreak || 0} of ${LOOP_TARGET} correct in a row)`
     : view.reason ? REASONS[view.reason] : '';
-  $('quiz-body').innerHTML = `
+  $('quiz-body').innerHTML = `${breakBanner()}
     <div class="question-box">
       <div class="q-toolbar">
-        <span class="q-tag">${esc(SUBJECT_LABEL[q.subj])} · ${esc(KEY_LABEL[q.key] || q.s)}</span>
+        <span class="q-tag">${esc(SUBJECT_LABEL[q.subj])} · ${esc(KEY_LABEL[q.key] || q.s)}${q.aamc ? ` · AAMC ${esc(q.aamc)}` : ''}</span>
         <button class="flag-btn${flagged ? ' on' : ''}" id="flag-btn" onclick="flagCurrent()" aria-pressed="${flagged}" title="Flag for later review (F)">⚑ ${flagged ? 'Flagged' : 'Flag'}</button>
       </div>
-      ${why || q.variant ? `<div class="q-reason">${q.variant ? '<span class="variant-pill">Asked a different way</span>' : ''}${why ? `<span>Why this question: ${esc(why)}</span>` : ''}</div>` : ''}
+      ${quiz.speed ? `<div class="speed-bar"><div class="speed-fill" id="speed-fill"></div></div>` : ''}
+      ${why || q.variant ? `<div class="q-reason">${q.variant ? `<span class="variant-pill">${q.variant === 'authored' ? `Applied: ${esc(VARIANT_KIND[q.kind] || 'new angle')}` : 'Asked a different way'}</span>` : ''}${why ? `<span>Why this question: ${esc(why)}</span>` : ''}</div>` : ''}
       <div class="question-text">${fmt(q.q)}</div>
     </div>
     <div class="choices" id="choices-area" role="group" aria-label="Answer choices">${choicesOrPrompt(view)}</div>
     <div id="exp-area"></div>
     <div id="nxt-area"></div>`;
   if ($('reveal-btn')) $('reveal-btn').focus({ preventScroll: true });
+  startSpeedTimer();
 }
 // Recall first: retrieving the answer before seeing options builds stronger memory
 // than recognizing it, so the choices stay hidden until you've thought of it
 function choicesOrPrompt(view) {
-  if (!prefs.recallFirst || view.revealed) return choiceButtons(view.choices, 'pick');
+  if (!prefs.recallFirst || view.revealed || quiz.speed) return choiceButtons(view.choices, 'pick');
   return `<div class="recall-first">
     <p><b>Recall first:</b> think of the answer, then show the choices.</p>
     <button class="next-btn" id="reveal-btn" onclick="revealChoices()">Show choices (Space)</button>
@@ -1154,6 +1258,7 @@ function revealChoices() {
   const view = quiz.items[quiz.idx];
   if (view.revealed) return;
   view.revealed = true;
+  view.revealedAt = Date.now();
   $('choices-area').innerHTML = choiceButtons(view.choices, 'pick');
 }
 function setRecallFirst(on) { prefs.recallFirst = !!on; savePrefs(); }
@@ -1165,19 +1270,23 @@ function flagCurrent() {
   btn.setAttribute('aria-pressed', on);
   btn.textContent = '⚑ ' + (on ? 'Flagged' : 'Flag');
 }
+// chosen === null: the speed-drill clock ran out
 function pick(chosen) {
   if (quiz.answered) return;
+  stopSpeedTimer();
   if (!$('cb-0')) revealChoices();
   quiz.answered = true;
   const view = quiz.items[quiz.idx];
-  const right = chosen === view.ans;
+  const timedOut = chosen == null;
+  const right = !timedOut && chosen === view.ans;
   const ms = Date.now() - quiz.qStart;
-  quiz.results.push({ view, chosen, right, ms });
+  quiz.results.push({ view, chosen: timedOut ? null : chosen, right, ms, timedOut });
   recordAnswer(view.q, right);
+  if (right) recordFluency(view.q, Date.now() - (view.revealedAt || quiz.qStart));
   // Memory and mastery are updated when you move on, so the confidence rating can count
-  const confusion = right ? null : confusionCard(view.choices[chosen], view.q);
-  quiz.pending = { q: view.q, right, ms, conf: null, confusion, chosen: view.choices[chosen], answer: view.choices[view.ans],
-    errType: right ? null : confusion ? 'confused' : null };
+  const confusion = right || timedOut ? null : confusionCard(view.choices[chosen], view.q);
+  quiz.pending = { q: view.q, right, ms, conf: null, confusion, chosen: timedOut ? '(time ran out)' : view.choices[chosen], answer: view.choices[view.ans],
+    errType: right ? null : timedOut ? 'time' : confusion ? 'confused' : null, note: '' };
   view.choices.forEach((_, i) => {
     const b = $('cb-' + i);
     b.disabled = true;
@@ -1186,7 +1295,8 @@ function pick(chosen) {
   });
   $('qm-score').textContent = `✓ ${quiz.results.filter(r => r.right).length}/${quiz.results.length}`;
   $('exp-area').innerHTML = explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Recall · ${view.q.s}`, view.q.q),
-    confusion ? `You chose <b>${fmt(view.choices[chosen])}</b>. ${fmt(meaningOf(confusion))}` : '');
+    timedOut ? `Time ran out (${SPEED_SECONDS} seconds). A fact you know well should come back faster: this one is now due for review.`
+      : confusion ? `You chose <b>${fmt(view.choices[chosen])}</b>. ${fmt(meaningOf(confusion))}` : '');
   renderNextArea();
   $('next-btn').focus({ preventScroll: true });
 }
@@ -1200,6 +1310,8 @@ function renderNextArea() {
       ${CONFIDENCE.map(([id, label, key]) => `<button class="conf-btn${conf === id ? ' on' : ''}" data-conf="${id}" onclick="setConfidence('${id}')" aria-pressed="${conf === id}" title="Key: ${key}">${label}</button>`).join('')}
     </div>
     ${p && !p.right ? errorTypeRow(p.errType, 'setErrType') : ''}
+    ${p && !p.right ? `<label class="explain-it">Explain it <span class="muted">(optional)</span>: in one sentence, why is the right answer right?
+      <textarea id="explain-input" rows="2" maxlength="300" oninput="if(quiz.pending)quiz.pending.note=this.value">${esc(p.note || '')}</textarea></label>` : ''}
     <button class="next-btn" id="next-btn" onclick="nextQ()">${last && !quiz.adaptive ? 'See results →' : 'Next →'}</button>
     <div class="kb-hint">Keys: 1–4 or A–D to answer · G / U / K for confidence · Enter for next · F to flag</div>`;
 }
@@ -1227,7 +1339,8 @@ function commitPending() {
   if (!p) return;
   quiz.pending = null;
   updateMemory(p.q, p.right, p.conf, p.ms);
-  if (!p.right) logError({ id: p.q.baseId || p.q.id, disc: disciplineOfRecall(p.q), key: p.q.key, type: p.errType || 'unlabeled', chosen: p.chosen, answer: p.answer, src: 'recall' });
+  if (!p.right) logError({ id: p.q.baseId || p.q.id, disc: disciplineOfRecall(p.q), key: p.q.key, type: p.errType || 'unlabeled', chosen: p.chosen, answer: p.answer, src: 'recall',
+    ...(p.note && p.note.trim() ? { note: p.note.trim().slice(0, 300) } : {}) });
   if (!quiz.adaptive) return;
   const baseId = p.q.baseId || p.q.id;
   const base = QB_BY_ID.get(baseId);
@@ -1318,6 +1431,7 @@ function showQuizResults() {
       <div class="score-pct" style="color:${color}">${p}%</div>
       <div class="score-grade" style="color:${color}">${grade}</div>
       <div class="score-sub">${cor} of ${tot} correct · ${fmtTime(sessionMs)} total · ${Math.round(avg / 1000)}s per question</div>
+      ${quiz.speed ? `<div class="score-sub reinforce">⚡ Median ${(median(res.filter(r => r.right).map(r => r.ms)) / 1000).toFixed(1)}s on correct answers · ${res.filter(r => r.timedOut).length} timed out. Missed and timed-out facts are now due for review.</div>` : ''}
       ${quiz.cleared || quiz.loop.size ? `<div class="score-sub reinforce">Reinforced: <b>${quiz.cleared}</b> missed ${quiz.cleared === 1 ? 'fact' : 'facts'} drilled to ${LOOP_TARGET} correct in a row${quiz.loop.size ? ` · <b>${quiz.loop.size}</b> still shaky (they'll come back soon in review)` : ''}</div>` : ''}
     </div>
     <div class="results-card">
@@ -1325,6 +1439,7 @@ function showQuizResults() {
       ${Object.entries(bySubj).map(([s, v]) => barRow(SUBJECT_LABEL[s], v.c, v.t)).join('')}
       <p class="muted-note">A single session is too small to score. Your answers feed the running MCAT estimate below, which uses all your recall, passage and full-length results.</p>
     </div>
+    ${studyTip()}
     ${scoreStrip()}
     <div class="btn-row">
       ${missed.length ? `<button class="new-quiz-btn" onclick="retryMissed()">Retry ${plural(missed.length, 'missed question')}</button>` : ''}
@@ -1367,7 +1482,7 @@ function exportMissed() {
   missed.forEach((r, i) => {
     const q = r.view.q;
     lines.push(`${i + 1}. [${SUBJECT_LABEL[q.subj]} · ${q.s}]`, `Q: ${q.q.replace(/_{3,}/g, '____')}`,
-      `Correct: ${r.view.choices[r.view.ans]}`, `Your answer: ${r.view.choices[r.chosen]}`, `Why: ${q.exp.replace(/\*\*/g, '')}`, '');
+      `Correct: ${r.view.choices[r.view.ans]}`, `Your answer: ${r.timedOut ? '(time ran out)' : r.view.choices[r.chosen]}`, `Why: ${q.exp.replace(/\*\*/g, '')}`, '');
   });
   download(`MCAT_missed_${new Date().toISOString().slice(0, 10)}.txt`, lines.join('\n'));
 }
@@ -1548,6 +1663,7 @@ function mistakeCard() {
   });
   const topPairs = Object.entries(pairs).sort((a, b) => b[1] - a[1]).slice(0, 6);
   const label = t => (ERROR_TYPES.find(x => x[0] === t) || [t, t])[1];
+  const notes = log.filter(e => e.note).slice(-8).reverse();
   return `<div class="results-card">
     <div class="section-label">Mistake patterns <span class="muted">(${log.length} misses logged · ${labeled.length} with a reason)</span></div>
     ${top.length ? `${top.map(([t, n]) => barRow(label(t), n, labeled.length)).join('')}
@@ -1557,6 +1673,8 @@ function mistakeCard() {
         return `<span class="m-chip">${esc(DISCIPLINES[d] || d)}: mostly <b>${esc(label(t).toLowerCase())}</b> (${n})</span>`;
       }).join('')}</div>` : '<p class="muted-note">Tap a reason under each missed question ("Didn\'t know it", "Mixed it up"…) to see your patterns here.</p>'}
     ${topPairs.length ? `<div class="sw-head">Most-confused pairs</div><div class="disc-patterns">${topPairs.map(([k, n]) => `<span class="m-chip lvl-building">${fmt(k)}${n > 1 ? ` ×${n}` : ''}</span>`).join('')}</div>` : ''}
+    ${notes.length ? `<div class="sw-head">Your explanations <span class="muted">(most recent)</span></div><ul class="explain-notes">${notes.map(e => `<li><b>${fmt(String(e.answer))}</b>: ${esc(e.note)}</li>`).join('')}</ul>
+      <p class="muted-note">Reread these before a full-length exam. If one no longer makes sense, that fact needs another look.</p>` : ''}
   </div>`;
 }
 
@@ -1652,25 +1770,33 @@ function aamcOfKey(key) {
   }
   return keyAamc[key] || null;
 }
+// A question's own category tag wins over its topic's primary category
+function aamcOf(q) { return q.aamc || aamcOfKey(q.key); }
 function aamcCard() {
   const mast = store.get(KEYS.mastery, {});
   const mem = loadMem();
   const agg = {};
   QB.forEach(q => {
-    const c = aamcOfKey(q.key);
+    const c = aamcOf(q);
     if (!c) return;
-    const a = agg[c] = agg[c] || { total: 0, seen: 0, keys: new Set() };
+    const a = agg[c] = agg[c] || { total: 0, seen: 0, keys: new Set(), tagged: 0, w: 0, n: 0 };
     a.total++;
-    if (mem[q.id] && mem[q.id].seen) a.seen++;
     a.keys.add(q.key);
+    const m = mem[q.id];
+    if (m && m.seen) a.seen++;
+    // Per-question tags: estimate from each answered question's current recall chance
+    if (q.aamc) { a.tagged++; if (m && m.seen) { a.n++; a.w += retrievability(m) * (m.lapses ? 0.85 : 1); } }
   });
   const level = a => {
     let n = 0, w = 0;
-    a.keys.forEach(k => { const t = mast[k]; if (t) { n += t.n; w += sigmoid(t.r) * t.n; } });
+    if (a.tagged > a.total / 2) { n = a.n; w = a.w; }
+    else a.keys.forEach(k => { const t = mast[k]; if (t) { n += t.n; w += sigmoid(t.r) * t.n; } });
     if (n < 5) return { level: 'new', p: null };
     const p = w / n;
     return { p, level: p < 0.6 ? 'weak' : p < 0.75 ? 'building' : p < 0.9 ? 'solid' : 'mastered' };
   };
+  const psTagged = QB.filter(q => q.subj === 'behavioral' && q.aamc).length;
+  const psTotal = QB.filter(q => q.subj === 'behavioral').length;
   return `<div class="results-card">
     <div class="section-label">AAMC content categories <span class="muted">(each topic mapped to its primary category)</span></div>
     <table class="aamc">${AAMC_CATEGORIES.map(([code, name]) => {
@@ -1682,7 +1808,7 @@ function aamcCard() {
         <td><span class="m-chip lvl-${lv.level}">${lv.p != null ? Math.round(lv.p * 100) + '%' : 'No data'}</span>
           <button class="micro-btn" onclick="drillCategory('${code}')">Drill</button></td></tr>`;
     }).join('')}</table>
-    <p class="muted-note">Psychology and sociology recall questions are tagged broadly, so 7B, 7C, 8A, 8C and 9A–10A content sits mostly under 7A and 8B here.</p>
+    ${psTagged < psTotal ? '<p class="muted-note">Some psychology and sociology recall questions are tagged by topic only, so part of their 7B–10A content is counted under 7A and 8B.</p>' : '<p class="muted-note">Psychology and sociology questions are tagged one by one to their AAMC category; science questions use their topic\'s primary category.</p>'}
   </div>`;
 }
 // ── Study plan to the test date ──
@@ -1797,7 +1923,7 @@ function savePlan() {
 }
 function clearPlan() { store.del(KEYS.plan); showPlan(); }
 function drillCategory(code) {
-  const pool = QB.filter(q => aamcOfKey(q.key) === code);
+  const pool = QB.filter(q => aamcOf(q) === code);
   if (pool.length) beginQuiz(pickQuestions(pool, prefs.count || 20), `AAMC ${code}`);
 }
 
@@ -1823,6 +1949,7 @@ function showProgress() {
     ${aamcCard()}
     ${mistakeCard()}
     ${calibrationCard()}
+    ${fluencyCard()}
     ${html || '<div class="results-card"><p class="muted-note">No recall answers recorded yet. Finish a few questions and your progress will appear here.</p></div>'}
     ${examHistoryCard()}
     <div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div>
@@ -1864,20 +1991,54 @@ function renderPassageSelector() {
       </div></div>`).join('')}`;
 }
 function selectPassage(id) { selectedPassageId = id; renderPassageSelector(); }
+// Next passage of the same kind you haven't tried yet (or simply the next one)
+function nextPassage() {
+  const pstats = store.get(KEYS.passages, {});
+  const g = PASSAGE_GROUPS.find(x => x.test(pq.p.id));
+  const i = ALL_PASSAGES.indexOf(pq.p);
+  const after = [...ALL_PASSAGES.slice(i + 1), ...ALL_PASSAGES.slice(0, i)];
+  const next = after.find(p => g && g.test(p.id) && !pstats[p.id]) || after.find(p => g && g.test(p.id)) || after[0];
+  selectedPassageId = next.id;
+  startPassage();
+}
 function startPassage() {
   const p = PASSAGE_BY_ID.get(selectedPassageId);
   if (!p) return;
-  Object.assign(pq, { p, idx: 0, views: p.questions.map(makeView), results: [], answered: false, startedAt: Date.now() });
+  // AAMC pace: 95 min / 59 science questions ≈ 95 s; 90 min / 53 CARS questions ≈ 102 s
+  const perQ = /^p_(cars|e2cars)/.test(p.id) ? 102 : 95;
+  Object.assign(pq, { p, idx: 0, views: p.questions.map(makeView), results: [], answered: false, startedAt: Date.now(), qStart: Date.now(), targetMs: perQ * 1000 * p.questions.length });
   show('screen-passage');
-  $('pp-passage-box').innerHTML = passageCard(p.topic || '', p.title, p.passage);
+  $('pp-passage-box').innerHTML = passageCard(p.topic || '', p.title, p.passage, p.figure);
   renderPassageQuestion();
+  stopPassageTimer();
+  pq.timer = setInterval(updatePassageTimer, 1000);
+  updatePassageTimer();
 }
-function passageCard(topic, title, text) {
+function updatePassageTimer() {
+  const el = $('pp-timer');
+  if (!el || activeScreen !== 'screen-passage') { stopPassageTimer(); return; }
+  const used = Date.now() - pq.startedAt;
+  el.textContent = `${fmtTime(used)} / ${fmtTime(pq.targetMs)}`;
+  el.title = 'Time used / AAMC pace for this passage';
+  el.className = 'qm-timer' + (used > pq.targetMs ? ' danger' : used > pq.targetMs * 0.85 ? ' warn' : '');
+}
+function stopPassageTimer() { if (pq.timer) clearInterval(pq.timer); pq.timer = null; }
+function passageCard(topic, title, text, figure) {
   return `<div class="passage-card">
     ${topic ? `<div class="passage-topic">${esc(topic)}</div>` : ''}
     <div class="passage-title">${esc(title)}</div>
     <div class="passage-text">${paragraphs(text)}</div>
+    ${figure ? figureHtml(figure) : ''}
   </div>`;
+}
+// Data tables for reasoning passages: {caption, columns, rows}
+function figureHtml(fig) {
+  if (!fig || !Array.isArray(fig.columns)) return '';
+  return `<figure class="data-figure">
+    <table><thead><tr>${fig.columns.map(c => `<th>${fmt(c)}</th>`).join('')}</tr></thead>
+      <tbody>${(fig.rows || []).map(r => `<tr>${r.map(c => `<td>${fmt(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>
+    ${fig.caption ? `<figcaption>${fmt(fig.caption)}</figcaption>` : ''}
+  </figure>`;
 }
 function renderPassageQuestion() {
   pq.answered = false;
@@ -1886,8 +2047,9 @@ function renderPassageQuestion() {
   $('pp-counter').textContent = `${pq.idx + 1} / ${tot}`;
   $('pp-subject').textContent = pq.p.title;
   $('pp-score').textContent = `✓ ${pq.results.filter(r => r.right).length}/${pq.results.length}`;
-  $('pp-question-box').innerHTML = `
-    <div class="question-box"><div class="q-toolbar"><span class="q-tag">Question ${pq.idx + 1} of ${tot}</span></div>
+  pq.qStart = Date.now();
+  $('pp-question-box').innerHTML = `${breakBanner()}
+    <div class="question-box"><div class="q-toolbar"><span class="q-tag">Question ${pq.idx + 1} of ${tot}${view.q.skill ? ` · ${esc(SKILL_LABEL[view.q.skill] || view.q.skill)}` : ''}</span></div>
       <div class="question-text">${fmt(view.q.q)}</div></div>
     <div class="choices">${choiceButtons(view.choices, 'answerPassage', { prefix: 'pc' })}</div>
     <div id="pp-exp"></div><div id="pp-next"></div>`;
@@ -1897,8 +2059,9 @@ function answerPassage(chosen) {
   pq.answered = true;
   const view = pq.views[pq.idx];
   const right = chosen === view.ans;
-  pq.results.push({ view, chosen, right });
+  pq.results.push({ view, chosen, right, ms: Date.now() - pq.qStart });
   recordEvidence('passage', disciplineOfPassage(pq.p, view.q), right);
+  if (view.q.skill) recordEvidence('skill', view.q.skill, right);
   countAnswerToday();
   pq.errPending = right ? null : { id: `${pq.p.id}#${pq.idx}`, disc: disciplineOfPassage(pq.p, view.q), key: null, type: null,
     chosen: view.choices[chosen], answer: view.choices[view.ans], src: 'passage' };
@@ -1939,6 +2102,12 @@ function showPassageResults() {
   store.set(KEYS.passages, pstats);
   const missed = pq.results.filter(r => !r.right);
   const color = p >= 80 ? 'var(--green)' : p >= 60 ? 'var(--amber)' : 'var(--red)';
+  stopPassageTimer();
+  const used = Date.now() - pq.startedAt, target = pq.targetMs;
+  const paceMsg = used <= target
+    ? `On pace: ${fmtTime(used)} vs. the AAMC pace of ${fmtTime(target)}.`
+    : `Over pace by ${fmtTime(used - target)} (${fmtTime(used)} vs. ${fmtTime(target)}). On test day, aim to read the passage once and move on from any question that runs long.`;
+  const slow = pq.results.map((r, i) => ({ i, ms: r.ms || 0 })).filter(r => r.ms > target / tot * 1.5);
   $('pp-fill').style.width = '100%';
   $('pp-passage-box').innerHTML = '';
   $('pp-question-box').innerHTML = `
@@ -1947,12 +2116,16 @@ function showPassageResults() {
       <div class="score-pct" style="color:${color}">${p}%</div>
       <div class="score-sub">${cor} / ${tot} correct · ${esc(pq.p.title)}</div>
     </div>
+    <div class="results-card"><div class="section-label">Pacing</div>
+      <p class="muted-note">${paceMsg}${slow.length ? ` Slowest: ${slow.map(s => `Q${s.i + 1} (${fmtTime(s.ms)})`).join(', ')}.` : ''}</p>
+    </div>
     <div class="results-card"><div class="section-label">Missed questions</div>
       ${missed.length ? missed.map(r => reviewItem({ stem: r.view.q.q, choices: r.view.choices, ans: r.view.ans, chosen: r.chosen, exp: r.view.q.exp })).join('')
         : '<div class="all-correct">✓ Perfect — no missed questions.</div>'}
     </div>
     <div class="btn-row">
       <button class="new-quiz-btn" onclick="startPassage()">Retry passage</button>
+      <button class="new-quiz-btn secondary" onclick="nextPassage()">Next passage →</button>
       <button class="new-quiz-btn secondary" onclick="goHome()">Home</button>
     </div>
     ${(snapshotEstimate(), scoreStrip())}`;
@@ -2375,6 +2548,7 @@ function examHistoryCard() {
 // ════════════════════════════════════════════════════════════════
 function showAbout() {
   stopQuizTimer();
+  stopPassageTimer();
   show('screen-about');
   const link = (href, text) => `<a href="${href}" target="_blank" rel="noopener">${text}</a>`;
   $('about-body').innerHTML = `
@@ -2402,14 +2576,14 @@ function showAbout() {
       <h2>Sources &amp; credits</h2>
       <ul>
         <li><b>Recall questions</b> are derived from the <b>MCAT Milesdown</b> Anki deck by MileDown (${link('https://ankiweb.net/shared/info/178384887', 'AnkiWeb shared deck 178384887')}, 2,884 notes, last updated May 2020). Its cloze cards were converted to multiple choice and substantially edited and corrected for this app. Credit for the original cards belongs to their creator. MileDown has no affiliation with this app and has not reviewed or endorsed it. To study the original cards with images and video links, download the deck from AnkiWeb. If you created the original decks and would like the credit worded differently, or the material changed or removed, please ${link(REPO_URL + '/issues', 'open an issue')}.</li>
-        <li><b>Passages, CARS passages and full-length exam questions</b> are original to this app.</li>
+        <li><b>Passages, CARS passages, data &amp; reasoning sets (with their fictional studies and data), "applied" question variants and full-length exam questions</b> are original to this app.</li>
         <li><b>Percentile ranks and section content shares</b> are taken from published AAMC information, credited above.</li>
       </ul>
 
       <h2>License</h2>
       <p>The app's code and original content are licensed under ${link('https://creativecommons.org/licenses/by-nc/4.0/', 'Creative Commons BY-NC 4.0')}. You may share and adapt them for non-commercial purposes with attribution. Third-party material, including the original MileDown cards, remains subject to its owners' terms.</p>
 
-      <p class="muted-note">Version 2.5 · Last updated October 2026</p>
+      <p class="muted-note">Version 2.6 · Last updated October 2026</p>
     </div>
     <div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div>`;
 }

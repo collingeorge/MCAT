@@ -1,5 +1,5 @@
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-![Version](https://img.shields.io/badge/Version-2.5-blue.svg)
+![Version](https://img.shields.io/badge/Version-2.6-blue.svg)
 ![Last Updated](https://img.shields.io/badge/Updated-Oct_2026-purple.svg)
 
 # MCAT Study App
@@ -18,7 +18,7 @@ It sits between Anki (pure recall) and UWorld (full exam simulation). You get fa
 | Mode | Content |
 |---|---|
 | **Recall** | 2,807 questions derived from the [MCAT Milesdown](https://ankiweb.net/shared/info/178384887) Anki deck, rewritten as 4-option multiple choice with explanations, including 105 Essential Equations, constants and units |
-| **Passages** | 54 passages / 257 questions: 30 science passages and 24 original CARS passages |
+| **Passages** | 78 passages / 353 questions: 30 science passages, 24 data & reasoning sets with tables, and 24 original CARS passages |
 | **Full-length** | 2 timed exams, each 230 questions: C/P 59 · CARS 53 · B/B 59 · P/S 59, with real section times and breaks |
 
 ### Recall bank by subject
@@ -47,9 +47,17 @@ It sits between Anki (pure recall) and UWorld (full exam simulation). You get fa
 - **Drill until it sticks (mastery loop).** In every study session, a question you miss keeps coming back a few questions later until you answer it correctly twice in a row. It's asked in a different form each time when one exists. Facts that are still shaky at the end of a session become top priority for your next review.
 - **Repeat shaky answers.** If you got it right but guessed, weren't sure, or took a long time, the question comes back once later in the session to confirm it stuck.
 - **Learn from your wrong choice.** If the answer you picked is the answer to a different question (for example, picking *transformation* when the answer was *transduction*), the explanation tells you what your choice actually means. That other question then comes up next, so you learn to tell the two apart.
-- **Asked a different way.** 718 facts have an automatic alternate form, for 3,630 ways to ask the 2,807 facts:
+- **Asked a different way.** There are 3,957 ways to ask the 2,807 facts:
+  - 327 high-yield facts have a hand-written **applied** version: a clinical or lab scenario, a prediction ("what happens if…"), or a NOT/EXCEPT question. Recalling a definition is not the same as using it, and the MCAT asks you to use it;
   - 565 definition questions can be reversed: the app shows the term and asks which description fits, with wrong answers drawn from definitions in the same topic;
   - multi-blank questions can be asked one blank at a time, with the other blanks filled in.
+
+  Facts you've missed before come back in a different form when they're due, so you can't pass by recognizing the wording.
+- **Data & reasoning sets.** 24 original experiments with data tables (4 per science discipline, plus psychology and sociology) test the AAMC's scientific reasoning skills: predicting from data (Skill 2), research design, controls and confounds (Skill 3), and reading trends, calculations and statistics (Skill 4). Each question shows the skill it tests.
+- **Pacing.** Passage mode shows your time against the AAMC pace (about 95 seconds per science question and 102 per CARS question), and the results show whether you were on pace and which questions ran long.
+- **⚡ Speed drill.** 20 facts you've already learned, 20 seconds each. A timeout counts as a miss, so slow facts come back for review. The Score report shows your median recall time per subject: fast recall leaves more time for passage reasoning.
+- **Explain it.** After a miss you can write one sentence on why the right answer is right. Self-explanation turns a mistake into understanding, and your notes appear in the mistake log for review before an exam.
+- **Study-habit nudges.** A break reminder after 45 minutes of continuous study, and an evidence-based study tip on each results screen.
 - **Recall first (optional).** Hide the answer choices until you've thought of the answer (Space to reveal). Producing an answer from memory builds stronger retention than recognizing it in a list.
 - **Mistake log.** After a miss, tap why: didn't know it, mixed it up, misread, calculation slip, or ran out of time. The Score report shows your patterns overall and by subject, your most-confused pairs (for example transduction ↔ transformation), and targeted advice. Passage mode is included.
 - **Confidence calibration.** Shows how often your "Knew it", "Unsure" and "Guessed" answers are actually right in each subject, and flags where you're overconfident (the costliest pattern) or underconfident.
@@ -58,7 +66,7 @@ It sits between Anki (pure recall) and UWorld (full exam simulation). You get fa
   - sets a daily question target (new plus due), and sizes the Smart Session to what's left for today;
   - tracks whether you're on pace;
   - schedules full-length exams: this app's two first, then the AAMC's four official exams weekly in the final month, always at least 3 days apart.
-- **AAMC content categories.** Every topic is mapped to its primary AAMC content category (1A–10A, plus scientific reasoning skills), with coverage, mastery, and a one-click drill per category. The map also shows categories that recall questions don't cover.
+- **AAMC content categories.** Every psychology and sociology question is tagged individually to its AAMC content category (6A–10A); science questions use their topic's primary category (1A–5E, plus scientific reasoning skills). The map shows coverage, mastery and a one-click drill per category, and lists categories that recall questions don't cover.
 - **Study your exam mistakes.** Full-length exams don't adapt while you take them, just like the real MCAT. Afterward, one click builds a reinforcement session from the subjects you missed, weighted by how many you missed in each.
 - **Topic mastery map.** Every subtopic is rated as weak, building, solid or mastered, with the next recommended focus. Ratings weigh harder questions more and recent answers most.
 - **Shuffled answers.** Choice order is randomized every time, so you learn the content, not the letter position.
@@ -109,6 +117,7 @@ In October 2026 the full bank (every recall question, passage and exam item) was
 - **Explanations rewritten** for every recall question.
 - **CARS:** both exams use 9 passages and 53 questions, as on the real test. Answer keys are no longer the longest choice by default.
 - Sleep staging uses N1/N2/N3/REM, and psychiatric terms follow DSM-5-TR.
+- **Follow-up review (v2.6):** every item flagged for a subject-matter check was resolved against references (Lehninger, Kaplan, the AAMC outline, primary literature). 15 were corrected, for example the PNH "nocturnal" stem, oxide solubility exceptions, and mismatch-repair timing. Where the standard MCAT-prep answer simplifies the science, the explanation now says so.
 
 Found something that still looks wrong? Use **Report a problem** under the explanation, or [open an issue](https://github.com/collingeorge/MCAT/issues).
 
@@ -121,8 +130,9 @@ index.html            App shell
 css/styles.css        Styles
 js/app.js             All app logic (quiz, passages, exams, spaced repetition, stats)
 data/                 Question data, one file per subject or exam section
-  qb-*.js             Recall questions  {s: tag, q, choices[4], ans, exp}
-  passages-*.js       Passage-mode passages  {id, title, topic, passage, questions[]}
+  qb-*.js             Recall questions  {s: tag, aamc?, q, choices[4], ans, exp}
+  qb-variants-*.js    Applied variants, linked to a recall question by its exact tag + stem  {ofTag, of, kind, q, choices, ans, exp}
+  passages-*.js       Passage-mode passages  {id, title, topic, passage, figure?, questions[]}  (data sets: questions carry skill: 'SIRS 2'–'SIRS 4')
   exam1.js, exam2-*.js, exams.js   Full-length exam sections and definitions
 sw.js, manifest.webmanifest, icon.svg   Offline support / installable app
 tools/validate.html   Data checker (structure, duplicate choices, broken cloze keys, letter references, giveaways)
@@ -142,7 +152,7 @@ tools/serve.ps1       Tiny local web server for development
 ---
 
 ## Source material
-The recall questions are derived from the [**MCAT Milesdown** Anki deck by MileDown](https://ankiweb.net/shared/info/178384887) (AnkiWeb shared deck 178384887, 2,884 cloze notes, last updated May 2020). They were converted to multiple choice and substantially edited for accuracy. Credit for the original cards belongs to their creator, and MileDown is not affiliated with this project. All passages, CARS passages and full-length exam items are original.
+The recall questions are derived from the [**MCAT Milesdown** Anki deck by MileDown](https://ankiweb.net/shared/info/178384887) (AnkiWeb shared deck 178384887, 2,884 cloze notes, last updated May 2020). They were converted to multiple choice and substantially edited for accuracy. Credit for the original cards belongs to their creator, and MileDown is not affiliated with this project. All passages, CARS passages, data sets (fictional studies), applied variants and full-length exam items are original.
 
 ## Privacy
 The app collects no personal information. There are no accounts and no analytics, ads or tracking cookies. Progress is stored only in your browser's local storage on your own device, and you can erase it from **Score report → Reset all progress**. The site is hosted on GitHub Pages, which may keep standard server logs under the [GitHub Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement). "Report a problem" opens a **public** GitHub issue.
@@ -154,7 +164,7 @@ For MCAT study only. This is not medical, clinical or psychological advice. Cont
 The app's code and original content are licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/): free to share and adapt with attribution, but not for commercial use. Third-party material, including the original MileDown cards, remains subject to its owners' terms.
 
 ## Citation
-George, C. B. (2026). *MCAT Study App* (Version 2.5). https://github.com/collingeorge/MCAT
+George, C. B. (2026). *MCAT Study App* (Version 2.6). https://github.com/collingeorge/MCAT
 
 ---
 *For MCAT practice only. MCAT® is a registered trademark of the Association of American Medical Colleges (AAMC), which does not endorse this project. Not affiliated with the AAMC or MileDown.*

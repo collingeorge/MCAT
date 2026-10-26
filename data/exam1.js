@@ -489,7 +489,7 @@ A mutant lysozyme with a disulfide bond between residues 3 and 97 (wild-type lac
 
 For lead (Pb, Z = 82), the Kα emission (L→K transition) occurs at 72.8 keV, making XRF highly selective for Pb. In the K-XRF method used in occupational lead exposure assessment, the 109Cd source irradiates the tibia, and the detector measures the Pb Kα peak intensity, which is proportional to bone lead concentration.
 
-A 52-year-old former smelter worker undergoes bone XRF. His tibial lead concentration is 58 μg Pb/g bone mineral (reference < 10 μg/g). Blood lead level is 22 μg/dL. The clinician explains that bone lead represents cumulative lifetime exposure (half-life in cortical bone: ~10 years) while blood lead reflects recent exposure.
+A 52-year-old former smelter worker undergoes bone XRF. His tibial lead concentration is 58 μg Pb/g bone mineral (reference < 10 μg/g). Blood lead level is 22 μg/dL. The clinician explains that bone lead represents cumulative lifetime exposure (half-life in cortical bone: roughly 10–30 years; 10 years is used for this patient's estimates) while blood lead reflects recent exposure.
 
 A separate study used XRF to detect zinc (Zn, Z = 30) in metallothionein-bound protein fractions. Zinc's Kα emission energy is 8.6 keV — much lower than Pb's because zinc's smaller nuclear charge (Z = 30 vs. 82) binds its inner-shell electrons far less tightly, giving a smaller K–L energy gap.`,
   questions:[

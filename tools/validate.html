@@ -28,6 +28,9 @@
 <script src="../data/qb-behavioral-2.js"></script>
 <script src="../data/passages-science.js"></script>
 <script src="../data/passages-cars.js"></script>
+<script src="../data/passages-data.js"></script>
+<script src="../data/qb-variants-1.js"></script>
+<script src="../data/qb-variants-2.js"></script>
 <script src="../data/exam1.js"></script>
 <script src="../data/exam2-cp.js"></script>
 <script src="../data/exam2-bb.js"></script>
@@ -99,14 +102,58 @@
     rows.push([name, arr.length, ansDist.join(' / ')]);
   }
 
+  // AAMC content-category tags (optional per question)
+  const AAMC_CODES = new Set(['1A','1B','1C','1D','2A','2B','2C','3A','3B','4A','4B','4C','4D','4E','5A','5B','5C','5D','5E','6A','6B','6C','7A','7B','7C','8A','8B','8C','9A','9B','10A','SIRS']);
+  Object.entries(banks).forEach(([name, arr]) => arr.forEach((q, i) => {
+    if (q.aamc !== undefined && !AAMC_CODES.has(q.aamc)) err(`${name}[${i}]`, `unknown aamc code "${q.aamc}"`);
+  }));
+  ['QB_BEHAVIORAL_1', 'QB_BEHAVIORAL_2'].forEach(n => {
+    const missing = banks[n].filter(q => !q.aamc).length;
+    if (missing) warn(n, `${missing} questions without an aamc tag`);
+  });
+
+  // Authored variants: each must link to an existing base question by exact tag + stem
+  const byStem = new Map();
+  Object.values(banks).forEach(arr => arr.forEach(q => byStem.set(q.s + '|' + q.q, q)));
+  const variantRows = [];
+  [['QB_VARIANTS_1', typeof QB_VARIANTS_1 === 'undefined' ? null : QB_VARIANTS_1], ['QB_VARIANTS_2', typeof QB_VARIANTS_2 === 'undefined' ? null : QB_VARIANTS_2]].forEach(([name, arr]) => {
+    if (!arr) return warn(name, 'not loaded');
+    const kinds = {};
+    arr.forEach((v, i) => {
+      const where = `${name}[${i}]`;
+      if (!byStem.has(v.ofTag + '|' + v.of)) err(where, `base not found: [${v.ofTag}] ${short(v.of)}`);
+      if (!['application', 'prediction', 'scenario', 'except'].includes(v.kind)) warn(where, `unknown kind "${v.kind}"`);
+      kinds[v.kind] = (kinds[v.kind] || 0) + 1;
+      checkQuestion(where, v);
+      const base = byStem.get(v.ofTag + '|' + v.of);
+      if (base && v.q.trim().toLowerCase() === base.q.trim().toLowerCase()) err(where, 'variant stem identical to base');
+    });
+    variantRows.push([name, arr.length, Object.entries(kinds).map(([k, n]) => `${k} ${n}`).join(', ')]);
+  });
+
   // Passages
-  const passages = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES, ...OCHEM_PASSAGES, ...PHYSICS_PASSAGES, ...BEHAVIORAL_PASSAGES, ...CARS_PASSAGES, ...CARS_EXTRA, ...EXAM2_CARS_PASSAGES];
+  const dataSets = typeof DATA_PASSAGES === 'undefined' ? (warn('DATA_PASSAGES', 'not loaded'), []) : DATA_PASSAGES;
+  const passages = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES, ...OCHEM_PASSAGES, ...PHYSICS_PASSAGES, ...BEHAVIORAL_PASSAGES, ...dataSets, ...CARS_PASSAGES, ...CARS_EXTRA, ...EXAM2_CARS_PASSAGES];
+  const SKILLS = new Set(['SIRS 1', 'SIRS 2', 'SIRS 3', 'SIRS 4']);
+  const DISCS = new Set(['biochemistry', 'biology', 'gen_chem', 'organic_chem', 'physics', 'psych_soc', 'research']);
   const ids = new Set();
   const passageRows = [];
   passages.forEach(p => {
     if (ids.has(p.id)) err(p.id, 'duplicate passage id'); ids.add(p.id);
     if (!p.passage || p.passage.length < 200) err(p.id, 'missing/short passage text');
     const words = String(p.passage).split(/\s+/).filter(Boolean).length;
+    if (p.figure) {
+      const f = p.figure;
+      if (!Array.isArray(f.columns) || !Array.isArray(f.rows) || !f.rows.length) err(p.id, 'figure needs columns[] and rows[]');
+      else f.rows.forEach((r, ri) => { if (!Array.isArray(r) || r.length !== f.columns.length) err(p.id, `figure row ${ri + 1} has ${r && r.length} cells for ${f.columns.length} columns`); });
+    }
+    if (p.id.startsWith('p_data')) {
+      if (!p.figure) err(p.id, 'data set without a figure');
+      p.questions.forEach((q, i) => {
+        if (!SKILLS.has(q.skill)) err(`${p.id} Q${i + 1}`, `skill must be SIRS 1–4 (got "${q.skill}")`);
+        if (!DISCS.has(q.subj || p.subj)) err(`${p.id} Q${i + 1}`, `unknown discipline "${q.subj || p.subj}"`);
+      });
+    }
     p.questions.forEach((q, i) => checkQuestion(`${p.id} Q${i + 1}`, q));
     passageRows.push([p.id, p.questions.length, words]);
   });
@@ -132,6 +179,7 @@
   document.getElementById('out').innerHTML = `
     <h2 class="${errors.length ? 'err' : 'ok'}">${errors.length} errors · <span class="warn">${warnings.length} warnings</span></h2>
     ${table(['Recall file', 'Questions', 'Key position A/B/C/D'], rows)}
+    ${table(['Variant file', 'Variants', 'Kinds'], variantRows)}
     ${table(['Exam section', 'Questions', 'Minutes', 'Key position A/B/C/D'], examRows)}
     <details><summary>Passages (${passages.length})</summary>${table(['id', 'Questions', 'Words'], passageRows)}</details>
     <details ${errors.length ? 'open' : ''}><summary>Errors (${errors.length})</summary>${list(errors, 'err')}</details>

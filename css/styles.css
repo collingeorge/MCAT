@@ -690,3 +690,19 @@ table.aamc tr.gap td{opacity:.65}
 .plan-form input,.plan-form select{font:14px Arial,Helvetica,sans-serif;padding:8px 10px;border:1px solid var(--border-med);background:var(--white);color:var(--text);text-transform:none;letter-spacing:0}
 .milestones{font-size:12px;line-height:1.9;padding-left:18px;color:var(--text-body)}
 @media (max-width:640px){table.aamc td:nth-child(2){font-size:11px}table.aamc td:nth-child(3){display:none}}
+
+/* ════════ Data figures, pacing, fluency, nudges ════════ */
+.data-figure{margin:14px 0 4px;overflow-x:auto}
+.data-figure table{border-collapse:collapse;font-size:12px;min-width:60%;background:var(--white)}
+.data-figure th,.data-figure td{border:1px solid var(--border-med);padding:5px 9px;text-align:center}
+.data-figure th{background:var(--blue-light);color:var(--navy);font-weight:700}
+.data-figure td:first-child,.data-figure th:first-child{text-align:left}
+.data-figure figcaption{font-size:11px;color:var(--slate);margin-top:6px;line-height:1.5}
+.speed-bar{height:5px;background:var(--border);margin:-4px 0 12px}
+.speed-fill{height:100%;width:100%;background:var(--green);transition:width .2s linear}
+.speed-fill.low{background:var(--red)}
+.break-banner{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;font-size:12px;line-height:1.6;background:var(--blue-light);border-left:3px solid var(--navy);padding:10px 12px;margin-bottom:14px;color:var(--text-body)}
+.tip-card{font-size:12px;line-height:1.6;background:var(--white);border:1px solid var(--border-med);border-left:3px solid var(--green);padding:10px 12px;margin:0 0 16px;color:var(--text-body)}
+.explain-it{display:block;font-size:12px;color:var(--text-body);margin:10px 0}
+.explain-it textarea{display:block;width:100%;margin-top:6px;font:13px Arial,Helvetica,sans-serif;padding:8px 10px;border:1px solid var(--border-med);background:var(--white);color:var(--text);resize:vertical}
+.explain-notes{font-size:12px;line-height:1.7;padding-left:18px;color:var(--text-body)}

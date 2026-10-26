@@ -79,7 +79,7 @@ PAH requires BH4 as an electron donor. A minority of PKU cases result not from P
   id:'p_enz_1',
   topic:'Enzymology',
   title:'Methotrexate, Dihydrofolate Reductase, and Enzyme Inhibition',
-  passage:`Methotrexate (MTX) is a chemotherapeutic and immunosuppressive agent that functions as a structural analog of dihydrofolate (DHF). It binds dihydrofolate reductase (DHFR) with approximately 1000-fold greater affinity than the natural substrate DHF. DHFR catalyzes the NADPH-dependent reduction of DHF to tetrahydrofolate (THF), which is required for synthesis of thymidylate and purines. Inhibition of DHFR depletes THF, halting DNA synthesis in rapidly dividing cells.
+  passage:`Methotrexate (MTX) is a chemotherapeutic and immunosuppressive agent that functions as a structural analog of dihydrofolate (DHF). It binds dihydrofolate reductase (DHFR) with at least 1000-fold greater affinity than the natural substrate DHF (many measurements put the difference far higher). DHFR catalyzes the NADPH-dependent reduction of DHF to tetrahydrofolate (THF), which is required for synthesis of thymidylate and purines. Inhibition of DHFR depletes THF, halting DNA synthesis in rapidly dividing cells.
 
 In kinetic studies, addition of MTX increases the apparent Km of DHFR for DHF from 5 μM to 120 μM while Vmax remains unchanged at high DHF concentrations. Leucovorin (folinic acid), a pre-reduced folate that bypasses DHFR, is administered as a "rescue" agent after high-dose MTX therapy to restore THF pools in normal tissues without reactivating the inhibited enzyme.`,
   questions:[
@@ -349,7 +349,7 @@ const BIO_PASSAGES = [
   title:'High-Altitude Acclimatization and Oxygen Transport',
   passage:`A 28-year-old mountaineer ascends to 5,400 meters over 10 days. At baseline (sea level), her hemoglobin is 13.8 g/dL, hematocrit 41%, SpO2 99%, and resting respiratory rate 14 breaths/min. At altitude, barometric pressure falls to approximately 380 mmHg (half of sea level), reducing the partial pressure of inspired oxygen (PiO2) proportionally.
 
-Within hours of arrival, her respiratory rate increases to 22 breaths/min and arterial PCO2 drops from 40 to 28 mmHg, raising arterial pH from 7.40 to 7.52. Over 10 days, her kidneys excrete bicarbonate, her reticulocyte count rises, erythropoietin (EPO) levels peak at day 3, and red blood cell 2,3-BPG concentrations increase by 30%. By day 10, her hemoglobin has risen to 16.2 g/dL and SpO2 stabilized at 85%.
+Within hours of arrival, her respiratory rate increases to 22 breaths/min and arterial PCO2 drops from 40 to 28 mmHg, raising arterial pH from 7.40 to 7.52. Over 10 days, her kidneys excrete bicarbonate, her reticulocyte count rises, erythropoietin (EPO) levels peak at day 3, and red blood cell 2,3-BPG concentrations increase by 30%. By day 10, her hemoglobin has risen to 16.2 g/dL (an early rise that reflects a fall in plasma volume as well as new red cell production) and SpO2 stabilized at 85%.
 
 Fetal hemoglobin (HbF) binds 2,3-BPG less avidly than adult hemoglobin (HbA) because its gamma subunits have a neutral serine at position 143 in place of the positively charged histidine (His-143) that helps coordinate 2,3-BPG in beta subunits.`,
   questions:[
