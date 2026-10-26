@@ -83,6 +83,10 @@ const KEYS = {
   mem: 'mcat2_memory',               // { questionId: {S, D, last, seen, right, lapses, b, conf, confidentMiss} }
   mastery: 'mcat2_mastery',          // { "subject|tag": {r, n} }
   recent: 'mcat2_recent',            // last 30 answers (1/0), for difficulty tuning
+  errors: 'mcat2_errors',            // mistake log: [{t, id, disc, key, type, chosen, answer, src}]
+  calib: 'mcat2_calibration',        // { discipline: { knew|unsure|guess|none: {c, t} } }
+  plan: 'mcat2_plan',                // { date, days, minutes, start, seenAtStart }
+  daily: 'mcat2_daily',              // { 'YYYY-MM-DD': answers }
   scoreHistory: 'mcat2_score_history',
 };
 
@@ -412,6 +416,51 @@ function updateMemory(q, right, conf, ms) {
   const recent = store.get(KEYS.recent, []);
   recent.push(right ? 1 : 0);
   store.set(KEYS.recent, recent.slice(-30));
+
+  // Calibration: how often each confidence level turns out to be right, per discipline
+  const cal = store.get(KEYS.calib, {});
+  const cd = cal[disciplineOfRecall(q)] = cal[disciplineOfRecall(q)] || {};
+  const cs = cd[conf || 'none'] = cd[conf || 'none'] || { c: 0, t: 0 };
+  cs.t++;
+  if (right) cs.c++;
+  store.set(KEYS.calib, cal);
+}
+
+// ── Daily activity and the mistake log ──
+function localDay(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+function countAnswerToday() {
+  const daily = store.get(KEYS.daily, {});
+  const day = localDay();
+  daily[day] = (daily[day] || 0) + 1;
+  store.set(KEYS.daily, Object.fromEntries(Object.entries(daily).slice(-90)));
+}
+function answeredToday() { return store.get(KEYS.daily, {})[localDay()] || 0; }
+const ERROR_TYPES = [
+  ['knowledge', 'Didn\'t know it'],
+  ['confused', 'Mixed it up'],
+  ['misread', 'Misread the question'],
+  ['calculation', 'Calculation slip'],
+  ['time', 'Rushed / ran out of time'],
+];
+function logError(entry) {
+  const log = store.get(KEYS.errors, []);
+  log.push(Object.assign({ t: Date.now() }, entry));
+  store.set(KEYS.errors, log.slice(-2000));
+}
+function errorTypeRow(selected, handler) {
+  return `<div class="conf-row err-row" role="group" aria-label="Why did you miss it?">
+    <span class="conf-label">Why did you miss it?</span>
+    ${ERROR_TYPES.map(([id, label]) => `<button class="conf-btn${selected === id ? ' on' : ''}" data-err="${id}" onclick="${handler}('${id}')" aria-pressed="${selected === id}">${label}</button>`).join('')}
+  </div>`;
+}
+function markErrorButtons(type) {
+  document.querySelectorAll('.err-row .conf-btn').forEach(b => {
+    const on = b.dataset.err === type;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on);
+  });
 }
 function topicMastery(key, mast) {
   const t = (mast || store.get(KEYS.mastery, {}))[key];
@@ -429,6 +478,7 @@ function predictedSuccess(q, mem, mast) {
 }
 
 function recordAnswer(q, right) {
+  countAnswerToday();
   const stats = store.get(KEYS.stats, {});
   const s = stats[q.key] || { c: 0, t: 0 };
   s.t++;
@@ -844,6 +894,7 @@ function savePrefs() { prefs.selected = [...selectedKeys]; store.set(KEYS.prefs,
 
 function goHome() {
   commitPending();
+  flushPassageErr();
   stopQuizTimer();
   stopExamTimer();
   show('screen-home');
@@ -865,14 +916,14 @@ function renderHome() {
   const focus = weakTopicNeeds(store.get(KEYS.mastery, {}))[0];
   actions.push(`<button class="action-btn smart" onclick="startSmartSession()" title="Adaptive: due reviews, your weakest high-yield topics and new material">
     <span><b class="smart-title">▶ Smart Session</b><small>${focus ? `Focus: ${esc(KEY_LABEL[focus.k] || focus.k)}` : 'Adapts to your strengths and weaknesses'}</small></span>
-    <b>${prefs.count || 30}</b></button>`);
+    <b>${smartSessionSize()}</b></button>`);
   if (inProgress) actions.push(`<button class="action-btn primary" onclick="startExam(${FULL_EXAMS.indexOf(inProgress)})">Resume ${esc(inProgress.title)}</button>`);
   actions.push(`<button class="action-btn" ${due ? '' : 'disabled'} onclick="startDueReview()">Review due <b>${due}</b></button>`);
   actions.push(`<button class="action-btn" ${flagged ? '' : 'disabled'} onclick="startFlagged()">Flagged <b>${flagged}</b></button>`);
   actions.push(`<button class="action-btn" ${weak ? '' : 'disabled'} onclick="drillWeak()" title="Topics under 70% after at least 5 attempts">Drill weak topics <b>${weak}</b></button>`);
   actions.push(`<button class="action-btn" onclick="showProgress()">Score report</button>`);
   $('home-actions').innerHTML = actions.join('');
-  $('home-score').innerHTML = scoreStrip();
+  $('home-score').innerHTML = scoreStrip() + planStrip();
 
   setMode(prefs.mode);
 }
@@ -901,6 +952,7 @@ function renderCountRow() {
     ? 'Questions due for spaced review come first, then ones you haven\'t seen. Answer choices are shuffled every time.'
     : `${esc(PRACTICE_MIXES[mix].note)} With "All", a mix session is 59 questions, the length of a real section.`;
   $('subject-card').hidden = mix !== 'custom';
+  $('recall-first-toggle').checked = !!prefs.recallFirst;
 }
 function setCount(n) { prefs.count = n; savePrefs(); renderCountRow(); updateAvail(); }
 function setMix(id) { prefs.mix = id; savePrefs(); renderCountRow(); updateAvail(); }
@@ -999,7 +1051,7 @@ function makeView(q, reason) {
   return { q, reason: reason || null, order, choices: order.map(i => q.choices[i]), ans: order.indexOf(q.ans) };
 }
 function startSmartSession() {
-  const n = prefs.count || 30;
+  const n = smartSessionSize();
   const items = buildSmartSession(n);
   if (items.length) beginQuiz(items, 'Smart Session', { adaptive: true });
 }
@@ -1084,10 +1136,27 @@ function renderQuizQuestion() {
       ${why || q.variant ? `<div class="q-reason">${q.variant ? '<span class="variant-pill">Asked a different way</span>' : ''}${why ? `<span>Why this question: ${esc(why)}</span>` : ''}</div>` : ''}
       <div class="question-text">${fmt(q.q)}</div>
     </div>
-    <div class="choices" role="group" aria-label="Answer choices">${choiceButtons(view.choices, 'pick')}</div>
+    <div class="choices" id="choices-area" role="group" aria-label="Answer choices">${choicesOrPrompt(view)}</div>
     <div id="exp-area"></div>
     <div id="nxt-area"></div>`;
+  if ($('reveal-btn')) $('reveal-btn').focus({ preventScroll: true });
 }
+// Recall first: retrieving the answer before seeing options builds stronger memory
+// than recognizing it, so the choices stay hidden until you've thought of it
+function choicesOrPrompt(view) {
+  if (!prefs.recallFirst || view.revealed) return choiceButtons(view.choices, 'pick');
+  return `<div class="recall-first">
+    <p><b>Recall first:</b> think of the answer, then show the choices.</p>
+    <button class="next-btn" id="reveal-btn" onclick="revealChoices()">Show choices (Space)</button>
+  </div>`;
+}
+function revealChoices() {
+  const view = quiz.items[quiz.idx];
+  if (view.revealed) return;
+  view.revealed = true;
+  $('choices-area').innerHTML = choiceButtons(view.choices, 'pick');
+}
+function setRecallFirst(on) { prefs.recallFirst = !!on; savePrefs(); }
 function flagCurrent() {
   const q = quiz.items[quiz.idx].q;
   const on = toggleFlag(q.baseId || q.id);
@@ -1098,6 +1167,7 @@ function flagCurrent() {
 }
 function pick(chosen) {
   if (quiz.answered) return;
+  if (!$('cb-0')) revealChoices();
   quiz.answered = true;
   const view = quiz.items[quiz.idx];
   const right = chosen === view.ans;
@@ -1106,7 +1176,8 @@ function pick(chosen) {
   recordAnswer(view.q, right);
   // Memory and mastery are updated when you move on, so the confidence rating can count
   const confusion = right ? null : confusionCard(view.choices[chosen], view.q);
-  quiz.pending = { q: view.q, right, ms, conf: null, confusion };
+  quiz.pending = { q: view.q, right, ms, conf: null, confusion, chosen: view.choices[chosen], answer: view.choices[view.ans],
+    errType: right ? null : confusion ? 'confused' : null };
   view.choices.forEach((_, i) => {
     const b = $('cb-' + i);
     b.disabled = true;
@@ -1121,20 +1192,27 @@ function pick(chosen) {
 }
 function renderNextArea() {
   const last = quiz.idx + 1 >= quiz.items.length;
-  const conf = quiz.pending && quiz.pending.conf;
+  const p = quiz.pending;
+  const conf = p && p.conf;
   $('nxt-area').innerHTML = `
     <div class="conf-row" role="group" aria-label="How sure were you?">
       <span class="conf-label">How sure were you?</span>
-      ${CONFIDENCE.map(([id, label, key]) => `<button class="conf-btn${conf === id ? ' on' : ''}" onclick="setConfidence('${id}')" aria-pressed="${conf === id}" title="Key: ${key}">${label}</button>`).join('')}
+      ${CONFIDENCE.map(([id, label, key]) => `<button class="conf-btn${conf === id ? ' on' : ''}" data-conf="${id}" onclick="setConfidence('${id}')" aria-pressed="${conf === id}" title="Key: ${key}">${label}</button>`).join('')}
     </div>
+    ${p && !p.right ? errorTypeRow(p.errType, 'setErrType') : ''}
     <button class="next-btn" id="next-btn" onclick="nextQ()">${last && !quiz.adaptive ? 'See results →' : 'Next →'}</button>
     <div class="kb-hint">Keys: 1–4 or A–D to answer · G / U / K for confidence · Enter for next · F to flag</div>`;
+}
+function setErrType(t) {
+  if (!quiz.pending || quiz.pending.right) return;
+  quiz.pending.errType = t;
+  markErrorButtons(t);
 }
 function setConfidence(c) {
   if (!quiz.pending) return;
   quiz.pending.conf = c;
-  document.querySelectorAll('.conf-btn').forEach((b, i) => {
-    const on = CONFIDENCE[i][0] === c;
+  document.querySelectorAll('.conf-btn[data-conf]').forEach(b => {
+    const on = b.dataset.conf === c;
     b.classList.toggle('on', on);
     b.setAttribute('aria-pressed', on);
   });
@@ -1149,6 +1227,7 @@ function commitPending() {
   if (!p) return;
   quiz.pending = null;
   updateMemory(p.q, p.right, p.conf, p.ms);
+  if (!p.right) logError({ id: p.q.baseId || p.q.id, disc: disciplineOfRecall(p.q), key: p.q.key, type: p.errType || 'unlabeled', chosen: p.chosen, answer: p.answer, src: 'recall' });
   if (!quiz.adaptive) return;
   const baseId = p.q.baseId || p.q.id;
   const base = QB_BY_ID.get(baseId);
@@ -1445,6 +1524,283 @@ function masteryMapCard() {
     <p class="muted-note">Mastery weighs harder questions more and recent answers most, and guessed right answers count only partly. The Smart Session uses it to choose what to ask next.</p>
   </div>`;
 }
+// ── Mistake patterns ──
+const ERROR_ADVICE = {
+  knowledge: 'Content gaps. Keep using the Smart Session (it targets these topics) and read the full explanation on every miss.',
+  confused: 'Mix-ups between similar terms. The app now drills the term you picked by mistake; also write a short "X vs. Y" comparison for each pair below.',
+  misread: 'Reading errors. Before answering, restate what is asked: watch for NOT/EXCEPT, units, and the direction of a change (increase vs. decrease).',
+  calculation: 'Calculation slips. The MCAT has no calculator: write units, round early, estimate the answer\'s size first, and practice timed math drills.',
+  time: 'Pacing. Practice timed sets and aim for about 95 seconds per passage question. Skip and mark hard items instead of stalling.',
+};
+function mistakeCard() {
+  const log = store.get(KEYS.errors, []);
+  if (log.length < 5) return '';
+  const labeled = log.filter(e => e.type !== 'unlabeled');
+  const byType = {};
+  labeled.forEach(e => { byType[e.type] = (byType[e.type] || 0) + 1; });
+  const top = Object.entries(byType).sort((a, b) => b[1] - a[1]);
+  const byDisc = {};
+  labeled.forEach(e => { const d = byDisc[e.disc] = byDisc[e.disc] || {}; d[e.type] = (d[e.type] || 0) + 1; });
+  const pairs = {};
+  log.filter(e => e.type === 'confused' && e.chosen && e.answer).forEach(e => {
+    const k = [String(e.answer), String(e.chosen)].join(' ↔ ');
+    pairs[k] = (pairs[k] || 0) + 1;
+  });
+  const topPairs = Object.entries(pairs).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const label = t => (ERROR_TYPES.find(x => x[0] === t) || [t, t])[1];
+  return `<div class="results-card">
+    <div class="section-label">Mistake patterns <span class="muted">(${log.length} misses logged · ${labeled.length} with a reason)</span></div>
+    ${top.length ? `${top.map(([t, n]) => barRow(label(t), n, labeled.length)).join('')}
+      <div class="advice"><b>Biggest pattern: ${esc(label(top[0][0]))}.</b> ${ERROR_ADVICE[top[0][0]] || ''}</div>
+      <div class="disc-patterns">${Object.entries(byDisc).map(([d, types]) => {
+        const [t, n] = Object.entries(types).sort((a, b) => b[1] - a[1])[0];
+        return `<span class="m-chip">${esc(DISCIPLINES[d] || d)}: mostly <b>${esc(label(t).toLowerCase())}</b> (${n})</span>`;
+      }).join('')}</div>` : '<p class="muted-note">Tap a reason under each missed question ("Didn\'t know it", "Mixed it up"…) to see your patterns here.</p>'}
+    ${topPairs.length ? `<div class="sw-head">Most-confused pairs</div><div class="disc-patterns">${topPairs.map(([k, n]) => `<span class="m-chip lvl-building">${fmt(k)}${n > 1 ? ` ×${n}` : ''}</span>`).join('')}</div>` : ''}
+  </div>`;
+}
+
+// ── Confidence calibration ──
+// Well calibrated: "Knew it" ≈ 95%+ right, "Unsure" in between, "Guessed" near chance
+function calibrationCard() {
+  const cal = store.get(KEYS.calib, {});
+  const rows = Object.entries(cal).map(([d, c]) => {
+    const r = k => (c[k] && c[k].t ? { p: c[k].c / c[k].t, n: c[k].t } : null);
+    const knew = r('knew'), unsure = r('unsure'), guess = r('guess');
+    let verdict = '', cls = '';
+    if (knew && knew.n >= 8 && knew.p < 0.85) { verdict = `Overconfident: "Knew it" answers are only ${Math.round(knew.p * 100)}% right`; cls = 'lvl-weak'; }
+    else if ((unsure && unsure.n >= 8 && unsure.p >= 0.88) || (guess && guess.n >= 8 && guess.p >= 0.65)) { verdict = 'Underconfident: you know more than you think'; cls = 'lvl-solid'; }
+    else if (knew && knew.n >= 8) { verdict = 'Well calibrated'; cls = 'lvl-mastered'; }
+    return { d, knew, unsure, guess, verdict, cls, n: (knew ? knew.n : 0) + (unsure ? unsure.n : 0) + (guess ? guess.n : 0) };
+  }).filter(x => x.n >= 5).sort((a, b) => b.n - a.n);
+  if (!rows.length) return '';
+  const cell = x => (x ? `${Math.round(x.p * 100)}% <small>(${x.n})</small>` : '—');
+  return `<div class="results-card">
+    <div class="section-label">Confidence calibration <span class="muted">(how often each rating turns out right)</span></div>
+    <table class="calib"><tr><th>Subject</th><th>Knew it</th><th>Unsure</th><th>Guessed</th><th></th></tr>
+      ${rows.map(x => `<tr><td>${esc(DISCIPLINES[x.d] || x.d)}</td><td>${cell(x.knew)}</td><td>${cell(x.unsure)}</td><td>${cell(x.guess)}</td>
+        <td>${x.verdict ? `<span class="m-chip ${x.cls}">${esc(x.verdict)}</span>` : '<span class="muted">Need more ratings</span>'}</td></tr>`).join('')}
+    </table>
+    <p class="muted-note">Overconfidence is the costliest pattern: it stops you from reviewing what you don't know. On a real exam, re-check "sure" answers in your overconfident subjects. Underconfidence is safer, but it wastes time second-guessing.</p>
+  </div>`;
+}
+
+// ── AAMC content categories ──
+// The AAMC organizes the exam into foundational concepts and content categories
+// ("What's on the MCAT Exam?"). Each topic chip maps to its primary category.
+const AAMC_CATEGORIES = [
+  ['1A', 'Structure and function of proteins and their constituent amino acids'],
+  ['1B', 'Transmission of genetic information from the gene to the protein'],
+  ['1C', 'Transmission of heritable information from generation to generation and the processes that increase genetic diversity'],
+  ['1D', 'Principles of bioenergetics and fuel molecule metabolism'],
+  ['2A', 'Assemblies of molecules, cells, and groups of cells within single cellular and multicellular organisms'],
+  ['2B', 'The structure, growth, physiology, and genetics of prokaryotes and viruses'],
+  ['2C', 'Processes of cell division, differentiation, and specialization'],
+  ['3A', 'Structure and functions of the nervous and endocrine systems and ways these systems coordinate the organ systems'],
+  ['3B', 'Structure and integrative functions of the main organ systems'],
+  ['4A', 'Translational motion, forces, work, energy, and equilibrium in living systems'],
+  ['4B', 'Importance of fluids for the circulation of blood, gas movement, and gas exchange'],
+  ['4C', 'Electrochemistry and electrical circuits and their elements'],
+  ['4D', 'How light and sound interact with matter'],
+  ['4E', 'Atoms, nuclear decay, electronic structure, and atomic chemical behavior'],
+  ['5A', 'Unique nature of water and its solutions'],
+  ['5B', 'Nature of molecules and intermolecular interactions'],
+  ['5C', 'Separation and purification methods'],
+  ['5D', 'Structure, function, and reactivity of biologically-relevant molecules'],
+  ['5E', 'Principles of chemical thermodynamics and kinetics'],
+  ['6A', 'Sensing the environment'],
+  ['6B', 'Making sense of the environment'],
+  ['6C', 'Responding to the world'],
+  ['7A', 'Individual influences on behavior'],
+  ['7B', 'Social processes that influence human behavior'],
+  ['7C', 'Attitude and behavior change'],
+  ['8A', 'Self-identity'],
+  ['8B', 'Social thinking'],
+  ['8C', 'Social interactions'],
+  ['9A', 'Understanding social structure'],
+  ['9B', 'Demographic characteristics and processes'],
+  ['10A', 'Social inequality'],
+  ['SIRS', 'Scientific inquiry and reasoning skills: research design, data and statistical reasoning'],
+];
+const CHIP_AAMC = {
+  'Amino Acids': '1A', 'Protein Structure & Function': '1A', 'Mechanism of Action': '1A', 'Kinetics (Michaelis–Menten)': '1A', 'Inhibition & Regulation': '1A',
+  'Glycolysis & Glucose Transport': '1D', 'Gluconeogenesis': '1D', 'Glycogen': '1D', 'Acetyl-CoA & PDH': '1D', 'Citric Acid Cycle': '1D',
+  'ETC & Oxidative Phosphorylation': '1D', 'Fatty Acid Oxidation': '1D', 'Pentose Phosphate Pathway': '1D', 'Urea Cycle': '1D', 'Lipid Metabolism': '1D',
+  'DNA Structure & Chromosomes': '1B', 'Replication': '1B', 'Repair & Mutation': '1B', 'Transcription & RNA Processing': '1B', 'Translation': '1B',
+  'Nucleic Acids — General': '1B', 'Lab Techniques': '1B',
+  'Membrane Structure & Transport': '2A', 'Lipids': '5D', 'Carbohydrates': '5D', 'Biosignaling': '3A',
+  'Cell Structure & Tissues': '2A', 'Cell Cycle, Mitosis & Meiosis': '2C', 'Genetics & Inheritance': '1C', 'Evolution': '1C', 'Viruses & Bacteria': '2B',
+  'Neurons & Glia': '3A', 'Action Potential': '3A', 'Synapses': '3A', 'Neurotransmitters': '3A', 'Sensory Systems': '6A',
+  'Muscle Types & Control': '3B', 'Muscle Contraction': '3B', 'Bone & Skeleton': '3B',
+  'Heart, Blood & Circulation': '3B', 'Airway Anatomy': '3B', 'Respiratory Physiology': '3B',
+  'Hormones & Signaling': '3A', 'Reproduction': '3B', 'Development': '2C', 'Thermoregulation': '3B',
+  'Innate Immunity': '3B', 'Adaptive Immunity': '3B', 'Digestion': '3B', 'Kidney': '3B', 'Skin': '3B',
+  'Atomic Structure': '4E', 'Quantum Numbers': '4E', 'Periodic Trends': '4E', 'Chemical Bonding': '5B', 'Intermolecular Forces': '5B',
+  'Thermochemistry': '5E', 'Kinetics': '5E', 'Equilibrium': '5E',
+  'Solutions & Solubility': '5A', 'Acids & Bases': '5A', 'Buffers & Titrations': '5A', 'Redox & Electrochemistry': '4C',
+  'Bonding & Structure': '5B', 'Reactions & Mechanisms': '5D', 'Carbonyl Chemistry': '5D', 'Spectroscopy': '4D', 'Separations & Lab Techniques': '5C',
+  'Motion, Forces & Energy': '4A', 'Fluids': '4B', 'Electricity & Magnetism': '4C', 'Waves, Sound & Light': '4D', 'Nuclear & Atomic Physics': '4E',
+  'Research Methods & Statistics': 'SIRS', 'Physics equations & units': '4A', 'Chemistry equations & constants': '5E',
+  'Biological Bases of Behavior': '7A', 'Sensation & Perception': '6A', 'Cognition, Learning & Memory': '6B', 'Emotion, Motivation & Stress': '6C',
+  'Personality, Development & Disorders': '7A', 'Social Psychology & Society': '8B',
+};
+let keyAamc = null;
+function aamcOfKey(key) {
+  if (!keyAamc) {
+    keyAamc = {};
+    SUBJECTS.forEach(s => s.groups.forEach(g => g.chips.forEach(c => c.keys.forEach(k => { keyAamc[k] = CHIP_AAMC[c.label] || null; }))));
+  }
+  return keyAamc[key] || null;
+}
+function aamcCard() {
+  const mast = store.get(KEYS.mastery, {});
+  const mem = loadMem();
+  const agg = {};
+  QB.forEach(q => {
+    const c = aamcOfKey(q.key);
+    if (!c) return;
+    const a = agg[c] = agg[c] || { total: 0, seen: 0, keys: new Set() };
+    a.total++;
+    if (mem[q.id] && mem[q.id].seen) a.seen++;
+    a.keys.add(q.key);
+  });
+  const level = a => {
+    let n = 0, w = 0;
+    a.keys.forEach(k => { const t = mast[k]; if (t) { n += t.n; w += sigmoid(t.r) * t.n; } });
+    if (n < 5) return { level: 'new', p: null };
+    const p = w / n;
+    return { p, level: p < 0.6 ? 'weak' : p < 0.75 ? 'building' : p < 0.9 ? 'solid' : 'mastered' };
+  };
+  return `<div class="results-card">
+    <div class="section-label">AAMC content categories <span class="muted">(each topic mapped to its primary category)</span></div>
+    <table class="aamc">${AAMC_CATEGORIES.map(([code, name]) => {
+      const a = agg[code];
+      if (!a) return `<tr class="gap"><td><b>${code}</b></td><td>${esc(name)}</td><td colspan="2"><span class="muted">Not covered by recall questions (use passages and the full-length exams)</span></td></tr>`;
+      const lv = level(a);
+      return `<tr><td><b>${code}</b></td><td>${esc(name)}</td>
+        <td>${a.seen}/${a.total} seen</td>
+        <td><span class="m-chip lvl-${lv.level}">${lv.p != null ? Math.round(lv.p * 100) + '%' : 'No data'}</span>
+          <button class="micro-btn" onclick="drillCategory('${code}')">Drill</button></td></tr>`;
+    }).join('')}</table>
+    <p class="muted-note">Psychology and sociology recall questions are tagged broadly, so 7B, 7C, 8A, 8C and 9A–10A content sits mostly under 7A and 8B here.</p>
+  </div>`;
+}
+// ── Study plan to the test date ──
+// Spreads unseen material over the content phase, reserves the final weeks for
+// review and full-length practice, and sizes each day's Smart Session.
+const SECONDS_PER_RECALL = 48;   // answer + read the explanation
+function computePlan() {
+  const plan = store.get(KEYS.plan, null);
+  if (!plan || !plan.date) return null;
+  const today = new Date(localDay() + 'T00:00:00');
+  const test = new Date(plan.date + 'T00:00:00');
+  const daysLeft = Math.round((test - today) / DAY);
+  const mem = loadMem();
+  const seen = QB.filter(q => mem[q.id] && mem[q.id].seen).length;
+  const unseen = QB.length - seen;
+  const perWeek = Math.min(7, Math.max(1, plan.days || 6));
+  const finalDays = daysLeft > 42 ? 14 : daysLeft > 21 ? 7 : 0;
+  const studyDaysLeft = Math.max(1, Math.round((daysLeft * perWeek) / 7));
+  const contentStudyDays = Math.max(1, Math.round(((daysLeft - finalDays) * perWeek) / 7));
+  const inFinal = daysLeft <= finalDays;
+  const due = dueQuestions().length;
+  const capacity = Math.max(10, Math.floor(((plan.minutes || 120) * 60) / SECONDS_PER_RECALL));
+  const newPerDay = inFinal || daysLeft <= 0 ? 0 : Math.ceil(unseen / contentStudyDays);
+  const target = Math.min(capacity, newPerDay + Math.min(due, capacity));
+  // Expected progress since the plan started (straight-line over the content phase)
+  const startDay = new Date((plan.start || localDay()) + 'T00:00:00');
+  const total = Math.max(1, Math.round((test - startDay) / DAY) - finalDays);
+  const elapsed = Math.min(total, Math.max(0, Math.round((today - startDay) / DAY)));
+  const expectedSeen = Math.round((plan.seenAtStart || 0) + (QB.length - (plan.seenAtStart || 0)) * (elapsed / total));
+  const fl = [];
+  const addMilestone = (offset, label) => { if (daysLeft - offset >= 0) fl.push({ date: new Date(test - offset * DAY), label }); };
+  // This app's exams come first; AAMC's official exams (the best predictors) fill the final month, one a week
+  if (daysLeft >= 49) { addMilestone(42, 'Full-Length Practice Exam 1 (this app)'); addMilestone(35, 'Full-Length Practice Exam 2 (this app)'); }
+  else if (daysLeft >= 33) {
+    // At least 3 days between full-lengths so each one can be reviewed
+    const first = daysLeft - 2, second = daysLeft - 9;
+    addMilestone(first, 'Full-Length Practice Exam 1 (this app)');
+    if (second >= 31) addMilestone(second, 'Full-Length Practice Exam 2 (this app)');
+  }
+  [28, 21, 14, 7].forEach((o, i) => addMilestone(o, `AAMC official full-length ${i + 1} (aamc.org)`));
+  addMilestone(2, 'Light review only; rest and sleep before test day');
+  fl.sort((a, b) => a.date - b.date);
+  return { plan, daysLeft, studyDaysLeft, finalDays, inFinal, seen, unseen, due, capacity, newPerDay, target,
+    doneToday: answeredToday(), expectedSeen, overCapacity: newPerDay + due > capacity, milestones: fl.filter(m => m.date >= today) };
+}
+function smartSessionSize() {
+  const p = computePlan();
+  if (!p || p.daysLeft <= 0) return prefs.count || 30;
+  const left = p.target - p.doneToday;
+  return left > 0 ? Math.min(60, Math.max(10, left)) : prefs.count || 20;
+}
+function planStrip() {
+  const p = computePlan();
+  if (!p) return `<button class="plan-strip empty" onclick="showPlan()">📅 Set your MCAT date to get a daily study plan →</button>`;
+  if (p.daysLeft < 0) return `<button class="plan-strip" onclick="showPlan()">📅 Your test date has passed. Update your study plan →</button>`;
+  if (p.daysLeft === 0) return `<button class="plan-strip" onclick="showPlan()">📅 Test day. Trust your preparation, and good luck!</button>`;
+  const doneAll = p.doneToday >= p.target;
+  const ahead = p.seen - p.expectedSeen;
+  return `<button class="plan-strip" onclick="showPlan()">
+    <span>📅 <b>${p.daysLeft}</b> day${p.daysLeft === 1 ? '' : 's'} to the MCAT${p.inFinal ? ' · final review phase' : ''}</span>
+    <span>Today: <b>${p.doneToday}</b> / ${p.target} questions${doneAll ? ' ✓' : ''}</span>
+    <span class="${ahead >= 0 ? 'ok' : 'behind'}">${ahead >= 0 ? 'On track' : `${-ahead} behind`}</span>
+  </button>`;
+}
+function planSummaryCard() {
+  const p = computePlan();
+  if (!p || p.daysLeft < 0) return '';
+  return `<div class="results-card"><div class="section-label">Study plan</div>${planDetails(p)}
+    <button class="micro-btn" onclick="showPlan()">Edit plan</button></div>`;
+}
+function planDetails(p) {
+  return `<div class="stat-row">
+      <div class="stat"><b>${p.daysLeft}</b><span>days to test</span></div>
+      <div class="stat"><b>${p.target}</b><span>questions today</span></div>
+      <div class="stat"><b>${p.newPerDay}</b><span>new per day</span></div>
+      <div class="stat"><b>${p.seen.toLocaleString()}</b><span>of ${QB.length.toLocaleString()} seen</span></div>
+    </div>
+    ${p.overCapacity ? `<div class="advice">Your daily time fits about <b>${p.capacity}</b> questions, but you have <b>${p.newPerDay}</b> new plus <b>${p.due}</b> due. Add time, or let the Smart Session prioritize: it puts high-yield and weak topics first.</div>` : ''}
+    ${p.inFinal ? '<div class="advice">You\'re in the final review phase: no new material. Focus on due reviews, weak topics, mistake patterns and full-length practice.</div>' : ''}
+    ${p.milestones.length ? `<div class="sw-head">Upcoming milestones</div><ul class="milestones">${p.milestones.map(m => `<li><b>${m.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</b> · ${esc(m.label)}</li>`).join('')}</ul>` : ''}`;
+}
+function showPlan() {
+  show('screen-results');
+  const plan = store.get(KEYS.plan, {}) || {};
+  const p = computePlan();
+  $('results-body').innerHTML = `
+    <div class="results-hero"><div class="r-label">Study plan</div></div>
+    <div class="results-card plan-form">
+      <label>MCAT test date <input type="date" id="plan-date" min="${localDay()}" value="${esc(plan.date || '')}"></label>
+      <label>Study days per week <select id="plan-days">${[3, 4, 5, 6, 7].map(n => `<option value="${n}"${(plan.days || 6) === n ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
+      <label>Time per study day <select id="plan-min">${[30, 60, 90, 120, 180, 240].map(n => `<option value="${n}"${(plan.minutes || 120) === n ? ' selected' : ''}>${n >= 60 ? n / 60 + ' h' : n + ' min'}</option>`).join('')}</select></label>
+      <button class="new-quiz-btn" onclick="savePlan()">Save plan</button>
+      ${plan.date ? '<button class="text-btn" onclick="clearPlan()">Remove plan</button>' : ''}
+    </div>
+    ${p && p.daysLeft >= 0 ? `<div class="results-card"><div class="section-label">Your plan</div>${planDetails(p)}</div>` : ''}
+    <div class="results-card"><div class="section-label">How the plan works</div>
+      <p class="muted-note" style="margin-top:0">Unseen questions are spread over your study days up to the final review phase (the last 2 weeks, or 1 week if the test is close). Each day's target is that new material plus everything due for review, capped at what fits in your daily time (about ${SECONDS_PER_RECALL} seconds per question). The Smart Session sizes itself to what's left for today. Full-length exams are spaced so the last ones fall in the final month. AAMC's official practice exams are the closest match to the real test, so the plan saves them for last.</p>
+    </div>
+    <div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div>`;
+}
+function savePlan() {
+  const date = $('plan-date').value;
+  if (!date) { alert('Choose your test date.'); return; }
+  const old = store.get(KEYS.plan, null);
+  const mem = loadMem();
+  store.set(KEYS.plan, {
+    date, days: +$('plan-days').value, minutes: +$('plan-min').value,
+    start: old && old.date === date ? old.start : localDay(),
+    seenAtStart: old && old.date === date ? old.seenAtStart : QB.filter(q => mem[q.id] && mem[q.id].seen).length,
+  });
+  showPlan();
+}
+function clearPlan() { store.del(KEYS.plan); showPlan(); }
+function drillCategory(code) {
+  const pool = QB.filter(q => aamcOfKey(q.key) === code);
+  if (pool.length) beginQuiz(pickQuestions(pool, prefs.count || 20), `AAMC ${code}`);
+}
+
 // Compact one-line version for the home screen and session results
 function scoreStrip() {
   const est = estimateScores();
@@ -1462,7 +1818,11 @@ function showProgress() {
   $('results-body').innerHTML = `
     <div class="results-hero"><div class="r-label">Score report & progress</div></div>
     ${scoreReportCards()}
+    ${planSummaryCard()}
     ${masteryMapCard()}
+    ${aamcCard()}
+    ${mistakeCard()}
+    ${calibrationCard()}
     ${html || '<div class="results-card"><p class="muted-note">No recall answers recorded yet. Finish a few questions and your progress will appear here.</p></div>'}
     ${examHistoryCard()}
     <div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div>
@@ -1470,7 +1830,7 @@ function showProgress() {
 }
 function resetProgress() {
   if (!confirm('Erase all recall stats, spaced-repetition history, flags, passage scores, score estimates and exam history on this device? This cannot be undone.')) return;
-  [KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
+  [KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
   FULL_EXAMS.forEach(e => { store.del(KEYS.examProgress(e.id)); store.del(KEYS.examLast(e.id)); });
   goHome();
 }
@@ -1539,6 +1899,9 @@ function answerPassage(chosen) {
   const right = chosen === view.ans;
   pq.results.push({ view, chosen, right });
   recordEvidence('passage', disciplineOfPassage(pq.p, view.q), right);
+  countAnswerToday();
+  pq.errPending = right ? null : { id: `${pq.p.id}#${pq.idx}`, disc: disciplineOfPassage(pq.p, view.q), key: null, type: null,
+    chosen: view.choices[chosen], answer: view.choices[view.ans], src: 'passage' };
   view.choices.forEach((_, i) => {
     const b = $('pc-' + i);
     b.disabled = true;
@@ -1548,10 +1911,21 @@ function answerPassage(chosen) {
   $('pp-score').textContent = `✓ ${pq.results.filter(r => r.right).length}/${pq.results.length}`;
   $('pp-exp').innerHTML = explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Passage · ${pq.p.title}`, view.q.q));
   const last = pq.idx + 1 >= pq.views.length;
-  $('pp-next').innerHTML = `<button class="next-btn" id="pp-next-btn" onclick="nextPassageQ()">${last ? 'See results →' : 'Next question →'}</button>`;
+  $('pp-next').innerHTML = `${right ? '' : errorTypeRow(null, 'setPassageErr')}<button class="next-btn" id="pp-next-btn" onclick="nextPassageQ()">${last ? 'See results →' : 'Next question →'}</button>`;
   $('pp-next-btn').focus({ preventScroll: true });
 }
+function setPassageErr(t) {
+  if (!pq.errPending) return;
+  pq.errPending.type = t;
+  markErrorButtons(t);
+}
+function flushPassageErr() {
+  if (!pq.errPending) return;
+  logError(Object.assign({}, pq.errPending, { type: pq.errPending.type || 'unlabeled' }));
+  pq.errPending = null;
+}
 function nextPassageQ() {
+  flushPassageErr();
   if (pq.idx + 1 >= pq.views.length) { showPassageResults(); return; }
   pq.idx++;
   renderPassageQuestion();
@@ -2035,7 +2409,7 @@ function showAbout() {
       <h2>License</h2>
       <p>The app's code and original content are licensed under ${link('https://creativecommons.org/licenses/by-nc/4.0/', 'Creative Commons BY-NC 4.0')}. You may share and adapt them for non-commercial purposes with attribution. Third-party material, including the original MileDown cards, remains subject to its owners' terms.</p>
 
-      <p class="muted-note">Version 2.4 · Last updated October 2026</p>
+      <p class="muted-note">Version 2.5 · Last updated October 2026</p>
     </div>
     <div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div>`;
 }
@@ -2050,7 +2424,10 @@ document.addEventListener('keydown', e => {
   const k = e.key.toLowerCase();
   const choice = KEY_TO_CHOICE[k];
   if (activeScreen === 'screen-quiz') {
-    if (choice !== undefined && !quiz.answered && choice < quiz.items[quiz.idx].choices.length) { e.preventDefault(); pick(choice); }
+    const hidden = !quiz.answered && $('reveal-btn');
+    if (hidden && (k === ' ' || k === 'enter')) { e.preventDefault(); revealChoices(); }
+    else if (hidden) { /* choices are hidden until revealed */ }
+    else if (choice !== undefined && !quiz.answered && choice < quiz.items[quiz.idx].choices.length) { e.preventDefault(); pick(choice); }
     else if ((k === 'enter' || k === ' ') && quiz.answered && e.target.tagName !== 'BUTTON') { e.preventDefault(); nextQ(); }
     else if (k === 'f') { e.preventDefault(); flagCurrent(); }
     else if (quiz.answered && (k === 'g' || k === 'u' || k === 'k')) { e.preventDefault(); setConfidence({ g: 'guess', u: 'unsure', k: 'knew' }[k]); }
