@@ -580,3 +580,45 @@ button:focus-visible,[role=button]:focus-visible{outline:2px solid var(--navy-mi
   .score-pct{font-size:60px}
   .interstitial{padding:20px 16px}
 }
+
+/* ════════ MCAT score report ════════ */
+.score-strip{display:flex;align-items:stretch;gap:0;width:100%;margin:-8px 0 16px;background:var(--white);border:1px solid var(--navy);cursor:pointer;font-family:inherit;padding:0;text-align:left}
+.score-strip:hover{background:var(--blue-light)}
+.score-strip>span{padding:8px 12px;display:flex;flex-direction:column;justify-content:center;font-size:18px;font-weight:700;color:var(--navy);border-right:1px solid var(--border)}
+.score-strip small{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--slate);font-weight:700}
+.score-strip .ss-total{background:var(--navy);color:var(--white)}
+.score-strip .ss-total small{color:rgba(255,255,255,.75)}
+.score-strip .ss-go{margin-left:auto;border-right:none;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.results-body .score-strip,#results-body .score-strip,#pp-question-box .score-strip{margin:0 0 14px}
+.total-row{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.total-score{font-size:56px;font-weight:700;color:var(--navy);line-height:1}
+.total-score small,.tile-score small{font-size:13px;color:var(--slate);font-weight:400;margin-left:3px}
+.total-meta{font-size:12px;color:var(--text-body);line-height:1.7;flex:1;min-width:220px}
+.tile-need{color:var(--amber-warm)!important;font-weight:700}
+.scale-bar{position:relative;height:8px;background:var(--dim);margin:6px 0}
+.scale-bar.empty{opacity:.4}
+.scale-band{position:absolute;top:0;bottom:0;background:rgba(46,84,132,.25)}
+.scale-mid{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--slate);opacity:.5}
+.scale-mark{position:absolute;top:-3px;width:6px;height:14px;margin-left:-3px}
+.trend{width:100%;height:auto;margin-top:10px;background:var(--blue-light)}
+.trend-lbl{font-size:10px;fill:var(--slate)}
+.trend-val{font-size:12px;font-weight:700;fill:var(--navy)}
+.how{margin-top:10px;font-size:12px;color:var(--text-body);line-height:1.7}
+.how summary{cursor:pointer;font-weight:700;color:var(--navy-mid);font-size:11px}
+.how p{margin-top:8px}
+.disc-section{margin-bottom:14px}
+.disc-section-head{font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--white);background:var(--navy);padding:5px 10px;margin-bottom:6px}
+.disc-row{display:grid;grid-template-columns:minmax(150px,1.3fr) 44px 1fr;grid-template-areas:"name score bar" "name meta meta";column-gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)}
+.disc-row.thin{opacity:.7}
+.disc-name{grid-area:name;font-size:12px;font-weight:700;color:var(--text)}
+.disc-weight{display:block;font-size:10px;font-weight:400;color:var(--slate)}
+.disc-score{grid-area:score;font-size:20px;font-weight:700;text-align:right}
+.disc-bar{grid-area:bar}
+.disc-meta{grid-area:meta;font-size:10px;color:var(--slate)}
+.count-btn.small{padding:7px 12px;font-size:12px}
+@media (max-width:640px){
+  .score-strip>span{padding:6px 8px;font-size:15px}
+  .score-strip .ss-go{display:none}
+  .disc-row{grid-template-columns:1fr 40px;grid-template-areas:"name score" "bar bar" "meta meta"}
+  .total-score{font-size:44px}
+}

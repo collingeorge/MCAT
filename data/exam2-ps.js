@@ -7,6 +7,7 @@ const EXAM2_PS_PASSAGES = [
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2ps_1',
+  subj:'psych_soc',
   type:'passage',
   topic:'P/S',
   title:'Intrinsic Motivation, Self-Determination Theory, and Patient Behavior Change',
@@ -70,6 +71,7 @@ A third group (Group C) received cash incentives for attending appointments and 
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2ps_2',
+  subj:'psych_soc',
   type:'passage',
   topic:'P/S',
   title:'Sleep Architecture, Memory Consolidation, and Sleep Disorders',
@@ -133,6 +135,7 @@ Narcolepsy type 1: loss of orexin-producing neurons (autoimmune destruction) →
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2ps_3',
+  subj:'psych_soc',
   type:'passage',
   topic:'P/S',
   title:'Stigma, Stereotype Threat, and Health Disparities',
@@ -194,6 +197,7 @@ In healthcare, stigma operates at multiple levels: structural (laws, policies, i
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2ps_4',
+  subj:'psych_soc',
   type:'passage',
   topic:'P/S',
   title:'Cognitive Heuristics and Diagnostic Errors in Clinical Medicine',
@@ -257,6 +261,7 @@ Premature closure — accepting a diagnosis before adequately considering altern
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2ps_5',
+  subj:'psych_soc',
   type:'passage',
   topic:'P/S',
   title:'Social Mobility, Relative Deprivation, and Health Outcomes',
@@ -320,6 +325,7 @@ In a study of upwardly mobile individuals (working-class origin, professional oc
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2ps_6',
+  subj:'psych_soc',
   type:'passage',
   topic:'P/S',
   title:'Personality Traits, the Five-Factor Model, and Personality Disorders',
@@ -383,6 +389,7 @@ In clinical settings, personality assessment must account for state vs. trait di
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2ps_7',
+  subj:'research',
   type:'passage',
   topic:'P/S',
   title:'Epidemiological Measures and Screening Program Design',
@@ -446,6 +453,7 @@ Potential harms of screening: false positives causing anxiety and unnecessary pr
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2ps_8',
+  subj:'psych_soc',
   type:'passage',
   topic:'P/S',
   title:'Emotion Regulation Strategies and Their Neurobiological Substrates',
@@ -509,6 +517,7 @@ Researchers compared emotion regulation strategies in 200 adults: high reapprais
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2ps_9',
+  subj:'psych_soc',
   type:'passage',
   topic:'P/S',
   title:'Racial Health Disparities, Weathering, and the Biology of Racism',
@@ -554,6 +563,7 @@ Epigenetic research has documented differential methylation patterns in stress-r
       exp:"Promoter **hypermethylation** silences transcription, so fewer glucocorticoid receptors in the hippocampus and hypothalamus means weaker negative feedback and prolonged cortisol elevation after stress. This was first shown in rats raised by low licking-and-grooming mothers (Weaver, Meaney & Szyf, 2004) and later in human hippocampus from suicide victims with childhood abuse (McGowan et al., 2009). Increased expression is the tempting reversal; remember that methylated promoters are silenced. The serotonin transporter gene is SLC6A4, not NR3C1."
     },
     {
+      subj:'research',
       q:"A researcher wants to test whether a structural intervention (eliminating discriminatory lending practices in one city) reduces weathering biomarkers (telomere length, allostatic load) in Black residents compared to a matched control city. Which study design would provide the strongest causal evidence?",
       choices:[
         "A cross-sectional survey of discrimination perceptions and biomarkers at one time point",
@@ -572,6 +582,7 @@ Epigenetic research has documented differential methylation patterns in stress-r
 // ══════════════════════════════════════════════════════════════
 {
   id:'p_e2ps_10',
+  subj:'psych_soc',
   type:'passage',
   topic:'P/S',
   title:'Social Identity Theory, Intergroup Conflict, and Reducing Prejudice',
@@ -635,7 +646,7 @@ In healthcare, demographic concordance (patient-provider racial/ethnic match) is
 
 const EXAM2_PS_DISCRETES = [
   {
-    id:'e2ps_d_1', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'e2ps_d_1', type:'discrete', topic:'P/S',
     q:"According to Freud's structural model of the mind, the superego develops through which process, and what is its primary function?",
     choices:[
       "It forms through operant conditioning in infancy and operates on the pleasure principle",
@@ -647,7 +658,7 @@ const EXAM2_PS_DISCRETES = [
     exp:"The **superego** forms as the Oedipal conflict resolves in the phallic stage (about ages 3–6), when the child identifies with the same-sex parent and internalizes parental and societal standards; it acts as the conscience (producing guilt) and the ego ideal (aspirations). The pleasure principle and inborn drives belong to the id. The reality-principle choice describes the ego, the most tempting confusion."
   },
   {
-    id:'e2ps_d_2', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'e2ps_d_2', type:'discrete', topic:'P/S',
     q:"The social readjustment rating scale (SRRS, Holmes & Rahe) assigns stress points to major life events. Death of a spouse scores highest (100 points). Which theoretical limitation of the SRRS is most important?",
     choices:[
       "It counts positive events such as marriage, which cannot generate any stress",
@@ -659,7 +670,7 @@ const EXAM2_PS_DISCRETES = [
     exp:"The SRRS treats stressfulness as a fixed property of each event, but Lazarus's **transactional model** holds that stress depends on appraisal: whether the event is threatening (primary) and whether one can cope (secondary). The death of a spouse might be devastating for one person and a relief for another in an abusive marriage. Counting positive events is a deliberate design choice, since change itself demands adjustment; the scale's other limitations include ignoring daily hassles and chronic stressors."
   },
   {
-    id:'e2ps_d_3', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'e2ps_d_3', type:'discrete', topic:'P/S',
     q:"In Skinner's operant conditioning framework, negative reinforcement differs from punishment. Which correctly distinguishes them?",
     choices:[
       "Negative reinforcement decreases a behavior, whereas punishment increases it",
@@ -671,7 +682,7 @@ const EXAM2_PS_DISCRETES = [
     exp:"**Reinforcement** always increases a behavior and **punishment** always decreases it; 'negative' means a stimulus is removed, not that something bad happens. Taking ibuprofen to remove a headache is negative reinforcement (ibuprofen use increases), whereas a speeding ticket is positive punishment and losing screen time is negative punishment. Treating negative reinforcement as a form of punishment is the classic error."
   },
   {
-    id:'e2ps_d_4', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'e2ps_d_4', type:'discrete', topic:'P/S',
     q:"The biopsychosocial model of illness was proposed by Engel as an alternative to the biomedical model. Which statement best describes the core difference?",
     choices:[
       "It replaces biological causes of illness with psychological explanations",
@@ -683,7 +694,7 @@ const EXAM2_PS_DISCRETES = [
     exp:"Engel (1977) argued that the biomedical model's reduction of disease to biological dysfunction is incomplete; the **biopsychosocial model** adds psychological factors (beliefs, mood, behavior) and social factors (family, culture, SES) that interact with biology in every illness. For example, type 2 diabetes involves insulin resistance, depression that undermines self-management, and food access. The model includes biology rather than rejecting it, and it applies to all illness, not just psychiatric conditions."
   },
   {
-    id:'e2ps_d_5', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'e2ps_d_5', type:'discrete', topic:'P/S',
     q:"Sensory adaptation is a universal perceptual phenomenon. Which statement correctly describes its mechanism and an example in clinical medicine?",
     choices:[
       "Receptor sensitivity rises with constant stimulation; clinicians grow more alert to faint signs",
@@ -695,7 +706,7 @@ const EXAM2_PS_DISCRETES = [
     exp:"**Sensory adaptation** is a decline in receptor (and early neural) responsiveness to a constant, unchanging stimulus, so a persistent odor or the feel of clothing fades from awareness within minutes. It is normal and reversible, and nociceptors adapt little, so it is not limited to pain. Alarm fatigue is often cited as an example but is better described as **habituation**, a learned central decrease in responding to repeated, non-consequential stimuli, rather than receptor-level adaptation."
   },
   {
-    id:'e2ps_d_6', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'e2ps_d_6', type:'discrete', topic:'P/S',
     q:"During a clinical trial, patients in the control group who receive a placebo show significant symptom improvement. This response is mediated by which mechanisms?",
     choices:[
       "Regression to the mean alone, with no genuine change in the patients' physiology",
@@ -707,7 +718,7 @@ const EXAM2_PS_DISCRETES = [
     exp:"Placebo responses involve real neurobiology: expectation releases **endogenous opioids** (naloxone blocks placebo analgesia; Levine, 1978) and dopamine (seen in Parkinson's patients given placebo), and prior effective treatment can classically condition physiological responses. Regression to the mean is tempting because it does inflate apparent improvement in control groups, but it cannot account for opioid-dependent effects that an antagonist blocks. Nocebo effects (expecting harm) have their own mechanisms."
   },
   {
-    id:'e2ps_d_7', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'e2ps_d_7', type:'discrete', topic:'P/S',
     q:"Sociologist Émile Durkheim classified suicide by levels of social integration and moral regulation. Which set correctly pairs three of his types with their structural causes?",
     choices:[
       "Egoistic with excessive regulation; anomic with excessive integration; fatalistic with weak integration",
@@ -719,7 +730,7 @@ const EXAM2_PS_DISCRETES = [
     exp:"Durkheim tied suicide rates to two social forces, **integration** and **regulation**: weak integration produces egoistic suicide (isolated individuals), excessive integration produces altruistic suicide (self-sacrifice for the group), weak regulation produces anomic suicide (normlessness during economic or social upheaval), and excessive regulation produces fatalistic suicide (oppressive control). The distractors swap these pairings. Remember egoistic = too little belonging and anomic = too few norms."
   },
   {
-    id:'e2ps_d_8', type:'discrete', topic:'P/S',
+    subj:'research', id:'e2ps_d_8', type:'discrete', topic:'P/S',
     q:"A researcher finds that children who watch more violent television are more likely to engage in aggressive behavior. However, a critic points out that aggressive children may self-select violent television. What methodological approach would best address this alternative explanation?",
     choices:[
       "Increase the sample size so that random sampling error is reduced",
@@ -731,7 +742,7 @@ const EXAM2_PS_DISCRETES = [
     exp:"**Random assignment** breaks any link between children's preexisting aggressiveness and what they watch, so later differences in aggression can be attributed to the programs, as in Bandura's Bobo doll studies. A larger sample reduces random error but not this systematic selection bias, and adjusting for other covariates cannot rule out reverse causation. Comparing past habits of aggressive and nonaggressive children is a case-control design that looks backward, so it cannot show which came first."
   },
   {
-    id:'e2ps_d_9', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'e2ps_d_9', type:'discrete', topic:'P/S',
     q:"George Herbert Mead's symbolic interactionism proposes that the self develops through social interaction. His concept of 'taking the role of the other' refers to:",
     choices:[
       "Imitating other people's behaviors in order to learn social norms",
@@ -743,7 +754,7 @@ const EXAM2_PS_DISCRETES = [
     exp:"For Mead, the social self (the 'me') develops through **role-taking**: imagining how others see us, first specific others in the play stage, then several roles at once in the game stage, and finally the **generalized other**, society's internalized expectations. Imitation is the tempting distractor, but it is the preparatory stage before true role-taking begins. Cooley's looking-glass self is a closely related idea."
   },
   {
-    id:'e2ps_d_10', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'e2ps_d_10', type:'discrete', topic:'P/S',
     q:"A physician notices that when she uses the term 'cancer survivor' with patients, they report feeling more empowered and proactive about follow-up care, compared to when she uses 'cancer patient.' This phenomenon is best explained by:",
     choices:[
       "Recency effect — the last word heard was the most salient part of the visit",
@@ -755,7 +766,7 @@ const EXAM2_PS_DISCRETES = [
     exp:"Labels shape self-concept: 'survivor' activates a **schema** of agency, resilience and life beyond the disease, raising self-efficacy, whereas 'patient' implies ongoing illness and dependence, which is why person-first, nonpathologizing language is recommended. Operant conditioning is tempting, but reinforcement must follow a behavior, and here the word came before the behavior change. The halo effect would change patients' views of the physician, not their own proactivity."
   },
   {
-    id:'e2ps_d_11', type:'discrete', topic:'P/S',
+    subj:'research', id:'e2ps_d_11', type:'discrete', topic:'P/S',
     q:"Which correctly describes the difference between incidence and prevalence, and how they relate to each other?",
     choices:[
       "Incidence counts existing cases, while prevalence counts only new cases",
@@ -767,7 +778,7 @@ const EXAM2_PS_DISCRETES = [
     exp:"**Incidence** is new cases per person-time at risk, and **prevalence** is the proportion with the condition at a point in time; in a steady state, prevalence ≈ incidence × average duration. Antiretroviral therapy illustrates this: HIV prevalence rose as survival lengthened even with stable incidence, whereas influenza has high incidence but low point prevalence because it is brief. Swapping the two definitions is the most common error."
   },
   {
-    id:'e2ps_d_12', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'e2ps_d_12', type:'discrete', topic:'P/S',
     q:"Kohlberg's theory of moral development proposes three levels of moral reasoning. A person who refuses to jaywalk even when alone because 'rules exist for everyone's safety' is best described as reasoning at which level?",
     choices:[
       "Preconventional, stage 1 — avoiding the punishment of a jaywalking ticket",
@@ -779,7 +790,7 @@ const EXAM2_PS_DISCRETES = [
     exp:"Valuing a rule because it protects everyone and keeps society orderly, even with no one watching, is **stage 4 (law and order)** at the conventional level. Postconventional reasoning is tempting, but it treats laws as changeable social contracts (stage 5) or subordinates them to universal principles that can justify breaking them (stage 6); this person is simply upholding the rule. Preconventional reasoning would cite punishment or personal gain."
   },
   {
-    id:'e2ps_d_13', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'e2ps_d_13', type:'discrete', topic:'P/S',
     q:"In classical conditioning, what is the difference between extinction and spontaneous recovery?",
     choices:[
       "Extinction permanently erases the CS-US association, so recovery cannot occur",
@@ -791,7 +802,7 @@ const EXAM2_PS_DISCRETES = [
     exp:"**Extinction** is the decline of the CR when the CS is repeatedly presented without the US; it creates new inhibitory learning rather than erasing the original association, so after a rest the CR returns (**spontaneous recovery**), and it can also return through renewal or reinstatement. Permanent erasure is the tempting misconception. Clinically, this is why fears can relapse after exposure therapy and why booster sessions help."
   },
   {
-    id:'e2ps_d_14', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'e2ps_d_14', type:'discrete', topic:'P/S',
     q:"A study finds that patients with higher health literacy show better medication adherence, fewer ER visits, and better chronic disease control. Health literacy is best defined as:",
     choices:[
       "Reading and writing at an adult level, enough to understand prescription labels",
@@ -803,7 +814,7 @@ const EXAM2_PS_DISCRETES = [
     exp:"**Health literacy** is the capacity to obtain, process, understand and use health information and services, including numeracy and navigating the health system, not just reading. The reading-only definition is tempting but too narrow, and highly educated people can still struggle with risk statistics. Low health literacy (roughly a third of US adults) independently predicts worse outcomes; teach-back and plain language help."
   },
   {
-    id:'e2ps_d_15', type:'discrete', topic:'P/S',
+    subj:'research', id:'e2ps_d_15', type:'discrete', topic:'P/S',
     q:"Which research design allows researchers to establish temporal sequence (exposure precedes outcome) without the ethical constraints of experimental manipulation?",
     choices:[
       "Cross-sectional study — exposure and outcome are measured at the same time",
@@ -815,7 +826,7 @@ const EXAM2_PS_DISCRETES = [
     exp:"A **prospective cohort** measures exposure before outcomes occur and follows participants forward, establishing temporal sequence without assigning anyone a harmful exposure. Case-control studies are tempting because they examine exposure history, but they start from the outcome and rely on recall, which weakens temporal inference. Cross-sectional designs measure both at once, and ecological designs risk the ecological fallacy."
   },
   {
-    id:'e2ps_d_16', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'e2ps_d_16', type:'discrete', topic:'P/S',
     q:"A patient experiencing a panic attack believes they are dying of a heart attack. Their catastrophic interpretation of normal physiological symptoms amplifies the panic response. This positive feedback loop between cognition and physiology is best explained by which model?",
     choices:[
       "Behavioral model — avoiding feared situations negatively reinforces the fear",
@@ -827,7 +838,7 @@ const EXAM2_PS_DISCRETES = [
     exp:"In Clark's **cognitive model of panic**, benign bodily sensations are catastrophically misinterpreted ('I'm having a heart attack'), which raises anxiety and arousal, intensifying the sensations and seeming to confirm the belief, a positive feedback loop. Interoceptive conditioning is tempting, but it bypasses the interpretation the stem emphasizes, and avoidance explains how panic disorder is maintained over time, not the escalation within an attack. CBT with interoceptive exposure and cognitive restructuring targets this loop."
   },
   {
-    id:'e2ps_d_17', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'e2ps_d_17', type:'discrete', topic:'P/S',
     q:"In Weber's sociological theory, bureaucracies are characterized by formal hierarchy, written rules, impersonal norms, and specialized division of labor. Weber argued that bureaucracy is the most efficient organizational form, but also identified its 'iron cage' problem. What did he mean by 'iron cage'?",
     choices:[
       "Bureaucracies physically confine workers through constant surveillance systems",
@@ -844,7 +855,7 @@ const EXAM2_PS_DISCRETES = [
 
 const EXAM2_PS_EXTRA = [
   {
-    id:'e2ps_d_18', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'e2ps_d_18', type:'discrete', topic:'P/S',
     q:"A patient starts a new medication without knowing that it causes tachycardia. While waiting for a biopsy result, she notices her racing heart and concludes she must be anxious about the result. When her physician explains the side effect, her anxiety fades even though her heart rate stays elevated. Which theory of emotion best explains this sequence?",
     choices:[
       "James-Lange — the emotion is simply the perception of the bodily arousal itself",
@@ -856,7 +867,7 @@ const EXAM2_PS_EXTRA = [
     exp:"The **Schachter-Singer two-factor theory** holds that emotion requires both physiological arousal and a cognitive label; the unexplained arousal was attributed to the biopsy and labeled anxiety, and once a nonemotional cause (the drug) was supplied, the anxiety faded while the arousal persisted, mirroring the classic epinephrine misattribution experiments. James-Lange is tempting because arousal came first, but it predicts the emotion should last as long as the arousal does. In Lazarus's theory, appraisal precedes arousal, the reverse of this sequence."
   },
   {
-    id:'e2ps_d_19', type:'discrete', topic:'P/S',
+    subj:'psych_soc', id:'e2ps_d_19', type:'discrete', topic:'P/S',
     q:"To reduce childhood obesity, a school district revises its own cafeteria policies to improve the nutritional content of school lunches. This intervention operates at which level of McLeroy's social ecological model?",
     choices:[
       "Intrapersonal — changing individual children's nutrition knowledge and attitudes",
