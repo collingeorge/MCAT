@@ -1,5 +1,5 @@
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-![Version](https://img.shields.io/badge/Version-2.2-blue.svg)
+![Version](https://img.shields.io/badge/Version-2.3-blue.svg)
 ![Last Updated](https://img.shields.io/badge/Updated-Oct_2026-purple.svg)
 
 # MCAT Study App
@@ -17,19 +17,20 @@ It sits between Anki (pure recall) and UWorld (full exam simulation). You get fa
 
 | Mode | Content |
 |---|---|
-| **Recall** | 2,549 questions derived from the [MCAT Milesdown](https://ankiweb.net/shared/info/178384887) Anki deck, rewritten as 4-option multiple choice with explanations |
+| **Recall** | 2,807 questions derived from the [MCAT Milesdown](https://ankiweb.net/shared/info/178384887) Anki deck, rewritten as 4-option multiple choice with explanations, including 105 Essential Equations, constants and units |
 | **Passages** | 54 passages / 257 questions: 30 science passages and 24 original CARS passages |
 | **Full-length** | 2 timed exams, each 230 questions: C/P 59 · CARS 53 · B/B 59 · P/S 59, with real section times and breaks |
 
 ### Recall bank by subject
 | Subject | Questions |
 |---|---|
-| Biochemistry | 465 |
-| Biology | 569 |
-| General Chemistry | 209 |
-| Organic Chemistry | 235 |
-| Physics & Math (incl. research methods & statistics) | 258 |
-| Psychology & Sociology | 813 |
+| Biochemistry | 509 |
+| Biology | 581 |
+| General Chemistry | 228 |
+| Organic Chemistry | 277 |
+| Physics & Math (incl. research methods & statistics) | 284 |
+| Essential Equations, constants & units | 105 |
+| Psychology & Sociology | 823 |
 
 ---
 
@@ -38,7 +39,7 @@ It sits between Anki (pure recall) and UWorld (full exam simulation). You get fa
 - **Spaced repetition.** Every answer updates a Leitner-style schedule (review after 0 → 1 → 3 → 7 → 16 → 35 days). Sessions show due reviews first, then questions you haven't seen. The home screen shows how many are due.
 - **Shuffled answers.** Choice order is randomized every time, so you learn the content, not the letter position.
 - **Teaching explanations.** Each explanation says why the answer is right and usually why the tempting wrong answer is wrong.
-- **Topic selector.** Pick a subject, a topic, or any mix of the 80 subtopics, with live question counts.
+- **Topic selector.** Pick a subject, a topic, or any mix of the 82 subtopics, with live question counts.
 - **Flagging.** Flag any question (F key) and review all flagged questions later from the home screen.
 - **Drill weak topics.** One click drills every topic where you're below 70% after at least 5 attempts.
 - **Progress dashboard.** Shows all-time accuracy, questions seen, questions mastered, accuracy by subject, your weakest and strongest topics, and your exam history.
@@ -129,7 +130,7 @@ For MCAT study only. This is not medical, clinical or psychological advice. Cont
 The app's code and original content are licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/): free to share and adapt with attribution, but not for commercial use. Third-party material, including the original MileDown cards, remains subject to its owners' terms.
 
 ## Citation
-George, C. B. (2026). *MCAT Study App* (Version 2.2). https://github.com/collingeorge/MCAT
+George, C. B. (2026). *MCAT Study App* (Version 2.3). https://github.com/collingeorge/MCAT
 
 ---
 *For MCAT practice only. MCAT® is a registered trademark of the Association of American Medical Colleges (AAMC), which does not endorse this project. Not affiliated with the AAMC or MileDown.*
