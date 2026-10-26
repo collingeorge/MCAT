@@ -500,7 +500,7 @@ function snapshotEstimate() {
 // ════════════════════════════════════════════════════════════════
 //  SCREENS & HOME
 // ════════════════════════════════════════════════════════════════
-const SCREENS = ['screen-home', 'screen-quiz', 'screen-results', 'screen-passage', 'screen-exam', 'screen-exam-results'];
+const SCREENS = ['screen-home', 'screen-quiz', 'screen-results', 'screen-passage', 'screen-exam', 'screen-exam-results', 'screen-about'];
 let activeScreen = 'screen-home';
 function show(id) {
   SCREENS.forEach(s => { const el = $(s); if (el) el.hidden = s !== id; });
@@ -964,7 +964,7 @@ function scoreReportCards() {
         <summary>How this score is calculated</summary>
         <p>The AAMC scores each section on 118–132 (midpoint 125) and adds the four for a 472–528 total. Each section draws on fixed shares of content. C/P is 30% general chemistry, 25% physics, 25% biochemistry, 15% organic chemistry and 5% biology. B/B is 65% biology, 25% biochemistry and 5% each general and organic chemistry. P/S is 65% psychology, 30% sociology and 5% biology. CARS is reading and reasoning only.</p>
         <p>Every subject below gets an MCAT-equivalent score from your answers. Full-length questions count 3×, passage questions 2× and recall questions 1×. Recall questions test single facts, so they're converted on a stricter curve. A section score is its subjects' scores weighted by the shares above. Subjects with fewer than ${MIN_ANSWERS} answers are left out, and a section needs at least 70% of its content covered. The ± range narrows as you answer more.</p>
-        <p>Percentiles are the AAMC ranks in effect May 1, 2026 – April 30, 2027. These are study estimates, not predictions: the AAMC converts raw scores separately for every test form. A full-length exam is the best single indicator.</p>
+        <p>Percentiles are the AAMC ranks in effect May 1, 2026 – April 30, 2027. These are study estimates, not predictions: the AAMC converts raw scores separately for every test form. A full-length exam is the best single indicator. <a href="#" onclick="showAbout();return false">About &amp; disclaimers</a></p>
       </details>
     </div>
     <div class="results-card">
@@ -1489,6 +1489,50 @@ function examHistoryCard() {
 }
 
 // ════════════════════════════════════════════════════════════════
+//  ABOUT & DISCLAIMERS
+// ════════════════════════════════════════════════════════════════
+function showAbout() {
+  stopQuizTimer();
+  show('screen-about');
+  const link = (href, text) => `<a href="${href}" target="_blank" rel="noopener">${text}</a>`;
+  $('about-body').innerHTML = `
+    <div class="results-hero"><div class="r-label">About &amp; disclaimers</div></div>
+    <div class="results-card about">
+      <h2>About this app</h2>
+      <p>MCAT Study App is a free, open-source study tool by Collin B. George. It offers spaced-repetition recall questions, practice passages and timed full-length practice exams. There are no accounts, ads or fees. The source code and content are on ${link(REPO_URL, 'GitHub')}.</p>
+
+      <h2>Not affiliated with the AAMC</h2>
+      <p>MCAT® is a registered trademark of the Association of American Medical Colleges (AAMC). This app is independent: it is not affiliated with, sponsored by or endorsed by the AAMC. It contains no official AAMC exam questions. Section formats, timing and content shares follow the AAMC's public descriptions of the exam. For official information and practice materials, go to ${link('https://students-residents.aamc.org/taking-mcat-exam/take-mcat-exam', 'the AAMC MCAT website')}.</p>
+
+      <h2>Educational use only, not medical advice</h2>
+      <p>All content is for MCAT preparation. It is not medical, clinical, pharmacological or psychological advice, and it is not a substitute for a qualified professional. Some explanations mention drugs, doses, disorders and procedures. They are there to teach exam concepts, not to guide anyone's care.</p>
+
+      <h2>Accuracy</h2>
+      <p>The question bank was reviewed against current references, including the AAMC content outline and DSM-5-TR, but errors are still possible. Content is provided "as is", without warranty of any kind. Check important facts against your textbooks or official AAMC materials. If something looks wrong, use <b>Report a problem</b> under any explanation. Reports open as <b>public</b> GitHub issues, so don't include personal information.</p>
+
+      <h2>Score estimates</h2>
+      <p>Scaled scores, totals and percentiles in this app are <b>study estimates, not predictions</b> of an official MCAT score. The AAMC converts raw scores separately for each test form, and this app's questions are not AAMC questions. Percentile ranks use the AAMC tables in effect May 1, 2026 – April 30, 2027 (${link('https://www.aamc.org/services/mcat-admissions-officers/resources/percentile-ranks', 'source')}). For a test-day prediction, use the AAMC's official practice exams.</p>
+
+      <h2>Privacy</h2>
+      <p>This app collects no personal information. There are no accounts and no analytics, ads or tracking cookies. Your progress (answers, flags, scores and exam history) is saved only in this browser's local storage on this device. It is never sent to the author or anyone else. You can erase it at any time with <b>Score report → Reset all progress</b>, or by clearing this site's data in your browser.</p>
+      <p>The site is hosted on GitHub Pages. Like any web host, GitHub may log basic technical information such as IP addresses under the ${link('https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement', 'GitHub Privacy Statement')}.</p>
+
+      <h2>Sources &amp; credits</h2>
+      <ul>
+        <li><b>Recall questions</b> are derived from the community MileDown MCAT Anki flashcard decks. They were converted to multiple choice and substantially edited and corrected for this app. Credit for the original cards belongs to their creator. MileDown has no affiliation with this app and has not reviewed or endorsed it. If you created the original decks and would like the credit worded differently, or the material changed or removed, please ${link(REPO_URL + '/issues', 'open an issue')}.</li>
+        <li><b>Passages, CARS passages and full-length exam questions</b> are original to this app.</li>
+        <li><b>Percentile ranks and section content shares</b> are taken from published AAMC information, credited above.</li>
+      </ul>
+
+      <h2>License</h2>
+      <p>The app's code and original content are licensed under ${link('https://creativecommons.org/licenses/by-nc/4.0/', 'Creative Commons BY-NC 4.0')}. You may share and adapt them for non-commercial purposes with attribution. Third-party material, including the original MileDown cards, remains subject to its owners' terms.</p>
+
+      <p class="muted-note">Version 2.2 · Last updated October 2026</p>
+    </div>
+    <div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div>`;
+}
+
+// ════════════════════════════════════════════════════════════════
 //  KEYBOARD
 // ════════════════════════════════════════════════════════════════
 const KEY_TO_CHOICE = { '1': 0, '2': 1, '3': 2, '4': 3, a: 0, b: 1, c: 2, d: 3 };
@@ -1509,7 +1553,7 @@ document.addEventListener('keydown', e => {
     else if (k === 'arrowright' || k === 'n') { e.preventDefault(); examNav(1); }
     else if (k === 'arrowleft' || k === 'p') { e.preventDefault(); examNav(-1); }
     else if (k === 'm' || k === 'f') { e.preventDefault(); toggleMark(); }
-  } else if (k === 'escape' && (activeScreen === 'screen-results' || activeScreen === 'screen-exam-results')) {
+  } else if (k === 'escape' && ['screen-results', 'screen-exam-results', 'screen-about'].includes(activeScreen)) {
     goHome();
   }
 });
