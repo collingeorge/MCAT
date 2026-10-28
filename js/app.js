@@ -35,7 +35,7 @@ function esc(s) {
 }
 // Inline formatting for authored text: **bold** and cloze blanks
 function fmt(text) {
-  return String(text ?? '')
+  return esc(text)
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/_{3,}/g, '<span class="blank" aria-label="blank"></span>');
 }
@@ -63,12 +63,30 @@ function issueUrl(context, stem) {
 }
 
 // ── Storage (versioned keys; every access is guarded) ─────────
+function storageWarning(message) {
+  const el = $('storage-notice');
+  if (el) { el.hidden = false; el.textContent = message; }
+}
+function storedShape(value, fallback) {
+  if (fallback === undefined) return true;
+  if (value === null) return fallback === null;
+  if (Array.isArray(fallback)) return Array.isArray(value);
+  if (fallback !== null && typeof fallback === 'object') return typeof value === 'object' && !Array.isArray(value);
+  if (fallback === null) return typeof value === 'object' && !Array.isArray(value);
+  return typeof value === typeof fallback;
+}
 const store = {
   get(key, fallback) {
-    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; }
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return fallback;
+      const value = JSON.parse(raw);
+      if (!storedShape(value, fallback)) throw new Error('Unexpected saved-data format');
+      return value;
+    } catch (e) { storageWarning('Some saved progress could not be read. You can keep studying, but check your browser storage settings.'); return fallback; }
   },
-  set(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* storage full or blocked */ } },
-  del(key) { try { localStorage.removeItem(key); } catch (e) { /* ignore */ } },
+  set(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { storageWarning('Progress could not be saved. Keep this tab open and check browser storage before leaving.'); } },
+  del(key) { try { localStorage.removeItem(key); } catch (e) { storageWarning('Saved data could not be removed. Check browser storage settings.'); } },
 };
 const KEYS = {
   studyPath: 'mcat2_study_path',
@@ -416,7 +434,9 @@ function updateMemory(q, right, conf, ms) {
     const R = retrievability(m, now);
     // Bigger gains for confident recalls, for harder-to-recall moments, and for easier cards
     const growth = [0, 1.3, 2.4, 3.6][g] * (1 + 1.5 * (1 - R)) * ((11 - m.D) / 6);
-    m.S = Math.min(365, m.S * Math.max(1.1, growth));
+    // Rapid within-day repeats confirm practice, not long-term retention.
+    const sameDay = localDay(new Date(m.last)) === localDay(new Date(now));
+    m.S = Math.min(365, m.S * (sameDay ? Math.min(1.1, Math.max(1, growth)) : Math.max(1.1, growth)));
   }
   m.D = Math.min(10, Math.max(1, m.D + [1.2, 0.4, -0.2, -0.6][g]));
   m.seen++;
@@ -921,7 +941,10 @@ function show(id) {
 }
 
 const prefs = Object.assign({ mode: 'recall', count: 20, selected: null }, store.get(KEYS.prefs, {}));
-let selectedKeys = new Set((prefs.selected || ALL_KEYS).filter(k => KEY_COUNTS[k]));
+prefs.mode = ['recall', 'passage', 'exam'].includes(prefs.mode) ? prefs.mode : 'recall';
+prefs.mix = ['custom', 'cp', 'bb', 'ps', 'all'].includes(prefs.mix) ? prefs.mix : 'custom';
+prefs.count = [0, 10, 20, 30, 50, 100].includes(prefs.count) ? prefs.count : 20;
+let selectedKeys = new Set((Array.isArray(prefs.selected) ? prefs.selected : ALL_KEYS).filter(k => KEY_COUNTS[k]));
 const openSubjects = new Set();
 function savePrefs() { prefs.selected = [...selectedKeys]; store.set(KEYS.prefs, prefs); }
 
@@ -1219,7 +1242,12 @@ function runnerUpPrompt(view, chosen, handler, selected = null) {
   return '<div class="results-card"><label><b>Which other answer were you considering?</b><p class="muted-note">Optional: record your runner-up before seeing the explanation.</p><select id="runner-up" onchange="' + handler + '(this.value)"><option value="">No other answer / skip</option>' + view.choices.map((c, i) => i === chosen ? '' : '<option value="' + i + '"' + (selected === i ? ' selected' : '') + '>' + LETTERS[i] + '. ' + esc(c) + '</option>').join('') + '</select></label></div>';
 }
 function setRunnerUp(value) {
-  if (finalTwo) finalTwo.other = value === '' ? null : Number(value);
+  if (!finalTwo) return;
+  const state = finalTwo.mode === 'recall' ? quiz : pq;
+  const view = finalTwo.mode === 'recall' ? state.items[state.idx] : state.views[state.idx];
+  const other = value === '' ? null : Number(value);
+  if (other !== null && (!Number.isInteger(other) || other < 0 || other >= view.choices.length || other === finalTwo.chosen)) return;
+  finalTwo.other = other;
 }
 function stageAnswer(mode, chosen) {
   const state = mode === 'recall' ? quiz : pq;
@@ -1341,7 +1369,7 @@ function finishPick(chosen, other = null, answerMs = null) {
   const ms = answerMs ?? (Date.now() - quiz.qStart);
   quiz.results.push({ view, chosen: timedOut ? null : chosen, right, ms, timedOut, other });
   recordAnswer(view.q, right);
-  if (right) recordFluency(view.q, Date.now() - (view.revealedAt || quiz.qStart));
+  if (right) recordFluency(view.q, Math.max(0, ms - ((view.revealedAt || quiz.qStart) - quiz.qStart)));
   // Memory and mastery are updated when you move on, so the confidence rating can count
   const confusion = right || timedOut ? null : confusionCard(view.choices[chosen], view.q);
   quiz.pending = { q: view.q, right, ms, conf: null, confusion, chosen: timedOut ? '(time ran out)' : view.choices[chosen], answer: view.choices[view.ans],
@@ -1880,17 +1908,23 @@ function aamcCard() {
 // Spreads unseen material over the content phase, reserves the final weeks for
 // review and full-length practice, and sizes each day's Smart Session.
 const SECONDS_PER_RECALL = 48;   // answer + read the explanation
+function calendarDaysBetween(a, b) {
+  return Math.round((Date.UTC(b.getFullYear(), b.getMonth(), b.getDate()) - Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())) / DAY);
+}
 function computePlan() {
   const plan = store.get(KEYS.plan, null);
   if (!plan || !plan.date) return null;
   const today = new Date(localDay() + 'T00:00:00');
   const test = new Date(plan.date + 'T00:00:00');
-  const daysLeft = Math.round((test - today) / DAY);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(plan.date) || !Number.isFinite(test.getTime())) return null;
+  const daysLeft = calendarDaysBetween(today, test);
+  const startDay = new Date((plan.start || localDay()) + 'T00:00:00');
+  const initialDays = Math.max(0, calendarDaysBetween(Number.isFinite(startDay.getTime()) ? startDay : today, test));
   const mem = loadMem();
   const seen = QB.filter(q => mem[q.id] && mem[q.id].seen).length;
   const unseen = QB.length - seen;
   const perWeek = Math.min(7, Math.max(1, plan.days || 6));
-  const finalDays = daysLeft > 42 ? 14 : daysLeft > 21 ? 7 : 0;
+  const finalDays = initialDays > 42 ? 14 : initialDays > 21 ? 7 : Math.min(2, initialDays);
   const studyDaysLeft = Math.max(1, Math.round((daysLeft * perWeek) / 7));
   const contentStudyDays = Math.max(1, Math.round(((daysLeft - finalDays) * perWeek) / 7));
   const inFinal = daysLeft <= finalDays;
@@ -1904,12 +1938,11 @@ function computePlan() {
   const newPerDay = inFinal || daysLeft <= 0 ? 0 : Math.ceil(unseen / contentStudyDays);
   const target = Math.min(capacity, newPerDay + Math.min(due, capacity));
   // Expected progress since the plan started (straight-line over the content phase)
-  const startDay = new Date((plan.start || localDay()) + 'T00:00:00');
-  const total = Math.max(1, Math.round((test - startDay) / DAY) - finalDays);
-  const elapsed = Math.min(total, Math.max(0, Math.round((today - startDay) / DAY)));
+  const total = Math.max(1, initialDays - finalDays);
+  const elapsed = Math.min(total, Math.max(0, calendarDaysBetween(Number.isFinite(startDay.getTime()) ? startDay : today, today)));
   const expectedSeen = Math.round((plan.seenAtStart || 0) + (QB.length - (plan.seenAtStart || 0)) * (elapsed / total));
   const fl = [];
-  const addMilestone = (offset, label) => { if (daysLeft - offset >= 0) fl.push({ date: new Date(test - offset * DAY), label }); };
+  const addMilestone = (offset, label) => { if (daysLeft - offset >= 0) { const date = new Date(test); date.setDate(date.getDate() - offset); fl.push({ date, label }); } };
   // This app's exams come first; AAMC's official exams (the best predictors) fill the final month, one a week
   if (daysLeft >= 49) { addMilestone(42, 'Full-Length Practice Exam 1 (this app)'); addMilestone(35, 'Full-Length Practice Exam 2 (this app)'); }
   else if (daysLeft >= 33) {
@@ -1983,7 +2016,7 @@ function showPlan() {
 }
 function savePlan() {
   const date = $('plan-date').value;
-  if (!date) { alert('Choose your test date.'); return; }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(new Date(date + 'T00:00:00').getTime()) || date < localDay()) { alert('Choose today or a future test date.'); return; }
   const old = store.get(KEYS.plan, null);
   const mem = loadMem();
   store.set(KEYS.plan, {
@@ -2029,7 +2062,7 @@ function showProgress() {
 }
 function resetProgress() {
   if (!confirm('Erase all recall stats, spaced-repetition history, flags, passage scores, score estimates and exam history on this device? This cannot be undone.')) return;
-  [KEYS.studyPath, KEYS.finalTwo, KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
+  [KEYS.fluency, KEYS.studyPath, KEYS.finalTwo, KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
   FULL_EXAMS.forEach(e => { store.del(KEYS.examProgress(e.id)); store.del(KEYS.examLast(e.id)); });
   goHome();
 }
@@ -2175,6 +2208,7 @@ function flushPassageErr() {
   pq.errPending = null;
 }
 function nextPassageQ() {
+  if (!pq.answered || pq.completed || pq.mini?.completed) return;
   flushPassageErr();
   if (pq.idx + 1 >= pq.views.length) { showPassageResults(); return; }
   pq.idx++;
@@ -2317,7 +2351,7 @@ function renderExam() {
   if (exam.phase === 'intro') return renderSectionIntro();
   if (exam.phase === 'break') return renderBreak();
   ensureOrders();
-  startExamTimer();
+  if (!startExamTimer()) return;
   if (exam.phase === 'review') return renderSectionReview();
   renderExamQuestion();
 }
@@ -2352,11 +2386,12 @@ function startExamTimer() {
     const el = $('ex-timer');
     el.textContent = fmtTime(remaining);
     el.className = 'qm-timer' + (remaining < 300000 ? ' danger' : remaining < 600000 ? ' warn' : '');
-    if (remaining <= 0) { stopExamTimer(); alert('Time is up for this section.'); endSection(); return; }
+    if (remaining <= 0) { stopExamTimer(); endSection(); return; }
     if (Math.floor(exam.elapsed[exam.si] / 1000) % 10 === 0) saveExam();
   };
   examTimer = setInterval(tick, 1000);
   tick();
+  return exam.phase === 'question' || exam.phase === 'review';
 }
 function stopExamTimer() { if (examTimer) clearInterval(examTimer); examTimer = null; }
 
@@ -2394,7 +2429,7 @@ function renderExamQuestion() {
 }
 function setExamRunnerUp(value) {
   const other = value === '' ? null : Number(value);
-  if (other === exam.answers[exam.si][exam.qi]) return;
+  if (other !== null && (!Number.isInteger(other) || other < 0 || other >= examView(exam.si, exam.qi).choices.length || other === exam.answers[exam.si][exam.qi])) return;
   exam.alternatives[exam.si][exam.qi] = other;
   saveExam();
 }
@@ -2445,6 +2480,7 @@ function confirmEndSection() {
   if (confirm(msg)) endSection();
 }
 function endSection() {
+  if (!exam || !['question', 'review'].includes(exam.phase) || exam.results[exam.si]) return;
   stopExamTimer();
   ensureOrders();
   const qs = curQuestions();
@@ -2494,6 +2530,7 @@ function renderBreak() {
 function continueAfterBreak() { exam.si++; exam.qi = 0; exam.phase = 'intro'; saveExam(); renderExam(); }
 
 function finishExam() {
+  exam.phase = 'complete';
   const def = examDef();
   const total = exam.results.length === def.sections.length ? exam.results.reduce((a, r) => a + r.scaled, 0) : null;
   const history = store.get(KEYS.examHistory, []);

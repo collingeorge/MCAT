@@ -157,6 +157,19 @@ Percentile ranks are the [AAMC tables in effect May 1, 2026 – April 30, 2027](
 
 ---
 
+## Security, reliability, and learning review
+
+The October 28, 2026 review fixed HTML rendering, saved-data warnings, final-review scheduling, expired-exam resumes, recall-speed measurement, immediate-repeat memory inflation, mini-test review, and offline-cache handling. See [the audit report](docs/AUDIT-2026-10-28.md) for scope, checks, remaining warnings, and limitations.
+
+- Text is escaped before supported bold/cloze formatting. The page limits resource loading with a content security policy; inline event handlers still require an inline-script allowance.
+- Browser storage failures now produce a visible warning. Saved preferences are normalized, and invalid top-level saved-data shapes fall back safely. This is not exhaustive validation of every nested saved record.
+- A plan's final-review window stays anchored to its original start date. Calendar calculations use civil dates rather than elapsed 24-hour periods across daylight-saving changes.
+- Within-day repeats increase estimated memory stability by at most 10% per correct repetition. This conservative heuristic avoids treating immediate familiarity as delayed retention; it is not a clinically or psychometrically calibrated model.
+- Mini-test review includes the passage and any figure. Missed discrete questions lead the next reinforcement session, supplemented with same-subject practice.
+- Offline updates are restricted to known app assets. Cache cleanup preserves unrelated app caches, and cache-write failures do not discard an available network response.
+
+The MCAT assesses scientific knowledge, problem solving, and reasoning before medical school; this app is not a clinical competency assessment. Retrieval and distributed practice have research support, but this app's exact thresholds, timing rules, and score estimates have not been validated as a package. Repeated-item accuracy can overstate transfer; use fresh passages and official full-lengths as additional evidence.
+
 ## Content quality
 
 In October 2026 the full bank (every recall question, passage and exam item) was audited against the current AAMC content outline, DSM-5-TR and current physiology. The audit led to these changes:
@@ -191,7 +204,7 @@ tools/serve.ps1       Tiny local web server for development
 
 ### Testing study progression
 
-Run `node tools/test-study-path.cjs` and `node tools/test-final-two.cjs`. The progression integration test loads the real question and passage data with a simulated DOM and checks readiness, subject matching, time budgets, deferred feedback, timeout scoring, persistence, and repeat-completion guards. It does not replace browser visual testing.
+Run `node tools/test-study-path.cjs`, `node tools/test-final-two.cjs`, `node tools/test-audit.cjs`, and `node tools/check-content.cjs`. GitHub Actions runs these on Windows and Linux. A Linux Chrome smoke test (`node tools/test-browser.cjs`, Node 22+ and Chrome required) also checks actual page loading and interactions. The progression integration test loads the real question and passage data with a simulated DOM and checks readiness, subject matching, time budgets, deferred feedback, timeout scoring, persistence, and repeat-completion guards. It does not replace browser visual testing.
 
 ### Editing questions
 1. Edit the relevant file in `data/`. Keep the `s:` tag (it drives the topic selector). `ans` is the 0-based index of the correct choice; order doesn't matter, because choices are shuffled when shown.

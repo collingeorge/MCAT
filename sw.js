@@ -1,7 +1,7 @@
 // Offline support, network-first: when online, always fetch the current file (revalidating
 // past the browser's HTTP cache) so new versions show on the first visit; the cached copy
 // is used only when the network fails or takes too long. Bump CACHE when deploying.
-const CACHE = 'mcat-v2.6-study-path-2026-10-28';
+const CACHE = 'mcat-v2.6-audit-2026-10-28';
 const NETWORK_TIMEOUT_MS = 4000;
 const ASSETS = [
   './', 'index.html', 'css/styles.css', 'js/app.js', 'js/study-path.js', 'manifest.webmanifest', 'icon.svg',
@@ -22,29 +22,32 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(keys => Promise.all(keys.filter(k => k.startsWith('mcat-') && k !== CACHE).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', event => {
   const req = event.request;
-  if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+  const url = new URL(req.url);
+  const allowed = new Set(ASSETS.map(path => new URL(path, self.registration.scope).pathname));
+  if (req.method !== 'GET' || url.origin !== location.origin || !allowed.has(url.pathname)) return;
   event.respondWith(networkFirst(req));
 });
 
 async function networkFirst(req) {
   const cache = await caches.open(CACHE);
-  const network = fetch(req, { cache: 'no-cache' }).then(res => {
-    if (res.ok) cache.put(req, res.clone());
+  const network = fetch(req, { cache: 'no-cache' }).then(async res => {
+    if (res.ok) { try { await cache.put(req, res.clone()); } catch (e) { /* quota/storage failures must not lose the network response */ } }
     return res;
   });
   network.catch(() => {}); // a late failure after the timeout fallback is expected offline
-  const timeout = new Promise(resolve => setTimeout(resolve, NETWORK_TIMEOUT_MS, null));
+  let timeoutId;
+  const timeout = new Promise(resolve => { timeoutId = setTimeout(resolve, NETWORK_TIMEOUT_MS, null); });
   try {
     const res = await Promise.race([network, timeout]);
     if (res) return res;
-  } catch (e) { /* offline: fall through to cache */ }
+  } catch (e) { /* offline: fall through to cache */ } finally { clearTimeout(timeoutId); }
   const cached = await cache.match(req, { ignoreSearch: true });
   if (cached) return cached;
   return network; // nothing cached: wait for the network (or surface its error)

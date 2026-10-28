@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MCAT Study App</title>
 <meta name="description" content="Free MCAT practice: spaced-repetition recall questions, AAMC-style passages, and timed full-length exams.">
@@ -11,6 +13,7 @@
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+<div id="storage-notice" class="wrap advice" role="alert" hidden></div>
 
 <!-- HOME -->
 <main id="screen-home">
