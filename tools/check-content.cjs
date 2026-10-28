@@ -1,0 +1,13 @@
+const fs = require('node:fs');
+const vm = require('node:vm');
+const path = require('node:path');
+const root = path.resolve(__dirname, '..');
+const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const context = vm.createContext({ window: {}, document: { getElementById() { return {innerHTML: ''}; } } });
+for (const [, file] of index.matchAll(/<script src="(data\/[^"]+)"/g)) vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), context, {filename:file});
+const html = fs.readFileSync(path.join(root, 'tools/validate.html'), 'utf8');
+for (const [, script] of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) vm.runInContext(script, context);
+const result = context.window.__validation;
+if (!result) throw Error('Content validator did not run');
+console.log(JSON.stringify(result, null, 2));
+if (result.errors.length) throw Error(result.errors.length + ' content validation errors');

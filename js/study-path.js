@@ -74,7 +74,7 @@ function startSubjectMini(subj, passages) {
   stopQuizTimer(); stopPassageTimer();
   const targetMs = items.length * (subj === 'cars' ? 102 : 95) * 1000;
   Object.assign(pq, { mini: { subj, items, passages, completed: false }, p: { id: 'mini_' + subj, title: DISCIPLINES[subj] + ' mini test' },
-    idx: 0, views: items.map(x => x.view), results: [], answered: false, startedAt: Date.now(), qStart: Date.now(), targetMs, errPending: null });
+    idx: 0, views: items.map(x => x.view), results: [], answered: false, completed: false, startedAt: Date.now(), qStart: Date.now(), targetMs, errPending: null });
   show('screen-passage');
   renderPassageQuestion();
   pq.timer = setInterval(updatePassageTimer, 1000);
@@ -126,10 +126,19 @@ function finishSubjectMini() {
   logStudyWork(mini.subj, 'mini', correct, total);
   $('pp-fill').style.width = '100%'; $('pp-passage-box').innerHTML = '';
   $('pp-score').textContent = '✓ ' + correct + '/' + total;
-  $('pp-question-box').innerHTML = '<div class="results-hero"><div class="r-label">Subject mini test complete</div><div class="score-pct">' + pct(correct, total) + '%</div><div class="score-sub">' + correct + '/' + total + ' · ' + esc(DISCIPLINES[mini.subj]) + ' · ' + fmtTime(Date.now() - pq.startedAt) + '</div></div><div class="results-card"><p>Review the explanations, then drill recall in this subject before the next passage. This mini test is practice, not a scaled MCAT score.</p><div class="btn-row">' + (mini.subj === 'cars' ? '' : '<button class="new-quiz-btn" onclick="leaveMiniForRecall()">Reinforce this subject</button>') + '<button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div></div>' + pq.results.map((r, i) => reviewItem({ stem: r.view.q.q, choices: r.view.choices, ans: r.view.ans, chosen: r.chosen, other: r.other, exp: r.view.q.exp, tag: 'Q' + (i + 1), passageTitle: mini.items[i].passage?.title })).join('');
+  $('pp-question-box').innerHTML = '<div class="results-hero"><div class="r-label">Subject mini test complete</div><div class="score-pct">' + pct(correct, total) + '%</div><div class="score-sub">' + correct + '/' + total + ' · ' + esc(DISCIPLINES[mini.subj]) + ' · ' + fmtTime(Date.now() - pq.startedAt) + '</div></div><div class="results-card"><p>Review the explanations, then drill recall in this subject before the next passage. This mini test is practice, not a scaled MCAT score.</p><div class="btn-row">' + (mini.subj === 'cars' ? '' : '<button class="new-quiz-btn" onclick="leaveMiniForRecall()">Reinforce this subject</button>') + '<button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div></div>' + pq.results.map((r, i) => { const source = mini.items[i].passage; return (source && (i === 0 || mini.items[i - 1].passage?.id !== source.id) ? '<details class="results-card"><summary>Review passage: ' + esc(source.title) + '</summary>' + passageCard(source.topic || '', source.title, source.passage, source.figure) + '</details>' : '') + reviewItem({ stem: r.view.q.q, choices: r.view.choices, ans: r.view.ans, chosen: r.chosen, other: r.other, exp: r.view.q.exp, tag: 'Q' + (i + 1), passageTitle: mini.items[i].passage?.title }); }).join('');
   snapshotEstimate();
 }
-function leaveMiniForRecall() { const subj = pq.mini.subj; pq.mini = null; startSubjectRecall(subj); }
+function leaveMiniForRecall() {
+  if (!pq.mini?.completed) return;
+  const subj = pq.mini.subj;
+  const missed = pq.results.filter((r, i) => !r.right && !pq.mini.items[i].passage).map(r => r.view.q);
+  const unique = [...new Map(missed.map(q => [q.baseId || q.id, q])).values()];
+  const ids = new Set(unique.map(q => q.baseId || q.id));
+  const extra = pickQuestions(QB.filter(q => disciplineOfRecall(q) === subj && !ids.has(q.id)), Math.max(0, 10 - unique.length));
+  pq.mini = null;
+  if (subj !== 'cars' && unique.length + extra.length) beginQuiz([...unique, ...extra], DISCIPLINES[subj] + ' · reinforce mini test');
+}
 
 function passageSchedule(p) {
   if (!p.activity || p.daysLeft <= 2) return '';
