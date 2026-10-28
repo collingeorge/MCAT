@@ -10,4 +10,4 @@ for (const [, script] of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) vm.runI
 const result = context.window.__validation;
 if (!result) throw Error('Content validator did not run');
 console.log(JSON.stringify(result, null, 2));
-if (result.errors.length) throw Error(result.errors.length + ' content validation errors');
+if (result.errors.length || result.warnings.length) throw Error(result.errors.length + ' content errors and ' + result.warnings.length + ' editorial warnings');
