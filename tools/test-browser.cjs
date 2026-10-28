@@ -71,7 +71,7 @@ async function main() {
   await new Promise(resolve=>{if(chrome.exitCode!==null)return resolve();chrome.once('exit',resolve);setTimeout(resolve,3000)});
   await new Promise(resolve=>server.close(resolve));
   assert(profile.startsWith(path.resolve(os.tmpdir())+path.sep) && path.basename(profile).startsWith('mcat-browser-'));
-  await fs.rm(profile,{recursive:true,force:true});
+  await fs.rm(profile,{recursive:true,force:true,maxRetries:20,retryDelay:100});
  }
 }
 main().catch(error=>{console.error(error);process.exitCode=1});
