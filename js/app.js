@@ -89,6 +89,7 @@ const store = {
   del(key) { try { localStorage.removeItem(key); } catch (e) { storageWarning('Saved data could not be removed. Check browser storage settings.'); } },
 };
 const KEYS = {
+  retention:'mcat2_retention', exposures:'mcat2_exposures', passageEvidence:'mcat2_passage_evidence', official:'mcat2_official',
   recallDays: 'mcat2_recall_days',
   plannedPassages: 'mcat2_planned_passages',
   diagnostic: 'mcat2_diagnostic',
@@ -431,6 +432,10 @@ function updateMemory(q, right, conf, ms) {
   const id = q.baseId || q.id;
   const now = Date.now();
   const m = mem[id] || { S: 0, D: 5 + itemPrior(q) * 2, last: now, seen: 0, right: 0, lapses: 0 };
+  recordDelayedRecall(q, right, m, now);
+  const delayed = m.seen > 0 && now - m.last >= LEARNING_DELAY;
+  if (!right) m.delayedCorrect = 0;
+  else if (delayed && conf !== 'guess') m.delayedCorrect = (m.delayedCorrect || 0) + 1;
   const g = gradeOf(right, conf, ms);
   if (!m.seen) m.S = [0.2, 0.6, 2, 5][g];
   else if (g === 0) { m.lapses++; m.S = Math.max(0.1, m.S * 0.25); }
@@ -492,6 +497,7 @@ const ERROR_TYPES = [
   ['knowledge', 'Didn\'t know it'],
   ['confused', 'Mixed it up'],
   ['misread', 'Misread the question'],
+  ['reasoning', 'Passage interpretation'],
   ['calculation', 'Calculation slip'],
   ['time', 'Rushed / ran out of time'],
 ];
@@ -1001,7 +1007,7 @@ function renderHome() {
   actions.push(`<button class="action-btn" onclick="startSpeedDrill()" title="${SPEED_N} facts you've learned, ${SPEED_SECONDS} seconds each: builds fast, automatic recall">⚡ Speed drill</button>`);
   actions.push(`<button class="action-btn" onclick="showProgress()">Score report</button>`);
   $('home-actions').innerHTML = actions.join('');
-  $('home-score').innerHTML = scoreStrip() + planStrip() + learningGuideCard() + studyPathCard();
+  $('home-score').innerHTML = scoreStrip() + planStrip() + learningGuideCard() + weeklyReadinessCard() + studyPathCard();
 
   setMode(prefs.mode);
 }
@@ -1593,7 +1599,7 @@ function progressCards() {
   const tot = valid.reduce((a, [, s]) => a + s.t, 0), cor = valid.reduce((a, [, s]) => a + s.c, 0);
   const mem = loadMem();
   const seenIds = Object.keys(mem).filter(id => QB_BY_ID.has(id) && mem[id].seen);
-  const mastered = seenIds.filter(id => mem[id].S >= 21).length;
+  const mastered = seenIds.filter(id => retainedFact(mem[id])).length;
   const topics = valid.filter(([, s]) => s.t >= 5).map(([k, s]) => ({ k, p: s.c / s.t, s }));
   const weak = topics.filter(x => x.p < 0.7).sort((a, b) => a.p - b.p).slice(0, 8);
   const strong = topics.filter(x => x.p >= 0.85).sort((a, b) => b.p - a.p).slice(0, 5);
@@ -1608,7 +1614,7 @@ function progressCards() {
         <div class="stat"><b>${mastered.toLocaleString()}</b><span>mastered*</span></div>
       </div>
       ${SUBJECTS.filter(s => bySubj[s.id]).map(s => barRow(s.label, bySubj[s.id].c, bySubj[s.id].t)).join('')}
-      <p class="muted-note">*Mastered = memory strong enough that you'd still recall it 3 weeks from now (90% likely).</p>
+      <p class="muted-note">*Mastered = model stability of at least 21 days plus two consecutive successful checks, each at least 3 days after the previous exposure. This is a study heuristic, not a verified retention probability.</p>
     </div>
     <div class="results-card">
       <div class="section-label">Strengths & weak topics <span class="muted">(topics with 5+ answers)</span></div>
@@ -1712,7 +1718,7 @@ function scoreReportCards() {
     </div>`;
 }
 // Topic mastery map: each subtopic chip colored by its mastery level
-const LEVELS = { new: 'Not enough data', weak: 'Weak', building: 'Building', solid: 'Solid', mastered: 'Mastered' };
+const LEVELS = { new: 'Not enough data', weak: 'Weak', building: 'Building', solid: 'Solid', mastered: 'High estimate' };
 function masteryMapCard() {
   const mast = store.get(KEYS.mastery, {});
   if (!Object.keys(mast).length) return '';
@@ -1725,18 +1731,19 @@ function masteryMapCard() {
   };
   const focus = weakTopicNeeds(mast).slice(0, 3);
   return `<div class="results-card">
-    <div class="section-label">Topic mastery <span class="muted">(predicted chance of answering a typical question correctly)</span></div>
+    <div class="section-label">Topic model <span class="muted">(practice estimate, not delayed-retention proof)</span></div>
     <div class="legend">${Object.entries(LEVELS).map(([k, l]) => `<span class="m-chip lvl-${k}">${l}</span>`).join('')}</div>
     ${focus.length ? `<div class="focus-box"><b>Next focus:</b> ${focus.map(f => `${esc(KEY_LABEL[f.k] || f.k)} (${Math.round(f.p * 100)}%)`).join(' · ')}
       <button class="micro-btn" onclick="startSmartSession()">Start Smart Session</button></div>` : ''}
     ${SUBJECTS.map(s => `<div class="m-subject"><div class="m-subject-name">${esc(s.label)}</div><div class="m-chips">
       ${s.groups.flatMap(g => g.chips).map(c => { const i = chipInfo(c); return `<span class="m-chip lvl-${i.level}" title="${i.n} answers${i.p != null ? ` · ${Math.round(i.p * 100)}% predicted` : ''}">${esc(c.label)}${i.p != null && i.n >= 5 ? ` <small>${Math.round(i.p * 100)}%</small>` : ''}</span>`; }).join('')}
     </div></div>`).join('')}
-    <p class="muted-note">Mastery weighs harder questions more and recent answers most, and guessed right answers count only partly. The Smart Session uses it to choose what to ask next.</p>
+    <p class="muted-note">The topic model weighs harder questions more and recent answers most; guessed right answers count only partly. These estimates guide practice, while the separate recall mastery count requires delayed checks.</p>
   </div>`;
 }
 // ── Mistake patterns ──
 const ERROR_ADVICE = {
+  reasoning: 'Return to the specific passage evidence. Explain why the right choice follows and why each tempting alternative goes beyond or contradicts that evidence.',
   knowledge: 'Content gaps. Keep using the Smart Session (it targets these topics) and read the full explanation on every miss.',
   confused: 'Mix-ups between similar terms. The app now drills the term you picked by mistake; also write a short "X vs. Y" comparison for each pair below.',
   misread: 'Reading errors. Before answering, restate what is asked: watch for NOT/EXCEPT, units, and the direction of a change (increase vs. decrease).',
@@ -2067,6 +2074,8 @@ function showProgress() {
   $('results-body').innerHTML = `
     <div class="results-hero"><div class="r-label">Score report & progress</div></div>
     ${scoreReportCards()}
+    ${officialScoresCard()}
+    ${weeklyReadinessCard()}
     ${planSummaryCard()}
     ${masteryMapCard()}
     ${aamcCard()}
@@ -2080,7 +2089,7 @@ function showProgress() {
 }
 function resetProgress() {
   if (!confirm('Erase all recall stats, spaced-repetition history, flags, passage scores, score estimates and exam history on this device? This cannot be undone.')) return;
-  [KEYS.recallDays, KEYS.plannedPassages, KEYS.diagnostic, KEYS.fluency, KEYS.studyPath, KEYS.finalTwo, KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
+  [KEYS.retention, KEYS.exposures, KEYS.passageEvidence, KEYS.official, KEYS.recallDays, KEYS.plannedPassages, KEYS.diagnostic, KEYS.fluency, KEYS.studyPath, KEYS.finalTwo, KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
   FULL_EXAMS.forEach(e => { store.del(KEYS.examProgress(e.id)); store.del(KEYS.examLast(e.id)); });
   goHome();
 }
@@ -2130,6 +2139,7 @@ function startPassage() {
   pq.mini = null; pq.completed = false; pq.errPending = null;
   const p = PASSAGE_BY_ID.get(selectedPassageId);
   if (!p) return;
+  pq.firstExposure = beginPassageExposure(p);
   // AAMC pace: 95 min / 59 science questions ≈ 95 s; 90 min / 53 CARS questions ≈ 102 s
   const perQ = /^p_(cars|e2cars)/.test(p.id) ? 102 : 95;
   Object.assign(pq, { p, idx: 0, views: p.questions.map(makeView), results: [], answered: false, startedAt: Date.now(), qStart: Date.now(), targetMs: perQ * 1000 * p.questions.length });
@@ -2240,6 +2250,7 @@ function showPassageResults() {
   pq.completed = true;
   flushPassageErr();
   const tot = pq.results.length, cor = pq.results.filter(r => r.right).length, p = pct(cor, tot);
+  recordPassageEvidence(pq.p, pq.results, pq.firstExposure, 'tutor');
   const pstats = store.get(KEYS.passages, {});
   const prev = pstats[pq.p.id] || { attempts: 0, best: 0 };
   pstats[pq.p.id] = { attempts: prev.attempts + 1, last: p, best: Math.max(prev.best, p), lastAt: Date.now() };
@@ -2718,7 +2729,7 @@ function showAbout() {
       <p>The question bank was reviewed against current references, including the AAMC content outline and DSM-5-TR, but errors are still possible. Content is provided "as is", without warranty of any kind. Check important facts against your textbooks or official AAMC materials. If something looks wrong, use <b>Report a problem</b> under any explanation. Reports open as <b>public</b> GitHub issues, so don't include personal information.</p>
 
       <h2>Score estimates</h2>
-      <p>Scaled scores, totals and percentiles in this app are <b>study estimates, not predictions</b> of an official MCAT score. The AAMC converts raw scores separately for each test form, and this app's questions are not AAMC questions. Percentile ranks use the AAMC tables in effect May 1, 2026 – April 30, 2027 (${link('https://www.aamc.org/services/mcat-admissions-officers/resources/percentile-ranks', 'source')}). For a test-day prediction, use the AAMC's official practice exams.</p>
+      <p>Scaled scores, totals and percentiles in this app are <b>study estimates, not predictions</b> of an official MCAT score. The AAMC converts raw scores separately for each test form, and this app's questions are not AAMC questions. Percentile ranks use the AAMC tables in effect May 1, 2026 – April 30, 2027 (${link('https://www.aamc.org/services/mcat-admissions-officers/resources/percentile-ranks', 'source')}). Use AAMC scored practice exams as a standardized practice benchmark; they do not guarantee a test-day score.</p>
 
       <h2>Privacy</h2>
       <p>This app collects no personal information. There are no accounts and no analytics, ads or tracking cookies. Your progress (answers, flags, scores and exam history) is saved only in this browser's local storage on this device. It is never sent to the author or anyone else. You can erase it at any time with <b>Score report → Reset all progress</b>, or by clearing this site's data in your browser.</p>
@@ -2734,7 +2745,7 @@ function showAbout() {
       <h2>License</h2>
       <p>The app's code and original content are licensed under ${link('https://creativecommons.org/licenses/by-nc/4.0/', 'Creative Commons BY-NC 4.0')}. You may share and adapt them for non-commercial purposes with attribution. Third-party material, including the original MileDown cards, remains subject to its owners' terms.</p>
 
-      <p class="muted-note">Version 2.6 · Last updated October 2026</p>
+      <p class="muted-note">Version 2.7 · Last updated October 2026</p>
     </div>
     <div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div>`;
 }

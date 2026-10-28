@@ -721,3 +721,8 @@ table.aamc tr.gap td{opacity:.65}
   .passage-layout #pp-passage-box,.split-passage{top:calc(70px + var(--page-nav-height));max-height:calc(100vh - 90px - var(--page-nav-height))}
 }
 @media(max-width:640px){.app-nav-inner{padding-left:16px;padding-right:16px}}
+
+/* Official result entry remains usable on narrow screens. */
+form.results-card label { display: inline-block; margin: .4rem .6rem .4rem 0; max-width: 100%; }
+form.results-card input:not([type="checkbox"]) { max-width: 100%; box-sizing: border-box; padding: .5rem; font: inherit; }
+form.results-card input[type="number"] { width: 5rem; }
