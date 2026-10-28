@@ -71,6 +71,7 @@ const store = {
   del(key) { try { localStorage.removeItem(key); } catch (e) { /* ignore */ } },
 };
 const KEYS = {
+  studyPath: 'mcat2_study_path',
   finalTwo: 'mcat2_final_two',
   prefs: 'mcat2_prefs',
   stats: 'mcat2_stats',        // { "subject|tag": {c, t} }
@@ -925,6 +926,8 @@ const openSubjects = new Set();
 function savePrefs() { prefs.selected = [...selectedKeys]; store.set(KEYS.prefs, prefs); }
 
 function goHome() {
+  if (pq.mini && !pq.mini.completed && !confirm('Exit this mini test? This unfinished attempt will not be saved.')) return;
+  pq.mini = null; finalTwo = null; stopPassageTimer();
   commitPending();
   flushPassageErr();
   stopQuizTimer();
@@ -956,7 +959,7 @@ function renderHome() {
   actions.push(`<button class="action-btn" onclick="startSpeedDrill()" title="${SPEED_N} facts you've learned, ${SPEED_SECONDS} seconds each: builds fast, automatic recall">⚡ Speed drill</button>`);
   actions.push(`<button class="action-btn" onclick="showProgress()">Score report</button>`);
   $('home-actions').innerHTML = actions.join('');
-  $('home-score').innerHTML = scoreStrip() + planStrip();
+  $('home-score').innerHTML = scoreStrip() + planStrip() + studyPathCard();
 
   setMode(prefs.mode);
 }
@@ -1195,6 +1198,7 @@ function retryMissed() {
 }
 // questions: plain question objects, or {q, reason} items from the Smart Session
 function beginQuiz(questions, label, opts = {}) {
+  pq.mini = null; stopPassageTimer(); finalTwo = null;
   const items = questions.map(x => (x && x.q && x.choices === undefined ? makeView(x.q, x.reason) : makeView(x)));
   // Reinforcement (mastery loop, shaky repeats, confusion follow-ups) is on for every study session
   Object.assign(quiz, { items, idx: 0, results: [], answered: false, startedAt: Date.now(), label, adaptive: opts.adaptive !== false, speed: opts.speed || 0, extras: 0, pending: null,
@@ -1498,6 +1502,7 @@ function showQuizResults() {
       ${Object.entries(bySubj).map(([s, v]) => barRow(SUBJECT_LABEL[s], v.c, v.t)).join('')}
       <p class="muted-note">A single session is too small to score. Your answers feed the running MCAT estimate below, which uses all your recall, passage and full-length results.</p>
     </div>
+    ${studyPathCard(Object.entries(res.reduce((n, r) => { const d = disciplineOfRecall(r.view.q); n[d] = (n[d] || 0) + 1; return n; }, {})).sort((a, b) => b[1] - a[1])[0]?.[0])}
     ${studyTip()}
     ${scoreStrip()}
     <div class="btn-row">
@@ -1890,7 +1895,12 @@ function computePlan() {
   const contentStudyDays = Math.max(1, Math.round(((daysLeft - finalDays) * perWeek) / 7));
   const inFinal = daysLeft <= finalDays;
   const due = dueQuestions().length;
-  const capacity = Math.max(10, Math.floor(((plan.minutes || 120) * 60) / SECONDS_PER_RECALL));
+  const activity = daysLeft > 2 ? pathWork(null, plan.minutes || 120) : null;
+  const studyHistory = store.get(KEYS.studyPath, []);
+  const todayWork = studyHistory.filter(x => x.day === localDay());
+  const activityDone = todayWork.length > 0;
+  const passageMinutes = activity ? Math.min(plan.minutes || 120, activity.minutes) : 0;
+  const capacity = Math.max(0, Math.floor((((plan.minutes || 120) - passageMinutes) * 60) / SECONDS_PER_RECALL));
   const newPerDay = inFinal || daysLeft <= 0 ? 0 : Math.ceil(unseen / contentStudyDays);
   const target = Math.min(capacity, newPerDay + Math.min(due, capacity));
   // Expected progress since the plan started (straight-line over the content phase)
@@ -1912,13 +1922,13 @@ function computePlan() {
   addMilestone(2, 'Light review only; rest and sleep before test day');
   fl.sort((a, b) => a.date - b.date);
   return { plan, daysLeft, studyDaysLeft, finalDays, inFinal, seen, unseen, due, capacity, newPerDay, target,
-    doneToday: answeredToday(), expectedSeen, overCapacity: newPerDay + due > capacity, milestones: fl.filter(m => m.date >= today) };
+    activity, activityDone, passageMinutes, doneToday: Math.max(0, answeredToday() - todayWork.reduce((n, x) => n + x.total, 0)), expectedSeen, overCapacity: newPerDay + due > capacity, milestones: fl.filter(m => m.date >= today) };
 }
 function smartSessionSize() {
   const p = computePlan();
   if (!p || p.daysLeft <= 0) return prefs.count || 30;
   const left = p.target - p.doneToday;
-  return left > 0 ? Math.min(60, Math.max(10, left)) : prefs.count || 20;
+  return left > 0 ? Math.min(60, Math.max(1, left)) : prefs.count || 20;
 }
 function planStrip() {
   const p = computePlan();
@@ -1929,7 +1939,7 @@ function planStrip() {
   const ahead = p.seen - p.expectedSeen;
   return `<button class="plan-strip" onclick="showPlan()">
     <span>📅 <b>${p.daysLeft}</b> day${p.daysLeft === 1 ? '' : 's'} to the MCAT${p.inFinal ? ' · final review phase' : ''}</span>
-    <span>Today: <b>${p.doneToday}</b> / ${p.target} questions${doneAll ? ' ✓' : ''}</span>
+    <span>Today: <b>${p.doneToday}</b> / ${p.target} recall${doneAll ? ' ✓' : ''}</span>
     <span class="${ahead >= 0 ? 'ok' : 'behind'}">${ahead >= 0 ? 'On track' : `${-ahead} behind`}</span>
   </button>`;
 }
@@ -1942,12 +1952,14 @@ function planSummaryCard() {
 function planDetails(p) {
   return `<div class="stat-row">
       <div class="stat"><b>${p.daysLeft}</b><span>days to test</span></div>
-      <div class="stat"><b>${p.target}</b><span>questions today</span></div>
+      <div class="stat"><b>${p.target}</b><span>recall questions today</span></div>
       <div class="stat"><b>${p.newPerDay}</b><span>new per day</span></div>
       <div class="stat"><b>${p.seen.toLocaleString()}</b><span>of ${QB.length.toLocaleString()} seen</span></div>
     </div>
-    ${p.overCapacity ? `<div class="advice">Your daily time fits about <b>${p.capacity}</b> questions, but you have <b>${p.newPerDay}</b> new plus <b>${p.due}</b> due. Add time, or let the Smart Session prioritize: it puts high-yield and weak topics first.</div>` : ''}
+    ${p.activity ? `<div class="advice"><b>Today: ${p.activityDone ? '✓ passage work completed' : esc(DISCIPLINES[p.activity.subj]) + (p.activity.kind === 'mini' ? ' mini test' : ' passage')}</b> · ${p.passageMinutes} minutes reserved including review. Pair it with recall in the same subject.<button class="micro-btn" onclick="startSubjectWork('${p.activity.subj}','${p.activity.kind}')">${p.activityDone ? 'Optional extra practice' : 'Start planned passage work'}</button></div>` : ''}
+    ${p.overCapacity ? `<div class="advice">After reserving passage time, your daily time fits about <b>${p.capacity}</b> questions, but you have <b>${p.newPerDay}</b> new plus <b>${p.due}</b> due. Add time, or let the Smart Session prioritize: it puts high-yield and weak topics first.</div>` : ''}
     ${p.inFinal ? '<div class="advice">You\'re in the final review phase: no new material. Focus on due reviews, weak topics, mistake patterns and full-length practice.</div>' : ''}
+    ${passageSchedule(p)}
     ${p.milestones.length ? `<div class="sw-head">Upcoming milestones</div><ul class="milestones">${p.milestones.map(m => `<li><b>${m.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</b> · ${esc(m.label)}</li>`).join('')}</ul>` : ''}`;
 }
 function showPlan() {
@@ -1963,9 +1975,9 @@ function showPlan() {
       <button class="new-quiz-btn" onclick="savePlan()">Save plan</button>
       ${plan.date ? '<button class="text-btn" onclick="clearPlan()">Remove plan</button>' : ''}
     </div>
-    ${p && p.daysLeft >= 0 ? `<div class="results-card"><div class="section-label">Your plan</div>${planDetails(p)}</div>` : ''}
+    ${p && p.daysLeft >= 0 ? `<div class="results-card"><div class="section-label">Your plan</div>${planDetails(p)}</div>${studyPathCard()}` : ''}
     <div class="results-card"><div class="section-label">How the plan works</div>
-      <p class="muted-note" style="margin-top:0">Unseen questions are spread over your study days up to the final review phase (the last 2 weeks, or 1 week if the test is close). Each day's target is that new material plus everything due for review, capped at what fits in your daily time (about ${SECONDS_PER_RECALL} seconds per question). The Smart Session sizes itself to what's left for today. Full-length exams are spaced so the last ones fall in the final month. AAMC's official practice exams are the closest match to the real test, so the plan saves them for last.</p>
+      <p class="muted-note" style="margin-top:0">Unseen questions are spread over your study days up to the final review phase (the last 2 weeks, or 1 week if the test is close). Each day's target is that new material plus everything due for review. Each study day also reserves time for one passage (or a ready subject mini test), including review; recall is capped at the remaining daily time (about ${SECONDS_PER_RECALL} seconds per question). The Smart Session sizes itself to what's left for today. Full-length exams are spaced so the last ones fall in the final month. AAMC's official practice exams are the closest match to the real test, so the plan saves them for last.</p>
     </div>
     <div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div>`;
 }
@@ -2017,7 +2029,7 @@ function showProgress() {
 }
 function resetProgress() {
   if (!confirm('Erase all recall stats, spaced-repetition history, flags, passage scores, score estimates and exam history on this device? This cannot be undone.')) return;
-  [KEYS.finalTwo, KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
+  [KEYS.studyPath, KEYS.finalTwo, KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
   FULL_EXAMS.forEach(e => { store.del(KEYS.examProgress(e.id)); store.del(KEYS.examLast(e.id)); });
   goHome();
 }
@@ -2062,6 +2074,9 @@ function nextPassage() {
   startPassage();
 }
 function startPassage() {
+  finalTwo = null;
+  stopQuizTimer();
+  pq.mini = null; pq.completed = false; pq.errPending = null;
   const p = PASSAGE_BY_ID.get(selectedPassageId);
   if (!p) return;
   // AAMC pace: 95 min / 59 science questions ≈ 95 s; 90 min / 53 CARS questions ≈ 102 s
@@ -2078,6 +2093,7 @@ function updatePassageTimer() {
   const el = $('pp-timer');
   if (!el || activeScreen !== 'screen-passage') { stopPassageTimer(); return; }
   const used = Date.now() - pq.startedAt;
+  if (pq.mini && !pq.mini.completed && used >= pq.targetMs) { finishSubjectMini(); return; }
   el.textContent = `${fmtTime(used)} / ${fmtTime(pq.targetMs)}`;
   el.title = 'Time used / AAMC pace for this passage';
   el.className = 'qm-timer' + (used > pq.targetMs ? ' danger' : used > pq.targetMs * 0.85 ? ' warn' : '');
@@ -2109,6 +2125,11 @@ function renderPassageQuestion() {
   $('pp-subject').textContent = pq.p.title;
   $('pp-score').textContent = `✓ ${pq.results.filter(r => r.right).length}/${pq.results.length}`;
   pq.qStart = Date.now();
+  if (pq.mini) {
+    const passage = pq.mini.items[pq.idx].passage;
+    $('pp-passage-box').innerHTML = passage ? passageCard(passage.topic || '', passage.title, passage.passage, passage.figure) : '<p class="muted-note">Discrete question · no passage</p>';
+    $('pp-score').textContent = pq.results.length + '/' + tot + ' answered · feedback at end';
+  }
   $('pp-question-box').innerHTML = `${breakBanner()}
     <div class="question-box"><div class="q-toolbar"><span class="q-tag">Question ${pq.idx + 1} of ${tot}${view.q.skill ? ` · ${esc(SKILL_LABEL[view.q.skill] || view.q.skill)}` : ''}</span></div>
       <div class="question-text">${fmt(view.q.q)}</div></div>
@@ -2116,6 +2137,10 @@ function renderPassageQuestion() {
     <div id="pp-exp"></div><div id="pp-next"></div>`;
 }
 function finishPassageAnswer(chosen, other = null, answerMs = null) {
+  if (pq.mini) {
+    if (Date.now() - pq.startedAt >= pq.targetMs) { finishSubjectMini(); return; }
+    miniAnswer(chosen, other, answerMs ?? (Date.now() - pq.qStart)); return;
+  }
   if (pq.answered) return;
   pq.answered = true;
   const view = pq.views[pq.idx];
@@ -2157,10 +2182,15 @@ function nextPassageQ() {
   $('pp-question-box').scrollIntoView({ block: 'start', behavior: 'smooth' });
 }
 function showPassageResults() {
+  if (pq.mini) { finishSubjectMini(); return; }
+  if (pq.completed) return;
+  pq.completed = true;
+  flushPassageErr();
   const tot = pq.results.length, cor = pq.results.filter(r => r.right).length, p = pct(cor, tot);
   const pstats = store.get(KEYS.passages, {});
   const prev = pstats[pq.p.id] || { attempts: 0, best: 0 };
-  pstats[pq.p.id] = { attempts: prev.attempts + 1, last: p, best: Math.max(prev.best, p) };
+  pstats[pq.p.id] = { attempts: prev.attempts + 1, last: p, best: Math.max(prev.best, p), lastAt: Date.now() };
+  logStudyWork(disciplineOfPassage(pq.p), 'passage', cor, tot);
   store.set(KEYS.passages, pstats);
   const missed = pq.results.filter(r => !r.right);
   const color = p >= 80 ? 'var(--green)' : p >= 60 ? 'var(--amber)' : 'var(--red)';
@@ -2190,6 +2220,7 @@ function showPassageResults() {
       <button class="new-quiz-btn secondary" onclick="nextPassage()">Next passage →</button>
       <button class="new-quiz-btn secondary" onclick="goHome()">Home</button>
     </div>
+    ${studyPathCard(disciplineOfPassage(pq.p))}
     ${(snapshotEstimate(), scoreStrip())}`;
   window.scrollTo(0, 0);
 }

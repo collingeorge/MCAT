@@ -34,6 +34,20 @@ It sits between Anki (pure recall) and UWorld (full exam simulation). You get fa
 
 ---
 
+## Daily recall, passages, and subject mini tests
+
+The study plan now schedules passage work alongside recall, instead of listing only full-length exams. Home, the plan, and recall results show a recommended subject and launch buttons. The plan lists suggested passage dates for the next seven days and reserves time for the passage block and its review before setting the remaining recall budget.
+
+1. **Build and apply together.** Start with 10 recall questions, then one existing passage in the same subject. Passage practice is available from the beginning; you do not have to master the entire bank first.
+2. **Progress to a subject mini test.** The recommendation uses 20 distinct recall facts seen with at least 70% cumulative subject accuracy, plus two distinct completed passages averaging at least 70% on their latest attempts. CARS uses the passage criterion only. These are adjustable code heuristics, not validated readiness cutoffs.
+3. **Simulate a short test.** A mini test combines two existing passages with up to five recall-bank discrete questions in that subject (CARS has no recall discretes). Timing follows the app's passage pace. Feedback and explanations appear at the end; the timer finishes the block automatically and counts unanswered items as misses.
+4. **Reinforce and rotate.** Review explanations and use the same-subject recall button, which prioritizes review through the existing question picker. Unseen passages come first, followed by the least recently completed ones. The plan rotates subjects so strong areas do not crowd out weaker areas or CARS. A completed mini test has a seven-day recommendation cooldown.
+5. **Keep the daily budget realistic.** If a mini test plus recall would exceed the selected time budget, the plan recommends one passage instead. Completed passage work is tracked separately from the recall target. The final two days schedule light review rather than a new passage block.
+
+Mini tests reuse the existing question bank and passage sets; they do not generate new passages. Passages assigned to full-length exams are excluded from this progression to preserve those exams. Discretes remain recall evidence and passage items remain passage evidence, without claiming a scaled mini-MCAT score. Subject-level reinforcement does not imply an exact topic match between every discrete and passage.
+
+Completed blocks and passage recency are stored on this device. An unfinished mini test is not saved; exiting asks before discarding it. The next-seven-day dates spread work across your selected number of study days; they are suggestions rather than fixed weekday appointments and update as you practice.
+
 ## How reinforcement helps you learn
 
 The app uses adaptive practice and spaced repetition to help you retain content, distinguish similar concepts, and retrieve facts more quickly. Here, “reinforcement” means targeted study and feedback; it is not a machine-learning reinforcement-learning model or a guarantee of a higher MCAT score.
@@ -163,7 +177,8 @@ Found something that still looks wrong? Use **Report a problem** under the expla
 ```
 index.html            App shell
 css/styles.css        Styles
-js/app.js             All app logic (quiz, passages, exams, spaced repetition, stats)
+js/app.js             Quiz, passages, exams, spaced repetition, stats and plan integration
+js/study-path.js      Subject progression, passage scheduling and timed mini tests
 data/                 Question data, one file per subject or exam section
   qb-*.js             Recall questions  {s: tag, aamc?, q, choices[4], ans, exp}
   qb-variants-*.js    Applied variants, linked to a recall question by its exact tag + stem  {ofTag, of, kind, q, choices, ans, exp}
@@ -173,6 +188,10 @@ sw.js, manifest.webmanifest, icon.svg   Offline support / installable app
 tools/validate.html   Data checker (structure, duplicate choices, broken cloze keys, letter references, giveaways)
 tools/serve.ps1       Tiny local web server for development
 ```
+
+### Testing study progression
+
+Run `node tools/test-study-path.cjs` and `node tools/test-final-two.cjs`. The progression integration test loads the real question and passage data with a simulated DOM and checks readiness, subject matching, time budgets, deferred feedback, timeout scoring, persistence, and repeat-completion guards. It does not replace browser visual testing.
 
 ### Editing questions
 1. Edit the relevant file in `data/`. Keep the `s:` tag (it drives the topic selector). `ans` is the 0-based index of the correct choice; order doesn't matter, because choices are shuffled when shown.
