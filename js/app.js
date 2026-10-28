@@ -1963,7 +1963,12 @@ function computePlan() {
     if (second >= 31) addMilestone(second, 'Full-Length Practice Exam 2 (this app)');
   }
   [28, 21, 14, 7].forEach((o, i) => addMilestone(o, `AAMC official full-length ${i + 1} (aamc.org)`));
-  if(!diagnosticRecorded() && daysLeft>3) { const date=new Date(today);date.setDate(date.getDate()+Math.min(7,daysLeft-3));fl.push({date,label:'Baseline diagnostic and review (this app or an official exam)'}); }
+  if(!diagnosticRecorded() && daysLeft>3) {
+    const date=new Date(Number.isFinite(startDay.getTime())?startDay:today);
+    date.setDate(date.getDate()+Math.min(7,Math.max(0,initialDays-3)));
+    if(date<today)date.setTime(today.getTime());
+    fl.push({date,label:'Baseline diagnostic and review (this app or an official exam)'});
+  }
   addMilestone(2, 'Light review only; rest and sleep before test day');
   fl.sort((a, b) => a.date - b.date);
   return { plan, daysLeft, studyDaysLeft, finalDays, inFinal, seen, unseen, due, capacity, newPerDay, target,
