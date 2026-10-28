@@ -83,6 +83,8 @@ Open or refresh the [live app](https://collingeorge.github.io/MCAT/) while onlin
 
 ## Features
 
+- **Always-visible Home navigation.** Every page away from Home has a top-left **← Home** button that stays visible while scrolling. It uses the normal exit behavior: active full-length exam progress is saved, and an unfinished mini test asks before being discarded.
+
 - **Final-two practice.** Select your answer, optionally record the other option you considered, then submit before feedback appears. Review whether the correct answer made your shortlist and compare the two concepts. Recall sessions reinforce uncertain correct answers and matching alternative concepts. Progress tracks shortlisting and choosing correctly separately, without changing scores. Full-length exams save runner-ups for post-exam review; older saved exams remain compatible.
 
 - **Smart Session (adaptive).** One button builds a session around you:

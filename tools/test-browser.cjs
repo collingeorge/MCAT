@@ -64,6 +64,19 @@ async function main() {
   await evaluate('document.querySelector("#plan-date").value=localDay(new Date(Date.now()+60*DAY));savePlan()');
   assert(await evaluate('document.querySelector("#results-body").textContent.includes("Passage practice: next 7 days")'));
   assert(await evaluate('const probe=document.createElement("div");probe.innerHTML=fmt("<img src=x onerror=alert(1)>");probe.querySelector("img")===null'));
+  assert.equal(await evaluate('document.querySelector("#app-nav").hidden'),false);
+  await evaluate('window.scrollTo(0,document.body.scrollHeight)');
+  assert(await evaluate('document.querySelector("#home-back-btn").getBoundingClientRect().top>=0 && document.querySelector("#home-back-btn").getBoundingClientRect().bottom<=innerHeight'));
+  await evaluate('document.querySelector("#home-back-btn").click()');
+  assert.equal(await evaluate('activeScreen'), 'screen-home');
+  assert.equal(await evaluate('document.querySelector("#app-nav").hidden'),true);
+  await evaluate('startExam(0);beginSection();exam.elapsed[exam.si]=12345;document.querySelector("#home-back-btn").click()');
+  assert.equal(await evaluate('store.get(KEYS.examProgress(FULL_EXAMS[0].id),null).elapsed[0]'),12345);
+  await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+  await evaluate('showPlan();window.scrollTo(0,document.body.scrollHeight)');
+  assert(await evaluate('document.querySelector("#home-back-btn").getBoundingClientRect().top>=0 && document.querySelector("#home-back-btn").getBoundingClientRect().right<=innerWidth'));
+  await evaluate('document.querySelector("#home-back-btn").click()');
+  assert.equal(await evaluate('activeScreen'), 'screen-home');
   assert.equal(errors.length,0,JSON.stringify(errors));
   console.log('Chrome smoke passed: actual script loading, CSP-compatible clicks, runner-up reflection, delayed mini feedback, timeout review, study calendar, HTML escaping, and no runtime exceptions.');
  } finally {
