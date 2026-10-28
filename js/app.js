@@ -938,6 +938,8 @@ let activeScreen = 'screen-home';
 function show(id) {
   SCREENS.forEach(s => { const el = $(s); if (el) el.hidden = s !== id; });
   activeScreen = id;
+  const nav = $('app-nav');
+  if (nav) nav.hidden = id === 'screen-home';
   window.scrollTo(0, 0);
 }
 
@@ -951,6 +953,7 @@ function savePrefs() { prefs.selected = [...selectedKeys]; store.set(KEYS.prefs,
 
 function goHome() {
   if (pq.mini && !pq.mini.completed && !confirm('Exit this mini test? This unfinished attempt will not be saved.')) return;
+  if (activeScreen === 'screen-exam' && exam) saveExam();
   pq.mini = null; finalTwo = null; stopPassageTimer();
   commitPending();
   flushPassageErr();
