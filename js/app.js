@@ -71,6 +71,7 @@ const store = {
   del(key) { try { localStorage.removeItem(key); } catch (e) { /* ignore */ } },
 };
 const KEYS = {
+  finalTwo: 'mcat2_final_two',
   prefs: 'mcat2_prefs',
   stats: 'mcat2_stats',        // { "subject|tag": {c, t} }
   srs: 'mcat2_srs',            // { questionId: {box, due, seen, right} }
@@ -1208,6 +1209,58 @@ function startQuizTimer() {
 }
 function stopQuizTimer() { if (quiz.timer) clearInterval(quiz.timer); quiz.timer = null; stopSpeedTimer(); }
 
+// Capture a runner-up before revealing correctness; never award partial score credit.
+let finalTwo = null;
+function runnerUpPrompt(view, chosen, handler, selected = null) {
+  return '<div class="results-card"><label><b>Which other answer were you considering?</b><p class="muted-note">Optional: record your runner-up before seeing the explanation.</p><select id="runner-up" onchange="' + handler + '(this.value)"><option value="">No other answer / skip</option>' + view.choices.map((c, i) => i === chosen ? '' : '<option value="' + i + '"' + (selected === i ? ' selected' : '') + '>' + LETTERS[i] + '. ' + esc(c) + '</option>').join('') + '</select></label></div>';
+}
+function setRunnerUp(value) {
+  if (finalTwo) finalTwo.other = value === '' ? null : Number(value);
+}
+function stageAnswer(mode, chosen) {
+  const state = mode === 'recall' ? quiz : pq;
+  if (state.answered) return;
+  if (mode === 'recall') stopSpeedTimer();
+  const view = mode === 'recall' ? quiz.items[quiz.idx] : pq.views[pq.idx];
+  const ms = Date.now() - state.qStart;
+  finalTwo = { mode, chosen, other: null, ms };
+  const prefix = mode === 'recall' ? 'cb' : 'pc';
+  view.choices.forEach((_, i) => $(prefix + '-' + i).classList.toggle('selected', i === chosen));
+  const area = $(mode === 'recall' ? 'nxt-area' : 'pp-next');
+  area.innerHTML = runnerUpPrompt(view, chosen, 'setRunnerUp') + '<button class="next-btn" onclick="confirmFinalTwo()">Submit answer →</button>';
+}
+function confirmFinalTwo() {
+  if (!finalTwo) return;
+  const attempt = finalTwo;
+  finalTwo = null;
+  if (attempt.mode === 'recall') finishPick(attempt.chosen, attempt.other, attempt.ms);
+  else finishPassageAnswer(attempt.chosen, attempt.other, attempt.ms);
+}
+function recordFinalTwo(view, chosen, other) {
+  if (other == null) return;
+  const log = store.get(KEYS.finalTwo, []);
+  log.push({ t: Date.now(), chosen: view.choices[chosen], other: view.choices[other], answer: view.choices[view.ans], right: chosen === view.ans, included: chosen === view.ans || other === view.ans });
+  store.set(KEYS.finalTwo, log.slice(-1000));
+}
+function finalTwoProgress() {
+  const log = store.get(KEYS.finalTwo, []);
+  if (!log.length) return '';
+  const included = log.filter(x => x.included), converted = included.filter(x => x.right);
+  return '<div class="results-card"><div class="section-label">Final-two practice</div><p>Correct answer shortlisted: <b>' + included.length + '/' + log.length + '</b> · Correct choice when shortlisted: <b>' + converted.length + '/' + included.length + '</b></p><p class="muted-note">Recall and passage attempts with a runner-up only; these are elimination skills, not extra score credit.</p></div>';
+}
+function finalTwoFeedback(view, chosen, other) {
+  if (other == null) return '';
+  const right = chosen === view.ans;
+  const included = right || other === view.ans;
+  const contrast = confusionCard(view.choices[right ? other : chosen], view.q);
+  return '<div class="tip-card"><b>Your final two:</b> ' + fmt(view.choices[chosen]) + ' / ' + fmt(view.choices[other]) + '<p>' + (right ? 'You chose correctly. Practice explaining why your runner-up fails.' : included ? 'The correct answer was in your final two. Focus on the detail that separates these choices.' : 'The correct answer was outside your final two. Review the concept and what led you to eliminate it.') + '</p>' + (contrast ? '<p>' + fmt(meaningOf(contrast)) + '</p>' : '') + '<p>Compare both choices with the explanation below. Being in your final two tracks elimination, not how scientifically close an answer is.</p></div>';
+}
+function pick(chosen) {
+  if (chosen == null) { finalTwo = null; finishPick(null); return; }
+  stageAnswer('recall', chosen);
+}
+function answerPassage(chosen) { stageAnswer('passage', chosen); }
+
 function choiceButtons(choices, onclick, opts = {}) {
   return choices.map((c, i) => `
     <button class="choice-btn${opts.selected === i ? ' selected' : ''}" id="${opts.prefix || 'cb'}-${i}" onclick="${onclick}(${i})">
@@ -1215,6 +1268,7 @@ function choiceButtons(choices, onclick, opts = {}) {
     </button>`).join('');
 }
 function renderQuizQuestion() {
+  finalTwo = null;
   quiz.answered = false;
   quiz.qStart = Date.now();
   const view = quiz.items[quiz.idx];
@@ -1271,7 +1325,7 @@ function flagCurrent() {
   btn.textContent = '⚑ ' + (on ? 'Flagged' : 'Flag');
 }
 // chosen === null: the speed-drill clock ran out
-function pick(chosen) {
+function finishPick(chosen, other = null, answerMs = null) {
   if (quiz.answered) return;
   stopSpeedTimer();
   if (!$('cb-0')) revealChoices();
@@ -1279,14 +1333,15 @@ function pick(chosen) {
   const view = quiz.items[quiz.idx];
   const timedOut = chosen == null;
   const right = !timedOut && chosen === view.ans;
-  const ms = Date.now() - quiz.qStart;
-  quiz.results.push({ view, chosen: timedOut ? null : chosen, right, ms, timedOut });
+  recordFinalTwo(view, chosen, other);
+  const ms = answerMs ?? (Date.now() - quiz.qStart);
+  quiz.results.push({ view, chosen: timedOut ? null : chosen, right, ms, timedOut, other });
   recordAnswer(view.q, right);
   if (right) recordFluency(view.q, Date.now() - (view.revealedAt || quiz.qStart));
   // Memory and mastery are updated when you move on, so the confidence rating can count
   const confusion = right || timedOut ? null : confusionCard(view.choices[chosen], view.q);
   quiz.pending = { q: view.q, right, ms, conf: null, confusion, chosen: timedOut ? '(time ran out)' : view.choices[chosen], answer: view.choices[view.ans],
-    errType: right ? null : timedOut ? 'time' : confusion ? 'confused' : null, note: '' };
+    other, errType: right ? null : timedOut ? 'time' : confusion ? 'confused' : null, note: '' };
   view.choices.forEach((_, i) => {
     const b = $('cb-' + i);
     b.disabled = true;
@@ -1294,7 +1349,7 @@ function pick(chosen) {
     else if (i === chosen) b.classList.add('wrong');
   });
   $('qm-score').textContent = `✓ ${quiz.results.filter(r => r.right).length}/${quiz.results.length}`;
-  $('exp-area').innerHTML = explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Recall · ${view.q.s}`, view.q.q),
+  $('exp-area').innerHTML = finalTwoFeedback(view, chosen, other) + explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Recall · ${view.q.s}`, view.q.q),
     timedOut ? `Time ran out (${SPEED_SECONDS} seconds). A fact you know well should come back faster: this one is now due for review.`
       : confusion ? `You chose <b>${fmt(view.choices[chosen])}</b>. ${fmt(meaningOf(confusion))}` : '');
   renderNextArea();
@@ -1338,8 +1393,8 @@ function commitPending() {
   const p = quiz.pending;
   if (!p) return;
   quiz.pending = null;
-  updateMemory(p.q, p.right, p.conf, p.ms);
-  if (!p.right) logError({ id: p.q.baseId || p.q.id, disc: disciplineOfRecall(p.q), key: p.q.key, type: p.errType || 'unlabeled', chosen: p.chosen, answer: p.answer, src: 'recall',
+  updateMemory(p.q, p.right, p.conf || (p.other != null ? 'unsure' : null), p.ms);
+  if (!p.right) logError({ id: p.q.baseId || p.q.id, disc: disciplineOfRecall(p.q), key: p.q.key, type: p.errType || 'unlabeled', chosen: p.chosen, answer: p.answer, src: 'recall', other: p.other == null ? null : quiz.items[quiz.idx].choices[p.other], correctInFinalTwo: p.right || p.other === quiz.items[quiz.idx].ans,
     ...(p.note && p.note.trim() ? { note: p.note.trim().slice(0, 300) } : {}) });
   if (!quiz.adaptive) return;
   const baseId = p.q.baseId || p.q.id;
@@ -1379,7 +1434,11 @@ function commitPending() {
     if (!upcoming(baseId)) insert(5, nextForm(), 'loop', { loopStreak: loop.streak });
     return;
   }
-  const shaky = p.conf === 'guess' || p.conf === 'unsure' || (!p.conf && p.ms > 30000);
+  if (p.other != null) {
+    const alternative = confusionCard(p.answer === p.chosen ? quiz.items[quiz.idx].choices[p.other] : p.chosen, p.q);
+    if (alternative && !upcoming(alternative.id)) insert(2, alternative, 'confusion');
+  }
+  const shaky = p.other != null || p.conf === 'guess' || p.conf === 'unsure' || (!p.conf && p.ms > 30000);
   if (shaky && !quiz.shakyDone.has(baseId) && !upcoming(baseId)) {
     quiz.shakyDone.add(baseId);
     insert(6, nextForm(), 'shaky');
@@ -1448,7 +1507,7 @@ function showQuizResults() {
     <div class="results-card">
       <div class="section-label">Missed this session (${missed.length})</div>
       ${missed.length ? missed.map(r => reviewItem({
-        stem: r.view.q.q, choices: r.view.choices, ans: r.view.ans, chosen: r.chosen, exp: r.view.q.exp,
+        stem: r.view.q.q, choices: r.view.choices, ans: r.view.ans, chosen: r.chosen, other: r.other, exp: r.view.q.exp,
         tag: `${SUBJECT_LABEL[r.view.q.subj]} · ${KEY_LABEL[r.view.q.key] || r.view.q.s}`,
       })).join('') : '<div class="all-correct">✓ Perfect session — nothing missed.</div>'}
       ${missed.length ? `<button class="micro-btn" style="margin-top:10px" onclick="exportMissed()">Download missed questions (.txt)</button>` : ''}
@@ -1466,13 +1525,14 @@ function barRow(label, c, t) {
     <div class="sr-pct">${p}%</div><div class="sr-n">${c}/${t}</div>
   </div>`;
 }
-function reviewItem({ stem, choices, ans, chosen, exp, tag, passageTitle }) {
+function reviewItem({ stem, choices, ans, chosen, exp, tag, passageTitle, other }) {
   return `<div class="missed-item">
     ${tag ? `<div class="missed-tag">${esc(tag)}</div>` : ''}
     ${passageTitle ? `<div class="missed-tag">Passage: ${esc(passageTitle)}</div>` : ''}
     <div class="missed-q">${fmt(stem)}</div>
     <div class="missed-correct">✓ ${fmt(choices[ans])}</div>
     <div class="missed-wrong">${chosen == null ? '— Not answered' : chosen === ans ? '' : '✗ Your answer: ' + fmt(choices[chosen])}</div>
+    ${other == null ? '' : finalTwoFeedback({ choices, ans, q: { id: 'review' } }, chosen, other)}
     <details class="missed-exp"><summary>Explanation</summary>${paragraphs(exp)}</details>
   </div>`;
 }
@@ -1491,7 +1551,7 @@ function exportMissed() {
 function progressCards() {
   const stats = store.get(KEYS.stats, {});
   const valid = Object.entries(stats).filter(([k]) => KEY_COUNTS[k]);
-  if (!valid.length) return '';
+  if (!valid.length) return finalTwoProgress();
   const bySubj = {};
   valid.forEach(([k, s]) => { const subj = k.split('|')[0]; bySubj[subj] = bySubj[subj] || { c: 0, t: 0 }; bySubj[subj].c += s.c; bySubj[subj].t += s.t; });
   const tot = valid.reduce((a, [, s]) => a + s.t, 0), cor = valid.reduce((a, [, s]) => a + s.c, 0);
@@ -1502,7 +1562,7 @@ function progressCards() {
   const weak = topics.filter(x => x.p < 0.7).sort((a, b) => a.p - b.p).slice(0, 8);
   const strong = topics.filter(x => x.p >= 0.85).sort((a, b) => b.p - a.p).slice(0, 5);
   const topicLabel = k => `${SUBJECT_LABEL[k.split('|')[0]]} · ${KEY_LABEL[k] || k.split('|')[1]}`;
-  return `
+  return `${finalTwoProgress()}
     <div class="results-card">
       <div class="section-label">All-time progress</div>
       <div class="stat-row">
@@ -1957,7 +2017,7 @@ function showProgress() {
 }
 function resetProgress() {
   if (!confirm('Erase all recall stats, spaced-repetition history, flags, passage scores, score estimates and exam history on this device? This cannot be undone.')) return;
-  [KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
+  [KEYS.finalTwo, KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
   FULL_EXAMS.forEach(e => { store.del(KEYS.examProgress(e.id)); store.del(KEYS.examLast(e.id)); });
   goHome();
 }
@@ -2041,6 +2101,7 @@ function figureHtml(fig) {
   </figure>`;
 }
 function renderPassageQuestion() {
+  finalTwo = null;
   pq.answered = false;
   const view = pq.views[pq.idx], tot = pq.views.length;
   $('pp-fill').style.width = (pq.idx / tot) * 100 + '%';
@@ -2054,17 +2115,18 @@ function renderPassageQuestion() {
     <div class="choices">${choiceButtons(view.choices, 'answerPassage', { prefix: 'pc' })}</div>
     <div id="pp-exp"></div><div id="pp-next"></div>`;
 }
-function answerPassage(chosen) {
+function finishPassageAnswer(chosen, other = null, answerMs = null) {
   if (pq.answered) return;
   pq.answered = true;
   const view = pq.views[pq.idx];
   const right = chosen === view.ans;
-  pq.results.push({ view, chosen, right, ms: Date.now() - pq.qStart });
+  recordFinalTwo(view, chosen, other);
+  pq.results.push({ view, chosen, right, other, ms: answerMs ?? (Date.now() - pq.qStart) });
   recordEvidence('passage', disciplineOfPassage(pq.p, view.q), right);
   if (view.q.skill) recordEvidence('skill', view.q.skill, right);
   countAnswerToday();
   pq.errPending = right ? null : { id: `${pq.p.id}#${pq.idx}`, disc: disciplineOfPassage(pq.p, view.q), key: null, type: null,
-    chosen: view.choices[chosen], answer: view.choices[view.ans], src: 'passage' };
+    chosen: view.choices[chosen], answer: view.choices[view.ans], other: other == null ? null : view.choices[other], correctInFinalTwo: right || other === view.ans, src: 'passage' };
   view.choices.forEach((_, i) => {
     const b = $('pc-' + i);
     b.disabled = true;
@@ -2072,7 +2134,7 @@ function answerPassage(chosen) {
     else if (i === chosen) b.classList.add('wrong');
   });
   $('pp-score').textContent = `✓ ${pq.results.filter(r => r.right).length}/${pq.results.length}`;
-  $('pp-exp').innerHTML = explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Passage · ${pq.p.title}`, view.q.q));
+  $('pp-exp').innerHTML = finalTwoFeedback(view, chosen, other) + explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Passage · ${pq.p.title}`, view.q.q));
   const last = pq.idx + 1 >= pq.views.length;
   $('pp-next').innerHTML = `${right ? '' : errorTypeRow(null, 'setPassageErr')}<button class="next-btn" id="pp-next-btn" onclick="nextPassageQ()">${last ? 'See results →' : 'Next question →'}</button>`;
   $('pp-next-btn').focus({ preventScroll: true });
@@ -2120,7 +2182,7 @@ function showPassageResults() {
       <p class="muted-note">${paceMsg}${slow.length ? ` Slowest: ${slow.map(s => `Q${s.i + 1} (${fmtTime(s.ms)})`).join(', ')}.` : ''}</p>
     </div>
     <div class="results-card"><div class="section-label">Missed questions</div>
-      ${missed.length ? missed.map(r => reviewItem({ stem: r.view.q.q, choices: r.view.choices, ans: r.view.ans, chosen: r.chosen, exp: r.view.q.exp })).join('')
+      ${missed.length ? missed.map(r => reviewItem({ stem: r.view.q.q, choices: r.view.choices, ans: r.view.ans, chosen: r.chosen, other: r.other, exp: r.view.q.exp })).join('')
         : '<div class="all-correct">✓ Perfect — no missed questions.</div>'}
     </div>
     <div class="btn-row">
@@ -2200,6 +2262,7 @@ function startExam(ei) {
     results: [],
     startedAt: Date.now(),
   };
+  exam.alternatives ||= exam.answers.map(row => row.map(() => null));
   exam.ei = ei;
   show('screen-exam');
   renderExam();
@@ -2283,6 +2346,7 @@ function renderExamQuestion() {
       <div class="question-text">${fmt(q.q)}</div>
     </div>
     <div class="choices" role="radiogroup">${choiceButtons(view.choices, 'examPick', { selected: chosen, prefix: 'ec' })}</div>
+    <div id="exam-runner-up">${chosen == null ? '' : runnerUpPrompt(view, chosen, 'setExamRunnerUp', exam.alternatives?.[exam.si]?.[exam.qi])}</div>
     <div class="exam-nav">
       <button class="next-btn secondary" onclick="examNav(-1)" ${exam.qi === 0 ? 'disabled' : ''}>← Previous</button>
       <button class="next-btn secondary" onclick="openSectionReview()">Review</button>
@@ -2297,9 +2361,18 @@ function renderExamQuestion() {
   if (pane && renderExamQuestion.lastPassage !== q.passageId) pane.scrollTop = 0;
   renderExamQuestion.lastPassage = q.passageId;
 }
+function setExamRunnerUp(value) {
+  const other = value === '' ? null : Number(value);
+  if (other === exam.answers[exam.si][exam.qi]) return;
+  exam.alternatives[exam.si][exam.qi] = other;
+  saveExam();
+}
 function examPick(i) {
   exam.answers[exam.si][exam.qi] = exam.answers[exam.si][exam.qi] === i ? null : i;
+  exam.alternatives[exam.si][exam.qi] = null;
   saveExam();
+  const selected = exam.answers[exam.si][exam.qi];
+  $('exam-runner-up').innerHTML = selected == null ? '' : runnerUpPrompt(examView(exam.si, exam.qi), selected, 'setExamRunnerUp');
   document.querySelectorAll('[id^="ec-"]').forEach((b, bi) => b.classList.toggle('selected', exam.answers[exam.si][exam.qi] === bi));
   $('ex-fill').style.width = (exam.answers[exam.si].filter(a => a != null).length / curQuestions().length) * 100 + '%';
 }
@@ -2395,7 +2468,7 @@ function finishExam() {
   const history = store.get(KEYS.examHistory, []);
   history.push({ examId: def.id, date: Date.now(), total, sections: def.sections.map((s, i) => ({ id: s.id, scaled: exam.results[i]?.scaled, pct: exam.results[i]?.pct })) });
   store.set(KEYS.examHistory, history);
-  store.set(KEYS.examLast(def.id), { ei: exam.ei, answers: exam.answers, marked: exam.marked, orders: exam.orders, results: exam.results, date: Date.now() });
+  store.set(KEYS.examLast(def.id), { ei: exam.ei, answers: exam.answers, alternatives: exam.alternatives, marked: exam.marked, orders: exam.orders, results: exam.results, date: Date.now() });
   store.del(KEYS.examProgress(def.id));
   snapshotEstimate();
   showExamResults(store.get(KEYS.examLast(def.id)));
@@ -2520,7 +2593,7 @@ function renderExamReview() {
     const choices = o.map(k => q.choices[k]);
     const ans = o.indexOf(q.ans);
     const chosen = attempt.answers[si][i];
-    return { i, q, choices, ans, chosen, right: chosen === ans, marked: attempt.marked[si][i] };
+    return { i, q, choices, ans, chosen, other: attempt.alternatives?.[si]?.[i], right: chosen === ans, marked: attempt.marked[si][i] };
   });
   const shown = items.filter(x => filter === 'all' || (filter === 'incorrect' && !x.right) || (filter === 'marked' && x.marked));
   $('exam-review').innerHTML = `
@@ -2528,7 +2601,7 @@ function renderExamReview() {
       <div class="section-label">Answer review</div>
       <div class="seg-row">${def.sections.map((s, i) => `<button class="seg-btn${i === si ? ' active' : ''}" onclick="setExamReview('si',${i})">${s.abbrev}</button>`).join('')}</div>
       <div class="seg-row">${[['incorrect', 'Incorrect & unanswered'], ['marked', 'Marked'], ['all', 'All']].map(([f, l]) => `<button class="seg-btn small${f === filter ? ' active' : ''}" onclick="setExamReview('filter','${f}')">${l}</button>`).join('')}</div>
-      ${attempt.results[si] ? (shown.length ? shown.map(x => `<div class="review-wrap"><div class="missed-tag">Q${x.i + 1}${x.marked ? ' · ⚑ marked' : ''}${x.right ? ' · ✓ correct' : ''}</div>${reviewItem({ stem: x.q.q, choices: x.choices, ans: x.ans, chosen: x.chosen, exp: x.q.exp, passageTitle: x.q.passageTitle })}</div>`).join('')
+      ${attempt.results[si] ? (shown.length ? shown.map(x => `<div class="review-wrap"><div class="missed-tag">Q${x.i + 1}${x.marked ? ' · ⚑ marked' : ''}${x.right ? ' · ✓ correct' : ''}</div>${reviewItem({ stem: x.q.q, choices: x.choices, ans: x.ans, chosen: x.chosen, exp: x.q.exp, other: x.other, passageTitle: x.q.passageTitle })}</div>`).join('')
         : '<p class="muted-note">No questions match this filter.</p>') : '<p class="muted-note">This section was not completed.</p>'}
     </div>`;
 }
@@ -2597,6 +2670,7 @@ document.addEventListener('keydown', e => {
   if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
   const k = e.key.toLowerCase();
   const choice = KEY_TO_CHOICE[k];
+  if (finalTwo && (k === 'enter' || k === ' ') && e.target.tagName !== 'BUTTON') { e.preventDefault(); confirmFinalTwo(); return; }
   if (activeScreen === 'screen-quiz') {
     const hidden = !quiz.answered && $('reveal-btn');
     if (hidden && (k === ' ' || k === 'enter')) { e.preventDefault(); revealChoices(); }

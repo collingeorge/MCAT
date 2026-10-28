@@ -36,6 +36,8 @@ It sits between Anki (pure recall) and UWorld (full exam simulation). You get fa
 
 ## Features
 
+- **Final-two practice.** Select your answer, optionally record the other option you considered, then submit before feedback appears. Review whether the correct answer made your shortlist and compare the two concepts. Recall sessions reinforce uncertain correct answers and matching alternative concepts. Progress tracks shortlisting and choosing correctly separately, without changing scores. Full-length exams save runner-ups for post-exam review; older saved exams remain compatible.
+
 - **Smart Session (adaptive).** One button builds a session around you:
   - questions you're about to forget, with confident mistakes first;
   - your weakest high-yield topics;
