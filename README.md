@@ -56,24 +56,22 @@ The app uses adaptive practice and spaced repetition to help you retain content,
 |---|---|---|
 | Missed-fact loop | Re-asks a missed fact later, in another form when available, aiming for two consecutive correct answers within session limits. | Gives you another retrieval attempt after feedback instead of stopping at reading the explanation. |
 | Delayed review | Schedules facts using estimated memory strength, confidence, correctness, and answer time. | Checks retention beyond the current session; two immediate successes do not establish long-term mastery. |
-| Final-two practice | Before feedback, asks which other answer you considered. Shows whether the correct answer was in your final two. | Separates eliminating the correct answer too early from choosing the wrong option after narrowing it down. |
-| Concept comparison | When a selected wrong answer or runner-up matches another recall concept, provides its definition and can add a related recall question. | Helps you identify the distinction between concepts you confuse. Matching definitions are available only where the question bank supports them. |
-| Uncertain-correct reinforcement | Rechecks correct recall answers with a runner-up, guesses, uncertainty, or slow responses, subject to session limits. | A correct selection can still hide uncertainty. |
+| Alternative-answer reflection | After an incorrect answer, optionally asks which other answer you considered. | Supports comparison with the correct answer; this retrospective response is not a validated closeness measure. |
+| Concept comparison | When a submitted wrong answer or another option considered after a mistake matches another recall concept, provides its definition and can add a related recall question. | Helps you identify the distinction between concepts you confuse. Matching definitions are available only where the question bank supports them. |
+| Uncertain-correct reinforcement | Rechecks correct recall answers with guesses, uncertainty, or slow responses, subject to session limits. | A correct selection can still hide uncertainty. |
 | Different question forms | Uses applied scenarios, reverse definitions, and individual blanks where available. | Practices the underlying idea across wording and contexts. |
 | Mixed-topic practice | Interleaves topics and prioritizes due facts and weak areas. | Makes you choose the relevant concept instead of relying on a block of identical problems. |
 | Confidence and mistake review | Tracks confidence, mistake types, and confused pairs; supports short self-explanations. | Helps you choose whether to review content, reasoning, reading, calculations, or pacing. |
 | Speed drills and passages | Times learned facts and passage practice. | Builds retrieval fluency and makes pacing problems visible. |
 
-### Using the final-two prompt
+### Reflecting after an incorrect answer
 
-1. Select your main answer.
-2. At the bottom of the question, optionally select the other answer you seriously considered, or leave **No other answer / skip**.
-3. In recall and passage practice, select **Submit answer** to reveal feedback.
-4. Compare your two choices with the explanation. In full-length exams, feedback waits until post-exam review.
+1. Select an answer to submit it immediately.
+2. Correct answers proceed directly to normal confidence/review controls, without an alternative-answer prompt or closeness analysis.
+3. After an incorrect recall or tutor-passage answer, optionally answer **Which other answer were you considering?** below the feedback. Compare it with the explanation.
+4. Timed mini tests and full-lengths show the prompt only for incorrect submitted answers during post-test review.
 
-Progress shows **correct answer shortlisted** and **correct choice when shortlisted** for the most recent 1,000 recall and passage attempts that include a runner-up. Full-length runner-ups are saved with the exam for review. Recording a runner-up does not award partial credit or change the score.
-
-The app checks whether the correct answer is among your choices; it does not automatically rate every distractor's scientific closeness. Two choices can both sound plausible while only one satisfies the question.
+The dashboard counts retrospective mistake reflections and how often the recorded alternative was correct. It does not award partial credit or claim to measure scientific closeness. Changing or clearing a reflection updates that attempt rather than adding duplicates. Older before-feedback records are retained but excluded from this new reflection metric; correct-answer alternatives are not analyzed.
 
 ### Getting this update
 
@@ -81,11 +79,19 @@ Open or refresh the [live app](https://collingeorge.github.io/MCAT/) while onlin
 
 ---
 
+## Personalized next steps and honest progress
+
+Home now combines demonstrated weak topics, missing practice evidence, and recent mix-ups. It provides direct actions for targeted recall, concept comparison, a CARS baseline, and underrepresented science subjects. Passage recommendations modestly prefer matching topic metadata when available, while still protecting full-length passages and allowing broad practice. The daily passage assignment stays stable and is completed only by matching work in that subject; another subject's passage cannot complete CARS.
+
+New facts and review attempts are counted separately. Repeating a fact does not add new coverage. Existing answers are retained, but earlier attempts cannot be retroactively classified into the new daily split. Once both daily recall goals are met, another Smart Session is labeled optional. Content-coverage pace does not establish exam readiness. Smart Sessions reserve room for sparse subjects as well as due and weak material.
+
+No full-length diagnostic recorded here? The plan adds a baseline within the next week, when time allows, rather than postponing all diagnostics to the final six weeks. Review the result to adjust study priorities, consistent with [AAMC study-plan guidance](https://students-residents.aamc.org/prepare-mcat-exam/creating-your-mcat-exam-study-plan). Thresholds and rankings remain study heuristics, not score guarantees.
+
 ## Features
 
 - **Always-visible Home navigation.** Every page away from Home has a top-left **← Home** button that stays visible while scrolling. It uses the normal exit behavior: active full-length exam progress is saved, and an unfinished mini test asks before being discarded.
 
-- **Final-two practice.** Select your answer, optionally record the other option you considered, then submit before feedback appears. Review whether the correct answer made your shortlist and compare the two concepts. Recall sessions reinforce uncertain correct answers and matching alternative concepts. Progress tracks shortlisting and choosing correctly separately, without changing scores. Full-length exams save runner-ups for post-exam review; older saved exams remain compatible.
+- **Incorrect-answer reflection.** Selecting an answer submits immediately. Only after a mistake, optionally record the other answer you considered and compare it with the explanation. Timed tests defer this to review; correct answers skip this process.
 
 - **Smart Session (adaptive).** One button builds a session around you:
   - questions you're about to forget, with confident mistakes first;
@@ -116,7 +122,7 @@ Open or refresh the [live app](https://collingeorge.github.io/MCAT/) while onlin
   - spreads unseen material over your study days up to a final review phase;
   - sets a daily question target (new plus due), and sizes the Smart Session to what's left for today;
   - tracks whether you're on pace;
-  - schedules full-length exams: this app's two first, then the AAMC's four official exams weekly in the final month, always at least 3 days apart.
+  - recommends an early baseline diagnostic if none is recorded, followed by later full-length milestones and selected official practice exams. An external diagnostic can be marked reviewed without entering a score.
 - **AAMC content categories.** Every psychology and sociology question is tagged individually to its AAMC content category (6A–10A); science questions use their topic's primary category (1A–5E, plus scientific reasoning skills). The map shows coverage, mastery and a one-click drill per category, and lists categories that recall questions don't cover.
 - **Study your exam mistakes.** Full-length exams don't adapt while you take them, just like the real MCAT. Afterward, one click builds a reinforcement session from the subjects you missed, weighted by how many you missed in each.
 - **Topic mastery map.** Every subtopic is rated as weak, building, solid or mastered, with the next recommended focus. Ratings weigh harder questions more and recent answers most.
@@ -153,7 +159,7 @@ The **Score report** (home screen) estimates your MCAT the way the AAMC builds i
 - **Trend chart** of your estimated total over time.
 - **Section-weighted practice.** The C/P, B/B, P/S and All-sciences mixes draw recall questions in real section proportions. With "All", a session is 59 questions, like a real section.
 
-A section needs at least 15 answers in each subject it counts, and at least 70% of its content covered, before it gets a score.
+A section estimate needs at least 15 answers in each eligible subject, with those subjects representing at least 70% of the section weighting. This is an evidence threshold, not 70% syllabus completion.
 
 Percentile ranks are the [AAMC tables in effect May 1, 2026 – April 30, 2027](https://www.aamc.org/services/mcat-admissions-officers/resources/percentile-ranks). All scaled scores are **estimates**: the AAMC equates each test form separately, so use them to track progress, not to predict a test-day score.
 
@@ -206,7 +212,7 @@ tools/serve.ps1       Tiny local web server for development
 
 ### Testing study progression
 
-Run `node tools/test-study-path.cjs`, `node tools/test-final-two.cjs`, `node tools/test-audit.cjs`, `node tools/test-editorial.cjs`, and `node tools/check-content.cjs`. GitHub Actions runs these on Windows and Linux. A Linux Chrome smoke test (`node tools/test-browser.cjs`, Node 22+ and Chrome required) also checks actual page loading and interactions. The progression integration test loads the real question and passage data with a simulated DOM and checks readiness, subject matching, time budgets, deferred feedback, timeout scoring, persistence, and repeat-completion guards. It does not replace browser visual testing.
+Run `node tools/test-study-path.cjs`, `node tools/test-final-two.cjs`, `node tools/test-audit.cjs`, `node tools/test-editorial.cjs`, `node tools/test-learning-guide.cjs`, and `node tools/check-content.cjs`. GitHub Actions runs these on Windows and Linux. A Linux Chrome smoke test (`node tools/test-browser.cjs`, Node 22+ and Chrome required) also checks actual page loading and interactions. The progression integration test loads the real question and passage data with a simulated DOM and checks readiness, subject matching, time budgets, deferred feedback, timeout scoring, persistence, and repeat-completion guards. It does not replace browser visual testing.
 
 ### Editing questions
 1. Edit the relevant file in `data/`. When revising an existing recall stem, retain its original text in `idStem` so saved memory, flags, and exact-stem variant links keep their identity; do not change an existing `idStem`. Keep the `s:` tag (it drives the topic selector). `ans` is the 0-based index of the correct choice; order doesn't matter, because choices are shuffled when shown.

@@ -89,6 +89,9 @@ const store = {
   del(key) { try { localStorage.removeItem(key); } catch (e) { storageWarning('Saved data could not be removed. Check browser storage settings.'); } },
 };
 const KEYS = {
+  recallDays: 'mcat2_recall_days',
+  plannedPassages: 'mcat2_planned_passages',
+  diagnostic: 'mcat2_diagnostic',
   studyPath: 'mcat2_study_path',
   finalTwo: 'mcat2_final_two',
   prefs: 'mcat2_prefs',
@@ -527,6 +530,7 @@ function predictedSuccess(q, mem, mast) {
 
 function recordAnswer(q, right) {
   countAnswerToday();
+  recordRecallToday(q);
   const stats = store.get(KEYS.stats, {});
   const s = stats[q.key] || { c: 0, t: 0 };
   s.t++;
@@ -731,12 +735,12 @@ function buildSmartSession(n) {
     .forEach(x => add(x.m.lapses && Math.random() < 0.6 ? alternateForm(x.q) || x.q : x.q,
       x.m.confidentMiss ? 'confident-miss' : x.m.lapses ? 'missed-before' : 'due'));
 
-  // 2) Weakest high-yield topics: questions pitched closest to the target success rate (to ~80%)
+  // 2) Weakest high-yield topics: questions pitched closest to the target success rate (to ~60%)
   const weak = weakTopicNeeds(mast).slice(0, 6);
   const byKey = {};
   QB.forEach(q => { (byKey[q.key] = byKey[q.key] || []).push(q); });
   let round = 0;
-  while (chosen.size < Math.ceil(n * 0.8) && weak.length && round < n) {
+  while (chosen.size < Math.ceil(n * 0.6) && weak.length && round < n) {
     const t = weak[round % weak.length];
     const cand = (byKey[t.k] || []).filter(q => !chosen.has(q.id) && !recentlySeen(q))
       .map(q => ({ q, d: Math.abs(predictedSuccess(q, mem, mast) - target) }))
@@ -745,6 +749,14 @@ function buildSmartSession(n) {
     round++;
   }
 
+  // Preserve broad sampling: sparse subject evidence is not a demonstrated strength.
+  const sparse=learningNeeds().missing;
+  let sampleRound=0;
+  while(chosen.size<Math.ceil(n*0.8) && sparse.length && sampleRound<n*2){
+    const disc=sparse[sampleRound%sparse.length];
+    const q=QB.find(q=>disciplineOfRecall(q)===disc && !mem[q.id]?.seen && !chosen.has(q.id));
+    if(q)add(q,'new');sampleRound++;
+  }
   // 3) New material: pick a discipline in proportion to its MCAT yield (boosted while it
   //    has little data, so weaknesses are discovered early), then its least-covered topic
   const discTopics = {};
@@ -954,7 +966,7 @@ function savePrefs() { prefs.selected = [...selectedKeys]; store.set(KEYS.prefs,
 function goHome() {
   if (pq.mini && !pq.mini.completed && !confirm('Exit this mini test? This unfinished attempt will not be saved.')) return;
   if (activeScreen === 'screen-exam' && exam) saveExam();
-  pq.mini = null; finalTwo = null; stopPassageTimer();
+  pq.mini = null;  stopPassageTimer();
   commitPending();
   flushPassageErr();
   stopQuizTimer();
@@ -975,9 +987,12 @@ function renderHome() {
   const weak = weakKeys().length;
   const inProgress = FULL_EXAMS.find(e => store.get(KEYS.examProgress(e.id), null));
   const actions = [];
-  const focus = weakTopicNeeds(store.get(KEYS.mastery, {}))[0];
+  const needs=learningNeeds();
+  const focus=needs.weak[0] || weakTopicNeeds(store.get(KEYS.mastery, {}))[0];
+  const plan=computePlan();
+  const optional=!!plan?.recallTargetMet;
   actions.push(`<button class="action-btn smart" onclick="startSmartSession()" title="Adaptive: due reviews, your weakest high-yield topics and new material">
-    <span><b class="smart-title">▶ Smart Session</b><small>${focus ? `Focus: ${esc(KEY_LABEL[focus.k] || focus.k)}` : 'Adapts to your strengths and weaknesses'}</small></span>
+    <span><b class="smart-title">${optional ? 'Optional extra practice' : '▶ Smart Session'}</b><small>${focus ? `Focus: ${esc(KEY_LABEL[focus.k] || focus.k)}` : 'Adapts to your strengths and weaknesses'}</small></span>
     <b>${smartSessionSize()}</b></button>`);
   if (inProgress) actions.push(`<button class="action-btn primary" onclick="startExam(${FULL_EXAMS.indexOf(inProgress)})">Resume ${esc(inProgress.title)}</button>`);
   actions.push(`<button class="action-btn" ${due ? '' : 'disabled'} onclick="startDueReview()">Review due <b>${due}</b></button>`);
@@ -986,7 +1001,7 @@ function renderHome() {
   actions.push(`<button class="action-btn" onclick="startSpeedDrill()" title="${SPEED_N} facts you've learned, ${SPEED_SECONDS} seconds each: builds fast, automatic recall">⚡ Speed drill</button>`);
   actions.push(`<button class="action-btn" onclick="showProgress()">Score report</button>`);
   $('home-actions').innerHTML = actions.join('');
-  $('home-score').innerHTML = scoreStrip() + planStrip() + studyPathCard();
+  $('home-score').innerHTML = scoreStrip() + planStrip() + learningGuideCard() + studyPathCard();
 
   setMode(prefs.mode);
 }
@@ -1225,7 +1240,7 @@ function retryMissed() {
 }
 // questions: plain question objects, or {q, reason} items from the Smart Session
 function beginQuiz(questions, label, opts = {}) {
-  pq.mini = null; stopPassageTimer(); finalTwo = null;
+  pq.mini = null; stopPassageTimer(); 
   const items = questions.map(x => (x && x.q && x.choices === undefined ? makeView(x.q, x.reason) : makeView(x)));
   // Reinforcement (mastery loop, shaky repeats, confusion follow-ups) is on for every study session
   Object.assign(quiz, { items, idx: 0, results: [], answered: false, startedAt: Date.now(), label, adaptive: opts.adaptive !== false, speed: opts.speed || 0, extras: 0, pending: null,
@@ -1240,62 +1255,47 @@ function startQuizTimer() {
 }
 function stopQuizTimer() { if (quiz.timer) clearInterval(quiz.timer); quiz.timer = null; stopSpeedTimer(); }
 
-// Capture a runner-up before revealing correctness; never award partial score credit.
-let finalTwo = null;
-function runnerUpPrompt(view, chosen, handler, selected = null) {
-  return '<div class="results-card"><label><b>Which other answer were you considering?</b><p class="muted-note">Optional: record your runner-up before seeing the explanation.</p><select id="runner-up" onchange="' + handler + '(this.value)"><option value="">No other answer / skip</option>' + view.choices.map((c, i) => i === chosen ? '' : '<option value="' + i + '"' + (selected === i ? ' selected' : '') + '>' + LETTERS[i] + '. ' + esc(c) + '</option>').join('') + '</select></label></div>';
+// Optional retrospective reflection follows incorrect answers only; never award partial score credit.
+
+function runnerUpPrompt(view, chosen, handler, selected = null, inputId = 'runner-up') {
+  return '<div class="results-card"><label><b>Which other answer were you considering?</b><p class="muted-note">Optional: think back to the other answer you considered before submitting.</p><select id="' + inputId + '" onchange="' + handler + '(this.value)"><option value="">No other answer / skip</option>' + view.choices.map((c, i) => i === chosen ? '' : '<option value="' + i + '"' + (selected === i ? ' selected' : '') + '>' + LETTERS[i] + '. ' + esc(c) + '</option>').join('') + '</select></label></div>';
 }
-function setRunnerUp(value) {
-  if (!finalTwo) return;
-  const state = finalTwo.mode === 'recall' ? quiz : pq;
-  const view = finalTwo.mode === 'recall' ? state.items[state.idx] : state.views[state.idx];
-  const other = value === '' ? null : Number(value);
-  if (other !== null && (!Number.isInteger(other) || other < 0 || other >= view.choices.length || other === finalTwo.chosen)) return;
-  finalTwo.other = other;
+function validAlternative(view, chosen, value) {
+  const other=value===''?null:Number(value);
+  return other===null || Number.isInteger(other) && other>=0 && other<view.choices.length && other!==chosen;
 }
-function stageAnswer(mode, chosen) {
-  const state = mode === 'recall' ? quiz : pq;
-  if (state.answered) return;
-  if (mode === 'recall') stopSpeedTimer();
-  const view = mode === 'recall' ? quiz.items[quiz.idx] : pq.views[pq.idx];
-  const ms = Date.now() - state.qStart;
-  finalTwo = { mode, chosen, other: null, ms };
-  const prefix = mode === 'recall' ? 'cb' : 'pc';
-  view.choices.forEach((_, i) => $(prefix + '-' + i).classList.toggle('selected', i === chosen));
-  const area = $(mode === 'recall' ? 'nxt-area' : 'pp-next');
-  area.innerHTML = runnerUpPrompt(view, chosen, 'setRunnerUp') + '<button class="next-btn" onclick="confirmFinalTwo()">Submit answer →</button>';
+function setWrongAlternative(mode,value) {
+  const state=mode==='recall'?quiz:pq;
+  const r=state.results.at(-1);
+  if(!r || r.right || r.chosen==null || !validAlternative(r.view,r.chosen,value))return;
+  r.other=value===''?null:Number(value);
+  if(mode==='recall' && quiz.pending)quiz.pending.other=r.other;
+  if(mode==='passage' && pq.errPending){pq.errPending.other=r.other==null?null:r.view.choices[r.other];pq.errPending.correctInFinalTwo=r.other===r.view.ans;}
+  $('alternative-feedback-'+mode).innerHTML=finalTwoFeedback(r.view,r.chosen,r.other);
 }
-function confirmFinalTwo() {
-  if (!finalTwo) return;
-  const attempt = finalTwo;
-  finalTwo = null;
-  if (attempt.mode === 'recall') finishPick(attempt.chosen, attempt.other, attempt.ms);
-  else finishPassageAnswer(attempt.chosen, attempt.other, attempt.ms);
+function wrongAlternativePanel(mode,view,chosen,other=null) {
+  if(chosen==null || chosen===view.ans)return '';
+  return runnerUpPrompt(view,chosen,"setWrongAlternative.bind(null,'"+mode+"')",other)+'<div id="alternative-feedback-'+mode+'">'+finalTwoFeedback(view,chosen,other)+'</div>';
 }
-function recordFinalTwo(view, chosen, other) {
-  if (other == null) return;
-  const log = store.get(KEYS.finalTwo, []);
-  log.push({ t: Date.now(), chosen: view.choices[chosen], other: view.choices[other], answer: view.choices[view.ans], right: chosen === view.ans, included: chosen === view.ans || other === view.ans });
-  store.set(KEYS.finalTwo, log.slice(-1000));
+function recordFinalTwo(view,chosen,other,attemptKey=null) {
+  if(chosen==null || chosen===view.ans)return;
+  let log=store.get(KEYS.finalTwo,[]);
+  if(attemptKey)log=log.filter(x=>x.attemptKey!==attemptKey);
+  if(other!=null)log.push({t:Date.now(),chosen:view.choices[chosen],other:view.choices[other],answer:view.choices[view.ans],right:false,included:other===view.ans,retrospective:true,attemptKey});
+  store.set(KEYS.finalTwo,log.slice(-1000));
 }
 function finalTwoProgress() {
-  const log = store.get(KEYS.finalTwo, []);
-  if (!log.length) return '';
-  const included = log.filter(x => x.included), converted = included.filter(x => x.right);
-  return '<div class="results-card"><div class="section-label">Final-two practice</div><p>Correct answer shortlisted: <b>' + included.length + '/' + log.length + '</b> · Correct choice when shortlisted: <b>' + converted.length + '/' + included.length + '</b></p><p class="muted-note">Recall and passage attempts with a runner-up only; these are elimination skills, not extra score credit.</p></div>';
+  const log=store.get(KEYS.finalTwo,[]).filter(x=>x.right===false && x.retrospective);
+  if(!log.length)return '';
+  return '<div class="results-card"><div class="section-label">Alternative answers after mistakes</div><p>'+log.length+' incorrect answers with an alternative recorded; the alternative was correct in '+log.filter(x=>x.included).length+'.</p><p class="muted-note">Retrospective reflections after feedback, not a validated measure of closeness or extra score credit.</p></div>';
 }
-function finalTwoFeedback(view, chosen, other) {
-  if (other == null) return '';
-  const right = chosen === view.ans;
-  const included = right || other === view.ans;
-  const contrast = confusionCard(view.choices[right ? other : chosen], view.q);
-  return '<div class="tip-card"><b>Your final two:</b> ' + fmt(view.choices[chosen]) + ' / ' + fmt(view.choices[other]) + '<p>' + (right ? 'You chose correctly. Practice explaining why your runner-up fails.' : included ? 'The correct answer was in your final two. Focus on the detail that separates these choices.' : 'The correct answer was outside your final two. Review the concept and what led you to eliminate it.') + '</p>' + (contrast ? '<p>' + fmt(meaningOf(contrast)) + '</p>' : '') + '<p>Compare both choices with the explanation below. Being in your final two tracks elimination, not how scientifically close an answer is.</p></div>';
+function finalTwoFeedback(view,chosen,other) {
+  if(other==null || chosen==null || chosen===view.ans)return '';
+  const contrast=confusionCard(view.choices[other],view.q);
+  return '<div class="tip-card"><b>Other answer considered:</b> '+fmt(view.choices[other])+'<p>'+(other===view.ans?'Your alternative was the correct answer. Identify the clue that should have favored it over your submitted choice.':'Your alternative was also incorrect. Compare both choices with the correct answer and identify the missing distinction.')+'</p>'+(contrast?'<p>'+fmt(meaningOf(contrast))+'</p>':'')+'<p>This reflection was recorded after feedback; it does not measure scientific closeness or change your score.</p></div>';
 }
-function pick(chosen) {
-  if (chosen == null) { finalTwo = null; finishPick(null); return; }
-  stageAnswer('recall', chosen);
-}
-function answerPassage(chosen) { stageAnswer('passage', chosen); }
+function pick(chosen) { finishPick(chosen); }
+function answerPassage(chosen) { finishPassageAnswer(chosen); }
 
 function choiceButtons(choices, onclick, opts = {}) {
   return choices.map((c, i) => `
@@ -1304,7 +1304,7 @@ function choiceButtons(choices, onclick, opts = {}) {
     </button>`).join('');
 }
 function renderQuizQuestion() {
-  finalTwo = null;
+  
   quiz.answered = false;
   quiz.qStart = Date.now();
   const view = quiz.items[quiz.idx];
@@ -1369,7 +1369,6 @@ function finishPick(chosen, other = null, answerMs = null) {
   const view = quiz.items[quiz.idx];
   const timedOut = chosen == null;
   const right = !timedOut && chosen === view.ans;
-  recordFinalTwo(view, chosen, other);
   const ms = answerMs ?? (Date.now() - quiz.qStart);
   quiz.results.push({ view, chosen: timedOut ? null : chosen, right, ms, timedOut, other });
   recordAnswer(view.q, right);
@@ -1400,6 +1399,7 @@ function renderNextArea() {
       <span class="conf-label">How sure were you?</span>
       ${CONFIDENCE.map(([id, label, key]) => `<button class="conf-btn${conf === id ? ' on' : ''}" data-conf="${id}" onclick="setConfidence('${id}')" aria-pressed="${conf === id}" title="Key: ${key}">${label}</button>`).join('')}
     </div>
+    ${p && !p.right ? wrongAlternativePanel('recall',quiz.items[quiz.idx],quiz.results.at(-1).chosen,p.other) : ''}
     ${p && !p.right ? errorTypeRow(p.errType, 'setErrType') : ''}
     ${p && !p.right ? `<label class="explain-it">Explain it <span class="muted">(optional)</span>: in one sentence, why is the right answer right?
       <textarea id="explain-input" rows="2" maxlength="300" oninput="if(quiz.pending)quiz.pending.note=this.value">${esc(p.note || '')}</textarea></label>` : ''}
@@ -1429,6 +1429,7 @@ function commitPending() {
   const p = quiz.pending;
   if (!p) return;
   quiz.pending = null;
+  recordFinalTwo(quiz.items[quiz.idx],quiz.results.at(-1).chosen,p.other,'recall:'+quiz.startedAt+':'+quiz.idx);
   updateMemory(p.q, p.right, p.conf || (p.other != null ? 'unsure' : null), p.ms);
   if (!p.right) logError({ id: p.q.baseId || p.q.id, disc: disciplineOfRecall(p.q), key: p.q.key, type: p.errType || 'unlabeled', chosen: p.chosen, answer: p.answer, src: 'recall', other: p.other == null ? null : quiz.items[quiz.idx].choices[p.other], correctInFinalTwo: p.right || p.other === quiz.items[quiz.idx].ans,
     ...(p.note && p.note.trim() ? { note: p.note.trim().slice(0, 300) } : {}) });
@@ -1462,6 +1463,7 @@ function commitPending() {
     if (!upcoming(baseId)) insert(4, nextForm(), 'loop', { loopStreak: 0 });
     if (p.confusion && !upcoming(p.confusion.id)) insert(2, p.confusion, 'confusion');
     else if (!loop) insert(2, relatedQuestion(p.q, new Set(quiz.items.map(v => v.q.baseId || v.q.id))), 'related');
+    if(p.other!=null && p.other!==quiz.items[quiz.idx].ans){const alternative=confusionCard(quiz.items[quiz.idx].choices[p.other],p.q);if(alternative && !upcoming(alternative.id))insert(3,alternative,'confusion');}
     return;
   }
   if (loop) {
@@ -1470,11 +1472,7 @@ function commitPending() {
     if (!upcoming(baseId)) insert(5, nextForm(), 'loop', { loopStreak: loop.streak });
     return;
   }
-  if (p.other != null) {
-    const alternative = confusionCard(p.answer === p.chosen ? quiz.items[quiz.idx].choices[p.other] : p.chosen, p.q);
-    if (alternative && !upcoming(alternative.id)) insert(2, alternative, 'confusion');
-  }
-  const shaky = p.other != null || p.conf === 'guess' || p.conf === 'unsure' || (!p.conf && p.ms > 30000);
+  const shaky = p.conf === 'guess' || p.conf === 'unsure' || (!p.conf && p.ms > 30000);
   if (shaky && !quiz.shakyDone.has(baseId) && !upcoming(baseId)) {
     quiz.shakyDone.add(baseId);
     insert(6, nextForm(), 'shaky');
@@ -1562,14 +1560,15 @@ function barRow(label, c, t) {
     <div class="sr-pct">${p}%</div><div class="sr-n">${c}/${t}</div>
   </div>`;
 }
-function reviewItem({ stem, choices, ans, chosen, exp, tag, passageTitle, other }) {
+function reviewItem({ stem, choices, ans, chosen, exp, tag, passageTitle, other, otherHandler, otherId }) {
   return `<div class="missed-item">
     ${tag ? `<div class="missed-tag">${esc(tag)}</div>` : ''}
     ${passageTitle ? `<div class="missed-tag">Passage: ${esc(passageTitle)}</div>` : ''}
     <div class="missed-q">${fmt(stem)}</div>
     <div class="missed-correct">✓ ${fmt(choices[ans])}</div>
     <div class="missed-wrong">${chosen == null ? '— Not answered' : chosen === ans ? '' : '✗ Your answer: ' + fmt(choices[chosen])}</div>
-    ${other == null ? '' : finalTwoFeedback({ choices, ans, q: { id: 'review' } }, chosen, other)}
+    ${chosen != null && chosen !== ans && otherHandler ? runnerUpPrompt({choices,ans},chosen,otherHandler,other,otherId) : ''}
+    <div${otherId ? ` id="alternative-feedback-${otherId}"` : ''}>${finalTwoFeedback({choices,ans,q:{id:'review'}},chosen,other)}</div>
     <details class="missed-exp"><summary>Explanation</summary>${paragraphs(exp)}</details>
   </div>`;
 }
@@ -1678,7 +1677,7 @@ function scoreReportCards() {
       <div class="tile-score" style="color:${scoreColor(s.scaled)}">${s.scaled}<small>±${s.band}</small></div>
       ${scaleBar(s.scaled, s.band)}
       <span>${ordinal(s.percentile)} percentile</span>
-      <span>${s.n.toLocaleString()} answers${s.coverage < 0.999 ? ` · ${Math.round(s.coverage * 100)}% of content covered` : ''}</span>
+      <span>${s.n.toLocaleString()} answers${s.coverage < 0.999 ? ` · ${Math.round(s.coverage * 100)}% of section weighting represented` : ''}</span>
     </div>`;
   };
   return `
@@ -1688,7 +1687,7 @@ function scoreReportCards() {
         <div class="total-score">${est.total ?? '—'}${est.total ? `<small>±${est.totalBand}</small>` : ''}</div>
         <div class="total-meta">${est.total
           ? `<b>${ordinal(est.totalPercentile)} percentile</b> on the AAMC 472–528 scale<br>Sum of the four section estimates below`
-          : 'A total appears once all four sections have enough answers. Each section needs at least 70% of its content covered.'}
+          : 'A total appears once all four sections have enough answers. Each section needs eligible subjects representing at least 70% of its weighting; this is not syllabus coverage.'}
           ${lastFL ? `<br>Last full-length: <b>${lastFL.total}</b> (${new Date(lastFL.date).toLocaleDateString()})` : ''}</div>
       </div>
       <div class="section-grid">${est.sections.map(sectionTile).join('')}</div>
@@ -1696,7 +1695,7 @@ function scoreReportCards() {
       <details class="how">
         <summary>How this score is calculated</summary>
         <p>The AAMC scores each section on 118–132 (midpoint 125) and adds the four for a 472–528 total. Each section draws on fixed shares of content. C/P is 30% general chemistry, 25% physics, 25% biochemistry, 15% organic chemistry and 5% biology. B/B is 65% biology, 25% biochemistry and 5% each general and organic chemistry. P/S is 65% psychology, 30% sociology and 5% biology. CARS is reading and reasoning only.</p>
-        <p>Every subject below gets an MCAT-equivalent score from your answers. Full-length questions count 3×, passage questions 2× and recall questions 1×. Recall questions test single facts, so they're converted on a stricter curve. A section score is its subjects' scores weighted by the shares above. Subjects with fewer than ${MIN_ANSWERS} answers are left out, and a section needs at least 70% of its content covered. The ± range narrows as you answer more.</p>
+        <p>Every subject below gets an MCAT-equivalent score from your answers. Full-length questions count 3×, passage questions 2× and recall questions 1×. Recall questions test single facts, so they're converted on a stricter curve. A section score is its subjects' scores weighted by the shares above. Subjects with fewer than ${MIN_ANSWERS} answers are left out. A section needs eligible subjects representing at least 70% of its weighting; this is not the percentage of the syllabus studied. The ± range narrows as you answer more.</p>
         <p>Percentiles are the AAMC ranks in effect May 1, 2026 – April 30, 2027. These are study estimates, not predictions: the AAMC converts raw scores separately for every test form. A full-length exam is the best single indicator. <a href="#" onclick="showAbout();return false">About &amp; disclaimers</a></p>
       </details>
     </div>
@@ -1933,14 +1932,18 @@ function computePlan() {
   const contentStudyDays = Math.max(1, Math.round(((daysLeft - finalDays) * perWeek) / 7));
   const inFinal = daysLeft <= finalDays;
   const due = dueQuestions().length;
-  const activity = daysLeft > 2 ? pathWork(null, plan.minutes || 120) : null;
+  const activity = daysLeft > 2 ? plannedPassage(plan.minutes || 120) : null;
   const studyHistory = store.get(KEYS.studyPath, []);
   const todayWork = studyHistory.filter(x => x.day === localDay());
-  const activityDone = todayWork.length > 0;
+  const activityDone = passageWorkDone(activity);
   const passageMinutes = activity ? Math.min(plan.minutes || 120, activity.minutes) : 0;
   const capacity = Math.max(0, Math.floor((((plan.minutes || 120) - passageMinutes) * 60) / SECONDS_PER_RECALL));
   const newPerDay = inFinal || daysLeft <= 0 ? 0 : Math.ceil(unseen / contentStudyDays);
-  const target = Math.min(capacity, newPerDay + Math.min(due, capacity));
+  const newGoal=Math.min(newPerDay,Math.max(0,capacity-Math.min(due,Math.ceil(capacity/2))));
+  const reviewGoal=Math.min(due,capacity-newGoal);
+  const target=newGoal+reviewGoal;
+  const recall=recallToday();
+  const recallTargetMet=(newGoal===0 || recall.tracked && recall.fresh>=newGoal) && (reviewGoal===0 || recall.tracked && recall.reviews>=reviewGoal);
   // Expected progress since the plan started (straight-line over the content phase)
   const total = Math.max(1, initialDays - finalDays);
   const elapsed = Math.min(total, Math.max(0, calendarDaysBetween(Number.isFinite(startDay.getTime()) ? startDay : today, today)));
@@ -1948,7 +1951,11 @@ function computePlan() {
   const fl = [];
   const addMilestone = (offset, label) => { if (daysLeft - offset >= 0) { const date = new Date(test); date.setDate(date.getDate() - offset); fl.push({ date, label }); } };
   // This app's exams come first; AAMC's official exams (the best predictors) fill the final month, one a week
-  if (daysLeft >= 49) { addMilestone(42, 'Full-Length Practice Exam 1 (this app)'); addMilestone(35, 'Full-Length Practice Exam 2 (this app)'); }
+  if (daysLeft >= 49) {
+    const done=store.get(KEYS.examHistory,[]).filter(x=>x.total!=null).map(x=>x.examId);
+    if(!done.includes(FULL_EXAMS[0].id))addMilestone(42,'Full-Length Practice Exam 1 (this app)');
+    if(!done.includes(FULL_EXAMS[1].id))addMilestone(35,'Full-Length Practice Exam 2 (this app)');
+  }
   else if (daysLeft >= 33) {
     // At least 3 days between full-lengths so each one can be reviewed
     const first = daysLeft - 2, second = daysLeft - 9;
@@ -1956,15 +1963,16 @@ function computePlan() {
     if (second >= 31) addMilestone(second, 'Full-Length Practice Exam 2 (this app)');
   }
   [28, 21, 14, 7].forEach((o, i) => addMilestone(o, `AAMC official full-length ${i + 1} (aamc.org)`));
+  if(!diagnosticRecorded() && daysLeft>3) { const date=new Date(today);date.setDate(date.getDate()+Math.min(7,daysLeft-3));fl.push({date,label:'Baseline diagnostic and review (this app or an official exam)'}); }
   addMilestone(2, 'Light review only; rest and sleep before test day');
   fl.sort((a, b) => a.date - b.date);
   return { plan, daysLeft, studyDaysLeft, finalDays, inFinal, seen, unseen, due, capacity, newPerDay, target,
-    activity, activityDone, passageMinutes, doneToday: Math.max(0, answeredToday() - todayWork.reduce((n, x) => n + x.total, 0)), expectedSeen, overCapacity: newPerDay + due > capacity, milestones: fl.filter(m => m.date >= today) };
+    activity, activityDone, passageMinutes, newGoal, reviewGoal, recall, recallTargetMet, doneToday: recall.fresh+recall.reviews, expectedSeen, overCapacity: newPerDay + due > capacity, milestones: fl.filter(m => m.date >= today) };
 }
 function smartSessionSize() {
   const p = computePlan();
   if (!p || p.daysLeft <= 0) return prefs.count || 30;
-  const left = p.target - p.doneToday;
+  const left = Math.max(0,p.newGoal-p.recall.fresh)+Math.max(0,p.reviewGoal-p.recall.reviews);
   return left > 0 ? Math.min(60, Math.max(1, left)) : prefs.count || 20;
 }
 function planStrip() {
@@ -1972,12 +1980,12 @@ function planStrip() {
   if (!p) return `<button class="plan-strip empty" onclick="showPlan()">📅 Set your MCAT date to get a daily study plan →</button>`;
   if (p.daysLeft < 0) return `<button class="plan-strip" onclick="showPlan()">📅 Your test date has passed. Update your study plan →</button>`;
   if (p.daysLeft === 0) return `<button class="plan-strip" onclick="showPlan()">📅 Test day. Trust your preparation, and good luck!</button>`;
-  const doneAll = p.doneToday >= p.target;
+  const doneAll = p.recallTargetMet;
   const ahead = p.seen - p.expectedSeen;
   return `<button class="plan-strip" onclick="showPlan()">
     <span>📅 <b>${p.daysLeft}</b> day${p.daysLeft === 1 ? '' : 's'} to the MCAT${p.inFinal ? ' · final review phase' : ''}</span>
-    <span>Today: <b>${p.doneToday}</b> / ${p.target} recall${doneAll ? ' ✓' : ''}</span>
-    <span class="${ahead >= 0 ? 'ok' : 'behind'}">${ahead >= 0 ? 'On track' : `${-ahead} behind`}</span>
+    <span>New facts: <b>${p.recall.tracked ? p.recall.fresh : '—'}</b> / ${p.newGoal} · Reviews: <b>${p.recall.tracked ? p.recall.reviews : '—'}</b> / ${p.reviewGoal}${doneAll ? ' ✓' : ''}</span>
+    <span class="${ahead >= 0 ? 'ok' : 'behind'}">Content-coverage pace: ${ahead >= 0 ? 'on track' : `${-ahead} behind`}</span>
   </button>`;
 }
 function planSummaryCard() {
@@ -1989,11 +1997,12 @@ function planSummaryCard() {
 function planDetails(p) {
   return `<div class="stat-row">
       <div class="stat"><b>${p.daysLeft}</b><span>days to test</span></div>
-      <div class="stat"><b>${p.target}</b><span>recall questions today</span></div>
+      <div class="stat"><b>${p.target}</b><span>new + due review targets</span></div>
       <div class="stat"><b>${p.newPerDay}</b><span>new per day</span></div>
       <div class="stat"><b>${p.seen.toLocaleString()}</b><span>of ${QB.length.toLocaleString()} seen</span></div>
     </div>
-    ${p.activity ? `<div class="advice"><b>Today: ${p.activityDone ? '✓ passage work completed' : esc(DISCIPLINES[p.activity.subj]) + (p.activity.kind === 'mini' ? ' mini test' : ' passage')}</b> · ${p.passageMinutes} minutes reserved including review. Pair it with recall in the same subject.<button class="micro-btn" onclick="startSubjectWork('${p.activity.subj}','${p.activity.kind}')">${p.activityDone ? 'Optional extra practice' : 'Start planned passage work'}</button></div>` : ''}
+    <p class="muted-note">Today: new facts <b>${p.recall.tracked ? p.recall.fresh : 'not classified'}/${p.newGoal}</b> · review attempts <b>${p.recall.tracked ? p.recall.reviews : 'not classified'}/${p.reviewGoal}</b>. The new/review split covers answers since this tracking was introduced; earlier attempts are not retroactively classified. Content pace tracks bank coverage, not test readiness.</p>
+    ${p.activity ? `<div class="advice"><b>Today: ${esc(DISCIPLINES[p.activity.subj])} ${p.activity.kind === 'mini' ? 'mini test' : 'passage'} ${p.activityDone ? '✓ completed' : 'not completed'}</b> · ${p.passageMinutes} minutes reserved including review. Pair it with recall in the same subject.<button class="micro-btn" onclick="startSubjectWork('${p.activity.subj}','${p.activity.kind}')">${p.activityDone ? 'Optional extra practice' : 'Start planned passage work'}</button></div>` : ''}
     ${p.overCapacity ? `<div class="advice">After reserving passage time, your daily time fits about <b>${p.capacity}</b> questions, but you have <b>${p.newPerDay}</b> new plus <b>${p.due}</b> due. Add time, or let the Smart Session prioritize: it puts high-yield and weak topics first.</div>` : ''}
     ${p.inFinal ? '<div class="advice">You\'re in the final review phase: no new material. Focus on due reviews, weak topics, mistake patterns and full-length practice.</div>' : ''}
     ${passageSchedule(p)}
@@ -2066,7 +2075,7 @@ function showProgress() {
 }
 function resetProgress() {
   if (!confirm('Erase all recall stats, spaced-repetition history, flags, passage scores, score estimates and exam history on this device? This cannot be undone.')) return;
-  [KEYS.fluency, KEYS.studyPath, KEYS.finalTwo, KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
+  [KEYS.recallDays, KEYS.plannedPassages, KEYS.diagnostic, KEYS.fluency, KEYS.studyPath, KEYS.finalTwo, KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
   FULL_EXAMS.forEach(e => { store.del(KEYS.examProgress(e.id)); store.del(KEYS.examLast(e.id)); });
   goHome();
 }
@@ -2111,7 +2120,7 @@ function nextPassage() {
   startPassage();
 }
 function startPassage() {
-  finalTwo = null;
+  
   stopQuizTimer();
   pq.mini = null; pq.completed = false; pq.errPending = null;
   const p = PASSAGE_BY_ID.get(selectedPassageId);
@@ -2154,7 +2163,7 @@ function figureHtml(fig) {
   </figure>`;
 }
 function renderPassageQuestion() {
-  finalTwo = null;
+  
   pq.answered = false;
   const view = pq.views[pq.idx], tot = pq.views.length;
   $('pp-fill').style.width = (pq.idx / tot) * 100 + '%';
@@ -2182,7 +2191,6 @@ function finishPassageAnswer(chosen, other = null, answerMs = null) {
   pq.answered = true;
   const view = pq.views[pq.idx];
   const right = chosen === view.ans;
-  recordFinalTwo(view, chosen, other);
   pq.results.push({ view, chosen, right, other, ms: answerMs ?? (Date.now() - pq.qStart) });
   recordEvidence('passage', disciplineOfPassage(pq.p, view.q), right);
   if (view.q.skill) recordEvidence('skill', view.q.skill, right);
@@ -2198,7 +2206,7 @@ function finishPassageAnswer(chosen, other = null, answerMs = null) {
   $('pp-score').textContent = `✓ ${pq.results.filter(r => r.right).length}/${pq.results.length}`;
   $('pp-exp').innerHTML = finalTwoFeedback(view, chosen, other) + explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Passage · ${pq.p.title}`, view.q.q));
   const last = pq.idx + 1 >= pq.views.length;
-  $('pp-next').innerHTML = `${right ? '' : errorTypeRow(null, 'setPassageErr')}<button class="next-btn" id="pp-next-btn" onclick="nextPassageQ()">${last ? 'See results →' : 'Next question →'}</button>`;
+  $('pp-next').innerHTML = `${right ? '' : wrongAlternativePanel('passage',view,chosen,other)+errorTypeRow(null, 'setPassageErr')}<button class="next-btn" id="pp-next-btn" onclick="nextPassageQ()">${last ? 'See results →' : 'Next question →'}</button>`;
   $('pp-next-btn').focus({ preventScroll: true });
 }
 function setPassageErr(t) {
@@ -2208,6 +2216,8 @@ function setPassageErr(t) {
 }
 function flushPassageErr() {
   if (!pq.errPending) return;
+  const r=pq.results.at(-1);
+  if(r)recordFinalTwo(r.view,r.chosen,r.other,'passage:'+pq.startedAt+':'+pq.idx);
   logError(Object.assign({}, pq.errPending, { type: pq.errPending.type || 'unlabeled' }));
   pq.errPending = null;
 }
@@ -2416,7 +2426,6 @@ function renderExamQuestion() {
       <div class="question-text">${fmt(q.q)}</div>
     </div>
     <div class="choices" role="radiogroup">${choiceButtons(view.choices, 'examPick', { selected: chosen, prefix: 'ec' })}</div>
-    <div id="exam-runner-up">${chosen == null ? '' : runnerUpPrompt(view, chosen, 'setExamRunnerUp', exam.alternatives?.[exam.si]?.[exam.qi])}</div>
     <div class="exam-nav">
       <button class="next-btn secondary" onclick="examNav(-1)" ${exam.qi === 0 ? 'disabled' : ''}>← Previous</button>
       <button class="next-btn secondary" onclick="openSectionReview()">Review</button>
@@ -2431,18 +2440,10 @@ function renderExamQuestion() {
   if (pane && renderExamQuestion.lastPassage !== q.passageId) pane.scrollTop = 0;
   renderExamQuestion.lastPassage = q.passageId;
 }
-function setExamRunnerUp(value) {
-  const other = value === '' ? null : Number(value);
-  if (other !== null && (!Number.isInteger(other) || other < 0 || other >= examView(exam.si, exam.qi).choices.length || other === exam.answers[exam.si][exam.qi])) return;
-  exam.alternatives[exam.si][exam.qi] = other;
-  saveExam();
-}
 function examPick(i) {
   exam.answers[exam.si][exam.qi] = exam.answers[exam.si][exam.qi] === i ? null : i;
   exam.alternatives[exam.si][exam.qi] = null;
   saveExam();
-  const selected = exam.answers[exam.si][exam.qi];
-  $('exam-runner-up').innerHTML = selected == null ? '' : runnerUpPrompt(examView(exam.si, exam.qi), selected, 'setExamRunnerUp');
   document.querySelectorAll('[id^="ec-"]').forEach((b, bi) => b.classList.toggle('selected', exam.answers[exam.si][exam.qi] === bi));
   $('ex-fill').style.width = (exam.answers[exam.si].filter(a => a != null).length / curQuestions().length) * 100 + '%';
 }
@@ -2665,7 +2666,7 @@ function renderExamReview() {
     const choices = o.map(k => q.choices[k]);
     const ans = o.indexOf(q.ans);
     const chosen = attempt.answers[si][i];
-    return { i, q, choices, ans, chosen, other: attempt.alternatives?.[si]?.[i], right: chosen === ans, marked: attempt.marked[si][i] };
+    return { i, q, choices, ans, chosen, other: attempt.alternativeReflections?.[si]?.[i] ? attempt.alternatives?.[si]?.[i] : null, right: chosen === ans, marked: attempt.marked[si][i] };
   });
   const shown = items.filter(x => filter === 'all' || (filter === 'incorrect' && !x.right) || (filter === 'marked' && x.marked));
   $('exam-review').innerHTML = `
@@ -2673,7 +2674,7 @@ function renderExamReview() {
       <div class="section-label">Answer review</div>
       <div class="seg-row">${def.sections.map((s, i) => `<button class="seg-btn${i === si ? ' active' : ''}" onclick="setExamReview('si',${i})">${s.abbrev}</button>`).join('')}</div>
       <div class="seg-row">${[['incorrect', 'Incorrect & unanswered'], ['marked', 'Marked'], ['all', 'All']].map(([f, l]) => `<button class="seg-btn small${f === filter ? ' active' : ''}" onclick="setExamReview('filter','${f}')">${l}</button>`).join('')}</div>
-      ${attempt.results[si] ? (shown.length ? shown.map(x => `<div class="review-wrap"><div class="missed-tag">Q${x.i + 1}${x.marked ? ' · ⚑ marked' : ''}${x.right ? ' · ✓ correct' : ''}</div>${reviewItem({ stem: x.q.q, choices: x.choices, ans: x.ans, chosen: x.chosen, exp: x.q.exp, other: x.other, passageTitle: x.q.passageTitle })}</div>`).join('')
+      ${attempt.results[si] ? (shown.length ? shown.map(x => `<div class="review-wrap"><div class="missed-tag">Q${x.i + 1}${x.marked ? ' · ⚑ marked' : ''}${x.right ? ' · ✓ correct' : ''}</div>${reviewItem({ stem: x.q.q, choices: x.choices, ans: x.ans, chosen: x.chosen, exp: x.q.exp, other: x.other, otherHandler: `setExamReviewAlternative.bind(null,${si},${x.i})`, otherId: `exam-other-${si}-${x.i}`, passageTitle: x.q.passageTitle })}</div>`).join('')
         : '<p class="muted-note">No questions match this filter.</p>') : '<p class="muted-note">This section was not completed.</p>'}
     </div>`;
 }
@@ -2742,7 +2743,6 @@ document.addEventListener('keydown', e => {
   if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
   const k = e.key.toLowerCase();
   const choice = KEY_TO_CHOICE[k];
-  if (finalTwo && (k === 'enter' || k === ' ') && e.target.tagName !== 'BUTTON') { e.preventDefault(); confirmFinalTwo(); return; }
   if (activeScreen === 'screen-quiz') {
     const hidden = !quiz.answered && $('reveal-btn');
     if (hidden && (k === ' ' || k === 'enter')) { e.preventDefault(); revealChoices(); }
@@ -2771,4 +2771,27 @@ goHome();
 // Offline cache on the deployed site only (keeps local development uncached; add ?sw to test it locally)
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || new URLSearchParams(location.search).has('sw'))) {
   navigator.serviceWorker.register('sw.js').catch(() => { /* offline support is optional */ });
+}
+
+function setMiniReviewAlternative(i,value) {
+  if(!pq.mini?.completed)return;
+  const r=pq.results[i];if(!r || r.right || r.chosen==null || !validAlternative(r.view,r.chosen,value))return;
+  r.other=value===''?null:Number(value);
+  recordFinalTwo(r.view,r.chosen,r.other,'mini:'+pq.startedAt+':'+i);
+  $('alternative-feedback-mini-other-'+i).innerHTML=finalTwoFeedback(r.view,r.chosen,r.other);
+}
+function setExamReviewAlternative(si,qi,value) {
+  const attempt=examReviewState.attempt;
+  if(!attempt?.results[si])return;
+  const q=sectionQuestions(attempt.ei,si)[qi], order=attempt.orders[si]?.[qi] || q.choices.map((_,i)=>i);
+  const view={q,choices:order.map(i=>q.choices[i]),ans:order.indexOf(q.ans)},chosen=attempt.answers[si][qi];
+  if(chosen==null || chosen===view.ans || !validAlternative(view,chosen,value))return;
+  attempt.alternatives ||= attempt.answers.map(row=>row.map(()=>null));
+  const other=value===''?null:Number(value);attempt.alternatives[si][qi]=other;
+  attempt.alternativeReflections ||= attempt.answers.map(row=>row.map(()=>false));
+  attempt.alternativeReflections[si][qi]=other!=null;
+  const key=KEYS.examLast(FULL_EXAMS[attempt.ei].id),saved=store.get(key,null);
+  if(saved?.date===attempt.date)store.set(key,attempt);
+  recordFinalTwo(view,chosen,other,'exam:'+attempt.date+':'+si+':'+qi);
+  $('alternative-feedback-exam-other-'+si+'-'+qi).innerHTML=finalTwoFeedback(view,chosen,other);
 }

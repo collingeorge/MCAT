@@ -25,8 +25,8 @@ async function main() {
  assert.equal(run("calendarDaysBetween(new Date(2026,2,7),new Date(2026,2,10))"),3);
  assert.equal(run("calendarDaysBetween(new Date(2026,9,31),new Date(2026,10,3))"),3);
  // A reflection delay must not inflate the fluency timer.
- run("beginQuiz([QB[0]],'Timing audit',{adaptive:false}); quiz.qStart=Date.now()-1000; stageAnswer('recall',quiz.items[0].ans)");
- clock+=120000; run('confirmFinalTwo(); commitPending()');
+ run("beginQuiz([QB[0]],'Timing audit',{adaptive:false}); quiz.qStart=Date.now()-1000; pick(quiz.items[0].ans)");
+ clock+=120000; run('commitPending()');
  assert.equal(run('store.get(KEYS.fluency,{})[disciplineOfRecall(QB[0])].at(-1)'),1000);
  // Immediate repetitions cannot multiply long-term stability as if they were delayed retrievals.
  run("store.del(KEYS.mem); updateMemory(QB[1],false,null,1000); globalThis.beforeS=loadMem()[QB[1].id].S; updateMemory(QB[1],true,'knew',1000)");
