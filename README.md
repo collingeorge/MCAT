@@ -34,6 +34,39 @@ It sits between Anki (pure recall) and UWorld (full exam simulation). You get fa
 
 ---
 
+## How reinforcement helps you learn
+
+The app uses adaptive practice and spaced repetition to help you retain content, distinguish similar concepts, and retrieve facts more quickly. Here, “reinforcement” means targeted study and feedback; it is not a machine-learning reinforcement-learning model or a guarantee of a higher MCAT score.
+
+| Feature | What it does | Why it is included |
+|---|---|---|
+| Missed-fact loop | Re-asks a missed fact later, in another form when available, aiming for two consecutive correct answers within session limits. | Gives you another retrieval attempt after feedback instead of stopping at reading the explanation. |
+| Delayed review | Schedules facts using estimated memory strength, confidence, correctness, and answer time. | Checks retention beyond the current session; two immediate successes do not establish long-term mastery. |
+| Final-two practice | Before feedback, asks which other answer you considered. Shows whether the correct answer was in your final two. | Separates eliminating the correct answer too early from choosing the wrong option after narrowing it down. |
+| Concept comparison | When a selected wrong answer or runner-up matches another recall concept, provides its definition and can add a related recall question. | Helps you identify the distinction between concepts you confuse. Matching definitions are available only where the question bank supports them. |
+| Uncertain-correct reinforcement | Rechecks correct recall answers with a runner-up, guesses, uncertainty, or slow responses, subject to session limits. | A correct selection can still hide uncertainty. |
+| Different question forms | Uses applied scenarios, reverse definitions, and individual blanks where available. | Practices the underlying idea across wording and contexts. |
+| Mixed-topic practice | Interleaves topics and prioritizes due facts and weak areas. | Makes you choose the relevant concept instead of relying on a block of identical problems. |
+| Confidence and mistake review | Tracks confidence, mistake types, and confused pairs; supports short self-explanations. | Helps you choose whether to review content, reasoning, reading, calculations, or pacing. |
+| Speed drills and passages | Times learned facts and passage practice. | Builds retrieval fluency and makes pacing problems visible. |
+
+### Using the final-two prompt
+
+1. Select your main answer.
+2. At the bottom of the question, optionally select the other answer you seriously considered, or leave **No other answer / skip**.
+3. In recall and passage practice, select **Submit answer** to reveal feedback.
+4. Compare your two choices with the explanation. In full-length exams, feedback waits until post-exam review.
+
+Progress shows **correct answer shortlisted** and **correct choice when shortlisted** for the most recent 1,000 recall and passage attempts that include a runner-up. Full-length runner-ups are saved with the exam for review. Recording a runner-up does not award partial credit or change the score.
+
+The app checks whether the correct answer is among your choices; it does not automatically rate every distractor's scientific closeness. Two choices can both sound plausible while only one satisfies the question.
+
+### Getting this update
+
+Open or refresh the [live app](https://collingeorge.github.io/MCAT/) while online. The service worker fetches current files and keeps an offline copy; this release also changes the cache version so older cached assets are replaced. If an already-open tab still shows the previous flow, close and reopen it, or use **Ctrl+Shift+R** (Windows) / **Cmd+Shift+R** (Mac). Previously cached offline copies need an online visit to receive the update. Refreshing preserves progress stored in the same browser; clearing site data erases it.
+
+---
+
 ## Features
 
 - **Final-two practice.** Select your answer, optionally record the other option you considered, then submit before feedback appears. Review whether the correct answer made your shortlist and compare the two concepts. Recall sessions reinforce uncertain correct answers and matching alternative concepts. Progress tracks shortlisting and choosing correctly separately, without changing scores. Full-length exams save runner-ups for post-exam review; older saved exams remain compatible.
