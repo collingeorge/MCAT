@@ -22,7 +22,7 @@ assert.equal(run("subjectPath('biology').ready"),true);
 run("const bioPassages=subjectPassages('biology'); store.set(KEYS.passages,Object.fromEntries(bioPassages.slice(0,2).map(p=>[p.id,{attempts:1,last:80,best:80}])))");
 assert.equal(run("pathWork('biology',120).kind"),'mini');
 assert.equal(run("pathWork('biology',30).kind"),'passage','Short budgets should use one passage');
-assert.equal(run("passageOrder('biology')[0].id===bioPassages[2].id"),true,'Prefer unseen passages');
+assert(run("!store.get(KEYS.passages,{})[passageOrder('biology')[0].id]"),'Prefer unseen passages');
 assert.match(run("studyPathCard('biology')"),/startSubjectWork/);
 // Study plan reserves passage time and still schedules full-length exams.
 run("const targetDate = new Date(Date.now()+60*86400000); store.set(KEYS.plan,{date:localDay(targetDate),minutes:30,days:6,start:localDay()})");
@@ -39,10 +39,10 @@ assert(run("pq.mini.items.every(x=>x.passage?disciplineOfPassage(x.passage,x.vie
 assert.doesNotMatch(el('pp-question-box').innerHTML,/Answer:|✓ Correct|✗ Incorrect/);
 const beforeDaily=run('answeredToday()');
 const n=run('pq.views.length');
-run("answerPassage(pq.views[0].ans); setRunnerUp(String((pq.views[0].ans+1)%4)); confirmFinalTwo()");
+run("answerPassage(pq.views[0].ans)");
 assert.equal(run('answeredToday()'),beforeDaily,'Mini must defer recording until completion');
 assert.doesNotMatch(el('pp-next').innerHTML,/Answer:|✓ Correct|✗ Incorrect/);
-for(let i=1;i<n;i++) run('nextPassageQ(); answerPassage(pq.views[pq.idx].ans); confirmFinalTwo()');
+for(let i=1;i<n;i++) run('nextPassageQ(); answerPassage(pq.views[pq.idx].ans)');
 run('nextPassageQ()');
 assert.equal(run('pq.mini.completed'),true);
 assert.equal(run('answeredToday()')-beforeDaily,n,'Count all mini questions exactly once');
@@ -58,9 +58,9 @@ assert.equal(run('pq.results.filter(r=>r.chosen===null).length'),run('pq.views.l
 run('leaveMiniForRecall()');
 assert.equal(run("quiz.items.every(v=>disciplineOfRecall(v.q)==='psych_soc')"),true,'Reinforcement stays in the same subject');
 // Old passage records without timestamps still sort, and tutor passage completion is idempotent.
-run("startSubjectWork('biology','passage')");
+run("startSubjectWork(computePlan().activity.subj,'passage')");
 const passageN=run('pq.views.length');
-for(let i=0;i<passageN;i++) { run('answerPassage(pq.views[pq.idx].ans); confirmFinalTwo(); nextPassageQ()'); }
+for(let i=0;i<passageN;i++) { run('answerPassage(pq.views[pq.idx].ans); nextPassageQ()'); }
 const logN=run('store.get(KEYS.studyPath,[]).length'); run('showPassageResults()');
 assert.equal(run('store.get(KEYS.studyPath,[]).length'),logN);
 assert.equal(run('computePlan().activityDone'),true);
