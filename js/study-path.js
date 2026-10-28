@@ -120,10 +120,10 @@ function finishSubjectMini() {
       recordEvidence('passage', disciplineOfPassage(item.passage, r.view.q), r.right);
       if (r.view.q.skill) recordEvidence('skill', r.view.q.skill, r.right);
     } else {
-      recordRecallToday(r.view.q);
+      if(r.chosen!=null)recordRecallToday(r.view.q);
       const stats = store.get(KEYS.stats, {}), q = r.view.q, row = stats[q.key] || { c: 0, t: 0 };
       row.t++; if (r.right) row.c++; stats[q.key] = row; store.set(KEYS.stats, stats);
-      updateMemory(q, r.right, r.other == null ? null : 'unsure', r.ms);
+      if(r.chosen!=null)updateMemory(q, r.right, r.other == null ? null : 'unsure', r.ms);
     }
     if (!r.right) logError({ id: r.view.q.id || 'mini_' + mini.subj + '#' + i, disc: mini.subj, key: item.passage ? null : r.view.q.key, type: 'unlabeled', chosen: r.chosen == null ? '(unanswered)' : r.view.choices[r.chosen], answer: r.view.choices[r.view.ans], src: 'mini' });
   });

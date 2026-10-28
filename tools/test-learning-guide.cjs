@@ -35,7 +35,7 @@ run("const goal=computePlan();store.set(KEYS.recallDays,{[localDay()]:{newIds:QB
 assert.equal(run('computePlan().recallTargetMet'),true);assert.match(el('home-actions').innerHTML,/Optional extra practice/);
 // Mini-test reflection is also restricted to incorrect submitted responses, after completion.
 run("startSubjectWork('biology','mini');answerPassage((pq.views[0].ans+1)%4)");assert.doesNotMatch(el('pp-next').innerHTML,/Which other answer/);
-run('pq.startedAt=Date.now()-pq.targetMs-1;updatePassageTimer()');assert.equal((el('pp-question-box').innerHTML.match(/Which other answer/g)||[]).length,1);
+const beforeOmissions=run('recallToday().fresh');run('pq.startedAt=Date.now()-pq.targetMs-1;updatePassageTimer()');assert.equal(run('recallToday().fresh'),beforeOmissions,'Unanswered mini discretes must not earn new-fact credit');assert.equal((el('pp-question-box').innerHTML.match(/Which other answer/g)||[]).length,1);
 run('setMiniReviewAlternative(0,String(pq.views[0].ans))');assert.equal(run('pq.results[0].other'),run('pq.views[0].ans'));
 run("store.set(KEYS.plannedPassages,{[localDay()]:{subj:'biology',kind:'mini'}})");assert.equal(run('computePlan().activity.kind'),'mini','Completed mini assignments do not turn into passages');assert.equal(run('computePlan().activityDone'),true);
 // Full-lengths collect no alternatives while answering; only incorrect review items prompt.
