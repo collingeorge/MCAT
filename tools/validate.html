@@ -16,7 +16,7 @@
 </head>
 <body>
 <h1>MCAT data validator</h1>
-<p>Open this page from a local server (e.g. <code>pwsh -File _review/serve.ps1</code>, then <code>http://localhost:8080/tools/validate.html</code>). <b>Errors</b> break the app or mark a right answer wrong; <b>warnings</b> are quality issues to review.</p>
+<p>Open this page from a local server (e.g. <code>pwsh -File tools/serve.ps1</code>, then <code>http://localhost:8080/tools/validate.html</code>). <b>Errors</b> break the app or mark a right answer wrong; <b>warnings</b> are quality issues to review.</p>
 <div id="out">Running…</div>
 
 <script src="../data/qb-biochemistry.js"></script>
@@ -46,6 +46,14 @@
   const LETTER_REF = /\b(?:[Cc]hoice|[Oo]ption|[Aa]nswer)s?\s*\(?[A-D]\)?(?![A-Za-z])|\([A-D]\)\s+(?:is|are|was|would|could|correctly|incorrectly|states|describes|reverses)\b|\b(?:[Bb]oth|[Nn]either) [A-D] (?:and|nor) [A-D]\b(?! (?:antigens?|alleles?|blood))|^[A-D] is (?:in)?correct/;
   const PLACEHOLDER = /^(review this concept|refer to notes|see explanation|all of the above|none of the above)$/i;
 
+
+  // Match whole terms, not substrings within galactose, isovolumetric or proto-oncogenes.
+  function keyAppearsInStem(stem, key) {
+    const meta = new Set([46,42,43,63,94,36,123,125,40,41,124,91,93,92]);
+    const escaped = [...String(key)].map(c => meta.has(c.charCodeAt(0)) ? String.fromCharCode(92) + c : c).join('');
+    return new RegExp('(?:^|[^\\p{L}\\p{N}_-])' + escaped + '(?=$|[^\\p{L}\\p{N}_-])', 'iu').test(String(stem));
+  }
+
   function checkQuestion(where, q, opts = {}) {
     if (!q || typeof q.q !== 'string' || !q.q.trim()) return err(where, 'missing stem');
     if (!Array.isArray(q.choices) || q.choices.length !== 4) return err(where, `needs 4 choices (has ${q.choices && q.choices.length})`);
@@ -70,9 +78,10 @@
     if (lens[q.ans] > 20 && lens[q.ans] > 1.8 * meanOther) warn(where, `key is ${(lens[q.ans] / meanOther).toFixed(1)}× longer than distractors — ${short(q.q)}`);
     const key = String(q.choices[q.ans]);
     if (opts.cloze && q.ans !== undefined) {
-      const caps = q.choices.map(c => /^[A-Z][a-z]/.test(String(c)));
-      if (caps.filter(Boolean).length === 1 && caps[q.ans]) warn(where, `key is the only capitalized choice — ${short(q.q)}`);
-      if (key.length > 4 && q.q.toLowerCase().includes(key.toLowerCase())) warn(where, `key appears in stem — ${short(q.q)}`);
+      const alphabetic = q.choices.every(c => /^[A-Za-z]/.test(String(c)));
+      const caps = q.choices.map(c => /^[A-Z]/.test(String(c)));
+      if (alphabetic && caps.filter(Boolean).length === 1 && caps[q.ans]) warn(where, `key is the only capitalized choice — ${short(q.q)}`);
+      if (key.length > 4 && keyAppearsInStem(q.q, key)) warn(where, `key appears in stem — ${short(q.q)}`);
     }
   }
 
@@ -94,6 +103,7 @@
     const ansDist = [0, 0, 0, 0];
     arr.forEach((q, i) => {
       if (!q.s) err(`${name}[${i}]`, 'missing s: tag');
+      if (q.idStem !== undefined && (typeof q.idStem !== 'string' || !q.idStem.trim())) err(`${name}[${i}]`, 'idStem must be a nonempty legacy stem');
       checkQuestion(`${name}[${i}]`, q, { cloze: true });
       ansDist[q.ans] = (ansDist[q.ans] || 0) + 1;
       const k = String(q.q).trim().toLowerCase();
@@ -114,7 +124,7 @@
 
   // Authored variants: each must link to an existing base question by exact tag + stem
   const byStem = new Map();
-  Object.values(banks).forEach(arr => arr.forEach(q => byStem.set(q.s + '|' + q.q, q)));
+  Object.values(banks).forEach(arr => arr.forEach(q => { byStem.set(q.s + '|' + q.q, q); if (q.idStem) byStem.set(q.s + '|' + q.idStem, q); }));
   const variantRows = [];
   [['QB_VARIANTS_1', typeof QB_VARIANTS_1 === 'undefined' ? null : QB_VARIANTS_1], ['QB_VARIANTS_2', typeof QB_VARIANTS_2 === 'undefined' ? null : QB_VARIANTS_2]].forEach(([name, arr]) => {
     if (!arr) return warn(name, 'not loaded');

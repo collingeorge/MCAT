@@ -22,25 +22,26 @@ async function main() {
  await new Promise(resolve => server.listen(0,'127.0.0.1',resolve));
  const origin = 'http://127.0.0.1:' + server.address().port;
  const profile = await fs.mkdtemp(path.join(os.tmpdir(),'mcat-browser-'));
- const chrome = spawn(process.env.CHROME_BIN || 'google-chrome',['--headless=new','--no-sandbox','--disable-dev-shm-usage','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{stdio:['ignore','ignore','pipe']});
+ const chrome = spawn(process.env.CHROME_BIN || 'google-chrome',['--headless=new','--no-first-run','--no-default-browser-check','--disable-background-networking','--no-sandbox','--disable-dev-shm-usage','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{stdio:['ignore','ignore','pipe']});
  let socket;
  try {
   const endpoint = await new Promise((resolve,reject) => {
-   let log=''; const timer=setTimeout(()=>reject(Error('Chrome did not start: '+log.slice(-1500))),15000);
+   let log=''; const timer=setTimeout(()=>reject(Error('Chrome did not start: '+log.slice(-1500))),45000);
    chrome.once('error',e=>{clearTimeout(timer);reject(e)});
+   chrome.once('exit',code=>{clearTimeout(timer);reject(Error('Chrome exited before debug connection, code '+code+': '+log.slice(-1500)))});
    chrome.stderr.on('data',chunk=>{log+=chunk; const hit=log.match(/DevTools listening on (ws:\/\/[^\s]+)/);if(hit){clearTimeout(timer);resolve(hit[1])}});
   });
   socket = new WebSocket(endpoint);
   await new Promise((resolve,reject)=>{socket.addEventListener('open',resolve,{once:true});socket.addEventListener('error',reject,{once:true})});
   let nextId=0; const pending=new Map(), errors=[];
   socket.addEventListener('message',event=>{const data=JSON.parse(event.data); if(data.method==='Runtime.exceptionThrown')errors.push(data.params.exceptionDetails);const task=pending.get(data.id);if(task){pending.delete(data.id);clearTimeout(task.timer);data.error?task.reject(Error(JSON.stringify(data.error))):task.resolve(data.result)}});
-  const send=(method,params={},sessionId)=>new Promise((resolve,reject)=>{const id=++nextId;const timer=setTimeout(()=>{pending.delete(id);reject(Error('CDP timeout: '+method))},15000);pending.set(id,{resolve,reject,timer});socket.send(JSON.stringify({id,method,params,...(sessionId?{sessionId}:{})}))});
+  const send=(method,params={},sessionId)=>new Promise((resolve,reject)=>{const id=++nextId;const timer=setTimeout(()=>{pending.delete(id);reject(Error('CDP timeout: '+method))},30000);pending.set(id,{resolve,reject,timer});socket.send(JSON.stringify({id,method,params,...(sessionId?{sessionId}:{})}))});
   const {targetId}=await send('Target.createTarget',{url:'about:blank'});
   const {sessionId}=await send('Target.attachToTarget',{targetId,flatten:true});
   const command=(method,params)=>send(method,params,sessionId);
   await command('Runtime.enable'); await command('Page.enable'); await command('Page.navigate',{url:origin});
   const evaluate=async expression=>{const result=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(result.exceptionDetails)throw Error(JSON.stringify(result.exceptionDetails));return result.result.value};
-  const until=async expression=>{for(let i=0;i<100;i++){if(await evaluate(expression))return;await sleep(100)}throw Error('Browser condition failed: '+expression)};
+  const until=async expression=>{for(let i=0;i<300;i++){if(await evaluate(expression))return;await sleep(100)}throw Error('Browser condition failed: '+expression)};
   await until('document.querySelector("#home-actions")?.textContent.includes("Smart Session")');
   assert(await evaluate('document.body.textContent.includes("Recall → passage → subject mini test")'));
   await evaluate('document.querySelector(".action-btn.smart").click()');

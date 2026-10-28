@@ -1844,12 +1844,7 @@ In a follow-up experiment, when medical students themselves missed a scheduled t
   questions:[
     {
       q:"The finding that Group A made more dispositional attributions than Group B demonstrates which psychological phenomenon?",
-      choices:[
-        "The self-serving bias",
-        "The fundamental attribution error",
-        "The halo effect",
-        "Confirmation bias"
-      ],
+      choices:["Self-serving attribution bias","Fundamental attribution error","Halo effect in person perception","Confirmation bias in reasoning"],
       ans:1,
       exp:"The **fundamental attribution error** is observers' tendency to overweight dispositional causes of others' behavior. Without context, Group A blamed character (lazy, uncaring); supplying situational information (two jobs, no transport, unaffordable copays) shifted Group B toward situational explanations. The self-serving bias concerns explanations of one's own successes and failures, and confirmation bias concerns seeking evidence that fits existing beliefs."
     },

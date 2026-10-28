@@ -259,7 +259,8 @@ const QB_BY_ID = new Map();
   ['behavioral', QB_BEHAVIORAL_1], ['behavioral', QB_BEHAVIORAL_2],
 ].forEach(([source, arr]) => arr.forEach(q => {
   const subj = source === 'chemistry' ? (ORGO_TAGS.has(q.s) ? 'organic_chem' : 'gen_chem') : source;
-  let id = hashId(q.s + '|' + q.q);
+  // Keep pre-edit question identity so memory, flags and variant links survive wording fixes.
+  let id = hashId(q.s + '|' + (q.idStem || q.q));
   while (QB_BY_ID.has(id)) id += 'x';
   q.subj = subj;
   q.key = subj + '|' + q.s;
@@ -273,7 +274,7 @@ const QB_BY_ID = new Map();
 const AUTHORED = new Map();   // base id → variant forms
 const VARIANT_KIND = { application: 'apply the concept', prediction: 'predict the effect', scenario: 'clinical or lab scenario', except: 'which is NOT true' };
 (() => {
-  const byStem = new Map(QB.map(q => [q.s + '|' + q.q, q]));
+  const byStem = new Map(QB.flatMap(q => [[q.s + '|' + q.q, q], ...(q.idStem ? [[q.s + '|' + q.idStem, q]] : [])]));
   [typeof QB_VARIANTS_1 === 'undefined' ? [] : QB_VARIANTS_1, typeof QB_VARIANTS_2 === 'undefined' ? [] : QB_VARIANTS_2]
     .flat().forEach(v => {
       const base = byStem.get(v.ofTag + '|' + v.of);
