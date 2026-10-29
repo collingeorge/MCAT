@@ -29,6 +29,8 @@ jobs:
         run: node tools/test-editorial.cjs
       - name: Personalized guidance and incorrect-only review
         run: node tools/test-learning-guide.cjs
+      - name: Delayed retention and official benchmarks
+        run: node tools/test-learning-evidence.cjs
       - name: Content validation
         run: node tools/check-content.cjs
       - name: Parse development server

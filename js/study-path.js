@@ -37,8 +37,10 @@ function pathRecommendation(preferred) {
     const weakness=Math.max(0,...needs.weak.filter(w=>w.subj===p.subj).map(w=>(0.8-w.accuracy)*4));
     const confusion=0.25*needs.confused.filter(x=>x.disc===p.subj).length/Math.max(1,needs.confused.length);
     const last=history.filter(x=>x.subj===p.subj).at(-1);
+    const delayedRows=store.get(KEYS.retention,[]).filter(x=>x.disc===p.subj && Date.now()-x.t<7*DAY);
+    const delayedNeed=delayedRows.length>=3?0.4*(1-delayedRows.filter(x=>x.right).length/delayedRows.length):0;
     const recentlyDone=last && Date.now()-last.t < 86400000 ? 1.3 : 0;
-    return weakness+confusion+(p.subj==='cars' && needs.carsMissing?0.95:0)+(n<MIN_ANSWERS?0.4*(1-n/MIN_ANSWERS):0)+(p.subj!=='cars' && !e.passage.t && n>=MIN_ANSWERS?0.4:0)-recentlyDone;
+    return delayedNeed+weakness+confusion+(p.subj==='cars' && needs.carsMissing?0.95:0)+(n<MIN_ANSWERS?0.4*(1-n/MIN_ANSWERS):0)+(p.subj!=='cars' && !e.passage.t && n>=MIN_ANSWERS?0.4:0)-recentlyDone;
   };
   const ranked=subjects.map(subjectPath).sort((a,b)=>score(b)-score(a));
   return ranked.find(p=>p.subj===preferred)||ranked[0]||null;
@@ -79,11 +81,12 @@ function startSubjectWork(subj, kind) {
   startSubjectMini(subj, passages.slice(0, 2));
 }
 function startSubjectMini(subj, passages) {
+  const firstExposures = Object.fromEntries(passages.map(p=>[p.id,beginPassageExposure(p)]));
   const items = passages.flatMap(p => p.questions.map(q => ({ view: makeView(q), passage: p })));
   if (subj !== 'cars') pickQuestions(QB.filter(q => disciplineOfRecall(q) === subj), 5).forEach(q => items.push({ view: makeView(q), passage: null }));
   stopQuizTimer(); stopPassageTimer();
   const targetMs = items.length * (subj === 'cars' ? 102 : 95) * 1000;
-  Object.assign(pq, { mini: { subj, items, passages, completed: false }, p: { id: 'mini_' + subj, title: DISCIPLINES[subj] + ' mini test' },
+  Object.assign(pq, { mini: { subj, items, passages, firstExposures, completed: false }, p: { id: 'mini_' + subj, title: DISCIPLINES[subj] + ' mini test' },
     idx: 0, views: items.map(x => x.view), results: [], answered: false, completed: false, startedAt: Date.now(), qStart: Date.now(), targetMs, errPending: null });
   show('screen-passage');
   renderPassageQuestion();
@@ -129,6 +132,7 @@ function finishSubjectMini() {
   });
   mini.passages.forEach(p => {
     const results = pq.results.filter((_, i) => mini.items[i].passage?.id === p.id);
+    recordPassageEvidence(p, results, mini.firstExposures[p.id], 'mini');
     const score = pct(results.filter(r => r.right).length, results.length), prev = ps[p.id] || { attempts: 0, best: 0 };
     ps[p.id] = { attempts: prev.attempts + 1, last: score, best: Math.max(prev.best, score), lastAt: Date.now() };
   });

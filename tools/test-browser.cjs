@@ -79,6 +79,13 @@ async function main() {
   assert(await evaluate('document.querySelector("#home-back-btn").getBoundingClientRect().top>=0 && document.querySelector("#home-back-btn").getBoundingClientRect().right<=innerWidth'));
   await evaluate('document.querySelector("#home-back-btn").click()');
   assert.equal(await evaluate('activeScreen'), 'screen-home');
+  await evaluate('goHome()');
+  assert(await evaluate('document.querySelector("#home-score").textContent.includes("Weekly readiness")'));
+  await evaluate('showOfficialScores()');
+  await evaluate('document.querySelector("#official-form").value="Scored Practice Exam 1";[125,126,127,128].forEach((n,i)=>document.querySelector("#official-"+i).value=n);document.querySelector("#official-first").checked=true;document.querySelector("#official-timed").checked=true;document.querySelector("form button[type=submit]").click()');
+  assert(await evaluate('officialEligible().length===1 && document.querySelector("#results-body").textContent.includes("506")'));
+  await evaluate('goHome();showProgress()');
+  assert(await evaluate('document.querySelector("#results-body").textContent.includes("Official practice benchmark")'));
   assert.equal(errors.length,0,JSON.stringify(errors));
   console.log('Chrome smoke passed: actual script loading, CSP-compatible clicks, runner-up reflection, delayed mini feedback, timeout review, study calendar, HTML escaping, and no runtime exceptions.');
  } finally {

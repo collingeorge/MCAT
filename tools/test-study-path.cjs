@@ -9,6 +9,7 @@ const ctx = vm.createContext({ console, Date, Math, Map, Set, URLSearchParams, s
 const run = code => vm.runInContext(code,ctx);
 files.forEach(name=>run(fs.readFileSync(root+'/data/'+name+'.js','utf8')));
 run(fs.readFileSync(root+'/js/study-path.js','utf8'));
+run(fs.readFileSync(root+'/js/learning-evidence.js','utf8'));
 run(fs.readFileSync(root+'/js/app.js','utf8'));
 assert.equal(run('QB.length'),2807);
 // Every science/CARS subject has existing passages; no new generated question content.

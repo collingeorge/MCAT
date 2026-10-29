@@ -243,3 +243,17 @@ George, C. B. (2026). *MCAT Study App* (Version 2.6). https://github.com/colling
 
 ---
 *For MCAT practice only. MCAT® is a registered trademark of the Association of American Medical Colleges (AAMC), which does not endorse this project. Not affiliated with the AAMC or MileDown.*
+
+## Learning evidence and weekly readiness
+
+The home page and score report separate first-exposure passage performance from repeated practice and show three next actions. Error labels distinguish knowledge gaps, confused concepts, passage interpretation, misreading, calculation, and timing; the summary offers specific repair advice. Recommendations also consider recent delayed-recall misses without treating sparse data as established weakness.
+
+Delayed recall is measured only when at least 72 hours have passed since the previous exposure. Immediate retries remain practice. The recall mastery count now requires model stability of at least 21 days and two consecutive successful delayed checks; an incorrect response resets this streak. Guessed correct responses do not advance it. The 72-hour, two-check, and stability thresholds are transparent product heuristics, not validated MCAT readiness cutoffs or measured retention probabilities. Earlier records are not retroactively credited with delayed checks.
+
+Passage exposure is saved when a passage or mini test starts, including abandoned work. Older completed passages are treated as previously exposed. First-exposure results describe completed passage sets; repeated work stays useful for practice. Tutor answer time excludes feedback review and is not interchangeable with uninterrupted exam timing. No statistical comparison or improvement claim is inferred from small samples or different passage difficulty.
+
+Students may record AAMC scored practice exam dates and four section scores. The benchmark shows the latest three timed, first-attempt results (average, observed range, and lowest section average), while retaining retakes and untimed results separately. Data are self-reported and local to the browser. Unscored sample percentages must not be converted into official scores. App recall estimates are never silently adjusted to these results; there is no validated score calibration model or guaranteed test-day prediction. Duplicate first attempts are rejected. All official results can be cleared independently, or with Reset all progress.
+
+Research supports retrieval practice and delayed assessment in general; it does not validate this app or prove faster learning or increased intelligence: [Roediger & Karpicke, 2006, original study](https://pubmed.ncbi.nlm.nih.gov/16507066/). MCAT raw-to-scaled conversions depend on test-form equating: [AAMC scoring explanation](https://students-residents.aamc.org/mcat-scores/how-mcat-exam-scored). Use [official AAMC practice products](https://students-residents.aamc.org/prepare-mcat-exam/practice-mcat-exam-official-low-cost-products) alongside this app.
+
+Run `node tools/test-learning-evidence.cjs` for the delayed-retention, exposure, official-result validation, escaping, duplicate, exclusion, and reset regressions.
