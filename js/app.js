@@ -953,9 +953,10 @@ function snapshotEstimate() {
 // ════════════════════════════════════════════════════════════════
 const SCREENS = ['screen-home', 'screen-quiz', 'screen-results', 'screen-passage', 'screen-exam', 'screen-exam-results', 'screen-about'];
 let activeScreen = 'screen-home';
-function show(id) {
+function show(id, page) {
   SCREENS.forEach(s => { const el = $(s); if (el) el.hidden = s !== id; });
   activeScreen = id;
+  window.McatPages?.screen(id, page);
   const nav = $('app-nav');
   if (nav) nav.hidden = id === 'screen-home';
   window.scrollTo(0, 0);
@@ -970,7 +971,7 @@ const openSubjects = new Set();
 function savePrefs() { prefs.selected = [...selectedKeys]; store.set(KEYS.prefs, prefs); }
 
 function goHome() {
-  if (pq.mini && !pq.mini.completed && !confirm('Exit this mini test? This unfinished attempt will not be saved.')) return;
+  if (pq.mini && !pq.mini.completed && !confirm('Exit this mini test? This unfinished attempt will not be saved.')) return false;
   if (activeScreen === 'screen-exam' && exam) saveExam();
   pq.mini = null;  stopPassageTimer();
   commitPending();
@@ -979,6 +980,7 @@ function goHome() {
   stopExamTimer();
   show('screen-home');
   renderHome();
+  return true;
 }
 
 function renderHome() {
@@ -1009,10 +1011,10 @@ function renderHome() {
   $('home-actions').innerHTML = actions.join('');
   $('home-score').innerHTML = scoreStrip() + planStrip() + learningGuideCard() + weeklyReadinessCard() + studyPathCard();
 
-  setMode(prefs.mode);
+  setMode(prefs.mode, false);
 }
 
-function setMode(mode) {
+function setMode(mode, navigate = true) {
   prefs.mode = mode;
   savePrefs();
   ['recall', 'passage', 'exam'].forEach(m => {
@@ -1024,6 +1026,7 @@ function setMode(mode) {
   if (mode === 'recall') { renderCountRow(); renderSubjectGrid(); }
   if (mode === 'passage') renderPassageSelector();
   if (mode === 'exam') renderExamList();
+  if (navigate) window.McatPages?.mode(mode);
 }
 
 function renderCountRow() {
@@ -2068,7 +2071,7 @@ function scoreStrip() {
   </button>`;
 }
 function showProgress() {
-  show('screen-results');
+  show('screen-results', 'score-report');
   snapshotEstimate();
   const html = progressCards();
   $('results-body').innerHTML = `
@@ -2122,7 +2125,7 @@ function renderPassageSelector() {
         }).join('')}
       </div></div>`).join('')}`;
 }
-function selectPassage(id) { selectedPassageId = id; renderPassageSelector(); }
+function selectPassage(id) { selectedPassageId = id; renderPassageSelector(); window.McatPages?.mode('passage', true); }
 // Next passage of the same kind you haven't tried yet (or simply the next one)
 function nextPassage() {
   const pstats = store.get(KEYS.passages, {});
@@ -2248,6 +2251,7 @@ function showPassageResults() {
   if (pq.mini) { finishSubjectMini(); return; }
   if (pq.completed) return;
   pq.completed = true;
+  window.McatPages?.screen('screen-passage', 'results');
   flushPassageErr();
   const tot = pq.results.length, cor = pq.results.filter(r => r.right).length, p = pct(cor, tot);
   recordPassageEvidence(pq.p, pq.results, pq.firstExposure, 'tutor');
