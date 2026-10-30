@@ -954,12 +954,14 @@ function snapshotEstimate() {
 const SCREENS = ['screen-home', 'screen-quiz', 'screen-results', 'screen-passage', 'screen-exam', 'screen-exam-results', 'screen-about'];
 let activeScreen = 'screen-home';
 function show(id, page) {
+  tickStudyTimer();
   SCREENS.forEach(s => { const el = $(s); if (el) el.hidden = s !== id; });
   activeScreen = id;
   window.McatPages?.screen(id, page);
   const nav = $('app-nav');
   if (nav) nav.hidden = id === 'screen-home';
   window.scrollTo(0, 0);
+  renderStudyTimer();
 }
 
 const prefs = Object.assign({ mode: 'recall', count: 20, selected: null }, store.get(KEYS.prefs, {}));
@@ -1189,16 +1191,9 @@ function fluencyCard() {
 
 // ── Study-habit nudges ──
 // Spaced practice beats marathon sessions: suggest a short break after ~45 minutes
-const studyClock = { start: 0, last: 0, nudged: false };
-function breakBanner() {
-  const now = Date.now();
-  if (!studyClock.start || now - studyClock.last > 10 * 60000) Object.assign(studyClock, { start: now, nudged: false });
-  studyClock.last = now;
-  if (studyClock.nudged || now - studyClock.start < 45 * 60000) return '';
-  return `<div class="break-banner" id="break-banner" role="status">☕ You've studied for ${Math.round((now - studyClock.start) / 60000)} minutes. A 5–10 minute break (stand up, look away from the screen) helps the last block stick.
-    <button class="micro-btn" onclick="dismissBreak()">Got it</button></div>`;
-}
-function dismissBreak() { studyClock.nudged = true; const b = $('break-banner'); if (b) b.remove(); }
+// The steady timer bar now supplies break guidance on every screen.
+function breakBanner() { return ''; }
+function dismissBreak() {}
 const STUDY_TIPS = [
   'Testing yourself (what you just did) builds memory better than rereading notes. Keep most of your study time on questions.',
   'Spacing beats cramming: a fact reviewed over several days lasts far longer than one drilled many times in one sitting. Trust the review schedule.',
@@ -1318,6 +1313,7 @@ function renderQuizQuestion() {
   quiz.qStart = Date.now();
   const view = quiz.items[quiz.idx];
   const q = view.q;
+  setStudyTimerSubject(disciplineOfRecall(q));
   const correct = quiz.results.filter(r => r.right).length;
   $('pfill').style.width = (quiz.idx / quiz.items.length) * 100 + '%';
   $('qm-counter').textContent = `${quiz.idx + 1} / ${quiz.items.length}`;
@@ -2092,8 +2088,9 @@ function showProgress() {
 }
 function resetProgress() {
   if (!confirm('Erase all recall stats, spaced-repetition history, flags, passage scores, score estimates and exam history on this device? This cannot be undone.')) return;
-  [KEYS.retention, KEYS.exposures, KEYS.passageEvidence, KEYS.official, KEYS.recallDays, KEYS.plannedPassages, KEYS.diagnostic, KEYS.fluency, KEYS.studyPath, KEYS.finalTwo, KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
+  [STUDY_TIMER_KEY, KEYS.retention, KEYS.exposures, KEYS.passageEvidence, KEYS.official, KEYS.recallDays, KEYS.plannedPassages, KEYS.diagnostic, KEYS.fluency, KEYS.studyPath, KEYS.finalTwo, KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
   FULL_EXAMS.forEach(e => { store.del(KEYS.examProgress(e.id)); store.del(KEYS.examLast(e.id)); });
+  visibleStudyTimer = null;
   goHome();
 }
 
@@ -2184,6 +2181,8 @@ function renderPassageQuestion() {
   
   pq.answered = false;
   const view = pq.views[pq.idx], tot = pq.views.length;
+  const timerPassage = pq.mini?.items[pq.idx]?.passage;
+  setStudyTimerSubject(pq.mini ? pq.mini.subj : disciplineOfPassage(timerPassage || pq.p, view.q));
   $('pp-fill').style.width = (pq.idx / tot) * 100 + '%';
   $('pp-counter').textContent = `${pq.idx + 1} / ${tot}`;
   $('pp-subject').textContent = pq.p.title;
@@ -2431,6 +2430,7 @@ function stopExamTimer() { if (examTimer) clearInterval(examTimer); examTimer = 
 
 function renderExamQuestion() {
   const qs = curQuestions(), n = qs.length;
+  setStudyTimerSubject(disciplineOfExamQuestion(curSection().id, qs[exam.qi]));
   const view = examView(exam.si, exam.qi);
   const chosen = exam.answers[exam.si][exam.qi];
   const marked = exam.marked[exam.si][exam.qi];
@@ -2788,6 +2788,7 @@ document.addEventListener('keydown', e => {
 //  INIT
 // ════════════════════════════════════════════════════════════════
 goHome();
+initStudyTimer();
 // Offline cache on the deployed site only (keeps local development uncached; add ?sw to test it locally)
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || new URLSearchParams(location.search).has('sw'))) {
   navigator.serviceWorker.register('sw.js').catch(() => { /* offline support is optional */ });
