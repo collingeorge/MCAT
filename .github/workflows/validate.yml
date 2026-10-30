@@ -33,6 +33,8 @@ jobs:
         run: node tools/test-learning-evidence.cjs
       - name: Linked page navigation regression
         run: node tools/test-pages.cjs
+      - name: Visible study timer regression
+        run: node tools/test-study-timer.cjs
       - name: Content validation
         run: node tools/check-content.cjs
       - name: Parse development server

@@ -13,3 +13,19 @@ html{scroll-behavior:smooth;scroll-padding-top:100px}body{font-family:var(--sans
 
 /* Real-page navigation, with touch targets and visible current location. */
 .study-pages{background:#fff;border-bottom:1px solid var(--border,#d7dcd9)}.study-pages .wrap{display:flex;gap:6px;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}.study-pages a{color:#18374b;text-decoration:none;padding:11px 14px;border-radius:4px;font-size:14px;font-weight:600;min-height:44px;box-sizing:border-box}.study-pages a:hover{background:#f5f6f3}.study-pages a[aria-current="page"]{background:#18374b;color:white}.study-pages a:focus-visible{outline:3px solid #88682f;outline-offset:2px}#page-notice{margin-top:20px} @media(max-width:600px){.study-pages .wrap{gap:3px}.study-pages a{font-size:13px;padding:11px 9px}}
+
+/* A steady, compact study clock shares the sticky Home navigation container. */
+.study-timer-header{position:sticky;top:0;z-index:45;background:var(--page-bg,#f5f7fa)}
+.study-timer-header .app-nav{position:static}
+.study-timer{border-block:1px solid var(--border,#cbd5df);background:var(--surface,#fff);font-size:13px;color:var(--navy,#1b3a5c)}
+.study-timer-inner{padding:8px 24px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px}
+.study-time-values{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;width:100%}
+.study-time-values strong{font-variant-numeric:tabular-nums;white-space:nowrap}
+.study-time-values select{font:inherit;padding:3px;border:1px solid var(--border,#cbd5df);background:white;color:inherit}
+.study-time-values details{position:relative}
+.study-time-values summary{cursor:pointer}
+#study-subject-totals{position:absolute;top:100%;right:0;min-width:210px;padding:12px;background:var(--surface,#fff);border:1px solid var(--border,#cbd5df);box-shadow:0 4px 12px #0002;z-index:50}
+#study-break-message{flex:1;min-width:180px}
+.study-timer.break-due{background:#fff3d8;border-color:#b88427}
+.study-timer [hidden]{display:none!important}
+@media(max-width:600px){.study-timer-inner{padding:6px 12px;gap:4px 8px}.study-time-values{gap:4px 10px;font-size:12px}.study-time-values>b{display:none}#study-break-message{font-size:12px}.study-timer .micro-btn{padding:5px 8px;min-height:32px}}

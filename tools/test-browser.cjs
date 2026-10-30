@@ -86,6 +86,16 @@ async function main() {
   assert(await evaluate('officialEligible().length===1 && document.querySelector("#results-body").textContent.includes("506")'));
   await evaluate('goHome();showProgress()');
   assert(await evaluate('document.querySelector("#results-body").textContent.includes("Official practice benchmark")'));
+  await evaluate('goHome();beginQuiz([QB[0]],"Visible timer",{adaptive:false});studyTimerState().last=Date.now()-2000;tickStudyTimer()');
+  assert(await evaluate('document.querySelector("#study-total-time").textContent!=="0:00"'));
+  await evaluate('studyTimerState().block=48*60000;renderStudyTimer()');
+  assert(await evaluate('document.querySelector("#study-break-message").textContent.includes("Finish this recall set")'));
+  await evaluate('window.scrollTo(0,document.body.scrollHeight)');
+  assert(await evaluate('document.querySelector("#study-timer").getBoundingClientRect().top>=0 && document.querySelector("#study-timer").getBoundingClientRect().right<=innerWidth'));
+  await evaluate('goHome();document.querySelector("#study-break-actions button").click()');
+  assert(await evaluate('document.querySelector("#study-break-message").textContent.includes("Study time is paused")'));
+  await evaluate('document.querySelector("#study-resume").click()');
+  assert.equal(await evaluate('studyTimerState().block'),0);
   assert.equal(errors.length,0,JSON.stringify(errors));
   console.log('Chrome smoke passed: actual script loading, CSP-compatible clicks, runner-up reflection, delayed mini feedback, timeout review, study calendar, HTML escaping, and no runtime exceptions.');
  } finally {
