@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>exams | MCAT Study App</title>
+<meta name="description" content="Free MCAT practice: spaced-repetition recall questions, AAMC-style passages, and timed full-length exams.">
+<meta name="theme-color" content="#18374b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/portfolio-theme.css?v=20261030"></head>
+<body>
+<a class="study-skip" href="#screen-home">Skip to study content</a>
+<div class="study-status">Independent study · Browser-local progress · Sources &amp; limitations documented</div>
+<header class="study-masthead"><div class="study-masthead-inner"><a class="study-brand" href="https://collinbgeorge.com/"><span class="study-brand-name">Collin B. George</span><span class="study-brand-sub">Clinical education &amp; research</span></a><nav aria-label="Portfolio navigation"><a href="https://collinbgeorge.com/">Portfolio home ↗</a><a href="https://collinbgeorge.com/projects/mcat-study/">Study guide &amp; sources ↗</a></nav></div></header>
+<nav class="study-pages" aria-label="MCAT pages"><div class="wrap"><a data-study-page="index" href="index.html">Overview</a><a data-study-page="recall" href="recall.html">Recall</a><a data-study-page="passages" href="passages.html">Passages</a><a data-study-page="exams" href="exams.html">Full-length exams</a><a data-study-page="score-report" href="score-report.html">Score report</a><a data-study-page="about" href="about.html">About & sources</a></div></nav>
+<div id="page-notice" class="wrap advice" role="status" hidden></div>
+<nav id="app-nav" class="app-nav" aria-label="Page navigation" hidden>
+  <div class="wrap app-nav-inner">
+    <button type="button" id="home-back-btn" class="home-back-btn" onclick="goHome()" aria-label="Return to Home"><span aria-hidden="true">←</span> Home</button>
+  </div>
+</nav>
+<div id="storage-notice" class="wrap advice" role="alert" hidden></div>
+
+<!-- HOME -->
+<main id="screen-home">
+  <div class="wrap">
+    <header class="home-hero">
+      <div class="hero-badge" id="hero-badge"></div>
+      <h1 class="hero-title">MCAT <span>Study App</span></h1>
+      <div class="hero-divider"></div>
+      <p class="hero-sub">Recall · Passages · Full-length exams · Collin B. George</p>
+    </header>
+
+    <div id="home-score"></div>
+    <div class="home-actions" id="home-actions"></div>
+
+    <div class="mode-toggle" role="tablist" aria-label="Study mode">
+      <button class="mode-btn" id="btn-recall" role="tab" onclick="setMode('recall')">Recall<span class="mode-sub" id="mode-recall-sub"></span></button>
+      <button class="mode-btn" id="btn-passage" role="tab" onclick="setMode('passage')">Passages<span class="mode-sub" id="mode-passage-sub"></span></button>
+      <button class="mode-btn" id="btn-exam" role="tab" onclick="setMode('exam')">Full-length<span class="mode-sub" id="mode-exam-sub"></span></button>
+    </div>
+
+    <section id="recall-config">
+      <div class="config-card">
+        <div class="section-label">Questions per session</div>
+        <div class="count-row" id="count-row"></div>
+        <div class="section-label" style="margin-top:16px">Practice mix</div>
+        <div class="count-row" id="mix-row"></div>
+        <p class="muted-note" id="mix-note" style="margin-top:10px"></p>
+        <label class="toggle"><input type="checkbox" id="recall-first-toggle" onchange="setRecallFirst(this.checked)">
+          <span><b>Recall first</b>: hide the answer choices until you've thought of the answer. Slower, but builds stronger memory than picking from a list.</span></label>
+      </div>
+      <div class="config-card" id="subject-card">
+        <div class="config-header">
+          <div class="section-label">Subjects</div>
+          <div class="micro-row">
+            <button class="micro-btn" onclick="sgSelectAll()">All</button>
+            <button class="micro-btn" onclick="sgClearAll()">None</button>
+          </div>
+        </div>
+        <div id="subject-grid"></div>
+        <div class="sg-avail"><span id="avail-text"></span><span id="avail-session"></span></div>
+      </div>
+    </section>
+
+    <section id="passage-config" hidden>
+      <div class="config-card" id="passage-selector"></div>
+    </section>
+
+    <section id="exam-config" hidden>
+      <div id="exam-list"></div>
+    </section>
+
+    <button class="start-btn" id="start-btn" onclick="startSession()">Start →</button>
+    <footer class="footer">
+      <a href="about.html" data-study-page="about">About &amp; disclaimers</a> · <a href="https://github.com/collingeorge/MCAT" target="_blank" rel="noopener">GitHub</a> · <a href="https://github.com/collingeorge/MCAT/issues" target="_blank" rel="noopener">Report an issue</a> · <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>
+      <div class="footer-legal">MCAT® is a registered trademark of the Association of American Medical Colleges (AAMC), which does not endorse this app. Not affiliated with the AAMC or MileDown. For study use only. Not medical advice; score estimates are not predictions.</div>
+    </footer>
+  </div>
+</main>
+
+<!-- RECALL QUIZ -->
+<main id="screen-quiz" hidden>
+  <div class="wrap">
+    <div class="quiz-header">
+      <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+      <div class="quiz-meta">
+        <span class="qm-counter" id="qm-counter"></span>
+        <span class="qm-subject" id="qm-subject"></span>
+        <span class="qm-timer" id="qm-timer">0:00</span>
+        <span class="qm-score" id="qm-score"></span>
+        <button class="qm-end" onclick="endQuiz()">End</button>
+      </div>
+    </div>
+    <div class="quiz-body" id="quiz-body"></div>
+  </div>
+</main>
+
+<!-- RECALL RESULTS / PROGRESS -->
+<main id="screen-results" hidden>
+  <div class="wrap" id="results-body"></div>
+</main>
+
+<!-- PASSAGE MODE -->
+<main id="screen-passage" hidden>
+  <div class="wrap">
+    <div class="quiz-header">
+      <div class="progress-track"><div class="progress-fill" id="pp-fill"></div></div>
+      <div class="quiz-meta">
+        <span class="qm-counter" id="pp-counter"></span>
+        <span class="qm-subject" id="pp-subject"></span>
+        <span class="qm-timer" id="pp-timer"></span>
+        <span class="qm-score" id="pp-score"></span>
+        <button class="qm-end" onclick="goHome()">Exit</button>
+      </div>
+    </div>
+    <div class="passage-layout">
+      <div id="pp-passage-box"></div>
+      <div id="pp-question-box"></div>
+    </div>
+  </div>
+</main>
+
+<!-- FULL-LENGTH EXAM -->
+<main id="screen-exam" hidden>
+  <div class="wrap wide">
+    <div class="quiz-header">
+      <div class="progress-track"><div class="progress-fill" id="ex-fill"></div></div>
+      <div class="quiz-meta">
+        <span class="qm-counter" id="ex-counter"></span>
+        <span class="qm-subject" id="ex-section"></span>
+        <span class="qm-timer" id="ex-timer"></span>
+        <button class="qm-end" onclick="goHome()" title="Progress is saved and the timer pauses">Save & exit</button>
+      </div>
+    </div>
+    <div id="exam-body"></div>
+  </div>
+</main>
+
+<!-- ABOUT & DISCLAIMERS -->
+<main id="screen-about" hidden>
+  <div class="wrap" id="about-body"></div>
+</main>
+
+<!-- EXAM RESULTS -->
+<main id="screen-exam-results" hidden>
+  <div class="wrap">
+    <div id="exam-results-head"></div>
+    <div id="exam-review"></div>
+    <div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div>
+  </div>
+</main>
+
+<script src="data/qb-biochemistry.js"></script>
+<script src="data/qb-biology.js"></script>
+<script src="data/qb-chemistry.js"></script>
+<script src="data/qb-physics.js"></script>
+<script src="data/qb-equations.js"></script>
+<script src="data/qb-behavioral-1.js"></script>
+<script src="data/qb-behavioral-2.js"></script>
+<script src="data/passages-science.js"></script>
+<script src="data/passages-cars.js"></script>
+<script src="data/passages-data.js"></script>
+<script src="data/qb-variants-1.js"></script>
+<script src="data/qb-variants-2.js"></script>
+<script src="data/exam1.js"></script>
+<script src="data/exam2-cp.js"></script>
+<script src="data/exam2-bb.js"></script>
+<script src="data/exam2-ps.js"></script>
+<script src="data/exams.js"></script>
+<script src="js/study-path.js"></script>
+<script src="js/learning-evidence.js"></script>
+<script src="js/app.js"></script>
+<script src="js/pages.js"></script>
+</body>
+</html>

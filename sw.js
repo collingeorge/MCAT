@@ -1,10 +1,10 @@
 // Offline support, network-first: when online, always fetch the current file (revalidating
 // past the browser's HTTP cache) so new versions show on the first visit; the cached copy
 // is used only when the network fails or takes too long. Bump CACHE when deploying.
-const CACHE = 'mcat-v2.8-portfolio-theme-2026-10-30';
+const CACHE = 'mcat-v2.9-linked-pages-2026-10-30';
 const NETWORK_TIMEOUT_MS = 4000;
 const ASSETS = [
-  './', 'css/portfolio-theme.css?v=20261030', 'index.html', 'css/styles.css', 'js/app.js', 'js/study-path.js', 'js/learning-evidence.js', 'manifest.webmanifest', 'icon.svg',
+  "recall.html", "passages.html", "exams.html", "score-report.html", "about.html", "recall-session.html", "passage-session.html", "exam-session.html", "results.html", "exam-results.html", 'js/pages.js', './', 'css/portfolio-theme.css?v=20261030', 'index.html', 'css/styles.css', 'js/app.js', 'js/study-path.js', 'js/learning-evidence.js', 'manifest.webmanifest', 'icon.svg',
   'data/qb-biochemistry.js', 'data/qb-biology.js', 'data/qb-chemistry.js', 'data/qb-physics.js', 'data/qb-equations.js',
   'data/qb-behavioral-1.js', 'data/qb-behavioral-2.js', 'data/passages-science.js', 'data/passages-cars.js', 'data/passages-data.js', 'data/qb-variants-1.js', 'data/qb-variants-2.js',
   'data/exam1.js', 'data/exam2-cp.js', 'data/exam2-bb.js', 'data/exam2-ps.js', 'data/exams.js',

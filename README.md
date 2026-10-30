@@ -257,3 +257,9 @@ Students may record AAMC scored practice exam dates and four section scores. The
 Research supports retrieval practice and delayed assessment in general; it does not validate this app or prove faster learning or increased intelligence: [Roediger & Karpicke, 2006, original study](https://pubmed.ncbi.nlm.nih.gov/16507066/). MCAT raw-to-scaled conversions depend on test-form equating: [AAMC scoring explanation](https://students-residents.aamc.org/mcat-scores/how-mcat-exam-scored). Use [official AAMC practice products](https://students-residents.aamc.org/prepare-mcat-exam/practice-mcat-exam-official-low-cost-products) alongside this app.
 
 Run `node tools/test-learning-evidence.cjs` for the delayed-retention, exposure, official-result validation, escaping, duplicate, exclusion, and reset regressions.
+
+## Linked study pages
+
+Use `recall.html`, `passages.html`, `exams.html`, `score-report.html`, and `about.html` for direct links. The persistent MCAT menu supports normal links, opening new tabs, and browser Back/Forward. Passage selection uses a validated public passage ID in the URL. Answers and personal study data stay browser-local. Active sessions and results have distinct URLs, but reloading a transient recall/passage session returns to setup rather than silently starting a new attempt. Exam attempts remain resumable through the existing saved-progress flow; completed exam review links work only where the attempt is saved.
+
+After editing `index.html`, run `node tools/generate-pages.cjs` to refresh the ten static entry pages. Run `node tools/test-pages.cjs` to verify route behavior.
