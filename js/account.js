@@ -133,5 +133,6 @@
     }catch{status('Cloud connection unavailable · device progress retained');}
   }
   function recovery(){recovering=true;render();}
-  window.McatAccount={storageKey:scope,changed,init,action,sync,logout,choose,snapshot,validate};
+  function clearBackup(){const id=owner();if(id)localStorage.removeItem('mcat_cloud_backup_'+id);}
+  window.McatAccount={storageKey:scope,changed,init,action,sync,logout,choose,snapshot,validate,clearBackup};
 })();
