@@ -7,7 +7,7 @@
 
 ## → [Launch App](https://collingeorge.github.io/MCAT/)
 
-A free MCAT practice app that runs in the browser: no login, no API key, no build step. After the first visit it works offline and can be installed as an app from the browser menu. Progress is saved on your device.
+A free MCAT practice app that runs in the browser with no build step. Guest study works without an account; optional email/password accounts save progress to the cloud for recovery on other devices. After the first visit, study content works offline and the app can be installed from the browser menu. Offline changes sync after reconnection.
 
 It sits between Anki (pure recall) and UWorld (full exam simulation). You get fast recall questions with spaced repetition, AAMC-style passage sets with explanations, and timed full-length practice exams.
 
@@ -75,7 +75,7 @@ The dashboard counts retrospective mistake reflections and how often the recorde
 
 ### Getting this update
 
-Open or refresh the [live app](https://collingeorge.github.io/MCAT/) while online. The service worker fetches current files and keeps an offline copy; this release also changes the cache version so older cached assets are replaced. If an already-open tab still shows the previous flow, close and reopen it, or use **Ctrl+Shift+R** (Windows) / **Cmd+Shift+R** (Mac). Previously cached offline copies need an online visit to receive the update. Refreshing preserves progress stored in the same browser; clearing site data erases it.
+Open or refresh the [live app](https://collingeorge.github.io/MCAT/) while online. The service worker fetches current files and keeps an offline copy; this release also changes the cache version so older cached assets are replaced. If an already-open tab still shows the previous flow, close and reopen it, or use **Ctrl+Shift+R** (Windows) / **Cmd+Shift+R** (Mac). Previously cached offline copies need an online visit to receive the update. Refreshing preserves browser progress. Clearing site data removes local copies; confirmed cloud progress can be restored by signing in.
 
 ---
 
