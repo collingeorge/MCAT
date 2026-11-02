@@ -120,7 +120,8 @@
       (choice?'<p>Copies are not automatically combined: doing so could duplicate scores and study counts. Restore the cloud copy, keep this account’s device copy, or explicitly copy the guest work on this browser.</p><button class="micro-btn" onclick="McatAccount.choose(\'cloud\')">Restore cloud progress'+(choice.empty?' (empty account)':'')+'</button> <button class="micro-btn" onclick="McatAccount.choose(\'device\')">Keep account device copy</button> <button class="micro-btn" onclick="McatAccount.choose(\'guest\')">Copy guest progress into my account</button>':'')+
       '<p class="muted-note">Signed-in progress is stored with Supabase. Passwords are handled by Supabase Auth. Cloud saves require a connection; check the save status before closing. Guest and account copies are separate.</p></details>';
     document.getElementById('account-identity').textContent=description;status(notice);
-    if(choice||recovering)document.getElementById('account-details').open=true;
+    document.getElementById('account-details').open=!user||!!choice||recovering;
+    const loginButton=document.getElementById('account-login-btn');if(loginButton)loginButton.textContent=user?'My account':'Sign in / Create account';
   }
   async function init() {
     render();const config=window.MCAT_CLOUD_CONFIG;
@@ -137,5 +138,6 @@
   }
   function recovery(){recovering=true;render();}
   function clearBackup(){const id=owner();if(id)localStorage.removeItem('mcat_cloud_backup_'+id);}
-  window.McatAccount={storageKey:scope,changed,init,action,sync,logout,choose,snapshot,validate,clearBackup};
+  function open(){if(!goHome())return;document.getElementById('account-details').open=true;document.getElementById('account-panel').scrollIntoView({block:'center',behavior:'smooth'});}
+  window.McatAccount={storageKey:scope,changed,init,action,sync,logout,choose,snapshot,validate,clearBackup,open};
 })();
