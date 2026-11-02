@@ -1,7 +1,7 @@
 // Offline support, network-first: when online, always fetch the current file (revalidating
 // past the browser's HTTP cache) so new versions show on the first visit; the cached copy
 // is used only when the network fails or takes too long. Bump CACHE when deploying.
-const CACHE = 'mcat-v2.9-account-preview-2026-11-02';
+const CACHE = 'mcat-v2.9-auth-callback-final-2026-11-02';
 const NETWORK_TIMEOUT_MS = 4000;
 const ASSETS = [
   "recall.html", "passages.html", "exams.html", "score-report.html", "about.html", "recall-session.html", "passage-session.html", "exam-session.html", "results.html", "exam-results.html", 'js/pages.js', './', 'css/portfolio-theme.css?v=20261030', 'index.html', 'css/styles.css', 'js/app.js', 'js/study-path.js', 'js/cloud-config.js', 'js/account.js', 'js/study-timer.js', 'js/learning-evidence.js', 'manifest.webmanifest', 'icon.svg',
