@@ -39,6 +39,8 @@ jobs:
         run: node tools/test-account.cjs
       - name: Content validation
         run: node tools/check-content.cjs
+      - name: Custom-domain deployment isolation
+        run: node tools/test-deployment.cjs
       - name: Parse development server
         shell: pwsh
         run: |
