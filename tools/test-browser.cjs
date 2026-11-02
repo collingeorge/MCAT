@@ -96,6 +96,11 @@ async function main() {
   assert(await evaluate('document.querySelector("#study-break-message").textContent.includes("Study time is paused")'));
   await evaluate('document.querySelector("#study-resume").click()');
   assert.equal(await evaluate('studyTimerState().block'),0);
+  await evaluate('goHome();document.querySelector("#account-details").open=true');
+  assert(await evaluate('document.querySelector("#account-panel").textContent.includes("Account & cloud progress")'));
+  assert(await evaluate('document.querySelector("#account-password").type==="password"'));
+  await evaluate('document.querySelector("#account-email").value="invalid";McatAccount.action("login")');
+  assert(await evaluate('document.querySelector("#account-status").textContent.length>0'));
   assert.equal(errors.length,0,JSON.stringify(errors));
   console.log('Chrome smoke passed: actual script loading, CSP-compatible clicks, runner-up reflection, delayed mini feedback, timeout review, study calendar, HTML escaping, and no runtime exceptions.');
  } finally {

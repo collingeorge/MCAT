@@ -29,3 +29,5 @@ html{scroll-behavior:smooth;scroll-padding-top:100px}body{font-family:var(--sans
 .study-timer.break-due{background:#fff3d8;border-color:#b88427}
 .study-timer [hidden]{display:none!important}
 @media(max-width:600px){.study-timer-inner{padding:6px 12px;gap:4px 8px}.study-time-values{gap:4px 10px;font-size:12px}.study-time-values>b{display:none}#study-break-message{font-size:12px}.study-timer .micro-btn{padding:5px 8px;min-height:32px}}
+
+#account-panel label{display:block;margin:10px 0}#account-panel input{display:block;box-sizing:border-box;width:min(100%,360px);padding:10px;font:inherit;border:1px solid var(--border,#cbd5df)}#account-panel summary{cursor:pointer;font-weight:600}#account-status{margin:0 0 8px;font-size:13px}
