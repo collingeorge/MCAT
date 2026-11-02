@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.supabase.co https://cdn.jsdelivr.net; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>results | MCAT Study App</title>
@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="css/portfolio-theme.css?v=20261030"></head>
 <body>
 <a class="study-skip" href="#screen-home">Skip to study content</a>
-<div class="study-status">Independent study · Browser-local progress · Sources &amp; limitations documented</div>
+<div class="study-status">Independent study · Local or account-synced progress · Sources &amp; limitations documented</div>
 <header class="study-masthead"><div class="study-masthead-inner"><a class="study-brand" href="https://collinbgeorge.com/"><span class="study-brand-name">Collin B. George</span><span class="study-brand-sub">Clinical education &amp; research</span></a><nav aria-label="Portfolio navigation"><a href="https://collinbgeorge.com/">Portfolio home ↗</a><a href="https://collinbgeorge.com/projects/mcat-study/">Study guide &amp; sources ↗</a></nav></div></header>
 <nav class="study-pages" aria-label="MCAT pages"><div class="wrap"><a data-study-page="index" href="index.html">Overview</a><a data-study-page="recall" href="recall.html">Recall</a><a data-study-page="passages" href="passages.html">Passages</a><a data-study-page="exams" href="exams.html">Full-length exams</a><a data-study-page="score-report" href="score-report.html">Score report</a><a data-study-page="about" href="about.html">About & sources</a></div></nav>
 <div id="page-notice" class="wrap advice" role="status" hidden></div>
@@ -38,6 +38,7 @@
       <p class="hero-sub">Recall · Passages · Full-length exams · Collin B. George</p>
     </header>
 
+    <section id="account-panel" class="results-card" aria-label="Account and cloud progress"></section>
     <div id="home-score"></div>
     <div class="home-actions" id="home-actions"></div>
 
@@ -178,6 +179,8 @@
 <script src="js/study-path.js"></script>
 <script src="js/learning-evidence.js"></script>
 <script src="js/study-timer.js"></script>
+<script src="js/cloud-config.js"></script>
+<script src="js/account.js"></script>
 <script src="js/app.js"></script>
 <script src="js/pages.js"></script>
 </body>

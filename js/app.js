@@ -78,15 +78,15 @@ function storedShape(value, fallback) {
 const store = {
   get(key, fallback) {
     try {
-      const raw = localStorage.getItem(key);
+      const raw = localStorage.getItem(window.McatAccount?.storageKey(key) || key);
       if (!raw) return fallback;
       const value = JSON.parse(raw);
       if (!storedShape(value, fallback)) throw new Error('Unexpected saved-data format');
       return value;
     } catch (e) { storageWarning('Some saved progress could not be read. You can keep studying, but check your browser storage settings.'); return fallback; }
   },
-  set(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { storageWarning('Progress could not be saved. Keep this tab open and check browser storage before leaving.'); } },
-  del(key) { try { localStorage.removeItem(key); } catch (e) { storageWarning('Saved data could not be removed. Check browser storage settings.'); } },
+  set(key, value) { try { const storageKey=window.McatAccount?.storageKey(key) || key, raw=JSON.stringify(value); if(localStorage.getItem(storageKey)!==raw){localStorage.setItem(storageKey,raw);window.McatAccount?.changed();} } catch (e) { storageWarning('Progress could not be saved. Keep this tab open and check browser storage before leaving.'); } },
+  del(key) { try { const storageKey=window.McatAccount?.storageKey(key) || key;if(localStorage.getItem(storageKey)!=null){localStorage.removeItem(storageKey);window.McatAccount?.changed();} } catch (e) { storageWarning('Saved data could not be removed. Check browser storage settings.'); } },
 };
 const KEYS = {
   retention:'mcat2_retention', exposures:'mcat2_exposures', passageEvidence:'mcat2_passage_evidence', official:'mcat2_official',
@@ -2087,7 +2087,8 @@ function showProgress() {
     <button class="text-btn danger" onclick="resetProgress()">Reset all progress on this device…</button>`;
 }
 function resetProgress() {
-  if (!confirm('Erase all recall stats, spaced-repetition history, flags, passage scores, score estimates and exam history on this device? This cannot be undone.')) return;
+  if (!confirm('Erase recall stats, memory history, flags, passage scores, estimates and exam history for the active study profile? If signed in, this cleared copy will replace your cloud study progress when synced. This cannot be undone.')) return;
+  window.McatAccount?.clearBackup();
   [STUDY_TIMER_KEY, KEYS.retention, KEYS.exposures, KEYS.passageEvidence, KEYS.official, KEYS.recallDays, KEYS.plannedPassages, KEYS.diagnostic, KEYS.fluency, KEYS.studyPath, KEYS.finalTwo, KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
   FULL_EXAMS.forEach(e => { store.del(KEYS.examProgress(e.id)); store.del(KEYS.examLast(e.id)); });
   visibleStudyTimer = null;
@@ -2721,7 +2722,7 @@ function showAbout() {
     <div class="results-hero"><div class="r-label">About &amp; disclaimers</div></div>
     <div class="results-card about">
       <h2>About this app</h2>
-      <p>MCAT Study App is a free, open-source study tool by Collin B. George. It offers spaced-repetition recall questions, practice passages and timed full-length practice exams. There are no accounts, ads or fees. The source code and content are on ${link(REPO_URL, 'GitHub')}.</p>
+      <p>MCAT Study App is a free, open-source study tool by Collin B. George. It offers spaced-repetition recall questions, practice passages and timed full-length practice exams. Accounts are optional; guest study remains available, with no ads or study fees. The source code and content are on ${link(REPO_URL, 'GitHub')}.</p>
 
       <h2>Not affiliated with the AAMC</h2>
       <p>MCAT® is a registered trademark of the Association of American Medical Colleges (AAMC). This app is independent: it is not affiliated with, sponsored by or endorsed by the AAMC. It contains no official AAMC exam questions. Section formats, timing and content shares follow the AAMC's public descriptions of the exam. For official information and practice materials, go to ${link('https://students-residents.aamc.org/taking-mcat-exam/take-mcat-exam', 'the AAMC MCAT website')}.</p>
@@ -2736,7 +2737,7 @@ function showAbout() {
       <p>Scaled scores, totals and percentiles in this app are <b>study estimates, not predictions</b> of an official MCAT score. The AAMC converts raw scores separately for each test form, and this app's questions are not AAMC questions. Percentile ranks use the AAMC tables in effect May 1, 2026 – April 30, 2027 (${link('https://www.aamc.org/services/mcat-admissions-officers/resources/percentile-ranks', 'source')}). Use AAMC scored practice exams as a standardized practice benchmark; they do not guarantee a test-day score.</p>
 
       <h2>Privacy</h2>
-      <p>This app collects no personal information. There are no accounts and no analytics, ads or tracking cookies. Your progress (answers, flags, scores and exam history) is saved only in this browser's local storage on this device. It is never sent to the author or anyone else. You can erase it at any time with <b>Score report → Reset all progress</b>, or by clearing this site's data in your browser.</p>
+      <p>Guest progress stays in this browser. Optional accounts use Supabase Auth for email/password authentication and store signed-in progress with Supabase so it can be restored on other devices. The app does not store your password. There are no analytics, ads or tracking cookies. Check the cloud save status before closing the app; offline changes remain on the device until successfully synced. Reset all progress clears the active study copy and queues that cleared copy for cloud sync when signed in. Clearing browser storage alone does not delete cloud data. To request account and cloud-data deletion, contact the project owner; do not put passwords or private study records in public GitHub issues.</p>
       <p>The site is hosted on GitHub Pages. Like any web host, GitHub may log basic technical information such as IP addresses under the ${link('https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement', 'GitHub Privacy Statement')}.</p>
 
       <h2>Sources &amp; credits</h2>
@@ -2789,6 +2790,8 @@ document.addEventListener('keydown', e => {
 // ════════════════════════════════════════════════════════════════
 goHome();
 initStudyTimer();
+window.McatAccount?.init();
+if(typeof window.addEventListener==='function')window.addEventListener('pagehide',()=>{commitPending();flushPassageErr();if(activeScreen==='screen-exam'&&exam)saveExam();});
 // Offline cache on the deployed site only (keeps local development uncached; add ?sw to test it locally)
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || new URLSearchParams(location.search).has('sw'))) {
   navigator.serviceWorker.register('sw.js').catch(() => { /* offline support is optional */ });
