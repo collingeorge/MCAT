@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   const OWNER='mcat_cloud_owner', PREFIX='mcat_cloud_meta_', UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  const SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0/+esm';
+  const SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/+esm';
   let client=null,user=null,timer=null,busy=false,choice=null,recovering=false,notice='Saved on this browser only',generation=0;
   const read=(k,fallback)=>{try{return JSON.parse(localStorage.getItem(k))??fallback;}catch{return fallback;}};
   const write=(k,v)=>localStorage.setItem(k,JSON.stringify(v));

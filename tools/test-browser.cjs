@@ -97,6 +97,7 @@ async function main() {
   await evaluate('document.querySelector("#study-resume").click()');
   assert.equal(await evaluate('studyTimerState().block'),0);
   await evaluate('goHome();document.querySelector("#account-details").open=true');
+  await until('document.querySelector("#account-status").textContent.includes("Signed out")');
   assert(await evaluate('document.querySelector("#account-panel").textContent.includes("Account & cloud progress")'));
   assert(await evaluate('document.querySelector("#account-password").type==="password"'));
   await evaluate('document.querySelector("#account-email").value="invalid";McatAccount.action("login")');
