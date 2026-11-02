@@ -3,6 +3,8 @@
   'use strict';
   const OWNER='mcat_cloud_owner', PREFIX='mcat_cloud_meta_', UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/+esm';
+  // Capture synchronously: the static-page router normalizes the URL before SDK loading finishes.
+  const callbackCode=new URLSearchParams(location.search||'').get('code');
   let client=null,user=null,timer=null,busy=false,choice=null,recovering=false,notice='Saved on this browser only',generation=0;
   const read=(k,fallback)=>{try{return JSON.parse(localStorage.getItem(k))??fallback;}catch{return fallback;}};
   const write=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
@@ -126,11 +128,12 @@
     if(!/^https:\/\/[a-z0-9]+\.supabase\.co$/.test(config.url)||!config.publishableKey.startsWith('sb_publishable_')){status('Cloud configuration is invalid');return;}
     try {
       const sdk=await import(SDK);
-      client=sdk.createClient(config.url,config.publishableKey,{auth:{flowType:'pkce',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+      client=sdk.createClient(config.url,config.publishableKey,{auth:{flowType:'pkce',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
       client.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'){setTimeout(()=>recovery(),0);}else if(event==='SIGNED_OUT'){setTimeout(()=>prepareSession(session).catch(e=>status(e.message)),0);}});
-      const {data,error}=await client.auth.getSession();if(error)throw error;await prepareSession(data.session);
+      const {data,error}=callbackCode ? await client.auth.exchangeCodeForSession(callbackCode) : await client.auth.getSession();
+      if(error)throw error;await prepareSession(data.session);
       if(typeof window.addEventListener==='function')window.addEventListener('online',()=>sync());
-    }catch{status('Cloud connection unavailable · device progress retained');}
+    }catch{status(callbackCode?'Email verification or recovery link could not be completed. Request a new link in this browser.':'Cloud connection unavailable · device progress retained');}
   }
   function recovery(){recovering=true;render();}
   function clearBackup(){const id=owner();if(id)localStorage.removeItem('mcat_cloud_backup_'+id);}

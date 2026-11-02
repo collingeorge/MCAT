@@ -1,15 +1,18 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const root=__dirname+'/..',data=new Map(),nodes=new Map();let reloads=0,cloud=null,offline=false,rpcCalls=0;
 const A='11111111-1111-4111-8111-111111111111',B='22222222-2222-4222-8222-222222222222';
-let loginUser={id:A,email:'student@example.test'},session=null;
+let loginUser={id:A,email:'student@example.test'},session=null,exchangedCode=null;
 function el(id){if(!nodes.has(id))nodes.set(id,{innerHTML:'',textContent:'',value:'',open:false});return nodes.get(id);}
-const client={auth:{onAuthStateChange(){},async getSession(){return {data:{session}};},async signInWithPassword(){session={user:loginUser};return {data:{session}};},async signUp(){return {data:{}};},async resetPasswordForEmail(){return {data:{}};},async updateUser(){return {data:{}};},async signOut(){session=null;return {}; }},from(){return {select(){return this;},eq(){return this;},async maybeSingle(){return offline?{error:{message:'offline'}}:{data:cloud};}};},async rpc(name,args){rpcCalls++;if(offline)return {error:{message:'offline'}};assert.equal(name,'save_mcat_progress');if((cloud?.revision||0)!==args.p_expected_revision)return {data:{conflict:true,revision:cloud.revision}};cloud={revision:(cloud?.revision||0)+1,payload:JSON.parse(JSON.stringify(args.p_payload))};return {data:{revision:cloud.revision}};}};
+const client={auth:{onAuthStateChange(){},async exchangeCodeForSession(code){exchangedCode=code;return {data:{session}};},async getSession(){return {data:{session}};},async signInWithPassword(){session={user:loginUser};return {data:{session}};},async signUp(){return {data:{}};},async resetPasswordForEmail(){return {data:{}};},async updateUser(){return {data:{}};},async signOut(){session=null;return {}; }},from(){return {select(){return this;},eq(){return this;},async maybeSingle(){return offline?{error:{message:'offline'}}:{data:cloud};}};},async rpc(name,args){rpcCalls++;if(offline)return {error:{message:'offline'}};assert.equal(name,'save_mcat_progress');if((cloud?.revision||0)!==args.p_expected_revision)return {data:{conflict:true,revision:cloud.revision}};cloud={revision:(cloud?.revision||0)+1,payload:JSON.parse(JSON.stringify(args.p_payload))};return {data:{revision:cloud.revision}};}};
 const ctx=vm.createContext({console,Date,Math,Set,URL,clearTimeout(){},setTimeout(){return 1;},confirm(){return true;},KEYS:{stats:'mcat2_stats',mem:'mcat2_memory'},STUDY_TIMER_KEY:'mcat2_study_timer',FULL_EXAMS:[],showProgress(){},mockSdk:{createClient(){return client;}},window:{MCAT_CLOUD_CONFIG:{url:'https://test.supabase.co',publishableKey:'sb_publishable_test'}},document:{getElementById:el},location:{href:'https://example.test/index.html',reload(){reloads++;}},localStorage:{getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)}});
 const run=s=>vm.runInContext(s,ctx);
+ctx.URLSearchParams=URLSearchParams;
+run('location.search="?code=verification-test-code"');
 run(fs.readFileSync(root+'/js/account.js','utf8').replace('await import(SDK)','mockSdk'));
+run('location.search=""'); // Simulate pages.js normalizing the URL before async initialization.
 const api=run('window.McatAccount');
 async function main(){
- await api.init();assert.match(el('account-status').textContent,/Signed out/);
+ await api.init();assert.match(el('account-status').textContent,/Signed out/);assert.equal(exchangedCode,'verification-test-code');
  data.set('mcat2_stats',JSON.stringify({biology:{c:4,t:5}}));data.set('sb-project-auth-token','PRIVATE_TOKEN');
  assert.equal(api.storageKey('mcat2_stats'),'mcat2_stats');
  assert(!JSON.stringify(api.snapshot()).includes('PRIVATE_TOKEN'));
