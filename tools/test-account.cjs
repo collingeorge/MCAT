@@ -29,6 +29,15 @@ async function main(){
  data.set(api.storageKey('mcat2_stats'),JSON.stringify({biology:{c:7,t:8}}));api.changed();await api.sync();assert.equal(cloud.revision,4,'A newer remote snapshot cannot be silently overwritten');assert.match(el('account-status').textContent,/Another device/);
  await api.choose('cloud');assert.equal(JSON.parse(data.get(api.storageKey('mcat2_stats'))).biology.c,9);
  await api.logout();assert.equal(api.storageKey('mcat2_stats'),'mcat2_stats');assert.equal(JSON.parse(data.get('mcat2_stats')).biology.c,4,'Guest progress is preserved');
+ el('account-email').value=loginUser.email;el('account-password').value='test-only-password';await api.action('login');
+ assert(api.storageKey('mcat2_stats').includes(A),'Signing back in automatically restores the account scope');
+ cloud={revision:5,payload:{schema:1,values:{mcat2_stats:{biology:{c:12,t:14}}}}};
+ await api.sync();assert.equal(JSON.parse(data.get(api.storageKey('mcat2_stats'))).biology.c,12,'A clean device pulls newer cloud work');
+ await api.logout();
+ data.delete('mcat_cloud_meta_'+A);data.delete('mcat_user_'+A+':mcat2_stats');
+ el('account-email').value=loginUser.email;el('account-password').value='test-only-password';await api.action('login');
+ assert.equal(JSON.parse(data.get(api.storageKey('mcat2_stats'))).biology.c,12,'A fresh device restores cloud work without a manual choice');
+ await api.logout();
  loginUser={id:B,email:'second@example.test'};cloud=null;el('account-email').value=loginUser.email;el('account-password').value='another-test-password';await api.action('login');await api.choose('cloud');
  assert(api.storageKey('mcat2_stats').includes(B));assert.equal(data.get(api.storageKey('mcat2_stats')),undefined,'A second account does not inherit the first account cache');
  assert(!JSON.stringify([...data.values()]).includes('test-only-password'));assert(rpcCalls>=4);
