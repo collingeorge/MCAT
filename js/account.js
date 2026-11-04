@@ -33,14 +33,20 @@
   function changed() {
     const id=owner();if(!id)return;
     try{const m=meta(id);m.dirty=true;m.change=(m.change||0)+1;write(PREFIX+id,m);status('Saved on this device Â· cloud sync pending');}catch{status('Local storage failed Â· progress is not safely saved');return;}
-    clearTimeout(timer);timer=setTimeout(()=>sync().catch(()=>{}),2000);
+    clearTimeout(timer);sync().catch(()=>{});
   }
   async function remote() {
     const {data,error}=await client.from('mcat_progress').select('revision,payload,updated_at').eq('user_id',user.id).maybeSingle();
     if(error)throw Error('Cloud progress could not be read. Your device copy is unchanged.');
     if(data)validate(data.payload);return data;
   }
-  async function sync() {
+  let inFlight=null;
+  function sync(){
+    if(inFlight)return inFlight;
+    inFlight=performSync().finally(()=>{inFlight=null;});
+    return inFlight;
+  }
+  async function performSync() {
     if(busy||!client||!user||owner()!==user.id||choice)return;
     const id=user.id,m=meta(id);if(!m.dirty){
       if(typeof activeScreen==='undefined'||activeScreen==='screen-home')await prepareSession({user});
@@ -57,7 +63,7 @@
       if(!Number.isInteger(data?.revision))throw Error('Cloud did not confirm the save.');
       const current=meta(id);write(PREFIX+id,{...current,revision:data.revision,dirty:current.change!==m.change});
       status(current.change!==m.change?'New changes waiting to sync':'Saved to cloud Â· '+new Date().toLocaleTimeString());
-      if(current.change!==m.change){clearTimeout(timer);timer=setTimeout(()=>sync().catch(()=>{}),500);}
+      if(current.change!==m.change){clearTimeout(timer);timer=setTimeout(()=>sync().catch(()=>{}),0);}
     } catch(e){status(e.message||'Cloud unavailable Â· device progress retained');}
     finally{busy=false;}
   }
