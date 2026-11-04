@@ -19,7 +19,7 @@ async function main(){
  assert.throws(()=>api.validate({schema:1,values:{'sb-project-auth-token':'bad'}}));
  el('account-email').value='student@example.test';el('account-password').value='test-only-password';
  await api.action('login');assert.equal(el('account-password').value,'');
- assert.equal(api.storageKey('mcat2_stats'),'mcat2_stats','Login does not silently copy shared-browser guest work');
+ assert(api.storageKey('mcat2_stats').includes(A),'An empty cloud account adopts displayed progress and enables automatic saving');
  await api.choose('guest');assert.equal(cloud.revision,1);assert.equal(cloud.payload.values.mcat2_stats.biology.c,4);assert.equal(reloads,1);
  assert(api.storageKey('mcat2_stats').includes(A));
  data.set(api.storageKey('mcat2_stats'),JSON.stringify({biology:{c:5,t:6}}));api.changed();await api.sync();assert.equal(cloud.revision,2);assert.equal(cloud.payload.values.mcat2_stats.biology.c,5);
