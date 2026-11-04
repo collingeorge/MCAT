@@ -32,7 +32,7 @@
   function status(message){notice=message;const el=document.getElementById('account-status');if(el)el.textContent=message;}
   function changed() {
     const id=owner();if(!id)return;
-    try{const m=meta(id);m.dirty=true;m.change=(m.change||0)+1;write(PREFIX+id,m);status('Saved on this device · cloud sync pending');}catch{status('Local storage failed · progress is not safely saved');return;}
+    try{const m=meta(id);m.dirty=true;m.change=(m.change||0)+1;write(PREFIX+id,m);status('Saved on this device Â· cloud sync pending');}catch{status('Local storage failed Â· progress is not safely saved');return;}
     clearTimeout(timer);timer=setTimeout(()=>sync().catch(()=>{}),2000);
   }
   async function remote() {
@@ -42,29 +42,39 @@
   }
   async function sync() {
     if(busy||!client||!user||owner()!==user.id||choice)return;
-    const id=user.id,m=meta(id);if(!m.dirty){status('Cloud connected · all device changes saved');return;}
-    const token=generation;busy=true;status('Saving to cloud…');
+    const id=user.id,m=meta(id);if(!m.dirty){
+      if(typeof activeScreen==='undefined'||activeScreen==='screen-home')await prepareSession({user});
+      else status('Cloud connected Â· all device changes saved');
+      return;
+    }
+    const token=generation;busy=true;status('Saving to cloudâ€¦');
     try {
       const payload=validate(snapshot(id));
       const {data,error}=await client.rpc('save_mcat_progress',{p_expected_revision:m.revision,p_payload:payload});
       if(token!==generation)return;
       if(error)throw Error('Cloud save failed. Device progress is retained; reconnect and choose Sync now.');
-      if(data?.conflict){choice=await remote()||{revision:0,payload:{schema:1,values:{}},empty:true};status('Another device has newer progress · choose which copy to keep');render();return;}
+      if(data?.conflict){choice=await remote()||{revision:0,payload:{schema:1,values:{}},empty:true};status('Another device has newer progress Â· choose which copy to keep');render();return;}
       if(!Number.isInteger(data?.revision))throw Error('Cloud did not confirm the save.');
       const current=meta(id);write(PREFIX+id,{...current,revision:data.revision,dirty:current.change!==m.change});
-      status(current.change!==m.change?'New changes waiting to sync':'Saved to cloud · '+new Date().toLocaleTimeString());
+      status(current.change!==m.change?'New changes waiting to sync':'Saved to cloud Â· '+new Date().toLocaleTimeString());
       if(current.change!==m.change){clearTimeout(timer);timer=setTimeout(()=>sync().catch(()=>{}),500);}
-    } catch(e){status(e.message||'Cloud unavailable · device progress retained');}
+    } catch(e){status(e.message||'Cloud unavailable Â· device progress retained');}
     finally{busy=false;}
   }
   async function prepareSession(session) {
     generation++;user=session?.user||null;choice=null;
-    if(!user){status('Signed out · guest progress stays on this browser');if(owner()){localStorage.removeItem(OWNER);location.reload();}render();return;}
+    if(!user){status('Signed out Â· guest progress stays on this browser');if(owner()){localStorage.removeItem(OWNER);location.reload();}render();return;}
     const cloud=await remote(),m=meta(user.id);
-    if(owner()===user.id && !m.dirty && cloud?.revision===m.revision){status('Cloud connected · progress saved');render();return;}
+    // Restore clean account copies automatically after logout or on another device.
+    // Unsent local changes still require conflict review before replacement.
+    if(cloud&&!m.dirty){
+      const switched=owner()!==user.id||cloud.revision!==m.revision;
+      if(switched){apply(cloud.payload,user.id);write(PREFIX+user.id,{revision:cloud.revision,dirty:false,change:0});write(OWNER,user.id);location.reload();return;}
+    }
+    if(owner()===user.id && !m.dirty && cloud?.revision===m.revision){status('Cloud connected Â· progress saved');render();return;}
     if(owner()===user.id && m.dirty && (cloud?.revision||0)===m.revision){await sync();render();return;}
     choice=cloud||{revision:0,payload:{schema:1,values:{}},empty:true};
-    status('Signed in · choose your progress copy to finish setup');render();
+    status('Signed in Â· choose your progress copy to finish setup');render();
   }
   async function choose(source) {
     if(!user||!choice||busy)return;
@@ -113,11 +123,11 @@
   }
   function render() {
     const panel=document.getElementById('account-panel');if(!panel)return;
-    const description=user?'Signed in as '+user.email:'Optional account · guest study remains available';
+    const description=user?'Signed in as '+user.email:'Optional account Â· guest study remains available';
     panel.innerHTML='<p id="account-status" role="status"></p><details id="account-details"><summary>Account & cloud progress</summary><p id="account-identity"></p>'+
       (user?'<button class="micro-btn" onclick="McatAccount.sync()">Sync now</button> <button class="micro-btn" onclick="McatAccount.logout()">Sign out</button> <button class="micro-btn" onclick="showProgress()">My score report</button>':'<label>Email <input id="account-email" type="email" autocomplete="email"></label><label>Password <input id="account-password" type="password" autocomplete="current-password" minlength="12"></label><div class="btn-row"><button class="micro-btn" onclick="McatAccount.action(\'login\')">Sign in</button><button class="micro-btn" onclick="McatAccount.action(\'signup\')">Create account</button><button class="text-btn" onclick="McatAccount.action(\'reset\')">Forgot password?</button></div>')+
       (recovering?'<label>New password <input id="account-new-password" type="password" autocomplete="new-password" minlength="12"></label><button class="micro-btn" onclick="McatAccount.action(\'password\')">Set new password</button>':'')+
-      (choice?'<p>Copies are not automatically combined: doing so could duplicate scores and study counts. Restore the cloud copy, keep this account’s device copy, or explicitly copy the guest work on this browser.</p><button class="micro-btn" onclick="McatAccount.choose(\'cloud\')">Restore cloud progress'+(choice.empty?' (empty account)':'')+'</button> <button class="micro-btn" onclick="McatAccount.choose(\'device\')">Keep account device copy</button> <button class="micro-btn" onclick="McatAccount.choose(\'guest\')">Copy guest progress into my account</button>':'')+
+      (choice?'<p>Copies are not automatically combined: doing so could duplicate scores and study counts. Restore the cloud copy, keep this accountâ€™s device copy, or explicitly copy the guest work on this browser.</p><button class="micro-btn" onclick="McatAccount.choose(\'cloud\')">Restore cloud progress'+(choice.empty?' (empty account)':'')+'</button> <button class="micro-btn" onclick="McatAccount.choose(\'device\')">Keep account device copy</button> <button class="micro-btn" onclick="McatAccount.choose(\'guest\')">Copy guest progress into my account</button>':'')+
       '<p class="muted-note">Signed-in progress is stored with Supabase. Passwords are handled by Supabase Auth. Cloud saves require a connection; check the save status before closing. Guest and account copies are separate.</p></details>';
     document.getElementById('account-identity').textContent=description;status(notice);
     document.getElementById('account-details').open=!user||!!choice||recovering;
@@ -125,7 +135,7 @@
   }
   async function init() {
     render();const config=window.MCAT_CLOUD_CONFIG;
-    if(!config?.url||!config?.publishableKey){status('Cloud setup pending · saved on this browser only');return;}
+    if(!config?.url||!config?.publishableKey){status('Cloud setup pending Â· saved on this browser only');return;}
     if(!/^https:\/\/[a-z0-9]+\.supabase\.co$/.test(config.url)||!config.publishableKey.startsWith('sb_publishable_')){status('Cloud configuration is invalid');return;}
     try {
       const sdk=await import(SDK);
@@ -133,8 +143,13 @@
       client.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'){setTimeout(()=>recovery(),0);}else if(event==='SIGNED_OUT'){setTimeout(()=>prepareSession(session).catch(e=>status(e.message)),0);}});
       const {data,error}=callbackCode ? await client.auth.exchangeCodeForSession(callbackCode) : await client.auth.getSession();
       if(error)throw error;await prepareSession(data.session);
-      if(typeof window.addEventListener==='function')window.addEventListener('online',()=>sync());
-    }catch{status(callbackCode?'Email verification or recovery link could not be completed. Request a new link in this browser.':'Cloud connection unavailable · device progress retained');}
+    }catch{status(callbackCode?'Email verification or recovery link could not be completed. Request a new link in this browser.':'Cloud connection unavailable Â· device progress retained');}
+  }
+  // Register before SDK loading so a cold offline start can reconnect too.
+  if(typeof window.addEventListener==='function'){
+    const reconnect=()=>{if(!client)init();else sync().catch(()=>status('Cloud unavailable Â· device progress retained'));};
+    window.addEventListener('online',reconnect);
+    window.addEventListener('focus',reconnect);
   }
   function recovery(){recovering=true;render();}
   function clearBackup(){const id=owner();if(id)localStorage.removeItem('mcat_cloud_backup_'+id);}
