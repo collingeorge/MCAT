@@ -47,6 +47,16 @@
     return inFlight;
   }
   async function performSync() {
+    if(choice?.empty&&user&&!busy){
+      // The user explicitly pressed Sync now for an empty account: preserve the
+      // progress currently displayed, including work done during initial setup.
+      const id=user.id,claimed=read('mcat_guest_claim',null);
+      const payload=validate(snapshot((owner()&&owner()!==id)||(!owner()&&claimed&&claimed!==id)?id:owner()));
+      if(!owner()&&!claimed)write('mcat_guest_claim',id);
+      write('mcat_cloud_backup_'+id,snapshot(id));
+      apply(payload,id);write(PREFIX+id,{revision:0,dirty:true,change:1});write(OWNER,id);choice=null;
+      render();
+    }
     if(busy||!client||!user||owner()!==user.id||choice)return;
     const id=user.id,m=meta(id);if(!m.dirty){
       if(typeof activeScreen==='undefined'||activeScreen==='screen-home')await prepareSession({user});
@@ -80,6 +90,7 @@
     if(owner()===user.id && !m.dirty && cloud?.revision===m.revision){status('Cloud connected Â· progress saved');render();return;}
     if(owner()===user.id && m.dirty && (cloud?.revision||0)===m.revision){await sync();render();return;}
     choice=cloud||{revision:0,payload:{schema:1,values:{}},empty:true};
+    if(choice.empty){await sync();if(!meta(user.id).dirty)location.reload();return;}
     status('Signed in Â· choose your progress copy to finish setup');render();
   }
   async function choose(source) {
