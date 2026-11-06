@@ -38,7 +38,8 @@
   function changed() {
     const id=owner();if(!id)return;
     try{const m=meta(id);m.dirty=true;m.change=(m.change||0)+1;write(PREFIX+id,m);status('Saved on this device · cloud sync pending');}catch{status('Local storage failed · progress is not safely saved');return;}
-    clearTimeout(timer);sync().catch(()=>{});
+    // One answer writes ~10 keys; batch them into one cloud save. Hidden pages flush immediately.
+    clearTimeout(timer);timer=setTimeout(()=>sync().catch(()=>{}),1500);
   }
   async function remote() {
     const {data,error}=await client.from('mcat_progress').select('revision,payload,updated_at').eq('user_id',user.id).maybeSingle();
@@ -115,6 +116,7 @@
   }
   async function action(mode) {
     const email=document.getElementById('account-email')?.value.trim(),field=document.getElementById(mode==='password'?'account-new-password':'account-password'),password=field?.value||'';
+    if(!client&&configured()&&!busy)await connect();
     if(!client){status('Cloud accounts are awaiting backend configuration. Device study still works.');return;}
     if(busy)return;busy=true;
     try {
@@ -169,10 +171,20 @@
     document.getElementById('account-details').open=!user||!!choice||recovering;
     const loginButton=document.getElementById('account-login-btn');if(loginButton)loginButton.textContent=user?'My account':'Sign in / Create account';
   }
+  // Guests with no account on this browser never load the 218 KB SDK until they choose to sign in.
+  const sessionHint=()=>!!owner()||!!callbackCode||Object.keys(localStorage).some(k=>/^sb-.+-auth-token$/.test(k));
+  function configured(){const c=window.MCAT_CLOUD_CONFIG;return !!c?.url&&!!c?.publishableKey&&/^https:\/\/[a-z0-9]+\.supabase\.co$/.test(c.url)&&c.publishableKey.startsWith('sb_publishable_');}
   async function init() {
     render();const config=window.MCAT_CLOUD_CONFIG;
     if(!config?.url||!config?.publishableKey){status('Cloud setup pending · saved on this browser only');return;}
-    if(!/^https:\/\/[a-z0-9]+\.supabase\.co$/.test(config.url)||!config.publishableKey.startsWith('sb_publishable_')){status('Cloud configuration is invalid');return;}
+    if(!configured()){status('Cloud configuration is invalid');return;}
+    if(!client&&!sessionHint()){status('Signed out · guest progress stays on this browser');return;}
+    await connect();
+  }
+  let connecting=null;
+  function connect(){if(client)return Promise.resolve();return connecting||(connecting=openClient().finally(()=>{connecting=null;}));}
+  async function openClient() {
+    const config=window.MCAT_CLOUD_CONFIG;
     try {
       const sdk=await loadSdk();
       client=sdk.createClient(config.url,config.publishableKey,{auth:{flowType:'pkce',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
@@ -186,6 +198,7 @@
     const reconnect=()=>{if(!client)init();else sync().catch(()=>status('Cloud unavailable · device progress retained'));};
     window.addEventListener('online',reconnect);
     window.addEventListener('focus',reconnect);
+    document.addEventListener?.('visibilitychange',()=>{if(document.visibilityState==='hidden'&&client){clearTimeout(timer);sync().catch(()=>{});}});
   }
   function recovery(){recovering=true;render();}
   function clearBackup(){const id=owner();if(id)localStorage.removeItem('mcat_cloud_backup_'+id);}

@@ -198,7 +198,11 @@ The October 28, 2026 review fixed HTML rendering, saved-data warnings, final-rev
 - Text is escaped before supported bold/cloze formatting. The content security policy is `script-src 'self'`: no inline script, no `eval`, and no third-party script origin.
   - Buttons and inputs carry `data-click` / `data-input` / `data-change` / `data-submit` / `data-enter` actions instead of inline handlers. `js/actions.js` runs only allowlisted functions with literal arguments, so injected markup cannot run code.
   - The Supabase SDK is self-hosted in `vendor/`, pinned by an SRI hash and precached (see `vendor/README.md`); the app loads no script from a CDN.
+  - `connect-src` is pinned to this app's Supabase project. The custom-domain proxy also sends `frame-ancestors 'none'`, `X-Frame-Options: DENY` and `nosniff`; a meta-tag CSP cannot block framing, and GitHub Pages cannot send these headers.
+  - Score and exam records from synced data are type-checked when read, so planted markup renders as nothing.
   - `style-src` still allows inline styles, which the app uses for progress bars and charts.
+- Shared computers: **Sign out and remove from this device** deletes the account's cached copy, but only after everything has synced.
+- Speed: the parsed memory record and the daily plan are cached until storage changes, subject recommendations are scored once per subject, cloud saves are batched (and flushed when the tab is hidden), and guests do not download the Supabase SDK until they sign in.
 - Browser storage failures now produce a visible warning. Saved preferences are normalized, and invalid top-level saved-data shapes fall back safely. This is not exhaustive validation of every nested saved record.
 - A plan's final-review window stays anchored to its original start date. Calendar calculations use civil dates rather than elapsed 24-hour periods across daylight-saving changes.
 - Within-day repeats increase estimated memory stability by at most 10% per correct repetition. This conservative heuristic avoids treating immediate familiarity as delayed retention; it is not a clinically or psychometrically calibrated model.

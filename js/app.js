@@ -75,6 +75,7 @@ function storedShape(value, fallback) {
   if (fallback === null) return typeof value === 'object' && !Array.isArray(value);
   return typeof value === typeof fallback;
 }
+const OBJECT_MAPS = new Set(['mcat2_evidence', 'mcat2_calibration', 'mcat2_stats', 'mcat2_mastery', 'mcat2_passages', 'mcat2_exposures', 'mcat2_recall_days', 'mcat2_memory']);
 const RECORD_LOGS = new Set(['mcat2_errors', 'mcat2_passage_evidence', 'mcat2_external_passages', 'mcat2_exam_history', 'mcat2_official', 'mcat2_retention', 'mcat2_study_path', 'mcat2_score_history']);
 // Score fields from synced logs are rendered as numbers; anything else becomes null.
 const finiteOrNull = v => (Number.isFinite(v) ? v : null);
@@ -99,6 +100,7 @@ const store = {
       const value = JSON.parse(raw);
       if (!storedShape(value, fallback)) throw new Error('Unexpected saved-data format');
       // Record logs can arrive from another device; drop entries that are not objects.
+      if (OBJECT_MAPS.has(key) && isRecord(value)) { for (const k in value) if (!isRecord(value[k])) delete value[k]; return value; }
       if (!Array.isArray(value) || !RECORD_LOGS.has(key)) return value;
       const rows = value.filter(isRecord), shape = RECORD_FIELDS[key];
       return shape ? rows.map(shape).filter(Boolean) : rows;
@@ -413,9 +415,15 @@ const MASTERY_PRIOR = 0.8;          // starting topic rating (≈69% predicted)
 const CONFIDENCE = [['guess', 'Guessed', 'G'], ['unsure', 'Unsure', 'U'], ['knew', 'Knew it', 'K']];
 
 // Old fixed-interval history is converted once so nobody loses progress
+// The memory record is the largest key (~0.5 MB) and is read many times per render. Reuse the parsed
+// object while the stored text is unchanged; only updateMemory mutates it, and it saves immediately.
+let memCache = { raw: null, mem: null };
 function loadMem() {
+  let raw = null;
+  try { raw = localStorage.getItem(window.McatAccount?.storageKey(KEYS.mem) || KEYS.mem); } catch (e) { raw = null; }
+  if (raw && raw === memCache.raw) return memCache.mem;
   const mem = store.get(KEYS.mem, null);
-  if (mem) return mem;
+  if (mem) { memCache = { raw, mem }; return mem; }
   const days = [0.5, 1, 3, 7, 16, 35];
   const out = {};
   Object.entries(store.get(KEYS.srs, {})).forEach(([id, e]) => {
@@ -1034,7 +1042,9 @@ function renderHome() {
   $('home-actions').innerHTML = actions.join('');
   if (typeof renderDailyPlan === 'function') renderDailyPlan();
   // The TODAY card above is the ordered routine; these cards stay as reference.
+  try {
   $('home-score').innerHTML = scoreStrip() + planStrip() + '<details class="home-reference"><summary>Reference: priorities, weekly readiness and passage path</summary>' + learningGuideCard() + weeklyReadinessCard() + studyPathCard() + '</details>';
+  } catch (e) { $('home-score').innerHTML = '<p class="muted-note">Some saved progress could not be displayed. Study tools still work.</p>'; }
 
   setMode(prefs.mode, false);
 }
@@ -1217,8 +1227,6 @@ function fluencyCard() {
 // ── Study-habit nudges ──
 // Spaced practice beats marathon sessions: suggest a short break after ~45 minutes
 // The steady timer bar now supplies break guidance on every screen.
-function breakBanner() { return ''; }
-function dismissBreak() {}
 const STUDY_TIPS = [
   'Testing yourself (what you just did) builds memory better than rereading notes. Keep most of your study time on questions.',
   'Spacing beats cramming: a fact reviewed over several days lasts far longer than one drilled many times in one sitting. Trust the review schedule.',
@@ -1351,7 +1359,7 @@ function renderQuizQuestion() {
     ? `${REASONS.weak}: ${KEY_LABEL[q.key] || q.s}${(() => { const m = topicMastery(q.key); return m.p != null ? ` (${Math.round(m.p * 100)}% predicted)` : ''; })()}`
     : view.reason === 'loop' ? `${REASONS.loop} (${view.loopStreak || 0} of ${LOOP_TARGET} correct in a row)`
     : view.reason ? REASONS[view.reason] : '';
-  $('quiz-body').innerHTML = `${breakBanner()}
+  $('quiz-body').innerHTML = `
     <div class="question-box">
       <div class="q-toolbar">
         <span class="q-tag">${esc(SUBJECT_LABEL[q.subj])} · ${esc(KEY_LABEL[q.key] || q.s)}${q.aamc ? ` · AAMC ${esc(q.aamc)}` : ''}</span>
@@ -1944,7 +1952,7 @@ function aamcCard() {
 // ── Study plan to the test date ──
 // Spreads unseen material over the content phase, reserves the final weeks for
 // review and full-length practice, and sizes each day's Smart Session.
-const SECONDS_PER_RECALL = 48;   // answer + read the explanation
+const SECONDS_PER_RECALL = DAILY_RULES.secondsPerFact;   // answer + read the explanation (shared with the TODAY plan)
 function calendarDaysBetween(a, b) {
   return Math.round((Date.UTC(b.getFullYear(), b.getMonth(), b.getDate()) - Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())) / DAY);
 }
@@ -1961,7 +1969,8 @@ function computePlan() {
   const seen = QB.filter(q => mem[q.id] && mem[q.id].seen).length;
   const unseen = QB.length - seen;
   const perWeek = Math.min(7, Math.max(1, plan.days || 6));
-  const finalDays = initialDays > 42 ? 14 : initialDays > 21 ? 7 : Math.min(2, initialDays);
+  // Same final window as the TODAY checklist (DAILY_RULES.finalWindow), so the two never disagree.
+  const finalDays = initialDays > DAILY_RULES.finalWindow ? DAILY_RULES.finalWindow : Math.min(2, initialDays);
   const studyDaysLeft = Math.max(1, Math.round((daysLeft * perWeek) / 7));
   const contentStudyDays = Math.max(1, Math.round(((daysLeft - finalDays) * perWeek) / 7));
   const inFinal = daysLeft <= finalDays;
@@ -2237,7 +2246,7 @@ function renderPassageQuestion() {
     $('pp-passage-box').innerHTML = passage ? passageCard(passage.topic || '', passage.title, passage.passage, passage.figure) : '<p class="muted-note">Discrete question · no passage</p>';
     $('pp-score').textContent = pq.results.length + '/' + tot + ' answered · feedback at end';
   }
-  $('pp-question-box').innerHTML = `${breakBanner()}
+  $('pp-question-box').innerHTML = `
     <div class="question-box"><div class="q-toolbar"><span class="q-tag">Question ${pq.idx + 1} of ${tot}${view.q.skill ? ` · ${esc(SKILL_LABEL[view.q.skill] || view.q.skill)}` : ''}</span></div>
       <div class="question-text">${fmt(view.q.q)}</div></div>
     <div class="choices">${choiceButtons(view.choices, 'answerPassage', { prefix: 'pc' })}</div>

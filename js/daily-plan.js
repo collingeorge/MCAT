@@ -348,7 +348,7 @@ function markDailyStep(id) { const ds = dailyPlanStore(), today = localDay(); ds
 function startYesterdayMisses() {
   const p = currentDailyPlan();
   const order = Object.keys(DISCIPLINES);
-  const qs = p.recallPool.filter(m => m.answeredDay !== localDay()).sort((a, b) => order.indexOf(a.disc) - order.indexOf(b.disc)).map(m => QB_BY_ID.get(m.id)).filter(Boolean);
+  const qs = (p.recallPool || []).filter(m => m.answeredDay !== localDay()).sort((a, b) => order.indexOf(a.disc) - order.indexOf(b.disc)).map(m => QB_BY_ID.get(m.id)).filter(Boolean);
   if (qs.length) beginQuiz(qs, 'Yesterday’s missed recall');
 }
 function startDailyNewFacts() {
@@ -392,7 +392,7 @@ let passageReviewKeys = [];
 function startPassageMissReview() {
   const plan = currentDailyPlan();
   show('screen-results');
-  const items = plan.passagePool.map(m => ({ m, r: resolvePassageMiss(m) })).filter(x => x.r);
+  const items = (plan.passagePool || []).map(m => ({ m, r: resolvePassageMiss(m) })).filter(x => x.r);
   passageReviewKeys = items.map(x => x.m.key);
   const errors = store.get(KEYS.errors, []);
   $('results-body').innerHTML = '<div class="results-hero"><div class="r-label">Review missed passage questions</div></div><div class="results-card"><p>Reread the passage and explanation, then write one line on why the right answer is right. This review is not scored and does not count as a first exposure.</p></div>' +
@@ -495,8 +495,14 @@ function fullLengthCalendarHtml(plan) {
   const extras = plan.optionalFullLengths?.length ? '<p class="muted-note">Optional extra if you have time before the final month: ' + plan.optionalFullLengths.map(esc).join('; ') + '. AAMC exams take priority.</p>' : '';
   return '<div class="sw-head">Full-length calendar</div><ol class="today-fl-list">' + rows + '</ol>' + extras + '<p class="muted-note">AAMC exams are taken on aamc.org; record their section scores under Official results so the plan marks them done.</p>';
 }
+// A home page left open overnight shows the new day's plan when the tab is next viewed.
+let dailyPlanRenderedDay = null;
+if (typeof document !== 'undefined') document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && dailyPlanRenderedDay && dailyPlanRenderedDay !== localDay() && typeof activeScreen !== 'undefined' && activeScreen === 'screen-home') renderHome();
+});
 function renderDailyPlan() {
   const el = $('today-plan'); if (!el) return;
+  dailyPlanRenderedDay = localDay();
   // A bad synced record must never take down the rest of the home page.
   try { el.innerHTML = dailyPlanCard(); } catch (e) { el.innerHTML = '<div class="section-label">TODAY › Start here</div><p class="muted-note">Today\u2019s plan could not be built from the saved progress. Your other study tools below still work.</p>'; }
 }

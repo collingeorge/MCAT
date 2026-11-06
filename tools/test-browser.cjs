@@ -46,6 +46,13 @@ async function main() {
   const evaluate=async expression=>{const result=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(result.exceptionDetails)throw Error(JSON.stringify(result.exceptionDetails));return result.result.value};
   const until=async expression=>{for(let i=0;i<300;i++){if(await evaluate(expression))return;await sleep(100)}throw Error('Browser condition failed: '+expression)};
   await until('document.querySelector("#home-actions")?.textContent.includes("Smart Session")');
+  // Guests do not download the cloud SDK until they choose to sign in.
+  assert.equal(await evaluate('performance.getEntriesByType("resource").some(r=>r.name.includes("vendor/supabase"))'),false,'guest boot skips the SDK');
+  // The second click of a double-click/tap never answers the next question.
+  await evaluate('beginQuiz(QB.slice(0,3),"Double tap",{adaptive:false});document.querySelector("#cb-0").click()');
+  await evaluate('const b=document.querySelector("#next-btn");b.dispatchEvent(new MouseEvent("click",{bubbles:true,detail:1}));document.querySelector("#cb-1").dispatchEvent(new MouseEvent("click",{bubbles:true,detail:2}))');
+  assert.equal(await evaluate('quiz.idx'),1);assert.equal(await evaluate('quiz.results.length'),1,'double-tap did not answer question 2');
+  await evaluate('goHome()');
   assert(await evaluate('document.body.textContent.includes("Recall → passage → subject mini test")'));
   await evaluate('document.querySelector(".action-btn.smart").click()');
   await until('document.querySelector("#cb-0")!==null');
@@ -107,6 +114,7 @@ async function main() {
   assert(await evaluate('document.querySelector("#account-password").type==="password"'));
   await evaluate('document.querySelector("#account-email").value="invalid";McatAccount.action("login")');
   assert(await evaluate('document.querySelector("#account-status").textContent.length>0'));
+  await until('performance.getEntriesByType("resource").some(r=>r.name.includes("vendor/supabase"))&&typeof window.supabase?.createClient==="function"');
   // Real clicks through delegated actions under script-src 'self' (no inline handlers).
   await evaluate('goHome();document.querySelector("#btn-passage").click()');
   assert.equal(await evaluate('prefs.mode'),'passage');

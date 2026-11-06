@@ -31,18 +31,19 @@ function passageOrder(subj) {
 }
 function pathRecommendation(preferred) {
   const subjects=Object.keys(DISCIPLINES).filter(s=>subjectPassages(s).length);
-  const needs=learningNeeds(), history=store.get(KEYS.studyPath,[]);
+  const needs=learningNeeds(), history=store.get(KEYS.studyPath,[]), recentRetention=store.get(KEYS.retention,[]).filter(x=>Date.now()-x.t<7*DAY);
   const score=p=>{
     const e=needs.ev[p.subj], n=e.recall.t+e.passage.t+e.exam.t;
     const weakness=Math.max(0,...needs.weak.filter(w=>w.subj===p.subj).map(w=>(0.8-w.accuracy)*4));
     const confusion=0.25*needs.confused.filter(x=>x.disc===p.subj).length/Math.max(1,needs.confused.length);
     const last=history.filter(x=>x.subj===p.subj).at(-1);
-    const delayedRows=store.get(KEYS.retention,[]).filter(x=>x.disc===p.subj && Date.now()-x.t<7*DAY);
+    const delayedRows=recentRetention.filter(x=>x.disc===p.subj);
     const delayedNeed=delayedRows.length>=3?0.4*(1-delayedRows.filter(x=>x.right).length/delayedRows.length):0;
     const recentlyDone=last && Date.now()-last.t < 86400000 ? 1.3 : 0;
     return delayedNeed+weakness+confusion+(p.subj==='cars' && needs.carsMissing?0.95:0)+(n<MIN_ANSWERS?0.4*(1-n/MIN_ANSWERS):0)+(p.subj!=='cars' && !e.passage.t && n>=MIN_ANSWERS?0.4:0)-recentlyDone;
   };
-  const ranked=subjects.map(subjectPath).sort((a,b)=>score(b)-score(a));
+  // Score once per subject; a comparator that re-scores reparses storage on every comparison.
+  const ranked=subjects.map(subjectPath).map(p=>({p,s:score(p)})).sort((a,b)=>b.s-a.s).map(x=>x.p);
   return ranked.find(p=>p.subj===preferred)||ranked[0]||null;
 }
 function pathWork(subj, minutes = 120) {
@@ -188,7 +189,7 @@ function learningNeeds() {
 }
 function recordRecallToday(q) {
   const days = store.get(KEYS.recallDays, {}), day = localDay(), id = q.baseId || q.id;
-  const row = days[day] || {newIds:[], reviews:0, startedAt:Date.now()};
+  const prev = days[day], row = prev && typeof prev === 'object' && Array.isArray(prev.newIds) ? prev : {newIds:[], reviews:Number.isFinite(prev?.reviews) ? prev.reviews : 0, startedAt:Date.now()};
   if (!loadMem()[id]?.seen && !row.newIds.includes(id)) row.newIds.push(id);
   else row.reviews++;
   days[day]=row;

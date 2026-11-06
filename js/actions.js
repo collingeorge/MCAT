@@ -79,6 +79,8 @@
   }
   const disabled = el => el.matches(':disabled') || !!el.closest('[aria-disabled="true"]');
   document.addEventListener('click', event => {
+    // A double-click/tap is one intent: its second click would land on the next question's choices.
+    if (event.detail > 1) return;
     let el = event.target instanceof Element ? event.target.closest('[data-click]') : null;
     // Nested actions bubble like the old inline handlers unless one calls event.stopPropagation().
     while (el) {

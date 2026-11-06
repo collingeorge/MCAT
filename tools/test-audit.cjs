@@ -21,7 +21,7 @@ async function main() {
  const oldSet=ctx.localStorage.setItem; ctx.localStorage.setItem=()=>{throw Error('quota')}; run("store.set('x',1)"); assert.match(el('storage-notice').textContent,/could not be saved/); ctx.localStorage.setItem=oldSet;
  // Long plans retain their review phase near the test date; short plans still permit new material earlier.
  run("store.set(KEYS.plan,{date:localDay(new Date(Date.now()+10*DAY)),start:localDay(new Date(Date.now()-60*DAY)),minutes:60,days:6})");
- assert.equal(run('computePlan().finalDays'),14); assert.equal(run('computePlan().inFinal'),true); assert.equal(run('computePlan().newPerDay'),0);
+ assert.equal(run('computePlan().finalDays'),21); assert.equal(run('computePlan().inFinal'),true); assert.equal(run('computePlan().newPerDay'),0);
  assert.equal(run("calendarDaysBetween(new Date(2026,2,7),new Date(2026,2,10))"),3);
  assert.equal(run("calendarDaysBetween(new Date(2026,9,31),new Date(2026,10,3))"),3);
  // A reflection delay must not inflate the fluency timer.
