@@ -177,10 +177,8 @@ function passageSchedule(p) {
 
 // Priorities are transparent study heuristics; missing data is not mastery or weakness.
 function learningNeeds() {
-  const stats = store.get(KEYS.stats, {}), ev = disciplineEvidence();
-  const weak = Object.entries(stats).filter(([k,s]) => KEY_COUNTS[k] && s.t >= 5 && s.c / s.t < 0.8)
-    .map(([k,s]) => ({k, c:s.c, t:s.t, accuracy:s.c/s.t, subj:disciplineOfKey(k.split('|')[0],k.slice(k.indexOf('|')+1))}))
-    .sort((a,b) => a.accuracy-b.accuracy || b.t-a.t);
+  const ev = disciplineEvidence();
+  const weak = weakTopics();
   const errors = store.get(KEYS.errors, []).slice(-100);
   const confused = errors.filter(e => e.type === 'confused');
   const missing = Object.keys(DISCIPLINES).filter(d => d !== 'cars' && d !== 'research' && ev[d].recall.t + ev[d].passage.t + ev[d].exam.t < MIN_ANSWERS)
