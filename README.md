@@ -5,7 +5,7 @@
 # MCAT Study App
 *Recall · Passages · Full-length exams · Collin B. George*
 
-## → [Launch App](https://collingeorge.github.io/MCAT/)
+## → [Launch App](https://mcat.collinbgeorge.com/)
 
 A free MCAT practice app that runs in the browser with no build step. Guest study works without an account; optional email/password accounts save progress to the cloud for recovery on other devices. After the first visit, study content works offline and the app can be installed from the browser menu. Offline changes sync after reconnection.
 
@@ -101,7 +101,7 @@ The dashboard counts retrospective mistake reflections and how often the recorde
 
 ### Getting this update
 
-Open or refresh the [live app](https://collingeorge.github.io/MCAT/) while online. The service worker fetches current files and keeps an offline copy; this release also changes the cache version so older cached assets are replaced. If an already-open tab still shows the previous flow, close and reopen it, or use **Ctrl+Shift+R** (Windows) / **Cmd+Shift+R** (Mac). Previously cached offline copies need an online visit to receive the update. Refreshing preserves browser progress. Clearing site data removes local copies; confirmed cloud progress can be restored by signing in.
+Open or refresh the [live app](https://mcat.collinbgeorge.com/) while online. The service worker fetches current files and keeps an offline copy; this release also changes the cache version so older cached assets are replaced. If an already-open tab still shows the previous flow, close and reopen it, or use **Ctrl+Shift+R** (Windows) / **Cmd+Shift+R** (Mac). Previously cached offline copies need an online visit to receive the update. Refreshing preserves browser progress. Clearing site data removes local copies; confirmed cloud progress can be restored by signing in.
 
 ---
 
@@ -190,6 +190,10 @@ A section estimate needs at least 15 answers in each eligible subject, with thos
 Percentile ranks are the [AAMC tables in effect May 1, 2026 – April 30, 2027](https://www.aamc.org/services/mcat-admissions-officers/resources/percentile-ranks). All scaled scores are **estimates**: the AAMC equates each test form separately, so use them to track progress, not to predict a test-day score.
 
 ---
+
+## Address
+
+The app is served from its own subdomain, **https://mcat.collinbgeorge.com/**. Old `collinbgeorge.com/study/mcat/…` and `collingeorge.github.io/MCAT/…` links redirect there. A separate origin keeps this app's study data and login session isolated from every other site on the same domain. Progress saved to your account restores when you sign in at the new address; guest progress saved only in a browser stays on the old address. See `deploy/README.md` for the cut-over steps.
 
 ## Security, reliability, and learning review
 
