@@ -39,10 +39,20 @@ async function main() {
   const {targetId}=await send('Target.createTarget',{url:'about:blank'});
   const {sessionId}=await send('Target.attachToTarget',{targetId,flatten:true});
   const command=(method,params)=>send(method,params,sessionId);
-  await command('Runtime.enable'); await command('Page.enable'); await command('Page.navigate',{url:origin});
+  await command('Runtime.enable'); await command('Page.enable');
+  // Record CSP violations and blocked UI actions from the first script onward.
+  await command('Page.addScriptToEvaluateOnNewDocument',{source:"window.__violations=[];document.addEventListener('securitypolicyviolation',e=>__violations.push(e.violatedDirective+' '+e.blockedURI));const ce=console.error;console.error=(...a)=>{if(/UI action/.test(String(a[0])))__violations.push(a.join(' '));ce.apply(console,a)}"});
+  await command('Page.navigate',{url:origin});
   const evaluate=async expression=>{const result=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(result.exceptionDetails)throw Error(JSON.stringify(result.exceptionDetails));return result.result.value};
   const until=async expression=>{for(let i=0;i<300;i++){if(await evaluate(expression))return;await sleep(100)}throw Error('Browser condition failed: '+expression)};
   await until('document.querySelector("#home-actions")?.textContent.includes("Smart Session")');
+  // Guests do not download the cloud SDK until they choose to sign in.
+  assert.equal(await evaluate('performance.getEntriesByType("resource").some(r=>r.name.includes("vendor/supabase"))'),false,'guest boot skips the SDK');
+  // The second click of a double-click/tap never answers the next question.
+  await evaluate('beginQuiz(QB.slice(0,3),"Double tap",{adaptive:false});document.querySelector("#cb-0").click()');
+  await evaluate('const b=document.querySelector("#next-btn");b.dispatchEvent(new MouseEvent("click",{bubbles:true,detail:1}));document.querySelector("#cb-1").dispatchEvent(new MouseEvent("click",{bubbles:true,detail:2}))');
+  assert.equal(await evaluate('quiz.idx'),1);assert.equal(await evaluate('quiz.results.length'),1,'double-tap did not answer question 2');
+  await evaluate('goHome()');
   assert(await evaluate('document.body.textContent.includes("Recall → passage → subject mini test")'));
   await evaluate('document.querySelector(".action-btn.smart").click()');
   await until('document.querySelector("#cb-0")!==null');
@@ -104,6 +114,27 @@ async function main() {
   assert(await evaluate('document.querySelector("#account-password").type==="password"'));
   await evaluate('document.querySelector("#account-email").value="invalid";McatAccount.action("login")');
   assert(await evaluate('document.querySelector("#account-status").textContent.length>0'));
+  await until('performance.getEntriesByType("resource").some(r=>r.name.includes("vendor/supabase"))&&typeof window.supabase?.createClient==="function"');
+  // Real clicks through delegated actions under script-src 'self' (no inline handlers).
+  await evaluate('goHome();document.querySelector("#btn-passage").click()');
+  assert.equal(await evaluate('prefs.mode'),'passage');
+  await evaluate('document.querySelector("#btn-recall").click()');
+  await evaluate('document.querySelector(".sg-subject-row").click()');
+  assert(await evaluate('document.querySelector(".sg-topics.open")!==null'),'row click opens the subject');
+  const before=await evaluate('selectedKeys.size');
+  await evaluate('document.querySelector(".sg-select-all").click()');
+  assert(await evaluate('selectedKeys.size')!==before,'All/None toggles keys');
+  assert(await evaluate('document.querySelector(".sg-topics.open")!==null'),'stopPropagation keeps the row open');
+  await evaluate('document.querySelector(".sg-subject-row").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}))');
+  assert(await evaluate('document.querySelector(".sg-topics.open")===null'),'Enter toggles the row');
+  await evaluate('document.querySelector("#recall-first-toggle").click()');
+  assert.equal(await evaluate('!!prefs.recallFirst'),true,'change action reads this.checked');
+  await evaluate('document.querySelector("#recall-first-toggle").click()');
+  await evaluate('document.querySelector("[data-click^=\\"showPlan\\"]")?.click()||showPlan()');
+  assert.equal(await evaluate('activeScreen'),'screen-results');
+  await evaluate('goHome()');
+  assert.deepEqual(await evaluate('window.__violations'),[],'no CSP violations or blocked actions');
+  assert.equal(await evaluate('[...document.querySelectorAll("*")].some(e=>[...e.attributes].some(a=>/^on/.test(a.name)))'),false,'no inline handler attributes in the DOM');
   assert.equal(errors.length,0,JSON.stringify(errors));
   console.log('Chrome smoke passed: actual script loading, CSP-compatible clicks, runner-up reflection, delayed mini feedback, timeout review, study calendar, HTML escaping, and no runtime exceptions.');
  } finally {

@@ -21,6 +21,8 @@ jobs:
           node-version: '22'
       - name: Final-two regression
         run: node tools/test-final-two.cjs
+      - name: Strict CSP and delegated UI actions
+        run: node tools/test-actions.cjs
       - name: Daily plan pacing (TODAY checklist)
         run: node tools/test-daily-plan.cjs
       - name: Subject progression regression

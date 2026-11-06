@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.supabase.co https://cdn.jsdelivr.net; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://vcinakjskwmehhoatpnr.supabase.co; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MCAT Study App</title>
@@ -16,13 +16,13 @@
 <a class="study-skip" href="#screen-home">Skip to study content</a>
 <div class="study-status">Independent study · Local or account-synced progress · Sources &amp; limitations documented</div>
 <header class="study-masthead"><div class="study-masthead-inner"><a class="study-brand" href="https://collinbgeorge.com/"><span class="study-brand-name">Collin B. George</span><span class="study-brand-sub">Clinical education &amp; research</span></a><nav aria-label="Portfolio navigation"><a href="https://collinbgeorge.com/">Portfolio home ↗</a><a href="https://collinbgeorge.com/projects/mcat-study/">Study guide &amp; sources ↗</a></nav></div></header>
-<nav class="study-pages" aria-label="MCAT pages"><div class="wrap"><a data-study-page="index" href="index.html">Overview</a><a data-study-page="recall" href="recall.html">Recall</a><a data-study-page="passages" href="passages.html">Passages</a><a data-study-page="exams" href="exams.html">Full-length exams</a><a data-study-page="score-report" href="score-report.html">Score report</a><a data-study-page="about" href="about.html">About & sources</a><button id="account-login-btn" type="button" onclick="McatAccount.open()">Sign in / Create account</button></div></nav>
+<nav class="study-pages" aria-label="MCAT pages"><div class="wrap"><a data-study-page="index" href="index.html">Overview</a><a data-study-page="recall" href="recall.html">Recall</a><a data-study-page="passages" href="passages.html">Passages</a><a data-study-page="exams" href="exams.html">Full-length exams</a><a data-study-page="score-report" href="score-report.html">Score report</a><a data-study-page="about" href="about.html">About & sources</a><button id="account-login-btn" type="button" data-click="McatAccount.open()">Sign in / Create account</button></div></nav>
 <div id="page-notice" class="wrap advice" role="status" hidden></div>
 <div class="study-timer-header">
 <section id="study-timer" class="study-timer" aria-label="Study time and break guidance"></section>
 <nav id="app-nav" class="app-nav" aria-label="Page navigation" hidden>
   <div class="wrap app-nav-inner">
-    <button type="button" id="home-back-btn" class="home-back-btn" onclick="goHome()" aria-label="Return to Home"><span aria-hidden="true">←</span> Home</button>
+    <button type="button" id="home-back-btn" class="home-back-btn" data-click="goHome()" aria-label="Return to Home"><span aria-hidden="true">←</span> Home</button>
   </div>
 </nav>
 </div>
@@ -44,9 +44,9 @@
     <div class="home-actions" id="home-actions"></div>
 
     <div class="mode-toggle" role="tablist" aria-label="Study mode">
-      <button class="mode-btn" id="btn-recall" role="tab" onclick="setMode('recall')">Recall<span class="mode-sub" id="mode-recall-sub"></span></button>
-      <button class="mode-btn" id="btn-passage" role="tab" onclick="setMode('passage')">Passages<span class="mode-sub" id="mode-passage-sub"></span></button>
-      <button class="mode-btn" id="btn-exam" role="tab" onclick="setMode('exam')">Full-length<span class="mode-sub" id="mode-exam-sub"></span></button>
+      <button class="mode-btn" id="btn-recall" role="tab" data-click="setMode('recall')">Recall<span class="mode-sub" id="mode-recall-sub"></span></button>
+      <button class="mode-btn" id="btn-passage" role="tab" data-click="setMode('passage')">Passages<span class="mode-sub" id="mode-passage-sub"></span></button>
+      <button class="mode-btn" id="btn-exam" role="tab" data-click="setMode('exam')">Full-length<span class="mode-sub" id="mode-exam-sub"></span></button>
     </div>
 
     <section id="recall-config">
@@ -56,15 +56,15 @@
         <div class="section-label" style="margin-top:16px">Practice mix</div>
         <div class="count-row" id="mix-row"></div>
         <p class="muted-note" id="mix-note" style="margin-top:10px"></p>
-        <label class="toggle"><input type="checkbox" id="recall-first-toggle" onchange="setRecallFirst(this.checked)">
+        <label class="toggle"><input type="checkbox" id="recall-first-toggle" data-change="setRecallFirst(this.checked)">
           <span><b>Recall first</b>: hide the answer choices until you've thought of the answer. Slower, but builds stronger memory than picking from a list.</span></label>
       </div>
       <div class="config-card" id="subject-card">
         <div class="config-header">
           <div class="section-label">Subjects</div>
           <div class="micro-row">
-            <button class="micro-btn" onclick="sgSelectAll()">All</button>
-            <button class="micro-btn" onclick="sgClearAll()">None</button>
+            <button class="micro-btn" data-click="sgSelectAll()">All</button>
+            <button class="micro-btn" data-click="sgClearAll()">None</button>
           </div>
         </div>
         <div id="subject-grid"></div>
@@ -80,7 +80,7 @@
       <div id="exam-list"></div>
     </section>
 
-    <button class="start-btn" id="start-btn" onclick="startSession()">Start →</button>
+    <button class="start-btn" id="start-btn" data-click="startSession()">Start →</button>
     <footer class="footer">
       <a href="about.html" data-study-page="about">About &amp; disclaimers</a> · <a href="https://github.com/collingeorge/MCAT" target="_blank" rel="noopener">GitHub</a> · <a href="https://github.com/collingeorge/MCAT/issues" target="_blank" rel="noopener">Report an issue</a> · <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>
       <div class="footer-legal">MCAT® is a registered trademark of the Association of American Medical Colleges (AAMC), which does not endorse this app. Not affiliated with the AAMC or MileDown. For study use only. Not medical advice; score estimates are not predictions.</div>
@@ -98,7 +98,7 @@
         <span class="qm-subject" id="qm-subject"></span>
         <span class="qm-timer" id="qm-timer">0:00</span>
         <span class="qm-score" id="qm-score"></span>
-        <button class="qm-end" onclick="endQuiz()">End</button>
+        <button class="qm-end" data-click="endQuiz()">End</button>
       </div>
     </div>
     <div class="quiz-body" id="quiz-body"></div>
@@ -120,7 +120,7 @@
         <span class="qm-subject" id="pp-subject"></span>
         <span class="qm-timer" id="pp-timer"></span>
         <span class="qm-score" id="pp-score"></span>
-        <button class="qm-end" onclick="goHome()">Exit</button>
+        <button class="qm-end" data-click="goHome()">Exit</button>
       </div>
     </div>
     <div class="passage-layout">
@@ -139,7 +139,7 @@
         <span class="qm-counter" id="ex-counter"></span>
         <span class="qm-subject" id="ex-section"></span>
         <span class="qm-timer" id="ex-timer"></span>
-        <button class="qm-end" onclick="goHome()" title="Progress is saved and the timer pauses">Save & exit</button>
+        <button class="qm-end" data-click="goHome()" title="Progress is saved and the timer pauses">Save & exit</button>
       </div>
     </div>
     <div id="exam-body"></div>
@@ -156,10 +156,11 @@
   <div class="wrap">
     <div id="exam-results-head"></div>
     <div id="exam-review"></div>
-    <div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div>
+    <div class="btn-row"><button class="new-quiz-btn secondary" data-click="goHome()">Home</button></div>
   </div>
 </main>
 
+<script src="js/actions.js"></script>
 <script src="data/qb-biochemistry.js"></script>
 <script src="data/qb-biology.js"></script>
 <script src="data/qb-chemistry.js"></script>

@@ -348,7 +348,7 @@ function markDailyStep(id) { const ds = dailyPlanStore(), today = localDay(); ds
 function startYesterdayMisses() {
   const p = currentDailyPlan();
   const order = Object.keys(DISCIPLINES);
-  const qs = p.recallPool.filter(m => m.answeredDay !== localDay()).sort((a, b) => order.indexOf(a.disc) - order.indexOf(b.disc)).map(m => QB_BY_ID.get(m.id)).filter(Boolean);
+  const qs = (p.recallPool || []).filter(m => m.answeredDay !== localDay()).sort((a, b) => order.indexOf(a.disc) - order.indexOf(b.disc)).map(m => QB_BY_ID.get(m.id)).filter(Boolean);
   if (qs.length) beginQuiz(qs, 'Yesterday’s missed recall');
 }
 function startDailyNewFacts() {
@@ -392,7 +392,7 @@ let passageReviewKeys = [];
 function startPassageMissReview() {
   const plan = currentDailyPlan();
   show('screen-results');
-  const items = plan.passagePool.map(m => ({ m, r: resolvePassageMiss(m) })).filter(x => x.r);
+  const items = (plan.passagePool || []).map(m => ({ m, r: resolvePassageMiss(m) })).filter(x => x.r);
   passageReviewKeys = items.map(x => x.m.key);
   const errors = store.get(KEYS.errors, []);
   $('results-body').innerHTML = '<div class="results-hero"><div class="r-label">Review missed passage questions</div></div><div class="results-card"><p>Reread the passage and explanation, then write one line on why the right answer is right. This review is not scored and does not count as a first exposure.</p></div>' +
@@ -402,8 +402,8 @@ function startPassageMissReview() {
       return '<div class="results-card"><details><summary>Passage: ' + esc(r.p.title) + '</summary>' + passageCard(r.p.topic || '', r.p.title, r.p.passage, r.p.figure) + '</details><div class="question-text">' + fmt(r.q.q) + '</div>' +
         '<p>Your answer: ' + fmt(e?.chosen ?? '—') + '<br><b>Correct: ' + fmt(ans) + '</b></p>' + paragraphs(r.q.exp) +
         '<label class="explain-it">Explain it: in one sentence, why is the right answer right?<textarea id="pm-note-' + i + '" rows="2" maxlength="300">' + esc(saved?.note || e?.note || '') + '</textarea></label>' +
-        '<button class="micro-btn" onclick="savePassageMissNote(' + i + ')">' + (m.reviewedDay === localDay() ? '✓ Saved · update' : 'Save note') + '</button> <span id="pm-msg-' + i + '" role="status"></span></div>';
-    }).join('') + '<div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Back to today’s plan</button></div>';
+        '<button class="micro-btn" data-click="savePassageMissNote(' + i + ')">' + (m.reviewedDay === localDay() ? '✓ Saved · update' : 'Save note') + '</button> <span id="pm-msg-' + i + '" role="status"></span></div>';
+    }).join('') + '<div class="btn-row"><button class="new-quiz-btn secondary" data-click="goHome()">Back to today’s plan</button></div>';
 }
 function savePassageMissNote(i) {
   const key = passageReviewKeys[i];
@@ -444,7 +444,7 @@ function dailyStepHtml(s, plan) {
   const groupText = s.groups && Object.keys(s.groups).length ? Object.entries(s.groups).map(([d, n]) => esc(DISCIPLINES[d] || d) + ' ' + n).join(' · ') : '';
   const count = s.count == null || (!s.count && (s.done || s.waiting)) ? '' : s.progress != null ? s.progress + ' / ' + s.count : String(s.count);
   let detail = '', button = '';
-  const btn = (label, fn, primary = true) => '<button class="' + (primary ? 'new-quiz-btn' : 'micro-btn') + ' today-start" onclick="' + fn + '">' + label + '</button>';
+  const btn = (label, fn, primary = true) => '<button class="' + (primary ? 'new-quiz-btn' : 'micro-btn') + ' today-start" data-click="' + fn + '">' + label + '</button>';
   switch (s.id) {
     case 'set-date': button = btn('Set test date', 'showPlan()'); break;
     case 'recall-misses': detail = s.count ? (groupText + (s.from ? ' · from ' + shortDay(s.from) : '')) : 'No recall misses from your last study day.'; if (!s.done) button = btn('Start', 'startYesterdayMisses()'); break;
@@ -459,8 +459,8 @@ function dailyStepHtml(s, plan) {
       break;
     }
     case 'closeout': detail = s.waiting ? 'Appears once you mark a miss as “Mixed it up” today.' : 'X vs. Y comparisons for today’s mix-ups.'; if (s.count && !s.done) button = btn('Compare', 'startDailyCloseout()'); break;
-    case 'full-length': detail = (s.overdue ? 'Rolled forward from a missed date. ' : '') + FL_MINUTES_NOTE + '. Take it timed, in one sitting.' + (isAamcLabel(s.label) ? ' Official AAMC practice is the closest match to the real exam: take it on aamc.org under standard timing, then record your section scores here.' : ''); if (!s.done) button = (isAamcLabel(s.label) ? '<a class="new-quiz-btn today-start" href="' + AAMC_URL + '" target="_blank" rel="noopener">Open AAMC practice ↗</a> <button class="micro-btn" onclick="showOfficialScores()">Record AAMC scores</button>' : btn('Start full-length', 'startPlannedFullLength()')) + ' <button class="micro-btn" onclick="logExternalFullLength()">I took it outside the app</button> <button class="text-btn" onclick="deferFullLength()">Not today</button>'; break;
-    case 'fl-review': detail = 'Go through every miss and guess, label why, then do due reviews only.'; if (!s.done) button = btn('Open review', 'startFullLengthReview()') + ' <button class="micro-btn" onclick="completeFullLengthReview()">Mark review complete</button>'; break;
+    case 'full-length': detail = (s.overdue ? 'Rolled forward from a missed date. ' : '') + FL_MINUTES_NOTE + '. Take it timed, in one sitting.' + (isAamcLabel(s.label) ? ' Official AAMC practice is the closest match to the real exam: take it on aamc.org under standard timing, then record your section scores here.' : ''); if (!s.done) button = (isAamcLabel(s.label) ? '<a class="new-quiz-btn today-start" href="' + AAMC_URL + '" target="_blank" rel="noopener">Open AAMC practice ↗</a> <button class="micro-btn" data-click="showOfficialScores()">Record AAMC scores</button>' : btn('Start full-length', 'startPlannedFullLength()')) + ' <button class="micro-btn" data-click="logExternalFullLength()">I took it outside the app</button> <button class="text-btn" data-click="deferFullLength()">Not today</button>'; break;
+    case 'fl-review': detail = 'Go through every miss and guess, label why, then do due reviews only.'; if (!s.done) button = btn('Open review', 'startFullLengthReview()') + ' <button class="micro-btn" data-click="completeFullLengthReview()">Mark review complete</button>'; break;
   }
   const mins = s.minutes && !s.done ? '<span class="today-min">~' + s.minutes + ' min</span>' : '';
   return '<li class="today-step' + (s.done ? ' done' : '') + '" data-step="' + s.id + '"><span class="today-num" aria-hidden="true">' + (s.done ? '✓' : s.n) + '</span><div class="today-body"><div class="today-title"><b>' + esc(s.title) + '</b>' + (count ? ' <span class="today-count">' + count + '</span>' : '') + mins + (s.done ? ' <span class="today-ok">✓ done</span>' : '') + '</div>' + (detail ? '<p class="muted-note">' + detail + '</p>' : '') + (button ? '<div class="btn-row">' + button + '</div>' : '') + '</div></li>';
@@ -470,11 +470,11 @@ function externalLoggerHtml() {
   return '<details class="today-ext"><summary>I did an external passage</summary><div class="today-ext-form"><label>Subject <select id="ext-subj">' + subjects.map(s => '<option value="' + s + '">' + esc(DISCIPLINES[s]) + '</option>').join('') + '</select></label>' +
     '<label>Source <select id="ext-source"><option value="aamc-sb">AAMC Section Bank</option><option value="aamc-qp">AAMC Question Pack</option><option value="uworld">UWorld</option><option value="other">Other</option></select></label>' +
     '<label># questions <input id="ext-n" type="number" min="1" max="15" value="6"></label><label># correct <input id="ext-correct" type="number" min="0" max="15" value="4"></label>' +
-    '<label class="today-check"><input id="ext-first" type="checkbox" checked> First time seeing this passage</label><button class="micro-btn" onclick="logExternalPassage()">Log passage</button><p id="ext-error" role="alert" class="muted-note"></p><p class="muted-note">Repeat passages are logged but do not count toward today’s target.</p></div></details>';
+    '<label class="today-check"><input id="ext-first" type="checkbox" checked> First time seeing this passage</label><button class="micro-btn" data-click="logExternalPassage()">Log passage</button><p id="ext-error" role="alert" class="muted-note"></p><p class="muted-note">Repeat passages are logged but do not count toward today’s target.</p></div></details>';
 }
 function dailyPlanCard() {
   const plan = currentDailyPlan();
-  const head = '<div class="today-head"><div><div class="section-label">TODAY › Start here</div><div class="today-date">' + shortDay(plan.today) + (plan.daysLeft != null && plan.daysLeft >= 0 ? ' · <b>' + plan.daysLeft + '</b> day' + (plan.daysLeft === 1 ? '' : 's') + ' to the MCAT' : '') + '</div></div>' + (plan.status !== 'no-plan' ? '<button class="text-btn" onclick="showPlan()">Edit calendar</button>' : '') + '</div>';
+  const head = '<div class="today-head"><div><div class="section-label">TODAY › Start here</div><div class="today-date">' + shortDay(plan.today) + (plan.daysLeft != null && plan.daysLeft >= 0 ? ' · <b>' + plan.daysLeft + '</b> day' + (plan.daysLeft === 1 ? '' : 's') + ' to the MCAT' : '') + '</div></div>' + (plan.status !== 'no-plan' ? '<button class="text-btn" data-click="showPlan()">Edit calendar</button>' : '') + '</div>';
   const kind = { study: '', final: 'Final ' + DAILY_RULES.finalWindow + ' days: review and timed practice', rest: 'Rest day', light: 'Day before the test', fl: 'Full-length day', 'fl-done': 'Full-length day', review: 'Full-length review day', 'test-day': 'Test day' }[plan.status] || '';
   const behind = plan.behindMinutes ? '<div class="advice today-behind" role="status"><b>Behind pace: +' + plan.behindMinutes + ' min/day needed</b> (today ≈ ' + plan.estimate + ' min vs. your ' + plan.pacing.budget + ' min), or move your test date. Steps 1–3 stay intact and the new-fact and passage quotas stay at the pace that finishes the bank on time.</div>' : '';
   const carry = plan.carry ? '<div class="today-carry">↻ <b>Carried over</b> from ' + shortDay(plan.carry.from) + ': ' + [plan.carry.newFacts ? plan.carry.newFacts + ' new facts' : '', plan.carry.passages ? plan.carry.passages + ' passage' + (plan.carry.passages === 1 ? '' : 's') : ''].filter(Boolean).join(' · ') + ' (added to steps below)</div>' : '';
@@ -495,8 +495,14 @@ function fullLengthCalendarHtml(plan) {
   const extras = plan.optionalFullLengths?.length ? '<p class="muted-note">Optional extra if you have time before the final month: ' + plan.optionalFullLengths.map(esc).join('; ') + '. AAMC exams take priority.</p>' : '';
   return '<div class="sw-head">Full-length calendar</div><ol class="today-fl-list">' + rows + '</ol>' + extras + '<p class="muted-note">AAMC exams are taken on aamc.org; record their section scores under Official results so the plan marks them done.</p>';
 }
+// A home page left open overnight shows the new day's plan when the tab is next viewed.
+let dailyPlanRenderedDay = null;
+if (typeof document !== 'undefined') document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && dailyPlanRenderedDay && dailyPlanRenderedDay !== localDay() && typeof activeScreen !== 'undefined' && activeScreen === 'screen-home') renderHome();
+});
 function renderDailyPlan() {
   const el = $('today-plan'); if (!el) return;
+  dailyPlanRenderedDay = localDay();
   // A bad synced record must never take down the rest of the home page.
   try { el.innerHTML = dailyPlanCard(); } catch (e) { el.innerHTML = '<div class="section-label">TODAY › Start here</div><p class="muted-note">Today\u2019s plan could not be built from the saved progress. Your other study tools below still work.</p>'; }
 }

@@ -8,7 +8,7 @@ const ctx=vm.createContext({console,Date,Math,Set,URL,clearTimeout(){},setTimeou
 const run=s=>vm.runInContext(s,ctx);
 ctx.URLSearchParams=URLSearchParams;
 run('location.search="?code=verification-test-code"');
-run(fs.readFileSync(root+'/js/account.js','utf8').replace('await import(SDK)','mockSdk'));
+run(fs.readFileSync(root+'/js/account.js','utf8').replace('await loadSdk()','mockSdk'));
 run('location.search=""'); // Simulate pages.js normalizing the URL before async initialization.
 const api=run('window.McatAccount');
 async function main(){
@@ -43,6 +43,17 @@ async function main(){
  data.delete('mcat_cloud_meta_'+A);data.delete('mcat_user_'+A+':mcat2_stats');
  el('account-email').value=loginUser.email;el('account-password').value='test-only-password';await api.action('login');
  assert.equal(JSON.parse(data.get(api.storageKey('mcat2_stats'))).biology.c,12,'A fresh device restores cloud work without a manual choice');
+
+ // Opt-in removal on shared computers: refused while unsynced, then deletes only this account's copy.
+ el('account-email').value=loginUser.email;el('account-password').value='test-only-password';await api.action('login');
+ const scoped=api.storageKey('mcat2_stats');assert(scoped.includes(A));
+ offline=true;data.set(scoped,JSON.stringify({biology:{c:13,t:15}}));api.changed();await api.logoutAndForget();
+ assert(data.has(scoped),'unsynced copy is never deleted');assert.match(el('account-status').textContent,/still pending/);
+ offline=false;await api.sync();await api.logoutAndForget();
+ assert(!data.has(scoped),'synced account copy removed');assert(!data.has('mcat_cloud_meta_'+A)&&!data.has('mcat_cloud_backup_'+A));
+ assert.equal(JSON.parse(data.get('mcat2_stats')).biology.c,4,'guest progress untouched');
+ el('account-email').value=loginUser.email;el('account-password').value='test-only-password';await api.action('login');
+ assert.equal(JSON.parse(data.get(api.storageKey('mcat2_stats'))).biology.c,13,'signing back in restores it from the cloud');
  await api.logout();
  loginUser={id:B,email:'second@example.test'};cloud=null;el('account-email').value=loginUser.email;el('account-password').value='another-test-password';await api.action('login');await api.choose('cloud');
  assert(api.storageKey('mcat2_stats').includes(B));assert.equal(data.get(api.storageKey('mcat2_stats')),undefined,'A second account does not inherit the first account cache');

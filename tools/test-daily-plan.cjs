@@ -254,6 +254,15 @@ for (const days of [22, 25, 27]) {
     assert.match(el('today-plan').innerHTML, /TODAY › Start here/);
   }
   assert.equal(run('Object.prototype.type'), undefined, 'no prototype pollution from synced keys');
+  // Malformed object maps from another device used to blank the app or freeze a question.
+  storage.set('mcat2_evidence', '{"biology":null,"physics":7}'); storage.set('mcat2_calibration', '{"biology":null}'); storage.set('mcat2_recall_days', JSON.stringify({ [run('localDay()')]: 5 }));
+  assert.doesNotThrow(() => run('dailyPlanMemo=null;renderHome();showProgress();goHome()'), 'malformed evidence/calibration maps');
+  assert.doesNotThrow(() => run('recordRecallToday(QB[0])')); assert.equal(run('recallToday().fresh + recallToday().reviews'), 1);
+  ['mcat2_evidence', 'mcat2_calibration', 'mcat2_recall_days'].forEach(k => storage.delete(k));
+  // The memory cache follows writes made by any path, including another tab.
+  run('loadMem()'); storage.set(run('KEYS.mem'), JSON.stringify({ [run('QB[0].id')]: { S: 1, D: 5, last: Date.now(), seen: 1, right: 1, lapses: 0 } }));
+  assert.equal(run('Object.keys(loadMem()).length'), 1, 'cache invalidated by a direct storage change');
+  storage.delete(run('KEYS.mem'));
   // Null or malformed records in any synced log must not break the home page.
   storage.set('mcat2_daily_plan', '{}');
   for (const k of ['mcat2_errors', 'mcat2_passage_evidence', 'mcat2_external_passages', 'mcat2_exam_history', 'mcat2_official']) storage.set(k, '[null, 7, [], {"t":"x","date":5,"total":"<b>","scores":["<img>"]}]');
@@ -281,6 +290,6 @@ for (const days of [22, 25, 27]) {
   // Passage-miss notes are saved by row index; no stored text is placed in inline handlers.
   run("const p=ALL_PASSAGES.find(p=>!EXAM_PASSAGE_IDS.has(p.id));store.set(KEYS.errors,[{t:Date.now()-2*DAY,id:p.id+'#0',src:'passage',type:'reasoning',chosen:'\"><img src=x onerror=alert(1)>',answer:'b'}]);store.set(KEYS.daily,{[localDay(new Date(Date.now()-2*DAY))]:3});startPassageMissReview()");
   assert.doesNotMatch(el('results-body').innerHTML, /<img src=x/, 'stored answers are escaped');
-  assert.match(el('results-body').innerHTML, /onclick="savePassageMissNote\(0\)"/);
+  assert.match(el('results-body').innerHTML, /data-click="savePassageMissNote\(0\)"/);
 }
 console.log('Daily plan pacing passed: 90/120-day calendars cover all 2,807 facts and 60 practice passages, 6-exam AAMC-first full-length line-up, full-length rule, missed days, carry-over, misses, behind-pace and edge cases, plus malformed synced data, escaping, tampered exam progress, short-plan/final caps, bounded carry-over and plan caching.');

@@ -2,7 +2,12 @@
 (() => {
   'use strict';
   const OWNER='mcat_cloud_owner', PREFIX='mcat_cloud_meta_', UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  const SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/+esm';
+  // Self-hosted SDK (vendor/README.md) so the CSP can stay script-src 'self'; SRI pins the exact file.
+  const SDK_SRC='vendor/supabase-js-2.118.0.umd.js', SDK_SRI='sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK';
+  function loadSdk(){
+    if(window.supabase?.createClient)return Promise.resolve(window.supabase);
+    return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=SDK_SRC;s.integrity=SDK_SRI;s.crossOrigin='anonymous';s.addEventListener('load',()=>window.supabase?.createClient?resolve(window.supabase):reject(Error('Cloud SDK unavailable')));s.addEventListener('error',()=>reject(Error('Cloud SDK failed to load')));document.head.appendChild(s);});
+  }
   // Capture synchronously: the static-page router normalizes the URL before SDK loading finishes.
   const callbackCode=new URLSearchParams(location.search||'').get('code');
   let client=null,user=null,timer=null,busy=false,choice=null,recovering=false,notice='Saved on this browser only',generation=0;
@@ -33,7 +38,8 @@
   function changed() {
     const id=owner();if(!id)return;
     try{const m=meta(id);m.dirty=true;m.change=(m.change||0)+1;write(PREFIX+id,m);status('Saved on this device · cloud sync pending');}catch{status('Local storage failed · progress is not safely saved');return;}
-    clearTimeout(timer);sync().catch(()=>{});
+    // One answer writes ~10 keys; batch them into one cloud save. Hidden pages flush immediately.
+    clearTimeout(timer);timer=setTimeout(()=>sync().catch(()=>{}),1500);
   }
   async function remote() {
     const {data,error}=await client.from('mcat_progress').select('revision,payload,updated_at').eq('user_id',user.id).maybeSingle();
@@ -110,6 +116,7 @@
   }
   async function action(mode) {
     const email=document.getElementById('account-email')?.value.trim(),field=document.getElementById(mode==='password'?'account-new-password':'account-password'),password=field?.value||'';
+    if(!client&&configured()&&!busy)await connect();
     if(!client){status('Cloud accounts are awaiting backend configuration. Device study still works.');return;}
     if(busy)return;busy=true;
     try {
@@ -138,24 +145,48 @@
     if(error){status('Sign-out failed. Please retry.');return;}
     generation++;user=null;choice=null;localStorage.removeItem(OWNER);location.reload();
   }
+  // Shared computers: sign out and delete this account's cached copy, only once the cloud has it all.
+  async function logoutAndForget() {
+    if(!user)return;
+    const id=user.id;await sync();
+    if(busy)return;
+    if(meta(id).dirty){status('Cloud saving is still pending. Sync before removing this device copy.');return;}
+    if(!confirm('Sign out and remove this account\u2019s study data from this browser? Your cloud copy is kept.'))return;
+    const {error}=await client.auth.signOut({scope:'local'});
+    if(error){status('Sign-out failed. Please retry.');return;}
+    keys().forEach(k=>localStorage.removeItem(scope(k,id)));
+    [PREFIX+id,'mcat_cloud_backup_'+id].forEach(k=>localStorage.removeItem(k));
+    // The guest-claim marker stays: guest progress was already copied into this account once.
+    generation++;user=null;choice=null;localStorage.removeItem(OWNER);location.reload();
+  }
   function render() {
     const panel=document.getElementById('account-panel');if(!panel)return;
     const description=user?'Signed in as '+user.email:'Optional account · guest study remains available';
     panel.innerHTML='<p id="account-status" role="status"></p><details id="account-details"><summary>Account & cloud progress</summary><p id="account-identity"></p>'+
-      (user?'<button class="micro-btn" onclick="McatAccount.sync()">Sync now</button> <button class="micro-btn" onclick="McatAccount.logout()">Sign out</button> <button class="micro-btn" onclick="showProgress()">My score report</button>':'<label>Email <input id="account-email" type="email" autocomplete="email"></label><label>Password <input id="account-password" type="password" autocomplete="current-password" minlength="12"></label><div class="btn-row"><button class="micro-btn" onclick="McatAccount.action(\'login\')">Sign in</button><button class="micro-btn" onclick="McatAccount.action(\'signup\')">Create account</button><button class="text-btn" onclick="McatAccount.action(\'reset\')">Forgot password?</button></div>')+
-      (recovering?'<label>New password <input id="account-new-password" type="password" autocomplete="new-password" minlength="12"></label><button class="micro-btn" onclick="McatAccount.action(\'password\')">Set new password</button>':'')+
-      (choice?'<p>Copies are not automatically combined: doing so could duplicate scores and study counts. Restore the cloud copy, keep this account’s device copy, or explicitly copy the guest work on this browser.</p><button class="micro-btn" onclick="McatAccount.choose(\'cloud\')">Restore cloud progress'+(choice.empty?' (empty account)':'')+'</button> <button class="micro-btn" onclick="McatAccount.choose(\'device\')">Keep account device copy</button> <button class="micro-btn" onclick="McatAccount.choose(\'guest\')">Copy guest progress into my account</button>':'')+
+      (user?'<button class="micro-btn" data-click="McatAccount.sync()">Sync now</button> <button class="micro-btn" data-click="McatAccount.logout()">Sign out</button> <button class="micro-btn" data-click="McatAccount.logoutAndForget()">Sign out and remove from this device</button> <button class="micro-btn" data-click="showProgress()">My score report</button>':'<label>Email <input id="account-email" type="email" autocomplete="email"></label><label>Password <input id="account-password" type="password" autocomplete="current-password" minlength="12"></label><div class="btn-row"><button class="micro-btn" data-click="McatAccount.action(\'login\')">Sign in</button><button class="micro-btn" data-click="McatAccount.action(\'signup\')">Create account</button><button class="text-btn" data-click="McatAccount.action(\'reset\')">Forgot password?</button></div>')+
+      (recovering?'<label>New password <input id="account-new-password" type="password" autocomplete="new-password" minlength="12"></label><button class="micro-btn" data-click="McatAccount.action(\'password\')">Set new password</button>':'')+
+      (choice?'<p>Copies are not automatically combined: doing so could duplicate scores and study counts. Restore the cloud copy, keep this account’s device copy, or explicitly copy the guest work on this browser.</p><button class="micro-btn" data-click="McatAccount.choose(\'cloud\')">Restore cloud progress'+(choice.empty?' (empty account)':'')+'</button> <button class="micro-btn" data-click="McatAccount.choose(\'device\')">Keep account device copy</button> <button class="micro-btn" data-click="McatAccount.choose(\'guest\')">Copy guest progress into my account</button>':'')+
       '<p class="muted-note">Signed-in progress is stored with Supabase. Passwords are handled by Supabase Auth. Cloud saves require a connection; check the save status before closing. Guest and account copies are separate.</p></details>';
     document.getElementById('account-identity').textContent=description;status(notice);
     document.getElementById('account-details').open=!user||!!choice||recovering;
     const loginButton=document.getElementById('account-login-btn');if(loginButton)loginButton.textContent=user?'My account':'Sign in / Create account';
   }
+  // Guests with no account on this browser never load the 218 KB SDK until they choose to sign in.
+  const sessionHint=()=>!!owner()||!!callbackCode||Object.keys(localStorage).some(k=>/^sb-.+-auth-token$/.test(k));
+  function configured(){const c=window.MCAT_CLOUD_CONFIG;return !!c?.url&&!!c?.publishableKey&&/^https:\/\/[a-z0-9]+\.supabase\.co$/.test(c.url)&&c.publishableKey.startsWith('sb_publishable_');}
   async function init() {
     render();const config=window.MCAT_CLOUD_CONFIG;
     if(!config?.url||!config?.publishableKey){status('Cloud setup pending · saved on this browser only');return;}
-    if(!/^https:\/\/[a-z0-9]+\.supabase\.co$/.test(config.url)||!config.publishableKey.startsWith('sb_publishable_')){status('Cloud configuration is invalid');return;}
+    if(!configured()){status('Cloud configuration is invalid');return;}
+    if(!client&&!sessionHint()){status('Signed out · guest progress stays on this browser');return;}
+    await connect();
+  }
+  let connecting=null;
+  function connect(){if(client)return Promise.resolve();return connecting||(connecting=openClient().finally(()=>{connecting=null;}));}
+  async function openClient() {
+    const config=window.MCAT_CLOUD_CONFIG;
     try {
-      const sdk=await import(SDK);
+      const sdk=await loadSdk();
       client=sdk.createClient(config.url,config.publishableKey,{auth:{flowType:'pkce',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
       client.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'){setTimeout(()=>recovery(),0);}else if(event==='SIGNED_OUT'){setTimeout(()=>prepareSession(session).catch(e=>status(e.message)),0);}});
       const {data,error}=callbackCode ? await client.auth.exchangeCodeForSession(callbackCode) : await client.auth.getSession();
@@ -167,9 +198,10 @@
     const reconnect=()=>{if(!client)init();else sync().catch(()=>status('Cloud unavailable · device progress retained'));};
     window.addEventListener('online',reconnect);
     window.addEventListener('focus',reconnect);
+    document.addEventListener?.('visibilitychange',()=>{if(document.visibilityState==='hidden'&&client){clearTimeout(timer);sync().catch(()=>{});}});
   }
   function recovery(){recovering=true;render();}
   function clearBackup(){const id=owner();if(id)localStorage.removeItem('mcat_cloud_backup_'+id);}
   function open(){if(!goHome())return;document.getElementById('account-details').open=true;document.getElementById('account-panel').scrollIntoView({block:'center',behavior:'smooth'});}
-  window.McatAccount={storageKey:scope,changed,init,action,sync,logout,choose,snapshot,validate,clearBackup,open};
+  window.McatAccount={storageKey:scope,changed,init,action,sync,logout,logoutAndForget,choose,snapshot,validate,clearBackup,open};
 })();
