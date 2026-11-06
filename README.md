@@ -1,5 +1,5 @@
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-![Version](https://img.shields.io/badge/Version-2.16-blue.svg)
+![Version](https://img.shields.io/badge/Version-2.17-blue.svg)
 ![Last Updated](https://img.shields.io/badge/Updated-Nov_2026-purple.svg)
 
 # MCAT Study App
@@ -251,6 +251,14 @@ tools/serve.ps1       Tiny local web server for development
 ### Testing study progression
 
 Run `node tools/test-study-path.cjs`, `node tools/test-final-two.cjs`, `node tools/test-audit.cjs`, `node tools/test-editorial.cjs`, `node tools/test-learning-guide.cjs`, and `node tools/check-content.cjs`. GitHub Actions runs these on Windows and Linux. A Linux Chrome smoke test (`node tools/test-browser.cjs`, Node 22+ and Chrome required) also checks actual page loading and interactions. The progression integration test loads the real question and passage data with a simulated DOM and checks readiness, subject matching, time budgets, deferred feedback, timeout scoring, persistence, and repeat-completion guards. It does not replace browser visual testing.
+
+Run every suite with `for f in tools/test-*.cjs tools/check-content.cjs; do node "$f" || break; done`. Beyond the feature tests:
+
+- **`test-fuzz.cjs`**: seeded fuzzing that writes malformed values (wrong types, nulls, markup, prototype keys) into every synced storage key and renders 16 screens per round. A failure prints the seed; reproduce it with `FUZZ_SEED=<n> node tools/test-fuzz.cjs`.
+- **`test-plan-properties.cjs`**: hundreds of random calendars and student behaviors (`PLAN_SEED`, `PLAN_CASES`) must keep the planner's rules: step order, integer counts, at most 6 well-spaced full-lengths ending 7 days out, passage targets and carry-over limits. Every calendar shape with a content phase finishes the bank before the final 21 days when followed exactly.
+- **`test-actions.cjs`**: strict CSP (no inline script or style), the action and style allowlists, SRI on the vendored SDK, and a repository secret scan.
+- **`test-browser.cjs`** (real Chrome): clicks under the strict CSP with zero policy violations, the double-tap guard, lazy SDK loading, and offline use after the service worker has cached the app.
+- **`test-daily-plan.cjs`**: also enforces an efficiency budget. One home render parses the large memory record at most once, and a repeat render not at all.
 
 ### Editing questions
 1. Edit the relevant file in `data/`. When revising an existing recall stem, retain its original text in `idStem` so saved memory, flags, and exact-stem variant links keep their identity; do not change an existing `idStem`. Keep the `s:` tag (it drives the topic selector). `ans` is the 0-based index of the correct choice; order doesn't matter, because choices are shuffled when shown.

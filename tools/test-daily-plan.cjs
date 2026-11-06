@@ -287,6 +287,16 @@ for (const days of [22, 25, 27]) {
   assert.equal(run('currentDailyPlan()'), run('currentDailyPlan()'), 'repeat calls reuse one computation');
   run("const m=loadMem();QB.slice(0,7).forEach(q=>m[q.id]={S:0.1,D:5,last:Date.now()-5*DAY,seen:1,right:0,lapses:1});store.set(KEYS.mem,m)");
   assert.equal(run("currentDailyPlan().steps.find(s=>s.id==='due').count"), before + 7, 'a storage write invalidates the cached plan');
+  // Efficiency budget (deterministic, not timing): with a full-size memory record, one home render
+  // parses it at most once, a repeat render not at all, and one recommendation reads retention once.
+  run("const big={};QB.forEach((q,i)=>big[q.id]={S:1+i%30,D:5,last:Date.now()-(i%20)*DAY,seen:1+i%4,right:1,lapses:0});store.set(KEYS.mem,big);store.set(KEYS.retention,QB.slice(0,1500).map((q,i)=>({t:Date.now()-i*60000,id:q.id,key:q.key,disc:disciplineOfRecall(q),right:i%3>0,gap:4*DAY})))");
+  run("globalThis.__parses={};const _p=JSON.parse;JSON.parse=function(t,...a){if(typeof t==='string'&&t.length>40000){const k=t.slice(0,12);__parses[k]=(__parses[k]||0)+1;}return _p.call(this,t,...a)};globalThis.__restoreParse=()=>{JSON.parse=_p}");
+  const memHead = run("localStorage.getItem(KEYS.mem).slice(0,12)"), retHead = run("localStorage.getItem(KEYS.retention).slice(0,12)");
+  run('dailyPlanMemo=null;memCache={raw:null,mem:null};__parses={};renderHome()');
+  assert(run(`__parses[${JSON.stringify(memHead)}]||0`) <= 1, 'memory record parsed at most once per render: ' + run('JSON.stringify(__parses)'));
+  run('__parses={};renderHome()'); assert.equal(run(`__parses[${JSON.stringify(memHead)}]||0`), 0, 'a repeat render reuses the parsed memory record');
+  run('__parses={};pathRecommendation()'); assert(run(`__parses[${JSON.stringify(retHead)}]||0`) <= 1, 'retention log read once per recommendation');
+  run('__restoreParse();store.del(KEYS.mem);store.del(KEYS.retention)');
   // Passage-miss notes are saved by row index; no stored text is placed in inline handlers.
   run("const p=ALL_PASSAGES.find(p=>!EXAM_PASSAGE_IDS.has(p.id));store.set(KEYS.errors,[{t:Date.now()-2*DAY,id:p.id+'#0',src:'passage',type:'reasoning',chosen:'\"><img src=x onerror=alert(1)>',answer:'b'}]);store.set(KEYS.daily,{[localDay(new Date(Date.now()-2*DAY))]:3});startPassageMissReview()");
   assert.doesNotMatch(el('results-body').innerHTML, /<img src=x/, 'stored answers are escaped');

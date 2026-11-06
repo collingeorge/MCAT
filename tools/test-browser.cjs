@@ -133,10 +133,25 @@ async function main() {
   await evaluate('document.querySelector("[data-click^=\\"showPlan\\"]")?.click()||showPlan()');
   assert.equal(await evaluate('activeScreen'),'screen-results');
   await evaluate('goHome()');
+  // Offline resilience: once the service worker has cached the app, a reload with no network still works.
+  // Local http skips registration by design (app.js); register as the deployed https site does.
+  await evaluate('navigator.serviceWorker.register("sw.js").then(()=>navigator.serviceWorker.ready).then(()=>true)');
+  await until('!!navigator.serviceWorker.controller');
+  await until('caches.keys().then(k=>Promise.all(k.map(n=>caches.open(n).then(c=>c.keys())))).then(l=>l.flat().length>=30)');
+  await command('Network.enable');
+  await command('Network.emulateNetworkConditions',{offline:true,latency:0,downloadThroughput:-1,uploadThroughput:-1});
+  await command('Page.reload',{ignoreCache:false});
+  await until('document.querySelector("#today-plan .today-head")!==null && typeof QB!=="undefined" && QB.length===2807');
+  assert.equal(await evaluate('ALL_PASSAGES.length'),78,'full bank available offline');
+  assert.equal(await evaluate('fetch("/not-cached-"+Date.now()).then(()=>false,()=>true)'),true,'the network really is offline');
+  await evaluate('beginQuiz(QB.slice(0,2),"Offline",{adaptive:false});document.querySelector("#cb-0").click()');
+  assert.equal(await evaluate('quiz.results.length'),1,'studying works offline');
+  await evaluate('goHome()');
+  await command('Network.emulateNetworkConditions',{offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1});
   assert.deepEqual(await evaluate('window.__violations'),[],'no CSP violations or blocked actions');
   assert.equal(await evaluate('[...document.querySelectorAll("*")].some(e=>[...e.attributes].some(a=>/^on/.test(a.name)))'),false,'no inline handler attributes in the DOM');
   assert.equal(errors.length,0,JSON.stringify(errors));
-  console.log('Chrome smoke passed: actual script loading, CSP-compatible clicks, runner-up reflection, delayed mini feedback, timeout review, study calendar, HTML escaping, and no runtime exceptions.');
+  console.log('Chrome smoke passed: actual script loading, strict-CSP clicks, offline reload, runner-up reflection, delayed mini feedback, timeout review, study calendar, HTML escaping, and no runtime exceptions.');
  } finally {
   if(socket)socket.close();
   chrome.kill();

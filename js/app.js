@@ -75,8 +75,15 @@ function storedShape(value, fallback) {
   if (fallback === null) return typeof value === 'object' && !Array.isArray(value);
   return typeof value === typeof fallback;
 }
-const OBJECT_MAPS = new Set(['mcat2_evidence', 'mcat2_calibration', 'mcat2_stats', 'mcat2_mastery', 'mcat2_passages', 'mcat2_exposures', 'mcat2_recall_days', 'mcat2_memory']);
-const RECORD_LOGS = new Set(['mcat2_errors', 'mcat2_passage_evidence', 'mcat2_external_passages', 'mcat2_exam_history', 'mcat2_official', 'mcat2_retention', 'mcat2_study_path', 'mcat2_score_history']);
+const OBJECT_MAPS = new Set(['mcat2_evidence', 'mcat2_srs', 'mcat2_planned_passages', 'mcat2_calibration', 'mcat2_stats', 'mcat2_mastery', 'mcat2_passages', 'mcat2_exposures', 'mcat2_recall_days', 'mcat2_memory']);
+// Keys holding numbers rather than records: keep only finite numbers.
+const finiteList = v => (Array.isArray(v) ? v.filter(Number.isFinite) : []);
+const NUMBER_SHAPES = {
+  mcat2_fluency: v => (isRecord(v) ? Object.fromEntries(Object.entries(v).filter(([, a]) => Array.isArray(a)).map(([d, a]) => [d, finiteList(a)])) : {}),
+  mcat2_daily: v => (isRecord(v) ? Object.fromEntries(Object.entries(v).filter(([, n]) => Number.isFinite(n))) : {}),
+  mcat2_recent: v => finiteList(v),
+};
+const RECORD_LOGS = new Set(['mcat2_errors', 'mcat2_final_two', 'mcat2_passage_evidence', 'mcat2_external_passages', 'mcat2_exam_history', 'mcat2_official', 'mcat2_retention', 'mcat2_study_path', 'mcat2_score_history']);
 // Score fields from synced logs are rendered as numbers; anything else becomes null.
 const finiteOrNull = v => (Number.isFinite(v) ? v : null);
 const isRecord = v => !!v && typeof v === 'object' && !Array.isArray(v);
@@ -101,6 +108,7 @@ const store = {
       if (!storedShape(value, fallback)) throw new Error('Unexpected saved-data format');
       // Record logs can arrive from another device; drop entries that are not objects.
       if (OBJECT_MAPS.has(key) && isRecord(value)) { for (const k in value) if (!isRecord(value[k])) delete value[k]; return value; }
+      if (NUMBER_SHAPES[key]) return NUMBER_SHAPES[key](value);
       if (!Array.isArray(value) || !RECORD_LOGS.has(key)) return value;
       const rows = value.filter(isRecord), shape = RECORD_FIELDS[key];
       return shape ? rows.map(shape).filter(Boolean) : rows;
@@ -312,9 +320,11 @@ const VARIANT_KIND = { application: 'apply the concept', prediction: 'predict th
 })();
 
 // Resolve taxonomy chips to keys that actually exist; unmapped tags go to an "Other" chip
-const KEY_COUNTS = {};
+// Lookup tables keyed by names that also appear in stored data are prototype-free, so a stored
+// key such as "constructor" or "__proto__" can never match an inherited property.
+const KEY_COUNTS = Object.create(null);
 QB.forEach(q => { KEY_COUNTS[q.key] = (KEY_COUNTS[q.key] || 0) + 1; });
-const KEY_LABEL = {};
+const KEY_LABEL = Object.create(null);
 SUBJECTS.forEach(subject => {
   const mapped = new Set();
   subject.groups.forEach(g => g.chips.forEach(chip => {
@@ -337,12 +347,12 @@ const countKeys = keys => keys.reduce((n, k) => n + (KEY_COUNTS[k] || 0), 0);
 // ════════════════════════════════════════════════════════════════
 const DATA_SETS = typeof DATA_PASSAGES === 'undefined' ? [] : DATA_PASSAGES;
 const ALL_PASSAGES = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES, ...OCHEM_PASSAGES, ...PHYSICS_PASSAGES, ...BEHAVIORAL_PASSAGES, ...DATA_SETS, ...CARS_PASSAGES, ...CARS_EXTRA, ...EXAM2_CARS_PASSAGES];
-const SKILL_LABEL = {
+const SKILL_LABEL = Object.assign(Object.create(null), {
   'SIRS 1': 'Skill 1: Knowledge of scientific concepts',
   'SIRS 2': 'Skill 2: Scientific reasoning & problem solving',
   'SIRS 3': 'Skill 3: Research design & execution',
   'SIRS 4': 'Skill 4: Data-based & statistical reasoning',
-};
+});
 const PASSAGE_BY_ID = new Map(ALL_PASSAGES.map(p => [p.id, p]));
 const EXAM_PASSAGE_IDS = new Set(FULL_EXAMS.flatMap(e => e.sections.flatMap(s => s.passageIds || [])));
 const PASSAGE_GROUPS = [
@@ -849,7 +859,7 @@ function relatedQuestion(q, excludeIds) {
 //  from the evidence available (full-length > passage > recall), and a
 //  section estimate is the discipline scores weighted by those shares.
 // ════════════════════════════════════════════════════════════════
-const DISCIPLINES = {
+const DISCIPLINES = Object.assign(Object.create(null), {
   biochemistry: 'Biochemistry',
   biology: 'Biology',
   gen_chem: 'General Chemistry',
@@ -858,7 +868,7 @@ const DISCIPLINES = {
   psych_soc: 'Psychology & Sociology',
   research: 'Research Methods & Statistics',
   cars: 'CARS (reading & reasoning)',
-};
+});
 const MCAT_SECTIONS = [
   { id: 'cp', abbrev: 'C/P', label: 'Chemical & Physical Foundations', weights: { gen_chem: 0.30, physics: 0.25, biochemistry: 0.25, organic_chem: 0.15, biology: 0.05 } },
   { id: 'cars', abbrev: 'CARS', label: 'Critical Analysis & Reasoning Skills', weights: { cars: 1 } },
@@ -921,17 +931,17 @@ function recordEvidence(source, disc, right) {
 }
 // Evidence per discipline: { recall:{c,t}, passage:{c,t}, exam:{c,t} }
 function disciplineEvidence() {
-  const out = {};
+  const out = Object.create(null);
   Object.keys(DISCIPLINES).forEach(d => { out[d] = { recall: { c: 0, t: 0 }, passage: { c: 0, t: 0 }, exam: { c: 0, t: 0 } }; });
   Object.entries(store.get(KEYS.stats, {})).forEach(([k, s]) => {
     const tag = k.slice(k.indexOf('|') + 1);
     const d = disciplineOfKey(k.split('|')[0], tag);
     if (!out[d] || !KEY_COUNTS[k]) return;
-    out[d].recall.c += s.c; out[d].recall.t += s.t;
+    if (Number.isFinite(s.c) && Number.isFinite(s.t)) { out[d].recall.c += s.c; out[d].recall.t += s.t; }
   });
   Object.entries(store.get(KEYS.evidence, {})).forEach(([d, src]) => {
     if (!out[d]) return;
-    ['passage', 'exam'].forEach(k => { if (src[k]) { out[d][k].c += src[k].c; out[d][k].t += src[k].t; } });
+    ['passage', 'exam'].forEach(k => { if (Number.isFinite(src[k]?.c) && Number.isFinite(src[k]?.t)) { out[d][k].c += src[k].c; out[d][k].t += src[k].t; } });
   });
   return out;
 }

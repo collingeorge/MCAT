@@ -21,6 +21,10 @@ jobs:
           node-version: '22'
       - name: Final-two regression
         run: node tools/test-final-two.cjs
+      - name: Resilience fuzzing of synced data
+        run: node tools/test-fuzz.cjs
+      - name: Planner property tests
+        run: node tools/test-plan-properties.cjs
       - name: Strict CSP and delegated UI actions
         run: node tools/test-actions.cjs
       - name: Daily plan pacing (TODAY checklist)

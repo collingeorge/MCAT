@@ -82,4 +82,14 @@ assert.match(el('results-body').innerHTML, /501/);
 run('renderExamList()'); assert.doesNotMatch(el('exam-list').innerHTML, /evil\.example/);
 assert.equal(run("validExamAttempt({ei:0,results:[{correct:1,total:2,pct:50,scaled:'<b>'}],answers:[],orders:[]})"), null);
 storage.delete('mcat2_exam_history'); storage.delete('mcat2_score_history');
+// Secret scan: no server-side keys, private keys or service tokens anywhere in the repository.
+{
+  const { execSync } = require('node:child_process');
+  const files = execSync('git ls-files', { cwd: root, encoding: 'utf8' }).split('\n').filter(f => f && !/\.(png|jpg|ico|webp)$/.test(f));
+  for (const f of files) {
+    const text = fs.readFileSync(root + '/' + f, 'utf8');
+    assert.doesNotMatch(text, /sb_secret_[A-Za-z0-9]|service_role["']?\s*[:=]\s*["']ey|-----BEGIN [A-Z ]*PRIVATE KEY-----|\bAKIA[0-9A-Z]{16}\b|\bghp_[A-Za-z0-9]{30,}|\bsk-[A-Za-z0-9]{32,}/, f + ' contains a secret');
+  }
+  assert.match(fs.readFileSync(root + '/js/cloud-config.js', 'utf8'), /publishableKey: 'sb_publishable_/, 'only the public publishable key is configured');
+}
 console.log('UI actions passed: strict CSP (script-src and style-src self), no inline handlers, literal-only parser, ' + ACTIONS.size + ' allowlisted functions defined, ' + seen.size + ' rendered actions verified.');

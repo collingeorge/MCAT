@@ -116,8 +116,11 @@ function computeDailyPlan(state, today) {
   const perWeek = Math.min(7, Math.max(1, plan.days || 6)), budget = plan.minutes || 120;
   const cal = buildCalendar(start, plan.date, perWeek), t = dpDiff(start, today);
   const windowStart = cal.D - DAILY_RULES.finalWindow;
-  // Under a week of content phase cannot absorb the bank; treat it like a test under 21 days away.
-  const shortPlan = windowStart < 7;
+  // Fewer than 7 study days before the final window cannot absorb the bank (it would ask for
+  // hundreds of new facts a day); treat it like a test under 21 days away.
+  let contentStudyDays = 0;
+  for (let o = 0; o < windowStart; o++) if (cal.types[o] === 'study') contentStudyDays++;
+  const shortPlan = contentStudyDays < 7;
   const fls = state.fullLengths || {};
   const completed = (fls.completed || []).filter(dpValidDay).sort();
   const lineup = fullLengthLabels(cal.fl.length, fls);
