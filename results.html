@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://vcinakjskwmehhoatpnr.supabase.co; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://vcinakjskwmehhoatpnr.supabase.co; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>results | MCAT Study App</title>
@@ -53,9 +53,9 @@
       <div class="config-card">
         <div class="section-label">Questions per session</div>
         <div class="count-row" id="count-row"></div>
-        <div class="section-label" style="margin-top:16px">Practice mix</div>
+        <div class="section-label mt-16">Practice mix</div>
         <div class="count-row" id="mix-row"></div>
-        <p class="muted-note" id="mix-note" style="margin-top:10px"></p>
+        <p class="muted-note mt-10" id="mix-note"></p>
         <label class="toggle"><input type="checkbox" id="recall-first-toggle" data-change="setRecallFirst(this.checked)">
           <span><b>Recall first</b>: hide the answer choices until you've thought of the answer. Slower, but builds stronger memory than picking from a list.</span></label>
       </div>
@@ -161,6 +161,7 @@
 </main>
 
 <script src="js/actions.js"></script>
+<script src="js/data-css.js"></script>
 <script src="data/qb-biochemistry.js"></script>
 <script src="data/qb-biology.js"></script>
 <script src="data/qb-chemistry.js"></script>
