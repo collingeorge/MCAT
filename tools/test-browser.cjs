@@ -168,6 +168,9 @@ async function main() {
     }
   }
   await command('Page.navigate',{url:origin});await until('typeof goHome==="function"');
+  // The CSP allows the breached-password range API (the request itself may fail offline in CI sandboxes).
+  await evaluate('fetch("https://api.pwnedpasswords.com/range/21BD1",{headers:{"Add-Padding":"true"},credentials:"omit"}).then(()=>true,()=>true)');
+  await sleep(300);
   assert.deepEqual(await evaluate('window.__violations'),[],'no CSP violations or blocked actions');
   assert.equal(await evaluate('[...document.querySelectorAll("*")].some(e=>[...e.attributes].some(a=>/^on/.test(a.name)))'),false,'no inline handler attributes in the DOM');
   assert.equal(errors.length,0,JSON.stringify(errors));

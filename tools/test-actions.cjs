@@ -29,7 +29,8 @@ assert.match(fs.readFileSync(root + '/sw.js', 'utf8'), new RegExp("'" + sdkFile.
 assert.match(fs.readFileSync(root + '/sw.js', 'utf8'), /'js\/actions\.js'/);
 // connect-src is pinned to this app's Supabase project, not every *.supabase.co project.
 const projectUrl = /url: '([^']+)'/.exec(fs.readFileSync(root + '/js/cloud-config.js', 'utf8'))[1];
-assert.match(csp, new RegExp("connect-src 'self' " + projectUrl.replace(/\./g, '\\.') + ';'));
+// Plus the breached-password range API (k-anonymity: only a 5-character hash prefix is sent).
+assert.match(csp, new RegExp("connect-src 'self' " + projectUrl.replace(/\./g, '\\.') + ' https://api\\.pwnedpasswords\\.com;'));
 assert.doesNotMatch(csp, /\*\.supabase/);
 // No inline styles either: style-src 'self', and computed styles go through the data-css allowlist.
 assert.match(csp, /style-src 'self';/); assert.doesNotMatch(csp, /style-src[^;]*unsafe/);
