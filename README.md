@@ -1,5 +1,5 @@
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-![Version](https://img.shields.io/badge/Version-2.14-blue.svg)
+![Version](https://img.shields.io/badge/Version-2.16-blue.svg)
 ![Last Updated](https://img.shields.io/badge/Updated-Nov_2026-purple.svg)
 
 # MCAT Study App
@@ -200,7 +200,7 @@ The October 28, 2026 review fixed HTML rendering, saved-data warnings, final-rev
   - The Supabase SDK is self-hosted in `vendor/`, pinned by an SRI hash and precached (see `vendor/README.md`); the app loads no script from a CDN.
   - `connect-src` is pinned to this app's Supabase project. The custom-domain proxy also sends `frame-ancestors 'none'`, `X-Frame-Options: DENY` and `nosniff`; a meta-tag CSP cannot block framing, and GitHub Pages cannot send these headers.
   - Score and exam records from synced data are type-checked when read, so planted markup renders as nothing.
-  - `style-src` still allows inline styles, which the app uses for progress bars and charts.
+  - Styles are `style-src 'self'` as well. Computed bar widths, score-marker positions and score colors use `data-css`, applied by `js/data-css.js` through the CSSOM. Only `width`/`left` percentages and `background`/`color` theme variables are accepted, so injected markup cannot cover or restyle the page.
 - Shared computers: **Sign out and remove from this device** deletes the account's cached copy, but only after everything has synced.
 - Speed: the parsed memory record and the daily plan are cached until storage changes, subject recommendations are scored once per subject, cloud saves are batched (and flushed when the tab is hidden), and guests do not download the Supabase SDK until they sign in.
 - Browser storage failures now produce a visible warning. Saved preferences are normalized, and invalid top-level saved-data shapes fall back safely. This is not exhaustive validation of every nested saved record.
@@ -235,6 +235,7 @@ js/app.js             Quiz, passages, exams, spaced repetition, stats and plan i
 js/study-path.js      Subject progression, passage scheduling and timed mini tests
 js/daily-plan.js      TODAY checklist: pure pacing (computeDailyPlan) and its card
 js/actions.js         Delegated, allowlisted UI actions (strict CSP: no inline handlers)
+js/data-css.js        Allowlisted computed styles (strict CSP: no inline styles)
 js/account.js         Optional Supabase account and cloud progress sync
 vendor/               Self-hosted, SRI-pinned third-party code (Supabase SDK)
 data/                 Question data, one file per subject or exam section

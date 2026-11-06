@@ -31,6 +31,17 @@ assert.match(fs.readFileSync(root + '/sw.js', 'utf8'), /'js\/actions\.js'/);
 const projectUrl = /url: '([^']+)'/.exec(fs.readFileSync(root + '/js/cloud-config.js', 'utf8'))[1];
 assert.match(csp, new RegExp("connect-src 'self' " + projectUrl.replace(/\./g, '\\.') + ';'));
 assert.doesNotMatch(csp, /\*\.supabase/);
+// No inline styles either: style-src 'self', and computed styles go through the data-css allowlist.
+assert.match(csp, /style-src 'self';/); assert.doesNotMatch(csp, /style-src[^;]*unsafe/);
+for (const [f, src] of sources) assert.doesNotMatch(src, /\sstyle=\\?["']|<style[\s>]/, f + ' has an inline style');
+{
+  const { apply } = run('McatDataCss');
+  const set = []; const fake = css => ({ getAttribute: () => css, style: { setProperty: (k, v) => set.push(k + ':' + v) } });
+  apply(fake('width:42.5%;background:var(--green);color:var(--slate);left:-3%'));
+  assert.deepEqual(set.splice(0), ['width:42.5%', 'background:var(--green)', 'color:var(--slate)', 'left:-3%']);
+  apply(fake('position:fixed;inset:0;width:100vw;background:url(https://evil.example/x);color:red;z-index:9;opacity:0;left:calc(1px)'));
+  assert.deepEqual(set, [], 'data-css rejects every property or value outside the allowlist');
+}
 // Parser accepts the forms the app uses and nothing else.
 assert.equal(parse("startSubjectWork('cars',\"passage\")")[0].args.map(a => a.value).join(), 'cars,passage');
 assert.equal(parse('event.stopPropagation();setSubjectKeys(2,false,1)').length, 2);
@@ -71,4 +82,4 @@ assert.match(el('results-body').innerHTML, /501/);
 run('renderExamList()'); assert.doesNotMatch(el('exam-list').innerHTML, /evil\.example/);
 assert.equal(run("validExamAttempt({ei:0,results:[{correct:1,total:2,pct:50,scaled:'<b>'}],answers:[],orders:[]})"), null);
 storage.delete('mcat2_exam_history'); storage.delete('mcat2_score_history');
-console.log('UI actions passed: strict CSP (script-src self), no inline handlers, literal-only parser, ' + ACTIONS.size + ' allowlisted functions defined, ' + seen.size + ' rendered actions verified.');
+console.log('UI actions passed: strict CSP (script-src and style-src self), no inline handlers, literal-only parser, ' + ACTIONS.size + ' allowlisted functions defined, ' + seen.size + ' rendered actions verified.');

@@ -1219,7 +1219,7 @@ function fluencyCard() {
     ${rows.map(r => {
       const col = r.med <= 12000 ? 'var(--green)' : r.med <= 20000 ? 'var(--amber)' : 'var(--red)';
       return `<div class="subject-row"><div class="sr-name">${esc(DISCIPLINES[r.d])}</div>
-        <div class="sr-bar-wrap"><div class="sr-bar-fill" style="width:${(r.med / max) * 100}%;background:${col}"></div></div>
+        <div class="sr-bar-wrap"><div class="sr-bar-fill" data-css="width:${(r.med / max) * 100}%;background:${col}"></div></div>
         <div class="sr-pct">${(r.med / 1000).toFixed(1)}s</div><div class="sr-n">${r.n}</div></div>`;
     }).join('')}
     <p class="muted-note">A fact you know well should come back in about 10 seconds. Slow-but-right subjects cost time on test day: use the ⚡ Speed drill to make them automatic.</p>
@@ -1564,8 +1564,8 @@ function showQuizResults() {
   $('results-body').innerHTML = `
     <div class="results-hero">
       <div class="r-label">${esc(quiz.label)} · session complete</div>
-      <div class="score-pct" style="color:${color}">${p}%</div>
-      <div class="score-grade" style="color:${color}">${grade}</div>
+      <div class="score-pct" data-css="color:${color}">${p}%</div>
+      <div class="score-grade" data-css="color:${color}">${grade}</div>
       <div class="score-sub">${cor} of ${tot} correct · ${fmtTime(sessionMs)} total · ${Math.round(avg / 1000)}s per question</div>
       ${quiz.speed ? `<div class="score-sub reinforce">⚡ Median ${(median(res.filter(r => r.right).map(r => r.ms)) / 1000).toFixed(1)}s on correct answers · ${res.filter(r => r.timedOut).length} timed out. Missed and timed-out facts are now due for review.</div>` : ''}
       ${quiz.cleared || quiz.loop.size ? `<div class="score-sub reinforce">Reinforced: <b>${quiz.cleared}</b> missed ${quiz.cleared === 1 ? 'fact' : 'facts'} drilled to ${LOOP_TARGET} correct in a row${quiz.loop.size ? ` · <b>${quiz.loop.size}</b> still shaky (they'll come back soon in review)` : ''}</div>` : ''}
@@ -1588,7 +1588,7 @@ function showQuizResults() {
         stem: r.view.q.q, choices: r.view.choices, ans: r.view.ans, chosen: r.chosen, other: r.other, exp: r.view.q.exp,
         tag: `${SUBJECT_LABEL[r.view.q.subj]} · ${KEY_LABEL[r.view.q.key] || r.view.q.s}`,
       })).join('') : '<div class="all-correct">✓ Perfect session — nothing missed.</div>'}
-      ${missed.length ? `<button class="micro-btn" style="margin-top:10px" data-click="exportMissed()">Download missed questions (.txt)</button>` : ''}
+      ${missed.length ? `<button class="micro-btn mt-10" data-click="exportMissed()">Download missed questions (.txt)</button>` : ''}
     </div>
     ${flaggedHere.length ? `<div class="results-card"><div class="section-label">Flagged this session (${flaggedHere.length})</div>
       <p class="muted-note">Flagged questions stay in your Flagged list on the home screen until you unflag them.</p></div>` : ''}
@@ -1599,7 +1599,7 @@ function barRow(label, c, t) {
   const col = p >= 80 ? 'var(--green)' : p >= 60 ? 'var(--amber)' : 'var(--red)';
   return `<div class="subject-row">
     <div class="sr-name" title="${esc(label)}">${esc(label)}</div>
-    <div class="sr-bar-wrap"><div class="sr-bar-fill" style="width:${p}%;background:${col}"></div></div>
+    <div class="sr-bar-wrap"><div class="sr-bar-fill" data-css="width:${p}%;background:${col}"></div></div>
     <div class="sr-pct">${p}%</div><div class="sr-n">${c}/${t}</div>
   </div>`;
 }
@@ -1667,9 +1667,9 @@ function scaleBar(scaled, band, color) {
   if (scaled == null) return '<div class="scale-bar empty"></div>';
   const x = v => ((Math.min(132, Math.max(118, v)) - 118) / 14) * 100;
   return `<div class="scale-bar" title="${Math.round(scaled)} on the 118–132 scale">
-    ${band ? `<div class="scale-band" style="left:${x(scaled - band)}%;width:${x(scaled + band) - x(scaled - band)}%"></div>` : ''}
+    ${band ? `<div class="scale-band" data-css="left:${x(scaled - band)}%;width:${x(scaled + band) - x(scaled - band)}%"></div>` : ''}
     <div class="scale-mid"></div>
-    <div class="scale-mark" style="left:${x(scaled)}%;background:${color || scoreColor(Math.round(scaled))}"></div>
+    <div class="scale-mark" data-css="left:${x(scaled)}%;background:${color || scoreColor(Math.round(scaled))}"></div>
   </div>`;
 }
 function evidenceText(ev) {
@@ -1684,7 +1684,7 @@ function disciplineRow(d, info, weight) {
   const enough = info.n >= MIN_ANSWERS;
   return `<div class="disc-row${enough ? '' : ' thin'}">
     <div class="disc-name">${esc(DISCIPLINES[d])}${weight != null ? `<span class="disc-weight">${Math.round(weight * 100)}% of section</span>` : ''}</div>
-    <div class="disc-score" style="color:${s ? scoreColor(s) : 'var(--slate)'}">${s ?? '—'}</div>
+    <div class="disc-score" data-css="color:${s ? scoreColor(s) : 'var(--slate)'}">${s ?? '—'}</div>
     <div class="disc-bar">${scaleBar(info.scaled, enough ? null : 3)}</div>
     <div class="disc-meta">${info.n ? `${Math.round(info.acc * 100)}% correct · ${evidenceText(info.ev)}` : 'No answers yet'}${info.n && !enough ? ` · <b>${MIN_ANSWERS - info.n} more to count</b>` : ''}</div>
   </div>`;
@@ -1717,7 +1717,7 @@ function scoreReportCards() {
     }
     return `<div class="section-tile">
       <b>${s.abbrev}</b>
-      <div class="tile-score" style="color:${scoreColor(s.scaled)}">${s.scaled}<small>±${s.band}</small></div>
+      <div class="tile-score" data-css="color:${scoreColor(s.scaled)}">${s.scaled}<small>±${s.band}</small></div>
       ${scaleBar(s.scaled, s.band)}
       <span>${ordinal(s.percentile)} percentile</span>
       <span>${s.n.toLocaleString()} answers${s.coverage < 0.999 ? ` · ${Math.round(s.coverage * 100)}% of section weighting represented` : ''}</span>
@@ -2089,7 +2089,7 @@ function showPlan() {
     </div>
     ${p && p.daysLeft >= 0 ? `<div class="results-card"><div class="section-label">Your plan</div>${planDetails(p)}</div>${studyPathCard()}` : ''}
     <div class="results-card"><div class="section-label">How the plan works</div>
-      <p class="muted-note" style="margin-top:0">Unseen questions are spread over your study days up to the final review phase (the last 2 weeks, or 1 week if the test is close). Each day's target is that new material plus everything due for review. Each study day also reserves time for one passage (or a ready subject mini test), including review; recall is capped at the remaining daily time (about ${SECONDS_PER_RECALL} seconds per question). The Smart Session sizes itself to what's left for today. Full-length exams are spaced so the last ones fall in the final month. AAMC's official practice exams are the closest match to the real test, so the plan saves them for last.</p>
+      <p class="muted-note mt-0">Unseen questions are spread over your study days up to the final review phase (the last 2 weeks, or 1 week if the test is close). Each day's target is that new material plus everything due for review. Each study day also reserves time for one passage (or a ready subject mini test), including review; recall is capped at the remaining daily time (about ${SECONDS_PER_RECALL} seconds per question). The Smart Session sizes itself to what's left for today. Full-length exams are spaced so the last ones fall in the final month. AAMC's official practice exams are the closest match to the real test, so the plan saves them for last.</p>
     </div>
     <div class="btn-row"><button class="new-quiz-btn secondary" data-click="goHome()">Home</button></div>`;
 }
@@ -2165,7 +2165,7 @@ function renderPassageSelector() {
   if (!selectedPassageId || !PASSAGE_BY_ID.has(selectedPassageId)) selectedPassageId = ALL_PASSAGES[0].id;
   $('passage-selector').innerHTML = `
     <div class="section-label">Choose a passage</div>
-    <p class="muted-note" style="margin:-4px 0 12px">Passages marked <span class="exam-dot">FL</span> appear in a full-length exam. Save them for exam day if you want a fresh practice test.</p>
+    <p class="muted-note lead-note">Passages marked <span class="exam-dot">FL</span> appear in a full-length exam. Save them for exam day if you want a fresh practice test.</p>
     ${grouped.filter(g => g.list.length).map(g => `
       <div class="pgroup"><div class="pgroup-label">${esc(g.label)}</div><div class="pgroup-list">
         ${g.list.map(p => {
@@ -2328,7 +2328,7 @@ function showPassageResults() {
   $('pp-question-box').innerHTML = `
     <div class="results-hero">
       <div class="r-label">Passage complete</div>
-      <div class="score-pct" style="color:${color}">${p}%</div>
+      <div class="score-pct" data-css="color:${color}">${p}%</div>
       <div class="score-sub">${cor} / ${tot} correct · ${esc(pq.p.title)}</div>
     </div>
     <div class="results-card"><div class="section-label">Pacing</div>
@@ -2662,7 +2662,7 @@ function showExamResults(attempt) {
       const pr = SECTION_PERCENTILE[s.id]?.[x.scaled];
       return `<div class="section-tile">
         <b>${s.abbrev}</b>
-        <div class="tile-score" style="color:${scoreColor(x.scaled)}">${x.scaled}</div>
+        <div class="tile-score" data-css="color:${scoreColor(x.scaled)}">${x.scaled}</div>
         <span>${x.correct}/${x.total} correct (${x.pct}%)</span>
         <span>${pr != null ? ordinal(pr) + ' percentile' : ''}</span>
         <span>Time used ${fmtTime(x.timeMs || 0)} of ${s.timeMin}:00</span>
@@ -2671,7 +2671,7 @@ function showExamResults(attempt) {
     <p class="muted-note">Scaled scores are estimates. The AAMC converts raw scores separately for each test form. Percentiles are the AAMC ranks in effect May 1, 2026 – April 30, 2027.</p>
     ${examMissSummary(attempt).total ? `<div class="results-card study-misses">
       <div class="section-label">Turn mistakes into points</div>
-      <p class="muted-note" style="margin-top:0">The exam itself doesn't adapt, just like the real MCAT. This session does: it targets the subjects you missed, weighted by how many you missed, with the same drill-until-it-sticks reinforcement.</p>
+      <p class="muted-note mt-0">The exam itself doesn't adapt, just like the real MCAT. This session does: it targets the subjects you missed, weighted by how many you missed, with the same drill-until-it-sticks reinforcement.</p>
       <button class="new-quiz-btn" data-click="studyExamMistakes()">Study my mistakes from this exam →</button>
       ${examMissSummary(attempt).cars ? `<p class="muted-note">CARS isn't fact recall, so for the ${examMissSummary(attempt).cars} CARS misses, use the CARS passages in Passage mode.</p>` : ''}
     </div>` : ''}
@@ -2734,7 +2734,7 @@ function examBreakdownCard(attempt) {
       const eq = Math.round(curveScore(RAW_TO_SCALED, (v.c / v.t) * 100));
       return `<div class="disc-row compact">
         <div class="disc-name">${esc(DISCIPLINES[d] || 'Other')}<span class="disc-weight">${v.t} question${v.t === 1 ? '' : 's'}</span></div>
-        <div class="disc-score" style="color:${scoreColor(eq)}">${eq}</div>
+        <div class="disc-score" data-css="color:${scoreColor(eq)}">${eq}</div>
         <div class="disc-bar">${scaleBar(eq)}</div>
         <div class="disc-meta">${v.c}/${v.t} correct (${pct(v.c, v.t)}%)${v.t < 8 ? ' · small sample' : ''}</div>
       </div>`;
