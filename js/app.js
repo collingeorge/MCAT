@@ -85,8 +85,8 @@ const store = {
       return value;
     } catch (e) { storageWarning('Some saved progress could not be read. You can keep studying, but check your browser storage settings.'); return fallback; }
   },
-  set(key, value) { try { const storageKey=window.McatAccount?.storageKey(key) || key, raw=JSON.stringify(value); if(localStorage.getItem(storageKey)!==raw){localStorage.setItem(storageKey,raw);window.McatAccount?.changed();} } catch (e) { storageWarning('Progress could not be saved. Keep this tab open and check browser storage before leaving.'); } },
-  del(key) { try { const storageKey=window.McatAccount?.storageKey(key) || key;if(localStorage.getItem(storageKey)!=null){localStorage.removeItem(storageKey);window.McatAccount?.changed();} } catch (e) { storageWarning('Saved data could not be removed. Check browser storage settings.'); } },
+  set(key, value) { try { const storageKey=window.McatAccount?.storageKey(key) || key, raw=JSON.stringify(value); if(localStorage.getItem(storageKey)!==raw){localStorage.setItem(storageKey,raw);store.rev=(store.rev||0)+1;window.McatAccount?.changed();} } catch (e) { storageWarning('Progress could not be saved. Keep this tab open and check browser storage before leaving.'); } },
+  del(key) { try { const storageKey=window.McatAccount?.storageKey(key) || key;if(localStorage.getItem(storageKey)!=null){localStorage.removeItem(storageKey);store.rev=(store.rev||0)+1;window.McatAccount?.changed();} } catch (e) { storageWarning('Saved data could not be removed. Check browser storage settings.'); } },
 };
 const KEYS = {
   retention:'mcat2_retention', exposures:'mcat2_exposures', passageEvidence:'mcat2_passage_evidence', official:'mcat2_official',

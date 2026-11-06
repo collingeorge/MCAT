@@ -216,4 +216,30 @@ same(computeDailyPlan(baseState(null, null, { plan: null }), '2026-11-06').steps
   const a = allocateByShare(45, { biology: 0.75, psych_soc: 0.95, physics: 0.25 }, { biology: 100, psych_soc: 3, physics: 100 });
   assert.equal(a.biology + a.psych_soc + a.physics, 45); assert.equal(a.psych_soc, 3); assert(a.biology > a.physics);
 }
-console.log('Daily plan pacing passed: 90/120-day calendars cover all 2,807 facts and 60 practice passages, 6-exam AAMC-first full-length line-up, full-length rule, missed days, carry-over, misses, behind-pace and edge cases.');
+// ── Browser wrapper against the real app scripts (no browser needed) ──
+{
+  const storage = new Map(), nodes = new Map();
+  const el = id => { if (!nodes.has(id)) nodes.set(id, { innerHTML: '', textContent: '', value: '', style: {}, dataset: {}, classList: { toggle() {}, add() {}, remove() {} }, setAttribute() {}, focus() {}, scrollIntoView() {}, remove() {}, querySelectorAll() { return []; } }); return nodes.get(id); };
+  const app = vm.createContext({ console, Date, Math, Map, Set, URLSearchParams, setInterval() { return 1; }, clearInterval() {}, setTimeout() {}, confirm() { return true; }, alert() {}, navigator: {}, location: { protocol: 'http:', search: '' }, window: { scrollTo() {} }, document: { getElementById: el, querySelectorAll() { return []; }, addEventListener() {} }, localStorage: { getItem: k => storage.get(k), setItem: (k, v) => storage.set(k, v), removeItem: k => storage.delete(k) } });
+  for (const [, file] of fs.readFileSync(__dirname + '/../index.html', 'utf8').matchAll(/<script src="([^"]+)"/g)) if (!/account|cloud-config|pages/.test(file)) vm.runInContext(fs.readFileSync(__dirname + '/../' + file, 'utf8'), app);
+  const run = code => vm.runInContext(code, app);
+  run("store.set(KEYS.plan,{date:localDay(new Date(Date.now()+90*DAY)),start:localDay(),days:6,minutes:120})");
+  // Tampered or malformed synced data must not break the home page.
+  for (const bad of ['"x"', '[]', '{"days":"oops","fullLengths":{"a":1},"passageReviews":[1],"deferred":null}', '{"days":{"__proto__":{"type":"study"},"not-a-day":{"newQuota":5},"2026-01-01":7}}']) {
+    storage.set('mcat2_daily_plan', bad);
+    assert.doesNotThrow(() => run('dailyPlanMemo=null;renderHome()'), 'malformed mcat2_daily_plan: ' + bad);
+    assert.match(el('today-plan').innerHTML, /TODAY › Start here/);
+  }
+  assert.equal(run('Object.prototype.type'), undefined, 'no prototype pollution from synced keys');
+  // The memoized plan refreshes after any storage write.
+  run('dailyPlanMemo=null');
+  const before = run("currentDailyPlan().steps.find(s=>s.id==='due').count");
+  assert.equal(run('currentDailyPlan()'), run('currentDailyPlan()'), 'repeat calls reuse one computation');
+  run("const m=loadMem();QB.slice(0,7).forEach(q=>m[q.id]={S:0.1,D:5,last:Date.now()-5*DAY,seen:1,right:0,lapses:1});store.set(KEYS.mem,m)");
+  assert.equal(run("currentDailyPlan().steps.find(s=>s.id==='due').count"), before + 7, 'a storage write invalidates the cached plan');
+  // Passage-miss notes are saved by row index; no stored text is placed in inline handlers.
+  run("const p=ALL_PASSAGES.find(p=>!EXAM_PASSAGE_IDS.has(p.id));store.set(KEYS.errors,[{t:Date.now()-2*DAY,id:p.id+'#0',src:'passage',type:'reasoning',chosen:'\"><img src=x onerror=alert(1)>',answer:'b'}]);store.set(KEYS.daily,{[localDay(new Date(Date.now()-2*DAY))]:3});startPassageMissReview()");
+  assert.doesNotMatch(el('results-body').innerHTML, /<img src=x/, 'stored answers are escaped');
+  assert.match(el('results-body').innerHTML, /onclick="savePassageMissNote\(0\)"/);
+}
+console.log('Daily plan pacing passed: 90/120-day calendars cover all 2,807 facts and 60 practice passages, 6-exam AAMC-first full-length line-up, full-length rule, missed days, carry-over, misses, behind-pace and edge cases, plus malformed synced data, plan caching and escaped passage-miss review.');

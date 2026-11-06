@@ -54,7 +54,6 @@ function buildCalendar(start, test, perWeek) {
   for (let o = 0; o < D - 1; o++) if (!types[o]) types[o] = o < D - DAILY_RULES.finalWindow ? 'study' : 'final';
   return { start, test, D, types, fl };
 }
-function calendarType(cal, day) { const o = dpDiff(cal.start, day); return o >= 0 && o < cal.types.length ? cal.types[o] : null; }
 // Each slot's window runs from shortly before its date until the next slot's window opens,
 // so one completion satisfies at most one slot and a missed slot hands off to the next.
 function fullLengthSlots(cal, completedDays, labels) {
@@ -123,7 +122,6 @@ function computeDailyPlan(state, today) {
   const lineup = fullLengthLabels(cal.fl.length, fls);
   const slots = fullLengthSlots(cal, completed, lineup.labels);
   out.fullLengths = slots; out.optionalFullLengths = lineup.extras;
-  out.calendar = cal;
   const hasHistory = (state.activeDays || []).some(d => d < today) || state.facts.unseen < state.facts.total;
   const scheduled = cal.types[t];
   // A slot is due from its date until its window closes; a missed full-length rolls forward.
@@ -150,7 +148,9 @@ function computeDailyPlan(state, today) {
   const studyAhead = (from, to) => { let n = 0; for (let o = from; o < to; o++) if (cal.types[o] === 'study') n++; return n; };
   const pacingToday = dayType === 'study' || dayType === 'final';
   const newDays = (dayType === 'study' ? 1 : 0) + studyAhead(t + 1, windowStart);
-  const finalDays = (() => { let n = 0; for (let o = Math.max(t, windowStart); o < cal.D - 1; o++) if (cal.types[o] === 'final' || (o === t && dayType === 'final')) n++; return Math.max(1, n); })();
+  let finalDays = 0;
+  for (let o = Math.max(t, windowStart); o < cal.D - 1; o++) if (cal.types[o] === 'final') finalDays++;
+  finalDays = Math.max(1, finalDays);
   const f = state.facts, p = state.passages;
   const unseenAtStart = Math.min(f.total, f.unseen + f.freshToday);
   const sciAtStart = p.appScienceUnseen + p.firstTodayScience, carsAtStart = p.appCarsUnseen + p.firstTodayCars;
@@ -247,7 +247,13 @@ const FL_MINUTES_NOTE = 'about 7.5 h with breaks';
 const AAMC_SAMPLE_LABEL = 'AAMC Sample Test: baseline diagnostic (aamc.org)';
 const AAMC_URL = 'https://students-residents.aamc.org/taking-mcat-exam/take-mcat-exam';
 const isAamcLabel = label => /aamc\.org/.test(label || '');
-function dailyPlanStore() { const s = store.get(KEYS.dailyPlan, {}); return { days: s.days || {}, passageReviews: s.passageReviews || {}, fullLengths: s.fullLengths || [], deferred: s.deferred || {}, reviewed: s.reviewed || {} }; }
+// Synced data may come from another device; accept only the expected shapes.
+const dpObject = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
+function dailyPlanStore() {
+  const s = store.get(KEYS.dailyPlan, {});
+  const days = Object.fromEntries(Object.entries(dpObject(s.days)).filter(([d, row]) => dpValidDay(d) && row && typeof row === 'object'));
+  return { days, passageReviews: dpObject(s.passageReviews), fullLengths: Array.isArray(s.fullLengths) ? s.fullLengths.filter(x => dpValidDay(x?.day)) : [], deferred: dpObject(s.deferred), reviewed: dpObject(s.reviewed) };
+}
 function saveDailyPlanStore(s) {
   const recent = obj => Object.fromEntries(Object.entries(obj).sort((a, b) => a[0].localeCompare(b[0])).slice(-90));
   store.set(KEYS.dailyPlan, { days: recent(s.days), passageReviews: Object.fromEntries(Object.entries(s.passageReviews).slice(-500)), fullLengths: s.fullLengths.slice(-50), deferred: recent(s.deferred), reviewed: recent(s.reviewed) });
@@ -316,14 +322,20 @@ function pastProgress(days, today) {
     return [day, { ...row, newDone: Math.max(row.newDone || 0, recallDays[day]?.newIds?.length || 0), passDone: Math.max(row.passDone || 0, passDone) }];
   }));
 }
+// One render calls this several times (home card, plan strip, Smart Session size); reuse the
+// result until storage changes, the day rolls over, or a second passes (other-tab edits).
+let dailyPlanMemo = null;
 function currentDailyPlan() {
-  const today = localDay(), state = dailyPlanState(today), plan = computeDailyPlan(state, today);
+  const today = localDay(), rev = store.rev || 0, now = Date.now();
+  if (dailyPlanMemo && dailyPlanMemo.today === today && dailyPlanMemo.rev === rev && now - dailyPlanMemo.at < 1000) return dailyPlanMemo.plan;
+  const state = dailyPlanState(today), plan = computeDailyPlan(state, today);
   if (plan.snapshot) {
     const ds = dailyPlanStore(), row = ds.days[today] || {};
     const next = { ...row, ...plan.snapshot };
     if (JSON.stringify(next) !== JSON.stringify(row)) { ds.days[today] = next; saveDailyPlanStore(ds); }
   }
   plan.state = state;
+  dailyPlanMemo = { today, rev: store.rev || 0, at: now, plan };
   return plan;
 }
 function markDailyStep(id) { const ds = dailyPlanStore(), today = localDay(); ds.days[today] = ds.days[today] || {}; ds.days[today].done = { ...(ds.days[today].done || {}), [id]: true }; saveDailyPlanStore(ds); }
@@ -356,8 +368,9 @@ function dailyPassageSubject(plan, cars) {
   if (cars) return fresh('cars') ? 'cars' : null;
   const pref = plan.state?.preferredSubject;
   if (pref && pref !== 'cars' && fresh(pref)) return pref;
-  const ranked = Object.keys(DISCIPLINES).filter(s => s !== 'cars' && subjectPassages(s).length && fresh(s)).map(s => ({ s, p: pathRecommendation(s) }));
-  return ranked[0]?.s || null;
+  const open = Object.keys(DISCIPLINES).filter(s => s !== 'cars' && fresh(s));
+  const rec = pathRecommendation()?.subj;
+  return open.includes(rec) ? rec : open[0] || null;
 }
 function startDailyPassage(cars) {
   const subj = dailyPassageSubject(currentDailyPlan(), cars);
@@ -371,10 +384,12 @@ function logExternalPassage() {
   store.set(KEYS.externalPassages, rows.slice(-1000));
   renderHome();
 }
+let passageReviewKeys = [];
 function startPassageMissReview() {
   const plan = currentDailyPlan();
   show('screen-results');
   const items = plan.passagePool.map(m => ({ m, r: resolvePassageMiss(m) })).filter(x => x.r);
+  passageReviewKeys = items.map(x => x.m.key);
   const errors = store.get(KEYS.errors, []);
   $('results-body').innerHTML = '<div class="results-hero"><div class="r-label">Review missed passage questions</div></div><div class="results-card"><p>Reread the passage and explanation, then write one line on why the right answer is right. This review is not scored and does not count as a first exposure.</p></div>' +
     items.map(({ m, r }, i) => {
@@ -383,10 +398,12 @@ function startPassageMissReview() {
       return '<div class="results-card"><details><summary>Passage: ' + esc(r.p.title) + '</summary>' + passageCard(r.p.topic || '', r.p.title, r.p.passage, r.p.figure) + '</details><div class="question-text">' + fmt(r.q.q) + '</div>' +
         '<p>Your answer: ' + fmt(e?.chosen ?? '—') + '<br><b>Correct: ' + fmt(ans) + '</b></p>' + paragraphs(r.q.exp) +
         '<label class="explain-it">Explain it: in one sentence, why is the right answer right?<textarea id="pm-note-' + i + '" rows="2" maxlength="300">' + esc(saved?.note || e?.note || '') + '</textarea></label>' +
-        '<button class="micro-btn" onclick="savePassageMissNote(' + i + ',&quot;' + esc(m.key) + '&quot;)">' + (m.reviewedDay === localDay() ? '✓ Saved · update' : 'Save note') + '</button> <span id="pm-msg-' + i + '" role="status"></span></div>';
+        '<button class="micro-btn" onclick="savePassageMissNote(' + i + ')">' + (m.reviewedDay === localDay() ? '✓ Saved · update' : 'Save note') + '</button> <span id="pm-msg-' + i + '" role="status"></span></div>';
     }).join('') + '<div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Back to today’s plan</button></div>';
 }
-function savePassageMissNote(i, key) {
+function savePassageMissNote(i) {
+  const key = passageReviewKeys[i];
+  if (!key) return;
   const note = ($('pm-note-' + i).value || '').trim().slice(0, 300);
   if (!note) { $('pm-msg-' + i).textContent = 'Write one line first.'; return; }
   const ds = dailyPlanStore(); ds.passageReviews[key] = { day: localDay(), note }; saveDailyPlanStore(ds);
