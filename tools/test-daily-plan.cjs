@@ -211,9 +211,76 @@ same(computeDailyPlan(baseState(null, null, { plan: null }), '2026-11-06').steps
   same(r.labels, [APP[0], APP[1], 'Third-party full-length (all AAMC exams already used)', AAMC[1], AAMC[2], AAMC[3]]);
   same(r.extras, []);
 }
+// A plan with under a week of content phase gets no new-fact pacing (no 2,807-facts-in-a-day quota).
+for (const days of [22, 25, 27]) {
+  const st = baseState('2026-11-06', dpAddDays('2026-11-06', days));
+  const p = computeDailyPlan(st, '2026-11-06');
+  assert.equal(p.steps.find(x => x.id === 'new-facts')?.count || 0, 0, days + ' days out');
+  assert(p.notes.some(n => /less than 21 days/.test(n)));
+}
+// Final-window passage target is capped at 4-5 even with many unseen app passages.
+{
+  const st = baseState('2026-11-06', dpAddDays('2026-11-06', 5)); st.activeDays = ['2026-11-05']; st.plan.minutes = 120;
+  const p = computeDailyPlan(st, '2026-11-06'), ps = p.steps.find(x => x.id === 'passages');
+  assert.equal(ps.count, 4); assert(ps.appScience + ps.appCars <= 4);
+}
+// Carry-over comes only from a study day in the last week, is bounded, and only lands on study days.
+{
+  const start = '2026-11-06', st = baseState(start, dpAddDays(start, 90)); st.activeDays = ['2026-11-01'];
+  st.snapshots = { '2026-10-01': { type: 'study', newQuota: 60, newDone: 0, passQuota: 40, passDone: 0 } };
+  assert.equal(computeDailyPlan(st, dpAddDays(start, 2)).carry, null, 'stale snapshot ignored');
+  const d = dpAddDays(start, 2); st.snapshots = { [dpAddDays(d, -1)]: { type: 'study', newQuota: 60, newDone: 0, passQuota: 40, passDone: 0 } };
+  assert.equal(computeDailyPlan(st, d).carry.passages, 3, 'passage carry capped');
+  const restDay = dpAddDays(start, 6); st.snapshots = { [dpAddDays(restDay, -1)]: { type: 'study', newQuota: 60, newDone: 0, passQuota: 3, passDone: 0 } };
+  assert.equal(computeDailyPlan(st, restDay).status, 'rest'); assert.equal(computeDailyPlan(st, restDay).carry, null, 'no carry banner on rest days');
+}
 // Content-share allocation respects availability and adds up exactly.
 {
   const a = allocateByShare(45, { biology: 0.75, psych_soc: 0.95, physics: 0.25 }, { biology: 100, psych_soc: 3, physics: 100 });
   assert.equal(a.biology + a.psych_soc + a.physics, 45); assert.equal(a.psych_soc, 3); assert(a.biology > a.physics);
 }
-console.log('Daily plan pacing passed: 90/120-day calendars cover all 2,807 facts and 60 practice passages, 6-exam AAMC-first full-length line-up, full-length rule, missed days, carry-over, misses, behind-pace and edge cases.');
+// ── Browser wrapper against the real app scripts (no browser needed) ──
+{
+  const storage = new Map(), nodes = new Map();
+  const el = id => { if (!nodes.has(id)) nodes.set(id, { innerHTML: '', textContent: '', value: '', style: {}, dataset: {}, classList: { toggle() {}, add() {}, remove() {} }, setAttribute() {}, focus() {}, scrollIntoView() {}, remove() {}, querySelectorAll() { return []; } }); return nodes.get(id); };
+  const app = vm.createContext({ console, Date, Math, Map, Set, URLSearchParams, setInterval() { return 1; }, clearInterval() {}, setTimeout() {}, confirm() { return true; }, alert() {}, navigator: {}, location: { protocol: 'http:', search: '' }, window: { scrollTo() {} }, document: { getElementById: el, querySelectorAll() { return []; }, addEventListener() {} }, localStorage: { getItem: k => storage.get(k), setItem: (k, v) => storage.set(k, v), removeItem: k => storage.delete(k) } });
+  for (const [, file] of fs.readFileSync(__dirname + '/../index.html', 'utf8').matchAll(/<script src="([^"]+)"/g)) if (!/account|cloud-config|pages/.test(file)) vm.runInContext(fs.readFileSync(__dirname + '/../' + file, 'utf8'), app);
+  const run = code => vm.runInContext(code, app);
+  run("store.set(KEYS.plan,{date:localDay(new Date(Date.now()+90*DAY)),start:localDay(),days:6,minutes:120})");
+  // Tampered or malformed synced data must not break the home page.
+  for (const bad of ['"x"', '[]', '{"days":"oops","fullLengths":{"a":1},"passageReviews":[1],"deferred":null}', '{"days":{"__proto__":{"type":"study"},"not-a-day":{"newQuota":5},"2026-01-01":7}}']) {
+    storage.set('mcat2_daily_plan', bad);
+    assert.doesNotThrow(() => run('dailyPlanMemo=null;renderHome()'), 'malformed mcat2_daily_plan: ' + bad);
+    assert.match(el('today-plan').innerHTML, /TODAY › Start here/);
+  }
+  assert.equal(run('Object.prototype.type'), undefined, 'no prototype pollution from synced keys');
+  // Null or malformed records in any synced log must not break the home page.
+  storage.set('mcat2_daily_plan', '{}');
+  for (const k of ['mcat2_errors', 'mcat2_passage_evidence', 'mcat2_external_passages', 'mcat2_exam_history', 'mcat2_official']) storage.set(k, '[null, 7, [], {"t":"x","date":5,"total":"<b>","scores":["<img>"]}]');
+  storage.set('mcat2_recall_days', JSON.stringify({ [run('localDay()')]: { reviews: 'x' } }));
+  assert.doesNotThrow(() => run('dailyPlanMemo=null;renderHome()'), 'null rows in synced logs');
+  assert.match(el('today-plan').innerHTML, /TODAY › Start here/);
+  // Unvalidated official scores and exam totals are never rendered as HTML.
+  storage.set('mcat2_official', JSON.stringify([{ t: 1, date: '2026-01-01', form: 'x', first: true, timed: true, scores: ['<img src=x onerror=alert(1)>', 1, 2, 3] }]));
+  assert.doesNotMatch(run('officialScoresCard()'), /<img/);
+  assert.equal(run('officialScores().length'), 0, 'non-integer section scores are rejected');
+  storage.set('mcat2_exam_history', JSON.stringify([{ examId: run('FULL_EXAMS[0].id'), total: '<img src=x onerror=alert(1)>', date: 1 }]));
+  run('renderExamList()'); assert.doesNotMatch(el('exam-list').innerHTML, /<img/);
+  // Tampered saved exam progress is discarded instead of reaching inline handlers.
+  storage.set(run("KEYS.examProgress(FULL_EXAMS[0].id)"), JSON.stringify({ ei: 0, si: 0, qi: '0);alert(1);(', phase: 'review', answers: [], marked: [], orders: [], elapsed: [], results: [] }));
+  assert.equal(run('validExamProgress(store.get(KEYS.examProgress(FULL_EXAMS[0].id),null),0)'), null);
+  run('startExam(0)'); assert.equal(run('exam.qi'), 0); assert.equal(run('exam.phase'), 'intro');
+  run('goHome()');
+  ['mcat2_errors', 'mcat2_passage_evidence', 'mcat2_external_passages', 'mcat2_exam_history', 'mcat2_official', 'mcat2_recall_days', run("KEYS.examProgress(FULL_EXAMS[0].id)")].forEach(k => storage.delete(k));
+  // The memoized plan refreshes after any storage write.
+  run('dailyPlanMemo=null');
+  const before = run("currentDailyPlan().steps.find(s=>s.id==='due').count");
+  assert.equal(run('currentDailyPlan()'), run('currentDailyPlan()'), 'repeat calls reuse one computation');
+  run("const m=loadMem();QB.slice(0,7).forEach(q=>m[q.id]={S:0.1,D:5,last:Date.now()-5*DAY,seen:1,right:0,lapses:1});store.set(KEYS.mem,m)");
+  assert.equal(run("currentDailyPlan().steps.find(s=>s.id==='due').count"), before + 7, 'a storage write invalidates the cached plan');
+  // Passage-miss notes are saved by row index; no stored text is placed in inline handlers.
+  run("const p=ALL_PASSAGES.find(p=>!EXAM_PASSAGE_IDS.has(p.id));store.set(KEYS.errors,[{t:Date.now()-2*DAY,id:p.id+'#0',src:'passage',type:'reasoning',chosen:'\"><img src=x onerror=alert(1)>',answer:'b'}]);store.set(KEYS.daily,{[localDay(new Date(Date.now()-2*DAY))]:3});startPassageMissReview()");
+  assert.doesNotMatch(el('results-body').innerHTML, /<img src=x/, 'stored answers are escaped');
+  assert.match(el('results-body').innerHTML, /onclick="savePassageMissNote\(0\)"/);
+}
+console.log('Daily plan pacing passed: 90/120-day calendars cover all 2,807 facts and 60 practice passages, 6-exam AAMC-first full-length line-up, full-length rule, missed days, carry-over, misses, behind-pace and edge cases, plus malformed synced data, escaping, tampered exam progress, short-plan/final caps, bounded carry-over and plan caching.');

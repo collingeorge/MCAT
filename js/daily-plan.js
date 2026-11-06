@@ -54,7 +54,6 @@ function buildCalendar(start, test, perWeek) {
   for (let o = 0; o < D - 1; o++) if (!types[o]) types[o] = o < D - DAILY_RULES.finalWindow ? 'study' : 'final';
   return { start, test, D, types, fl };
 }
-function calendarType(cal, day) { const o = dpDiff(cal.start, day); return o >= 0 && o < cal.types.length ? cal.types[o] : null; }
 // Each slot's window runs from shortly before its date until the next slot's window opens,
 // so one completion satisfies at most one slot and a missed slot hands off to the next.
 function fullLengthSlots(cal, completedDays, labels) {
@@ -117,13 +116,13 @@ function computeDailyPlan(state, today) {
   const perWeek = Math.min(7, Math.max(1, plan.days || 6)), budget = plan.minutes || 120;
   const cal = buildCalendar(start, plan.date, perWeek), t = dpDiff(start, today);
   const windowStart = cal.D - DAILY_RULES.finalWindow;
-  const shortPlan = windowStart <= 0;
+  // Under a week of content phase cannot absorb the bank; treat it like a test under 21 days away.
+  const shortPlan = windowStart < 7;
   const fls = state.fullLengths || {};
   const completed = (fls.completed || []).filter(dpValidDay).sort();
   const lineup = fullLengthLabels(cal.fl.length, fls);
   const slots = fullLengthSlots(cal, completed, lineup.labels);
   out.fullLengths = slots; out.optionalFullLengths = lineup.extras;
-  out.calendar = cal;
   const hasHistory = (state.activeDays || []).some(d => d < today) || state.facts.unseen < state.facts.total;
   const scheduled = cal.types[t];
   // A slot is due from its date until its window closes; a missed full-length rolls forward.
@@ -150,20 +149,24 @@ function computeDailyPlan(state, today) {
   const studyAhead = (from, to) => { let n = 0; for (let o = from; o < to; o++) if (cal.types[o] === 'study') n++; return n; };
   const pacingToday = dayType === 'study' || dayType === 'final';
   const newDays = (dayType === 'study' ? 1 : 0) + studyAhead(t + 1, windowStart);
-  const finalDays = (() => { let n = 0; for (let o = Math.max(t, windowStart); o < cal.D - 1; o++) if (cal.types[o] === 'final' || (o === t && dayType === 'final')) n++; return Math.max(1, n); })();
+  let finalDays = 0;
+  for (let o = Math.max(t, windowStart); o < cal.D - 1; o++) if (cal.types[o] === 'final') finalDays++;
+  finalDays = Math.max(1, finalDays);
   const f = state.facts, p = state.passages;
   const unseenAtStart = Math.min(f.total, f.unseen + f.freshToday);
   const sciAtStart = p.appScienceUnseen + p.firstTodayScience, carsAtStart = p.appCarsUnseen + p.firstTodayCars;
   // Carry-over: an unfinished quota from the last planned study day is added to today, not dropped.
   const snaps = state.snapshots || {};
-  const prevSnapDay = Object.keys(snaps).filter(d => d < today && ['study', 'final'].includes(snaps[d].type)).sort().at(-1);
+  const prevSnapDay = Object.keys(snaps).filter(d => d < today && d >= dpAddDays(today, -7) && ['study', 'final'].includes(snaps[d]?.type)).sort().at(-1);
   const prev = prevSnapDay ? snaps[prevSnapDay] : null;
-  const carryNew = prev ? Math.min(unseenAtStart, Math.max(0, (prev.newQuota || 0) - (prev.newDone || 0))) : 0;
-  const carryPass = prev ? Math.max(0, (prev.passQuota || 0) - (prev.passDone || 0)) : 0;
+  const carries = prev && dayType === 'study' && !shortPlan;
+  const num = v => (Number.isFinite(v) ? v : 0);
+  const carryNew = carries ? Math.min(unseenAtStart, Math.max(0, num(prev.newQuota) - num(prev.newDone))) : 0;
+  const carryPass = carries ? Math.min(DAILY_RULES.normalPassages, Math.max(0, num(prev.passQuota) - num(prev.passDone))) : 0;
   let newQuota = 0, appScience = 0, appCars = 0, passageTarget = 0;
   if (pacingToday) {
     if (dayType === 'study') {
-      newQuota = Math.min(unseenAtStart, carryNew + ceilDiv(unseenAtStart - carryNew, newDays));
+      newQuota = shortPlan ? 0 : Math.min(unseenAtStart, carryNew + ceilDiv(unseenAtStart - carryNew, newDays));
       appScience = ceilDiv(sciAtStart, newDays);
       // Spread the few app CARS passages: one every floor(days / unseen) study days.
       const interval = carsAtStart ? Math.max(1, Math.floor(newDays / carsAtStart)) : Infinity;
@@ -174,8 +177,9 @@ function computeDailyPlan(state, today) {
     } else {
       // Final window: no new-fact pacing unless coverage is incomplete (and the plan had a content phase).
       newQuota = shortPlan ? 0 : ceilDiv(unseenAtStart, finalDays);
-      appScience = ceilDiv(sciAtStart, finalDays); appCars = ceilDiv(carsAtStart, finalDays) ? 1 : 0;
-      passageTarget = Math.max(budget >= 180 ? 5 : DAILY_RULES.finalPassages, appScience + appCars);
+      passageTarget = budget >= 180 ? 5 : DAILY_RULES.finalPassages;
+      appCars = carsAtStart ? 1 : 0;
+      appScience = Math.min(passageTarget - appCars, ceilDiv(sciAtStart, finalDays));
     }
   }
   if (shortPlan && f.unseen > 0) out.notes.push('Your test is less than ' + DAILY_RULES.finalWindow + ' days away, so there is no new-fact pacing: focus on reviews, timed passages and full-lengths.');
@@ -247,7 +251,13 @@ const FL_MINUTES_NOTE = 'about 7.5 h with breaks';
 const AAMC_SAMPLE_LABEL = 'AAMC Sample Test: baseline diagnostic (aamc.org)';
 const AAMC_URL = 'https://students-residents.aamc.org/taking-mcat-exam/take-mcat-exam';
 const isAamcLabel = label => /aamc\.org/.test(label || '');
-function dailyPlanStore() { const s = store.get(KEYS.dailyPlan, {}); return { days: s.days || {}, passageReviews: s.passageReviews || {}, fullLengths: s.fullLengths || [], deferred: s.deferred || {}, reviewed: s.reviewed || {} }; }
+// Synced data may come from another device; accept only the expected shapes.
+const dpObject = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
+function dailyPlanStore() {
+  const s = store.get(KEYS.dailyPlan, {});
+  const days = Object.fromEntries(Object.entries(dpObject(s.days)).filter(([d, row]) => dpValidDay(d) && row && typeof row === 'object'));
+  return { days, passageReviews: dpObject(s.passageReviews), fullLengths: Array.isArray(s.fullLengths) ? s.fullLengths.filter(x => dpValidDay(x?.day)) : [], deferred: dpObject(s.deferred), reviewed: dpObject(s.reviewed) };
+}
 function saveDailyPlanStore(s) {
   const recent = obj => Object.fromEntries(Object.entries(obj).sort((a, b) => a[0].localeCompare(b[0])).slice(-90));
   store.set(KEYS.dailyPlan, { days: recent(s.days), passageReviews: Object.fromEntries(Object.entries(s.passageReviews).slice(-500)), fullLengths: s.fullLengths.slice(-50), deferred: recent(s.deferred), reviewed: recent(s.reviewed) });
@@ -261,7 +271,7 @@ function resolvePassageMiss(e) {
 }
 function fullLengthCompletions(start) {
   const days = [];
-  store.get(KEYS.examHistory, []).forEach(x => { if (x.total != null && Number.isFinite(x.date)) days.push(localDay(new Date(x.date))); });
+  store.get(KEYS.examHistory, []).forEach(x => { if (Number.isFinite(x.total) && Number.isFinite(x.date)) days.push(localDay(new Date(x.date))); });
   officialScores().forEach(x => days.push(x.date));
   const diag = store.get(KEYS.diagnostic, null); if (diag?.date) days.push(diag.date);
   dailyPlanStore().fullLengths.forEach(x => days.push(x.day));
@@ -275,11 +285,11 @@ function dailyPlanState(today = localDay()) {
   const practice = appPracticePassages();
   const isCars = p => disciplineOfPassage(p) === 'cars';
   const unseenPractice = practice.filter(p => !passageSeen(p, exposures, legacy));
-  const firstToday = store.get(KEYS.passageEvidence, []).filter(r => r.first && localDay(new Date(r.t)) === today);
+  const firstToday = store.get(KEYS.passageEvidence, []).filter(r => r.first && Number.isFinite(r.t) && localDay(new Date(r.t)) === today);
   const practiceIds = new Set(practice.map(p => p.id));
   const carsFirst = practice.filter(isCars).map(p => exposures[p.id]?.firstAt).filter(Number.isFinite).sort((a, b) => a - b).at(-1);
-  const external = store.get(KEYS.externalPassages, []).filter(x => x.day === today && x.first);
-  const errors = store.get(KEYS.errors, []);
+  const external = store.get(KEYS.externalPassages, []).filter(x => x.day === today && x.first === true);
+  const errors = store.get(KEYS.errors, []).filter(e => Number.isFinite(e.t));
   const latest = new Map();
   errors.forEach(e => { if ((e.src === 'recall' || (e.src === 'mini' && e.key)) && QB_BY_ID.has(e.id)) latest.set(e.id, e); });
   const recallMisses = [...latest.values()].map(e => ({ id: e.id, disc: disciplineOfRecall(QB_BY_ID.get(e.id)), day: localDay(new Date(e.t)), answeredDay: mem[e.id]?.last ? localDay(new Date(mem[e.id].last)) : null, t: e.t }));
@@ -288,10 +298,10 @@ function dailyPlanState(today = localDay()) {
     return { key, id: e.id, disc: e.disc || disciplineOfPassage(resolvePassageMiss(e).p), day: localDay(new Date(e.t)), reviewedDay: r?.day || null, t: e.t };
   });
   const todayPairs = new Set(errors.filter(e => e.type === 'confused' && localDay(new Date(e.t)) === today && typeof e.chosen === 'string' && typeof e.answer === 'string').map(e => [e.chosen, e.answer].map(normTerm).sort().join('|')));
-  const activeDays = Object.entries(store.get(KEYS.daily, {})).filter(([, n]) => n > 0).map(([d]) => d);
+  const activeDays = Object.entries(store.get(KEYS.daily, {})).filter(([d, n]) => dpValidDay(d) && n > 0).map(([d]) => d);
   errors.forEach(e => activeDays.push(localDay(new Date(e.t))));
-  const start = plan && dpValidDay(plan.start) ? plan.start : today;
-  const appDone = new Set(store.get(KEYS.examHistory, []).filter(x => x.total != null && localDay(new Date(x.date)) < start).map(x => x.examId));
+  const start = plan && dpValidDay(plan.start) && plan.start <= today ? plan.start : today;
+  const appDone = new Set(store.get(KEYS.examHistory, []).filter(x => Number.isFinite(x.total) && Number.isFinite(x.date) && localDay(new Date(x.date)) < start).map(x => x.examId));
   const officialBefore = officialScores().filter(x => x.date < start && !/sample/i.test(x.form)).length;
   const weak = learningNeeds().weak.find(w => w.subj !== 'research' && subjectPassages(w.subj).some(p => !passageSeen(p, exposures, legacy)));
   return {
@@ -312,18 +322,24 @@ function pastProgress(days, today) {
   const recallDays = store.get(KEYS.recallDays, {}), evidence = store.get(KEYS.passageEvidence, []), external = store.get(KEYS.externalPassages, []);
   return Object.fromEntries(Object.entries(days).map(([day, row]) => {
     if (day >= today) return [day, row];
-    const passDone = evidence.filter(r => r.first && localDay(new Date(r.t)) === day).length + external.filter(x => x.first && x.day === day).length;
+    const passDone = evidence.filter(r => r.first && Number.isFinite(r.t) && localDay(new Date(r.t)) === day).length + external.filter(x => x.first && x.day === day).length;
     return [day, { ...row, newDone: Math.max(row.newDone || 0, recallDays[day]?.newIds?.length || 0), passDone: Math.max(row.passDone || 0, passDone) }];
   }));
 }
+// One render calls this several times (home card, plan strip, Smart Session size); reuse the
+// result until storage changes, the day rolls over, or a second passes (other-tab edits).
+let dailyPlanMemo = null;
 function currentDailyPlan() {
-  const today = localDay(), state = dailyPlanState(today), plan = computeDailyPlan(state, today);
+  const today = localDay(), rev = store.rev || 0, now = Date.now();
+  if (dailyPlanMemo && dailyPlanMemo.today === today && dailyPlanMemo.rev === rev && now - dailyPlanMemo.at < 1000) return dailyPlanMemo.plan;
+  const state = dailyPlanState(today), plan = computeDailyPlan(state, today);
   if (plan.snapshot) {
     const ds = dailyPlanStore(), row = ds.days[today] || {};
     const next = { ...row, ...plan.snapshot };
     if (JSON.stringify(next) !== JSON.stringify(row)) { ds.days[today] = next; saveDailyPlanStore(ds); }
   }
   plan.state = state;
+  dailyPlanMemo = { today, rev: store.rev || 0, at: now, plan };
   return plan;
 }
 function markDailyStep(id) { const ds = dailyPlanStore(), today = localDay(); ds.days[today] = ds.days[today] || {}; ds.days[today].done = { ...(ds.days[today].done || {}), [id]: true }; saveDailyPlanStore(ds); }
@@ -356,8 +372,9 @@ function dailyPassageSubject(plan, cars) {
   if (cars) return fresh('cars') ? 'cars' : null;
   const pref = plan.state?.preferredSubject;
   if (pref && pref !== 'cars' && fresh(pref)) return pref;
-  const ranked = Object.keys(DISCIPLINES).filter(s => s !== 'cars' && subjectPassages(s).length && fresh(s)).map(s => ({ s, p: pathRecommendation(s) }));
-  return ranked[0]?.s || null;
+  const open = Object.keys(DISCIPLINES).filter(s => s !== 'cars' && fresh(s));
+  const rec = pathRecommendation()?.subj;
+  return open.includes(rec) ? rec : open[0] || null;
 }
 function startDailyPassage(cars) {
   const subj = dailyPassageSubject(currentDailyPlan(), cars);
@@ -371,10 +388,12 @@ function logExternalPassage() {
   store.set(KEYS.externalPassages, rows.slice(-1000));
   renderHome();
 }
+let passageReviewKeys = [];
 function startPassageMissReview() {
   const plan = currentDailyPlan();
   show('screen-results');
   const items = plan.passagePool.map(m => ({ m, r: resolvePassageMiss(m) })).filter(x => x.r);
+  passageReviewKeys = items.map(x => x.m.key);
   const errors = store.get(KEYS.errors, []);
   $('results-body').innerHTML = '<div class="results-hero"><div class="r-label">Review missed passage questions</div></div><div class="results-card"><p>Reread the passage and explanation, then write one line on why the right answer is right. This review is not scored and does not count as a first exposure.</p></div>' +
     items.map(({ m, r }, i) => {
@@ -383,10 +402,12 @@ function startPassageMissReview() {
       return '<div class="results-card"><details><summary>Passage: ' + esc(r.p.title) + '</summary>' + passageCard(r.p.topic || '', r.p.title, r.p.passage, r.p.figure) + '</details><div class="question-text">' + fmt(r.q.q) + '</div>' +
         '<p>Your answer: ' + fmt(e?.chosen ?? '—') + '<br><b>Correct: ' + fmt(ans) + '</b></p>' + paragraphs(r.q.exp) +
         '<label class="explain-it">Explain it: in one sentence, why is the right answer right?<textarea id="pm-note-' + i + '" rows="2" maxlength="300">' + esc(saved?.note || e?.note || '') + '</textarea></label>' +
-        '<button class="micro-btn" onclick="savePassageMissNote(' + i + ',&quot;' + esc(m.key) + '&quot;)">' + (m.reviewedDay === localDay() ? '✓ Saved · update' : 'Save note') + '</button> <span id="pm-msg-' + i + '" role="status"></span></div>';
+        '<button class="micro-btn" onclick="savePassageMissNote(' + i + ')">' + (m.reviewedDay === localDay() ? '✓ Saved · update' : 'Save note') + '</button> <span id="pm-msg-' + i + '" role="status"></span></div>';
     }).join('') + '<div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Back to today’s plan</button></div>';
 }
-function savePassageMissNote(i, key) {
+function savePassageMissNote(i) {
+  const key = passageReviewKeys[i];
+  if (!key) return;
   const note = ($('pm-note-' + i).value || '').trim().slice(0, 300);
   if (!note) { $('pm-msg-' + i).textContent = 'Write one line first.'; return; }
   const ds = dailyPlanStore(); ds.passageReviews[key] = { day: localDay(), note }; saveDailyPlanStore(ds);
@@ -474,4 +495,8 @@ function fullLengthCalendarHtml(plan) {
   const extras = plan.optionalFullLengths?.length ? '<p class="muted-note">Optional extra if you have time before the final month: ' + plan.optionalFullLengths.map(esc).join('; ') + '. AAMC exams take priority.</p>' : '';
   return '<div class="sw-head">Full-length calendar</div><ol class="today-fl-list">' + rows + '</ol>' + extras + '<p class="muted-note">AAMC exams are taken on aamc.org; record their section scores under Official results so the plan marks them done.</p>';
 }
-function renderDailyPlan() { const el = $('today-plan'); if (el) el.innerHTML = dailyPlanCard(); }
+function renderDailyPlan() {
+  const el = $('today-plan'); if (!el) return;
+  // A bad synced record must never take down the rest of the home page.
+  try { el.innerHTML = dailyPlanCard(); } catch (e) { el.innerHTML = '<div class="section-label">TODAY › Start here</div><p class="muted-note">Today\u2019s plan could not be built from the saved progress. Your other study tools below still work.</p>'; }
+}

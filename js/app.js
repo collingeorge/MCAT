@@ -75,6 +75,7 @@ function storedShape(value, fallback) {
   if (fallback === null) return typeof value === 'object' && !Array.isArray(value);
   return typeof value === typeof fallback;
 }
+const RECORD_LOGS = new Set(['mcat2_errors', 'mcat2_passage_evidence', 'mcat2_external_passages', 'mcat2_exam_history', 'mcat2_official', 'mcat2_retention', 'mcat2_study_path', 'mcat2_score_history']);
 const store = {
   get(key, fallback) {
     try {
@@ -82,11 +83,12 @@ const store = {
       if (!raw) return fallback;
       const value = JSON.parse(raw);
       if (!storedShape(value, fallback)) throw new Error('Unexpected saved-data format');
-      return value;
+      // Record logs can arrive from another device; drop entries that are not objects.
+      return Array.isArray(value) && RECORD_LOGS.has(key) ? value.filter(r => r && typeof r === 'object' && !Array.isArray(r)) : value;
     } catch (e) { storageWarning('Some saved progress could not be read. You can keep studying, but check your browser storage settings.'); return fallback; }
   },
-  set(key, value) { try { const storageKey=window.McatAccount?.storageKey(key) || key, raw=JSON.stringify(value); if(localStorage.getItem(storageKey)!==raw){localStorage.setItem(storageKey,raw);window.McatAccount?.changed();} } catch (e) { storageWarning('Progress could not be saved. Keep this tab open and check browser storage before leaving.'); } },
-  del(key) { try { const storageKey=window.McatAccount?.storageKey(key) || key;if(localStorage.getItem(storageKey)!=null){localStorage.removeItem(storageKey);window.McatAccount?.changed();} } catch (e) { storageWarning('Saved data could not be removed. Check browser storage settings.'); } },
+  set(key, value) { try { const storageKey=window.McatAccount?.storageKey(key) || key, raw=JSON.stringify(value); if(localStorage.getItem(storageKey)!==raw){localStorage.setItem(storageKey,raw);store.rev=(store.rev||0)+1;window.McatAccount?.changed();} } catch (e) { storageWarning('Progress could not be saved. Keep this tab open and check browser storage before leaving.'); } },
+  del(key) { try { const storageKey=window.McatAccount?.storageKey(key) || key;if(localStorage.getItem(storageKey)!=null){localStorage.removeItem(storageKey);store.rev=(store.rev||0)+1;window.McatAccount?.changed();} } catch (e) { storageWarning('Saved data could not be removed. Check browser storage settings.'); } },
 };
 const KEYS = {
   retention:'mcat2_retention', exposures:'mcat2_exposures', passageEvidence:'mcat2_passage_evidence', official:'mcat2_official',
@@ -1953,7 +1955,8 @@ function computePlan() {
   let reviewGoal=Math.min(due,capacity-newGoal);
   const recall=recallToday();
   // The TODAY checklist owns daily pacing; use its uncapped quota so the bank finishes on time.
-  const daily = typeof currentDailyPlan === 'function' ? currentDailyPlan() : null;
+  let daily = null;
+  try { daily = typeof currentDailyPlan === 'function' ? currentDailyPlan() : null; } catch (e) { daily = null; }
   if (daily && ['study', 'final', 'review', 'rest', 'light', 'fl', 'fl-done'].includes(daily.status)) {
     const step = daily.steps.find(s => s.id === 'new-facts');
     newGoal = step ? step.count : 0; reviewGoal = due;
@@ -2353,7 +2356,7 @@ function renderExamList() {
           <div class="exam-title">${esc(e.title)}${saved ? ' <span class="pill">In progress</span>' : ''}</div>
           <div class="exam-meta">${counts.reduce((a, b) => a + b, 0)} questions · ${e.sections.reduce((a, s) => a + s.timeMin, 0)} min testing time + breaks</div>
           <div class="exam-sections">${e.sections.map((s, si) => `<span class="exam-sec"><b>${s.abbrev}</b> ${counts[si]}Q · ${s.timeMin}m</span>`).join('')}</div>
-          ${last ? `<div class="exam-meta">Last score: <b>${last.total ?? '—'}</b> (${new Date(last.date).toLocaleDateString()})</div>` : ''}
+          ${last ? `<div class="exam-meta">Last score: <b>${Number.isFinite(last.total) ? last.total : '—'}</b> (${new Date(last.date).toLocaleDateString()})</div>` : ''}
         </div>
         <div class="exam-actions">
           <button class="new-quiz-btn" onclick="startExam(${i})">${saved ? 'Resume' : 'Start exam'}</button>
@@ -2368,8 +2371,19 @@ function abandonExam(i) {
   store.del(KEYS.examProgress(FULL_EXAMS[i].id));
   renderHome();
 }
+function validExamProgress(x, ei) {
+  if (!x || typeof x !== 'object') return null;
+  const n = FULL_EXAMS[ei].sections.length, lens = FULL_EXAMS[ei].sections.map((_, si) => sectionQuestions(ei, si).length);
+  const rows = k => Array.isArray(x[k]) && x[k].length === n && x[k].every((r, si) => Array.isArray(r) && r.length === lens[si]);
+  const ok = Number.isInteger(x.si) && x.si >= 0 && x.si < n && Number.isInteger(x.qi) && x.qi >= 0 && x.qi < lens[x.si]
+    && ['intro', 'question', 'review', 'break', 'complete'].includes(x.phase) && rows('answers') && rows('marked')
+    && x.answers.every(r => r.every(a => a === null || Number.isInteger(a))) && Array.isArray(x.orders) && x.orders.length === n
+    && Array.isArray(x.elapsed) && x.elapsed.length === n && x.elapsed.every(Number.isFinite) && Array.isArray(x.results);
+  return ok ? x : null;
+}
 function startExam(ei) {
-  const saved = store.get(KEYS.examProgress(FULL_EXAMS[ei].id), null);
+  // Saved progress can arrive from another device: discard it unless its shape is sound.
+  const saved = validExamProgress(store.get(KEYS.examProgress(FULL_EXAMS[ei].id), null), ei);
   exam = saved || {
     ei, si: 0, qi: 0, phase: 'intro',
     answers: FULL_EXAMS[ei].sections.map((_, si) => new Array(sectionQuestions(ei, si).length).fill(null)),
