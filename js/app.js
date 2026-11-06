@@ -666,8 +666,9 @@ function reverseVariant(q) {
   if (pool.length < 3) return null;
   const sameArea = pool.filter(o => o.q.key === base.q.key || reverseIndex.groupOf[o.q.key] === reverseIndex.groupOf[base.q.key]);
   if (sameArea.length >= 3) pool = sameArea;
-  const distractors = pool.slice().sort((a, b) => Math.abs(a.desc.length - base.desc.length) - Math.abs(b.desc.length - base.desc.length))
-    .slice(0, 8).sort(() => Math.random() - 0.5).slice(0, 3).map(o => o.desc);
+  // Fisher-Yates (shuffled) over the 8 closest lengths; sort(() => random - 0.5) is not a uniform shuffle.
+  const distractors = shuffled(pool.slice().sort((a, b) => Math.abs(a.desc.length - base.desc.length) - Math.abs(b.desc.length - base.desc.length))
+    .slice(0, 8)).slice(0, 3).map(o => o.desc);
   return {
     ...base.q, id: base.q.id + '~r', baseId: base.q.id, variant: 'reverse',
     q: `Which description fits **${base.term}**?`,
@@ -842,13 +843,22 @@ function interleave(items) {
   }
   return out;
 }
+// Next wording of a fact: never the one just shown and, when possible, not the one before it.
+// The index is drawn over the filtered list itself (drawing over forms.length - 1 could run past it
+// and fall back to forms[0], repeating a wording).
+function pickNextForm(forms, currentId, lastId) {
+  const fresh = forms.filter(x => x.id !== lastId && x.id !== currentId);
+  const pool = fresh.length ? fresh : forms.filter(x => x.id !== currentId);
+  return pool.length ? pool[Math.floor(Math.random() * pool.length)] : forms[0];
+}
 function relatedQuestion(q, excludeIds) {
   const mem = loadMem();
   const mast = store.get(KEYS.mastery, {});
   const target = targetSuccess();
-  return QB.filter(x => x.key === q.key && x.id !== (q.baseId || q.id) && !excludeIds.has(x.id))
+  const top = QB.filter(x => x.key === q.key && x.id !== (q.baseId || q.id) && !excludeIds.has(x.id))
     .map(x => ({ x, d: Math.abs(predictedSuccess(x, mem, mast) - target) }))
-    .sort((a, b) => a.d - b.d).slice(0, 3).sort(() => Math.random() - 0.5)[0]?.x || null;
+    .sort((a, b) => a.d - b.d).slice(0, 3);
+  return top.length ? top[Math.floor(Math.random() * top.length)].x : null; // uniform pick from the 3 closest
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1505,7 +1515,7 @@ function commitPending() {
   const nextForm = () => {
     const forms = questionForms(base);
     const last = quiz.lastForm.get(baseId) || p.q.id;
-    const f = forms.filter(x => x.id !== last && x.id !== p.q.id)[Math.floor(Math.random() * Math.max(1, forms.length - 1))] || forms[0];
+    const f = pickNextForm(forms, p.q.id, last);
     quiz.lastForm.set(baseId, f.id);
     return f;
   };

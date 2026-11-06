@@ -34,6 +34,15 @@ curl -sI https://collinbgeorge.com/study/mcat/recall.html | grep -i location
 
 The first should show the six headers and no `Set-Cookie`. The second should show `location: https://mcat.collinbgeorge.com/recall.html`.
 
+## Supabase Security Advisor
+
+After `supabase/schema.sql` is applied, which includes the `rls_auto_enable()` revoke, two warnings remain. Both are expected:
+
+- **`save_mcat_progress` is executable by `authenticated`.** This is by design: it is the only write path, a SECURITY DEFINER function bound to `auth.uid()` with a revision check and a size limit.
+- **Leaked password protection is off.** This check against known-breached passwords is a paid-plan feature. The app requires passwords of at least 12 characters.
+
+CAPTCHA is deliberately off: hCaptcha and Turnstile load third-party script, which the app's CSP (`script-src 'self'`) forbids. Supabase's built-in auth rate limits stay on. Do not change auth settings without updating the CSP.
+
 ## Scheduled maintenance
 
 - **Certificate renewal: check in mid-January 2027, before 4 February 2027.** GitHub issues and renews the site's certificate itself, and renewal can fail while the DNS record is proxied by Cloudflare. The current certificate expires on **4 February 2027**. HSTS makes a lapse serious: any browser that has visited the site will refuse to load it, with no warning page to click through.

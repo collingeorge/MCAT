@@ -53,6 +53,17 @@ async function main() {
  swctx.req={method:'GET',url:'https://example.test/MCAT/js/app.js'};
  const result=await vm.runInContext('networkFirst(req)',swctx); assert.equal(result,response); assert.deepEqual(cleared,[77]);
  assert.match(index,/Content-Security-Policy/); assert.match(index,/object-src 'none'/);
- console.log('Audit regressions passed: HTML escaping, storage warnings, stable final-review phase, civil dates, fluency timing, conservative repeats, expired exam resume, duplicate scoring, targeted reinforcement, and cache isolation/quota handling.');
+  // Wording rotation never repeats the wording just shown, nor the one before it when another exists.
+ {
+  const draws = JSON.parse(run("JSON.stringify(Array.from({length:1000},()=>pickNextForm([{id:'A'},{id:'B'},{id:'C'}],'A','B').id))"));
+  assert(draws.every(id => id === 'C'), 'with [A,B,C], current A and last B, only C may follow');
+  const two = JSON.parse(run("JSON.stringify(Array.from({length:500},()=>pickNextForm([{id:'A'},{id:'B'}],'A','B').id))"));
+  assert(two.every(id => id === 'B'), 'two forms: the other one, never the current');
+  assert.equal(run("pickNextForm([{id:'A'}],'A','A').id"), 'A', 'a single form is reused');
+  const four = JSON.parse(run("JSON.stringify(Array.from({length:3000},()=>pickNextForm([{id:'A'},{id:'B'},{id:'C'},{id:'D'}],'A','B').id))"));
+  const c = four.filter(x => x === 'C').length; assert(four.every(id => id === 'C' || id === 'D') && c > 1300 && c < 1700, 'uniform over the eligible forms: ' + c);
+  assert.doesNotMatch(fs.readFileSync(root + '/js/app.js', 'utf8'), /sort\(\(\)\s*=>\s*Math\.random\(\)\s*-\s*0\.5\)/, 'no biased sort-based shuffles');
+ }
+console.log('Audit regressions passed: HTML escaping, storage warnings, stable final-review phase, civil dates, fluency timing, conservative repeats, expired exam resume, duplicate scoring, targeted reinforcement, and cache isolation/quota handling.');
 }
 main();
