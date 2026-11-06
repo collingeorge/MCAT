@@ -44,7 +44,7 @@ After `supabase/schema.sql` is applied, which includes the `rls_auto_enable()` r
   - **Existing passwords:** after sign-in, the same check runs once. If the password has since appeared in a breach, the account panel shows a warning; sign-in is never blocked.
   - **CSP:** `connect-src` allows `https://api.pwnedpasswords.com` for this.
 
-  The Advisor warning stays, because Supabase cannot see a check done in the browser. The app also requires passwords of at least 12 characters.
+  This is an app-side check: it protects people using the app, but the Supabase API itself does not enforce it, so someone calling Supabase directly could skip it. The Advisor warning therefore stays, accurately. The app also requires passwords of at least 12 characters.
 
 CAPTCHA is deliberately off: hCaptcha and Turnstile load third-party script, which the app's CSP (`script-src 'self'`) forbids. Supabase's built-in auth rate limits stay on. Do not change auth settings without updating the CSP.
 
