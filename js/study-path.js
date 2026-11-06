@@ -196,7 +196,7 @@ function recordRecallToday(q) {
 }
 function recallToday() {
   const row = store.get(KEYS.recallDays,{})[localDay()];
-  return {tracked:!!row, fresh:row?.newIds.length || 0, reviews:row?.reviews || 0};
+  return {tracked:!!row, fresh:Array.isArray(row?.newIds) ? row.newIds.length : 0, reviews:Number.isFinite(row?.reviews) ? row.reviews : 0};
 }
 function diagnosticRecorded() {
   return store.get(KEYS.examHistory,[]).some(x => x.total != null) || !!store.get(KEYS.diagnostic,null);
