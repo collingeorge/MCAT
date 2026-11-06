@@ -153,12 +153,14 @@ async function main() {
   const pages=['index','recall','passages','exams','score-report','about','recall-session','passage-session','exam-session','results','exam-results'];
   const seed='(()=>{const D=n=>localDay(new Date(Date.now()+n*DAY));store.set(KEYS.plan,{date:D(83),start:D(-7),days:6,minutes:120});const m={};QB.slice(0,300).forEach((q,i)=>m[q.id]={S:i<40?0.3:9,D:5,last:Date.now()-2*DAY,seen:1,right:1,lapses:0});store.set(KEYS.mem,m);store.set(KEYS.daily,{[D(-2)]:40});store.set(KEYS.errors,QB.slice(0,6).map((q,i)=>({t:Date.now()-2*DAY+i,id:q.id,src:"recall",type:i?"knowledge":"confused",chosen:"a",answer:"b"})));store.set(KEYS.examHistory,[{examId:FULL_EXAMS[0].id,date:Date.now()-DAY,total:503,sections:[]}]);return true})()';
   for(const profile of ['empty','seeded']){
+    // Seed before the loop so every page, the home page included, is loaded with the seeded profile.
+    if(profile==='seeded'){await command('Page.navigate',{url:origin+'/index.html'});await until('typeof store!=="undefined" && typeof QB!=="undefined"');await evaluate(seed);}
     for(const page of pages){
       if(profile==='empty')await evaluate('localStorage.clear();sessionStorage.clear();true');
       const before=errors.length, beforeConsole=consoleErrors.length;
       await command('Page.navigate',{url:origin+'/'+page+'.html'});
       await until('typeof activeScreen!=="undefined" && document.readyState==="complete" && document.querySelector("#today-plan .today-head")!==null');
-      if(profile==='seeded'&&page==='index')await evaluate(seed);
+      if(profile==='seeded')assert(await evaluate('!!store.get(KEYS.plan,null) && Object.keys(loadMem()).length>=300'),'seeded profile present on '+page+'.html');
       await sleep(150);
       assert.equal(errors.length,before,profile+' '+page+'.html threw: '+JSON.stringify(errors.slice(before)));
       assert.deepEqual(consoleErrors.slice(beforeConsole),[],profile+' '+page+'.html logged console errors');
