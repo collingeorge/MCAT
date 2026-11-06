@@ -12,6 +12,7 @@ Why a dedicated subdomain: browsers isolate storage, service workers and login s
 | DNS | Cloudflare zone `collinbgeorge.com`: `CNAME mcat → collingeorge.github.io`, **proxied** (orange cloud). Zone SSL/TLS mode **Full (strict)**. | Routes visitors through Cloudflare to GitHub Pages. |
 | Worker `mcat-security-headers` | Source: `cloudflare-mcat-headers.mjs`. Route `mcat.collinbgeorge.com/*`. Its public `workers.dev` address is **off**. | Passes each request to GitHub Pages unchanged, strips `Set-Cookie`, and adds the headers below. It answers only for `mcat.collinbgeorge.com`. |
 | Worker `mcat-study-proxy` | Source: `cloudflare-mcat-proxy.mjs`. Route `collinbgeorge.com/study/mcat*`. | 301-redirects old links to the same page on the subdomain. It fetches nothing and forwards no cookies, headers or auth codes; only the `passage` and `exam` page context carries over. |
+| Cache Rule "MCAT bypass cache" | Cloudflare zone `collinbgeorge.com`: *Caching → Cache Rules*. Match: hostname equals `mcat.collinbgeorge.com`. Action: **Bypass cache**. (Rule id `befb1dc4ab10409ba7d30bccd72dd932`, ruleset `c4f7296fef82467a8cfe5ef23480d471`; the only cache rule on the zone.) | Cloudflare keeps no edge copy of the app's files, so each deploy is visible immediately. GitHub Pages' `max-age=600` and the app's service worker still handle caching. Only the `mcat` hostname matches; `collinbgeorge.com` is unaffected. |
 | Supabase | *Authentication → URL Configuration*: Site URL `https://mcat.collinbgeorge.com/index.html`, also in Redirect URLs | Email verification and password-reset links return to the subdomain. |
 
 Security headers added by `mcat-security-headers` (GitHub Pages cannot send headers, and a meta-tag CSP cannot block framing):
@@ -59,6 +60,7 @@ CAPTCHA is deliberately off: hCaptcha and Turnstile load third-party script, whi
 ## Rollback
 
 - **Headers only:** set the `mcat` DNS record back to **DNS only** and delete the `mcat.collinbgeorge.com/*` route. Nothing else depends on them.
+- **Cache Rule:** delete "MCAT bypass cache" under *Caching → Cache Rules*. Nothing else depends on it, but Cloudflare would then cache the app's files at the edge again, and a deploy can show stale files for up to about 10 minutes.
 - **Whole move:** revert the `CNAME` file and redeploy the previous `mcat-study-proxy` source from git history (before PR #36). Then restore the old Supabase Site URL.
 
 ## How it was set up (6 November 2026)
@@ -69,5 +71,6 @@ CAPTCHA is deliberately off: hCaptcha and Turnstile load third-party script, whi
 4. The Supabase Site URL and Redirect URLs were updated, keeping the old ones for now.
 5. The redirect version of `mcat-study-proxy` was deployed on its existing route.
 6. `mcat-security-headers` was created, its route added, and the DNS record switched to proxied.
+7. The "MCAT bypass cache" Cache Rule was added after the first deploy behind the proxy (PR #40). Cloudflare had cached old copies of `account.js`, `app.js`, `styles.css` and `daily-plan.js` that it fetched just before the GitHub Pages deploy finished, so visitors got the new pages with the old scripts until those copies expired.
 
 Run `node tools/test-deployment.cjs` before deploying either Worker. Committing Worker source does not deploy it. No secret keys belong in these Workers or in this repository.
