@@ -1,0 +1,2 @@
+# Vendored files are pinned by SRI hashes: never convert their line endings on checkout.
+vendor/** -text
