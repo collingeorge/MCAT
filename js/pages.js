@@ -18,6 +18,7 @@
     const focused = ['recall','passages','exams'].includes(page);
     $('home-score').hidden = focused;
     $('home-actions').hidden = focused;
+    if ($('today-plan')) $('today-plan').hidden = focused;
     const heading = document.querySelector('.hero-title');
     heading.textContent = focused ? {recall:'Recall practice',passages:'Passage practice',exams:'Full-length exams'}[page] : 'MCAT Study App';
     document.title = titles[page] + ' | MCAT Study App';

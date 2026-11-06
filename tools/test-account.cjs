@@ -4,7 +4,7 @@ const A='11111111-1111-4111-8111-111111111111',B='22222222-2222-4222-8222-222222
 let loginUser={id:A,email:'student@example.test'},session=null,exchangedCode=null;
 function el(id){if(!nodes.has(id))nodes.set(id,{innerHTML:'',textContent:'',value:'',open:false});return nodes.get(id);}
 const client={auth:{onAuthStateChange(){},async exchangeCodeForSession(code){exchangedCode=code;return {data:{session}};},async getSession(){return {data:{session}};},async signInWithPassword(){session={user:loginUser};return {data:{session}};},async signUp(){return {data:{}};},async resetPasswordForEmail(){return {data:{}};},async updateUser(){return {data:{}};},async signOut(){session=null;return {}; }},from(){return {select(){return this;},eq(){return this;},async maybeSingle(){return offline?{error:{message:'offline'}}:{data:cloud};}};},async rpc(name,args){rpcCalls++;if(offline)return {error:{message:'offline'}};assert.equal(name,'save_mcat_progress');if((cloud?.revision||0)!==args.p_expected_revision)return {data:{conflict:true,revision:cloud.revision}};cloud={revision:(cloud?.revision||0)+1,payload:JSON.parse(JSON.stringify(args.p_payload))};return {data:{revision:cloud.revision}};}};
-const ctx=vm.createContext({console,Date,Math,Set,URL,clearTimeout(){},setTimeout(){return 1;},confirm(){return true;},KEYS:{stats:'mcat2_stats',mem:'mcat2_memory'},STUDY_TIMER_KEY:'mcat2_study_timer',FULL_EXAMS:[],showProgress(){},mockSdk:{createClient(){return client;}},window:{MCAT_CLOUD_CONFIG:{url:'https://test.supabase.co',publishableKey:'sb_publishable_test'}},document:{getElementById:el},location:{href:'https://example.test/index.html',reload(){reloads++;}},localStorage:{getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)}});
+const ctx=vm.createContext({console,Date,Math,Set,URL,clearTimeout(){},setTimeout(){return 1;},confirm(){return true;},KEYS:{stats:'mcat2_stats',mem:'mcat2_memory',dailyPlan:'mcat2_daily_plan',externalPassages:'mcat2_external_passages'},STUDY_TIMER_KEY:'mcat2_study_timer',FULL_EXAMS:[],showProgress(){},mockSdk:{createClient(){return client;}},window:{MCAT_CLOUD_CONFIG:{url:'https://test.supabase.co',publishableKey:'sb_publishable_test'}},document:{getElementById:el},location:{href:'https://example.test/index.html',reload(){reloads++;}},localStorage:{getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)}});
 const run=s=>vm.runInContext(s,ctx);
 ctx.URLSearchParams=URLSearchParams;
 run('location.search="?code=verification-test-code"');
@@ -17,6 +17,12 @@ async function main(){
  assert.equal(api.storageKey('mcat2_stats'),'mcat2_stats');
  assert(!JSON.stringify(api.snapshot()).includes('PRIVATE_TOKEN'));
  assert.throws(()=>api.validate({schema:1,values:{'sb-project-auth-token':'bad'}}));
+ assert.match(fs.readFileSync(root+'/js/app.js','utf8'),/dailyPlan: 'mcat2_daily_plan'[\s\S]*externalPassages: 'mcat2_external_passages'/,'Real KEYS register the TODAY-plan keys for sync');
+ // TODAY-plan completion state and external passage logs sync like other progress keys.
+ data.set('mcat2_daily_plan',JSON.stringify({days:{'2026-11-05':{type:'study',newQuota:40,newDone:12,done:{closeout:true}}}}));data.set('mcat2_external_passages',JSON.stringify([{t:1,day:'2026-11-05',subj:'cars',source:'uworld',n:6,correct:4,first:true}]));
+ assert.equal(api.snapshot().values.mcat2_daily_plan.days['2026-11-05'].newDone,12);assert.equal(api.snapshot().values.mcat2_external_passages[0].subj,'cars');
+ assert.doesNotThrow(()=>api.validate(api.snapshot()));assert.doesNotThrow(()=>api.validate({schema:1,values:{}}),'A fresh account without plan keys is valid');
+ data.delete('mcat2_daily_plan');data.delete('mcat2_external_passages');
  el('account-email').value='student@example.test';el('account-password').value='test-only-password';
  await api.action('login');assert.equal(el('account-password').value,'');
  assert(api.storageKey('mcat2_stats').includes(A),'An empty cloud account adopts displayed progress and enables automatic saving');

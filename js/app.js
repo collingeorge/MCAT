@@ -91,6 +91,8 @@ const store = {
 const KEYS = {
   retention:'mcat2_retention', exposures:'mcat2_exposures', passageEvidence:'mcat2_passage_evidence', official:'mcat2_official',
   recallDays: 'mcat2_recall_days',
+  dailyPlan: 'mcat2_daily_plan',             // TODAY checklist: { days: {day: {type, newQuota, newDone, passQuota, passDone, done}}, passageReviews, fullLengths, deferred, reviewed }
+  externalPassages: 'mcat2_external_passages', // [{t, day, subj, source, n, correct, first}]
   plannedPassages: 'mcat2_planned_passages',
   diagnostic: 'mcat2_diagnostic',
   studyPath: 'mcat2_study_path',
@@ -1011,7 +1013,9 @@ function renderHome() {
   actions.push(`<button class="action-btn" onclick="startSpeedDrill()" title="${SPEED_N} facts you've learned, ${SPEED_SECONDS} seconds each: builds fast, automatic recall">⚡ Speed drill</button>`);
   actions.push(`<button class="action-btn" onclick="showProgress()">Score report</button>`);
   $('home-actions').innerHTML = actions.join('');
-  $('home-score').innerHTML = scoreStrip() + planStrip() + learningGuideCard() + weeklyReadinessCard() + studyPathCard();
+  if (typeof renderDailyPlan === 'function') renderDailyPlan();
+  // The TODAY card above is the ordered routine; these cards stay as reference.
+  $('home-score').innerHTML = scoreStrip() + planStrip() + '<details class="home-reference"><summary>Reference: priorities, weekly readiness and passage path</summary>' + learningGuideCard() + weeklyReadinessCard() + studyPathCard() + '</details>';
 
   setMode(prefs.mode, false);
 }
@@ -1945,10 +1949,16 @@ function computePlan() {
   const passageMinutes = activity ? Math.min(plan.minutes || 120, activity.minutes) : 0;
   const capacity = Math.max(0, Math.floor((((plan.minutes || 120) - passageMinutes) * 60) / SECONDS_PER_RECALL));
   const newPerDay = inFinal || daysLeft <= 0 ? 0 : Math.ceil(unseen / contentStudyDays);
-  const newGoal=Math.min(newPerDay,Math.max(0,capacity-Math.min(due,Math.ceil(capacity/2))));
-  const reviewGoal=Math.min(due,capacity-newGoal);
-  const target=newGoal+reviewGoal;
+  let newGoal=Math.min(newPerDay,Math.max(0,capacity-Math.min(due,Math.ceil(capacity/2))));
+  let reviewGoal=Math.min(due,capacity-newGoal);
   const recall=recallToday();
+  // The TODAY checklist owns daily pacing; use its uncapped quota so the bank finishes on time.
+  const daily = typeof currentDailyPlan === 'function' ? currentDailyPlan() : null;
+  if (daily && ['study', 'final', 'review', 'rest', 'light', 'fl', 'fl-done'].includes(daily.status)) {
+    const step = daily.steps.find(s => s.id === 'new-facts');
+    newGoal = step ? step.count : 0; reviewGoal = due;
+  }
+  const target=newGoal+reviewGoal;
   const recallTargetMet=(newGoal===0 || recall.tracked && recall.fresh>=newGoal) && (reviewGoal===0 || recall.tracked && recall.reviews>=reviewGoal);
   // Expected progress since the plan started (straight-line over the content phase)
   const total = Math.max(1, initialDays - finalDays);
@@ -2089,7 +2099,7 @@ function showProgress() {
 function resetProgress() {
   if (!confirm('Erase recall stats, memory history, flags, passage scores, estimates and exam history for the active study profile? If signed in, this cleared copy will replace your cloud study progress when synced. This cannot be undone.')) return;
   window.McatAccount?.clearBackup();
-  [STUDY_TIMER_KEY, KEYS.retention, KEYS.exposures, KEYS.passageEvidence, KEYS.official, KEYS.recallDays, KEYS.plannedPassages, KEYS.diagnostic, KEYS.fluency, KEYS.studyPath, KEYS.finalTwo, KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
+  [STUDY_TIMER_KEY, KEYS.retention, KEYS.exposures, KEYS.passageEvidence, KEYS.official, KEYS.recallDays, KEYS.dailyPlan, KEYS.externalPassages, KEYS.plannedPassages, KEYS.diagnostic, KEYS.fluency, KEYS.studyPath, KEYS.finalTwo, KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
   FULL_EXAMS.forEach(e => { store.del(KEYS.examProgress(e.id)); store.del(KEYS.examLast(e.id)); });
   visibleStudyTimer = null;
   goHome();
