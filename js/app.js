@@ -1985,6 +1985,14 @@ function computePlan() {
     if(date<today)date.setTime(today.getTime());
     fl.push({date,label:'Baseline diagnostic and review (this app or an official exam)'});
   }
+  // The TODAY checklist owns the full-length calendar; show the same dates here.
+  if (daily?.fullLengths?.length) {
+    fl.length = 0;
+    daily.fullLengths.filter(f => !f.done && f.close >= localDay()).forEach(f => {
+      const day = f.day < localDay() ? localDay() : f.day;
+      fl.push({ date: new Date(day + 'T00:00:00'), label: 'Full-length ' + f.index + ': ' + f.label + ' (review the next day)' });
+    });
+  }
   addMilestone(2, 'Light review only; rest and sleep before test day');
   fl.sort((a, b) => a.date - b.date);
   return { plan, daysLeft, studyDaysLeft, finalDays, inFinal, seen, unseen, due, capacity, newPerDay, target,

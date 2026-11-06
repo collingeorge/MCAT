@@ -9,6 +9,7 @@ const { computeDailyPlan, buildCalendar, fullLengthOffsets, allocateByShare, dpA
 const FACTS = 2807, SCIENCE = 54, CARS = 6, EXAM_PASSAGES = 18, ALL_PASSAGES = 78;
 assert.equal(SCIENCE + CARS + EXAM_PASSAGES, ALL_PASSAGES);
 const APP = ['Full-Length Practice Exam 1 (this app)', 'Full-Length Practice Exam 2 (this app)'];
+const SAMPLE = 'AAMC Sample Test: baseline diagnostic (aamc.org)';
 const AAMC = [1, 2, 3, 4].map(n => 'AAMC Practice Exam ' + n + ' (aamc.org)');
 
 function baseState(start, test, over = {}) {
@@ -17,7 +18,7 @@ function baseState(start, test, over = {}) {
     facts: { total: FACTS, unseen: FACTS, freshToday: 0 },
     passages: { appScienceUnseen: SCIENCE, appCarsUnseen: CARS, firstTodayScience: 0, firstTodayCars: 0, firstTodayOther: 0, externalToday: 0, lastAppCarsDay: null },
     recallMisses: [], passageMisses: [], activeDays: [], snapshots: {}, done: {},
-    fullLengths: { completed: [], appExams: APP.slice(), aamcLeft: AAMC.slice(), deferred: {}, reviewed: {} }, ...over,
+    fullLengths: { completed: [], sample: SAMPLE, appExams: APP.slice(), aamcLeft: AAMC.slice(), deferred: {}, reviewed: {} }, ...over,
   };
 }
 // Simulate a student who does exactly what the card says (optionally skipping or half-doing days).
@@ -62,10 +63,12 @@ for (const days of [90, 120, 84, 60]) {
   assert.equal(off[0], 12, days + ': baseline at the end of week 2');
   assert.equal(off.at(-1), days - 7, days + ': last full-length 7 days before the test');
   same(off.slice(-4), [days - 28, days - 21, days - 14, days - 7], days + ': weekly in the final month');
-  for (let i = 1; i < off.length - 3; i++) { const gap = off[i] - off[i - 1]; assert(gap >= 14 && gap <= 21, days + ': 2-3 week gaps before the final month, got ' + gap); }
+  assert(off.length <= 6, days + ': capped at 6 full-lengths');
+  for (let i = 1; i < off.length - 3; i++) assert(off[i] - off[i - 1] >= 14, days + ': at least 2 weeks between early full-lengths');
 }
-same(fullLengthOffsets(90, 6), [12, 29, 45, 62, 69, 76, 83]);
-same(fullLengthOffsets(120, 6), [12, 32, 52, 72, 92, 99, 106, 113]);
+same(fullLengthOffsets(90, 6), [12, 37, 62, 69, 76, 83]);
+same(fullLengthOffsets(120, 6), [12, 52, 92, 99, 106, 113]);
+same(fullLengthOffsets(30, 6), [9, 16, 23], 'short plan: the first final-month exam is the baseline');
 // Each full-length is followed by its review day and none falls on a rest day.
 const cal90 = buildCalendar('2026-11-06', dpAddDays('2026-11-06', 90), 6);
 cal90.fl.forEach(o => { assert.equal(cal90.types[o], 'fl'); assert.equal(cal90.types[o + 1], 'review'); });
@@ -80,10 +83,11 @@ for (const days of [90, 120]) {
   assert.equal(sim.state.facts.unseen, 0);
   assert.equal(contentDays.reduce((n, x) => n + (x.appPassages || 0), 0), SCIENCE + CARS, days + ': all 60 practice passages before the final window');
   assert(sim.log.filter(x => x.day >= windowDay).every(x => !x.facts), days + ': no new facts in the final 21 days when coverage is complete');
-  // The 18 remaining app passages are the CARS sections of the two app full-lengths, both before the test.
-  const slots = sim.log.at(-1).plan.fullLengths;
-  APP.forEach(label => { const s = slots.find(x => x.label === label); assert(s && s.done && s.done < sim.test, days + ': ' + label + ' taken before the test'); });
-  assert.equal(slots.slice(-4).map(s => s.label).join('|'), AAMC.join('|'), days + ': AAMC exams fill the final month');
+  // Six exams: AAMC Sample Test as the baseline diagnostic, app FL1 mid-plan, AAMC 1-4 in the final month.
+  const last = sim.log.at(-1).plan, slots = last.fullLengths;
+  same(slots.map(s => s.label), [SAMPLE, APP[0], ...AAMC], days + ': full-length line-up');
+  same(last.optionalFullLengths, [APP[1]], days + ': app FL2 offered as an optional extra');
+  assert(slots.every(s => s.done && s.done < sim.test));
   assert(slots.every(s => s.done === s.day), days + ': every full-length taken on its date');
   // FL days replace the checklist; the next day is a review day; rest days schedule nothing new.
   sim.log.filter(x => x.status === 'fl').forEach(x => { assert.equal(x.plan.steps.length, 1); assert.match(x.plan.steps[0].title, /^Take full-length \d+/); });
@@ -171,7 +175,7 @@ same(computeDailyPlan(baseState(null, null, { plan: null }), '2026-11-06').steps
   const p = computeDailyPlan(baseState('2026-11-06', dpAddDays('2026-11-06', 90)), '2026-11-06');
   assert.equal(p.status, 'study');
   same(p.steps.map(s => s.id), ['due', 'new-facts', 'passages'], 'new user: steps 1, 2 and 6 hidden');
-  assert.equal(p.nextFullLength.day, '2026-11-18'); assert.equal(p.nextFullLength.label, APP[0]); assert.equal(p.nextFullLength.reviewDay, '2026-11-19');
+  assert.equal(p.nextFullLength.day, '2026-11-18'); assert.equal(p.nextFullLength.label, SAMPLE); assert.equal(p.nextFullLength.reviewDay, '2026-11-19');
 }
 // Missed full-length rolls forward to the next non-rest day, can be deferred, and then hands off.
 {
@@ -183,7 +187,7 @@ same(computeDailyPlan(baseState(null, null, { plan: null }), '2026-11-06').steps
   s.fullLengths.deferred[next] = true;
   assert.notEqual(computeDailyPlan(s, next).status, 'fl', 'Not today keeps the normal checklist');
   assert.equal(computeDailyPlan(s, next).nextFullLength.when, dpAddDays(next, 1));
-  const later = computeDailyPlan(s, dpAddDays(start, 26));
+  const later = computeDailyPlan(s, dpAddDays(start, 34));
   assert.equal(later.nextFullLength.index, 2, 'a slot whose window closed hands off to the next one');
   s.fullLengths.completed.push(next);
   assert.equal(computeDailyPlan(s, dpAddDays(next, 1)).status, 'review');
@@ -192,7 +196,7 @@ same(computeDailyPlan(baseState(null, null, { plan: null }), '2026-11-06').steps
 {
   const start = '2026-11-06', test = dpAddDays(start, 90), s = baseState(start, test); s.activeDays = ['2026-12-01'];
   s.facts.unseen = 200; s.passages.appScienceUnseen = 0; s.passages.appCarsUnseen = 0;
-  s.fullLengths.completed = [12, 29, 45, 62, 69].map(o => dpAddDays(start, o));
+  s.fullLengths.completed = [12, 37, 62, 69].map(o => dpAddDays(start, o));
   const day = dpAddDays(start, 72), p = computeDailyPlan(s, day);
   assert.equal(p.status, 'final');
   assert(p.steps.find(x => x.id === 'new-facts').count > 0);
@@ -200,9 +204,16 @@ same(computeDailyPlan(baseState(null, null, { plan: null }), '2026-11-06').steps
   assert.equal(computeDailyPlan(s, test).status, 'test-day');
   assert.equal(computeDailyPlan(s, dpAddDays(test, -1)).status, 'light');
 }
+// Exams used before the plan started are skipped; missing AAMC exams fall back to unused ones.
+{
+  const { fullLengthLabels } = ctx;
+  const r = fullLengthLabels(6, { sample: null, appExams: APP, aamcLeft: AAMC.slice(1) });
+  same(r.labels, [APP[0], APP[1], 'Third-party full-length (all AAMC exams already used)', AAMC[1], AAMC[2], AAMC[3]]);
+  same(r.extras, []);
+}
 // Content-share allocation respects availability and adds up exactly.
 {
   const a = allocateByShare(45, { biology: 0.75, psych_soc: 0.95, physics: 0.25 }, { biology: 100, psych_soc: 3, physics: 100 });
   assert.equal(a.biology + a.psych_soc + a.physics, 45); assert.equal(a.psych_soc, 3); assert(a.biology > a.physics);
 }
-console.log('Daily plan pacing passed: 90/120-day calendars cover all 2,807 facts and 78 passages, full-length rule, missed days, carry-over, misses, behind-pace and edge cases.');
+console.log('Daily plan pacing passed: 90/120-day calendars cover all 2,807 facts and 60 practice passages, 6-exam AAMC-first full-length line-up, full-length rule, missed days, carry-over, misses, behind-pace and edge cases.');

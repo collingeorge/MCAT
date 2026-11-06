@@ -11,30 +11,29 @@ const DAILY_RULES = {
   normalPassages: 3,        // 1 CARS + 2 science
   finalPassages: 4,         // 4 timed passages; 5 when the daily budget is 3 h or more
   missLookbackDays: 14,     // unfinished miss reviews carry forward at most this long
-  flMaxGap: 21,             // full-lengths every 2-3 weeks before the final month
+  flMax: 6,                 // AAMC Sample Test + 1 app exam + AAMC Practice Exams 1-4
   flFinalOffsets: [28, 21, 14, 7],
 };
 function dpAddDays(day, n) { const d = new Date(day + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
 function dpDiff(a, b) { return Math.round((Date.parse(b + 'T12:00:00Z') - Date.parse(a + 'T12:00:00Z')) / 86400000); }
 function dpValidDay(day) { return typeof day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(day) && Number.isFinite(Date.parse(day + 'T12:00:00Z')) && dpAddDays(day, 0) === day; }
 
-// Full-length offsets (days after plan start): baseline at the end of week 2, then gaps of
-// at most 3 weeks, then weekly in the final month with the last one 7 days before the test.
+// Full-length offsets (days after plan start), capped at DAILY_RULES.flMax (the 4 AAMC
+// practice exams, the AAMC Sample Test and one app exam): a baseline diagnostic at the end of
+// week 2, one mid-plan exam halfway to the final month (gaps stretch past 3 weeks on long
+// plans rather than adding exams), then weekly in the final month, the last 7 days before the test.
 function fullLengthOffsets(totalDays, perWeek) {
   const D = totalDays;
   if (!(D > 3)) return [];
   const slots = DAILY_RULES.flFinalOffsets.map(o => D - o).filter(o => o >= 3);
   const baseline = 7 + Math.min(7, Math.max(1, perWeek)) - 1;  // last study day of week 2
   if (baseline <= D - 7 && (!slots.length || slots[0] > baseline + 3)) {
-    const first = slots.length ? slots[0] : D - 7;
-    const middle = [];
-    if (slots.length) {
-      const gap = first - baseline, m = Math.max(0, Math.ceil(gap / DAILY_RULES.flMaxGap) - 1);
-      for (let i = 1; i <= m; i++) middle.push(baseline + Math.round((gap * i) / (m + 1)));
-    }
+    const first = slots.length ? slots[0] : D - 7, room = DAILY_RULES.flMax - slots.length - 1;
+    // One mid-plan exam when both resulting gaps are at least two weeks.
+    const middle = slots.length && room > 0 && first - baseline >= 28 ? [baseline + Math.round((first - baseline) / 2)] : [];
     slots.unshift(baseline, ...middle);
   }
-  return [...new Set(slots)].sort((a, b) => a - b);
+  return [...new Set(slots)].sort((a, b) => a - b).slice(-DAILY_RULES.flMax);
 }
 // Day types from plan start to test day. Full-length, review and the eve of the test are
 // fixed first; each 7-day cycle then gets (7 - study days per week) rest days on its latest
@@ -67,17 +66,16 @@ function fullLengthSlots(cal, completedDays, labels) {
     return { index: i + 1, day, open: opens[i], close, done, label: labels[i] || 'Full-length ' + (i + 1) };
   });
 }
-function fullLengthLabels(n, appExams, aamcLeft) {
+// Early slots take the AAMC Sample Test (baseline diagnostic) and then an app exam; the final
+// month takes AAMC Practice Exams 1-4. Exams already used before the plan started are skipped.
+const FL_FALLBACK = 'Third-party full-length (all AAMC exams already used)';
+function fullLengthLabels(n, pools) {
   const finals = Math.min(DAILY_RULES.flFinalOffsets.length, n), early = n - finals;
-  const aamc = aamcLeft.slice(0, finals);
-  const appPart = appExams.slice(0, Math.max(0, early));
-  const out = appPart.slice();
-  while (out.length < early) out.push(appExams[out.length] || 'Additional full-length (AAMC Sample Test or a third-party exam)');
-  const tail = aamc.slice();
-  // If AAMC exams were already used up, the remaining final-month slots take any unused exam.
-  const spare = appExams.slice(appPart.length);
-  while (tail.length < finals) tail.unshift(spare.shift() || 'Additional full-length (AAMC Sample Test or a third-party exam)');
-  return out.concat(tail);
+  const earlyPool = [pools.sample, ...(pools.appExams || [])].filter(Boolean), finalPool = (pools.aamcLeft || []).slice();
+  const head = earlyPool.splice(0, early), tail = finalPool.splice(0, finals);
+  while (tail.length < finals) tail.unshift(earlyPool.shift() || FL_FALLBACK);
+  while (head.length < early) head.push(finalPool.shift() || FL_FALLBACK);
+  return { labels: head.concat(tail), extras: earlyPool.concat(finalPool) };
 }
 // Distribute n items across groups by weight, capped by each group's availability
 // (largest remainder; capacity freed by exhausted groups is redistributed).
@@ -105,7 +103,7 @@ const factMinutes = n => Math.ceil((n * DAILY_RULES.secondsPerFact) / 60);
    facts {total, unseen, freshToday}
    passages {appScienceUnseen, appCarsUnseen, firstTodayScience, firstTodayCars, firstTodayOther, externalToday, lastAppCarsDay}
    due, recallMisses [{id, disc, day, answeredDay}], passageMisses [{key, disc, day, reviewedDay}],
-   confusedToday, activeDays [day], fullLengths {completed [day], appExams [title], aamcLeft [title], deferred {day:true}, reviewed {completionDay: day}},
+   confusedToday, activeDays [day], fullLengths {completed [day], sample title|null, appExams [title], aamcLeft [title], deferred {day:true}, reviewed {completionDay: day}},
    snapshots {day: {type, newQuota, newDone, passQuota, passDone}}, done {stepId: true}, preferredSubject */
 function computeDailyPlan(state, today) {
   const plan = state.plan;
@@ -122,8 +120,9 @@ function computeDailyPlan(state, today) {
   const shortPlan = windowStart <= 0;
   const fls = state.fullLengths || {};
   const completed = (fls.completed || []).filter(dpValidDay).sort();
-  const slots = fullLengthSlots(cal, completed, fullLengthLabels(cal.fl.length, fls.appExams || [], fls.aamcLeft || []));
-  out.fullLengths = slots;
+  const lineup = fullLengthLabels(cal.fl.length, fls);
+  const slots = fullLengthSlots(cal, completed, lineup.labels);
+  out.fullLengths = slots; out.optionalFullLengths = lineup.extras;
   out.calendar = cal;
   const hasHistory = (state.activeDays || []).some(d => d < today) || state.facts.unseen < state.facts.total;
   const scheduled = cal.types[t];
@@ -204,13 +203,13 @@ function computeDailyPlan(state, today) {
   if (dayType === 'light') { out.notes.push('Light review only. Rest and sleep before test day; no new material or full-length.'); dueStep(true); return dpFinish(out, budget); }
   if (dayType === 'fl' || dayType === 'fl-done') {
     const s = dueSlot || doneToday;
-    step('full-length', 'Take full-length ' + s.index + ': ' + s.label, { action: 'full-length', slot: s.index, label: s.label, count: 1, minutes: 450, fullMinutes: 450, done: dayType === 'fl-done', overdue: s.day < today });
+    step('full-length', 'Take full-length ' + s.index + ': ' + s.label, { action: 'full-length', slot: s.index, label: s.label, count: null, minutes: 450, fullMinutes: 450, done: dayType === 'fl-done', overdue: s.day < today });
     out.notes.push('Tomorrow is your review day: go through this exam’s misses, then due reviews only.');
     return dpFinish(out, budget);
   }
   if (dayType === 'review') {
     const s = slots.find(x => x.done === lastDone);
-    step('fl-review', 'Review full-length ' + (s ? s.index + ': ' + s.label : '') + ' misses', { action: 'fl-review', slot: s?.index, label: s?.label, completedDay: lastDone, count: 1, minutes: 180, fullMinutes: 180, done: !!state.done?.['fl-review'] });
+    step('fl-review', 'Review full-length ' + (s ? s.index + ': ' + s.label : '') + ' misses', { action: 'fl-review', slot: s?.index, label: s?.label, completedDay: lastDone, count: null, minutes: 180, fullMinutes: 180, done: !!state.done?.['fl-review'] });
     dueStep(false);
     out.notes.push('Review day: no new facts or new passages today.');
     return dpFinish(out, budget);
@@ -245,6 +244,9 @@ function dpFinish(out, budget) {
 //  Browser wrapper: gathers state from storage and renders the card.
 // ════════════════════════════════════════════════════════════════
 const FL_MINUTES_NOTE = 'about 7.5 h with breaks';
+const AAMC_SAMPLE_LABEL = 'AAMC Sample Test: baseline diagnostic (aamc.org)';
+const AAMC_URL = 'https://students-residents.aamc.org/taking-mcat-exam/take-mcat-exam';
+const isAamcLabel = label => /aamc\.org/.test(label || '');
 function dailyPlanStore() { const s = store.get(KEYS.dailyPlan, {}); return { days: s.days || {}, passageReviews: s.passageReviews || {}, fullLengths: s.fullLengths || [], deferred: s.deferred || {}, reviewed: s.reviewed || {} }; }
 function saveDailyPlanStore(s) {
   const recent = obj => Object.fromEntries(Object.entries(obj).sort((a, b) => a[0].localeCompare(b[0])).slice(-90));
@@ -290,7 +292,7 @@ function dailyPlanState(today = localDay()) {
   errors.forEach(e => activeDays.push(localDay(new Date(e.t))));
   const start = plan && dpValidDay(plan.start) ? plan.start : today;
   const appDone = new Set(store.get(KEYS.examHistory, []).filter(x => x.total != null && localDay(new Date(x.date)) < start).map(x => x.examId));
-  const officialBefore = officialScores().filter(x => x.date < start).length;
+  const officialBefore = officialScores().filter(x => x.date < start && !/sample/i.test(x.form)).length;
   const weak = learningNeeds().weak.find(w => w.subj !== 'research' && subjectPassages(w.subj).some(p => !passageSeen(p, exposures, legacy)));
   return {
     plan, due: dueQuestions().length, confusedToday: todayPairs.size,
@@ -299,7 +301,7 @@ function dailyPlanState(today = localDay()) {
       firstTodayScience: firstToday.filter(r => practiceIds.has(r.id) && r.disc !== 'cars').length, firstTodayCars: firstToday.filter(r => practiceIds.has(r.id) && r.disc === 'cars').length,
       firstTodayOther: firstToday.filter(r => !practiceIds.has(r.id)).length, externalToday: external.length, lastAppCarsDay: carsFirst ? localDay(new Date(carsFirst)) : null },
     recallMisses, passageMisses, activeDays: [...new Set(activeDays)],
-    fullLengths: { completed: fullLengthCompletions(start), appExams: FULL_EXAMS.filter(e => !appDone.has(e.id)).map(e => e.title + ' (this app)'),
+    fullLengths: { completed: fullLengthCompletions(start), sample: officialScores().some(x => x.date < start && /sample/i.test(x.form)) ? null : AAMC_SAMPLE_LABEL, appExams: FULL_EXAMS.filter(e => !appDone.has(e.id)).map(e => e.title + ' (this app)'),
       aamcLeft: [1, 2, 3, 4].slice(officialBefore).map(n => 'AAMC Practice Exam ' + n + ' (aamc.org)'), deferred: ds.deferred, reviewed: ds.reviewed },
     snapshots: pastProgress(ds.days, today), done: ds.days[today]?.done || {}, preferredSubject: weak?.subj || null,
   };
@@ -436,7 +438,7 @@ function dailyStepHtml(s, plan) {
       break;
     }
     case 'closeout': detail = s.waiting ? 'Appears once you mark a miss as “Mixed it up” today.' : 'X vs. Y comparisons for today’s mix-ups.'; if (s.count && !s.done) button = btn('Compare', 'startDailyCloseout()'); break;
-    case 'full-length': detail = (s.overdue ? 'Rolled forward from a missed date. ' : '') + FL_MINUTES_NOTE + '. Take it timed, in one sitting.'; if (!s.done) button = btn('Start full-length', 'startPlannedFullLength()') + ' <button class="micro-btn" onclick="logExternalFullLength()">I took it outside the app</button> <button class="text-btn" onclick="deferFullLength()">Not today</button>'; break;
+    case 'full-length': detail = (s.overdue ? 'Rolled forward from a missed date. ' : '') + FL_MINUTES_NOTE + '. Take it timed, in one sitting.' + (isAamcLabel(s.label) ? ' Official AAMC practice is the closest match to the real exam: take it on aamc.org under standard timing, then record your section scores here.' : ''); if (!s.done) button = (isAamcLabel(s.label) ? '<a class="new-quiz-btn today-start" href="' + AAMC_URL + '" target="_blank" rel="noopener">Open AAMC practice ↗</a> <button class="micro-btn" onclick="showOfficialScores()">Record AAMC scores</button>' : btn('Start full-length', 'startPlannedFullLength()')) + ' <button class="micro-btn" onclick="logExternalFullLength()">I took it outside the app</button> <button class="text-btn" onclick="deferFullLength()">Not today</button>'; break;
     case 'fl-review': detail = 'Go through every miss and guess, label why, then do due reviews only.'; if (!s.done) button = btn('Open review', 'startFullLengthReview()') + ' <button class="micro-btn" onclick="completeFullLengthReview()">Mark review complete</button>'; break;
   }
   const mins = s.minutes && !s.done ? '<span class="today-min">~' + s.minutes + ' min</span>' : '';
@@ -457,9 +459,19 @@ function dailyPlanCard() {
   const carry = plan.carry ? '<div class="today-carry">↻ <b>Carried over</b> from ' + shortDay(plan.carry.from) + ': ' + [plan.carry.newFacts ? plan.carry.newFacts + ' new facts' : '', plan.carry.passages ? plan.carry.passages + ' passage' + (plan.carry.passages === 1 ? '' : 's') : ''].filter(Boolean).join(' · ') + ' (added to steps below)</div>' : '';
   const notes = plan.notes.map(n => '<p class="muted-note">' + esc(n) + '</p>').join('');
   const steps = plan.steps.length ? '<ol class="today-steps">' + plan.steps.map(s => dailyStepHtml(s, plan)).join('') + '</ol>' : '';
-  const fl = plan.nextFullLength && plan.status !== 'fl' && plan.status !== 'fl-done' ? '<div class="today-fl"><b>Next full-length:</b> ' + (plan.nextFullLength.overdue ? 'overdue · ' : '') + shortDay(plan.nextFullLength.when) + ' · Full-length ' + plan.nextFullLength.index + ': ' + esc(plan.nextFullLength.label) + '<br><span class="muted-note">The following day (' + shortDay(plan.nextFullLength.reviewDay) + ') is its review day.</span></div>' : '';
+  const next = plan.nextFullLength && plan.status !== 'fl' && plan.status !== 'fl-done' ? '<b>Next full-length:</b> ' + (plan.nextFullLength.overdue ? 'overdue · ' : '') + shortDay(plan.nextFullLength.when) + ' · Full-length ' + plan.nextFullLength.index + ': ' + esc(plan.nextFullLength.label) + '<br><span class="muted-note">The following day (' + shortDay(plan.nextFullLength.reviewDay) + ') is its review day.</span>' : '';
+  const fl = next || plan.fullLengths?.length ? '<div class="today-fl">' + next + fullLengthCalendarHtml(plan) + '</div>' : '';
   const pace = plan.pacing && plan.status === 'final' ? '<p class="muted-note today-pace">Final window: ' + (plan.state.facts.unseen ? plan.state.facts.unseen.toLocaleString() + ' unseen facts still to cover' : 'bank coverage complete, so no new facts') + '; ' + plan.pacing.passageTarget + ' timed passages a day and a weekly full-length. Unseen app passages: ' + (plan.state.passages.appScienceUnseen + plan.state.passages.appCarsUnseen) + '; the rest come from external sources.' + (plan.remaining ? ' About ' + plan.remaining + ' min left today.' : '') + '</p>' : plan.pacing && plan.status === 'study' ? '<p class="muted-note today-pace">Pacing: ' + plan.state.facts.unseen.toLocaleString() + ' unseen facts over ' + plan.pacing.newDays + ' new-fact day' + (plan.pacing.newDays === 1 ? '' : 's') + ' before ' + shortDay(plan.pacing.windowStartDay) + '; ' + (plan.state.passages.appScienceUnseen + plan.state.passages.appCarsUnseen) + ' unseen app passages. Rest, full-length and review days are excluded; missed days roll forward. Estimates assume ~' + DAILY_RULES.secondsPerFact + ' s per fact and ~' + DAILY_RULES.minutesPerPassage + ' min per passage.' + (plan.remaining ? ' About ' + plan.remaining + ' min left today.' : '') + '</p>' : '';
   const done = plan.allDone && ['study', 'final'].includes(plan.status) ? '<p class="today-alldone">✓ Today’s plan is complete. Anything more is optional.</p>' : '';
   return head + (kind ? '<div class="today-kind">' + kind + '</div>' : '') + behind + notes + carry + steps + done + fl + pace;
+}
+function fullLengthCalendarHtml(plan) {
+  if (!plan.fullLengths?.length) return '';
+  const rows = plan.fullLengths.map(f => {
+    const state = f.done ? '✓ taken ' + shortDay(f.done) : f.close < plan.today ? 'missed' : f.day < plan.today ? 'overdue' : 'review day ' + shortDay(dpAddDays(f.day, 1));
+    return '<li' + (f.done ? ' class="done"' : '') + '><b>' + shortDay(f.day) + '</b> · ' + esc(f.label) + ' <span class="muted-note">· ' + state + '</span></li>';
+  }).join('');
+  const extras = plan.optionalFullLengths?.length ? '<p class="muted-note">Optional extra if you have time before the final month: ' + plan.optionalFullLengths.map(esc).join('; ') + '. AAMC exams take priority.</p>' : '';
+  return '<div class="sw-head">Full-length calendar</div><ol class="today-fl-list">' + rows + '</ol>' + extras + '<p class="muted-note">AAMC exams are taken on aamc.org; record their section scores under Official results so the plan marks them done.</p>';
 }
 function renderDailyPlan() { const el = $('today-plan'); if (el) el.innerHTML = dailyPlanCard(); }
