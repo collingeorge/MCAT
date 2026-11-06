@@ -156,7 +156,7 @@ No full-length diagnostic recorded here? The plan adds a baseline within the nex
 - **Teaching explanations.** Each explanation says why the answer is right and usually why the tempting wrong answer is wrong.
 - **Topic selector.** Pick a subject, a topic, or any mix of the 82 subtopics, with live question counts.
 - **Flagging.** Flag any question (F key) and review all flagged questions later from the home screen.
-- **Drill weak topics.** One click drills every topic where you're below 70% after at least 5 attempts.
+- **Drill weak topics.** One click drills every weak topic. Every feature uses the same definition: at least 5 attempts and under 80% correct, ranked by how far below 80% and by MCAT content yield.
 - **Progress dashboard.** Shows all-time accuracy, questions seen, questions mastered, accuracy by subject, your weakest and strongest topics, and your exam history.
 - **Full-length exams that behave like test day:**
   - Section timers that submit automatically at 0:00, plus optional 10/30/10-minute breaks.

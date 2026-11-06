@@ -600,10 +600,21 @@ function pickQuestions(pool, n) {
   later.sort((a, b) => a.R - b.R);
   return shuffled([...shuffled(due), ...shuffled(fresh), ...later.map(x => x.q)].slice(0, n));
 }
-function weakKeys() {
+// The one definition of a weak topic, used by every feature (Drill weak topics, priorities, Smart
+// Session, TODAY new facts, passage preference): at least WEAK_RULE.minAttempts answers and
+// cumulative accuracy below WEAK_RULE.accuracy (the app's ~80% target success rate). Ranked by
+// distance below the target, weighted by MCAT content yield. A study heuristic, not a mastery test.
+const WEAK_RULE = { minAttempts: 5, accuracy: 0.8 };
+function weakTopics() {
   const stats = store.get(KEYS.stats, {});
-  return Object.entries(stats).filter(([k, s]) => KEY_COUNTS[k] && s.t >= 5 && s.c / s.t < 0.7).map(([k]) => k);
+  return Object.entries(stats).filter(([k, s]) => KEY_COUNTS[k] && Number.isFinite(s.t) && Number.isFinite(s.c) && s.t >= WEAK_RULE.minAttempts && s.c / s.t < WEAK_RULE.accuracy)
+    .map(([k, s]) => {
+      const subj = disciplineOfKey(k.split('|')[0], k.slice(k.indexOf('|') + 1)), accuracy = s.c / s.t;
+      return { k, c: s.c, t: s.t, accuracy, subj, need: (WEAK_RULE.accuracy - accuracy) * (0.4 + disciplineYield(subj)) };
+    })
+    .sort((a, b) => b.need - a.need || a.accuracy - b.accuracy || b.t - a.t);
 }
+function weakKeys() { return weakTopics().map(w => w.k); }
 
 // ── Reverse-direction variants ──
 // Definition cards ("_____ is/are …") can be flipped: show the term and ask
@@ -744,15 +755,6 @@ function targetSuccess() {
   const acc = recentAccuracy();
   return acc == null ? 0.8 : acc < 0.7 ? 0.86 : acc > 0.9 ? 0.72 : 0.8;
 }
-function weakTopicNeeds(mast) {
-  return ALL_KEYS.map(k => {
-    const t = mast[k];
-    const p = t ? sigmoid(t.r) : sigmoid(MASTERY_PRIOR);
-    const [subj, tag] = [k.split('|')[0], k.slice(k.indexOf('|') + 1)];
-    const need = t && t.n >= 2 ? Math.max(0, 0.9 - p) * (0.4 + disciplineYield(disciplineOfKey(subj, tag))) : 0;
-    return { k, p, n: t ? t.n : 0, need };
-  }).filter(x => x.need > 0).sort((a, b) => b.need - a.need);
-}
 function buildSmartSession(n) {
   const mem = loadMem();
   const mast = store.get(KEYS.mastery, {});
@@ -771,7 +773,7 @@ function buildSmartSession(n) {
       x.m.confidentMiss ? 'confident-miss' : x.m.lapses ? 'missed-before' : 'due'));
 
   // 2) Weakest high-yield topics: questions pitched closest to the target success rate (to ~60%)
-  const weak = weakTopicNeeds(mast).slice(0, 6);
+  const weak = weakTopics().slice(0, 6);
   const byKey = {};
   QB.forEach(q => { (byKey[q.key] = byKey[q.key] || []).push(q); });
   let round = 0;
@@ -1027,7 +1029,7 @@ function renderHome() {
   const inProgress = FULL_EXAMS.find(e => store.get(KEYS.examProgress(e.id), null));
   const actions = [];
   const needs=learningNeeds();
-  const focus=needs.weak[0] || weakTopicNeeds(store.get(KEYS.mastery, {}))[0];
+  const focus=needs.weak[0];
   const plan=computePlan();
   const optional=!!plan?.recallTargetMet;
   actions.push(`<button class="action-btn smart" data-click="startSmartSession()" title="Adaptive: due reviews, your weakest high-yield topics and new material">
@@ -1036,7 +1038,7 @@ function renderHome() {
   if (inProgress) actions.push(`<button class="action-btn primary" data-click="startExam(${FULL_EXAMS.indexOf(inProgress)})">Resume ${esc(inProgress.title)}</button>`);
   actions.push(`<button class="action-btn" ${due ? '' : 'disabled'} data-click="startDueReview()">Review due <b>${due}</b></button>`);
   actions.push(`<button class="action-btn" ${flagged ? '' : 'disabled'} data-click="startFlagged()">Flagged <b>${flagged}</b></button>`);
-  actions.push(`<button class="action-btn" ${weak ? '' : 'disabled'} data-click="drillWeak()" title="Topics under 70% after at least 5 attempts">Drill weak topics <b>${weak}</b></button>`);
+  actions.push(`<button class="action-btn" ${weak ? '' : 'disabled'} data-click="drillWeak()" title="Topics under ${Math.round(WEAK_RULE.accuracy * 100)}% after at least ${WEAK_RULE.minAttempts} attempts">Drill weak topics <b>${weak}</b></button>`);
   actions.push(`<button class="action-btn" data-click="startSpeedDrill()" title="${SPEED_N} facts you've learned, ${SPEED_SECONDS} seconds each: builds fast, automatic recall">⚡ Speed drill</button>`);
   actions.push(`<button class="action-btn" data-click="showProgress()">Score report</button>`);
   $('home-actions').innerHTML = actions.join('');
@@ -1753,7 +1755,8 @@ function scoreReportCards() {
     </div>`;
 }
 // Topic mastery map: each subtopic chip colored by its mastery level
-const LEVELS = { new: 'Not enough data', weak: 'Weak', building: 'Building', solid: 'Solid', mastered: 'High estimate' };
+// Topic-model estimate levels (predicted success), deliberately not called "weak": weak topics are weakTopics().
+const LEVELS = { new: 'Not enough data', weak: 'Low estimate', building: 'Building', solid: 'Solid', mastered: 'High estimate' };
 function masteryMapCard() {
   const mast = store.get(KEYS.mastery, {});
   if (!Object.keys(mast).length) return '';
@@ -1764,11 +1767,11 @@ function masteryMapCard() {
     const p = w / n;
     return { n, p, level: p < 0.6 ? 'weak' : p < 0.75 ? 'building' : p < 0.9 ? 'solid' : 'mastered' };
   };
-  const focus = weakTopicNeeds(mast).slice(0, 3);
+  const focus = weakTopics().slice(0, 3);
   return `<div class="results-card">
     <div class="section-label">Topic model <span class="muted">(practice estimate, not delayed-retention proof)</span></div>
     <div class="legend">${Object.entries(LEVELS).map(([k, l]) => `<span class="m-chip lvl-${k}">${l}</span>`).join('')}</div>
-    ${focus.length ? `<div class="focus-box"><b>Next focus:</b> ${focus.map(f => `${esc(KEY_LABEL[f.k] || f.k)} (${Math.round(f.p * 100)}%)`).join(' · ')}
+    ${focus.length ? `<div class="focus-box"><b>Next focus:</b> ${focus.map(f => `${esc(KEY_LABEL[f.k] || f.k)} (${f.c}/${f.t})`).join(' · ')}
       <button class="micro-btn" data-click="startSmartSession()">Start Smart Session</button></div>` : ''}
     ${SUBJECTS.map(s => `<div class="m-subject"><div class="m-subject-name">${esc(s.label)}</div><div class="m-chips">
       ${s.groups.flatMap(g => g.chips).map(c => { const i = chipInfo(c); return `<span class="m-chip lvl-${i.level}" title="${i.n} answers${i.p != null ? ` · ${Math.round(i.p * 100)}% predicted` : ''}">${esc(c.label)}${i.p != null && i.n >= 5 ? ` <small>${Math.round(i.p * 100)}%</small>` : ''}</span>`; }).join('')}

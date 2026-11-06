@@ -357,8 +357,8 @@ function startDailyNewFacts() {
   if (!n) return;
   const mem = loadMem(), unseen = QB.filter(q => !mem[q.id]?.seen);
   // Weak topics first, then the remainder weighted by MCAT content share (disciplineYield).
-  const weakKeys = new Set(learningNeeds().weak.map(w => w.k).concat(weakTopicNeeds(store.get(KEYS.mastery, {})).slice(0, 6).map(w => w.k)));
-  const first = shuffled(unseen.filter(q => weakKeys.has(q.key))).slice(0, Math.ceil(n / 3));
+  const weakSet = new Set(weakKeys());
+  const first = shuffled(unseen.filter(q => weakSet.has(q.key))).slice(0, Math.ceil(n / 3));
   const taken = new Set(first.map(q => q.id)), pools = {};
   unseen.filter(q => !taken.has(q.id)).forEach(q => { const d = disciplineOfRecall(q); (pools[d] = pools[d] || []).push(q); });
   const weights = Object.fromEntries(Object.keys(pools).map(d => [d, Math.max(0.05, disciplineYield(d))]));
