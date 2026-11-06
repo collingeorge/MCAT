@@ -21,6 +21,8 @@ jobs:
           node-version: '22'
       - name: Final-two regression
         run: node tools/test-final-two.cjs
+      - name: Daily plan pacing (TODAY checklist)
+        run: node tools/test-daily-plan.cjs
       - name: Subject progression regression
         run: node tools/test-study-path.cjs
       - name: Security and reliability regression

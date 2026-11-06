@@ -726,3 +726,47 @@ table.aamc tr.gap td{opacity:.65}
 form.results-card label { display: inline-block; margin: .4rem .6rem .4rem 0; max-width: 100%; }
 form.results-card input:not([type="checkbox"]) { max-width: 100%; box-sizing: border-box; padding: .5rem; font: inherit; }
 form.results-card input[type="number"] { width: 5rem; }
+
+/* TODAY › Start here: the ordered daily checklist */
+.today-plan{border-left:4px solid var(--navy)}
+.today-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.today-head .section-label{margin-bottom:2px;color:var(--navy);font-weight:700}
+.today-date{font-size:14px;color:var(--text)}
+.today-kind{display:inline-block;margin:8px 0 0;padding:2px 8px;font-size:12px;font-weight:700;background:var(--blue-light);color:var(--navy)}
+.today-steps{list-style:none;margin:12px 0 0;padding:0;counter-reset:none}
+.today-step{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--border)}
+.today-step:first-child{border-top:0}
+.today-num{flex:0 0 26px;height:26px;border-radius:50%;background:var(--navy);color:var(--white);font:700 13px/26px Arial,Helvetica,sans-serif;text-align:center}
+.today-step.done .today-num{background:var(--green)}
+.today-step.done .today-title b{color:var(--muted)}
+.today-body{flex:1;min-width:0}
+.today-title{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;font-size:14px}
+.today-count{font-weight:700;color:var(--navy)}
+.today-min{font-size:12px;color:var(--muted)}
+.today-ok{font-size:12px;color:var(--green);font-weight:700}
+.today-body .muted-note{margin:4px 0 0}
+.today-body .btn-row{margin-top:8px;flex-wrap:wrap;gap:6px}
+.today-start.new-quiz-btn{width:auto;padding:8px 16px;font-size:13px;margin:0}
+.today-body .btn-row>*{flex:0 0 auto;min-width:0;width:auto;margin:0}
+.today-body .btn-row>.today-ext{flex-basis:100%}
+.today-head .text-btn{margin:0}
+.today-behind{border-left-color:var(--red);background:var(--red-fill)}
+.today-carry{margin:10px 0 0;padding:8px 10px;font-size:13px;background:var(--amber-fill);border-left:3px solid var(--amber-warm)}
+.today-fl{margin-top:12px;padding-top:10px;border-top:1px dashed var(--border-med);font-size:13px}
+.today-pace{margin-top:8px}
+.today-fl .sw-head{margin-top:12px}
+.today-fl-list{margin:6px 0 0;padding-left:20px}
+.today-fl-list li{margin:3px 0}
+.today-fl-list li.done{color:var(--muted)}
+a.today-start{display:inline-block;text-decoration:none;text-align:center}
+.today-alldone{color:var(--green);font-weight:700;margin:10px 0 0}
+.today-ext{flex-basis:100%;margin-top:4px;font-size:13px}
+.today-ext summary{cursor:pointer;color:var(--navy)}
+.today-ext-form{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:flex-end;margin-top:8px}
+.today-ext-form label{display:flex;flex-direction:column;font-size:12px;gap:2px}
+.today-ext-form input[type=number]{width:70px}
+.today-ext-form .today-check{flex-direction:row;align-items:center;gap:6px}
+.today-ext-form p{flex-basis:100%;margin:0}
+.home-reference{margin:0 0 16px}
+.home-reference>summary{cursor:pointer;font:700 12px Arial,Helvetica,sans-serif;color:var(--navy);padding:8px 0;letter-spacing:.04em;text-transform:uppercase}
+@media (max-width:480px){.today-head{flex-direction:column;gap:4px}.today-step{gap:8px}.today-ext-form label{flex:1 1 40%}}

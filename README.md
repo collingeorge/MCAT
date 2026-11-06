@@ -1,6 +1,6 @@
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-![Version](https://img.shields.io/badge/Version-2.6-blue.svg)
-![Last Updated](https://img.shields.io/badge/Updated-Oct_2026-purple.svg)
+![Version](https://img.shields.io/badge/Version-2.12-blue.svg)
+![Last Updated](https://img.shields.io/badge/Updated-Nov_2026-purple.svg)
 
 # MCAT Study App
 *Recall · Passages · Full-length exams · Collin B. George*
@@ -33,6 +33,32 @@ It sits between Anki (pure recall) and UWorld (full exam simulation). You get fa
 | Psychology & Sociology | 823 |
 
 ---
+
+## TODAY › Start here: one ordered daily checklist
+
+The first card on the home page, directly under the account bar, is the day's routine. It is recomputed every day from your calendar (test date, study days per week, daily time). The cards that used to share the home page (priorities, weekly readiness, the recall → passage → mini-test path, Smart Session) remain below it as reference.
+
+**Every study day, in this order.** Each step shows a count, estimated minutes, a Start button and a ✓ when done.
+
+1. **Yesterday's missed recall.** Facts answered wrong on your previous *study* day (not calendar day), grouped by subject, shown regardless of the spaced-review schedule. Misses that were never revisited carry forward for up to 14 days.
+2. **Yesterday's missed passage questions.** Review mode: reread the passage and explanation and write one line on why the answer is right (saved to the mistake log's "Explain it" note). Not scored and not counted as a first exposure.
+3. **Due reviews.** Everything the memory model says is due.
+4. **New facts.** Today's quota, weak topics first, then weighted by the app's MCAT content shares.
+5. **New passages.** About 3 a day (1 CARS + 2 science), preferring the subject of your top weak topic. Use **I did an external passage** (subject, source, questions, correct) for AAMC Section Bank/Question Packs, UWorld and others; first exposures count toward the target and repeats do not.
+6. **Close-out.** X vs. Y comparisons for the day's mix-ups.
+
+**Pacing rules** (planning heuristics, not validated readiness thresholds):
+
+| Rule | How it is computed |
+|---|---|
+| New facts | `ceil(unseen facts / remaining new-fact days)`. Remaining new-fact days are study days before the final 21-day window, excluding rest, full-length and review days. |
+| App passages | `ceil(unseen app passages / remaining passage days)`. The six non-exam CARS passages are spaced at one every `floor(days / unseen CARS)` study days so they last. Daily target = max(3, app passages); the shortfall is external. |
+| Full-lengths | Six, capped: **AAMC Sample Test** as the baseline diagnostic at the end of week 2, **this app's Full-Length 1** halfway to the final month, then **AAMC Practice Exams 1–4** weekly in the final month, the last one 7 days before the test. Long plans stretch the early gaps instead of adding exams; the app's Full-Length 2 is listed as an optional extra. The card lists every date. AAMC exams are taken on aamc.org and marked done when you record their scores under Official results. A full-length day replaces the checklist; the next day is a review day (that exam's misses, then due reviews). A missed full-length rolls forward to your next non-rest day until the next slot's window opens. |
+| Final 21 days | No new facts unless bank coverage is incomplete; 4 timed passages a day (5 with a 3-hour budget); a weekly full-length. |
+| Missed days | Remaining work is redistributed over the remaining days. An unfinished quota from the last planned day is shown as **Carried over** and added to today. |
+| Over budget | Steps 1–3 stay intact and steps 4–5 stay at the pace that finishes on time. The card shows **Behind pace: +X min/day needed, or move your test date** instead of shrinking the quotas. |
+
+The 18 passages used in the app's two full-length exams are not scheduled as daily practice, so those exams stay unseen. Completion state and external passage logs sync with your account like other progress. The pacing function is `computeDailyPlan()` in `js/daily-plan.js`; `node tools/test-daily-plan.cjs` checks 90- and 120-day calendars, the six-exam full-length line-up, missed days and carry-over.
 
 ## Daily recall, passages, and subject mini tests
 

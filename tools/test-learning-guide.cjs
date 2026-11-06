@@ -19,8 +19,8 @@ assert.equal(run('computePlan().activity.subj'),planned,'Daily assignment stays 
 assert.equal(run('computePlan().activityDone'),true);
 assert.equal(run('computePlan().recallTargetMet'),false,'125 legacy attempts cannot establish 40 new facts');
 assert.equal(run('computePlan().recall.tracked'),false);
-assert(run('computePlan().milestones.some(m=>m.label.includes("Baseline diagnostic") && calendarDaysBetween(new Date(localDay()+"T00:00:00"),m.date)<=7)'));
-run("const originalPlan=store.get(KEYS.plan,null);store.set(KEYS.plan,{...originalPlan,start:localDay(new Date(Date.now()-10*DAY))})");assert.equal(run('localDay(computePlan().milestones.find(m=>m.label.includes("Baseline diagnostic")).date)'),run('localDay()'),'An overdue diagnostic must stay due, not slide another week');run('store.set(KEYS.plan,originalPlan)');
+assert(run('computePlan().milestones.some(m=>/AAMC Sample Test: baseline diagnostic/.test(m.label) && calendarDaysBetween(new Date(localDay()+"T00:00:00"),m.date)<=14)'),'Baseline AAMC diagnostic at the end of week 2');
+run("const originalPlan=store.get(KEYS.plan,null);store.set(KEYS.plan,{...originalPlan,start:localDay(new Date(Date.now()-14*DAY))})");assert.equal(run('localDay(computePlan().milestones.find(m=>/baseline diagnostic/.test(m.label)).date)'),run('localDay()'),'An overdue diagnostic must stay due, not slide another week');run('store.set(KEYS.plan,originalPlan)');
 run('renderHome()');assert.match(el('home-score').innerHTML,/Atomic Structure/);assert.match(el('home-score').innerHTML,/Establish a CARS baseline/);
 assert.doesNotMatch(run("studyPathCard('cars')"),/recall foundation|Drill 10 recall/);
 assert.doesNotMatch(run('scoreReportCards()'),/of content covered/);
