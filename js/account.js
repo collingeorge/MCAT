@@ -114,6 +114,24 @@
     location.reload();
     }catch{status('Could not switch progress copies. Your previous account cache is backed up on this device; free browser storage and retry.');}
   }
+  // Breached-password check (HaveIBeenPwned range API, k-anonymity): only the first 5 hex characters of
+  // the password's SHA-1 leave the browser; the full hash and password never do, and the match runs
+  // here. Add-Padding hides the response size. Returns the number of breaches the password appears in.
+  const PWNED='https://api.pwnedpasswords.com/range/',BREACH_NOTICE='mcat_breach_notice';
+  async function breachCount(password){
+    const bytes=new Uint8Array(await crypto.subtle.digest('SHA-1',new TextEncoder().encode(password)));
+    const hex=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
+    const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),8000);
+    try{
+      const res=await fetch(PWNED+hex.slice(0,5),{headers:{'Add-Padding':'true'},signal:ctrl.signal,credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store'});
+      if(!res.ok)throw Error('Breach check unavailable');
+      const suffix=hex.slice(5);
+      for(const line of (await res.text()).split('\n')){const [s,c]=line.trim().split(':');if(s===suffix)return Number(c)||0;}
+      return 0;
+    }finally{clearTimeout(timer);}
+  }
+  const breachNotice=on=>{try{on?sessionStorage.setItem(BREACH_NOTICE,'1'):sessionStorage.removeItem(BREACH_NOTICE);}catch{}};
+  const breachNoticeShown=()=>{try{return sessionStorage.getItem(BREACH_NOTICE)==='1';}catch{return false;}};
   async function action(mode) {
     const email=document.getElementById('account-email')?.value.trim(),field=document.getElementById(mode==='password'?'account-new-password':'account-password'),password=field?.value||'';
     if(!client&&configured()&&!busy)await connect();
@@ -123,6 +141,12 @@
       if(!['login','signup','reset','password'].includes(mode))return;
       if(mode!=='password'&&(!email||!email.includes('@')))throw Error('Enter your email address.');
       if(['signup','password'].includes(mode)&&password.length<12)throw Error('Use a password of at least 12 characters.');
+      // New passwords must not be known-breached. If the check cannot run, refuse rather than accept an unchecked password.
+      if(['signup','password'].includes(mode)){
+        let n;
+        try{n=await breachCount(password);}catch{throw Error('Could not check this password against known data breaches. Check your connection and try again.');}
+        if(n>0)throw Error('This password appears in '+n.toLocaleString()+' known data breaches. Choose a different password you have not used elsewhere.');
+      }
       let result;
       const redirect=new URL('index.html',location.href).href;
       if(mode==='login')result=await client.auth.signInWithPassword({email,password});
@@ -132,8 +156,9 @@
       if(field)field.value='';
       if(result.error)throw Error(mode==='login'?'Sign-in failed. Check your credentials and email verification.':'Request failed. Please retry later or contact support.');
       if(mode==='reset'||mode==='signup')status('Check your email for the next step, if the request is eligible.');
-      if(mode==='password'){recovering=false;render();status('Password updated.');}
-      if(mode==='login'&&result.data?.session){busy=false;await prepareSession(result.data.session);}
+      if(mode==='password'){recovering=false;breachNotice(false);render();status('Password updated.');}
+      // Existing passwords: warn (never block sign-in) if this one has since appeared in a breach.
+      if(mode==='login'&&result.data?.session){busy=false;breachNotice(await breachCount(password).then(n=>n>0,()=>false));render();await prepareSession(result.data.session);}
     }catch(e){if(field)field.value='';status(e.message||'Account request failed.');}
     finally{busy=false;}
   }
@@ -162,7 +187,7 @@
   function render() {
     const panel=document.getElementById('account-panel');if(!panel)return;
     const description=user?'Signed in as '+user.email:'Optional account · guest study remains available';
-    panel.innerHTML='<p id="account-status" role="status"></p><details id="account-details"><summary>Account & cloud progress</summary><p id="account-identity"></p>'+
+    panel.innerHTML='<p id="account-status" role="status"></p>'+(user&&breachNoticeShown()?'<p class="advice" id="account-breach" role="alert"><b>Your password appears in known data breaches.</b> Change it: sign out, choose <b>Forgot password?</b>, and set a new one you have not used elsewhere.</p>':'')+'<details id="account-details"><summary>Account & cloud progress</summary><p id="account-identity"></p>'+
       (user?'<button class="micro-btn" data-click="McatAccount.sync()">Sync now</button> <button class="micro-btn" data-click="McatAccount.logout()">Sign out</button> <button class="micro-btn" data-click="McatAccount.logoutAndForget()">Sign out and remove from this device</button> <button class="micro-btn" data-click="showProgress()">My score report</button>':'<label>Email <input id="account-email" type="email" autocomplete="email"></label><label>Password <input id="account-password" type="password" autocomplete="current-password" minlength="12"></label><div class="btn-row"><button class="micro-btn" data-click="McatAccount.action(\'login\')">Sign in</button><button class="micro-btn" data-click="McatAccount.action(\'signup\')">Create account</button><button class="text-btn" data-click="McatAccount.action(\'reset\')">Forgot password?</button></div>')+
       (recovering?'<label>New password <input id="account-new-password" type="password" autocomplete="new-password" minlength="12"></label><button class="micro-btn" data-click="McatAccount.action(\'password\')">Set new password</button>':'')+
       (choice?'<p>Copies are not automatically combined: doing so could duplicate scores and study counts. Restore the cloud copy, keep this account’s device copy, or explicitly copy the guest work on this browser.</p><button class="micro-btn" data-click="McatAccount.choose(\'cloud\')">Restore cloud progress'+(choice.empty?' (empty account)':'')+'</button> <button class="micro-btn" data-click="McatAccount.choose(\'device\')">Keep account device copy</button> <button class="micro-btn" data-click="McatAccount.choose(\'guest\')">Copy guest progress into my account</button>':'')+

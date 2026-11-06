@@ -5,6 +5,13 @@ let loginUser={id:A,email:'student@example.test'},session=null,exchangedCode=nul
 function el(id){if(!nodes.has(id))nodes.set(id,{innerHTML:'',textContent:'',value:'',open:false});return nodes.get(id);}
 const client={auth:{onAuthStateChange(){},async exchangeCodeForSession(code){exchangedCode=code;return {data:{session}};},async getSession(){return {data:{session}};},async signInWithPassword(){session={user:loginUser};return {data:{session}};},async signUp(){return {data:{}};},async resetPasswordForEmail(){return {data:{}};},async updateUser(){return {data:{}};},async signOut(){session=null;return {}; }},from(){return {select(){return this;},eq(){return this;},async maybeSingle(){return offline?{error:{message:'offline'}}:{data:cloud};}};},async rpc(name,args){rpcCalls++;if(offline)return {error:{message:'offline'}};assert.equal(name,'save_mcat_progress');if((cloud?.revision||0)!==args.p_expected_revision)return {data:{conflict:true,revision:cloud.revision}};cloud={revision:(cloud?.revision||0)+1,payload:JSON.parse(JSON.stringify(args.p_payload))};return {data:{revision:cloud.revision}};}};
 const ctx=vm.createContext({console,Date,Math,Set,URL,clearTimeout(){},setTimeout(){return 1;},confirm(){return true;},KEYS:{stats:'mcat2_stats',mem:'mcat2_memory',dailyPlan:'mcat2_daily_plan',externalPassages:'mcat2_external_passages'},STUDY_TIMER_KEY:'mcat2_study_timer',FULL_EXAMS:[],showProgress(){},mockSdk:{createClient(){return client;}},window:{MCAT_CLOUD_CONFIG:{url:'https://test.supabase.co',publishableKey:'sb_publishable_test'}},document:{getElementById:el},location:{href:'https://example.test/index.html',reload(){reloads++;}},localStorage:{getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)}});
+// Breach-check service double: records each request and answers from a fixed set of "breached" passwords.
+const crypto=require('node:crypto'),pwned=new Map(),pwnedCalls=[];let pwnedDown=false;
+const sha1=t=>crypto.createHash('sha1').update(t).digest('hex').toUpperCase();
+Object.assign(ctx,{crypto:globalThis.crypto,TextEncoder,AbortController,sessionStorage:{store:new Map(),getItem(k){return this.store.get(k)??null},setItem(k,v){this.store.set(k,String(v))},removeItem(k){this.store.delete(k)}},
+  fetch:async(url,opts)=>{pwnedCalls.push({url,opts});if(pwnedDown)throw Error('offline');const prefix=url.split('/').pop();
+    const lines=[...pwned].filter(([h])=>h.startsWith(prefix)).map(([h,n])=>h.slice(5)+':'+n).concat(['0000000000000000000000000000000000A:0']);
+    return {ok:true,text:async()=>lines.join('\r\n')};}});
 const run=s=>vm.runInContext(s,ctx);
 ctx.URLSearchParams=URLSearchParams;
 run('location.search="?code=verification-test-code"');
@@ -59,6 +66,38 @@ async function main(){
  assert(api.storageKey('mcat2_stats').includes(B));assert.equal(data.get(api.storageKey('mcat2_stats')),undefined,'A second account does not inherit the first account cache');
  assert(!JSON.stringify([...data.values()]).includes('test-only-password'));assert(rpcCalls>=4);
  const sql=fs.readFileSync(root+'/supabase/schema.sql','utf8');assert.match(sql,/revoke execute on function public\.rls_auto_enable\(\) from public, anon, authenticated;/);assert.match(sql,/exception when undefined_function then null;/);assert.match(sql,/enable row level security/);assert.match(sql,/auth.uid\(\)/);assert.match(sql,/current_revision <> p_expected_revision/);assert.match(sql,/revoke all.*from public, anon/);
+ // Breached-password check: k-anonymity request, refusal of breached or unchecked new passwords, login warning.
+ {
+  await api.logout();
+  const signUps=[];const realSignUp=client.auth.signUp;client.auth.signUp=async(...a)=>{signUps.push(a);return realSignUp(...a);};
+  pwned.set(sha1('correct horse battery'),123456);
+  el('account-email').value='new@example.test';el('account-password').value='correct horse battery';pwnedCalls.length=0;
+  await api.action('signup');
+  assert.equal(signUps.length,0,'breached password is refused before reaching Supabase');
+  assert.match(el('account-status').textContent,/appears in 123,456 known data breaches/);
+  assert.equal(el('account-password').value,'','field cleared');
+  assert.equal(pwnedCalls.length,1);const call=pwnedCalls[0];
+  assert.equal(call.url,'https://api.pwnedpasswords.com/range/'+sha1('correct horse battery').slice(0,5),'only the 5-character hash prefix is sent');
+  assert(!call.url.includes(sha1('correct horse battery').slice(5))&&!call.url.includes('horse'),'no password or full hash in the request');
+  assert.equal(call.opts.headers['Add-Padding'],'true');assert.equal(call.opts.credentials,'omit');assert.equal(call.opts.referrerPolicy,'no-referrer');
+  el('account-password').value='a fresh unique passphrase 2026';await api.action('signup');
+  assert.equal(signUps.length,1,'an unbreached password proceeds');
+  pwnedDown=true;el('account-password').value='another unique passphrase 2026';await api.action('signup');
+  assert.equal(signUps.length,1,'if the check cannot run, the new password is refused (fail closed)');
+  assert.match(el('account-status').textContent,/Could not check this password/);
+  pwnedDown=false;client.auth.signUp=realSignUp;
+  // Sign-in is never blocked; a breached current password shows a warning in the account panel.
+  pwned.set(sha1('test-only-password'),42);loginUser={id:A,email:'student@example.test'};
+  el('account-email').value=loginUser.email;el('account-password').value='test-only-password';await api.action('login');
+  assert(api.storageKey('mcat2_stats').includes(A),'breached password still signs in');
+  assert.equal(ctx.sessionStorage.getItem('mcat_breach_notice'),'1','warning flag survives the post-sign-in reload');
+  await api.init();assert.match(el('account-panel').innerHTML,/Your password appears in known data breaches/,'warning shown on the reloaded panel');
+  await api.logout();pwnedDown=true;
+  el('account-email').value=loginUser.email;el('account-password').value='test-only-password';await api.action('login');
+  assert(api.storageKey('mcat2_stats').includes(A),'sign-in works when the breach service is unreachable');
+  assert.equal(ctx.sessionStorage.getItem('mcat_breach_notice'),null,'no warning without a positive check');await api.init();assert.doesNotMatch(el('account-panel').innerHTML,/known data breaches/);
+  pwnedDown=false;pwned.clear();
+ }
  console.log('Account tests passed: no password/token backup, explicit guest import, per-user isolation, offline queue, conflict protection, cloud restore, sign-out and RLS schema guards.');
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});

@@ -39,7 +39,12 @@ The first should show the six headers and no `Set-Cookie`. The second should sho
 After `supabase/schema.sql` is applied, which includes the `rls_auto_enable()` revoke, two warnings remain. Both are expected:
 
 - **`save_mcat_progress` is executable by `authenticated`.** This is by design: it is the only write path, a SECURITY DEFINER function bound to `auth.uid()` with a revision check and a size limit.
-- **Leaked password protection is off.** This check against known-breached passwords is a paid-plan feature. The app requires passwords of at least 12 characters.
+- **Leaked password protection is off.** Supabase's own check against known-breached passwords is a paid-plan feature. The app does the same check itself, for free:
+  - **New passwords:** before *Create account* or *Set new password*, `js/account.js` checks the password against the HaveIBeenPwned range API using k-anonymity. Only the first 5 characters of the password's SHA-1 hash are sent, with response padding; the match runs in the browser. A breached password is refused, and so is any new password the check cannot verify (fail closed).
+  - **Existing passwords:** after sign-in, the same check runs once. If the password has since appeared in a breach, the account panel shows a warning; sign-in is never blocked.
+  - **CSP:** `connect-src` allows `https://api.pwnedpasswords.com` for this.
+
+  The Advisor warning stays, because Supabase cannot see a check done in the browser. The app also requires passwords of at least 12 characters.
 
 CAPTCHA is deliberately off: hCaptcha and Turnstile load third-party script, which the app's CSP (`script-src 'self'`) forbids. Supabase's built-in auth rate limits stay on. Do not change auth settings without updating the CSP.
 
