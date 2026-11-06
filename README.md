@@ -1,5 +1,5 @@
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-![Version](https://img.shields.io/badge/Version-2.12-blue.svg)
+![Version](https://img.shields.io/badge/Version-2.14-blue.svg)
 ![Last Updated](https://img.shields.io/badge/Updated-Nov_2026-purple.svg)
 
 # MCAT Study App
@@ -195,7 +195,10 @@ Percentile ranks are the [AAMC tables in effect May 1, 2026 – April 30, 2027](
 
 The October 28, 2026 review fixed HTML rendering, saved-data warnings, final-review scheduling, expired-exam resumes, recall-speed measurement, immediate-repeat memory inflation, mini-test review, and offline-cache handling. See [the audit report](docs/AUDIT-2026-10-28.md) for scope, checks, and limitations. A subsequent [editorial follow-up](docs/EDITORIAL-2026-10-28.md) resolved all 35 warnings: the full-bank validator now reports **0 errors and 0 warnings**. CI rejects new warnings, and tests verify that real answer cues are still detected.
 
-- Text is escaped before supported bold/cloze formatting. The page limits resource loading with a content security policy; inline event handlers still require an inline-script allowance.
+- Text is escaped before supported bold/cloze formatting. The content security policy is `script-src 'self'`: no inline script, no `eval`, and no third-party script origin.
+  - Buttons and inputs carry `data-click` / `data-input` / `data-change` / `data-submit` / `data-enter` actions instead of inline handlers. `js/actions.js` runs only allowlisted functions with literal arguments, so injected markup cannot run code.
+  - The Supabase SDK is self-hosted in `vendor/`, pinned by an SRI hash and precached (see `vendor/README.md`); the app loads no script from a CDN.
+  - `style-src` still allows inline styles, which the app uses for progress bars and charts.
 - Browser storage failures now produce a visible warning. Saved preferences are normalized, and invalid top-level saved-data shapes fall back safely. This is not exhaustive validation of every nested saved record.
 - A plan's final-review window stays anchored to its original start date. Calendar calculations use civil dates rather than elapsed 24-hour periods across daylight-saving changes.
 - Within-day repeats increase estimated memory stability by at most 10% per correct repetition. This conservative heuristic avoids treating immediate familiarity as delayed retention; it is not a clinically or psychometrically calibrated model.
@@ -226,6 +229,10 @@ index.html            App shell
 css/styles.css        Styles
 js/app.js             Quiz, passages, exams, spaced repetition, stats and plan integration
 js/study-path.js      Subject progression, passage scheduling and timed mini tests
+js/daily-plan.js      TODAY checklist: pure pacing (computeDailyPlan) and its card
+js/actions.js         Delegated, allowlisted UI actions (strict CSP: no inline handlers)
+js/account.js         Optional Supabase account and cloud progress sync
+vendor/               Self-hosted, SRI-pinned third-party code (Supabase SDK)
 data/                 Question data, one file per subject or exam section
   qb-*.js             Recall questions  {s: tag, aamc?, q, choices[4], ans, exp}
   qb-variants-*.js    Applied variants, linked to a recall question by its exact tag + stem  {ofTag, of, kind, q, choices, ans, exp}

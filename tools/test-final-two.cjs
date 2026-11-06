@@ -7,7 +7,7 @@ const nodes=new Map(), data=new Map(), saved=[];
 const node=id=>{if(!nodes.has(id))nodes.set(id,{innerHTML:''});return nodes.get(id)};
 const view={q:{id:'a'},choices:['alpha','beta','gamma','delta'],ans:1};
 const ctx=vm.createContext({Date,Number,LETTERS:['A','B','C','D'],esc:String,fmt:String,$:node,confusionCard(){return null},KEYS:{finalTwo:'two'},store:{get:(k,f)=>data.get(k)||f,set:(k,v)=>data.set(k,v)},quiz:{results:[],pending:{}},pq:{results:[]},finishPick:(...a)=>saved.push(a),finishPassageAnswer:(...a)=>saved.push(a)});
-for(const name of ['runnerUpPrompt','validAlternative','setWrongAlternative','wrongAlternativePanel','recordFinalTwo','finalTwoProgress','finalTwoFeedback','pick','answerPassage'])vm.runInContext(extract(name),ctx);
+for(const name of ['boundCall','runnerUpPrompt','validAlternative','setWrongAlternative','wrongAlternativePanel','recordFinalTwo','finalTwoProgress','finalTwoFeedback','pick','answerPassage'])vm.runInContext(extract(name),ctx);
 vm.runInContext('pick(0);answerPassage(2)',ctx);assert.equal(saved.length,2,'Selection submits immediately');
 ctx.view=view;
 assert.equal(vm.runInContext('wrongAlternativePanel("recall",view,1)',ctx),'','No correct-answer prompt');

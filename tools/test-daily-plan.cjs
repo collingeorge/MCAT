@@ -281,6 +281,6 @@ for (const days of [22, 25, 27]) {
   // Passage-miss notes are saved by row index; no stored text is placed in inline handlers.
   run("const p=ALL_PASSAGES.find(p=>!EXAM_PASSAGE_IDS.has(p.id));store.set(KEYS.errors,[{t:Date.now()-2*DAY,id:p.id+'#0',src:'passage',type:'reasoning',chosen:'\"><img src=x onerror=alert(1)>',answer:'b'}]);store.set(KEYS.daily,{[localDay(new Date(Date.now()-2*DAY))]:3});startPassageMissReview()");
   assert.doesNotMatch(el('results-body').innerHTML, /<img src=x/, 'stored answers are escaped');
-  assert.match(el('results-body').innerHTML, /onclick="savePassageMissNote\(0\)"/);
+  assert.match(el('results-body').innerHTML, /data-click="savePassageMissNote\(0\)"/);
 }
 console.log('Daily plan pacing passed: 90/120-day calendars cover all 2,807 facts and 60 practice passages, 6-exam AAMC-first full-length line-up, full-length rule, missed days, carry-over, misses, behind-pace and edge cases, plus malformed synced data, escaping, tampered exam progress, short-plan/final caps, bounded carry-over and plan caching.');

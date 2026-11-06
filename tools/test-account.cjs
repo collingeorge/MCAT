@@ -8,7 +8,7 @@ const ctx=vm.createContext({console,Date,Math,Set,URL,clearTimeout(){},setTimeou
 const run=s=>vm.runInContext(s,ctx);
 ctx.URLSearchParams=URLSearchParams;
 run('location.search="?code=verification-test-code"');
-run(fs.readFileSync(root+'/js/account.js','utf8').replace('await import(SDK)','mockSdk'));
+run(fs.readFileSync(root+'/js/account.js','utf8').replace('await loadSdk()','mockSdk'));
 run('location.search=""'); // Simulate pages.js normalizing the URL before async initialization.
 const api=run('window.McatAccount');
 async function main(){

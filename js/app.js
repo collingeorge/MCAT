@@ -513,7 +513,7 @@ function logError(entry) {
 function errorTypeRow(selected, handler) {
   return `<div class="conf-row err-row" role="group" aria-label="Why did you miss it?">
     <span class="conf-label">Why did you miss it?</span>
-    ${ERROR_TYPES.map(([id, label]) => `<button class="conf-btn${selected === id ? ' on' : ''}" data-err="${id}" onclick="${handler}('${id}')" aria-pressed="${selected === id}">${label}</button>`).join('')}
+    ${ERROR_TYPES.map(([id, label]) => `<button class="conf-btn${selected === id ? ' on' : ''}" data-err="${id}" data-click="${handler}('${id}')" aria-pressed="${selected === id}">${label}</button>`).join('')}
   </div>`;
 }
 function markErrorButtons(type) {
@@ -1005,15 +1005,15 @@ function renderHome() {
   const focus=needs.weak[0] || weakTopicNeeds(store.get(KEYS.mastery, {}))[0];
   const plan=computePlan();
   const optional=!!plan?.recallTargetMet;
-  actions.push(`<button class="action-btn smart" onclick="startSmartSession()" title="Adaptive: due reviews, your weakest high-yield topics and new material">
+  actions.push(`<button class="action-btn smart" data-click="startSmartSession()" title="Adaptive: due reviews, your weakest high-yield topics and new material">
     <span><b class="smart-title">${optional ? 'Optional extra practice' : '▶ Smart Session'}</b><small>${focus ? `Focus: ${esc(KEY_LABEL[focus.k] || focus.k)}` : 'Adapts to your strengths and weaknesses'}</small></span>
     <b>${smartSessionSize()}</b></button>`);
-  if (inProgress) actions.push(`<button class="action-btn primary" onclick="startExam(${FULL_EXAMS.indexOf(inProgress)})">Resume ${esc(inProgress.title)}</button>`);
-  actions.push(`<button class="action-btn" ${due ? '' : 'disabled'} onclick="startDueReview()">Review due <b>${due}</b></button>`);
-  actions.push(`<button class="action-btn" ${flagged ? '' : 'disabled'} onclick="startFlagged()">Flagged <b>${flagged}</b></button>`);
-  actions.push(`<button class="action-btn" ${weak ? '' : 'disabled'} onclick="drillWeak()" title="Topics under 70% after at least 5 attempts">Drill weak topics <b>${weak}</b></button>`);
-  actions.push(`<button class="action-btn" onclick="startSpeedDrill()" title="${SPEED_N} facts you've learned, ${SPEED_SECONDS} seconds each: builds fast, automatic recall">⚡ Speed drill</button>`);
-  actions.push(`<button class="action-btn" onclick="showProgress()">Score report</button>`);
+  if (inProgress) actions.push(`<button class="action-btn primary" data-click="startExam(${FULL_EXAMS.indexOf(inProgress)})">Resume ${esc(inProgress.title)}</button>`);
+  actions.push(`<button class="action-btn" ${due ? '' : 'disabled'} data-click="startDueReview()">Review due <b>${due}</b></button>`);
+  actions.push(`<button class="action-btn" ${flagged ? '' : 'disabled'} data-click="startFlagged()">Flagged <b>${flagged}</b></button>`);
+  actions.push(`<button class="action-btn" ${weak ? '' : 'disabled'} data-click="drillWeak()" title="Topics under 70% after at least 5 attempts">Drill weak topics <b>${weak}</b></button>`);
+  actions.push(`<button class="action-btn" data-click="startSpeedDrill()" title="${SPEED_N} facts you've learned, ${SPEED_SECONDS} seconds each: builds fast, automatic recall">⚡ Speed drill</button>`);
+  actions.push(`<button class="action-btn" data-click="showProgress()">Score report</button>`);
   $('home-actions').innerHTML = actions.join('');
   if (typeof renderDailyPlan === 'function') renderDailyPlan();
   // The TODAY card above is the ordered routine; these cards stay as reference.
@@ -1039,10 +1039,10 @@ function setMode(mode, navigate = true) {
 
 function renderCountRow() {
   const opts = [10, 20, 30, 50, 100, 0];
-  $('count-row').innerHTML = opts.map(n => `<button class="count-btn${prefs.count === n ? ' active' : ''}" onclick="setCount(${n})">${n || 'All'}</button>`).join('');
+  $('count-row').innerHTML = opts.map(n => `<button class="count-btn${prefs.count === n ? ' active' : ''}" data-click="setCount(${n})">${n || 'All'}</button>`).join('');
   const mix = prefs.mix || 'custom';
   $('mix-row').innerHTML = [['custom', 'My subjects'], ...Object.entries(PRACTICE_MIXES).map(([id, m]) => [id, m.label])]
-    .map(([id, l]) => `<button class="count-btn small${mix === id ? ' active' : ''}" onclick="setMix('${id}')">${l}</button>`).join('');
+    .map(([id, l]) => `<button class="count-btn small${mix === id ? ' active' : ''}" data-click="setMix('${id}')">${l}</button>`).join('');
   $('mix-note').innerHTML = mix === 'custom'
     ? 'Questions due for spaced review come first, then ones you haven\'t seen. Answer choices are shuffled every time.'
     : `${esc(PRACTICE_MIXES[mix].note)} With "All", a mix session is 59 questions, the length of a real section.`;
@@ -1089,11 +1089,11 @@ function renderSubjectGrid() {
     const on = allOn(s.keys);
     const selCount = countKeys(s.keys.filter(k => selectedKeys.has(k)));
     return `<div class="sg-outer">
-      <div class="sg-subject-row" role="button" tabindex="0" aria-expanded="${open}" onclick="toggleSubjectOpen(${si})" onkeydown="if(event.key==='Enter')toggleSubjectOpen(${si})">
+      <div class="sg-subject-row" role="button" tabindex="0" aria-expanded="${open}" data-click="toggleSubjectOpen(${si})" data-enter="toggleSubjectOpen(${si})">
         <span class="sg-subject-name">${esc(s.label)}</span>
         <span class="sg-subject-meta">
           <span class="sg-subject-count">${selCount === countKeys(s.keys) ? '' : selCount + ' of '}${countKeys(s.keys)} Q</span>
-          <button class="sg-select-all" onclick="event.stopPropagation();setKeys(SUBJECTS[${si}].keys,${!on})">${on ? 'None' : 'All'}</button>
+          <button class="sg-select-all" data-click="event.stopPropagation();setSubjectKeys(${si},${!on})">${on ? 'None' : 'All'}</button>
           <span class="sg-chevron${open ? ' open' : ''}">▾</span>
         </span>
       </div>
@@ -1103,12 +1103,12 @@ function renderSubjectGrid() {
             <span class="sg-topic-name">${esc(g.label)}</span>
             <span class="sg-topic-meta">
               <span class="sg-topic-count">${countKeys(g.keys)} Q</span>
-              <button class="sg-topic-sel-all" onclick="setKeys(SUBJECTS[${si}].groups[${gi}].keys,${!allOn(g.keys)})">${allOn(g.keys) ? 'None' : 'All'}</button>
+              <button class="sg-topic-sel-all" data-click="setSubjectKeys(${si},${!allOn(g.keys)},${gi})">${allOn(g.keys) ? 'None' : 'All'}</button>
             </span>
           </div>` : ''}
           <div class="sg-chips">${g.chips.map((c, ci) => `
             <button class="sg-chip${allOn(c.keys) ? ' on' : someOn(c.keys) ? ' partial' : ''}" aria-pressed="${allOn(c.keys)}"
-              onclick="setKeys(SUBJECTS[${si}].groups[${gi}].chips[${ci}].keys,${!allOn(c.keys)})">${esc(c.label)}<span class="sg-chip-count">${countKeys(c.keys)}</span></button>`).join('')}
+              data-click="setSubjectKeys(${si},${!allOn(c.keys)},${gi},${ci})">${esc(c.label)}<span class="sg-chip-count">${countKeys(c.keys)}</span></button>`).join('')}
           </div>`).join('')}
       </div>
     </div>`;
@@ -1116,6 +1116,8 @@ function renderSubjectGrid() {
   updateAvail();
 }
 function toggleSubjectOpen(si) { openSubjects.has(si) ? openSubjects.delete(si) : openSubjects.add(si); renderSubjectGrid(); }
+// Subject-picker buttons pass indexes, not expressions, so handlers stay plain calls.
+function setSubjectKeys(si, on, gi, ci) { const s = SUBJECTS[si], g = gi == null ? null : s?.groups[gi], c = ci == null ? null : g?.chips[ci]; const t = c || g || s; if (t) setKeys(t.keys, on); }
 function setKeys(keys, on) { keys.forEach(k => (on ? selectedKeys.add(k) : selectedKeys.delete(k))); savePrefs(); renderSubjectGrid(); }
 function sgSelectAll() { setKeys(ALL_KEYS, true); }
 function sgClearAll() { setKeys(ALL_KEYS, false); }
@@ -1267,8 +1269,10 @@ function stopQuizTimer() { if (quiz.timer) clearInterval(quiz.timer); quiz.timer
 
 // Optional retrospective reflection follows incorrect answers only; never award partial score credit.
 
+// "fn.bind(null,a,b)" handler strings become the plain call fn(a,b,<arg>).
+function boundCall(handler, arg) { const m = /^([\w.]+)\.bind\(null,(.*)\)$/.exec(handler); return m ? m[1] + '(' + m[2] + ',' + arg + ')' : handler + '(' + arg + ')'; }
 function runnerUpPrompt(view, chosen, handler, selected = null, inputId = 'runner-up') {
-  return '<div class="results-card"><label><b>Which other answer were you considering?</b><p class="muted-note">Optional: think back to the other answer you considered before submitting.</p><select id="' + inputId + '" onchange="' + handler + '(this.value)"><option value="">No other answer / skip</option>' + view.choices.map((c, i) => i === chosen ? '' : '<option value="' + i + '"' + (selected === i ? ' selected' : '') + '>' + LETTERS[i] + '. ' + esc(c) + '</option>').join('') + '</select></label></div>';
+  return '<div class="results-card"><label><b>Which other answer were you considering?</b><p class="muted-note">Optional: think back to the other answer you considered before submitting.</p><select id="' + inputId + '" data-change="' + boundCall(handler, 'this.value') + '"><option value="">No other answer / skip</option>' + view.choices.map((c, i) => i === chosen ? '' : '<option value="' + i + '"' + (selected === i ? ' selected' : '') + '>' + LETTERS[i] + '. ' + esc(c) + '</option>').join('') + '</select></label></div>';
 }
 function validAlternative(view, chosen, value) {
   const other=value===''?null:Number(value);
@@ -1309,7 +1313,7 @@ function answerPassage(chosen) { finishPassageAnswer(chosen); }
 
 function choiceButtons(choices, onclick, opts = {}) {
   return choices.map((c, i) => `
-    <button class="choice-btn${opts.selected === i ? ' selected' : ''}" id="${opts.prefix || 'cb'}-${i}" onclick="${onclick}(${i})">
+    <button class="choice-btn${opts.selected === i ? ' selected' : ''}" id="${opts.prefix || 'cb'}-${i}" data-click="${onclick}(${i})">
       <span class="choice-lbl">${LETTERS[i]}</span><span class="choice-text">${fmt(c)}</span>
     </button>`).join('');
 }
@@ -1334,7 +1338,7 @@ function renderQuizQuestion() {
     <div class="question-box">
       <div class="q-toolbar">
         <span class="q-tag">${esc(SUBJECT_LABEL[q.subj])} · ${esc(KEY_LABEL[q.key] || q.s)}${q.aamc ? ` · AAMC ${esc(q.aamc)}` : ''}</span>
-        <button class="flag-btn${flagged ? ' on' : ''}" id="flag-btn" onclick="flagCurrent()" aria-pressed="${flagged}" title="Flag for later review (F)">⚑ ${flagged ? 'Flagged' : 'Flag'}</button>
+        <button class="flag-btn${flagged ? ' on' : ''}" id="flag-btn" data-click="flagCurrent()" aria-pressed="${flagged}" title="Flag for later review (F)">⚑ ${flagged ? 'Flagged' : 'Flag'}</button>
       </div>
       ${quiz.speed ? `<div class="speed-bar"><div class="speed-fill" id="speed-fill"></div></div>` : ''}
       ${why || q.variant ? `<div class="q-reason">${q.variant ? `<span class="variant-pill">${q.variant === 'authored' ? `Applied: ${esc(VARIANT_KIND[q.kind] || 'new angle')}` : 'Asked a different way'}</span>` : ''}${why ? `<span>Why this question: ${esc(why)}</span>` : ''}</div>` : ''}
@@ -1352,7 +1356,7 @@ function choicesOrPrompt(view) {
   if (!prefs.recallFirst || view.revealed || quiz.speed) return choiceButtons(view.choices, 'pick');
   return `<div class="recall-first">
     <p><b>Recall first:</b> think of the answer, then show the choices.</p>
-    <button class="next-btn" id="reveal-btn" onclick="revealChoices()">Show choices (Space)</button>
+    <button class="next-btn" id="reveal-btn" data-click="revealChoices()">Show choices (Space)</button>
   </div>`;
 }
 function revealChoices() {
@@ -1408,15 +1412,16 @@ function renderNextArea() {
   $('nxt-area').innerHTML = `
     <div class="conf-row" role="group" aria-label="How sure were you?">
       <span class="conf-label">How sure were you?</span>
-      ${CONFIDENCE.map(([id, label, key]) => `<button class="conf-btn${conf === id ? ' on' : ''}" data-conf="${id}" onclick="setConfidence('${id}')" aria-pressed="${conf === id}" title="Key: ${key}">${label}</button>`).join('')}
+      ${CONFIDENCE.map(([id, label, key]) => `<button class="conf-btn${conf === id ? ' on' : ''}" data-conf="${id}" data-click="setConfidence('${id}')" aria-pressed="${conf === id}" title="Key: ${key}">${label}</button>`).join('')}
     </div>
     ${p && !p.right ? wrongAlternativePanel('recall',quiz.items[quiz.idx],quiz.results.at(-1).chosen,p.other) : ''}
     ${p && !p.right ? errorTypeRow(p.errType, 'setErrType') : ''}
     ${p && !p.right ? `<label class="explain-it">Explain it <span class="muted">(optional)</span>: in one sentence, why is the right answer right?
-      <textarea id="explain-input" rows="2" maxlength="300" oninput="if(quiz.pending)quiz.pending.note=this.value">${esc(p.note || '')}</textarea></label>` : ''}
-    <button class="next-btn" id="next-btn" onclick="nextQ()">${last && !quiz.adaptive ? 'See results →' : 'Next →'}</button>
+      <textarea id="explain-input" rows="2" maxlength="300" data-input="setPendingNote(this.value)">${esc(p.note || '')}</textarea></label>` : ''}
+    <button class="next-btn" id="next-btn" data-click="nextQ()">${last && !quiz.adaptive ? 'See results →' : 'Next →'}</button>
     <div class="kb-hint">Keys: 1–4 or A–D to answer · G / U / K for confidence · Enter for next · F to flag</div>`;
 }
+function setPendingNote(v) { if (quiz.pending) quiz.pending.note = String(v); }
 function setErrType(t) {
   if (!quiz.pending || quiz.pending.right) return;
   quiz.pending.errType = t;
@@ -1547,8 +1552,8 @@ function showQuizResults() {
     ${studyTip()}
     ${scoreStrip()}
     <div class="btn-row">
-      ${missed.length ? `<button class="new-quiz-btn" onclick="retryMissed()">Retry ${plural(missed.length, 'missed question')}</button>` : ''}
-      <button class="new-quiz-btn secondary" onclick="goHome()">Home</button>
+      ${missed.length ? `<button class="new-quiz-btn" data-click="retryMissed()">Retry ${plural(missed.length, 'missed question')}</button>` : ''}
+      <button class="new-quiz-btn secondary" data-click="goHome()">Home</button>
     </div>
     <div class="results-card">
       <div class="section-label">Missed this session (${missed.length})</div>
@@ -1556,7 +1561,7 @@ function showQuizResults() {
         stem: r.view.q.q, choices: r.view.choices, ans: r.view.ans, chosen: r.chosen, other: r.other, exp: r.view.q.exp,
         tag: `${SUBJECT_LABEL[r.view.q.subj]} · ${KEY_LABEL[r.view.q.key] || r.view.q.s}`,
       })).join('') : '<div class="all-correct">✓ Perfect session — nothing missed.</div>'}
-      ${missed.length ? `<button class="micro-btn" style="margin-top:10px" onclick="exportMissed()">Download missed questions (.txt)</button>` : ''}
+      ${missed.length ? `<button class="micro-btn" style="margin-top:10px" data-click="exportMissed()">Download missed questions (.txt)</button>` : ''}
     </div>
     ${flaggedHere.length ? `<div class="results-card"><div class="section-label">Flagged this session (${flaggedHere.length})</div>
       <p class="muted-note">Flagged questions stay in your Flagged list on the home screen until you unflag them.</p></div>` : ''}
@@ -1626,7 +1631,7 @@ function progressCards() {
       ${weak.length ? `<div class="sw-head red">Needs work</div>${weak.map(x => barRow(topicLabel(x.k), x.s.c, x.s.t)).join('')}` : ''}
       ${strong.length ? `<div class="sw-head green">Strong</div>${strong.map(x => barRow(topicLabel(x.k), x.s.c, x.s.t)).join('')}` : ''}
       ${!weak.length && !strong.length ? '<p class="muted-note">Answer at least 5 questions in a topic to see it here.</p>' : ''}
-      ${weak.length ? '<button class="new-quiz-btn" onclick="drillWeak()">Drill weak topics</button>' : ''}
+      ${weak.length ? '<button class="new-quiz-btn" data-click="drillWeak()">Drill weak topics</button>' : ''}
     </div>`;
 }
 // ── MCAT score report ──
@@ -1707,7 +1712,7 @@ function scoreReportCards() {
         <summary>How this score is calculated</summary>
         <p>The AAMC scores each section on 118–132 (midpoint 125) and adds the four for a 472–528 total. Each section draws on fixed shares of content. C/P is 30% general chemistry, 25% physics, 25% biochemistry, 15% organic chemistry and 5% biology. B/B is 65% biology, 25% biochemistry and 5% each general and organic chemistry. P/S is 65% psychology, 30% sociology and 5% biology. CARS is reading and reasoning only.</p>
         <p>Every subject below gets an MCAT-equivalent score from your answers. Full-length questions count 3×, passage questions 2× and recall questions 1×. Recall questions test single facts, so they're converted on a stricter curve. A section score is its subjects' scores weighted by the shares above. Subjects with fewer than ${MIN_ANSWERS} answers are left out. A section needs eligible subjects representing at least 70% of its weighting; this is not the percentage of the syllabus studied. The ± range narrows as you answer more.</p>
-        <p>Percentiles are the AAMC ranks in effect May 1, 2026 – April 30, 2027. These are study estimates, not predictions: the AAMC converts raw scores separately for every test form. A full-length exam is the best single indicator. <a href="#" onclick="showAbout();return false">About &amp; disclaimers</a></p>
+        <p>Percentiles are the AAMC ranks in effect May 1, 2026 – April 30, 2027. These are study estimates, not predictions: the AAMC converts raw scores separately for every test form. A full-length exam is the best single indicator. <a href="#" data-click="showAbout();return false">About &amp; disclaimers</a></p>
       </details>
     </div>
     <div class="results-card">
@@ -1739,7 +1744,7 @@ function masteryMapCard() {
     <div class="section-label">Topic model <span class="muted">(practice estimate, not delayed-retention proof)</span></div>
     <div class="legend">${Object.entries(LEVELS).map(([k, l]) => `<span class="m-chip lvl-${k}">${l}</span>`).join('')}</div>
     ${focus.length ? `<div class="focus-box"><b>Next focus:</b> ${focus.map(f => `${esc(KEY_LABEL[f.k] || f.k)} (${Math.round(f.p * 100)}%)`).join(' · ')}
-      <button class="micro-btn" onclick="startSmartSession()">Start Smart Session</button></div>` : ''}
+      <button class="micro-btn" data-click="startSmartSession()">Start Smart Session</button></div>` : ''}
     ${SUBJECTS.map(s => `<div class="m-subject"><div class="m-subject-name">${esc(s.label)}</div><div class="m-chips">
       ${s.groups.flatMap(g => g.chips).map(c => { const i = chipInfo(c); return `<span class="m-chip lvl-${i.level}" title="${i.n} answers${i.p != null ? ` · ${Math.round(i.p * 100)}% predicted` : ''}">${esc(c.label)}${i.p != null && i.n >= 5 ? ` <small>${Math.round(i.p * 100)}%</small>` : ''}</span>`; }).join('')}
     </div></div>`).join('')}
@@ -1914,7 +1919,7 @@ function aamcCard() {
       return `<tr><td><b>${code}</b></td><td>${esc(name)}</td>
         <td>${a.seen}/${a.total} seen</td>
         <td><span class="m-chip lvl-${lv.level}">${lv.p != null ? Math.round(lv.p * 100) + '%' : 'No data'}</span>
-          <button class="micro-btn" onclick="drillCategory('${code}')">Drill</button></td></tr>`;
+          <button class="micro-btn" data-click="drillCategory('${code}')">Drill</button></td></tr>`;
     }).join('')}</table>
     ${psTagged < psTotal ? '<p class="muted-note">Some psychology and sociology recall questions are tagged by topic only, so part of their 7B–10A content is counted under 7A and 8B.</p>' : '<p class="muted-note">Psychology and sociology questions are tagged one by one to their AAMC category; science questions use their topic\'s primary category.</p>'}
   </div>`;
@@ -2009,12 +2014,12 @@ function smartSessionSize() {
 }
 function planStrip() {
   const p = computePlan();
-  if (!p) return `<button class="plan-strip empty" onclick="showPlan()">📅 Set your MCAT date to get a daily study plan →</button>`;
-  if (p.daysLeft < 0) return `<button class="plan-strip" onclick="showPlan()">📅 Your test date has passed. Update your study plan →</button>`;
-  if (p.daysLeft === 0) return `<button class="plan-strip" onclick="showPlan()">📅 Test day. Trust your preparation, and good luck!</button>`;
+  if (!p) return `<button class="plan-strip empty" data-click="showPlan()">📅 Set your MCAT date to get a daily study plan →</button>`;
+  if (p.daysLeft < 0) return `<button class="plan-strip" data-click="showPlan()">📅 Your test date has passed. Update your study plan →</button>`;
+  if (p.daysLeft === 0) return `<button class="plan-strip" data-click="showPlan()">📅 Test day. Trust your preparation, and good luck!</button>`;
   const doneAll = p.recallTargetMet;
   const ahead = p.seen - p.expectedSeen;
-  return `<button class="plan-strip" onclick="showPlan()">
+  return `<button class="plan-strip" data-click="showPlan()">
     <span>📅 <b>${p.daysLeft}</b> day${p.daysLeft === 1 ? '' : 's'} to the MCAT${p.inFinal ? ' · final review phase' : ''}</span>
     <span>New facts: <b>${p.recall.tracked ? p.recall.fresh : '—'}</b> / ${p.newGoal} · Reviews: <b>${p.recall.tracked ? p.recall.reviews : '—'}</b> / ${p.reviewGoal}${doneAll ? ' ✓' : ''}</span>
     <span class="${ahead >= 0 ? 'ok' : 'behind'}">Content-coverage pace: ${ahead >= 0 ? 'on track' : `${-ahead} behind`}</span>
@@ -2024,7 +2029,7 @@ function planSummaryCard() {
   const p = computePlan();
   if (!p || p.daysLeft < 0) return '';
   return `<div class="results-card"><div class="section-label">Study plan</div>${planDetails(p)}
-    <button class="micro-btn" onclick="showPlan()">Edit plan</button></div>`;
+    <button class="micro-btn" data-click="showPlan()">Edit plan</button></div>`;
 }
 function planDetails(p) {
   return `<div class="stat-row">
@@ -2034,7 +2039,7 @@ function planDetails(p) {
       <div class="stat"><b>${p.seen.toLocaleString()}</b><span>of ${QB.length.toLocaleString()} seen</span></div>
     </div>
     <p class="muted-note">Today: new facts <b>${p.recall.tracked ? p.recall.fresh : 'not classified'}/${p.newGoal}</b> · review attempts <b>${p.recall.tracked ? p.recall.reviews : 'not classified'}/${p.reviewGoal}</b>. The new/review split covers answers since this tracking was introduced; earlier attempts are not retroactively classified. Content pace tracks bank coverage, not test readiness.</p>
-    ${p.activity ? `<div class="advice"><b>Today: ${esc(DISCIPLINES[p.activity.subj])} ${p.activity.kind === 'mini' ? 'mini test' : 'passage'} ${p.activityDone ? '✓ completed' : 'not completed'}</b> · ${p.passageMinutes} minutes reserved including review. Pair it with recall in the same subject.<button class="micro-btn" onclick="startSubjectWork('${p.activity.subj}','${p.activity.kind}')">${p.activityDone ? 'Optional extra practice' : 'Start planned passage work'}</button></div>` : ''}
+    ${p.activity ? `<div class="advice"><b>Today: ${esc(DISCIPLINES[p.activity.subj])} ${p.activity.kind === 'mini' ? 'mini test' : 'passage'} ${p.activityDone ? '✓ completed' : 'not completed'}</b> · ${p.passageMinutes} minutes reserved including review. Pair it with recall in the same subject.<button class="micro-btn" data-click="startSubjectWork('${p.activity.subj}','${p.activity.kind}')">${p.activityDone ? 'Optional extra practice' : 'Start planned passage work'}</button></div>` : ''}
     ${p.overCapacity ? `<div class="advice">After reserving passage time, your daily time fits about <b>${p.capacity}</b> questions, but you have <b>${p.newPerDay}</b> new plus <b>${p.due}</b> due. Add time, or let the Smart Session prioritize: it puts high-yield and weak topics first.</div>` : ''}
     ${p.inFinal ? '<div class="advice">You\'re in the final review phase: no new material. Focus on due reviews, weak topics, mistake patterns and full-length practice.</div>' : ''}
     ${passageSchedule(p)}
@@ -2050,14 +2055,14 @@ function showPlan() {
       <label>MCAT test date <input type="date" id="plan-date" min="${localDay()}" value="${esc(plan.date || '')}"></label>
       <label>Study days per week <select id="plan-days">${[3, 4, 5, 6, 7].map(n => `<option value="${n}"${(plan.days || 6) === n ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
       <label>Time per study day <select id="plan-min">${[30, 60, 90, 120, 180, 240].map(n => `<option value="${n}"${(plan.minutes || 120) === n ? ' selected' : ''}>${n >= 60 ? n / 60 + ' h' : n + ' min'}</option>`).join('')}</select></label>
-      <button class="new-quiz-btn" onclick="savePlan()">Save plan</button>
-      ${plan.date ? '<button class="text-btn" onclick="clearPlan()">Remove plan</button>' : ''}
+      <button class="new-quiz-btn" data-click="savePlan()">Save plan</button>
+      ${plan.date ? '<button class="text-btn" data-click="clearPlan()">Remove plan</button>' : ''}
     </div>
     ${p && p.daysLeft >= 0 ? `<div class="results-card"><div class="section-label">Your plan</div>${planDetails(p)}</div>${studyPathCard()}` : ''}
     <div class="results-card"><div class="section-label">How the plan works</div>
       <p class="muted-note" style="margin-top:0">Unseen questions are spread over your study days up to the final review phase (the last 2 weeks, or 1 week if the test is close). Each day's target is that new material plus everything due for review. Each study day also reserves time for one passage (or a ready subject mini test), including review; recall is capped at the remaining daily time (about ${SECONDS_PER_RECALL} seconds per question). The Smart Session sizes itself to what's left for today. Full-length exams are spaced so the last ones fall in the final month. AAMC's official practice exams are the closest match to the real test, so the plan saves them for last.</p>
     </div>
-    <div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div>`;
+    <div class="btn-row"><button class="new-quiz-btn secondary" data-click="goHome()">Home</button></div>`;
 }
 function savePlan() {
   const date = $('plan-date').value;
@@ -2081,7 +2086,7 @@ function drillCategory(code) {
 function scoreStrip() {
   const est = estimateScores();
   if (!est.sections.some(s => s.scaled != null)) return '';
-  return `<button class="score-strip" onclick="showProgress()" title="Open your score report">
+  return `<button class="score-strip" data-click="showProgress()" title="Open your score report">
     <span class="ss-total"><small>Est. MCAT</small>${est.total ?? '—'}</span>
     ${est.sections.map(s => `<span class="ss-sec"><small>${s.abbrev}</small>${s.scaled ?? '—'}</span>`).join('')}
     <span class="ss-go">Score report →</span>
@@ -2104,8 +2109,8 @@ function showProgress() {
     ${fluencyCard()}
     ${html || '<div class="results-card"><p class="muted-note">No recall answers recorded yet. Finish a few questions and your progress will appear here.</p></div>'}
     ${examHistoryCard()}
-    <div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div>
-    <button class="text-btn danger" onclick="resetProgress()">Reset all progress on this device…</button>`;
+    <div class="btn-row"><button class="new-quiz-btn secondary" data-click="goHome()">Home</button></div>
+    <button class="text-btn danger" data-click="resetProgress()">Reset all progress on this device…</button>`;
 }
 function resetProgress() {
   if (!confirm('Erase recall stats, memory history, flags, passage scores, estimates and exam history for the active study profile? If signed in, this cleared copy will replace your cloud study progress when synced. This cannot be undone.')) return;
@@ -2136,7 +2141,7 @@ function renderPassageSelector() {
       <div class="pgroup"><div class="pgroup-label">${esc(g.label)}</div><div class="pgroup-list">
         ${g.list.map(p => {
           const s = pstats[p.id];
-          return `<button class="psel-btn${p.id === selectedPassageId ? ' active' : ''}${s ? ' done' : ''}" onclick="selectPassage('${p.id}')">
+          return `<button class="psel-btn${p.id === selectedPassageId ? ' active' : ''}${s ? ' done' : ''}" data-click="selectPassage('${p.id}')">
             <span class="psel-name">${esc(p.title)}</span>
             <span class="psel-meta">${EXAM_PASSAGE_IDS.has(p.id) ? '<span class="exam-dot" title="Used in a full-length exam">FL</span>' : ''}
               ${s ? `<span class="psel-score">Best ${s.best}%</span>` : ''}<span class="psel-count">${p.questions.length}Q</span></span>
@@ -2245,7 +2250,7 @@ function finishPassageAnswer(chosen, other = null, answerMs = null) {
   $('pp-score').textContent = `✓ ${pq.results.filter(r => r.right).length}/${pq.results.length}`;
   $('pp-exp').innerHTML = finalTwoFeedback(view, chosen, other) + explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Passage · ${pq.p.title}`, view.q.q));
   const last = pq.idx + 1 >= pq.views.length;
-  $('pp-next').innerHTML = `${right ? '' : wrongAlternativePanel('passage',view,chosen,other)+errorTypeRow(null, 'setPassageErr')}<button class="next-btn" id="pp-next-btn" onclick="nextPassageQ()">${last ? 'See results →' : 'Next question →'}</button>`;
+  $('pp-next').innerHTML = `${right ? '' : wrongAlternativePanel('passage',view,chosen,other)+errorTypeRow(null, 'setPassageErr')}<button class="next-btn" id="pp-next-btn" data-click="nextPassageQ()">${last ? 'See results →' : 'Next question →'}</button>`;
   $('pp-next-btn').focus({ preventScroll: true });
 }
 function setPassageErr(t) {
@@ -2305,9 +2310,9 @@ function showPassageResults() {
         : '<div class="all-correct">✓ Perfect — no missed questions.</div>'}
     </div>
     <div class="btn-row">
-      <button class="new-quiz-btn" onclick="startPassage()">Retry passage</button>
-      <button class="new-quiz-btn secondary" onclick="nextPassage()">Next passage →</button>
-      <button class="new-quiz-btn secondary" onclick="goHome()">Home</button>
+      <button class="new-quiz-btn" data-click="startPassage()">Retry passage</button>
+      <button class="new-quiz-btn secondary" data-click="nextPassage()">Next passage →</button>
+      <button class="new-quiz-btn secondary" data-click="goHome()">Home</button>
     </div>
     ${studyPathCard(disciplineOfPassage(pq.p))}
     ${(snapshotEstimate(), scoreStrip())}`;
@@ -2359,9 +2364,9 @@ function renderExamList() {
           ${last ? `<div class="exam-meta">Last score: <b>${Number.isFinite(last.total) ? last.total : '—'}</b> (${new Date(last.date).toLocaleDateString()})</div>` : ''}
         </div>
         <div class="exam-actions">
-          <button class="new-quiz-btn" onclick="startExam(${i})">${saved ? 'Resume' : 'Start exam'}</button>
-          ${saved ? `<button class="text-btn" onclick="abandonExam(${i})">Discard progress</button>` : ''}
-          ${store.get(KEYS.examLast(e.id), null) ? `<button class="text-btn" onclick="openLastExamReview(${i})">Review last attempt</button>` : ''}
+          <button class="new-quiz-btn" data-click="startExam(${i})">${saved ? 'Resume' : 'Start exam'}</button>
+          ${saved ? `<button class="text-btn" data-click="abandonExam(${i})">Discard progress</button>` : ''}
+          ${store.get(KEYS.examLast(e.id), null) ? `<button class="text-btn" data-click="openLastExamReview(${i})">Review last attempt</button>` : ''}
         </div>
       </div>`;
     }).join('')}`;
@@ -2435,8 +2440,8 @@ function renderSectionIntro() {
       <li>Use <b>Review</b> to see all questions, jump around, and end the section.</li>
       <li>When the timer reaches 0:00, the section ends automatically.</li>
     </ul>
-    <button class="new-quiz-btn" onclick="beginSection()">Start section →</button>
-    <button class="text-btn" onclick="goHome()">Save & exit</button>
+    <button class="new-quiz-btn" data-click="beginSection()">Start section →</button>
+    <button class="text-btn" data-click="goHome()">Save & exit</button>
   </div>`;
 }
 function beginSection() { exam.phase = 'question'; exam.qi = 0; saveExam(); renderExam(); }
@@ -2474,15 +2479,15 @@ function renderExamQuestion() {
     <div class="question-box">
       <div class="q-toolbar">
         <span class="q-tag">${q.passageTitle ? 'Passage-based' : 'Discrete'} · Q${exam.qi + 1}</span>
-        <button class="flag-btn${marked ? ' on' : ''}" onclick="toggleMark()" aria-pressed="${marked}" title="Mark for review (M)">⚑ ${marked ? 'Marked' : 'Mark'}</button>
+        <button class="flag-btn${marked ? ' on' : ''}" data-click="toggleMark()" aria-pressed="${marked}" title="Mark for review (M)">⚑ ${marked ? 'Marked' : 'Mark'}</button>
       </div>
       <div class="question-text">${fmt(q.q)}</div>
     </div>
     <div class="choices" role="radiogroup">${choiceButtons(view.choices, 'examPick', { selected: chosen, prefix: 'ec' })}</div>
     <div class="exam-nav">
-      <button class="next-btn secondary" onclick="examNav(-1)" ${exam.qi === 0 ? 'disabled' : ''}>← Previous</button>
-      <button class="next-btn secondary" onclick="openSectionReview()">Review</button>
-      <button class="next-btn" onclick="examNav(1)">${exam.qi + 1 === n ? 'Review & end →' : 'Next →'}</button>
+      <button class="next-btn secondary" data-click="examNav(-1)" ${exam.qi === 0 ? 'disabled' : ''}>← Previous</button>
+      <button class="next-btn secondary" data-click="openSectionReview()">Review</button>
+      <button class="next-btn" data-click="examNav(1)">${exam.qi + 1 === n ? 'Review & end →' : 'Next →'}</button>
     </div>`;
   $('exam-body').innerHTML = q.passageTitle
     ? `<div class="split"><div class="split-passage" id="ex-passage">${passageCard('', q.passageTitle, q.passageText)}</div><div class="split-question">${questionHtml}</div></div>`
@@ -2524,11 +2529,11 @@ function renderSectionReview() {
   $('exam-body').innerHTML = `<div class="interstitial left">
     <h2>Review — ${esc(curSection().abbrev)}</h2>
     <p>${ans.length - unanswered} answered · <b>${unanswered} unanswered</b> · ${marks.filter(Boolean).length} marked. Select a number to go to that question.</p>
-    <div class="nav-grid">${ans.map((a, i) => `<button class="nav-cell${a != null ? ' answered' : ''}${marks[i] ? ' marked' : ''}" onclick="jumpTo(${i})" aria-label="Question ${i + 1}${a != null ? ', answered' : ', unanswered'}${marks[i] ? ', marked' : ''}">${i + 1}</button>`).join('')}</div>
+    <div class="nav-grid">${ans.map((a, i) => `<button class="nav-cell${a != null ? ' answered' : ''}${marks[i] ? ' marked' : ''}" data-click="jumpTo(${i})" aria-label="Question ${i + 1}${a != null ? ', answered' : ', unanswered'}${marks[i] ? ', marked' : ''}">${i + 1}</button>`).join('')}</div>
     <div class="legend"><span class="nav-cell answered">1</span> answered <span class="nav-cell">1</span> unanswered <span class="nav-cell marked">1</span> marked</div>
     <div class="btn-row">
-      <button class="new-quiz-btn secondary" onclick="jumpTo(${exam.qi})">Return to question ${exam.qi + 1}</button>
-      <button class="new-quiz-btn" onclick="confirmEndSection()">End section</button>
+      <button class="new-quiz-btn secondary" data-click="jumpTo(${exam.qi})">Return to question ${exam.qi + 1}</button>
+      <button class="new-quiz-btn" data-click="confirmEndSection()">End section</button>
     </div>
   </div>`;
 }
@@ -2572,8 +2577,8 @@ function renderBreak() {
     <p>The real exam offers a ${mins}-minute break here. Scores are shown at the end, as on test day.</p>
     <div class="break-clock" id="break-clock"></div>
     <p>Next: <b>${esc(next.label)}</b> · ${sectionQuestions(exam.ei, exam.si + 1).length} questions · ${next.timeMin} minutes</p>
-    <button class="new-quiz-btn" onclick="continueAfterBreak()">Continue to ${esc(next.abbrev)} →</button>
-    <button class="text-btn" onclick="goHome()">Save & exit</button>
+    <button class="new-quiz-btn" data-click="continueAfterBreak()">Continue to ${esc(next.abbrev)} →</button>
+    <button class="text-btn" data-click="goHome()">Save & exit</button>
   </div>`;
   const clock = () => {
     const el = $('break-clock');
@@ -2636,7 +2641,7 @@ function showExamResults(attempt) {
     ${examMissSummary(attempt).total ? `<div class="results-card study-misses">
       <div class="section-label">Turn mistakes into points</div>
       <p class="muted-note" style="margin-top:0">The exam itself doesn't adapt, just like the real MCAT. This session does: it targets the subjects you missed, weighted by how many you missed, with the same drill-until-it-sticks reinforcement.</p>
-      <button class="new-quiz-btn" onclick="studyExamMistakes()">Study my mistakes from this exam →</button>
+      <button class="new-quiz-btn" data-click="studyExamMistakes()">Study my mistakes from this exam →</button>
       ${examMissSummary(attempt).cars ? `<p class="muted-note">CARS isn't fact recall, so for the ${examMissSummary(attempt).cars} CARS misses, use the CARS passages in Passage mode.</p>` : ''}
     </div>` : ''}
     ${examBreakdownCard(attempt)}`;
@@ -2725,8 +2730,8 @@ function renderExamReview() {
   $('exam-review').innerHTML = `
     <div class="results-card">
       <div class="section-label">Answer review</div>
-      <div class="seg-row">${def.sections.map((s, i) => `<button class="seg-btn${i === si ? ' active' : ''}" onclick="setExamReview('si',${i})">${s.abbrev}</button>`).join('')}</div>
-      <div class="seg-row">${[['incorrect', 'Incorrect & unanswered'], ['marked', 'Marked'], ['all', 'All']].map(([f, l]) => `<button class="seg-btn small${f === filter ? ' active' : ''}" onclick="setExamReview('filter','${f}')">${l}</button>`).join('')}</div>
+      <div class="seg-row">${def.sections.map((s, i) => `<button class="seg-btn${i === si ? ' active' : ''}" data-click="setExamReview('si',${i})">${s.abbrev}</button>`).join('')}</div>
+      <div class="seg-row">${[['incorrect', 'Incorrect & unanswered'], ['marked', 'Marked'], ['all', 'All']].map(([f, l]) => `<button class="seg-btn small${f === filter ? ' active' : ''}" data-click="setExamReview('filter','${f}')">${l}</button>`).join('')}</div>
       ${attempt.results[si] ? (shown.length ? shown.map(x => `<div class="review-wrap"><div class="missed-tag">Q${x.i + 1}${x.marked ? ' · ⚑ marked' : ''}${x.right ? ' · ✓ correct' : ''}</div>${reviewItem({ stem: x.q.q, choices: x.choices, ans: x.ans, chosen: x.chosen, exp: x.q.exp, other: x.other, otherHandler: `setExamReviewAlternative.bind(null,${si},${x.i})`, otherId: `exam-other-${si}-${x.i}`, passageTitle: x.q.passageTitle })}</div>`).join('')
         : '<p class="muted-note">No questions match this filter.</p>') : '<p class="muted-note">This section was not completed.</p>'}
     </div>`;
@@ -2784,7 +2789,7 @@ function showAbout() {
 
       <p class="muted-note">Version 2.7 · Last updated October 2026</p>
     </div>
-    <div class="btn-row"><button class="new-quiz-btn secondary" onclick="goHome()">Home</button></div>`;
+    <div class="btn-row"><button class="new-quiz-btn secondary" data-click="goHome()">Home</button></div>`;
 }
 
 // ════════════════════════════════════════════════════════════════

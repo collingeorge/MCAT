@@ -2,7 +2,12 @@
 (() => {
   'use strict';
   const OWNER='mcat_cloud_owner', PREFIX='mcat_cloud_meta_', UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  const SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/+esm';
+  // Self-hosted SDK (vendor/README.md) so the CSP can stay script-src 'self'; SRI pins the exact file.
+  const SDK_SRC='vendor/supabase-js-2.118.0.umd.js', SDK_SRI='sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK';
+  function loadSdk(){
+    if(window.supabase?.createClient)return Promise.resolve(window.supabase);
+    return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=SDK_SRC;s.integrity=SDK_SRI;s.crossOrigin='anonymous';s.addEventListener('load',()=>window.supabase?.createClient?resolve(window.supabase):reject(Error('Cloud SDK unavailable')));s.addEventListener('error',()=>reject(Error('Cloud SDK failed to load')));document.head.appendChild(s);});
+  }
   // Capture synchronously: the static-page router normalizes the URL before SDK loading finishes.
   const callbackCode=new URLSearchParams(location.search||'').get('code');
   let client=null,user=null,timer=null,busy=false,choice=null,recovering=false,notice='Saved on this browser only',generation=0;
@@ -142,9 +147,9 @@
     const panel=document.getElementById('account-panel');if(!panel)return;
     const description=user?'Signed in as '+user.email:'Optional account · guest study remains available';
     panel.innerHTML='<p id="account-status" role="status"></p><details id="account-details"><summary>Account & cloud progress</summary><p id="account-identity"></p>'+
-      (user?'<button class="micro-btn" onclick="McatAccount.sync()">Sync now</button> <button class="micro-btn" onclick="McatAccount.logout()">Sign out</button> <button class="micro-btn" onclick="showProgress()">My score report</button>':'<label>Email <input id="account-email" type="email" autocomplete="email"></label><label>Password <input id="account-password" type="password" autocomplete="current-password" minlength="12"></label><div class="btn-row"><button class="micro-btn" onclick="McatAccount.action(\'login\')">Sign in</button><button class="micro-btn" onclick="McatAccount.action(\'signup\')">Create account</button><button class="text-btn" onclick="McatAccount.action(\'reset\')">Forgot password?</button></div>')+
-      (recovering?'<label>New password <input id="account-new-password" type="password" autocomplete="new-password" minlength="12"></label><button class="micro-btn" onclick="McatAccount.action(\'password\')">Set new password</button>':'')+
-      (choice?'<p>Copies are not automatically combined: doing so could duplicate scores and study counts. Restore the cloud copy, keep this account’s device copy, or explicitly copy the guest work on this browser.</p><button class="micro-btn" onclick="McatAccount.choose(\'cloud\')">Restore cloud progress'+(choice.empty?' (empty account)':'')+'</button> <button class="micro-btn" onclick="McatAccount.choose(\'device\')">Keep account device copy</button> <button class="micro-btn" onclick="McatAccount.choose(\'guest\')">Copy guest progress into my account</button>':'')+
+      (user?'<button class="micro-btn" data-click="McatAccount.sync()">Sync now</button> <button class="micro-btn" data-click="McatAccount.logout()">Sign out</button> <button class="micro-btn" data-click="showProgress()">My score report</button>':'<label>Email <input id="account-email" type="email" autocomplete="email"></label><label>Password <input id="account-password" type="password" autocomplete="current-password" minlength="12"></label><div class="btn-row"><button class="micro-btn" data-click="McatAccount.action(\'login\')">Sign in</button><button class="micro-btn" data-click="McatAccount.action(\'signup\')">Create account</button><button class="text-btn" data-click="McatAccount.action(\'reset\')">Forgot password?</button></div>')+
+      (recovering?'<label>New password <input id="account-new-password" type="password" autocomplete="new-password" minlength="12"></label><button class="micro-btn" data-click="McatAccount.action(\'password\')">Set new password</button>':'')+
+      (choice?'<p>Copies are not automatically combined: doing so could duplicate scores and study counts. Restore the cloud copy, keep this account’s device copy, or explicitly copy the guest work on this browser.</p><button class="micro-btn" data-click="McatAccount.choose(\'cloud\')">Restore cloud progress'+(choice.empty?' (empty account)':'')+'</button> <button class="micro-btn" data-click="McatAccount.choose(\'device\')">Keep account device copy</button> <button class="micro-btn" data-click="McatAccount.choose(\'guest\')">Copy guest progress into my account</button>':'')+
       '<p class="muted-note">Signed-in progress is stored with Supabase. Passwords are handled by Supabase Auth. Cloud saves require a connection; check the save status before closing. Guest and account copies are separate.</p></details>';
     document.getElementById('account-identity').textContent=description;status(notice);
     document.getElementById('account-details').open=!user||!!choice||recovering;
@@ -155,7 +160,7 @@
     if(!config?.url||!config?.publishableKey){status('Cloud setup pending · saved on this browser only');return;}
     if(!/^https:\/\/[a-z0-9]+\.supabase\.co$/.test(config.url)||!config.publishableKey.startsWith('sb_publishable_')){status('Cloud configuration is invalid');return;}
     try {
-      const sdk=await import(SDK);
+      const sdk=await loadSdk();
       client=sdk.createClient(config.url,config.publishableKey,{auth:{flowType:'pkce',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
       client.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'){setTimeout(()=>recovery(),0);}else if(event==='SIGNED_OUT'){setTimeout(()=>prepareSession(session).catch(e=>status(e.message)),0);}});
       const {data,error}=callbackCode ? await client.auth.exchangeCodeForSession(callbackCode) : await client.auth.getSession();
