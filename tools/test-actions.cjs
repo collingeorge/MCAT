@@ -27,6 +27,10 @@ const sdkFile = /SDK_SRC='([^']+)'/.exec(fs.readFileSync(root + '/js/account.js'
 assert.equal(sri, 'sha384-' + require('node:crypto').createHash('sha384').update(fs.readFileSync(root + '/' + sdkFile)).digest('base64'), 'SRI matches the vendored SDK');
 assert.match(fs.readFileSync(root + '/sw.js', 'utf8'), new RegExp("'" + sdkFile.replace(/\./g, '\\.') + "'"));
 assert.match(fs.readFileSync(root + '/sw.js', 'utf8'), /'js\/actions\.js'/);
+// connect-src is pinned to this app's Supabase project, not every *.supabase.co project.
+const projectUrl = /url: '([^']+)'/.exec(fs.readFileSync(root + '/js/cloud-config.js', 'utf8'))[1];
+assert.match(csp, new RegExp("connect-src 'self' " + projectUrl.replace(/\./g, '\\.') + ';'));
+assert.doesNotMatch(csp, /\*\.supabase/);
 // Parser accepts the forms the app uses and nothing else.
 assert.equal(parse("startSubjectWork('cars',\"passage\")")[0].args.map(a => a.value).join(), 'cars,passage');
 assert.equal(parse('event.stopPropagation();setSubjectKeys(2,false,1)').length, 2);
@@ -57,4 +61,14 @@ const screens = ['renderHome()', "setMode('passage')", "setMode('exam')", "setMo
 for (const code of screens) { run(code); harvest(); }
 for (const name of seen) assert(ACTIONS.has(name), name + ' rendered but not allowlisted');
 assert(seen.size >= 45, 'harvested ' + seen.size + ' distinct actions');
+// Markup planted in synced score logs renders as nothing, not as elements or actions.
+const payload = '<div data-click="resetProgress()" style="position:fixed;inset:0">x</div><meta http-equiv="refresh" content="0;url=https://evil.example">';
+storage.set('mcat2_exam_history', JSON.stringify([{ examId: run('FULL_EXAMS[0].id'), date: Date.now(), total: payload, sections: [{ id: 'cp', scaled: payload, pct: 50 }] }, { examId: run('FULL_EXAMS[0].id'), date: Date.now(), total: 501, sections: [] }]));
+storage.set('mcat2_score_history', JSON.stringify([{ day: payload, total: 500 }, { day: '2026-11-01', total: payload }, { day: '2026-11-02', total: 501 }, { day: '2026-11-03', total: 503 }]));
+run('showProgress()');
+assert.doesNotMatch(el('results-body').innerHTML, /evil\.example|position:fixed|data-click="resetProgress\(\)" style/, 'score report ignores planted markup');
+assert.match(el('results-body').innerHTML, /501/);
+run('renderExamList()'); assert.doesNotMatch(el('exam-list').innerHTML, /evil\.example/);
+assert.equal(run("validExamAttempt({ei:0,results:[{correct:1,total:2,pct:50,scaled:'<b>'}],answers:[],orders:[]})"), null);
+storage.delete('mcat2_exam_history'); storage.delete('mcat2_score_history');
 console.log('UI actions passed: strict CSP (script-src self), no inline handlers, literal-only parser, ' + ACTIONS.size + ' allowlisted functions defined, ' + seen.size + ' rendered actions verified.');

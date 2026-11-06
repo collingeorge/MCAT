@@ -16,6 +16,10 @@ export default {
       headers.set('Cache-Control','no-store');
       headers.set('X-MCAT-Source','github-pages');
       headers.delete('Set-Cookie'); headers.delete('Report-To'); headers.delete('NEL');
+      // Meta-tag CSP cannot block framing; send it as headers on the custom domain.
+      headers.set('Content-Security-Policy',"frame-ancestors 'none'");
+      headers.set('X-Frame-Options','DENY');
+      headers.set('X-Content-Type-Options','nosniff');
       if (path === 'sw.js') headers.set('Service-Worker-Allowed',prefix);
       return new Response(response.body,{status:response.status,headers});
     } catch {

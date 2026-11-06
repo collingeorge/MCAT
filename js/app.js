@@ -76,6 +76,21 @@ function storedShape(value, fallback) {
   return typeof value === typeof fallback;
 }
 const RECORD_LOGS = new Set(['mcat2_errors', 'mcat2_passage_evidence', 'mcat2_external_passages', 'mcat2_exam_history', 'mcat2_official', 'mcat2_retention', 'mcat2_study_path', 'mcat2_score_history']);
+// Score fields from synced logs are rendered as numbers; anything else becomes null.
+const finiteOrNull = v => (Number.isFinite(v) ? v : null);
+const isRecord = v => !!v && typeof v === 'object' && !Array.isArray(v);
+const RECORD_FIELDS = {
+  mcat2_exam_history: r => typeof r.examId === 'string' && Number.isFinite(r.date) ? { ...r, total: finiteOrNull(r.total),
+    sections: Array.isArray(r.sections) ? r.sections.filter(isRecord).map(s => ({ id: typeof s.id === 'string' ? s.id : null, scaled: finiteOrNull(s.scaled), pct: finiteOrNull(s.pct) })) : [] } : null,
+  mcat2_score_history: r => /^\d{4}-\d{2}-\d{2}$/.test(r.day) ? { day: r.day, total: finiteOrNull(r.total),
+    sections: isRecord(r.sections) ? Object.fromEntries(Object.entries(r.sections).map(([k, v]) => [k, finiteOrNull(v)])) : {} } : null,
+};
+// A saved full-length attempt is shown only if its section results are numbers.
+function validExamAttempt(a) {
+  if (!isRecord(a) || !Number.isInteger(a.ei) || !FULL_EXAMS[a.ei] || !Array.isArray(a.results)) return null;
+  const nums = x => x == null || (isRecord(x) && ['correct', 'total', 'pct', 'scaled'].every(k => Number.isFinite(x[k])) && (x.timeMs == null || Number.isFinite(x.timeMs)));
+  return a.results.every(nums) && Array.isArray(a.answers) && Array.isArray(a.orders) ? a : null;
+}
 const store = {
   get(key, fallback) {
     try {
@@ -84,7 +99,9 @@ const store = {
       const value = JSON.parse(raw);
       if (!storedShape(value, fallback)) throw new Error('Unexpected saved-data format');
       // Record logs can arrive from another device; drop entries that are not objects.
-      return Array.isArray(value) && RECORD_LOGS.has(key) ? value.filter(r => r && typeof r === 'object' && !Array.isArray(r)) : value;
+      if (!Array.isArray(value) || !RECORD_LOGS.has(key)) return value;
+      const rows = value.filter(isRecord), shape = RECORD_FIELDS[key];
+      return shape ? rows.map(shape).filter(Boolean) : rows;
     } catch (e) { storageWarning('Some saved progress could not be read. You can keep studying, but check your browser storage settings.'); return fallback; }
   },
   set(key, value) { try { const storageKey=window.McatAccount?.storageKey(key) || key, raw=JSON.stringify(value); if(localStorage.getItem(storageKey)!==raw){localStorage.setItem(storageKey,raw);store.rev=(store.rev||0)+1;window.McatAccount?.changed();} } catch (e) { storageWarning('Progress could not be saved. Keep this tab open and check browser storage before leaving.'); } },
@@ -2611,6 +2628,8 @@ function openLastExamReview(ei) {
 
 const examReviewState = { attempt: null, si: 0, filter: 'incorrect' };
 function showExamResults(attempt) {
+  attempt = validExamAttempt(attempt);
+  if (!attempt) { goHome(); return; }
   stopExamTimer();
   show('screen-exam-results');
   examReviewState.attempt = attempt;

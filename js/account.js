@@ -143,11 +143,25 @@
     if(error){status('Sign-out failed. Please retry.');return;}
     generation++;user=null;choice=null;localStorage.removeItem(OWNER);location.reload();
   }
+  // Shared computers: sign out and delete this account's cached copy, only once the cloud has it all.
+  async function logoutAndForget() {
+    if(!user)return;
+    const id=user.id;await sync();
+    if(busy)return;
+    if(meta(id).dirty){status('Cloud saving is still pending. Sync before removing this device copy.');return;}
+    if(!confirm('Sign out and remove this account\u2019s study data from this browser? Your cloud copy is kept.'))return;
+    const {error}=await client.auth.signOut({scope:'local'});
+    if(error){status('Sign-out failed. Please retry.');return;}
+    keys().forEach(k=>localStorage.removeItem(scope(k,id)));
+    [PREFIX+id,'mcat_cloud_backup_'+id].forEach(k=>localStorage.removeItem(k));
+    // The guest-claim marker stays: guest progress was already copied into this account once.
+    generation++;user=null;choice=null;localStorage.removeItem(OWNER);location.reload();
+  }
   function render() {
     const panel=document.getElementById('account-panel');if(!panel)return;
     const description=user?'Signed in as '+user.email:'Optional account · guest study remains available';
     panel.innerHTML='<p id="account-status" role="status"></p><details id="account-details"><summary>Account & cloud progress</summary><p id="account-identity"></p>'+
-      (user?'<button class="micro-btn" data-click="McatAccount.sync()">Sync now</button> <button class="micro-btn" data-click="McatAccount.logout()">Sign out</button> <button class="micro-btn" data-click="showProgress()">My score report</button>':'<label>Email <input id="account-email" type="email" autocomplete="email"></label><label>Password <input id="account-password" type="password" autocomplete="current-password" minlength="12"></label><div class="btn-row"><button class="micro-btn" data-click="McatAccount.action(\'login\')">Sign in</button><button class="micro-btn" data-click="McatAccount.action(\'signup\')">Create account</button><button class="text-btn" data-click="McatAccount.action(\'reset\')">Forgot password?</button></div>')+
+      (user?'<button class="micro-btn" data-click="McatAccount.sync()">Sync now</button> <button class="micro-btn" data-click="McatAccount.logout()">Sign out</button> <button class="micro-btn" data-click="McatAccount.logoutAndForget()">Sign out and remove from this device</button> <button class="micro-btn" data-click="showProgress()">My score report</button>':'<label>Email <input id="account-email" type="email" autocomplete="email"></label><label>Password <input id="account-password" type="password" autocomplete="current-password" minlength="12"></label><div class="btn-row"><button class="micro-btn" data-click="McatAccount.action(\'login\')">Sign in</button><button class="micro-btn" data-click="McatAccount.action(\'signup\')">Create account</button><button class="text-btn" data-click="McatAccount.action(\'reset\')">Forgot password?</button></div>')+
       (recovering?'<label>New password <input id="account-new-password" type="password" autocomplete="new-password" minlength="12"></label><button class="micro-btn" data-click="McatAccount.action(\'password\')">Set new password</button>':'')+
       (choice?'<p>Copies are not automatically combined: doing so could duplicate scores and study counts. Restore the cloud copy, keep this account’s device copy, or explicitly copy the guest work on this browser.</p><button class="micro-btn" data-click="McatAccount.choose(\'cloud\')">Restore cloud progress'+(choice.empty?' (empty account)':'')+'</button> <button class="micro-btn" data-click="McatAccount.choose(\'device\')">Keep account device copy</button> <button class="micro-btn" data-click="McatAccount.choose(\'guest\')">Copy guest progress into my account</button>':'')+
       '<p class="muted-note">Signed-in progress is stored with Supabase. Passwords are handled by Supabase Auth. Cloud saves require a connection; check the save status before closing. Guest and account copies are separate.</p></details>';
@@ -176,5 +190,5 @@
   function recovery(){recovering=true;render();}
   function clearBackup(){const id=owner();if(id)localStorage.removeItem('mcat_cloud_backup_'+id);}
   function open(){if(!goHome())return;document.getElementById('account-details').open=true;document.getElementById('account-panel').scrollIntoView({block:'center',behavior:'smooth'});}
-  window.McatAccount={storageKey:scope,changed,init,action,sync,logout,choose,snapshot,validate,clearBackup,open};
+  window.McatAccount={storageKey:scope,changed,init,action,sync,logout,logoutAndForget,choose,snapshot,validate,clearBackup,open};
 })();
