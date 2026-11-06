@@ -58,7 +58,7 @@ async function main(){
  loginUser={id:B,email:'second@example.test'};cloud=null;el('account-email').value=loginUser.email;el('account-password').value='another-test-password';await api.action('login');await api.choose('cloud');
  assert(api.storageKey('mcat2_stats').includes(B));assert.equal(data.get(api.storageKey('mcat2_stats')),undefined,'A second account does not inherit the first account cache');
  assert(!JSON.stringify([...data.values()]).includes('test-only-password'));assert(rpcCalls>=4);
- const sql=fs.readFileSync(root+'/supabase/schema.sql','utf8');assert.match(sql,/enable row level security/);assert.match(sql,/auth.uid\(\)/);assert.match(sql,/current_revision <> p_expected_revision/);assert.match(sql,/revoke all.*from public, anon/);
+ const sql=fs.readFileSync(root+'/supabase/schema.sql','utf8');assert.match(sql,/revoke execute on function public\.rls_auto_enable\(\) from public, anon, authenticated;/);assert.match(sql,/exception when undefined_function then null;/);assert.match(sql,/enable row level security/);assert.match(sql,/auth.uid\(\)/);assert.match(sql,/current_revision <> p_expected_revision/);assert.match(sql,/revoke all.*from public, anon/);
  console.log('Account tests passed: no password/token backup, explicit guest import, per-user isolation, offline queue, conflict protection, cloud restore, sign-out and RLS schema guards.');
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});

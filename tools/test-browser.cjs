@@ -33,8 +33,8 @@ async function main() {
   });
   socket = new WebSocket(endpoint);
   await new Promise((resolve,reject)=>{socket.addEventListener('open',resolve,{once:true});socket.addEventListener('error',reject,{once:true})});
-  let nextId=0; const pending=new Map(), errors=[];
-  socket.addEventListener('message',event=>{const data=JSON.parse(event.data); if(data.method==='Runtime.exceptionThrown')errors.push(data.params.exceptionDetails);const task=pending.get(data.id);if(task){pending.delete(data.id);clearTimeout(task.timer);data.error?task.reject(Error(JSON.stringify(data.error))):task.resolve(data.result)}});
+  let nextId=0; const pending=new Map(), errors=[], consoleErrors=[];
+  socket.addEventListener('message',event=>{const data=JSON.parse(event.data); if(data.method==='Runtime.exceptionThrown')errors.push(data.params.exceptionDetails);if(data.method==='Runtime.consoleAPICalled'&&data.params.type==='error')consoleErrors.push(data.params.args.map(x=>x.value??x.description).join(' '));const task=pending.get(data.id);if(task){pending.delete(data.id);clearTimeout(task.timer);data.error?task.reject(Error(JSON.stringify(data.error))):task.resolve(data.result)}});
   const send=(method,params={},sessionId)=>new Promise((resolve,reject)=>{const id=++nextId;const timer=setTimeout(()=>{pending.delete(id);reject(Error('CDP timeout: '+method))},30000);pending.set(id,{resolve,reject,timer});socket.send(JSON.stringify({id,method,params,...(sessionId?{sessionId}:{})}))});
   const {targetId}=await send('Target.createTarget',{url:'about:blank'});
   const {sessionId}=await send('Target.attachToTarget',{targetId,flatten:true});
@@ -148,6 +148,24 @@ async function main() {
   assert.equal(await evaluate('quiz.results.length'),1,'studying works offline');
   await evaluate('goHome()');
   await command('Network.emulateNetworkConditions',{offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1});
+  // Every static page, with an empty profile and with a seeded profile: no exceptions, no console errors.
+  await command('Network.emulateNetworkConditions',{offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1});
+  const pages=['index','recall','passages','exams','score-report','about','recall-session','passage-session','exam-session','results','exam-results'];
+  const seed='(()=>{const D=n=>localDay(new Date(Date.now()+n*DAY));store.set(KEYS.plan,{date:D(83),start:D(-7),days:6,minutes:120});const m={};QB.slice(0,300).forEach((q,i)=>m[q.id]={S:i<40?0.3:9,D:5,last:Date.now()-2*DAY,seen:1,right:1,lapses:0});store.set(KEYS.mem,m);store.set(KEYS.daily,{[D(-2)]:40});store.set(KEYS.errors,QB.slice(0,6).map((q,i)=>({t:Date.now()-2*DAY+i,id:q.id,src:"recall",type:i?"knowledge":"confused",chosen:"a",answer:"b"})));store.set(KEYS.examHistory,[{examId:FULL_EXAMS[0].id,date:Date.now()-DAY,total:503,sections:[]}]);return true})()';
+  for(const profile of ['empty','seeded']){
+    for(const page of pages){
+      if(profile==='empty')await evaluate('localStorage.clear();sessionStorage.clear();true');
+      const before=errors.length, beforeConsole=consoleErrors.length;
+      await command('Page.navigate',{url:origin+'/'+page+'.html'});
+      await until('typeof activeScreen!=="undefined" && document.readyState==="complete" && document.querySelector("#today-plan .today-head")!==null');
+      if(profile==='seeded'&&page==='index')await evaluate(seed);
+      await sleep(150);
+      assert.equal(errors.length,before,profile+' '+page+'.html threw: '+JSON.stringify(errors.slice(before)));
+      assert.deepEqual(consoleErrors.slice(beforeConsole),[],profile+' '+page+'.html logged console errors');
+      assert.deepEqual(await evaluate('window.__violations||[]'),[],profile+' '+page+'.html CSP violations');
+    }
+  }
+  await command('Page.navigate',{url:origin});await until('typeof goHome==="function"');
   assert.deepEqual(await evaluate('window.__violations'),[],'no CSP violations or blocked actions');
   assert.equal(await evaluate('[...document.querySelectorAll("*")].some(e=>[...e.attributes].some(a=>/^on/.test(a.name)))'),false,'no inline handler attributes in the DOM');
   assert.equal(errors.length,0,JSON.stringify(errors));

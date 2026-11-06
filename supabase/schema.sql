@@ -46,3 +46,12 @@ begin
 end $$;
 revoke all on function public.save_mcat_progress(bigint,jsonb) from public, anon;
 grant execute on function public.save_mcat_progress(bigint,jsonb) to authenticated;
+
+-- Supabase's own rls_auto_enable() event-trigger helper is executable by API roles by default
+-- (Security Advisor warning). It returns event_trigger, so it cannot be called through the API,
+-- but revoke it anyway. Safe to run repeatedly, and a no-op on projects without the function.
+do $$
+begin
+  revoke execute on function public.rls_auto_enable() from public, anon, authenticated;
+exception when undefined_function then null;
+end $$;
