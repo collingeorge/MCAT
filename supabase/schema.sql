@@ -55,3 +55,17 @@ begin
   revoke execute on function public.rls_auto_enable() from public, anon, authenticated;
 exception when undefined_function then null;
 end $$;
+
+-- Self-service deletion: a signed-in user permanently deletes their own synced progress and
+-- their Supabase Auth account. It takes no arguments, so it can only ever act on auth.uid().
+create or replace function public.delete_my_account()
+returns void language plpgsql security definer set search_path = '' as $$
+declare
+  caller uuid := auth.uid();
+begin
+  if caller is null then raise exception 'Authentication required'; end if;
+  delete from public.mcat_progress where user_id = caller;
+  delete from auth.users where id = caller;
+end $$;
+revoke all on function public.delete_my_account() from public, anon;
+grant execute on function public.delete_my_account() to authenticated;
