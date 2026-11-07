@@ -43,6 +43,8 @@ jobs:
         run: node tools/test-pages.cjs
       - name: Visible study timer regression
         run: node tools/test-study-timer.cjs
+      - name: Sign-in SDK load error messages
+        run: node tools/test-sdk-load.cjs
       - name: Cloud account isolation and sync regression
         run: node tools/test-account.cjs
       - name: Content validation

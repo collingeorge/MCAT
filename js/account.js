@@ -4,9 +4,30 @@
   const OWNER='mcat_cloud_owner', PREFIX='mcat_cloud_meta_', UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   // Self-hosted SDK (vendor/README.md) so the CSP can stay script-src 'self'; SRI pins the exact file.
   const SDK_SRC='vendor/supabase-js-2.118.0.umd.js', SDK_SRI='sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK';
+  // Why the SDK failed matters for diagnosis (a WAF 403 once looked like missing configuration).
+  // A failed <script> gives no reason, so one same-origin request tells HTTP errors, byte changes
+  // (SRI mismatch) and network failures apart. Only the reason is logged; never user data.
+  const SDK_FAILED='The sign-in library couldn\u2019t load. Device study still works; try again later.';
+  let sdkFailure=null;
+  class SdkLoadError extends Error {}
+  async function sdkFailureReason(){
+    try{
+      const res=await fetch(SDK_SRC,{cache:'no-store',credentials:'same-origin'});
+      if(!res.ok)return 'HTTP '+res.status;
+      const digest=new Uint8Array(await crypto.subtle.digest('SHA-384',await res.arrayBuffer()));
+      const b64=btoa(String.fromCharCode(...digest));
+      return 'sha384-'+b64===SDK_SRI?'script error (file intact; blocked or failed to run)':'SRI mismatch';
+    }catch{return 'network error';}
+  }
   function loadSdk(){
     if(window.supabase?.createClient)return Promise.resolve(window.supabase);
-    return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=SDK_SRC;s.integrity=SDK_SRI;s.crossOrigin='anonymous';s.addEventListener('load',()=>window.supabase?.createClient?resolve(window.supabase):reject(Error('Cloud SDK unavailable')));s.addEventListener('error',()=>reject(Error('Cloud SDK failed to load')));document.head.appendChild(s);});
+    return new Promise((resolve,reject)=>{
+      const fail=reason=>{sdkFailure=reason;console.warn('Supabase SDK failed to load: '+reason);reject(new SdkLoadError(reason));};
+      const s=document.createElement('script');s.src=SDK_SRC;s.integrity=SDK_SRI;s.crossOrigin='anonymous';
+      s.addEventListener('load',()=>{if(window.supabase?.createClient){sdkFailure=null;resolve(window.supabase);}else{s.remove?.();fail('window.supabase missing');}});
+      s.addEventListener('error',()=>{s.remove?.();sdkFailureReason().then(fail);});
+      document.head.appendChild(s);
+    });
   }
   // Capture synchronously: the static-page router normalizes the URL before SDK loading finishes.
   const callbackCode=new URLSearchParams(location.search||'').get('code');
@@ -135,7 +156,7 @@
   async function action(mode) {
     const email=document.getElementById('account-email')?.value.trim(),field=document.getElementById(mode==='password'?'account-new-password':'account-password'),password=field?.value||'';
     if(!client&&configured()&&!busy)await connect();
-    if(!client){status('Cloud accounts are awaiting backend configuration. Device study still works.');return;}
+    if(!client){status(cloudUnavailableMessage());return;}
     if(busy)return;busy=true;
     try {
       if(!['login','signup','reset','password'].includes(mode))return;
@@ -197,6 +218,13 @@
     const loginButton=document.getElementById('account-login-btn');if(loginButton)loginButton.textContent=user?'My account':'Sign in / Create account';
   }
   // Guests with no account on this browser never load the 218 KB SDK until they choose to sign in.
+  // "Awaiting backend configuration" only when the config itself is missing or empty.
+  function cloudUnavailableMessage(){
+    const c=window.MCAT_CLOUD_CONFIG;
+    if(!c?.url||!c?.publishableKey)return 'Cloud accounts are awaiting backend configuration. Device study still works.';
+    if(!configured())return 'Cloud configuration is invalid. Device study still works.';
+    return sdkFailure?SDK_FAILED:'Cloud connection unavailable \u00b7 device progress retained';
+  }
   const sessionHint=()=>!!owner()||!!callbackCode||Object.keys(localStorage).some(k=>/^sb-.+-auth-token$/.test(k));
   function configured(){const c=window.MCAT_CLOUD_CONFIG;return !!c?.url&&!!c?.publishableKey&&/^https:\/\/[a-z0-9]+\.supabase\.co$/.test(c.url)&&c.publishableKey.startsWith('sb_publishable_');}
   async function init() {
@@ -216,7 +244,7 @@
       client.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'){setTimeout(()=>recovery(),0);}else if(event==='SIGNED_OUT'){setTimeout(()=>prepareSession(session).catch(e=>status(e.message)),0);}});
       const {data,error}=callbackCode ? await client.auth.exchangeCodeForSession(callbackCode) : await client.auth.getSession();
       if(error)throw error;await prepareSession(data.session);
-    }catch{status(callbackCode?'Email verification or recovery link could not be completed. Request a new link in this browser.':'Cloud connection unavailable · device progress retained');}
+    }catch(e){status(e instanceof SdkLoadError?SDK_FAILED:callbackCode?'Email verification or recovery link could not be completed. Request a new link in this browser.':'Cloud connection unavailable · device progress retained');}
   }
   // Register before SDK loading so a cold offline start can reconnect too.
   if(typeof window.addEventListener==='function'){
