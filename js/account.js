@@ -205,6 +205,27 @@
     // The guest-claim marker stays: guest progress was already copied into this account once.
     generation++;user=null;choice=null;localStorage.removeItem(OWNER);location.reload();
   }
+  // Self-service deletion. The server function takes no arguments and acts only on auth.uid(); the
+  // user must type DELETE. This device's account copy goes too (the account can no longer sign in
+  // to remove it); guest progress on this browser is untouched.
+  async function deleteAccount() {
+    if(!user||!client){status('Sign in first to delete your account.');return;}
+    const typed=document.getElementById('account-delete-confirm')?.value||'';
+    if(typed!=='DELETE'){status('Type DELETE in capital letters to confirm. Nothing was deleted.');return;}
+    if(busy)return;busy=true;
+    const id=user.id;
+    try{
+      clearTimeout(timer);
+      const {error}=await client.rpc('delete_my_account');
+      if(error)throw error;
+    }catch{busy=false;status('Account deletion failed. Nothing was deleted; check your connection and retry.');return;}
+    generation++;
+    keys().forEach(k=>localStorage.removeItem(scope(k,id)));
+    [PREFIX+id,'mcat_cloud_backup_'+id].forEach(k=>localStorage.removeItem(k));
+    breachNotice(false);
+    try{await client.auth.signOut({scope:'local'});}catch{}
+    user=null;choice=null;busy=false;localStorage.removeItem(OWNER);location.reload();
+  }
   function render() {
     const panel=document.getElementById('account-panel');if(!panel)return;
     const description=user?'Signed in as '+user.email:'Optional account · guest study remains available';
@@ -212,6 +233,7 @@
       (user?'<button class="micro-btn" data-click="McatAccount.sync()">Sync now</button> <button class="micro-btn" data-click="McatAccount.logout()">Sign out</button> <button class="micro-btn" data-click="McatAccount.logoutAndForget()">Sign out and remove from this device</button> <button class="micro-btn" data-click="showProgress()">My score report</button>':'<label>Email <input id="account-email" type="email" autocomplete="email"></label><label>Password <input id="account-password" type="password" autocomplete="current-password" minlength="12"></label><div class="btn-row"><button class="micro-btn" data-click="McatAccount.action(\'login\')">Sign in</button><button class="micro-btn" data-click="McatAccount.action(\'signup\')">Create account</button><button class="text-btn" data-click="McatAccount.action(\'reset\')">Forgot password?</button></div>')+
       (recovering?'<label>New password <input id="account-new-password" type="password" autocomplete="new-password" minlength="12"></label><button class="micro-btn" data-click="McatAccount.action(\'password\')">Set new password</button>':'')+
       (choice?'<p>Copies are not automatically combined: doing so could duplicate scores and study counts. Restore the cloud copy, keep this account’s device copy, or explicitly copy the guest work on this browser.</p><button class="micro-btn" data-click="McatAccount.choose(\'cloud\')">Restore cloud progress'+(choice.empty?' (empty account)':'')+'</button> <button class="micro-btn" data-click="McatAccount.choose(\'device\')">Keep account device copy</button> <button class="micro-btn" data-click="McatAccount.choose(\'guest\')">Copy guest progress into my account</button>':'')+
+      (user?'<details id="account-delete"><summary>Delete my account and cloud data</summary><p><b>This permanently deletes your account and all synced progress. It cannot be undone.</b> This device\u2019s copy of the account\u2019s progress is removed too. Copies on other devices stay there until you use <b>Sign out and remove from this device</b> on them before deleting, or clear that browser\u2019s site data. Guest progress on this browser is not affected.</p><label>Type <b>DELETE</b> to confirm <input id="account-delete-confirm" autocomplete="off" spellcheck="false"></label><button class="micro-btn danger" data-click="McatAccount.deleteAccount()">Delete my account and cloud data</button></details>':'')+
       '<p class="muted-note">Signed-in progress is stored with Supabase. Passwords are handled by Supabase Auth. Cloud saves require a connection; check the save status before closing. Guest and account copies are separate.</p></details>';
     document.getElementById('account-identity').textContent=description;status(notice);
     document.getElementById('account-details').open=!user||!!choice||recovering;
@@ -256,5 +278,5 @@
   function recovery(){recovering=true;render();}
   function clearBackup(){const id=owner();if(id)localStorage.removeItem('mcat_cloud_backup_'+id);}
   function open(){if(!goHome())return;document.getElementById('account-details').open=true;document.getElementById('account-panel').scrollIntoView({block:'center',behavior:'smooth'});}
-  window.McatAccount={storageKey:scope,changed,init,action,sync,logout,logoutAndForget,choose,snapshot,validate,clearBackup,open};
+  window.McatAccount={storageKey:scope,changed,init,action,sync,logout,logoutAndForget,deleteAccount,choose,snapshot,validate,clearBackup,open};
 })();

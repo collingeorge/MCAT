@@ -1,9 +1,9 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-const root=__dirname+'/..',data=new Map(),nodes=new Map();let reloads=0,cloud=null,offline=false,rpcCalls=0;
+const root=__dirname+'/..',data=new Map(),nodes=new Map();let reloads=0,cloud=null,offline=false,rpcCalls=0,deleteCalls=[],deleteFails=false;const otherUsersRows=new Map();
 const A='11111111-1111-4111-8111-111111111111',B='22222222-2222-4222-8222-222222222222';
 let loginUser={id:A,email:'student@example.test'},session=null,exchangedCode=null;
 function el(id){if(!nodes.has(id))nodes.set(id,{innerHTML:'',textContent:'',value:'',open:false});return nodes.get(id);}
-const client={auth:{onAuthStateChange(){},async exchangeCodeForSession(code){exchangedCode=code;return {data:{session}};},async getSession(){return {data:{session}};},async signInWithPassword(){session={user:loginUser};return {data:{session}};},async signUp(){return {data:{}};},async resetPasswordForEmail(){return {data:{}};},async updateUser(){return {data:{}};},async signOut(){session=null;return {}; }},from(){return {select(){return this;},eq(){return this;},async maybeSingle(){return offline?{error:{message:'offline'}}:{data:cloud};}};},async rpc(name,args){rpcCalls++;if(offline)return {error:{message:'offline'}};assert.equal(name,'save_mcat_progress');if((cloud?.revision||0)!==args.p_expected_revision)return {data:{conflict:true,revision:cloud.revision}};cloud={revision:(cloud?.revision||0)+1,payload:JSON.parse(JSON.stringify(args.p_payload))};return {data:{revision:cloud.revision}};}};
+const client={auth:{onAuthStateChange(){},async exchangeCodeForSession(code){exchangedCode=code;return {data:{session}};},async getSession(){return {data:{session}};},async signInWithPassword(){session={user:loginUser};return {data:{session}};},async signUp(){return {data:{}};},async resetPasswordForEmail(){return {data:{}};},async updateUser(){return {data:{}};},async signOut(){session=null;return {}; }},from(){return {select(){return this;},eq(){return this;},async maybeSingle(){return offline?{error:{message:'offline'}}:{data:cloud};}};},async rpc(name,args){if(name==='delete_my_account'){deleteCalls.push({args,caller:session?.user?.id||null});if(deleteFails)return {error:{message:'offline'}};if(!session)return {error:{message:'Authentication required'}};otherUsersRows.delete(session.user.id);cloud=null;return {data:null};}rpcCalls++;if(offline)return {error:{message:'offline'}};assert.equal(name,'save_mcat_progress');if((cloud?.revision||0)!==args.p_expected_revision)return {data:{conflict:true,revision:cloud.revision}};cloud={revision:(cloud?.revision||0)+1,payload:JSON.parse(JSON.stringify(args.p_payload))};return {data:{revision:cloud.revision}};}};
 const ctx=vm.createContext({console,Date,Math,Set,URL,clearTimeout(){},setTimeout(){return 1;},confirm(){return true;},KEYS:{stats:'mcat2_stats',mem:'mcat2_memory',dailyPlan:'mcat2_daily_plan',externalPassages:'mcat2_external_passages'},STUDY_TIMER_KEY:'mcat2_study_timer',FULL_EXAMS:[],showProgress(){},mockSdk:{createClient(){return client;}},window:{MCAT_CLOUD_CONFIG:{url:'https://test.supabase.co',publishableKey:'sb_publishable_test'}},document:{getElementById:el},location:{href:'https://example.test/index.html',reload(){reloads++;}},localStorage:{getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)}});
 // Breach-check service double: records each request and answers from a fixed set of "breached" passwords.
 const crypto=require('node:crypto'),pwned=new Map(),pwnedCalls=[];let pwnedDown=false;
@@ -97,6 +97,34 @@ async function main(){
   assert(api.storageKey('mcat2_stats').includes(A),'sign-in works when the breach service is unreachable');
   assert.equal(ctx.sessionStorage.getItem('mcat_breach_notice'),null,'no warning without a positive check');await api.init();assert.doesNotMatch(el('account-panel').innerHTML,/known data breaches/);
   pwnedDown=false;pwned.clear();
+ }
+ // Self-service deletion: signed-out cannot call it, it needs typed confirmation, and it deletes only the caller.
+ {
+  await api.logout();await api.init();
+  el('account-delete-confirm').value='DELETE';await api.deleteAccount();
+  assert.equal(deleteCalls.length,0,'signed out: deletion is never requested');assert.match(el('account-status').textContent,/Sign in first/);
+  assert.doesNotMatch(el('account-panel').innerHTML,/Delete my account and cloud data/,'no delete control when signed out');
+  loginUser={id:A,email:'student@example.test'};el('account-email').value=loginUser.email;el('account-password').value='test-only-password';await api.action('login');
+  await api.init();assert.match(el('account-panel').innerHTML,/Delete my account and cloud data/);assert.match(el('account-panel').innerHTML,/cannot be undone/);
+  const scoped=api.storageKey('mcat2_stats');data.set(scoped,JSON.stringify({biology:{c:1,t:2}}));
+  otherUsersRows.set(A,'row A');otherUsersRows.set(B,'row B');
+  for(const typed of ['','delete','Delete','DELETE ']){el('account-delete-confirm').value=typed;await api.deleteAccount();}
+  assert.equal(deleteCalls.length,0,'nothing is deleted without exactly DELETE');assert.match(el('account-status').textContent,/Type DELETE/);assert(data.has(scoped));
+  deleteFails=true;el('account-delete-confirm').value='DELETE';await api.deleteAccount();
+  assert.equal(deleteCalls.length,1);assert.match(el('account-status').textContent,/deletion failed/);assert(data.has(scoped),'a failed deletion keeps the device copy');
+  deleteFails=false;const before=reloads;el('account-delete-confirm').value='DELETE';await api.deleteAccount();
+  assert.equal(deleteCalls.length,2);assert.equal(deleteCalls[1].args,undefined,'no user id is sent; the server uses auth.uid()');assert.equal(deleteCalls[1].caller,A);
+  assert(!otherUsersRows.has(A)&&otherUsersRows.get(B)==='row B','only the caller\'s row is deleted');
+  assert(!data.has(scoped)&&!data.has('mcat_cloud_meta_'+A)&&!data.has('mcat_cloud_backup_'+A),'this device\'s account copy is removed');
+  assert.equal(JSON.parse(data.get('mcat2_stats')).biology.c,4,'guest progress untouched');assert.equal(reloads,before+1);
+  // Server side: no arguments, acts only on auth.uid(), refuses anonymous callers, executable by authenticated only.
+  const sql=fs.readFileSync(root+'/supabase/schema.sql','utf8'),fn=sql.slice(sql.indexOf('create or replace function public.delete_my_account()'));
+  assert.match(fn,/^create or replace function public\.delete_my_account\(\)\s*\n?returns void language plpgsql security definer set search_path = '' as \$\$/);
+  assert.match(fn,/caller uuid := auth\.uid\(\);/);assert.match(fn,/if caller is null then raise exception/);
+  assert.match(fn,/delete from public\.mcat_progress where user_id = caller;\s*\n\s*delete from auth\.users where id = caller;/);
+  assert.equal((fn.split('end $$;')[0].match(/delete from/g)||[]).length,2,'no other deletes');
+  assert.match(fn,/revoke all on function public\.delete_my_account\(\) from public, anon;/);assert.match(fn,/grant execute on function public\.delete_my_account\(\) to authenticated;/);
+  assert.doesNotMatch(fn,/grant execute on function public\.delete_my_account\(\) to (anon|public)/);
  }
  console.log('Account tests passed: no password/token backup, explicit guest import, per-user isolation, offline queue, conflict protection, cloud restore, sign-out and RLS schema guards.');
 }

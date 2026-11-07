@@ -23,7 +23,7 @@
     'startYesterdayMisses', 'startPassageMissReview', 'savePassageMissNote', 'startDailyNewFacts', 'startDailyPassage', 'logExternalPassage',
     'startDailyCloseout', 'startPlannedFullLength', 'logExternalFullLength', 'deferFullLength', 'startFullLengthReview', 'completeFullLengthReview',
     // account
-    'McatAccount.action', 'McatAccount.choose', 'McatAccount.sync', 'McatAccount.logout', 'McatAccount.logoutAndForget', 'McatAccount.open',
+    'McatAccount.action', 'McatAccount.choose', 'McatAccount.sync', 'McatAccount.logout', 'McatAccount.logoutAndForget', 'McatAccount.deleteAccount', 'McatAccount.open',
   ]);
   const NAME = /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)?$/;
   // Split on a separator outside quoted strings.

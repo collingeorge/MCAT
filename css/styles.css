@@ -442,6 +442,8 @@ body::before{
 .muted{color:var(--slate);font-weight:400;letter-spacing:0;text-transform:none}
 .text-btn{display:block;margin:12px auto 0;background:none;border:none;color:var(--navy-mid);font-size:12px;text-decoration:underline;cursor:pointer;font-family:inherit}
 .text-btn.danger{color:var(--red)}
+.micro-btn.danger{color:var(--red);border-color:var(--red)}
+.micro-btn.danger:hover{background:var(--red);color:var(--white);border-color:var(--red)}
 .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 14px}
 .btn-row>*{flex:1;min-width:160px}
 .new-quiz-btn.secondary,.next-btn.secondary{background:var(--white);color:var(--navy);border:1px solid var(--navy)}
