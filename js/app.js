@@ -1245,15 +1245,126 @@ function renderAamcConfig() {
       <button class="sg-chip${allOn(c.keys) ? ' on' : someOn(c.keys) ? ' partial' : ''}" aria-pressed="${allOn(c.keys)}"
         data-click="setAamcChip(${gi},${ci},${!allOn(c.keys)})">${esc(c.label)}<span class="sg-chip-count">${countAamcKeys(c.keys)}</span></button>`).join('')}
     </div>` : '').join('');
-  const mem = loadMem(), now = Date.now();
   const pool = AQB.filter(q => sel.has(q.key));
-  const due = pool.filter(q => mem[q.id] && retrievability(mem[q.id], now) < TARGET_RETENTION).length;
-  const seen = AQB.filter(q => mem[q.id] && mem[q.id].seen).length;
+  const st = aamcStatus(pool);
   const size = prefs.count ? Math.min(prefs.count, pool.length) : pool.length;
-  $('aamc-avail-text').textContent = `${pool.length} questions selected · ${seen} of ${AQB.length} seen${due ? ` · ${due} due for review` : ''}`;
+  $('aamc-avail-text').textContent = `${pool.length} questions selected · ${st.done} done · ${st.fresh} not yet seen${st.due ? ` · ${st.due} due for review` : ''}`;
   $('aamc-avail-session').textContent = pool.length ? `Session: ${size} question${size === 1 ? '' : 's'}` : '';
   $('start-btn').disabled = !pool.length;
   $('start-btn').textContent = 'Start →';
+  renderAamcProgress();
+}
+// Progress comes from the same per-question memory and per-topic stats the rest of the app uses
+function aamcStatus(pool) {
+  const mem = loadMem(), now = Date.now();
+  const out = { total: pool.length, done: 0, fresh: 0, due: 0, missed: 0, answers: 0, correct: 0 };
+  pool.forEach(q => {
+    const m = mem[q.id];
+    if (!m || !m.seen) { out.fresh++; return; }
+    out.done++; out.answers += m.seen; out.correct += m.right;
+    if (retrievability(m, now) < TARGET_RETENTION) out.due++;
+    if (m.right < m.seen) out.missed++;
+  });
+  return out;
+}
+const AAMC_SESSION_SIZE = 20;
+function aamcSession() {
+  const s = prefs.aamcSession;
+  if (!s || !Array.isArray(s.ids) || !Number.isFinite(s.startedAt)) return null;
+  const mem = loadMem();
+  const left = s.ids.filter(id => AQB_BY_ID.has(id) && !(mem[id] && mem[id].last >= s.startedAt && mem[id].seen));
+  return left.length ? { left, total: s.ids.length, startedAt: s.startedAt } : null;
+}
+function aamcWeakChips() {
+  const stats = store.get(KEYS.stats, {});
+  return AAMC_SECTION.groups.flatMap(g => g.chips).filter(c => {
+    const s = c.keys.reduce((a, k) => { const r = stats[k]; if (r && Number.isFinite(r.t) && Number.isFinite(r.c)) { a.c += r.c; a.t += r.t; } return a; }, { c: 0, t: 0 });
+    return s.t >= WEAK_RULE.minAttempts && s.c / s.t < WEAK_RULE.accuracy;
+  });
+}
+function aamcBar(label, value, total, sub) {
+  const p = total ? Math.round((value / total) * 100) : 0;
+  return `<div class="subject-row"><div class="sr-name">${esc(label)}</div>
+    <div class="sr-bar-wrap"><div class="sr-bar-fill" data-css="width:${p}%;background:var(--navy)"></div></div>
+    <div class="sr-pct">${p}%</div><div class="sr-n">${sub}</div></div>`;
+}
+function aamcScoreRow(label, s, st) {
+  const done = `${st.done}/${st.total} done`;
+  if (!s.t) return `<div class="subject-row"><div class="sr-name">${esc(label)}</div><div class="sr-bar-wrap"></div><div class="sr-pct">—</div><div class="sr-n">${done}</div></div>`;
+  const p = Math.round((s.c / s.t) * 100);
+  const col = p >= 80 ? 'var(--green)' : p >= 60 ? 'var(--amber)' : 'var(--red)';
+  return `<div class="subject-row"><div class="sr-name">${esc(label)}</div>
+    <div class="sr-bar-wrap"><div class="sr-bar-fill" data-css="width:${p}%;background:${col}"></div></div>
+    <div class="sr-pct">${p}%</div><div class="sr-n">${s.c}/${s.t} right · ${done}</div></div>`;
+}
+function renderAamcProgress() {
+  const box = $('aamc-progress');
+  if (!box) return;
+  const all = aamcStatus(AQB);
+  const sel = aamcSel();
+  const pool = AQB.filter(q => sel.has(q.key));
+  const st = aamcStatus(pool);
+  const resume = aamcSession();
+  const weak = aamcWeakChips();
+  const weakQs = AQB.filter(q => weak.some(c => c.keys.includes(q.key))).length;
+  const stats = store.get(KEYS.stats, {});
+  const sumStats = keys => keys.reduce((a, k) => { const r = stats[k]; if (r && Number.isFinite(r.t) && Number.isFinite(r.c)) { a.c += r.c; a.t += r.t; } return a; }, { c: 0, t: 0 });
+  const btn = (label, n, action, title) => `<button class="action-btn" ${n ? '' : 'disabled'} data-click="${action}" title="${esc(title)}">${label} <b>${n}</b></button>`;
+  const acc = all.answers ? Math.round((all.correct / all.answers) * 100) : null;
+  box.innerHTML = `
+    <div class="section-label">Your progress</div>
+    ${aamcBar('All AAMC questions', all.done, all.total, `${all.done} of ${all.total} done`)}
+    <p class="muted-note">${all.done ? `${all.total - all.done} left to see · ${acc}% of your answers correct${all.due ? ` · ${all.due} due for review` : ''}` : 'Nothing answered yet. Start below; your progress is saved as you go.'}</p>
+    <div class="home-actions">
+      ${resume ? `<button class="action-btn" data-click="resumeAamc()" title="Finish the questions you hadn't answered when you left">▶ Resume last session <b>${resume.left.length}</b></button>` : ''}
+      ${btn('Continue with new questions', st.fresh, 'continueAamc()', 'Questions you haven\'t seen yet, from the topics selected below')}
+      ${btn('Review missed', st.missed, 'reviewAamcMissed()', 'Questions you have answered wrong at least once, from the selected topics')}
+      ${btn('Review due', st.due, 'reviewAamcDue()', 'Questions whose spaced-review time has come, from the selected topics')}
+      ${btn('Drill weak topics', weakQs, 'drillAamcWeak()', `Topics under ${Math.round(WEAK_RULE.accuracy * 100)}% after at least ${WEAK_RULE.minAttempts} answers`)}
+    </div>
+    <details class="home-reference"${all.done ? ' open' : ''}><summary>Score report by topic</summary>
+      ${AAMC_SECTION.groups.filter(g => g.chips.length).map(g => {
+        const gq = AQB.filter(q => g.chips.some(c => c.keys.includes(q.key)));
+        return `<div class="disc-section"><div class="disc-section-head">${esc(g.label)}</div>
+          ${aamcScoreRow('All topics in this pack', sumStats(g.chips.flatMap(c => c.keys)), aamcStatus(gq))}
+          ${g.chips.map(c => aamcScoreRow(c.label, sumStats(c.keys), aamcStatus(AQB.filter(q => c.keys.includes(q.key))))).join('')}
+        </div>`;
+      }).join('')}
+      <p class="muted-note">Accuracy counts every answer, including repeats. Topics turn weak below ${Math.round(WEAK_RULE.accuracy * 100)}% after at least ${WEAK_RULE.minAttempts} answers.</p>
+    </details>`;
+}
+function beginAamc(questions, label) {
+  if (!questions.length) return;
+  prefs.aamcSession = { ids: questions.map(q => q.id), startedAt: Date.now() };
+  savePrefs();
+  beginQuiz(questions, label);
+}
+function aamcPoolSelected() { const sel = aamcSel(); return AQB.filter(q => sel.has(q.key)); }
+function sizeOf(n) { return prefs.count ? Math.min(prefs.count, n) : n; }
+function resumeAamc() {
+  const s = aamcSession();
+  if (!s) { renderAamcConfig(); return; }
+  beginQuiz(s.left.map(id => AQB_BY_ID.get(id)), AAMC_SECTION.label + ' (resumed)');
+}
+function continueAamc() {
+  const mem = loadMem();
+  const fresh = aamcPoolSelected().filter(q => !(mem[q.id] && mem[q.id].seen));
+  beginAamc(shuffled(fresh).slice(0, sizeOf(fresh.length) || AAMC_SESSION_SIZE), AAMC_SECTION.label + ': new questions');
+}
+function reviewAamcMissed() {
+  const mem = loadMem();
+  const missed = aamcPoolSelected().filter(q => mem[q.id] && mem[q.id].seen && mem[q.id].right < mem[q.id].seen);
+  beginAamc(shuffled(missed).slice(0, sizeOf(missed.length)), AAMC_SECTION.label + ': missed questions');
+}
+function reviewAamcDue() {
+  const mem = loadMem(), now = Date.now();
+  const due = aamcPoolSelected().filter(q => mem[q.id] && retrievability(mem[q.id], now) < TARGET_RETENTION);
+  beginAamc(shuffled(due).slice(0, sizeOf(due.length)), AAMC_SECTION.label + ': due for review');
+}
+function drillAamcWeak() {
+  const weak = aamcWeakChips();
+  const pool = AQB.filter(q => weak.some(c => c.keys.includes(q.key)));
+  beginAamc(pickQuestions(pool, sizeOf(pool.length)), AAMC_SECTION.label + ': weak topics');
 }
 function saveAamcSel() { prefs.aamcSelected = [...aamcSel()]; savePrefs(); renderAamcConfig(); }
 function setAamcCount(n) { prefs.count = n; savePrefs(); renderAamcConfig(); }
@@ -1267,7 +1378,7 @@ function aamcSelectAll(on) { AAMC_SECTION.keys.forEach(k => (on ? aamcSel().add(
 function startAamc() {
   const pool = AQB.filter(q => aamcSel().has(q.key));
   if (!pool.length) return;
-  beginQuiz(pickQuestions(pool, prefs.count || pool.length), AAMC_SECTION.label);
+  beginAamc(pickQuestions(pool, prefs.count || pool.length), AAMC_SECTION.label);
 }
 
 // ════════════════════════════════════════════════════════════════
