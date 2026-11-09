@@ -16,7 +16,7 @@
 <a class="study-skip" href="#screen-home">Skip to study content</a>
 <div class="study-status">Independent study · Local or account-synced progress · Sources &amp; limitations documented</div>
 <header class="study-masthead"><div class="study-masthead-inner"><a class="study-brand" href="https://collinbgeorge.com/"><span class="study-brand-name">Collin B. George</span><span class="study-brand-sub">Clinical education &amp; research</span></a><nav aria-label="Portfolio navigation"><a href="https://collinbgeorge.com/">Portfolio home ↗</a><a href="https://collinbgeorge.com/projects/mcat-study/">Study guide &amp; sources ↗</a></nav></div></header>
-<nav class="study-pages" aria-label="MCAT pages"><div class="wrap"><a data-study-page="index" href="index.html">Overview</a><a data-study-page="recall" href="recall.html">Recall</a><a data-study-page="passages" href="passages.html">Passages</a><a data-study-page="exams" href="exams.html">Full-length exams</a><a data-study-page="score-report" href="score-report.html">Score report</a><a data-study-page="about" href="about.html">About & sources</a><button id="account-login-btn" type="button" data-click="McatAccount.open()">Sign in / Create account</button></div></nav>
+<nav class="study-pages" aria-label="MCAT pages"><div class="wrap"><a data-study-page="index" href="index.html">Overview</a><a data-study-page="recall" href="recall.html">Recall</a><a data-study-page="passages" href="passages.html">Passages</a><a data-study-page="exams" href="exams.html">Full-length exams</a><a data-study-page="aamc" href="aamc.html">AAMC QBank</a><a data-study-page="score-report" href="score-report.html">Score report</a><a data-study-page="about" href="about.html">About & sources</a><button id="account-login-btn" type="button" data-click="McatAccount.open()">Sign in / Create account</button></div></nav>
 <div id="page-notice" class="wrap advice" role="status" hidden></div>
 <div class="study-timer-header">
 <section id="study-timer" class="study-timer" aria-label="Study time and break guidance"></section>
@@ -47,6 +47,7 @@
       <button class="mode-btn" id="btn-recall" role="tab" data-click="setMode('recall')">Recall<span class="mode-sub" id="mode-recall-sub"></span></button>
       <button class="mode-btn" id="btn-passage" role="tab" data-click="setMode('passage')">Passages<span class="mode-sub" id="mode-passage-sub"></span></button>
       <button class="mode-btn" id="btn-exam" role="tab" data-click="setMode('exam')">Full-length<span class="mode-sub" id="mode-exam-sub"></span></button>
+      <button class="mode-btn" id="btn-aamc" role="tab" data-click="setMode('aamc')">AAMC QBank<span class="mode-sub" id="mode-aamc-sub"></span></button>
     </div>
 
     <section id="recall-config">
@@ -78,6 +79,26 @@
 
     <section id="exam-config" hidden>
       <div id="exam-list"></div>
+    </section>
+
+    <section id="aamc-config" hidden>
+      <div class="config-card">
+        <div class="section-label">AAMC Question Bank Flashcards</div>
+        <p class="muted-note">Original questions written from the concepts tested in the AAMC question packs and question bank. No AAMC passages, questions or explanations are reproduced. This section is kept separate: these questions never appear in Recall, Smart Session, practice mixes, reviews, drills, the TODAY plan or score estimates.</p>
+        <div class="section-label mt-16">Questions per session</div>
+        <div class="count-row" id="aamc-count-row"></div>
+      </div>
+      <div class="config-card">
+        <div class="config-header">
+          <div class="section-label">Topics</div>
+          <div class="micro-row">
+            <button class="micro-btn" data-click="aamcSelectAll(true)">All</button>
+            <button class="micro-btn" data-click="aamcSelectAll(false)">None</button>
+          </div>
+        </div>
+        <div id="aamc-grid"></div>
+        <div class="sg-avail"><span id="aamc-avail-text"></span><span id="aamc-avail-session"></span></div>
+      </div>
     </section>
 
     <button class="start-btn" id="start-btn" data-click="startSession()">Start →</button>
@@ -174,6 +195,11 @@
 <script src="data/passages-data.js"></script>
 <script src="data/qb-variants-1.js"></script>
 <script src="data/qb-variants-2.js"></script>
+<script src="data/qb-aamc-bio.js"></script>
+<script src="data/qb-aamc-chem.js"></script>
+<script src="data/qb-aamc-phys.js"></script>
+<script src="data/qb-aamc-iqb.js"></script>
+<script src="data/qb-aamc-cars.js"></script>
 <script src="data/exam1.js"></script>
 <script src="data/exam2-cp.js"></script>
 <script src="data/exam2-bb.js"></script>

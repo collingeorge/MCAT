@@ -9,6 +9,8 @@
     'goHome', 'setMode', 'startSession', 'showAbout', 'showPlan', 'savePlan', 'clearPlan', 'showProgress', 'resetProgress', 'exportMissed',
     'startSmartSession', 'startDueReview', 'startFlagged', 'drillWeak', 'startSpeedDrill', 'retryMissed', 'drillCategory',
     'setCount', 'setMix', 'setRecallFirst', 'toggleSubjectOpen', 'setSubjectKeys', 'sgSelectAll', 'sgClearAll',
+    // AAMC Question Bank Flashcards section
+    'setAamcCount', 'setAamcChip', 'aamcSelectAll',
     // recall quiz
     'pick', 'revealChoices', 'setConfidence', 'setErrType', 'setPendingNote', 'setWrongAlternative', 'nextQ', 'endQuiz', 'flagCurrent',
     // passages and mini tests

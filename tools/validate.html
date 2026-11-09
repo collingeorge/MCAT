@@ -31,6 +31,11 @@
 <script src="../data/passages-data.js"></script>
 <script src="../data/qb-variants-1.js"></script>
 <script src="../data/qb-variants-2.js"></script>
+<script src="../data/qb-aamc-bio.js"></script>
+<script src="../data/qb-aamc-chem.js"></script>
+<script src="../data/qb-aamc-phys.js"></script>
+<script src="../data/qb-aamc-iqb.js"></script>
+<script src="../data/qb-aamc-cars.js"></script>
 <script src="../data/exam1.js"></script>
 <script src="../data/exam2-cp.js"></script>
 <script src="../data/exam2-bb.js"></script>
@@ -94,6 +99,25 @@
       if (!['physics', 'gen_chem'].includes(q.disc)) err(`QB_EQUATIONS[${i}]`, `disc must be physics or gen_chem (got "${q.disc}")`);
     });
   } else warn('QB_EQUATIONS', 'data/qb-equations.js not loaded');
+  // AAMC Question Bank Flashcards section: tag, discipline and category checks per pack
+  [
+    ['QB_AAMC_BIO', ['Cells, Membranes & Transport', 'Genetics, DNA & Gene Expression', 'Evolution & Microbiology', 'Organ Systems & Physiology', 'Metabolism & Enzymes', 'Passage & Data Skills'], ['biology', 'biochemistry'], /^[1-3][A-E]$/],
+    ['QB_AAMC_CHEM', ['Atoms, Periodic Trends & Bonding', 'Molecular Structure & Intermolecular Forces', 'Stoichiometry, Solutions & Gases', 'Acids, Bases & Solubility', 'Thermodynamics, Kinetics & Equilibrium', 'Electrochemistry & Redox', 'Organic Chemistry & Lab Techniques'], ['gen_chem', 'organic_chem'], /^[45][A-E]$/],
+    ['QB_AAMC_PHYS', ['Kinematics, Forces & Energy', 'Fluids', 'Electricity & Magnetism', 'Waves & Sound', 'Light & Optics', 'Atomic & Nuclear Physics'], ['physics'], /^(4[A-E]|5E)$/],
+    ['QB_AAMC_IQB', ['Sensation, Perception & Cognition', 'Learning, Memory & Development', 'Motivation, Emotion & Personality', 'Social Psychology', 'Sociology & Social Structure', 'Health, Inequality & Research Methods', 'Proteins & Enzymes', 'Metabolism & Bioenergetics', 'Nucleic Acids, Membranes & Lab Techniques'], ['psych_soc', 'biochemistry'], /^([1-9][A-E]|10A)$/],
+    ['QB_AAMC_CARS', ['CARS: Foundations of Comprehension', 'CARS: Reasoning Within the Text', 'CARS: Reasoning Beyond the Text'], ['cars'], /^(CMP|RWT|RBT)$/],
+  ].forEach(([name, tags, discs, code]) => {
+    const arr = { QB_AAMC_BIO: typeof QB_AAMC_BIO === 'undefined' ? null : QB_AAMC_BIO, QB_AAMC_CHEM: typeof QB_AAMC_CHEM === 'undefined' ? null : QB_AAMC_CHEM,
+      QB_AAMC_PHYS: typeof QB_AAMC_PHYS === 'undefined' ? null : QB_AAMC_PHYS, QB_AAMC_IQB: typeof QB_AAMC_IQB === 'undefined' ? null : QB_AAMC_IQB,
+      QB_AAMC_CARS: typeof QB_AAMC_CARS === 'undefined' ? null : QB_AAMC_CARS }[name];
+    if (!Array.isArray(arr)) return warn(name, 'not loaded');
+    banks[name] = arr;
+    arr.forEach((q, i) => {
+      if (!tags.includes(q.s)) err(`${name}[${i}]`, `unexpected tag "${q.s}"`);
+      if (!discs.includes(q.disc)) err(`${name}[${i}]`, `disc must be ${discs.join(' or ')} (got "${q.disc}")`);
+      if (!code.test(q.aamc || '')) err(`${name}[${i}]`, `unexpected aamc category "${q.aamc}"`);
+    });
+  });
   Object.entries(banks).forEach(([name, arr]) => arr.forEach((q, i) => {
     if (/\[IMAGE/i.test(q.q + q.exp + q.choices.join(' '))) err(`${name}[${i}]`, 'leftover [IMAGE] placeholder');
   }));
@@ -113,7 +137,7 @@
   }
 
   // AAMC content-category tags (optional per question)
-  const AAMC_CODES = new Set(['1A','1B','1C','1D','2A','2B','2C','3A','3B','4A','4B','4C','4D','4E','5A','5B','5C','5D','5E','6A','6B','6C','7A','7B','7C','8A','8B','8C','9A','9B','10A','SIRS']);
+  const AAMC_CODES = new Set(['1A','1B','1C','1D','2A','2B','2C','3A','3B','4A','4B','4C','4D','4E','5A','5B','5C','5D','5E','6A','6B','6C','7A','7B','7C','8A','8B','8C','9A','9B','10A','SIRS','CMP','RWT','RBT']);
   Object.entries(banks).forEach(([name, arr]) => arr.forEach((q, i) => {
     if (q.aamc !== undefined && !AAMC_CODES.has(q.aamc)) err(`${name}[${i}]`, `unknown aamc code "${q.aamc}"`);
   }));

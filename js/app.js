@@ -284,6 +284,16 @@ const SUBJECTS = [
   ]},
 ];
 const SUBJECT_LABEL = Object.fromEntries(SUBJECTS.map(s => [s.id, s.label]));
+// AAMC Question Bank Flashcards: a separate section. Its questions never enter QB or QB_BY_ID, so they
+// are never mixed into recall, Smart Session, mixes, reviews, drills, the TODAY plan or score estimates.
+const AAMC_SECTION = { id: 'aamc_qb', label: 'AAMC Question Bank Flashcards', groups: [
+  { label: 'Biology Question Pack, Vol. 1', tags: ['Cells, Membranes & Transport', 'Genetics, DNA & Gene Expression', 'Evolution & Microbiology', 'Organ Systems & Physiology', 'Metabolism & Enzymes', 'Passage & Data Skills'] },
+  { label: 'Chemistry Question Pack', tags: ['Atoms, Periodic Trends & Bonding', 'Molecular Structure & Intermolecular Forces', 'Stoichiometry, Solutions & Gases', 'Acids, Bases & Solubility', 'Thermodynamics, Kinetics & Equilibrium', 'Electrochemistry & Redox', 'Organic Chemistry & Lab Techniques'] },
+  { label: 'Physics Question Pack', tags: ['Kinematics, Forces & Energy', 'Fluids', 'Electricity & Magnetism', 'Waves & Sound', 'Light & Optics', 'Atomic & Nuclear Physics'] },
+  { label: 'Independent Question Bank: Psychology & Sociology', tags: ['Sensation, Perception & Cognition', 'Learning, Memory & Development', 'Motivation, Emotion & Personality', 'Social Psychology', 'Sociology & Social Structure', 'Health, Inequality & Research Methods'] },
+  { label: 'Independent Question Bank: Biochemistry', tags: ['Proteins & Enzymes', 'Metabolism & Bioenergetics', 'Nucleic Acids, Membranes & Lab Techniques'] },
+  { label: 'CARS Question Pack, Vol. 1', tags: ['CARS: Foundations of Comprehension', 'CARS: Reasoning Within the Text', 'CARS: Reasoning Beyond the Text'] },
+].map(g => ({ label: g.label, chips: g.tags.map(t => ({ label: t, tags: [t] })) })) };
 const ORGO_TAGS = new Set(['Bonding & Structure', 'Reactions & Mechanisms', 'Carbonyl Chemistry', 'Spectroscopy', 'Separations & Lab Techniques']);
 
 const QB = [];
@@ -303,6 +313,30 @@ const QB_BY_ID = new Map();
   QB.push(q);
   QB_BY_ID.set(id, q);
 }));
+
+// AAMC section pool, with its own id map (kept out of QB_BY_ID so the TODAY plan, study path and
+// evidence modules, which look questions up there, never pick these questions up)
+const AQB = [];
+const AQB_BY_ID = new Map();
+const AQB_KEY_COUNTS = Object.create(null);
+[typeof QB_AAMC_BIO === 'undefined' ? [] : QB_AAMC_BIO, typeof QB_AAMC_CHEM === 'undefined' ? [] : QB_AAMC_CHEM,
+  typeof QB_AAMC_PHYS === 'undefined' ? [] : QB_AAMC_PHYS, typeof QB_AAMC_IQB === 'undefined' ? [] : QB_AAMC_IQB,
+  typeof QB_AAMC_CARS === 'undefined' ? [] : QB_AAMC_CARS].flat().forEach(q => {
+  let id = 'aamc-' + hashId(q.s + '|' + q.q);
+  while (AQB_BY_ID.has(id)) id += 'x';
+  Object.assign(q, { subj: AAMC_SECTION.id, key: AAMC_SECTION.id + '|' + q.s, id });
+  AQB.push(q);
+  AQB_BY_ID.set(id, q);
+  AQB_KEY_COUNTS[q.key] = (AQB_KEY_COUNTS[q.key] || 0) + 1;
+});
+SUBJECT_LABEL[AAMC_SECTION.id] = AAMC_SECTION.label;
+AAMC_SECTION.groups.forEach(g => g.chips.forEach(c => { c.keys = c.tags.map(t => AAMC_SECTION.id + '|' + t).filter(k => AQB_KEY_COUNTS[k]); }));
+AAMC_SECTION.groups.forEach(g => { g.chips = g.chips.filter(c => c.keys.length); });
+AAMC_SECTION.keys = AAMC_SECTION.groups.flatMap(g => g.chips.flatMap(c => c.keys));
+const isAamc = q => !!q && q.subj === AAMC_SECTION.id;
+const bankOf = q => (isAamc(q) ? AQB : QB);
+const lookupQ = id => QB_BY_ID.get(id) || AQB_BY_ID.get(id);
+const countAamcKeys = keys => keys.reduce((n, k) => n + (AQB_KEY_COUNTS[k] || 0), 0);
 
 // Authored variants: the same fact asked from another angle (scenario, prediction, EXCEPT),
 // linked to their base question by its exact tag and stem
@@ -340,6 +374,7 @@ SUBJECTS.forEach(subject => {
   subject.keys = subject.groups.flatMap(g => g.keys);
 });
 const ALL_KEYS = SUBJECTS.flatMap(s => s.keys);
+AAMC_SECTION.groups.forEach(g => g.chips.forEach(c => c.keys.forEach(k => { KEY_LABEL[k] = c.label; })));
 const countKeys = keys => keys.reduce((n, k) => n + (KEY_COUNTS[k] || 0), 0);
 
 // ════════════════════════════════════════════════════════════════
@@ -575,7 +610,8 @@ function predictedSuccess(q, mem, mast) {
 
 function recordAnswer(q, right) {
   countAnswerToday();
-  recordRecallToday(q);
+  // AAMC section answers don't count toward the TODAY plan's recall targets
+  if (!isAamc(q)) recordRecallToday(q);
   const stats = store.get(KEYS.stats, {});
   const s = stats[q.key] || { c: 0, t: 0 };
   s.t++;
@@ -681,7 +717,7 @@ function reverseVariant(q) {
 // "An oxidizing agent _____ electrons and is _____" → ask one blank at a time,
 // with the other blanks filled in, using that slot's parts from the distractors.
 function slotVariants(q) {
-  const base = QB_BY_ID.get(q.baseId || q.id) || q;
+  const base = lookupQ(q.baseId || q.id) || q;
   const blanks = (base.q.match(/_{3,}/g) || []).length;
   if (blanks < 2) return [];
   const split = c => String(c).split(' / ').map(s => s.trim());
@@ -703,7 +739,7 @@ function slotVariants(q) {
 }
 // Every form a fact can be asked in: original, reversed, or one blank at a time
 function questionForms(q) {
-  const base = QB_BY_ID.get(q.baseId || q.id) || q;
+  const base = lookupQ(q.baseId || q.id) || q;
   return [base, reverseVariant(base), ...slotVariants(base), ...(AUTHORED.get(base.id) || [])].filter(Boolean);
 }
 // A different form of the same fact, preferring an authored angle (for review of lapsed cards)
@@ -855,7 +891,7 @@ function relatedQuestion(q, excludeIds) {
   const mem = loadMem();
   const mast = store.get(KEYS.mastery, {});
   const target = targetSuccess();
-  const top = QB.filter(x => x.key === q.key && x.id !== (q.baseId || q.id) && !excludeIds.has(x.id))
+  const top = bankOf(q).filter(x => x.key === q.key && x.id !== (q.baseId || q.id) && !excludeIds.has(x.id))
     .map(x => ({ x, d: Math.abs(predictedSuccess(x, mem, mast) - target) }))
     .sort((a, b) => a.d - b.d).slice(0, 3);
   return top.length ? top[Math.floor(Math.random() * top.length)].x : null; // uniform pick from the 3 closest
@@ -1042,6 +1078,7 @@ function renderHome() {
   $('mode-recall-sub').textContent = `${QB.length.toLocaleString()} questions`;
   $('mode-passage-sub').textContent = `${ALL_PASSAGES.length} passages · ${passageQs} Qs`;
   $('mode-exam-sub').textContent = `${FULL_EXAMS.length} timed exams`;
+  if ($('mode-aamc-sub')) $('mode-aamc-sub').textContent = `${AQB.length} questions`;
 
   const due = dueQuestions().length;
   const flagged = Object.keys(flaggedIds()).filter(id => QB_BY_ID.has(id)).length;
@@ -1074,13 +1111,15 @@ function renderHome() {
 function setMode(mode, navigate = true) {
   prefs.mode = mode;
   savePrefs();
-  ['recall', 'passage', 'exam'].forEach(m => {
+  ['recall', 'passage', 'exam', 'aamc'].forEach(m => {
+    if (!$('btn-' + m)) return;
     $('btn-' + m).classList.toggle('active', m === mode);
     $('btn-' + m).setAttribute('aria-selected', m === mode);
     $(m + '-config').hidden = m !== mode;
   });
   $('start-btn').hidden = mode === 'exam';
   if (mode === 'recall') { renderCountRow(); renderSubjectGrid(); }
+  if (mode === 'aamc') renderAamcConfig();
   if (mode === 'passage') renderPassageSelector();
   if (mode === 'exam') renderExamList();
   if (navigate) window.McatPages?.mode(mode);
@@ -1183,6 +1222,52 @@ function updateAvail() {
 function startSession() {
   if (prefs.mode === 'recall') startRecall();
   else if (prefs.mode === 'passage') startPassage();
+  else if (prefs.mode === 'aamc') startAamc();
+}
+
+// ── AAMC Question Bank Flashcards (separate section) ──
+let aamcSelected = null;
+function aamcSel() {
+  if (!aamcSelected) aamcSelected = new Set((Array.isArray(prefs.aamcSelected) ? prefs.aamcSelected : AAMC_SECTION.keys).filter(k => AQB_KEY_COUNTS[k]));
+  return aamcSelected;
+}
+function renderAamcConfig() {
+  const sel = aamcSel();
+  $('aamc-count-row').innerHTML = [10, 20, 30, 50, 100, 0].map(n => `<button class="count-btn${prefs.count === n ? ' active' : ''}" data-click="setAamcCount(${n})">${n || 'All'}</button>`).join('');
+  const allOn = keys => keys.length && keys.every(k => sel.has(k));
+  const someOn = keys => keys.some(k => sel.has(k));
+  $('aamc-grid').innerHTML = AAMC_SECTION.groups.map((g, gi) => g.chips.length ? `
+    <div class="sg-topic-row">
+      <span class="sg-topic-name">${esc(g.label)}</span>
+      <span class="sg-topic-meta"><span class="sg-topic-count">${countAamcKeys(g.chips.flatMap(c => c.keys))} Q</span></span>
+    </div>
+    <div class="sg-chips">${g.chips.map((c, ci) => `
+      <button class="sg-chip${allOn(c.keys) ? ' on' : someOn(c.keys) ? ' partial' : ''}" aria-pressed="${allOn(c.keys)}"
+        data-click="setAamcChip(${gi},${ci},${!allOn(c.keys)})">${esc(c.label)}<span class="sg-chip-count">${countAamcKeys(c.keys)}</span></button>`).join('')}
+    </div>` : '').join('');
+  const mem = loadMem(), now = Date.now();
+  const pool = AQB.filter(q => sel.has(q.key));
+  const due = pool.filter(q => mem[q.id] && retrievability(mem[q.id], now) < TARGET_RETENTION).length;
+  const seen = AQB.filter(q => mem[q.id] && mem[q.id].seen).length;
+  const size = prefs.count ? Math.min(prefs.count, pool.length) : pool.length;
+  $('aamc-avail-text').textContent = `${pool.length} questions selected · ${seen} of ${AQB.length} seen${due ? ` · ${due} due for review` : ''}`;
+  $('aamc-avail-session').textContent = pool.length ? `Session: ${size} question${size === 1 ? '' : 's'}` : '';
+  $('start-btn').disabled = !pool.length;
+  $('start-btn').textContent = 'Start →';
+}
+function saveAamcSel() { prefs.aamcSelected = [...aamcSel()]; savePrefs(); renderAamcConfig(); }
+function setAamcCount(n) { prefs.count = n; savePrefs(); renderAamcConfig(); }
+function setAamcChip(gi, ci, on) {
+  const chip = AAMC_SECTION.groups[gi] && AAMC_SECTION.groups[gi].chips[ci];
+  if (!chip) return;
+  chip.keys.forEach(k => (on ? aamcSel().add(k) : aamcSel().delete(k)));
+  saveAamcSel();
+}
+function aamcSelectAll(on) { AAMC_SECTION.keys.forEach(k => (on ? aamcSel().add(k) : aamcSel().delete(k))); saveAamcSel(); }
+function startAamc() {
+  const pool = AQB.filter(q => aamcSel().has(q.key));
+  if (!pool.length) return;
+  beginQuiz(pickQuestions(pool, prefs.count || pool.length), AAMC_SECTION.label);
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1294,7 +1379,7 @@ function missedResults() {
   });
 }
 function retryMissed() {
-  const missed = missedResults().map(r => QB_BY_ID.get(r.view.q.baseId || r.view.q.id) || r.view.q);
+  const missed = missedResults().map(r => lookupQ(r.view.q.baseId || r.view.q.id) || r.view.q);
   if (missed.length) beginQuiz(shuffled(missed), 'Retry missed');
 }
 // questions: plain question objects, or {q, reason} items from the Smart Session
@@ -1498,7 +1583,7 @@ function commitPending() {
     ...(p.note && p.note.trim() ? { note: p.note.trim().slice(0, 300) } : {}) });
   if (!quiz.adaptive) return;
   const baseId = p.q.baseId || p.q.id;
-  const base = QB_BY_ID.get(baseId);
+  const base = lookupQ(baseId);
   // Budgets: mastery-loop re-asks may grow a session up to 2× its planned length;
   // optional extras (related, confusion, shaky checks) stop at +50%
   const planned = quiz.items.length - quiz.extras;
