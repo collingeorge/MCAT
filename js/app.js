@@ -1253,6 +1253,51 @@ function renderAamcConfig() {
   $('start-btn').disabled = !pool.length;
   $('start-btn').textContent = 'Start →';
   renderAamcProgress();
+  renderAamcPrep();
+}
+// ── AAMC Passage Prep: how-to-find-it guides for real AAMC questions (answers hidden until opened) ──
+function prepDone() { const d = prefs.prepDone; return d && typeof d === 'object' ? d : {}; }
+function togglePrepDone(id) {
+  const d = { ...prepDone() };
+  if (d[id]) delete d[id]; else d[id] = Date.now();
+  prefs.prepDone = d; savePrefs(); renderAamcPrep(id);
+}
+function renderAamcPrep(openId) {
+  const box = $('aamc-prep');
+  if (!box || typeof AAMC_PREP === 'undefined') return;
+  const done = prepDone();
+  const card = (set, it) => {
+    const id = set.id + '-' + it.q, got = !!done[id];
+    const where = it.p ? `Passage ${it.p}` : 'Standalone';
+    const row = (icon, label, text) => text && text !== '—' ? `<p class="prep-line"><span class="prep-icon" aria-hidden="true">${icon}</span><b>${label}:</b> ${esc(text)}</p>` : '';
+    return `<details class="prep-item${got ? ' prep-got' : ''}"${openId === id ? ' open' : ''}>
+      <summary><span class="prep-q">Q${it.q}</span> ${esc(it.t)} <span class="prep-meta">${where}${it.skip ? ' · skip-type' : ''}${got ? ' · ✓ got it' : ''}</span></summary>
+      ${row('🔍', 'Find it', it.find)}
+      ${row('🧠', 'Outside fact', it.fact)}
+      ${row('⚠️', 'Trap', it.trap)}
+      ${row('🪝', 'Hook', it.hook)}
+      <details class="prep-answer"><summary>Show answer</summary><p class="prep-line"><b>✅ Answer: ${esc(it.ans)}</b></p></details>
+      <button class="action-btn small" data-click="togglePrepDone('${id}')">${got ? 'Undo "got it"' : 'I got it on my own'}</button>
+    </details>`;
+  };
+  box.innerHTML = `
+    <div class="section-label">AAMC Passage Prep</div>
+    <p class="muted-note">How to find the answer on real AAMC questions you've worked through. Open the AAMC question next to this, read 🔍 <b>Find it</b>, try it yourself, then check 🧠, ⚠️ and 🪝. The answer stays hidden until you tap it. Mark a question when you get it right on your own on a redo.</p>
+    ${typeof AAMC_PREP_RULES !== 'undefined' && AAMC_PREP_RULES.length ? `<details class="home-reference prep-set"><summary>Universal rules <span class="prep-meta">one rule per question type</span></summary>
+      ${['every', 'most'].map(f => `<p class="prep-line prep-meta">${f === 'every' ? 'Show up several times per section on most tests' : 'Show up 1–3 times per section on most tests'}</p>
+        ${AAMC_PREP_RULES.filter(r => r.often === f).map(r => `<div class="prep-item"><p class="prep-line"><b>${esc(r.when)}:</b> ${esc(r.rule)}</p><p class="prep-line prep-meta">Used on: ${esc(r.where)}</p></div>`).join('')}`).join('')}
+    </details>` : ''}
+    ${AAMC_PREP.map(set => {
+      const n = set.items.filter(it => done[set.id + '-' + it.q]).length;
+      return `<details class="home-reference prep-set"${openId && openId.startsWith(set.id + '-') ? ' open' : ''}>
+        <summary>${esc(set.label)} <span class="prep-meta">${n} of ${set.items.length} got it</span></summary>
+        <p class="muted-note">${esc(set.source)}</p>
+        ${set.items.map(it => card(set, it)).join('')}
+      </details>`;
+    }).join('')}
+    ${typeof AAMC_PREP_GAPS !== 'undefined' && AAMC_PREP_GAPS.length ? `<details class="home-reference prep-set"><summary>Skill gaps to work on</summary>
+      ${AAMC_PREP_GAPS.map(g => `<div class="prep-item"><p class="prep-line"><b>${esc(g.t)}</b></p><p class="prep-line">${esc(g.note)}</p><p class="prep-line prep-meta">Redo: ${esc(g.redo)}</p></div>`).join('')}
+    </details>` : ''}`;
 }
 // Progress comes from the same per-question memory and per-topic stats the rest of the app uses
 function aamcStatus(pool) {

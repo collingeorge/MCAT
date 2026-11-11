@@ -775,3 +775,15 @@ a.today-start{display:inline-block;text-decoration:none;text-align:center}
 
 /* Spacing utilities (the CSP forbids inline style attributes) */
 .mt-0{margin-top:0}.mt-10{margin-top:10px}.mt-16{margin-top:16px}.lead-note{margin:-4px 0 12px}
+
+/* AAMC Passage Prep: how-to-find-it guides */
+.prep-set > summary{font-weight:700}
+.prep-item{border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin:8px 0;background:var(--surface, transparent)}
+.prep-item > summary{cursor:pointer;font-weight:600;line-height:1.4}
+.prep-item.prep-got{border-color:var(--green)}
+.prep-q{display:inline-block;min-width:2.6em;font-weight:800;color:var(--navy-mid)}
+.prep-meta{font-size:12px;font-weight:400;color:var(--slate);margin-left:4px}
+.prep-line{margin:6px 0;line-height:1.5}
+.prep-icon{display:inline-block;width:1.6em}
+.prep-answer{margin:8px 0}
+.prep-answer > summary{cursor:pointer;font-size:13px;color:var(--navy-mid)}
