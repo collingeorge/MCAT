@@ -36,6 +36,8 @@
 <script src="../data/qb-aamc-phys.js"></script>
 <script src="../data/qb-aamc-iqb.js"></script>
 <script src="../data/qb-aamc-cars.js"></script>
+<script src="../data/qb-aamc-rules.js"></script>
+<script src="../data/qb-aamc-fl.js"></script>
 <script src="../data/exam1.js"></script>
 <script src="../data/exam2-cp.js"></script>
 <script src="../data/exam2-bb.js"></script>
@@ -106,10 +108,12 @@
     ['QB_AAMC_PHYS', ['Kinematics, Forces & Energy', 'Fluids', 'Electricity & Magnetism', 'Waves & Sound', 'Light & Optics', 'Atomic & Nuclear Physics'], ['physics'], /^(4[A-E]|5E)$/],
     ['QB_AAMC_IQB', ['Sensation, Perception & Cognition', 'Learning, Memory & Development', 'Motivation, Emotion & Personality', 'Social Psychology', 'Sociology & Social Structure', 'Health, Inequality & Research Methods', 'Proteins & Enzymes', 'Metabolism & Bioenergetics', 'Nucleic Acids, Membranes & Lab Techniques'], ['psych_soc', 'biochemistry'], /^([1-9][A-E]|10A)$/],
     ['QB_AAMC_CARS', ['CARS: Foundations of Comprehension', 'CARS: Reasoning Within the Text', 'CARS: Reasoning Beyond the Text'], ['cars'], /^(CMP|RWT|RBT)$/],
+    ['QB_AAMC_FL', ['Practice Exam 5: Chem/Phys'], ['gen_chem', 'organic_chem', 'physics', 'biochemistry', 'biology'], /^[45][A-E]$/],
+    ['QB_AAMC_RULES', ['Universal Rules: Reading Data', 'Universal Rules: Test Strategy', 'Universal Rules: Chemistry', 'Universal Rules: Biochemistry', 'Universal Rules: Physics'], ['research', 'gen_chem', 'organic_chem', 'biochemistry', 'physics'], /^([1-9][A-E]|10A|SIRS)$/],
   ].forEach(([name, tags, discs, code]) => {
     const arr = { QB_AAMC_BIO: typeof QB_AAMC_BIO === 'undefined' ? null : QB_AAMC_BIO, QB_AAMC_CHEM: typeof QB_AAMC_CHEM === 'undefined' ? null : QB_AAMC_CHEM,
       QB_AAMC_PHYS: typeof QB_AAMC_PHYS === 'undefined' ? null : QB_AAMC_PHYS, QB_AAMC_IQB: typeof QB_AAMC_IQB === 'undefined' ? null : QB_AAMC_IQB,
-      QB_AAMC_CARS: typeof QB_AAMC_CARS === 'undefined' ? null : QB_AAMC_CARS }[name];
+      QB_AAMC_CARS: typeof QB_AAMC_CARS === 'undefined' ? null : QB_AAMC_CARS, QB_AAMC_RULES: typeof QB_AAMC_RULES === 'undefined' ? null : QB_AAMC_RULES, QB_AAMC_FL: typeof QB_AAMC_FL === 'undefined' ? null : QB_AAMC_FL }[name];
     if (!Array.isArray(arr)) return warn(name, 'not loaded');
     banks[name] = arr;
     arr.forEach((q, i) => {

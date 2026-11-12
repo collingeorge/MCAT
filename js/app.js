@@ -293,6 +293,8 @@ const AAMC_SECTION = { id: 'aamc_qb', label: 'AAMC Question Bank Flashcards', gr
   { label: 'Independent Question Bank: Psychology & Sociology', tags: ['Sensation, Perception & Cognition', 'Learning, Memory & Development', 'Motivation, Emotion & Personality', 'Social Psychology', 'Sociology & Social Structure', 'Health, Inequality & Research Methods'] },
   { label: 'Independent Question Bank: Biochemistry', tags: ['Proteins & Enzymes', 'Metabolism & Bioenergetics', 'Nucleic Acids, Membranes & Lab Techniques'] },
   { label: 'CARS Question Pack, Vol. 1', tags: ['CARS: Foundations of Comprehension', 'CARS: Reasoning Within the Text', 'CARS: Reasoning Beyond the Text'] },
+  { label: 'Full-Length Tests: Chem/Phys', tags: ['Practice Exam 5: Chem/Phys'] },
+  { label: 'Universal Rules Quiz', tags: ['Universal Rules: Reading Data', 'Universal Rules: Test Strategy', 'Universal Rules: Chemistry', 'Universal Rules: Biochemistry', 'Universal Rules: Physics'] },
 ].map(g => ({ label: g.label, chips: g.tags.map(t => ({ label: t, tags: [t] })) })) };
 const ORGO_TAGS = new Set(['Bonding & Structure', 'Reactions & Mechanisms', 'Carbonyl Chemistry', 'Spectroscopy', 'Separations & Lab Techniques']);
 
@@ -321,7 +323,7 @@ const AQB_BY_ID = new Map();
 const AQB_KEY_COUNTS = Object.create(null);
 [typeof QB_AAMC_BIO === 'undefined' ? [] : QB_AAMC_BIO, typeof QB_AAMC_CHEM === 'undefined' ? [] : QB_AAMC_CHEM,
   typeof QB_AAMC_PHYS === 'undefined' ? [] : QB_AAMC_PHYS, typeof QB_AAMC_IQB === 'undefined' ? [] : QB_AAMC_IQB,
-  typeof QB_AAMC_CARS === 'undefined' ? [] : QB_AAMC_CARS].flat().forEach(q => {
+  typeof QB_AAMC_CARS === 'undefined' ? [] : QB_AAMC_CARS, typeof QB_AAMC_RULES === 'undefined' ? [] : QB_AAMC_RULES, typeof QB_AAMC_FL === 'undefined' ? [] : QB_AAMC_FL].flat().forEach(q => {
   let id = 'aamc-' + hashId(q.s + '|' + q.q);
   while (AQB_BY_ID.has(id)) id += 'x';
   Object.assign(q, { subj: AAMC_SECTION.id, key: AAMC_SECTION.id + '|' + q.s, id });
@@ -1231,7 +1233,7 @@ function aamcSel() {
   if (!aamcSelected) {
     aamcSelected = new Set((Array.isArray(prefs.aamcSelected) ? prefs.aamcSelected : AAMC_SECTION.keys).filter(k => AQB_KEY_COUNTS[k]));
     // Topics added after the selection was saved start out selected, so new cards aren't hidden.
-    const known = new Set(Array.isArray(prefs.aamcKnownKeys) ? prefs.aamcKnownKeys : (Array.isArray(prefs.aamcSelected) ? AAMC_SECTION.keys.filter(k => k !== 'aamc_qb|AAMC Test Concepts') : AAMC_SECTION.keys));
+    const known = new Set(Array.isArray(prefs.aamcKnownKeys) ? prefs.aamcKnownKeys : (Array.isArray(prefs.aamcSelected) ? AAMC_SECTION.keys.filter(k => k !== 'aamc_qb|AAMC Test Concepts' && !k.startsWith('aamc_qb|Universal Rules') && !/^aamc_qb\|Practice Exam \d|^aamc_qb\|Sample Test/.test(k)) : AAMC_SECTION.keys));
     AAMC_SECTION.keys.forEach(k => { if (!known.has(k) && AQB_KEY_COUNTS[k]) aamcSelected.add(k); });
     prefs.aamcKnownKeys = [...AAMC_SECTION.keys];
   }
@@ -1290,6 +1292,7 @@ function renderAamcPrep(openId) {
     <div class="section-label">AAMC Passage Prep</div>
     <p class="muted-note">How to find the answer on real AAMC questions you've worked through. Open the AAMC question next to this, read 🔍 <b>Find it</b>, try it yourself, then check 🧠, ⚠️ and 🪝. The answer stays hidden until you tap it. Mark a question when you get it right on your own on a redo.</p>
     ${typeof AAMC_PREP_RULES !== 'undefined' && AAMC_PREP_RULES.length ? `<details class="home-reference prep-set"><summary>Universal rules <span class="prep-meta">one rule per question type</span></summary>
+      <p class="muted-note">Quiz yourself on these: under Topics below, select only <b>Universal Rules Quiz</b> and press Start. Recalling a rule sticks far better than rereading it.</p>
       ${['every', 'most'].map(f => `<p class="prep-line prep-meta">${f === 'every' ? 'Show up several times per section on most tests' : 'Show up 1–3 times per section on most tests'}</p>
         ${AAMC_PREP_RULES.filter(r => r.often === f).map(r => `<div class="prep-item"><p class="prep-line"><b>${esc(r.when)}:</b> ${esc(r.rule)}</p><p class="prep-line prep-meta">Used on: ${esc(r.where)}</p></div>`).join('')}`).join('')}
     </details>` : ''}
