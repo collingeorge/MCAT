@@ -288,7 +288,7 @@ const SUBJECT_LABEL = Object.fromEntries(SUBJECTS.map(s => [s.id, s.label]));
 // are never mixed into recall, Smart Session, mixes, reviews, drills, the TODAY plan or score estimates.
 const AAMC_SECTION = { id: 'aamc_qb', label: 'AAMC Question Bank Flashcards', groups: [
   { label: 'Biology Question Pack, Vol. 1', tags: ['Cells, Membranes & Transport', 'Genetics, DNA & Gene Expression', 'Evolution & Microbiology', 'Organ Systems & Physiology', 'Metabolism & Enzymes', 'Passage & Data Skills'] },
-  { label: 'Chemistry Question Pack', tags: ['Atoms, Periodic Trends & Bonding', 'Molecular Structure & Intermolecular Forces', 'Stoichiometry, Solutions & Gases', 'Acids, Bases & Solubility', 'Thermodynamics, Kinetics & Equilibrium', 'Electrochemistry & Redox', 'Organic Chemistry & Lab Techniques'] },
+  { label: 'Chemistry Question Pack', tags: ['Atoms, Periodic Trends & Bonding', 'Molecular Structure & Intermolecular Forces', 'Stoichiometry, Solutions & Gases', 'Acids, Bases & Solubility', 'Thermodynamics, Kinetics & Equilibrium', 'Electrochemistry & Redox', 'Organic Chemistry & Lab Techniques', 'AAMC Test Concepts'] },
   { label: 'Physics Question Pack', tags: ['Kinematics, Forces & Energy', 'Fluids', 'Electricity & Magnetism', 'Waves & Sound', 'Light & Optics', 'Atomic & Nuclear Physics'] },
   { label: 'Independent Question Bank: Psychology & Sociology', tags: ['Sensation, Perception & Cognition', 'Learning, Memory & Development', 'Motivation, Emotion & Personality', 'Social Psychology', 'Sociology & Social Structure', 'Health, Inequality & Research Methods'] },
   { label: 'Independent Question Bank: Biochemistry', tags: ['Proteins & Enzymes', 'Metabolism & Bioenergetics', 'Nucleic Acids, Membranes & Lab Techniques'] },
@@ -1228,7 +1228,13 @@ function startSession() {
 // ── AAMC Question Bank Flashcards (separate section) ──
 let aamcSelected = null;
 function aamcSel() {
-  if (!aamcSelected) aamcSelected = new Set((Array.isArray(prefs.aamcSelected) ? prefs.aamcSelected : AAMC_SECTION.keys).filter(k => AQB_KEY_COUNTS[k]));
+  if (!aamcSelected) {
+    aamcSelected = new Set((Array.isArray(prefs.aamcSelected) ? prefs.aamcSelected : AAMC_SECTION.keys).filter(k => AQB_KEY_COUNTS[k]));
+    // Topics added after the selection was saved start out selected, so new cards aren't hidden.
+    const known = new Set(Array.isArray(prefs.aamcKnownKeys) ? prefs.aamcKnownKeys : (Array.isArray(prefs.aamcSelected) ? AAMC_SECTION.keys.filter(k => k !== 'aamc_qb|AAMC Test Concepts') : AAMC_SECTION.keys));
+    AAMC_SECTION.keys.forEach(k => { if (!known.has(k) && AQB_KEY_COUNTS[k]) aamcSelected.add(k); });
+    prefs.aamcKnownKeys = [...AAMC_SECTION.keys];
+  }
   return aamcSelected;
 }
 function renderAamcConfig() {
