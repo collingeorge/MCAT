@@ -293,8 +293,10 @@ const AAMC_SECTION = { id: 'aamc_qb', label: 'AAMC Question Bank Flashcards', gr
   { label: 'Independent Question Bank: Psychology & Sociology', tags: ['Sensation, Perception & Cognition', 'Learning, Memory & Development', 'Motivation, Emotion & Personality', 'Social Psychology', 'Sociology & Social Structure', 'Health, Inequality & Research Methods'] },
   { label: 'Independent Question Bank: Biochemistry', tags: ['Proteins & Enzymes', 'Metabolism & Bioenergetics', 'Nucleic Acids, Membranes & Lab Techniques'] },
   { label: 'CARS Question Pack, Vol. 1', tags: ['CARS: Foundations of Comprehension', 'CARS: Reasoning Within the Text', 'CARS: Reasoning Beyond the Text'] },
-  { label: 'Universal Rules Quiz', tags: ['Universal Rules: Reading Data', 'Universal Rules: Test Strategy', 'Universal Rules: Chemistry', 'Universal Rules: Biochemistry', 'Universal Rules: Physics'] },
 ].map(g => ({ label: g.label, chips: g.tags.map(t => ({ label: t, tags: [t] })) })) };
+// Universal Rules Quiz cards live in the same AAMC pool (same IDs and saved answers) but are studied from
+// AAMC Prep → Rules & Passage Prep, not from the Question Bank packs.
+const AAMC_RULES_TAGS = ['Universal Rules: Reading Data', 'Universal Rules: Test Strategy', 'Universal Rules: Chemistry', 'Universal Rules: Biochemistry', 'Universal Rules: Physics'];
 const ORGO_TAGS = new Set(['Bonding & Structure', 'Reactions & Mechanisms', 'Carbonyl Chemistry', 'Spectroscopy', 'Separations & Lab Techniques']);
 
 const QB = [];
@@ -334,6 +336,9 @@ SUBJECT_LABEL[AAMC_SECTION.id] = AAMC_SECTION.label;
 AAMC_SECTION.groups.forEach(g => g.chips.forEach(c => { c.keys = c.tags.map(t => AAMC_SECTION.id + '|' + t).filter(k => AQB_KEY_COUNTS[k]); }));
 AAMC_SECTION.groups.forEach(g => { g.chips = g.chips.filter(c => c.keys.length); });
 AAMC_SECTION.keys = AAMC_SECTION.groups.flatMap(g => g.chips.flatMap(c => c.keys));
+const AAMC_RULES_KEYS = new Set(AAMC_RULES_TAGS.map(t => AAMC_SECTION.id + '|' + t));
+const AQB_RULES = AQB.filter(q => AAMC_RULES_KEYS.has(q.key));   // Universal Rules Quiz
+const AQB_QBANK = AQB.filter(q => !AAMC_RULES_KEYS.has(q.key));  // Question Bank cards
 // Full-Length Prep: cards built from the AAMC full-length practice exams. Its own pool and tab, kept out of
 // QB, the AAMC QBank section, recall, mixes, reviews, the TODAY plan and score estimates.
 const FL_SECTION = { id: 'fl_prep', label: 'Full-Length Prep' };
@@ -1094,7 +1099,7 @@ function renderHome() {
   $('mode-recall-sub').textContent = `${QB.length.toLocaleString()} questions`;
   $('mode-passage-sub').textContent = `${ALL_PASSAGES.length} passages · ${passageQs} Qs`;
   $('mode-exam-sub').textContent = `${FULL_EXAMS.length} timed exams`;
-  if ($('mode-aamc-sub')) $('mode-aamc-sub').textContent = `${AQB.length} questions`;
+  if ($('mode-aamc-sub')) $('mode-aamc-sub').textContent = `${(AQB.length + FLQ.length).toLocaleString()} cards · 3 sections`;
   if ($('mode-flprep-sub')) $('mode-flprep-sub').textContent = `${FLQ.length} cards · ${FL_TESTS.length} test${FL_TESTS.length === 1 ? '' : 's'}`;
 
   const due = dueQuestions().length;
@@ -1127,14 +1132,17 @@ function renderHome() {
 
 function setMode(mode, navigate = true) {
   prefs.mode = mode;
+  // AAMC Prep has one tab button and three sections; remember the last section opened.
+  if (mode === 'flprep') prefs.aamcLast = 'exam';
+  else if (mode === 'aamc') prefs.aamcLast = aamcView();
   savePrefs();
   ['recall', 'passage', 'exam', 'aamc', 'flprep'].forEach(m => {
-    if (!$('btn-' + m)) return;
-    $('btn-' + m).classList.toggle('active', m === mode);
-    $('btn-' + m).setAttribute('aria-selected', m === mode);
-    $(m + '-config').hidden = m !== mode;
+    const btn = $('btn-' + m), on = m === mode || (m === 'aamc' && mode === 'flprep');
+    if (btn) { btn.classList.toggle('active', on); btn.setAttribute('aria-selected', on); }
+    if ($(m + '-config')) $(m + '-config').hidden = m !== mode;
   });
   $('start-btn').hidden = mode === 'exam';
+  renderAamcMenu();
   if (mode === 'recall') { renderCountRow(); renderSubjectGrid(); }
   if (mode === 'aamc') renderAamcConfig();
   if (mode === 'flprep') renderFlConfig();
@@ -1256,7 +1264,58 @@ function aamcSel() {
   }
   return aamcSelected;
 }
+// ── AAMC Prep tab: one tab, three sections (Question Bank cards, Practice Exam cards, Rules & Passage Prep) ──
+function aamcView() { return prefs.aamcView === 'rules' ? 'rules' : 'qbank'; }
+function openAamcView(view) {
+  if (view === 'exam') { setMode('flprep'); return; }
+  prefs.aamcView = view === 'rules' ? 'rules' : 'qbank';
+  setMode('aamc');
+}
+function openAamc() { openAamcView(['qbank', 'exam', 'rules'].includes(prefs.aamcLast) ? prefs.aamcLast : 'qbank'); }
+function renderAamcMenu() {
+  const box = $('aamc-menu');
+  if (!box) return;
+  const on = prefs.mode === 'aamc' || prefs.mode === 'flprep';
+  box.hidden = !on;
+  if (!on) return;
+  const cur = prefs.mode === 'flprep' ? 'exam' : aamcView();
+  const done = pool => { const s = aamcStatus(pool); return `${s.done} of ${s.total} done`; };
+  const guides = typeof AAMC_PREP === 'undefined' ? 0 : AAMC_PREP.reduce((n, s) => n + s.items.length, 0);
+  const tiles = [
+    ['qbank', 1, 'Question Bank cards', 'Learn the content the AAMC tests, one question pack and topic at a time.', `${AQB_QBANK.length} cards · ${done(AQB_QBANK)}`],
+    ['exam', 2, 'Practice Exam cards', 'The concepts tested on each AAMC practice exam. Use them before or after you take that exam.', `${FLQ.length} cards · ${done(FLQ)}`],
+    ['rules', 3, 'Rules & Passage Prep', 'Quick rules for common question types, plus how-to-find-it guides for real AAMC questions.', `${AQB_RULES.length} rule cards · ${guides} guides`],
+  ];
+  box.innerHTML = `<p class="aamc-menu-intro">Three ways to study the AAMC material. New here? Work through them in order, 1 to 3. Your progress in each one is saved.</p>
+    <div class="aamc-menu-grid">${tiles.map(([id, n, name, desc, meta]) => `<button type="button" class="aamc-tile${cur === id ? ' active' : ''}" aria-pressed="${cur === id}" data-click="openAamcView('${id}')">
+      <span class="aamc-tile-step">Step ${n}</span><span class="aamc-tile-name">${name}</span><span class="aamc-tile-desc">${desc}</span><span class="aamc-tile-meta">${meta}</span></button>`).join('')}</div>`;
+}
+function renderAamcRules() {
+  const box = $('aamc-rules');
+  if (!box) return;
+  const s = aamcStatus(AQB_RULES);
+  const acc = s.answers ? ` · ${Math.round((s.correct / s.answers) * 100)}% right` : '';
+  box.innerHTML = `<div class="section-label">Universal Rules Quiz</div>
+    <p class="muted-note">One short scenario card per rule. Recalling a rule sticks far better than rereading it, so quiz yourself here, then read the rule or guide below for any you miss.</p>
+    ${aamcBar('Rule cards', s.done, s.total, `${s.done} of ${s.total} done${acc}`)}
+    <div class="home-actions">
+      <button class="action-btn" ${s.total ? '' : 'disabled'} data-click="startRulesQuiz()">Quiz all rules <b>${s.total}</b></button>
+      <button class="action-btn" ${s.missed ? '' : 'disabled'} data-click="reviewRulesMissed()">Review missed rules <b>${s.missed}</b></button>
+    </div>`;
+}
+function startRulesQuiz() { if (AQB_RULES.length) beginQuiz(shuffled(AQB_RULES), 'Universal Rules Quiz'); }
+function reviewRulesMissed() {
+  const mem = loadMem();
+  const missed = AQB_RULES.filter(q => mem[q.id] && mem[q.id].seen && mem[q.id].right < mem[q.id].seen);
+  if (missed.length) beginQuiz(shuffled(missed), 'Universal Rules Quiz: missed');
+}
 function renderAamcConfig() {
+  const rules = aamcView() === 'rules';
+  $('aamc-qbank-view').hidden = rules;
+  $('aamc-rules-view').hidden = !rules;
+  renderAamcMenu();
+  if (rules) { $('start-btn').hidden = true; renderAamcRules(); renderAamcPrep(); return; }
+  $('start-btn').hidden = false;
   const sel = aamcSel();
   $('aamc-count-row').innerHTML = [10, 20, 30, 50, 100, 0].map(n => `<button class="count-btn${prefs.count === n ? ' active' : ''}" data-click="setAamcCount(${n})">${n || 'All'}</button>`).join('');
   const allOn = keys => keys.length && keys.every(k => sel.has(k));
@@ -1270,7 +1329,7 @@ function renderAamcConfig() {
       <button class="sg-chip${allOn(c.keys) ? ' on' : someOn(c.keys) ? ' partial' : ''}" aria-pressed="${allOn(c.keys)}"
         data-click="setAamcChip(${gi},${ci},${!allOn(c.keys)})">${esc(c.label)}<span class="sg-chip-count">${countAamcKeys(c.keys)}</span></button>`).join('')}
     </div>` : '').join('');
-  const pool = AQB.filter(q => sel.has(q.key));
+  const pool = AQB_QBANK.filter(q => sel.has(q.key));
   const st = aamcStatus(pool);
   const size = prefs.count ? Math.min(prefs.count, pool.length) : pool.length;
   $('aamc-avail-text').textContent = `${pool.length} questions selected · ${st.done} done · ${st.fresh} not yet seen${st.due ? ` · ${st.due} due for review` : ''}`;
@@ -1278,7 +1337,6 @@ function renderAamcConfig() {
   $('start-btn').disabled = !pool.length;
   $('start-btn').textContent = 'Start →';
   renderAamcProgress();
-  renderAamcPrep();
 }
 // ── AAMC Passage Prep: how-to-find-it guides for real AAMC questions (answers hidden until opened) ──
 function prepDone() { const d = prefs.prepDone; return d && typeof d === 'object' ? d : {}; }
@@ -1309,7 +1367,7 @@ function renderAamcPrep(openId) {
     <div class="section-label">AAMC Passage Prep</div>
     <p class="muted-note">How to find the answer on real AAMC questions you've worked through. Open the AAMC question next to this, read 🔍 <b>Find it</b>, try it yourself, then check 🧠, ⚠️ and 🪝. The answer stays hidden until you tap it. Mark a question when you get it right on your own on a redo.</p>
     ${typeof AAMC_PREP_RULES !== 'undefined' && AAMC_PREP_RULES.length ? `<details class="home-reference prep-set"><summary>Universal rules <span class="prep-meta">one rule per question type</span></summary>
-      <p class="muted-note">Quiz yourself on these: under Topics below, select only <b>Universal Rules Quiz</b> and press Start. Recalling a rule sticks far better than rereading it.</p>
+      <p class="muted-note">Quiz yourself on these with <b>Quiz all rules</b> above. Recalling a rule sticks far better than rereading it.</p>
       ${['every', 'most'].map(f => `<p class="prep-line prep-meta">${f === 'every' ? 'Show up several times per section on most tests' : 'Show up 1–3 times per section on most tests'}</p>
         ${AAMC_PREP_RULES.filter(r => r.often === f).map(r => `<div class="prep-item"><p class="prep-line"><b>${esc(r.when)}:</b> ${esc(r.rule)}</p><p class="prep-line prep-meta">Used on: ${esc(r.where)}</p></div>`).join('')}`).join('')}
     </details>` : ''}
@@ -1371,20 +1429,20 @@ function aamcScoreRow(label, s, st) {
 function renderAamcProgress() {
   const box = $('aamc-progress');
   if (!box) return;
-  const all = aamcStatus(AQB);
+  const all = aamcStatus(AQB_QBANK);
   const sel = aamcSel();
-  const pool = AQB.filter(q => sel.has(q.key));
+  const pool = AQB_QBANK.filter(q => sel.has(q.key));
   const st = aamcStatus(pool);
   const resume = aamcSession();
   const weak = aamcWeakChips();
-  const weakQs = AQB.filter(q => weak.some(c => c.keys.includes(q.key))).length;
+  const weakQs = AQB_QBANK.filter(q => weak.some(c => c.keys.includes(q.key))).length;
   const stats = store.get(KEYS.stats, {});
   const sumStats = keys => keys.reduce((a, k) => { const r = stats[k]; if (r && Number.isFinite(r.t) && Number.isFinite(r.c)) { a.c += r.c; a.t += r.t; } return a; }, { c: 0, t: 0 });
   const btn = (label, n, action, title) => `<button class="action-btn" ${n ? '' : 'disabled'} data-click="${action}" title="${esc(title)}">${label} <b>${n}</b></button>`;
   const acc = all.answers ? Math.round((all.correct / all.answers) * 100) : null;
   box.innerHTML = `
     <div class="section-label">Your progress</div>
-    ${aamcBar('All AAMC questions', all.done, all.total, `${all.done} of ${all.total} done`)}
+    ${aamcBar('All Question Bank cards', all.done, all.total, `${all.done} of ${all.total} done`)}
     <p class="muted-note">${all.done ? `${all.total - all.done} left to see · ${acc}% of your answers correct${all.due ? ` · ${all.due} due for review` : ''}` : 'Nothing answered yet. Start below; your progress is saved as you go.'}</p>
     <div class="home-actions">
       ${resume ? `<button class="action-btn" data-click="resumeAamc()" title="Finish the questions you hadn't answered when you left">▶ Resume last session <b>${resume.left.length}</b></button>` : ''}
@@ -1410,7 +1468,7 @@ function beginAamc(questions, label) {
   savePrefs();
   beginQuiz(questions, label);
 }
-function aamcPoolSelected() { const sel = aamcSel(); return AQB.filter(q => sel.has(q.key)); }
+function aamcPoolSelected() { const sel = aamcSel(); return AQB_QBANK.filter(q => sel.has(q.key)); }
 function sizeOf(n) { return prefs.count ? Math.min(prefs.count, n) : n; }
 function resumeAamc() {
   const s = aamcSession();
@@ -1434,7 +1492,7 @@ function reviewAamcDue() {
 }
 function drillAamcWeak() {
   const weak = aamcWeakChips();
-  const pool = AQB.filter(q => weak.some(c => c.keys.includes(q.key)));
+  const pool = AQB_QBANK.filter(q => weak.some(c => c.keys.includes(q.key)));
   beginAamc(pickQuestions(pool, sizeOf(pool.length)), AAMC_SECTION.label + ': weak topics');
 }
 function saveAamcSel() { prefs.aamcSelected = [...aamcSel()]; savePrefs(); renderAamcConfig(); }
@@ -1489,7 +1547,7 @@ function reviewFlMissed() {
   if (missed.length) beginQuiz(shuffled(missed), FL_SECTION.label + ': missed');
 }
 function startAamc() {
-  const pool = AQB.filter(q => aamcSel().has(q.key));
+  const pool = AQB_QBANK.filter(q => aamcSel().has(q.key));
   if (!pool.length) return;
   beginAamc(pickQuestions(pool, prefs.count || pool.length), AAMC_SECTION.label);
 }

@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   if (typeof history === 'undefined' || !location.pathname) return;
-  const titles = {index:'Overview',recall:'Recall',passages:'Passages',exams:'Full-length exams',aamc:'AAMC QBank',flprep:'Full-Length Prep','score-report':'Score report',about:'About & sources','recall-session':'Recall session','passage-session':'Passage session','exam-session':'Exam session',results:'Session results','exam-results':'Exam results'};
+  const titles = {index:'Overview',recall:'Recall',passages:'Passages',exams:'Full-length exams',aamc:'AAMC Prep',flprep:'AAMC Prep · Practice Exam cards','score-report':'Score report',about:'About & sources','recall-session':'Recall session','passage-session':'Passage session','exam-session':'Exam session',results:'Session results','exam-results':'Exam results'};
   const modes = {recall:'recall',passages:'passage',exams:'exam',aamc:'aamc',flprep:'flprep'};
   let applying = false;
   let current = 'index';
@@ -20,9 +20,9 @@
     $('home-actions').hidden = focused;
     if ($('today-plan')) $('today-plan').hidden = focused;
     const heading = document.querySelector('.hero-title');
-    heading.textContent = focused ? {recall:'Recall practice',passages:'Passage practice',exams:'Full-length exams',aamc:'AAMC Question Bank Flashcards',flprep:'Full-Length Prep'}[page] : 'MCAT Study App';
+    heading.textContent = focused ? {recall:'Recall practice',passages:'Passage practice',exams:'Full-length exams',aamc:'AAMC Prep',flprep:'AAMC Prep'}[page] : 'MCAT Study App';
     document.title = titles[page] + ' | MCAT Study App';
-    const parent = {'recall-session':'recall','passage-session':'passages','exam-session':'exams',results:'score-report','exam-results':'exams'}[page] || page;
+    const parent = {'recall-session':'recall','passage-session':'passages','exam-session':'exams',results:'score-report','exam-results':'exams',flprep:'aamc'}[page] || page;
     document.querySelectorAll('[data-study-page]').forEach(a => {
       if (a.dataset.studyPage === parent) a.setAttribute('aria-current','page');
       else a.removeAttribute('aria-current');

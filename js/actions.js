@@ -13,6 +13,8 @@
     'setAamcCount', 'setAamcChip', 'aamcSelectAll', 'resumeAamc', 'continueAamc', 'reviewAamcMissed', 'reviewAamcDue', 'drillAamcWeak', 'togglePrepDone',
     // Full-Length Prep tab
     'setFlCount', 'setFlTest', 'flSelectAll', 'reviewFlMissed',
+    // AAMC Prep tab menu and Rules & Passage Prep section
+    'openAamc', 'openAamcView', 'startRulesQuiz', 'reviewRulesMissed',
     // recall quiz
     'pick', 'revealChoices', 'setConfidence', 'setErrType', 'setPendingNote', 'setWrongAlternative', 'nextQ', 'endQuiz', 'flagCurrent',
     // passages and mini tests
