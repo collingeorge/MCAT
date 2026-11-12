@@ -293,7 +293,6 @@ const AAMC_SECTION = { id: 'aamc_qb', label: 'AAMC Question Bank Flashcards', gr
   { label: 'Independent Question Bank: Psychology & Sociology', tags: ['Sensation, Perception & Cognition', 'Learning, Memory & Development', 'Motivation, Emotion & Personality', 'Social Psychology', 'Sociology & Social Structure', 'Health, Inequality & Research Methods'] },
   { label: 'Independent Question Bank: Biochemistry', tags: ['Proteins & Enzymes', 'Metabolism & Bioenergetics', 'Nucleic Acids, Membranes & Lab Techniques'] },
   { label: 'CARS Question Pack, Vol. 1', tags: ['CARS: Foundations of Comprehension', 'CARS: Reasoning Within the Text', 'CARS: Reasoning Beyond the Text'] },
-  { label: 'Full-Length Tests: Chem/Phys', tags: ['Practice Exam 5: Chem/Phys'] },
   { label: 'Universal Rules Quiz', tags: ['Universal Rules: Reading Data', 'Universal Rules: Test Strategy', 'Universal Rules: Chemistry', 'Universal Rules: Biochemistry', 'Universal Rules: Physics'] },
 ].map(g => ({ label: g.label, chips: g.tags.map(t => ({ label: t, tags: [t] })) })) };
 const ORGO_TAGS = new Set(['Bonding & Structure', 'Reactions & Mechanisms', 'Carbonyl Chemistry', 'Spectroscopy', 'Separations & Lab Techniques']);
@@ -323,7 +322,7 @@ const AQB_BY_ID = new Map();
 const AQB_KEY_COUNTS = Object.create(null);
 [typeof QB_AAMC_BIO === 'undefined' ? [] : QB_AAMC_BIO, typeof QB_AAMC_CHEM === 'undefined' ? [] : QB_AAMC_CHEM,
   typeof QB_AAMC_PHYS === 'undefined' ? [] : QB_AAMC_PHYS, typeof QB_AAMC_IQB === 'undefined' ? [] : QB_AAMC_IQB,
-  typeof QB_AAMC_CARS === 'undefined' ? [] : QB_AAMC_CARS, typeof QB_AAMC_RULES === 'undefined' ? [] : QB_AAMC_RULES, typeof QB_AAMC_FL === 'undefined' ? [] : QB_AAMC_FL].flat().forEach(q => {
+  typeof QB_AAMC_CARS === 'undefined' ? [] : QB_AAMC_CARS, typeof QB_AAMC_RULES === 'undefined' ? [] : QB_AAMC_RULES].flat().forEach(q => {
   let id = 'aamc-' + hashId(q.s + '|' + q.q);
   while (AQB_BY_ID.has(id)) id += 'x';
   Object.assign(q, { subj: AAMC_SECTION.id, key: AAMC_SECTION.id + '|' + q.s, id });
@@ -335,9 +334,24 @@ SUBJECT_LABEL[AAMC_SECTION.id] = AAMC_SECTION.label;
 AAMC_SECTION.groups.forEach(g => g.chips.forEach(c => { c.keys = c.tags.map(t => AAMC_SECTION.id + '|' + t).filter(k => AQB_KEY_COUNTS[k]); }));
 AAMC_SECTION.groups.forEach(g => { g.chips = g.chips.filter(c => c.keys.length); });
 AAMC_SECTION.keys = AAMC_SECTION.groups.flatMap(g => g.chips.flatMap(c => c.keys));
-const isAamc = q => !!q && q.subj === AAMC_SECTION.id;
-const bankOf = q => (isAamc(q) ? AQB : QB);
-const lookupQ = id => QB_BY_ID.get(id) || AQB_BY_ID.get(id);
+// Full-Length Prep: cards built from the AAMC full-length practice exams. Its own pool and tab, kept out of
+// QB, the AAMC QBank section, recall, mixes, reviews, the TODAY plan and score estimates.
+const FL_SECTION = { id: 'fl_prep', label: 'Full-Length Prep' };
+const FLQ = [];
+const FLQ_BY_ID = new Map();
+(typeof QB_AAMC_FL === 'undefined' ? [] : QB_AAMC_FL).forEach(q => {
+  let id = 'fl-' + hashId(q.s + '|' + q.q);
+  while (FLQ_BY_ID.has(id)) id += 'x';
+  Object.assign(q, { subj: FL_SECTION.id, key: FL_SECTION.id + '|' + q.s, id });
+  FLQ.push(q);
+  FLQ_BY_ID.set(id, q);
+});
+SUBJECT_LABEL[FL_SECTION.id] = FL_SECTION.label;
+const FL_TESTS = [...new Set(FLQ.map(q => q.s))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+const isFl = q => !!q && q.subj === FL_SECTION.id;
+const isAamc = q => !!q && (q.subj === AAMC_SECTION.id || q.subj === FL_SECTION.id);
+const bankOf = q => (isFl(q) ? FLQ : isAamc(q) ? AQB : QB);
+const lookupQ = id => QB_BY_ID.get(id) || AQB_BY_ID.get(id) || FLQ_BY_ID.get(id);
 const countAamcKeys = keys => keys.reduce((n, k) => n + (AQB_KEY_COUNTS[k] || 0), 0);
 
 // Authored variants: the same fact asked from another angle (scenario, prediction, EXCEPT),
@@ -1081,6 +1095,7 @@ function renderHome() {
   $('mode-passage-sub').textContent = `${ALL_PASSAGES.length} passages · ${passageQs} Qs`;
   $('mode-exam-sub').textContent = `${FULL_EXAMS.length} timed exams`;
   if ($('mode-aamc-sub')) $('mode-aamc-sub').textContent = `${AQB.length} questions`;
+  if ($('mode-flprep-sub')) $('mode-flprep-sub').textContent = `${FLQ.length} cards · ${FL_TESTS.length} test${FL_TESTS.length === 1 ? '' : 's'}`;
 
   const due = dueQuestions().length;
   const flagged = Object.keys(flaggedIds()).filter(id => QB_BY_ID.has(id)).length;
@@ -1113,7 +1128,7 @@ function renderHome() {
 function setMode(mode, navigate = true) {
   prefs.mode = mode;
   savePrefs();
-  ['recall', 'passage', 'exam', 'aamc'].forEach(m => {
+  ['recall', 'passage', 'exam', 'aamc', 'flprep'].forEach(m => {
     if (!$('btn-' + m)) return;
     $('btn-' + m).classList.toggle('active', m === mode);
     $('btn-' + m).setAttribute('aria-selected', m === mode);
@@ -1122,6 +1137,7 @@ function setMode(mode, navigate = true) {
   $('start-btn').hidden = mode === 'exam';
   if (mode === 'recall') { renderCountRow(); renderSubjectGrid(); }
   if (mode === 'aamc') renderAamcConfig();
+  if (mode === 'flprep') renderFlConfig();
   if (mode === 'passage') renderPassageSelector();
   if (mode === 'exam') renderExamList();
   if (navigate) window.McatPages?.mode(mode);
@@ -1225,6 +1241,7 @@ function startSession() {
   if (prefs.mode === 'recall') startRecall();
   else if (prefs.mode === 'passage') startPassage();
   else if (prefs.mode === 'aamc') startAamc();
+  else if (prefs.mode === 'flprep') startFl();
 }
 
 // ── AAMC Question Bank Flashcards (separate section) ──
@@ -1429,6 +1446,48 @@ function setAamcChip(gi, ci, on) {
   saveAamcSel();
 }
 function aamcSelectAll(on) { AAMC_SECTION.keys.forEach(k => (on ? aamcSel().add(k) : aamcSel().delete(k))); saveAamcSel(); }
+// ── Full-Length Prep tab ──
+function flSel() {
+  const saved = Array.isArray(prefs.flSelected) ? prefs.flSelected : FL_TESTS;
+  const known = new Set(Array.isArray(prefs.flKnown) ? prefs.flKnown : saved);
+  return new Set(FL_TESTS.filter(t => saved.includes(t) || !known.has(t)));
+}
+function saveFlSel(sel) { prefs.flSelected = [...sel]; prefs.flKnown = [...FL_TESTS]; savePrefs(); renderFlConfig(); }
+function setFlTest(i, on) { const sel = flSel(); const t = FL_TESTS[i]; if (!t) return; on ? sel.add(t) : sel.delete(t); saveFlSel(sel); }
+function flSelectAll(on) { saveFlSel(new Set(on ? FL_TESTS : [])); }
+function setFlCount(n) { prefs.flCount = n; savePrefs(); renderFlConfig(); }
+function flPool() { const sel = flSel(); return FLQ.filter(q => sel.has(q.s)); }
+function renderFlConfig() {
+  if (!$('fl-grid')) return;
+  const sel = flSel(), count = prefs.flCount ?? 20;
+  $('fl-count-row').innerHTML = [10, 20, 30, 59, 0].map(n => `<button class="count-btn${count === n ? ' active' : ''}" data-click="setFlCount(${n})">${n || 'All'}</button>`).join('');
+  $('fl-grid').innerHTML = `<div class="sg-chips">${FL_TESTS.map((t, i) => {
+    const n = FLQ.filter(q => q.s === t).length;
+    return `<button class="sg-chip${sel.has(t) ? ' on' : ''}" aria-pressed="${sel.has(t)}" data-click="setFlTest(${i},${!sel.has(t)})">${esc(t)}<span class="sg-chip-count">${n}</span></button>`;
+  }).join('')}</div>`;
+  const pool = flPool(), st = aamcStatus(pool), all = aamcStatus(FLQ);
+  const acc = all.answers ? Math.round((all.correct / all.answers) * 100) : null;
+  $('fl-progress').innerHTML = `<div class="section-label">Your progress</div>
+    ${aamcBar('All Full-Length Prep cards', all.done, all.total, `${all.done} of ${all.total} done`)}
+    <p class="muted-note">${all.done ? `${all.total - all.done} left · ${acc}% of your answers correct${all.due ? ` · ${all.due} due for review` : ''}` : 'Nothing answered yet.'}</p>
+    <div class="home-actions"><button class="action-btn" ${st.missed ? '' : 'disabled'} data-click="reviewFlMissed()">Review missed <b>${st.missed}</b></button></div>
+    ${FL_TESTS.map(t => { const s = aamcStatus(FLQ.filter(q => q.s === t)); return aamcBar(t, s.done, s.total, `${s.done}/${s.total} done${s.answers ? ` · ${Math.round((s.correct / s.answers) * 100)}% right` : ''}`); }).join('')}`;
+  const size = count ? Math.min(count, pool.length) : pool.length;
+  $('fl-avail-text').textContent = `${pool.length} cards selected · ${st.fresh} not yet seen`;
+  $('fl-avail-session').textContent = pool.length ? `Session: ${size} card${size === 1 ? '' : 's'}` : '';
+  $('start-btn').disabled = !pool.length;
+  $('start-btn').textContent = 'Start →';
+}
+function startFl() {
+  const pool = flPool(); if (!pool.length) return;
+  const n = prefs.flCount ?? 20;
+  beginQuiz(pickQuestions(pool, n || pool.length), FL_SECTION.label);
+}
+function reviewFlMissed() {
+  const mem = loadMem();
+  const missed = flPool().filter(q => mem[q.id] && mem[q.id].seen && mem[q.id].right < mem[q.id].seen);
+  if (missed.length) beginQuiz(shuffled(missed), FL_SECTION.label + ': missed');
+}
 function startAamc() {
   const pool = AQB.filter(q => aamcSel().has(q.key));
   if (!pool.length) return;

@@ -1,10 +1,10 @@
 // Offline support, network-first: when online, always fetch the current file (revalidating
 // past the browser's HTTP cache) so new versions show on the first visit; the cached copy
 // is used only when the network fails or takes too long. Bump CACHE when deploying.
-const CACHE = 'mcat-v2.28-pe5-chemphys-2026-11-11';
+const CACHE = 'mcat-v2.29-fl-prep-2026-11-11';
 const NETWORK_TIMEOUT_MS = 4000;
 const ASSETS = [
-  "recall.html", "passages.html", "exams.html", "aamc.html", "score-report.html", "about.html", "recall-session.html", "passage-session.html", "exam-session.html", "results.html", "exam-results.html", 'js/pages.js', './', 'css/portfolio-theme.css?v=20261030', 'index.html', 'css/styles.css', 'js/app.js', 'js/study-path.js', 'js/cloud-config.js', 'js/account.js', 'js/study-timer.js', 'js/learning-evidence.js', 'js/daily-plan.js', 'js/actions.js', 'js/data-css.js', 'vendor/supabase-js-2.118.0.umd.js', 'manifest.webmanifest', 'icon.svg',
+  "recall.html", "passages.html", "exams.html", "aamc.html", "flprep.html","score-report.html", "about.html", "recall-session.html", "passage-session.html", "exam-session.html", "results.html", "exam-results.html", 'js/pages.js', './', 'css/portfolio-theme.css?v=20261030', 'index.html', 'css/styles.css', 'js/app.js', 'js/study-path.js', 'js/cloud-config.js', 'js/account.js', 'js/study-timer.js', 'js/learning-evidence.js', 'js/daily-plan.js', 'js/actions.js', 'js/data-css.js', 'vendor/supabase-js-2.118.0.umd.js', 'manifest.webmanifest', 'icon.svg',
   'data/qb-biochemistry.js', 'data/qb-biology.js', 'data/qb-chemistry.js', 'data/qb-physics.js', 'data/qb-equations.js',
   'data/qb-behavioral-1.js', 'data/qb-behavioral-2.js', 'data/passages-science.js', 'data/passages-cars.js', 'data/passages-data.js', 'data/qb-variants-1.js', 'data/qb-variants-2.js',
   'data/qb-aamc-bio.js', 'data/qb-aamc-chem.js', 'data/qb-aamc-phys.js', 'data/qb-aamc-iqb.js', 'data/qb-aamc-cars.js', 'data/qb-aamc-rules.js', 'data/qb-aamc-fl.js', 'data/aamc-prep.js',

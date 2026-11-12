@@ -11,6 +11,8 @@
     'setCount', 'setMix', 'setRecallFirst', 'toggleSubjectOpen', 'setSubjectKeys', 'sgSelectAll', 'sgClearAll',
     // AAMC Question Bank Flashcards section
     'setAamcCount', 'setAamcChip', 'aamcSelectAll', 'resumeAamc', 'continueAamc', 'reviewAamcMissed', 'reviewAamcDue', 'drillAamcWeak', 'togglePrepDone',
+    // Full-Length Prep tab
+    'setFlCount', 'setFlTest', 'flSelectAll', 'reviewFlMissed',
     // recall quiz
     'pick', 'revealChoices', 'setConfidence', 'setErrType', 'setPendingNote', 'setWrongAlternative', 'nextQ', 'endQuiz', 'flagCurrent',
     // passages and mini tests

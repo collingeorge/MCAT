@@ -2,8 +2,8 @@
 (() => {
   'use strict';
   if (typeof history === 'undefined' || !location.pathname) return;
-  const titles = {index:'Overview',recall:'Recall',passages:'Passages',exams:'Full-length exams',aamc:'AAMC QBank','score-report':'Score report',about:'About & sources','recall-session':'Recall session','passage-session':'Passage session','exam-session':'Exam session',results:'Session results','exam-results':'Exam results'};
-  const modes = {recall:'recall',passages:'passage',exams:'exam',aamc:'aamc'};
+  const titles = {index:'Overview',recall:'Recall',passages:'Passages',exams:'Full-length exams',aamc:'AAMC QBank',flprep:'Full-Length Prep','score-report':'Score report',about:'About & sources','recall-session':'Recall session','passage-session':'Passage session','exam-session':'Exam session',results:'Session results','exam-results':'Exam results'};
+  const modes = {recall:'recall',passages:'passage',exams:'exam',aamc:'aamc',flprep:'flprep'};
   let applying = false;
   let current = 'index';
   const pageFromURL = () => location.pathname.split('/').pop().replace(/\.html$/, '') || 'index';
@@ -15,12 +15,12 @@
   }
   function paint(page) {
     current = page;
-    const focused = ['recall','passages','exams','aamc'].includes(page);
+    const focused = ['recall','passages','exams','aamc','flprep'].includes(page);
     $('home-score').hidden = focused;
     $('home-actions').hidden = focused;
     if ($('today-plan')) $('today-plan').hidden = focused;
     const heading = document.querySelector('.hero-title');
-    heading.textContent = focused ? {recall:'Recall practice',passages:'Passage practice',exams:'Full-length exams',aamc:'AAMC Question Bank Flashcards'}[page] : 'MCAT Study App';
+    heading.textContent = focused ? {recall:'Recall practice',passages:'Passage practice',exams:'Full-length exams',aamc:'AAMC Question Bank Flashcards',flprep:'Full-Length Prep'}[page] : 'MCAT Study App';
     document.title = titles[page] + ' | MCAT Study App';
     const parent = {'recall-session':'recall','passage-session':'passages','exam-session':'exams',results:'score-report','exam-results':'exams'}[page] || page;
     document.querySelectorAll('[data-study-page]').forEach(a => {
@@ -82,7 +82,7 @@
     main.setAttribute('tabindex','-1');
     main.focus({preventScroll:true});
   }
-  window.McatPages = {screen, mode:(mode, replace = false) => write({recall:'recall',passage:'passages',exam:'exams',aamc:'aamc'}[mode],replace)};
+  window.McatPages = {screen, mode:(mode, replace = false) => write({recall:'recall',passage:'passages',exam:'exams',aamc:'aamc',flprep:'flprep'}[mode],replace)};
   document.addEventListener('click', e => {
     const link = e.target.closest('a[data-study-page]');
     if (!link || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;

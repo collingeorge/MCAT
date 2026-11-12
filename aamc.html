@@ -16,7 +16,7 @@
 <a class="study-skip" href="#screen-home">Skip to study content</a>
 <div class="study-status">Independent study · Local or account-synced progress · Sources &amp; limitations documented</div>
 <header class="study-masthead"><div class="study-masthead-inner"><a class="study-brand" href="https://collinbgeorge.com/"><span class="study-brand-name">Collin B. George</span><span class="study-brand-sub">Clinical education &amp; research</span></a><nav aria-label="Portfolio navigation"><a href="https://collinbgeorge.com/">Portfolio home ↗</a><a href="https://collinbgeorge.com/projects/mcat-study/">Study guide &amp; sources ↗</a></nav></div></header>
-<nav class="study-pages" aria-label="MCAT pages"><div class="wrap"><a data-study-page="index" href="index.html">Overview</a><a data-study-page="recall" href="recall.html">Recall</a><a data-study-page="passages" href="passages.html">Passages</a><a data-study-page="exams" href="exams.html">Full-length exams</a><a data-study-page="aamc" href="aamc.html">AAMC QBank</a><a data-study-page="score-report" href="score-report.html">Score report</a><a data-study-page="about" href="about.html">About & sources</a><button id="account-login-btn" type="button" data-click="McatAccount.open()">Sign in / Create account</button></div></nav>
+<nav class="study-pages" aria-label="MCAT pages"><div class="wrap"><a data-study-page="index" href="index.html">Overview</a><a data-study-page="recall" href="recall.html">Recall</a><a data-study-page="passages" href="passages.html">Passages</a><a data-study-page="exams" href="exams.html">Full-length exams</a><a data-study-page="aamc" href="aamc.html">AAMC QBank</a><a data-study-page="flprep" href="flprep.html">Full-Length Prep</a><a data-study-page="score-report" href="score-report.html">Score report</a><a data-study-page="about" href="about.html">About & sources</a><button id="account-login-btn" type="button" data-click="McatAccount.open()">Sign in / Create account</button></div></nav>
 <div id="page-notice" class="wrap advice" role="status" hidden></div>
 <div class="study-timer-header">
 <section id="study-timer" class="study-timer" aria-label="Study time and break guidance"></section>
@@ -48,6 +48,7 @@
       <button class="mode-btn" id="btn-passage" role="tab" data-click="setMode('passage')">Passages<span class="mode-sub" id="mode-passage-sub"></span></button>
       <button class="mode-btn" id="btn-exam" role="tab" data-click="setMode('exam')">Full-length<span class="mode-sub" id="mode-exam-sub"></span></button>
       <button class="mode-btn" id="btn-aamc" role="tab" data-click="setMode('aamc')">AAMC QBank<span class="mode-sub" id="mode-aamc-sub"></span></button>
+      <button class="mode-btn" id="btn-flprep" role="tab" data-click="setMode('flprep')">Full-Length Prep<span class="mode-sub" id="mode-flprep-sub"></span></button>
     </div>
 
     <section id="recall-config">
@@ -100,6 +101,27 @@
         </div>
         <div id="aamc-grid"></div>
         <div class="sg-avail"><span id="aamc-avail-text"></span><span id="aamc-avail-session"></span></div>
+      </div>
+    </section>
+
+    <section id="flprep-config" hidden>
+      <div class="config-card" id="fl-progress"></div>
+      <div class="config-card">
+        <div class="section-label">Full-Length Prep</div>
+        <p class="muted-note">Flashcards built from the concepts tested in the AAMC full-length practice exams, one card per tested concept, checked against AAMC's answers. Original wording; no AAMC passages, questions or explanations are reproduced. Kept completely separate: these cards never appear in Recall, the AAMC QBank tab, Smart Session, mixes, reviews, drills, the TODAY plan or score estimates.</p>
+        <div class="section-label mt-16">Cards per session</div>
+        <div class="count-row" id="fl-count-row"></div>
+      </div>
+      <div class="config-card">
+        <div class="config-header">
+          <div class="section-label">Tests</div>
+          <div class="micro-row">
+            <button class="micro-btn" data-click="flSelectAll(true)">All</button>
+            <button class="micro-btn" data-click="flSelectAll(false)">None</button>
+          </div>
+        </div>
+        <div id="fl-grid"></div>
+        <div class="sg-avail"><span id="fl-avail-text"></span><span id="fl-avail-session"></span></div>
       </div>
     </section>
 
