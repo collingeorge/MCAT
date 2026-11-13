@@ -45,6 +45,8 @@ jobs:
         run: node tools/test-study-timer.cjs
       - name: Sign-in SDK load error messages
         run: node tools/test-sdk-load.cjs
+      - name: Worked methods (How to work it out)
+        run: node tools/test-worked-methods.cjs
       - name: Cloud account isolation and sync regression
         run: node tools/test-account.cjs
       - name: Content validation

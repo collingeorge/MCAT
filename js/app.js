@@ -1758,6 +1758,7 @@ function renderQuizQuestion() {
       ${why || q.variant ? `<div class="q-reason">${q.variant ? `<span class="variant-pill">${q.variant === 'authored' ? `Applied: ${esc(VARIANT_KIND[q.kind] || 'new angle')}` : 'Asked a different way'}</span>` : ''}${why ? `<span>Why this question: ${esc(why)}</span>` : ''}</div>` : ''}
       <div class="question-text">${fmt(q.q)}</div>
     </div>
+    ${howOf(q) ? `<div id="hint-area">${hintArea(view)}</div>` : ''}
     <div class="choices" id="choices-area" role="group" aria-label="Answer choices">${choicesOrPrompt(view)}</div>
     <div id="exp-area"></div>
     <div id="nxt-area"></div>`;
@@ -1771,6 +1772,35 @@ function choicesOrPrompt(view) {
   return `<div class="recall-first">
     <p><b>Recall first:</b> think of the answer, then show the choices.</p>
     <button class="next-btn" id="reveal-btn" data-click="revealChoices()">Show choices (Space)</button>
+  </div>`;
+}
+// ── "How to work it out": a worked method (what it's asking, what to know, steps, the trap) ──
+// Only on the original card: a reworded or reversed form asks something else.
+function howOf(q) { return q && !q.variant && !q.baseId && q.how && Array.isArray(q.how.steps) ? q.how : null; }
+// Before answering, hints come in two stages: what the question asks, then what you need to know.
+// Steps and the trap appear only after you answer.
+function hintArea(view) {
+  const h = howOf(view.q), level = view.hint || 0;
+  if (!h) return '';
+  const shown = (level >= 1 ? `<p><b>What it's asking:</b> ${fmt(h.ask)}</p>` : '') + (level >= 2 ? `<div><b>What you need to know:</b>${paragraphs(h.know)}</div>` : '');
+  const label = level === 0 ? 'Show me how to start' : level === 1 ? 'Show what I need to know' : '';
+  return `${shown ? `<div class="how-hint" role="status">${shown}</div>` : ''}${label ? `<button class="micro-btn how-btn" id="hint-btn" data-click="showHint()">💡 ${label}</button>` : ''}`;
+}
+function showHint() {
+  const view = quiz.items[quiz.idx];
+  if (quiz.answered || !howOf(view.q) || (view.hint || 0) >= 2) return;
+  view.hint = (view.hint || 0) + 1;
+  $('hint-area').innerHTML = hintArea(view);
+}
+function howBox(q) {
+  const h = howOf(q);
+  if (!h) return '';
+  return `<div class="how-box">
+    <div class="how-title">How to work it out</div>
+    <p><b>1. What it's asking:</b> ${fmt(h.ask)}</p>
+    <div><b>2. What you need to know:</b>${paragraphs(h.know)}</div>
+    <div><b>3. Step by step:</b><ol class="how-steps">${h.steps.map(st => `<li>${fmt(st)}</li>`).join('')}</ol></div>
+    ${h.trap ? `<p class="how-trap"><b>4. The trap:</b> ${fmt(h.trap)}</p>` : ''}
   </div>`;
 }
 function revealChoices() {
@@ -1815,7 +1845,10 @@ function finishPick(chosen, other = null, answerMs = null) {
   $('qm-score').textContent = `✓ ${quiz.results.filter(r => r.right).length}/${quiz.results.length}`;
   $('exp-area').innerHTML = finalTwoFeedback(view, chosen, other) + explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Recall · ${view.q.s}`, view.q.q),
     timedOut ? `Time ran out (${SPEED_SECONDS} seconds). A fact you know well should come back faster: this one is now due for review.`
-      : confusion ? `You chose <b>${fmt(view.choices[chosen])}</b>. ${fmt(meaningOf(confusion))}` : '');
+      : confusion ? `You chose <b>${fmt(view.choices[chosen])}</b>. ${fmt(meaningOf(confusion))}` : '') + howBox(view.q);
+  if ($('hint-area')) $('hint-area').innerHTML = '';
+  // A hinted answer was not pure recall: it starts as Unsure so the card comes back (you can change it)
+  if (view.hint) quiz.pending.conf = 'unsure';
   renderNextArea();
   $('next-btn').focus({ preventScroll: true });
 }
@@ -1972,7 +2005,7 @@ function showQuizResults() {
     <div class="results-card">
       <div class="section-label">Missed this session (${missed.length})</div>
       ${missed.length ? missed.map(r => reviewItem({
-        stem: r.view.q.q, choices: r.view.choices, ans: r.view.ans, chosen: r.chosen, other: r.other, exp: r.view.q.exp,
+        stem: r.view.q.q, choices: r.view.choices, ans: r.view.ans, chosen: r.chosen, other: r.other, exp: r.view.q.exp, how: howBox(r.view.q),
         tag: `${SUBJECT_LABEL[r.view.q.subj]} · ${KEY_LABEL[r.view.q.key] || r.view.q.s}`,
       })).join('') : '<div class="all-correct">✓ Perfect session — nothing missed.</div>'}
       ${missed.length ? `<button class="micro-btn mt-10" data-click="exportMissed()">Download missed questions (.txt)</button>` : ''}
@@ -1990,7 +2023,7 @@ function barRow(label, c, t) {
     <div class="sr-pct">${p}%</div><div class="sr-n">${c}/${t}</div>
   </div>`;
 }
-function reviewItem({ stem, choices, ans, chosen, exp, tag, passageTitle, other, otherHandler, otherId }) {
+function reviewItem({ stem, choices, ans, chosen, exp, how, tag, passageTitle, other, otherHandler, otherId }) {
   return `<div class="missed-item">
     ${tag ? `<div class="missed-tag">${esc(tag)}</div>` : ''}
     ${passageTitle ? `<div class="missed-tag">Passage: ${esc(passageTitle)}</div>` : ''}
@@ -2000,6 +2033,7 @@ function reviewItem({ stem, choices, ans, chosen, exp, tag, passageTitle, other,
     ${chosen != null && chosen !== ans && otherHandler ? runnerUpPrompt({choices,ans},chosen,otherHandler,other,otherId) : ''}
     <div${otherId ? ` id="alternative-feedback-${otherId}"` : ''}>${finalTwoFeedback({choices,ans,q:{id:'review'}},chosen,other)}</div>
     <details class="missed-exp"><summary>Explanation</summary>${paragraphs(exp)}</details>
+    ${how ? `<details class="missed-exp"><summary>How to work it out</summary>${how}</details>` : ''}
   </div>`;
 }
 function exportMissed() {
