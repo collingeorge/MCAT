@@ -345,7 +345,7 @@ const FL_SECTION = { id: 'fl_prep', label: 'Full-Length Prep' };
 const FLQ = [];
 const FLQ_BY_ID = new Map();
 (typeof QB_AAMC_FL === 'undefined' ? [] : QB_AAMC_FL).forEach(q => {
-  let id = 'fl-' + hashId(q.s + '|' + q.q);
+  let id = 'fl-' + hashId(q.s + '|' + (q.idStem || q.q));
   while (FLQ_BY_ID.has(id)) id += 'x';
   Object.assign(q, { subj: FL_SECTION.id, key: FL_SECTION.id + '|' + q.s, id });
   FLQ.push(q);

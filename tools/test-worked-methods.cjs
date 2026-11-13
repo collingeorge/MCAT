@@ -23,6 +23,15 @@ for (const q of FL.filter(q => q.how || /^pe6-/.test(q.src))) {
   assert(!h.ask.includes(q.choices[q.ans]), id + ': "ask" does not give away the answer');
 }
 
+// Exam form: PE6 cards ask like the exam. No choice labels why it is right, e.g. "¹H NMR (peak integrals)".
+// Rewritten cards keep their original identity (idStem), so progress, flags and review history carry over.
+for (const q of pe6) {
+  assert(q.choices.every(c => !/\(.+\)/.test(c)), q.src + ': no parenthetical hint in choices');
+  assert(!/\b(RATIO|MUST)\b/.test(q.q), q.src + ': no capitalized cue words beyond NOT/EXCEPT');
+  assert(typeof q.idStem === 'string' && q.idStem !== q.q, q.src + ': original stem kept as idStem');
+}
+assert(source.includes("let id = 'fl-' + hashId(q.s + '|' + (q.idStem || q.q));"), 'FL ids use idStem');
+
 // Rendering: run the real functions against a minimal DOM.
 function extract(name) { const a = source.indexOf('function ' + name + '('), b = source.indexOf('\nfunction ', a + 1); assert(a >= 0, name); return source.slice(a, b < 0 ? source.length : b); }
 const nodes = new Map();
@@ -63,4 +72,4 @@ assert(fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'showHint'"));
 assert(source.includes('+ howBox(view.q);'));
 assert(source.includes("if (view.hint) quiz.pending.conf = 'unsure';"));
 assert(source.includes('how: howBox(r.view.q)'));
-console.log(`Worked methods passed: ${FL.filter(q => q.how).length} cards (all ${pe6.length} Practice Exam 6 cards) have what-it's-asking, what-to-know, steps and trap; two-stage hints hide steps and trap before answering; full method after answering and in the missed list; escaped; never on reworded forms.`);
+console.log(`Worked methods passed: ${FL.filter(q => q.how).length} cards (all ${pe6.length} Practice Exam 6 cards) are written in exam form with stable ids and have what-it's-asking, what-to-know, steps and trap; two-stage hints hide steps and trap before answering; full method after answering and in the missed list; escaped; never on reworded forms.`);
