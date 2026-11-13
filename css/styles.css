@@ -800,3 +800,12 @@ a.today-start{display:inline-block;text-decoration:none;text-align:center}
 .aamc-tile-desc{font-size:13px;line-height:1.55;color:var(--slate)}
 .aamc-tile-meta{font:11px/1.6 var(--mono, monospace);color:var(--navy-mid);margin-top:auto}
 @media (max-width:760px){.aamc-menu-grid{grid-template-columns:1fr}}
+/* "How to work it out": worked method after answering, staged hints before */
+.how-box{margin-top:10px;padding:14px 16px;background:var(--white);border:1px solid var(--border);border-left:4px solid var(--navy);font-size:13px;line-height:1.75;color:var(--text-body)}
+.how-box p,.how-box li{margin:0 0 6px}
+.how-title{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--navy);margin-bottom:8px}
+.how-steps{margin:4px 0 8px 20px;padding:0}
+.how-trap{border-top:1px solid var(--border);padding-top:8px;margin-top:8px}
+.how-hint{margin:8px 0;padding:10px 14px;background:var(--blue-light);border-left:3px solid var(--navy);font-size:13px;line-height:1.7}
+.how-hint p{margin:0 0 6px}
+.how-btn{margin:8px 0}
