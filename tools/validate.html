@@ -38,6 +38,7 @@
 <script src="../data/qb-aamc-cars.js"></script>
 <script src="../data/qb-aamc-rules.js"></script>
 <script src="../data/qb-aamc-fl.js"></script>
+<script src="../data/qb-structures.js"></script>
 <script src="../data/exam1.js"></script>
 <script src="../data/exam2-cp.js"></script>
 <script src="../data/exam2-bb.js"></script>
@@ -88,7 +89,8 @@
       const alphabetic = q.choices.every(c => /^[A-Za-z]/.test(String(c)));
       const caps = q.choices.map(c => /^[A-Z]/.test(String(c)));
       if (alphabetic && caps.filter(Boolean).length === 1 && caps[q.ans]) warn(where, `key is the only capitalized choice — ${short(q.q)}`);
-      if (key.length > 4 && keyAppearsInStem(q.q, key)) warn(where, `key appears in stem — ${short(q.q)}`);
+      // Structure choices show drawings, not names, so naming the target in the stem gives nothing away.
+      if (key.length > 4 && !Array.isArray(q.choiceFigs) && keyAppearsInStem(q.q, key)) warn(where, `key appears in stem — ${short(q.q)}`);
     }
   }
 
@@ -109,11 +111,12 @@
     ['QB_AAMC_IQB', ['Sensation, Perception & Cognition', 'Learning, Memory & Development', 'Motivation, Emotion & Personality', 'Social Psychology', 'Sociology & Social Structure', 'Health, Inequality & Research Methods', 'Proteins & Enzymes', 'Metabolism & Bioenergetics', 'Nucleic Acids, Membranes & Lab Techniques'], ['psych_soc', 'biochemistry'], /^([1-9][A-E]|10A)$/],
     ['QB_AAMC_CARS', ['CARS: Foundations of Comprehension', 'CARS: Reasoning Within the Text', 'CARS: Reasoning Beyond the Text'], ['cars'], /^(CMP|RWT|RBT)$/],
     ['QB_AAMC_FL', ['Practice Exam 1: Chem/Phys', 'Practice Exam 3: Chem/Phys', 'Practice Exam 4: Chem/Phys', 'Practice Exam 5: Chem/Phys', 'Practice Exam 6: Chem/Phys'], ['gen_chem', 'organic_chem', 'physics', 'biochemistry', 'biology'], /^[45][A-E]$/],
+    ['QB_STRUCTURES', ['Structure Reading: Amino Acids', 'Structure Reading: Functional Groups', 'Structure Reading: Rings & Aromaticity', 'Structure Reading: Skeletal Formulas', 'Structure Reading: Stereochemistry', 'Structure Reading: Nucleic Acids', 'Structure Reading: Biomolecules'], ['biochemistry', 'organic_chem'], /^[1-5][A-E]$/],
     ['QB_AAMC_RULES', ['Universal Rules: Reading Data', 'Universal Rules: Test Strategy', 'Universal Rules: Chemistry', 'Universal Rules: Biochemistry', 'Universal Rules: Physics'], ['research', 'gen_chem', 'organic_chem', 'biochemistry', 'physics'], /^([1-9][A-E]|10A|SIRS)$/],
   ].forEach(([name, tags, discs, code]) => {
     const arr = { QB_AAMC_BIO: typeof QB_AAMC_BIO === 'undefined' ? null : QB_AAMC_BIO, QB_AAMC_CHEM: typeof QB_AAMC_CHEM === 'undefined' ? null : QB_AAMC_CHEM,
       QB_AAMC_PHYS: typeof QB_AAMC_PHYS === 'undefined' ? null : QB_AAMC_PHYS, QB_AAMC_IQB: typeof QB_AAMC_IQB === 'undefined' ? null : QB_AAMC_IQB,
-      QB_AAMC_CARS: typeof QB_AAMC_CARS === 'undefined' ? null : QB_AAMC_CARS, QB_AAMC_RULES: typeof QB_AAMC_RULES === 'undefined' ? null : QB_AAMC_RULES, QB_AAMC_FL: typeof QB_AAMC_FL === 'undefined' ? null : QB_AAMC_FL }[name];
+      QB_AAMC_CARS: typeof QB_AAMC_CARS === 'undefined' ? null : QB_AAMC_CARS, QB_AAMC_RULES: typeof QB_AAMC_RULES === 'undefined' ? null : QB_AAMC_RULES, QB_AAMC_FL: typeof QB_AAMC_FL === 'undefined' ? null : QB_AAMC_FL, QB_STRUCTURES: typeof QB_STRUCTURES === 'undefined' ? null : QB_STRUCTURES }[name];
     if (!Array.isArray(arr)) return warn(name, 'not loaded');
     banks[name] = arr;
     arr.forEach((q, i) => {
@@ -134,7 +137,8 @@
       if (q.idStem !== undefined && (typeof q.idStem !== 'string' || !q.idStem.trim())) err(`${name}[${i}]`, 'idStem must be a nonempty legacy stem');
       checkQuestion(`${name}[${i}]`, q, { cloze: true });
       ansDist[q.ans] = (ansDist[q.ans] || 0) + 1;
-      const k = String(q.q).trim().toLowerCase();
+      // A structure card's stem includes its drawing: the same words over a different structure is a different question.
+      const k = String(q.q).trim().toLowerCase() + (q.fig == null ? '' : ' [fig:' + [].concat(q.fig).join(',') + ']');
       if (stems.has(k)) warn(`${name}[${i}]`, `duplicate stem of ${stems.get(k)}`); else stems.set(k, `${name}[${i}]`);
     });
     rows.push([name, arr.length, ansDist.join(' / ')]);

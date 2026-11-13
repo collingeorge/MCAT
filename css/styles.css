@@ -809,3 +809,11 @@ a.today-start{display:inline-block;text-decoration:none;text-align:center}
 .how-hint{margin:8px 0;padding:10px 14px;background:var(--blue-light);border-left:3px solid var(--navy);font-size:13px;line-height:1.7}
 .how-hint p{margin:0 0 6px}
 .how-btn{margin:8px 0}
+/* Chemical structures (skeletal drawings). Names on structure choices appear only after answering. */
+.struct-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.struct-fig{margin:0;padding:8px;background:#fff;border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;max-width:100%}
+.struct-fig figcaption{font-size:11px;font-weight:700;color:var(--slate)}
+.struct-img{display:block;max-width:100%;height:auto;min-height:150px;max-height:320px;background:#fff}
+.choice-text .struct-img{min-height:100px;max-height:180px}
+.struct-name{display:none;font-size:12px;font-weight:600;margin-top:4px}
+.choice-btn:disabled .struct-name{display:block}

@@ -344,7 +344,7 @@ const AQB_QBANK = AQB.filter(q => !AAMC_RULES_KEYS.has(q.key));  // Question Ban
 const FL_SECTION = { id: 'fl_prep', label: 'Full-Length Prep' };
 const FLQ = [];
 const FLQ_BY_ID = new Map();
-(typeof QB_AAMC_FL === 'undefined' ? [] : QB_AAMC_FL).forEach(q => {
+[...(typeof QB_AAMC_FL === 'undefined' ? [] : QB_AAMC_FL), ...(typeof QB_STRUCTURES === 'undefined' ? [] : QB_STRUCTURES)].forEach(q => {
   let id = 'fl-' + hashId(q.s + '|' + (q.idStem || q.q));
   while (FLQ_BY_ID.has(id)) id += 'x';
   Object.assign(q, { subj: FL_SECTION.id, key: FL_SECTION.id + '|' + q.s, id });
@@ -1561,7 +1561,7 @@ const LOOP_TARGET = 2;   // correct answers in a row before a missed fact is cle
 
 function makeView(q, reason) {
   const order = shuffled(q.choices.map((_, i) => i));
-  return { q, reason: reason || null, order, choices: order.map(i => q.choices[i]), ans: order.indexOf(q.ans) };
+  return { q, reason: reason || null, order, choices: order.map(i => q.choices[i]), ans: order.indexOf(q.ans), ...(Array.isArray(q.choiceFigs) ? { figs: order.map(i => q.choiceFigs[i]) } : {}) };
 }
 function startSmartSession() {
   const n = smartSessionSize();
@@ -1725,10 +1725,22 @@ function finalTwoFeedback(view,chosen,other) {
 function pick(chosen) { finishPick(chosen); }
 function answerPassage(chosen) { finishPassageAnswer(chosen); }
 
+// ── Chemical structures: skeletal drawings from data/structures.js (RDKit), shown as images ──
+function structImg(name, alt) {
+  const svg = typeof STRUCT_SVG === 'undefined' || name == null ? null : STRUCT_SVG[name];
+  return svg ? `<img class="struct-img" src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}" alt="${esc(alt || 'Chemical structure')}">` : '';
+}
+function stemFigs(q) {
+  const names = q.fig == null ? [] : [].concat(q.fig);
+  const imgs = names.map((n, i) => structImg(n, names.length > 1 ? `Structure ${i + 1}` : 'Structure shown')).filter(Boolean);
+  return imgs.length ? `<div class="struct-row">${imgs.map((im, i) => `<figure class="struct-fig">${im}${imgs.length > 1 ? `<figcaption>${i + 1}</figcaption>` : ''}</figure>`).join('')}</div>` : '';
+}
+// Structure choices show only the drawing until answered; then each is labeled with its name.
+function structChoice(view, i) { return view && view.figs ? structImg(view.figs[i], 'Structure ' + LETTERS[i]) : ''; }
 function choiceButtons(choices, onclick, opts = {}) {
   return choices.map((c, i) => `
     <button class="choice-btn${opts.selected === i ? ' selected' : ''}" id="${opts.prefix || 'cb'}-${i}" data-click="${onclick}(${i})">
-      <span class="choice-lbl">${LETTERS[i]}</span><span class="choice-text">${fmt(c)}</span>
+      <span class="choice-lbl">${LETTERS[i]}</span>${structChoice(opts.view, i) ? `<span class="choice-text">${structChoice(opts.view, i)}<span class="struct-name">${fmt(c)}</span></span>` : `<span class="choice-text">${fmt(c)}</span>`}
     </button>`).join('');
 }
 function renderQuizQuestion() {
@@ -1757,6 +1769,7 @@ function renderQuizQuestion() {
       ${quiz.speed ? `<div class="speed-bar"><div class="speed-fill" id="speed-fill"></div></div>` : ''}
       ${why || q.variant ? `<div class="q-reason">${q.variant ? `<span class="variant-pill">${q.variant === 'authored' ? `Applied: ${esc(VARIANT_KIND[q.kind] || 'new angle')}` : 'Asked a different way'}</span>` : ''}${why ? `<span>Why this question: ${esc(why)}</span>` : ''}</div>` : ''}
       <div class="question-text">${fmt(q.q)}</div>
+      ${stemFigs(q)}
     </div>
     ${howOf(q) ? `<div id="hint-area">${hintArea(view)}</div>` : ''}
     <div class="choices" id="choices-area" role="group" aria-label="Answer choices">${choicesOrPrompt(view)}</div>
@@ -1768,7 +1781,7 @@ function renderQuizQuestion() {
 // Recall first: retrieving the answer before seeing options builds stronger memory
 // than recognizing it, so the choices stay hidden until you've thought of it
 function choicesOrPrompt(view) {
-  if (!prefs.recallFirst || view.revealed || quiz.speed) return choiceButtons(view.choices, 'pick');
+  if (!prefs.recallFirst || view.revealed || quiz.speed) return choiceButtons(view.choices, 'pick', { view });
   return `<div class="recall-first">
     <p><b>Recall first:</b> think of the answer, then show the choices.</p>
     <button class="next-btn" id="reveal-btn" data-click="revealChoices()">Show choices (Space)</button>
@@ -1808,7 +1821,7 @@ function revealChoices() {
   if (view.revealed) return;
   view.revealed = true;
   view.revealedAt = Date.now();
-  $('choices-area').innerHTML = choiceButtons(view.choices, 'pick');
+  $('choices-area').innerHTML = choiceButtons(view.choices, 'pick', { view });
 }
 function setRecallFirst(on) { prefs.recallFirst = !!on; savePrefs(); }
 function flagCurrent() {
