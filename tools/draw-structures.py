@@ -146,7 +146,10 @@ def draw(m, hl):
     o.minFontSize = 13; o.additionalAtomLabelPadding = 0.1
     o.setHighlightColour((1.0, 0.82, 0.3))
     for a in m.GetAtoms(): a.SetAtomMapNum(0)
-    rdMolDraw2D.PrepareAndDrawMolecule(d, m, highlightAtoms=hl or [])
+    hs = set(hl or [])
+    # A highlighted group (2+ atoms) also lights its bonds, including the one joining it to the rest of the molecule.
+    hb = [b.GetIdx() for b in m.GetBonds() if len(hs) > 1 and (b.GetBeginAtomIdx() in hs or b.GetEndAtomIdx() in hs)]
+    rdMolDraw2D.PrepareAndDrawMolecule(d, m, highlightAtoms=list(hs), highlightBonds=hb)
     d.FinishDrawing()
     svg = d.GetDrawingText()
     svg = re.sub(r'<\?xml[^>]*>\s*', '', svg)
@@ -154,6 +157,17 @@ def draw(m, hl):
     svg = re.sub(r'(\d+\.\d)\d+', r'\1', svg)          # one decimal is plenty at this size
     svg = re.sub(r'\s*\n\s*', ' ', svg).replace('> <', '><')
     return svg.strip()
+
+# Amino-acid side-chain highlights ('<aa>-sc'): every heavy atom outside the N–Cα–C(=O)OH backbone.
+BACKBONE = Chem.MolFromSmarts('[NX3][CX4][CX3](=O)[OX2H1]')
+SIDECHAIN = {}
+for n in AA:
+    if n == 'glycine': continue
+    m = Chem.MolFromSmiles(AA[n][0]); bb = set(m.GetSubstructMatch(BACKBONE))
+    if len(bb) != 5: raise SystemExit(f'{n}: backbone not found')
+    sc = [a.GetIdx() for a in m.GetAtoms() if a.GetIdx() not in bb]
+    if not sc: raise SystemExit(f'{n}: empty side chain')
+    SIDECHAIN[n + '-sc'] = (AA[n][0], sc)
 
 out = {}
 for name, (smi, checks) in S.items():
@@ -164,6 +178,10 @@ for name, (smi, checks) in S.items():
     check(name, m, checks)
     hl = [a.GetIdx() for a in m.GetAtoms() if a.GetAtomMapNum() in checks.get('hl', [])]
     out[name] = draw(Chem.Mol(m), hl)
+
+for name, (smi, sc) in SIDECHAIN.items():
+    m = Chem.MolFromSmiles(smi)
+    out[name] = draw(m, sc)
 
 src = hashlib.sha256(Path(__file__).read_bytes().replace(b'\r\n', b'\n')).hexdigest()[:16]  # line-ending independent (CI runs on Windows too)
 body = ',\n'.join(f'  {json.dumps(k)}: {json.dumps(v, ensure_ascii=False)}' for k, v in out.items())

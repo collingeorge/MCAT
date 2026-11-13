@@ -817,3 +817,42 @@ a.today-start{display:inline-block;text-decoration:none;text-align:center}
 .choice-text .struct-img{min-height:100px;max-height:180px}
 .struct-name{display:none;font-size:12px;font-weight:600;margin-top:4px}
 .choice-btn:disabled .struct-name{display:block}
+/* Graph figures (inline SVG). Grayscale like exam figures; the solution player adds color to what matters. */
+.chart-figure{background:#fff;padding:10px 8px 6px;border:1px solid var(--border);margin:14px 0}
+.chart{display:block;width:100%;height:auto;max-width:620px;margin:0 auto;font-family:var(--sans,system-ui,sans-serif)}
+.ch-axis,.ch-tick{stroke:#222;stroke-width:1.2}
+.ch-tl{font-size:15px;fill:#222}
+.ch-al{font-size:16px;fill:#111;font-weight:600}
+.ch-legend{font-size:15px;fill:#222}
+.ch-line{fill:none;stroke:#222;stroke-width:1.6}
+.ch-mk{fill:#222;stroke:#222;stroke-width:1.2}
+.ch-mk.ch-open{fill:#fff}
+.ch-mk.ch-stroke{fill:none;stroke-width:1.8}
+.ch-bar0{fill:#333;stroke:#222}.ch-bar1{fill:#fff;stroke:#222;stroke-width:1.4}.ch-bar2{fill:#9a9a9a;stroke:#222}
+.ch-err{fill:none;stroke:#111;stroke-width:1.3}
+.ch-s,.ch-b{transition:opacity .35s ease}
+.ch-dim{opacity:.18}
+.ch-focus .ch-line{stroke:#1d4ed8;stroke-width:2.6}
+.ch-focus .ch-mk{stroke:#1d4ed8}.ch-focus .ch-mk:not(.ch-open):not(.ch-stroke){fill:#1d4ed8}
+.ch-hlbar{stroke:#d97706;stroke-width:3}
+.ch-guide{stroke:#d97706;stroke-width:1.5;stroke-dasharray:5 4}
+.ch-trace{fill:none;stroke:#d97706;stroke-width:2.2;stroke-dasharray:6 5;animation:chTrace 1.1s ease-out both}
+.ch-d1{animation-delay:.6s}.ch-d2{animation-delay:1.2s}.ch-d3{animation-delay:1.8s}
+@keyframes chTrace{from{stroke-dashoffset:600;opacity:0}to{stroke-dashoffset:0;opacity:1}}
+.ch-ring{fill:none;stroke:#d97706;stroke-width:2.5;animation:chPop .5s ease-out .5s both}
+@keyframes chPop{from{opacity:0;transform-origin:center;transform:scale(.4)}to{opacity:1;transform:none}}
+.ch-read{font-size:16px;font-weight:700;fill:#b45309;animation:chPop .4s ease-out .8s both}
+/* Solution player */
+.how-player{margin-top:6px}
+.how-step{margin:0 0 8px;opacity:.75}
+.how-step.current{opacity:1;animation:fadeUp .3s ease}
+.how-step.current .step-text{font-weight:600}
+.step-visual{margin:8px 0 4px;animation:fadeUp .35s ease}
+.step-quote{margin:6px 0;padding:8px 12px;border-left:3px solid #d97706;background:#fffbeb;font-size:13px}
+.step-quote-src{font-size:11px;color:var(--slate);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+mark.step-hl{background:#fde68a;color:inherit;padding:0 2px;border-radius:2px;animation:hlIn .6s ease}
+@keyframes hlIn{from{background:transparent}to{background:#fde68a}}
+.step-controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.step-count{font-size:12px;color:var(--slate);margin-right:auto}
+.step-next{background:var(--navy);color:#fff;border-color:var(--navy)}
+@media (prefers-reduced-motion:reduce){.ch-trace,.ch-ring,.ch-read,.how-step.current,.step-visual,mark.step-hl{animation:none}}

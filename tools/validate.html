@@ -29,6 +29,7 @@
 <script src="../data/passages-science.js"></script>
 <script src="../data/passages-cars.js"></script>
 <script src="../data/passages-data.js"></script>
+<script src="../data/passages-graphs.js"></script>
 <script src="../data/qb-variants-1.js"></script>
 <script src="../data/qb-variants-2.js"></script>
 <script src="../data/qb-aamc-bio.js"></script>
@@ -175,7 +176,8 @@
 
   // Passages
   const dataSets = typeof DATA_PASSAGES === 'undefined' ? (warn('DATA_PASSAGES', 'not loaded'), []) : DATA_PASSAGES;
-  const passages = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES, ...OCHEM_PASSAGES, ...PHYSICS_PASSAGES, ...BEHAVIORAL_PASSAGES, ...dataSets, ...CARS_PASSAGES, ...CARS_EXTRA, ...EXAM2_CARS_PASSAGES];
+  const graphSets = typeof GRAPH_PASSAGES === 'undefined' ? (warn('GRAPH_PASSAGES', 'not loaded'), []) : GRAPH_PASSAGES;
+  const passages = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES, ...OCHEM_PASSAGES, ...PHYSICS_PASSAGES, ...BEHAVIORAL_PASSAGES, ...graphSets, ...dataSets, ...CARS_PASSAGES, ...CARS_EXTRA, ...EXAM2_CARS_PASSAGES];
   const SKILLS = new Set(['SIRS 1', 'SIRS 2', 'SIRS 3', 'SIRS 4']);
   const DISCS = new Set(['biochemistry', 'biology', 'gen_chem', 'organic_chem', 'physics', 'psych_soc', 'research']);
   const ids = new Set();
@@ -184,12 +186,26 @@
     if (ids.has(p.id)) err(p.id, 'duplicate passage id'); ids.add(p.id);
     if (!p.passage || p.passage.length < 200) err(p.id, 'missing/short passage text');
     const words = String(p.passage).split(/\s+/).filter(Boolean).length;
-    if (p.figure) {
+    if (p.figure && (p.figure.type === 'line' || p.figure.type === 'bar')) {
+      // Plotted figure: axes, series, and every solution step's highlight/trace must point at real text and data.
+      const f = p.figure, names = new Set((f.series || []).map(x => x.name));
+      if (!f.caption || !f.y || !(f.y.max > f.y.min) || !(f.y.step > 0) || !Array.isArray(f.series) || !f.series.length) err(p.id, 'chart needs caption, y axis and series');
+      if (f.type === 'line') (f.series || []).forEach(x => (x.points || []).forEach(([px, py]) => { if (!(px >= f.x.min && px <= f.x.max && py >= f.y.min && py <= f.y.max)) err(p.id, `point outside axes: ${x.name} [${px}, ${py}]`); }));
+      if (f.type === 'bar') (f.series || []).forEach(x => { if (!Array.isArray(x.values) || x.values.length !== (f.categories || []).length) err(p.id, `bar series ${x.name} needs one value per category`); });
+      p.questions.forEach((q, i) => ((q.how && q.how.steps) || []).forEach(st => {
+        if (!st || typeof st !== 'object') return;
+        if (st.hl && !p.passage.includes(st.hl) && !q.q.includes(st.hl)) err(`${p.id} Q${i + 1}`, 'step highlight is not in the passage or question: ' + String(st.hl).slice(0, 40));
+        const g = st.graph || {};
+        (g.focus || []).forEach(n => { if (!names.has(n)) err(`${p.id} Q${i + 1}`, 'step focuses an unknown series ' + n); });
+        (g.read || []).forEach(r => { const x = (f.series || []).find(t => t.name === r.series); if (!x || !(x.points || []).some(([px]) => px === r.x)) err(`${p.id} Q${i + 1}`, `step traces a point that isn't plotted: ${r.series} at ${r.x}`); });
+        (g.bars || []).forEach(b => { if (!(f.categories || []).includes(b[0]) || !names.has(b[1])) err(`${p.id} Q${i + 1}`, 'step highlights an unknown bar ' + b); });
+      }));
+    } else if (p.figure) {
       const f = p.figure;
       if (!Array.isArray(f.columns) || !Array.isArray(f.rows) || !f.rows.length) err(p.id, 'figure needs columns[] and rows[]');
       else f.rows.forEach((r, ri) => { if (!Array.isArray(r) || r.length !== f.columns.length) err(p.id, `figure row ${ri + 1} has ${r && r.length} cells for ${f.columns.length} columns`); });
     }
-    if (p.id.startsWith('p_data')) {
+    if (p.id.startsWith('p_data') || p.id.startsWith('p_graph')) {
       if (!p.figure) err(p.id, 'data set without a figure');
       p.questions.forEach((q, i) => {
         if (!SKILLS.has(q.skill)) err(`${p.id} Q${i + 1}`, `skill must be SIRS 1–4 (got "${q.skill}")`);

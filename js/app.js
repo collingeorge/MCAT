@@ -401,7 +401,7 @@ const countKeys = keys => keys.reduce((n, k) => n + (KEY_COUNTS[k] || 0), 0);
 // ════════════════════════════════════════════════════════════════
 //  PASSAGES
 // ════════════════════════════════════════════════════════════════
-const DATA_SETS = typeof DATA_PASSAGES === 'undefined' ? [] : DATA_PASSAGES;
+const DATA_SETS = [...(typeof GRAPH_PASSAGES === 'undefined' ? [] : GRAPH_PASSAGES), ...(typeof DATA_PASSAGES === 'undefined' ? [] : DATA_PASSAGES)];
 const ALL_PASSAGES = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES, ...OCHEM_PASSAGES, ...PHYSICS_PASSAGES, ...BEHAVIORAL_PASSAGES, ...DATA_SETS, ...CARS_PASSAGES, ...CARS_EXTRA, ...EXAM2_CARS_PASSAGES];
 const SKILL_LABEL = Object.assign(Object.create(null), {
   'SIRS 1': 'Skill 1: Knowledge of scientific concepts',
@@ -418,6 +418,7 @@ const PASSAGE_GROUPS = [
   { label: 'Organic Chemistry', test: id => id.startsWith('p_oc') },
   { label: 'Physics & Math', test: id => id.startsWith('p_ph') },
   { label: 'Psychology & Sociology', test: id => id.startsWith('p_bs') },
+  { label: 'Graph Reasoning (plotted figures, step-by-step solutions)', test: id => id.startsWith('p_graph') },
   { label: 'Data & Reasoning (tables, research design, statistics)', test: id => id.startsWith('p_data') },
   { label: 'CARS — Set 1', test: id => id.startsWith('p_cars') },
   { label: 'CARS — Set 2', test: id => id.startsWith('p_e2cars') },
@@ -1744,7 +1745,7 @@ function choiceButtons(choices, onclick, opts = {}) {
     </button>`).join('');
 }
 function renderQuizQuestion() {
-  
+  stepper = null;
   quiz.answered = false;
   quiz.qStart = Date.now();
   const view = quiz.items[quiz.idx];
@@ -1805,16 +1806,85 @@ function showHint() {
   view.hint = (view.hint || 0) + 1;
   $('hint-area').innerHTML = hintArea(view);
 }
-function howBox(q) {
+// Steps are plain strings or {text, hl, graph, fig}: hl = exact text to highlight in the passage or question,
+// graph = a chart overlay (see figureHtml), fig = structure drawing(s) to show at that step.
+function howSteps(h) { return (h.steps || []).map(st => (typeof st === 'string' ? { text: st } : st)).filter(st => st && st.text); }
+// Formats text with one highlighted span (an exact substring of the raw text); falls back to plain text.
+function markText(text, hl) {
+  const raw = String(text ?? ''), i = hl ? raw.indexOf(hl) : -1;
+  if (i < 0) return fmt(raw);
+  return fmt(raw.slice(0, i)) + `<mark class="step-hl">${fmt(hl)}</mark>` + fmt(raw.slice(i + hl.length));
+}
+function markParagraphs(text, hl) {
+  return String(text ?? '').split(/\n+/).map(p => p.trim()).filter(Boolean).map(p => `<p>${markText(p, hl && p.includes(hl) ? hl : null)}</p>`).join('');
+}
+// Interactive solution player: one step at a time, each with its own visual (quoted passage line, traced graph,
+// highlighted structure); the passage, question and figure on screen highlight to match.
+let stepper = null;
+function stepVisual(st, ctx) {
+  let out = '';
+  if (st.hl) { const src = ctx.passage && String(ctx.passage).includes(st.hl) ? 'From the passage' : 'From the question';
+    out += `<blockquote class="step-quote"><span class="step-quote-src">${src}:</span> <mark class="step-hl">${fmt(st.hl)}</mark></blockquote>`; }
+  if (st.graph && ctx.figure) out += figureHtml(ctx.figure, st.graph);
+  if (st.fig) out += stemFigs({ fig: st.fig });
+  return out ? `<div class="step-visual">${out}</div>` : '';
+}
+function howPlayerHtml() {
+  const { q, cur, ctx } = stepper, h = howOf(q), steps = howSteps(h), n = steps.length;
+  const list = steps.slice(0, cur).map((st, i) => `<li class="how-step${i === cur - 1 ? ' current' : ''}"><span class="step-text">${fmt(st.text)}</span>${i === cur - 1 ? stepVisual(st, ctx) : ''}</li>`).join('');
+  return `<ol class="how-steps">${list}</ol>
+    ${cur >= n && h.trap ? `<p class="how-trap"><b>4. The trap:</b> ${fmt(h.trap)}</p>` : ''}
+    <div class="step-controls">
+      <button class="micro-btn" data-click="howStep(-1)"${cur <= 1 ? ' disabled' : ''}>◀ Back</button>
+      <span class="step-count">Step ${cur} of ${n}</span>
+      ${cur < n ? `<button class="micro-btn step-next" id="how-next" data-click="howStep(1)">Next step ▶</button><button class="micro-btn" data-click="howStep(99)">Show all</button>` : ''}
+    </div>`;
+}
+// Highlights the live passage, question and figure for the current step.
+function applyStepContext() {
+  if (!stepper || typeof document === 'undefined' || !document.querySelector) return;
+  const { q, cur, ctx } = stepper, st = howSteps(howOf(q))[cur - 1] || {};
+  const qEl = document.querySelector(ctx.mode === 'passage' ? '#pp-question-box .question-text' : '#quiz-body .question-text');
+  if (qEl) qEl.innerHTML = markText(q.q, st.hl && String(q.q).includes(st.hl) ? st.hl : null);
+  if (ctx.mode === 'passage') {
+    const pEl = document.querySelector('#pp-passage-box .passage-text');
+    if (pEl && ctx.passage) pEl.innerHTML = markParagraphs(ctx.passage, st.hl);
+    const fEl = document.querySelector('#pp-passage-box .chart-figure');
+    if (fEl && ctx.figure) fEl.outerHTML = figureHtml(ctx.figure, st.graph || null);
+  }
+}
+// Removes the previous question's passage and figure highlights before the next question.
+function clearStepContext() {
+  if (stepper && stepper.ctx.mode === 'passage' && typeof document !== 'undefined' && document.querySelector) {
+    const pEl = document.querySelector('#pp-passage-box .passage-text');
+    if (pEl && stepper.ctx.passage) pEl.innerHTML = paragraphs(stepper.ctx.passage);
+    const fEl = document.querySelector('#pp-passage-box .chart-figure');
+    if (fEl && stepper.ctx.figure) fEl.outerHTML = figureHtml(stepper.ctx.figure);
+  }
+  stepper = null;
+}
+function howStep(delta) {
+  if (!stepper) return;
+  const n = howSteps(howOf(stepper.q)).length;
+  stepper.cur = Math.max(1, Math.min(n, stepper.cur + delta));
+  const el = typeof $ === 'function' ? $('how-player') : null;
+  if (el) el.innerHTML = howPlayerHtml();
+  applyStepContext();
+  const next = el && $('how-next'); if (next && delta > 0) next.focus({ preventScroll: true });
+}
+// static: every step listed (results review); otherwise the interactive player, starting at step 1.
+function howBox(q, opts = {}) {
   const h = howOf(q);
   if (!h) return '';
-  return `<div class="how-box">
-    <div class="how-title">How to work it out</div>
+  const steps = howSteps(h);
+  const head = `<div class="how-title">How to work it out</div>
     <p><b>1. What it's asking:</b> ${fmt(h.ask)}</p>
-    <div><b>2. What you need to know:</b>${paragraphs(h.know)}</div>
-    <div><b>3. Step by step:</b><ol class="how-steps">${h.steps.map(st => `<li>${fmt(st)}</li>`).join('')}</ol></div>
-    ${h.trap ? `<p class="how-trap"><b>4. The trap:</b> ${fmt(h.trap)}</p>` : ''}
-  </div>`;
+    <div><b>2. What you need to know:</b>${paragraphs(h.know)}</div>`;
+  if (opts.static || !steps.length) return `<div class="how-box">${head}
+    <div><b>3. Step by step:</b><ol class="how-steps">${steps.map(st => `<li>${fmt(st.text)}</li>`).join('')}</ol></div>
+    ${h.trap ? `<p class="how-trap"><b>4. The trap:</b> ${fmt(h.trap)}</p>` : ''}</div>`;
+  stepper = { q, cur: 1, ctx: opts.ctx || { mode: 'recall' } };
+  return `<div class="how-box">${head}<div><b>3. Step by step:</b></div><div id="how-player" class="how-player" aria-live="polite">${howPlayerHtml()}</div></div>`;
 }
 function revealChoices() {
   const view = quiz.items[quiz.idx];
@@ -1862,6 +1932,7 @@ function finishPick(chosen, other = null, answerMs = null) {
   if ($('hint-area')) $('hint-area').innerHTML = '';
   // A hinted answer was not pure recall: it starts as Unsure so the card comes back (you can change it)
   if (view.hint) quiz.pending.conf = 'unsure';
+  if (howOf(view.q)) applyStepContext();
   renderNextArea();
   $('next-btn').focus({ preventScroll: true });
 }
@@ -2018,7 +2089,7 @@ function showQuizResults() {
     <div class="results-card">
       <div class="section-label">Missed this session (${missed.length})</div>
       ${missed.length ? missed.map(r => reviewItem({
-        stem: r.view.q.q, choices: r.view.choices, ans: r.view.ans, chosen: r.chosen, other: r.other, exp: r.view.q.exp, how: howBox(r.view.q),
+        stem: r.view.q.q, choices: r.view.choices, ans: r.view.ans, chosen: r.chosen, other: r.other, exp: r.view.q.exp, how: howBox(r.view.q, { static: true }),
         tag: `${SUBJECT_LABEL[r.view.q.subj]} · ${KEY_LABEL[r.view.q.key] || r.view.q.s}`,
       })).join('') : '<div class="all-correct">✓ Perfect session — nothing missed.</div>'}
       ${missed.length ? `<button class="micro-btn mt-10" data-click="exportMissed()">Download missed questions (.txt)</button>` : ''}
@@ -2658,8 +2729,95 @@ function passageCard(topic, title, text, figure) {
     ${figure ? figureHtml(figure) : ''}
   </div>`;
 }
-// Data tables for reasoning passages: {caption, columns, rows}
-function figureHtml(fig) {
+// ── Graph figures: line and bar charts drawn as inline SVG (presentation only, no script) ──
+// ov (optional) is one solution step's overlay: {focus:[series], read:[{series,x}], xLine, yLine, bars:[[category, series]]}.
+const CHART = { W: 560, L: 70, R: 18, T: 14, H: 250, B: 50 };
+function chartNum(v) { return String(Number(Number(v).toFixed(6))).replace('-', '−'); }
+function chartText(s) { return esc(s).replace(/_\{?([A-Za-z0-9+−]+)\}?/g, '<tspan baseline-shift="sub" font-size="75%">$1</tspan>'); }
+function chartTicks(a) { const out = []; for (let v = a.min, i = 0; v <= a.max + a.step * 1e-6 && i < 60; v = a.min + a.step * ++i) out.push(v); return out; }
+// Monotone cubic (Fritsch–Carlson) path through pixel points: smooth without overshooting the data.
+function chartSmooth(P) {
+  if (P.length < 3) return 'M' + P.map(p => p.map(n => n.toFixed(1)).join(' ')).join(' L');
+  const n = P.length, d = [], m = [];
+  for (let i = 0; i < n - 1; i++) d.push((P[i + 1][1] - P[i][1]) / ((P[i + 1][0] - P[i][0]) || 1e-9));
+  m[0] = d[0]; m[n - 1] = d[n - 2];
+  for (let i = 1; i < n - 1; i++) m[i] = d[i - 1] * d[i] <= 0 ? 0 : (d[i - 1] + d[i]) / 2;
+  for (let i = 0; i < n - 1; i++) { if (d[i] === 0) { m[i] = m[i + 1] = 0; continue; } const a = m[i] / d[i], b = m[i + 1] / d[i], h = a * a + b * b; if (h > 9) { const t = 3 / Math.sqrt(h); m[i] = t * a * d[i]; m[i + 1] = t * b * d[i]; } }
+  let path = `M${P[0][0].toFixed(1)} ${P[0][1].toFixed(1)}`;
+  for (let i = 0; i < n - 1; i++) { const dx = (P[i + 1][0] - P[i][0]) / 3;
+    path += ` C${(P[i][0] + dx).toFixed(1)} ${(P[i][1] + m[i] * dx).toFixed(1)} ${(P[i + 1][0] - dx).toFixed(1)} ${(P[i + 1][1] - m[i + 1] * dx).toFixed(1)} ${P[i + 1][0].toFixed(1)} ${P[i + 1][1].toFixed(1)}`; }
+  return path;
+}
+function chartMarker(type, x, y) {
+  const r = 4.2, f = n => n.toFixed(1);
+  switch (type) {
+    case 'circle': case 'circle-open': return `<circle class="ch-mk${type.endsWith('open') ? ' ch-open' : ''}" cx="${f(x)}" cy="${f(y)}" r="${r}"/>`;
+    case 'square': case 'square-open': return `<rect class="ch-mk${type.endsWith('open') ? ' ch-open' : ''}" x="${f(x - r)}" y="${f(y - r)}" width="${f(2 * r)}" height="${f(2 * r)}"/>`;
+    case 'diamond': case 'diamond-open': return `<path class="ch-mk${type.endsWith('open') ? ' ch-open' : ''}" d="M${f(x)} ${f(y - 5.5)}L${f(x + 5.5)} ${f(y)}L${f(x)} ${f(y + 5.5)}L${f(x - 5.5)} ${f(y)}Z"/>`;
+    case 'triangle': case 'triangle-open': return `<path class="ch-mk${type.endsWith('open') ? ' ch-open' : ''}" d="M${f(x)} ${f(y - 5.5)}L${f(x + 5)} ${f(y + 4)}L${f(x - 5)} ${f(y + 4)}Z"/>`;
+    case 'plus': return `<path class="ch-mk ch-stroke" d="M${f(x - 5)} ${f(y)}H${f(x + 5)}M${f(x)} ${f(y - 5)}V${f(y + 5)}"/>`;
+    case 'cross': return `<path class="ch-mk ch-stroke" d="M${f(x - 4)} ${f(y - 4)}L${f(x + 4)} ${f(y + 4)}M${f(x + 4)} ${f(y - 4)}L${f(x - 4)} ${f(y + 4)}"/>`;
+    default: { let d = ''; for (let k = 0; k < 10; k++) { const a = -Math.PI / 2 + k * Math.PI / 5, rr = k % 2 ? 2.4 : 6; d += (k ? 'L' : 'M') + f(x + rr * Math.cos(a)) + ' ' + f(y + rr * Math.sin(a)); } return `<path class="ch-mk" d="${d}Z"/>`; }
+  }
+}
+function chartLegend(items, top, W) {
+  const colW = (W - 20) / 2;
+  return items.map((it, i) => { const x = 14 + (i % 2) * colW, y = top + Math.floor(i / 2) * 20;
+    return `<g class="${it.cls}">${it.key(x + 8, y)}<text class="ch-legend" x="${(x + 22).toFixed(1)}" y="${(y + 4).toFixed(1)}">${chartText(it.name)}</text></g>`; }).join('');
+}
+function chartAxes(fig, sy, W, H, xTicksSvg) {
+  const C = CHART, bottom = C.T + C.H;
+  const yT = chartTicks(fig.y).map(v => `<line class="ch-tick" x1="${C.L - 5}" x2="${C.L}" y1="${sy(v).toFixed(1)}" y2="${sy(v).toFixed(1)}"/><text class="ch-tl" x="${C.L - 8}" y="${(sy(v) + 4).toFixed(1)}" text-anchor="end">${chartNum(v)}</text>`).join('');
+  return `<line class="ch-axis" x1="${C.L}" x2="${C.L}" y1="${C.T}" y2="${bottom}"/><line class="ch-axis" x1="${C.L}" x2="${W - C.R}" y1="${bottom}" y2="${bottom}"/>${yT}${xTicksSvg}
+    <text class="ch-al" x="${((C.L + W - C.R) / 2).toFixed(1)}" y="${bottom + 46}" text-anchor="middle">${chartText(fig.x.label)}</text>
+    <text class="ch-al" transform="rotate(-90)" x="${(-(C.T + C.H / 2)).toFixed(1)}" y="16" text-anchor="middle">${chartText(fig.y.label)}</text>`;
+}
+function lineChart(fig, ov) {
+  const C = CHART, W = C.W, bottom = C.T + C.H, pw = W - C.L - C.R;
+  const sx = x => C.L + (x - fig.x.min) / (fig.x.max - fig.x.min) * pw, sy = y => bottom - (y - fig.y.min) / (fig.y.max - fig.y.min) * C.H;
+  const focus = new Set(ov && ov.focus || []), anyFocus = focus.size > 0;
+  const cls = s => 'ch-s' + (anyFocus ? (focus.has(s.name) ? ' ch-focus' : ' ch-dim') : '');
+  const xT = chartTicks(fig.x).map(v => `<line class="ch-tick" x1="${sx(v).toFixed(1)}" x2="${sx(v).toFixed(1)}" y1="${bottom}" y2="${bottom + 5}"/><text class="ch-tl" x="${sx(v).toFixed(1)}" y="${bottom + 18}" text-anchor="middle">${chartNum(v)}</text>`).join('');
+  const series = fig.series.map(s => { const P = [...s.points].sort((a, b) => a[0] - b[0]).map(([x, y]) => [sx(x), sy(y)]);
+    const line = s.line === 'none' ? '' : `<path class="ch-line" d="${s.line === 'straight' ? 'M' + P.map(p => p.map(n => n.toFixed(1)).join(' ')).join(' L') : chartSmooth(P)}"/>`;
+    return `<g class="${cls(s)}">${line}${P.map(([x, y]) => chartMarker(s.marker, x, y)).join('')}</g>`; }).join('');
+  let over = '';
+  if (ov) {
+    if (ov.xLine != null) over += `<line class="ch-guide" x1="${sx(ov.xLine).toFixed(1)}" x2="${sx(ov.xLine).toFixed(1)}" y1="${C.T}" y2="${bottom}"/>`;
+    if (ov.yLine != null) over += `<line class="ch-guide" x1="${C.L}" x2="${W - C.R}" y1="${sy(ov.yLine).toFixed(1)}" y2="${sy(ov.yLine).toFixed(1)}"/>`;
+    (ov.read || []).forEach((r, i) => { const s = fig.series.find(t => t.name === r.series); const pt = s && s.points.find(([x]) => x === r.x); if (!pt) return;
+      const px = sx(pt[0]), py = sy(pt[1]);
+      over += `<path class="ch-trace ch-d${Math.min(i, 3)}" d="M${px.toFixed(1)} ${bottom} V${py.toFixed(1)} H${C.L}"/><circle class="ch-ring" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="8"/>
+        <text class="ch-read" x="${(C.L + 6).toFixed(1)}" y="${(py - 6).toFixed(1)}">${chartNum(pt[1])}</text><text class="ch-read" x="${(px + 6).toFixed(1)}" y="${(bottom - 6).toFixed(1)}">${chartNum(pt[0])}</text>`; });
+  }
+  const leg = fig.series.map(s => ({ name: s.name, cls: cls(s), key: (x, y) => (s.line === 'none' ? '' : `<line class="ch-line" x1="${x - 8}" x2="${x + 8}" y1="${y}" y2="${y}"/>`) + chartMarker(s.marker, x, y) }));
+  const legTop = bottom + 68, H = legTop + Math.ceil(leg.length / 2) * 20;
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(fig.caption || 'Graph')}">${chartAxes(fig, sy, W, H, xT)}${series}${over}${chartLegend(leg, legTop, W)}</svg>`;
+}
+function barChart(fig, ov) {
+  const C = CHART, W = C.W, bottom = C.T + C.H, pw = W - C.L - C.R, n = fig.categories.length, k = fig.series.length;
+  const sy = y => bottom - (y - fig.y.min) / (fig.y.max - fig.y.min) * C.H, gw = pw / n, bw = Math.min(40, gw * 0.7 / k);
+  const hl = new Set((ov && ov.bars || []).map(b => b[0] + '|' + b[1])), focus = new Set(ov && ov.focus || []), anyHl = hl.size > 0 || focus.size > 0;
+  const xT = fig.categories.map((c, i) => { const cx = C.L + gw * (i + 0.5), words = String(c).split(' '), lines = [];
+    words.forEach(w => { if (lines.length && (lines[lines.length - 1] + ' ' + w).length <= 14) lines[lines.length - 1] += ' ' + w; else lines.push(w); });
+    return lines.slice(0, 2).map((ln, j) => `<text class="ch-tl" x="${cx.toFixed(1)}" y="${bottom + 16 + j * 12}" text-anchor="middle">${chartText(ln)}</text>`).join(''); }).join('');
+  let bars = '';
+  fig.series.forEach((s, j) => s.values.forEach((v, i) => {
+    const x = C.L + gw * (i + 0.5) - (bw * k) / 2 + j * bw, y = sy(v), on = hl.has(fig.categories[i] + '|' + s.name) || focus.has(s.name);
+    bars += `<g class="ch-b${anyHl ? (on ? ' ch-focus' : ' ch-dim') : ''}"><rect class="ch-bar ch-bar${j}${on && hl.size ? ' ch-hlbar' : ''}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${(bw - 3).toFixed(1)}" height="${(bottom - y).toFixed(1)}"/>`;
+    const e = (s.errors || [])[i];
+    if (e) { const cx = x + (bw - 3) / 2; bars += `<path class="ch-err" d="M${cx.toFixed(1)} ${sy(v + e).toFixed(1)}V${sy(Math.max(fig.y.min, v - e)).toFixed(1)}M${(cx - 4).toFixed(1)} ${sy(v + e).toFixed(1)}h8"/>`; }
+    if (on && hl.size) bars += `<text class="ch-read" x="${(x + (bw - 3) / 2).toFixed(1)}" y="${(sy(v + (e || 0)) - 6).toFixed(1)}" text-anchor="middle">${chartNum(v)}</text>`;
+    bars += '</g>'; }));
+  const leg = fig.series.map((s, j) => ({ name: s.name, cls: 'ch-b', key: (x, y) => `<rect class="ch-bar ch-bar${j}" x="${x - 6}" y="${y - 6}" width="12" height="12"/>` }));
+  const legTop = bottom + 68, H = legTop + Math.ceil(leg.length / 2) * 20;
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(fig.caption || 'Bar graph')}">${chartAxes(fig, sy, W, H, xT)}${bars}${k > 1 ? chartLegend(leg, legTop, W) : ''}</svg>`;
+}
+// Data tables and graphs for reasoning passages: {caption, columns, rows} or {type:'line'|'bar', …}
+function figureHtml(fig, ov) {
+  if (fig && (fig.type === 'line' || fig.type === 'bar') && Array.isArray(fig.series)) {
+    return `<figure class="data-figure chart-figure">${fig.type === 'line' ? lineChart(fig, ov) : barChart(fig, ov)}${fig.caption ? `<figcaption>${fmt(fig.caption)}</figcaption>` : ''}</figure>`;
+  }
   if (!fig || !Array.isArray(fig.columns)) return '';
   return `<figure class="data-figure">
     <table><thead><tr>${fig.columns.map(c => `<th>${fmt(c)}</th>`).join('')}</tr></thead>
@@ -2668,7 +2826,7 @@ function figureHtml(fig) {
   </figure>`;
 }
 function renderPassageQuestion() {
-  
+  clearStepContext();
   pq.answered = false;
   const view = pq.views[pq.idx], tot = pq.views.length;
   const timerPassage = pq.mini?.items[pq.idx]?.passage;
@@ -2711,7 +2869,8 @@ function finishPassageAnswer(chosen, other = null, answerMs = null) {
     else if (i === chosen) b.classList.add('wrong');
   });
   $('pp-score').textContent = `✓ ${pq.results.filter(r => r.right).length}/${pq.results.length}`;
-  $('pp-exp').innerHTML = finalTwoFeedback(view, chosen, other) + explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Passage · ${pq.p.title}`, view.q.q));
+  $('pp-exp').innerHTML = finalTwoFeedback(view, chosen, other) + explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Passage · ${pq.p.title}`, view.q.q)) + howBox(view.q, { ctx: { mode: 'passage', passage: pq.p.passage, figure: pq.p.figure } });
+  applyStepContext();
   const last = pq.idx + 1 >= pq.views.length;
   $('pp-next').innerHTML = `${right ? '' : wrongAlternativePanel('passage',view,chosen,other)+errorTypeRow(null, 'setPassageErr')}<button class="next-btn" id="pp-next-btn" data-click="nextPassageQ()">${last ? 'See results →' : 'Next question →'}</button>`;
   $('pp-next-btn').focus({ preventScroll: true });
