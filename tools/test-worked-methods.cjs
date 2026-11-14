@@ -49,8 +49,8 @@ function checkSteps(id, q) {
     if (st.strike != null) { visual++; for (const t of st.strike) { assert(q.choices.includes(t), w + ': strikes a real choice'); assert.notEqual(t, q.choices[q.ans], w + ': never strikes the answer'); } }
     if (st.chart != null) { visual++; rich++; assert(['line', 'bar'].includes(st.chart.type) && Array.isArray(st.chart.series), w + ': chart'); }
     if (st.graph != null) {
-      assert(st.chart, w + ': overlay needs its chart');
-      for (const r of st.graph.read || []) { const ser = st.chart.series.find(x => x.name === r.series); assert(ser && ser.points.some(([x]) => x === r.x), w + ': traced point is plotted'); }
+      const ch = st.chart || q.chart; assert(ch, w + ': overlay needs a chart (the step\'s or the question\'s)');
+      for (const r of st.graph.read || []) { const ser = ch.series.find(x => x.name === r.series); assert(ser && ser.points.some(([x]) => x === r.x), w + ': traced point is plotted'); }
     }
   }
   return { visual, rich };
@@ -59,6 +59,7 @@ for (const q of FL) {
   // Exam-form pictures: a structure in the question and/or one per answer choice must exist.
   for (const n of [].concat(q.fig ?? [], q.choiceFigs ?? [])) assert(STRUCT_NAMES.has(n), q.src + ': drawing ' + n + ' exists');
   if (q.choiceFigs) assert.equal(q.choiceFigs.length, q.choices.length, q.src + ': one drawing per choice');
+  if (q.chart) assert(['line', 'bar'].includes(q.chart.type) && Array.isArray(q.chart.series) && q.chart.caption, q.src + ': question graph');
   const { visual, rich } = checkSteps(q.src, q);
   assert(visual >= 3 && rich >= 1, `${q.src}: animated walkthrough (${visual} visual steps, ${rich} calc/chart/fig)`);
 }
@@ -201,7 +202,7 @@ assert(fs.readFileSync(root + '/css/styles.css', 'utf8').includes('.struct-name{
 // Wiring: the hint action is allowlisted, the quiz shows the method after answering, and a hinted
 // answer starts as Unsure; the session's missed list includes the method.
 assert(fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'showHint'"));
-assert(source.includes("+ howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb' } });") && source.includes("howBox(view.q, { ctx: { mode: 'passage', passage: pq.p.passage, figure: pq.p.figure, view, prefix: 'pc' } })"), 'player in recall and passage feedback');
+assert(source.includes("+ howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null } });") && source.includes("howBox(view.q, { ctx: { mode: 'passage', passage: pq.p.passage, figure: pq.p.figure, view, prefix: 'pc' } })"), 'player in recall and passage feedback');
 assert(fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'howStep'"));
 assert(source.includes("if (view.hint) quiz.pending.conf = 'unsure';"));
 assert(source.includes('how: howBox(r.view.q, { static: true })'));

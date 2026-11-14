@@ -1770,6 +1770,7 @@ function renderQuizQuestion() {
       ${why || q.variant ? `<div class="q-reason">${q.variant ? `<span class="variant-pill">${q.variant === 'authored' ? `Applied: ${esc(VARIANT_KIND[q.kind] || 'new angle')}` : 'Asked a different way'}</span>` : ''}${why ? `<span>Why this question: ${esc(why)}</span>` : ''}</div>` : ''}
       <div class="question-text">${fmt(q.q)}</div>
       ${stemFigs(q)}
+      ${q.chart ? figureHtml(q.chart) : ''}
     </div>
     ${howOf(q) ? `<div id="hint-area">${hintArea(view)}</div>` : ''}
     <div class="choices" id="choices-area" role="group" aria-label="Answer choices">${choicesOrPrompt(view)}</div>
@@ -1861,9 +1862,10 @@ function applyStepContext() {
   if (ctx.mode === 'passage') {
     const pEl = document.querySelector('#pp-passage-box .passage-text');
     if (pEl && ctx.passage) pEl.innerHTML = markParagraphs(ctx.passage, st.hl);
-    const fEl = document.querySelector('#pp-passage-box .chart-figure');
-    if (fEl && ctx.figure) fEl.outerHTML = figureHtml(ctx.figure, st.graph || null);
   }
+  // The question's own graph traces along with the step (a step's private chart is shown inside the step).
+  const fEl = document.querySelector(ctx.mode === 'passage' ? '#pp-passage-box .chart-figure' : '#quiz-body .question-box .chart-figure');
+  if (fEl && ctx.figure) fEl.outerHTML = figureHtml(ctx.figure, st.chart ? null : (st.graph || null));
 }
 // Removes the previous question's passage and figure highlights before the next question.
 function clearStepContext() {
@@ -1964,7 +1966,7 @@ function finishPick(chosen, other = null, answerMs = null) {
   $('qm-score').textContent = `✓ ${quiz.results.filter(r => r.right).length}/${quiz.results.length}`;
   $('exp-area').innerHTML = finalTwoFeedback(view, chosen, other) + explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Recall · ${view.q.s}`, view.q.q),
     timedOut ? `Time ran out (${SPEED_SECONDS} seconds). A fact you know well should come back faster: this one is now due for review.`
-      : confusion ? `You chose <b>${fmt(view.choices[chosen])}</b>. ${fmt(meaningOf(confusion))}` : '') + howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb' } });
+      : confusion ? `You chose <b>${fmt(view.choices[chosen])}</b>. ${fmt(meaningOf(confusion))}` : '') + howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null } });
   if ($('hint-area')) $('hint-area').innerHTML = '';
   // A hinted answer was not pure recall: it starts as Unsure so the card comes back (you can change it)
   if (view.hint) quiz.pending.conf = 'unsure';
