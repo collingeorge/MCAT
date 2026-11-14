@@ -1825,8 +1825,14 @@ function stepVisual(st, ctx) {
   let out = '';
   if (st.hl) { const src = ctx.passage && String(ctx.passage).includes(st.hl) ? 'From the passage' : 'From the question';
     out += `<blockquote class="step-quote"><span class="step-quote-src">${src}:</span> <mark class="step-hl">${fmt(st.hl)}</mark></blockquote>`; }
-  if (st.graph && ctx.figure) out += figureHtml(ctx.figure, st.graph);
+  // A step can carry its own small graph (chart) or reuse the passage's figure; graph is the overlay on it.
+  const chart = st.chart || ((st.graph && ctx.figure) ? ctx.figure : null);
+  if (chart) out += figureHtml(chart, st.graph || null);
   if (st.fig) out += stemFigs({ fig: st.fig });
+  // Worked calculation: lines appear one after another (formula → substitution → result).
+  if (Array.isArray(st.calc) && st.calc.length) out += `<div class="step-calc">${st.calc.map((ln, i) => `<div class="calc-line calc-d${Math.min(i, 7)}">${fmt(ln)}</div>`).join('')}</div>`;
+  // Eliminated choices, crossed out here and on the answer buttons.
+  if (Array.isArray(st.strike) && st.strike.length) out += `<div class="step-strike">${st.strike.map(c => `<div class="strike-line"><span aria-hidden="true">✗</span> <s>${fmt(c)}</s></div>`).join('')}</div>`;
   return out ? `<div class="step-visual">${out}</div>` : '';
 }
 function howPlayerHtml() {
@@ -1846,6 +1852,11 @@ function applyStepContext() {
   const { q, cur, ctx } = stepper, st = howSteps(howOf(q))[cur - 1] || {};
   const qEl = document.querySelector(ctx.mode === 'passage' ? '#pp-question-box .question-text' : '#quiz-body .question-text');
   if (qEl) qEl.innerHTML = markText(q.q, st.hl && String(q.q).includes(st.hl) ? st.hl : null);
+  // Choices ruled out so far stay crossed out on the answer buttons.
+  if (ctx.view && ctx.prefix && typeof $ === 'function') {
+    const struck = new Set(howSteps(howOf(q)).slice(0, cur).flatMap(x => x.strike || []));
+    ctx.view.choices.forEach((c, i) => { const b = $(ctx.prefix + '-' + i); if (b && b.classList) b.classList.toggle('struck', struck.has(c)); });
+  }
   if (ctx.mode === 'passage') {
     const pEl = document.querySelector('#pp-passage-box .passage-text');
     if (pEl && ctx.passage) pEl.innerHTML = markParagraphs(ctx.passage, st.hl);
@@ -1928,7 +1939,7 @@ function finishPick(chosen, other = null, answerMs = null) {
   $('qm-score').textContent = `✓ ${quiz.results.filter(r => r.right).length}/${quiz.results.length}`;
   $('exp-area').innerHTML = finalTwoFeedback(view, chosen, other) + explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Recall · ${view.q.s}`, view.q.q),
     timedOut ? `Time ran out (${SPEED_SECONDS} seconds). A fact you know well should come back faster: this one is now due for review.`
-      : confusion ? `You chose <b>${fmt(view.choices[chosen])}</b>. ${fmt(meaningOf(confusion))}` : '') + howBox(view.q);
+      : confusion ? `You chose <b>${fmt(view.choices[chosen])}</b>. ${fmt(meaningOf(confusion))}` : '') + howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb' } });
   if ($('hint-area')) $('hint-area').innerHTML = '';
   // A hinted answer was not pure recall: it starts as Unsure so the card comes back (you can change it)
   if (view.hint) quiz.pending.conf = 'unsure';
@@ -2869,7 +2880,7 @@ function finishPassageAnswer(chosen, other = null, answerMs = null) {
     else if (i === chosen) b.classList.add('wrong');
   });
   $('pp-score').textContent = `✓ ${pq.results.filter(r => r.right).length}/${pq.results.length}`;
-  $('pp-exp').innerHTML = finalTwoFeedback(view, chosen, other) + explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Passage · ${pq.p.title}`, view.q.q)) + howBox(view.q, { ctx: { mode: 'passage', passage: pq.p.passage, figure: pq.p.figure } });
+  $('pp-exp').innerHTML = finalTwoFeedback(view, chosen, other) + explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Passage · ${pq.p.title}`, view.q.q)) + howBox(view.q, { ctx: { mode: 'passage', passage: pq.p.passage, figure: pq.p.figure, view, prefix: 'pc' } });
   applyStepContext();
   const last = pq.idx + 1 >= pq.views.length;
   $('pp-next').innerHTML = `${right ? '' : wrongAlternativePanel('passage',view,chosen,other)+errorTypeRow(null, 'setPassageErr')}<button class="next-btn" id="pp-next-btn" data-click="nextPassageQ()">${last ? 'See results →' : 'Next question →'}</button>`;

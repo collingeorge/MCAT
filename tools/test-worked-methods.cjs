@@ -17,7 +17,7 @@ for (const q of FL.filter(q => q.how || /^pe6-/.test(q.src))) {
   const h = q.how, id = q.src;
   assert(h, id + ': has a worked method');
   for (const k of ['ask', 'know', 'trap']) assert(typeof h[k] === 'string' && h[k].trim().length >= 10, id + ': ' + k);
-  assert(Array.isArray(h.steps) && h.steps.length >= 1 && h.steps.every(s => typeof s === 'string' && s.trim()), id + ': steps');
+  assert(Array.isArray(h.steps) && h.steps.length >= 1 && h.steps.every(s => (typeof s === 'string' && s.trim()) || (s && typeof s.text === 'string' && s.text.trim())), id + ': steps');
   assert.deepEqual(Object.keys(h).sort(), ['ask', 'know', 'steps', 'trap'], id + ': only known fields');
   // The hint shown before answering (ask) must not simply state the correct choice.
   assert(!h.ask.includes(q.choices[q.ans]), id + ': "ask" does not give away the answer');
@@ -32,6 +32,30 @@ for (const q of FL) {
   assert(typeof q.idStem === 'string' && q.idStem !== q.q, q.src + ': original stem kept as idStem');
 }
 assert(source.includes("let id = 'fl-' + hashId(q.s + '|' + (q.idStem || q.q));"), 'FL ids use idStem');
+
+// Animated walkthroughs: every Practice Exam card steps through the solution with at least 3 visual steps, at least
+// one of them a worked calculation, a graph or a structure. Each visual must point at something real: question text
+// to highlight, a wrong choice to cross out, a plotted point to trace, a drawing that exists.
+const STRUCT_NAMES = new Set(Object.keys(new Function(fs.readFileSync(root + '/data/structures.js', 'utf8') + ';return STRUCT_SVG')()));
+function checkSteps(id, q) {
+  let visual = 0, rich = 0;
+  for (const [i, st] of q.how.steps.entries()) {
+    if (typeof st === 'string') continue;
+    const w = `${id} step ${i + 1}`;
+    assert.deepEqual(Object.keys(st).filter(k => !['text', 'hl', 'calc', 'chart', 'graph', 'fig', 'strike'].includes(k)), [], w + ': known fields');
+    if (st.hl != null) { visual++; assert(q.q.includes(st.hl), w + ': highlight is question text'); }
+    if (st.calc != null) { visual++; rich++; assert(Array.isArray(st.calc) && st.calc.length && st.calc.every(l => typeof l === 'string' && l.trim()), w + ': calc lines'); }
+    if (st.fig != null) { visual++; rich++; for (const n of [].concat(st.fig)) assert(STRUCT_NAMES.has(n), w + ': drawing ' + n + ' exists'); }
+    if (st.strike != null) { visual++; for (const t of st.strike) { assert(q.choices.includes(t), w + ': strikes a real choice'); assert.notEqual(t, q.choices[q.ans], w + ': never strikes the answer'); } }
+    if (st.chart != null) { visual++; rich++; assert(['line', 'bar'].includes(st.chart.type) && Array.isArray(st.chart.series), w + ': chart'); }
+    if (st.graph != null) {
+      assert(st.chart, w + ': overlay needs its chart');
+      for (const r of st.graph.read || []) { const ser = st.chart.series.find(x => x.name === r.series); assert(ser && ser.points.some(([x]) => x === r.x), w + ': traced point is plotted'); }
+    }
+  }
+  return { visual, rich };
+}
+for (const q of FL) checkSteps(q.src, q);
 
 // Structure Reading cards and their RDKit drawings.
 const STRUCT = new Function(fs.readFileSync(root + '/data/structures.js', 'utf8') + ';return STRUCT_SVG')();
@@ -116,6 +140,24 @@ assert.equal((step(-99).match(/class="how-step[ "]/g) || []).length, 1, 'clamped
 assert.equal(vm.runInContext("markText('a <b> c', '<b>')", ctx), 'a <mark class="step-hl">&lt;b&gt;</mark> c');
 assert.equal(vm.runInContext("markText('abc', 'zzz')", ctx), 'abc');
 assert.match(vm.runInContext("markParagraphs('one\\n\\ntwo three', 'two')", ctx), /<p>one<\/p><p><mark class="step-hl">two<\/mark> three<\/p>/);
+// Calculation lines appear in sequence (escaped, **bold** kept); struck choices are listed and crossed out.
+const calcHtml = vm.runInContext("stepVisual({ text: 't', calc: ['q = m × L', 'q = **0.050 kg** × 4.0 × 10⁵', '<b>x</b>'], strike: ['1 × 10⁵ J'] }, {})", ctx);
+assert.equal((calcHtml.match(/class="calc-line calc-d/g) || []).length, 3); assert.match(calcHtml, /calc-d2/);
+assert.match(calcHtml, /<strong>0.050 kg<\/strong>/); assert.doesNotMatch(calcHtml, /<b>x<\/b>/);
+assert.match(calcHtml, /<s>1 × 10⁵ J<\/s>/);
+// A step's own chart renders even without a passage figure.
+assert.match(vm.runInContext("stepVisual({ text: 't', chart: { type: 'line', caption: 'c', x: { label: 'x', min: 0, max: 2, step: 1 }, y: { label: 'y', min: 0, max: 2, step: 1 }, series: [{ name: 'S', marker: 'circle', line: 'straight', points: [[0, 0], [1, 1]] }] }, graph: { read: [{ series: 'S', x: 1 }] } }, {})", ctx), /class="ch-trace/);
+// Crossing out: choices ruled out by steps 1..current get the struck class on the answer buttons.
+const btns = {}; ctx.$ = id => (btns[id] = btns[id] || { focus() {}, innerHTML: '', classList: { on: false, toggle(c, v) { this.on = v; } } });
+ctx.document = { querySelector: () => null };
+ctx.sq = { q: 'Q?', choices: ['A1', 'B1', 'C1', 'D1'], ans: 0, how: { ask: 'aaaaaaaaaaaa', know: 'kkkkkkkkkkkk', trap: 'tttttttttttt', steps: [{ text: 's1', strike: ['B1'] }, { text: 's2', strike: ['C1'] }, 'end'] } };
+vm.runInContext("howBox(sq, { ctx: { mode: 'recall', view: { choices: ['C1', 'A1', 'D1', 'B1'] }, prefix: 'cb' } }); applyStepContext();", ctx);
+assert.deepEqual([0, 1, 2, 3].map(i => btns['cb-' + i].classList.on), [false, false, false, true], 'step 1 crosses out B1');
+vm.runInContext('howStep(1)', ctx);
+assert.deepEqual([0, 1, 2, 3].map(i => btns['cb-' + i].classList.on), [true, false, false, true], 'step 2 adds C1');
+vm.runInContext('howStep(-1)', ctx);
+assert.deepEqual([0, 1, 2, 3].map(i => btns['cb-' + i].classList.on), [false, false, false, true], 'going back un-crosses C1');
+delete ctx.document; ctx.$ = () => null;
 // Charts: series, markers, legend; a read overlay traces to an existing point and labels its value; focus dims others.
 ctx.fig = { type: 'line', caption: 'Fig 1', x: { label: 'pH', min: 6, max: 10, step: 1 }, y: { label: 'k_FAD (s⁻¹)', min: 0, max: 3, step: 1 },
   series: [{ name: 'A', marker: 'circle', line: 'smooth', points: [[6, 0.2], [7, 1.1], [7.5, 2], [8, 2.4], [10, 2.5]] }, { name: 'B', marker: 'square', line: 'smooth', points: [[6, 0.1], [7.5, 1], [10, 2.4]] }] };
@@ -156,7 +198,7 @@ assert(fs.readFileSync(root + '/css/styles.css', 'utf8').includes('.struct-name{
 // Wiring: the hint action is allowlisted, the quiz shows the method after answering, and a hinted
 // answer starts as Unsure; the session's missed list includes the method.
 assert(fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'showHint'"));
-assert(source.includes('+ howBox(view.q);') && source.includes("howBox(view.q, { ctx: { mode: 'passage', passage: pq.p.passage, figure: pq.p.figure } })"), 'player in recall and passage feedback');
+assert(source.includes("+ howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb' } });") && source.includes("howBox(view.q, { ctx: { mode: 'passage', passage: pq.p.passage, figure: pq.p.figure, view, prefix: 'pc' } })"), 'player in recall and passage feedback');
 assert(fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'howStep'"));
 assert(source.includes("if (view.hint) quiz.pending.conf = 'unsure';"));
 assert(source.includes('how: howBox(r.view.q, { static: true })'));

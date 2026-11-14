@@ -856,3 +856,13 @@ mark.step-hl{background:#fde68a;color:inherit;padding:0 2px;border-radius:2px;an
 .step-count{font-size:12px;color:var(--slate);margin-right:auto}
 .step-next{background:var(--navy);color:#fff;border-color:var(--navy)}
 @media (prefers-reduced-motion:reduce){.ch-trace,.ch-ring,.ch-read,.how-step.current,.step-visual,mark.step-hl{animation:none}}
+/* Worked calculations and eliminated choices in the solution player */
+.step-calc{margin:8px 0;padding:10px 14px;background:#f8fafc;border:1px solid var(--border);border-left:3px solid #1d4ed8;font-family:var(--mono,ui-monospace,monospace);font-size:13.5px;line-height:1.9}
+.calc-line{animation:calcIn .45s ease both}
+.calc-line strong{color:#b45309}
+.calc-d1{animation-delay:.5s}.calc-d2{animation-delay:1s}.calc-d3{animation-delay:1.5s}.calc-d4{animation-delay:2s}.calc-d5{animation-delay:2.5s}.calc-d6{animation-delay:3s}.calc-d7{animation-delay:3.5s}
+@keyframes calcIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+.step-strike{margin:6px 0;font-size:13px;color:#7f1d1d}
+.strike-line{animation:calcIn .4s ease both}
+.choice-btn.struck:not(.correct){opacity:.45;text-decoration:line-through;transition:opacity .4s ease}
+@media (prefers-reduced-motion:reduce){.calc-line,.strike-line{animation:none}}
