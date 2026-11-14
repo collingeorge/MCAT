@@ -19,13 +19,13 @@ const MASTERY = {
     physics: ['4A', '4B', '4C', '4D', '4E'],
     biology: ['1A', '1B', '1C', '1D', '2A', '2B', '2C', '3A', '3B'],
   },
-  testSize: 45,         // questions per diagnostic / end-of-day test
+  testSize: 30,         // questions per diagnostic / end-of-day test: half an AAMC section (59), at exam pace
   testPassages: 2,      // passages per test; the rest are discrete questions in the subject
   goals: [128, 129],
   defaultGoal: 128,
   passDays: 2,          // separate days in a row at or above the goal
   weakBelow: 84,        // % correct in a topic below this (≈128) counts as weak
-  secondsPerItem: 95,   // timed test pace, as in the subject mini test
+  secondsPerItem: 95,   // timed test pace: the exam's 95 min for 59 questions is about 97 s each
 };
 
 // ── Pure planning ──
@@ -283,7 +283,7 @@ function masteryCard() {
   const topicList = ts => '<ul class="mastery-subtopics">' + ts.map(t => '<li' + (t.progress >= t.need ? ' class="done"' : '') + '>' + (t.progress >= t.need ? '✓ ' : '') + esc(t.code) + ' ' + esc(AAMC_CAT_LABEL(t.code)) + ' <span class="today-count">' + t.progress + ' / ' + t.need + '</span></li>').join('') + '</ul>';
   let body = '';
   if (plan.status === 'diagnostic') {
-    body = '<ol class="today-steps"><li class="today-step"><span class="today-num">1</span><div class="today-body"><div class="today-title"><b>' + name(plan.subj) + ' diagnostic</b>' + mins(Math.round(MASTERY.testSize * MASTERY.secondsPerItem / 60)) + '</div><div class="today-detail">First day on this subject: just the diagnostic. ' + MASTERY.testSize + ' timed questions (2 passages + discrete). It scores you on 118–132 and shows your weak topics; guided study starts tomorrow.</div>' + btn('Start diagnostic', "startMasteryTest('diagnostic')") + '</div></li></ol>';
+    body = '<ol class="today-steps"><li class="today-step"><span class="today-num">1</span><div class="today-body"><div class="today-title"><b>' + name(plan.subj) + ' diagnostic</b>' + mins(Math.round(MASTERY.testSize * MASTERY.secondsPerItem / 60)) + '</div><div class="today-detail">First day on this subject: just the diagnostic. ' + MASTERY.testSize + ' timed questions (2 passages + discrete), half an AAMC section at exam pace. It scores you on 118–132 and shows your weak topics; guided study starts tomorrow.</div>' + btn('Start diagnostic', "startMasteryTest('diagnostic')") + '</div></li></ol>';
   } else if (plan.status === 'diagnostic-done') {
     body = '<p class="today-alldone">✓ Diagnostic done today: <b>' + plan.latest.scaled + '</b>. Guided study on your weak topics starts tomorrow.</p>';
   } else {
@@ -294,7 +294,7 @@ function masteryCard() {
       if (s.id === 'misses') { title = 'Review yesterday’s misses'; count = s.progress + ' / ' + s.count; detail = 'Cards and test questions you missed on ' + shortDay(s.from) + '.'; time = mins(Math.ceil((s.count - s.progress) * 0.8)); if (!s.done) button = btn('Start', 'startMasteryMisses()'); }
       if (s.id === 'flashcards') { title = 'Flashcards'; count = s.progress + ' / ' + s.count; detail = 'Learn the facts first, spread over today’s sub-topics.' + topicList(s.topics); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 0.6)); button = s.done ? more('startMasteryFlashcards(true)', s) : btn(s.progress ? 'Continue' : 'Start', 'startMasteryFlashcards()'); }
       if (s.id === 'guided') { title = 'Practice Exam cards with step-by-step lessons'; count = s.progress + ' / ' + s.count + ' cards · ' + s.lessons + ' / ' + s.lessonCount + ' lessons'; detail = 'Then use them the way the exam asks. Each card opens its lesson: step through it to the end, answer, then watch the walkthrough.' + topicList(s.topics); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 1.2 + (s.lessonCount - s.lessons) * 2)); button = s.done ? more('startMasteryGuided(true)', s) : btn(s.progress || s.lessons ? 'Continue' : 'Start', 'startMasteryGuided()'); }
-      if (s.id === 'test') { title = 'End-of-day test'; detail = s.done ? 'Today: <b>' + s.result.scaled + '</b> (' + s.result.correct + '/' + s.result.total + '). Tomorrow’s weak topics are updated.' : MASTERY.testSize + ' timed questions. Did today move your score toward ' + plan.goal + '?'; time = s.done ? '' : mins(Math.round(MASTERY.testSize * MASTERY.secondsPerItem / 60)); if (!s.done) button = btn('Start test', "startMasteryTest('daily')", plan.steps.filter(x => x.id !== 'test').every(x => x.done)); }
+      if (s.id === 'test') { title = 'End-of-day test'; detail = s.done ? 'Today: <b>' + s.result.scaled + '</b> (' + s.result.correct + '/' + s.result.total + '). Tomorrow’s weak topics are updated.' : MASTERY.testSize + ' timed questions, half an AAMC section at exam pace. Did today move your score toward ' + plan.goal + '?'; time = s.done ? '' : mins(Math.round(MASTERY.testSize * MASTERY.secondsPerItem / 60)); if (!s.done) button = btn('Start test', "startMasteryTest('daily')", plan.steps.filter(x => x.id !== 'test').every(x => x.done)); }
       return '<li class="today-step' + (s.done ? ' done' : '') + '"><span class="today-num" aria-hidden="true">' + (s.done ? '✓' : n) + '</span><div class="today-body"><div class="today-title"><b>' + title + '</b>' + (count ? ' <span class="today-count">' + count + '</span>' : '') + time + '</div><div class="today-detail">' + detail + '</div>' + button + '</div></li>';
     }).join('') + '</ol>';
   }

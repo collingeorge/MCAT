@@ -88,6 +88,8 @@ assert.equal(plan({ tests: [null, { subj: 'x' }], days: [], passed: 5, goal: 7 }
 // All subjects mastered.
 const all = Object.fromEntries(vm.runInContext('MASTERY.order', ctx).map(s => [s, '2026-01-01']));
 assert.equal(plan({ passed: all }, '2026-11-20').status, 'complete');
+// Diagnostic and end-of-day tests are half an AAMC section (59 questions in 95 minutes), at exam pace.
+assert.equal(vm.runInContext('MASTERY.testSize', ctx), 30); assert.equal(vm.runInContext('MASTERY.secondsPerItem', ctx), 95);
 // Wiring: TODAY leads with the path; tests are scored by the app's raw-to-scaled table; actions are allowlisted.
 const app = fs.readFileSync(root + '/js/app.js', 'utf8'), dp = fs.readFileSync(root + '/js/daily-plan.js', 'utf8'), sp = fs.readFileSync(root + '/js/study-path.js', 'utf8');
 assert(dp.includes("masteryCard() + '<details class=\"today-dateplan\">"), 'TODAY leads with the mastery path');
