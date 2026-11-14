@@ -29,6 +29,7 @@
 <script src="../data/passages-science.js"></script>
 <script src="../data/passages-cars.js"></script>
 <script src="../data/passages-data.js"></script>
+<script src="../data/passages-graphs.js"></script>
 <script src="../data/qb-variants-1.js"></script>
 <script src="../data/qb-variants-2.js"></script>
 <script src="../data/qb-aamc-bio.js"></script>
@@ -38,6 +39,7 @@
 <script src="../data/qb-aamc-cars.js"></script>
 <script src="../data/qb-aamc-rules.js"></script>
 <script src="../data/qb-aamc-fl.js"></script>
+<script src="../data/qb-structures.js"></script>
 <script src="../data/exam1.js"></script>
 <script src="../data/exam2-cp.js"></script>
 <script src="../data/exam2-bb.js"></script>
@@ -88,7 +90,8 @@
       const alphabetic = q.choices.every(c => /^[A-Za-z]/.test(String(c)));
       const caps = q.choices.map(c => /^[A-Z]/.test(String(c)));
       if (alphabetic && caps.filter(Boolean).length === 1 && caps[q.ans]) warn(where, `key is the only capitalized choice — ${short(q.q)}`);
-      if (key.length > 4 && keyAppearsInStem(q.q, key)) warn(where, `key appears in stem — ${short(q.q)}`);
+      // Structure choices show drawings, not names, so naming the target in the stem gives nothing away.
+      if (key.length > 4 && !Array.isArray(q.choiceFigs) && keyAppearsInStem(q.q, key)) warn(where, `key appears in stem — ${short(q.q)}`);
     }
   }
 
@@ -109,11 +112,12 @@
     ['QB_AAMC_IQB', ['Sensation, Perception & Cognition', 'Learning, Memory & Development', 'Motivation, Emotion & Personality', 'Social Psychology', 'Sociology & Social Structure', 'Health, Inequality & Research Methods', 'Proteins & Enzymes', 'Metabolism & Bioenergetics', 'Nucleic Acids, Membranes & Lab Techniques'], ['psych_soc', 'biochemistry'], /^([1-9][A-E]|10A)$/],
     ['QB_AAMC_CARS', ['CARS: Foundations of Comprehension', 'CARS: Reasoning Within the Text', 'CARS: Reasoning Beyond the Text'], ['cars'], /^(CMP|RWT|RBT)$/],
     ['QB_AAMC_FL', ['Practice Exam 1: Chem/Phys', 'Practice Exam 3: Chem/Phys', 'Practice Exam 4: Chem/Phys', 'Practice Exam 5: Chem/Phys', 'Practice Exam 6: Chem/Phys'], ['gen_chem', 'organic_chem', 'physics', 'biochemistry', 'biology'], /^[45][A-E]$/],
+    ['QB_STRUCTURES', ['Structure Reading: Amino Acids', 'Structure Reading: Functional Groups', 'Structure Reading: Rings & Aromaticity', 'Structure Reading: Skeletal Formulas', 'Structure Reading: Stereochemistry', 'Structure Reading: Nucleic Acids', 'Structure Reading: Biomolecules'], ['biochemistry', 'organic_chem'], /^[1-5][A-E]$/],
     ['QB_AAMC_RULES', ['Universal Rules: Reading Data', 'Universal Rules: Test Strategy', 'Universal Rules: Chemistry', 'Universal Rules: Biochemistry', 'Universal Rules: Physics'], ['research', 'gen_chem', 'organic_chem', 'biochemistry', 'physics'], /^([1-9][A-E]|10A|SIRS)$/],
   ].forEach(([name, tags, discs, code]) => {
     const arr = { QB_AAMC_BIO: typeof QB_AAMC_BIO === 'undefined' ? null : QB_AAMC_BIO, QB_AAMC_CHEM: typeof QB_AAMC_CHEM === 'undefined' ? null : QB_AAMC_CHEM,
       QB_AAMC_PHYS: typeof QB_AAMC_PHYS === 'undefined' ? null : QB_AAMC_PHYS, QB_AAMC_IQB: typeof QB_AAMC_IQB === 'undefined' ? null : QB_AAMC_IQB,
-      QB_AAMC_CARS: typeof QB_AAMC_CARS === 'undefined' ? null : QB_AAMC_CARS, QB_AAMC_RULES: typeof QB_AAMC_RULES === 'undefined' ? null : QB_AAMC_RULES, QB_AAMC_FL: typeof QB_AAMC_FL === 'undefined' ? null : QB_AAMC_FL }[name];
+      QB_AAMC_CARS: typeof QB_AAMC_CARS === 'undefined' ? null : QB_AAMC_CARS, QB_AAMC_RULES: typeof QB_AAMC_RULES === 'undefined' ? null : QB_AAMC_RULES, QB_AAMC_FL: typeof QB_AAMC_FL === 'undefined' ? null : QB_AAMC_FL, QB_STRUCTURES: typeof QB_STRUCTURES === 'undefined' ? null : QB_STRUCTURES }[name];
     if (!Array.isArray(arr)) return warn(name, 'not loaded');
     banks[name] = arr;
     arr.forEach((q, i) => {
@@ -134,7 +138,8 @@
       if (q.idStem !== undefined && (typeof q.idStem !== 'string' || !q.idStem.trim())) err(`${name}[${i}]`, 'idStem must be a nonempty legacy stem');
       checkQuestion(`${name}[${i}]`, q, { cloze: true });
       ansDist[q.ans] = (ansDist[q.ans] || 0) + 1;
-      const k = String(q.q).trim().toLowerCase();
+      // A structure card's stem includes its drawing: the same words over a different structure is a different question.
+      const k = String(q.q).trim().toLowerCase() + (q.fig == null ? '' : ' [fig:' + [].concat(q.fig).join(',') + ']');
       if (stems.has(k)) warn(`${name}[${i}]`, `duplicate stem of ${stems.get(k)}`); else stems.set(k, `${name}[${i}]`);
     });
     rows.push([name, arr.length, ansDist.join(' / ')]);
@@ -171,7 +176,8 @@
 
   // Passages
   const dataSets = typeof DATA_PASSAGES === 'undefined' ? (warn('DATA_PASSAGES', 'not loaded'), []) : DATA_PASSAGES;
-  const passages = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES, ...OCHEM_PASSAGES, ...PHYSICS_PASSAGES, ...BEHAVIORAL_PASSAGES, ...dataSets, ...CARS_PASSAGES, ...CARS_EXTRA, ...EXAM2_CARS_PASSAGES];
+  const graphSets = typeof GRAPH_PASSAGES === 'undefined' ? (warn('GRAPH_PASSAGES', 'not loaded'), []) : GRAPH_PASSAGES;
+  const passages = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES, ...OCHEM_PASSAGES, ...PHYSICS_PASSAGES, ...BEHAVIORAL_PASSAGES, ...graphSets, ...dataSets, ...CARS_PASSAGES, ...CARS_EXTRA, ...EXAM2_CARS_PASSAGES];
   const SKILLS = new Set(['SIRS 1', 'SIRS 2', 'SIRS 3', 'SIRS 4']);
   const DISCS = new Set(['biochemistry', 'biology', 'gen_chem', 'organic_chem', 'physics', 'psych_soc', 'research']);
   const ids = new Set();
@@ -180,12 +186,26 @@
     if (ids.has(p.id)) err(p.id, 'duplicate passage id'); ids.add(p.id);
     if (!p.passage || p.passage.length < 200) err(p.id, 'missing/short passage text');
     const words = String(p.passage).split(/\s+/).filter(Boolean).length;
-    if (p.figure) {
+    if (p.figure && (p.figure.type === 'line' || p.figure.type === 'bar')) {
+      // Plotted figure: axes, series, and every solution step's highlight/trace must point at real text and data.
+      const f = p.figure, names = new Set((f.series || []).map(x => x.name));
+      if (!f.caption || !f.y || !(f.y.max > f.y.min) || !(f.y.step > 0) || !Array.isArray(f.series) || !f.series.length) err(p.id, 'chart needs caption, y axis and series');
+      if (f.type === 'line') (f.series || []).forEach(x => (x.points || []).forEach(([px, py]) => { if (!(px >= f.x.min && px <= f.x.max && py >= f.y.min && py <= f.y.max)) err(p.id, `point outside axes: ${x.name} [${px}, ${py}]`); }));
+      if (f.type === 'bar') (f.series || []).forEach(x => { if (!Array.isArray(x.values) || x.values.length !== (f.categories || []).length) err(p.id, `bar series ${x.name} needs one value per category`); });
+      p.questions.forEach((q, i) => ((q.how && q.how.steps) || []).forEach(st => {
+        if (!st || typeof st !== 'object') return;
+        if (st.hl && !p.passage.includes(st.hl) && !q.q.includes(st.hl)) err(`${p.id} Q${i + 1}`, 'step highlight is not in the passage or question: ' + String(st.hl).slice(0, 40));
+        const g = st.graph || {};
+        (g.focus || []).forEach(n => { if (!names.has(n)) err(`${p.id} Q${i + 1}`, 'step focuses an unknown series ' + n); });
+        (g.read || []).forEach(r => { const x = (f.series || []).find(t => t.name === r.series); if (!x || !(x.points || []).some(([px]) => px === r.x)) err(`${p.id} Q${i + 1}`, `step traces a point that isn't plotted: ${r.series} at ${r.x}`); });
+        (g.bars || []).forEach(b => { if (!(f.categories || []).includes(b[0]) || !names.has(b[1])) err(`${p.id} Q${i + 1}`, 'step highlights an unknown bar ' + b); });
+      }));
+    } else if (p.figure) {
       const f = p.figure;
       if (!Array.isArray(f.columns) || !Array.isArray(f.rows) || !f.rows.length) err(p.id, 'figure needs columns[] and rows[]');
       else f.rows.forEach((r, ri) => { if (!Array.isArray(r) || r.length !== f.columns.length) err(p.id, `figure row ${ri + 1} has ${r && r.length} cells for ${f.columns.length} columns`); });
     }
-    if (p.id.startsWith('p_data')) {
+    if (p.id.startsWith('p_data') || p.id.startsWith('p_graph')) {
       if (!p.figure) err(p.id, 'data set without a figure');
       p.questions.forEach((q, i) => {
         if (!SKILLS.has(q.skill)) err(`${p.id} Q${i + 1}`, `skill must be SIRS 1–4 (got "${q.skill}")`);

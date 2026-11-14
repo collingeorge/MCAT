@@ -142,7 +142,7 @@ async function main() {
   await command('Network.emulateNetworkConditions',{offline:true,latency:0,downloadThroughput:-1,uploadThroughput:-1});
   await command('Page.reload',{ignoreCache:false});
   await until('document.querySelector("#today-plan .today-head")!==null && typeof QB!=="undefined" && QB.length===2807');
-  assert.equal(await evaluate('ALL_PASSAGES.length'),78,'full bank available offline');
+  assert.equal(await evaluate('ALL_PASSAGES.length'),90,'full bank available offline (78 + 12 graph passages)');
   assert.equal(await evaluate('fetch("/not-cached-"+Date.now()).then(()=>false,()=>true)'),true,'the network really is offline');
   await evaluate('beginQuiz(QB.slice(0,2),"Offline",{adaptive:false});document.querySelector("#cb-0").click()');
   assert.equal(await evaluate('quiz.results.length'),1,'studying works offline');
