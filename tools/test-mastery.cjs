@@ -1,5 +1,5 @@
-// Subject Mastery path rules: diagnostic first (and nothing else that day), then daily misses → 100 guided cards
-// → optional reinforcement → end-of-day test; goal (128 or 129) on 2 separate days in a row moves to the next
+// Subject Mastery path rules: diagnostic first (and nothing else that day), then daily misses → 50 flashcards
+// → 100 Practice Exam cards with 25 step-by-step lessons → end-of-day test; goal (128 or 129) on 2 separate days in a row moves to the next
 // subject, which starts with its own diagnostic. Test results, misses and weak topics carry into the next day.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -22,14 +22,17 @@ m = apply(m, test('gen_chem', '2026-11-15', 'diagnostic', 122));
 p = plan(m, '2026-11-15');
 assert.equal(p.status, 'diagnostic-done'); assert.deepEqual(p.steps, []);
 assert.deepEqual(p.weak.map(w => w.code), ['5A', '4E'], 'weak topics below 84%, weakest first; passage tally excluded');
-// Day 2: yesterday's misses (from the test), 100 guided cards, optional reinforcement, end-of-day test.
+// Day 2: yesterday's misses (from the test), flashcards, Practice Exam cards with lessons, end-of-day test.
 p = plan(m, '2026-11-16');
-assert.deepEqual(ids(p), ['misses', 'guided', 'reinforce', 'test']);
-assert.deepEqual(p.steps[0].ids, ['q1', 'q2']); assert.equal(p.steps[1].count, 100); assert.equal(p.steps[2].optional, true);
-// Guided progress and reviewed misses are read from today's row.
-m.days['2026-11-16'] = { subj: 'gen_chem', guided: 100, reviewed: ['q1', 'q2'], misses: ['g7'] };
+assert.deepEqual(ids(p), ['misses', 'flashcards', 'guided', 'test']);
+assert.deepEqual(p.steps[0].ids, ['q1', 'q2']); assert.equal(p.steps[1].count, 50); assert.equal(p.steps[2].count, 100); assert.equal(p.steps[2].lessonCount, 25);
+// Progress is read from today's row: 100 cards are not enough without 25 lessons, and flashcards count on their own.
+m.days['2026-11-16'] = { subj: 'gen_chem', guided: 100, lessons: Array.from({ length: 24 }, (_, i) => 'l' + i), flash: 50, reviewed: ['q1', 'q2'], misses: ['g7'] };
 p = plan(m, '2026-11-16');
-assert(p.steps.find(s => s.id === 'guided').done && p.steps.find(s => s.id === 'misses').done && !p.steps.find(s => s.id === 'test').done);
+assert(!p.steps.find(s => s.id === 'guided').done, '24 lessons is one short');
+m.days['2026-11-16'].lessons.push('l24');
+p = plan(m, '2026-11-16');
+assert(p.steps.find(s => s.id === 'guided').done && p.steps.find(s => s.id === 'flashcards').done && p.steps.find(s => s.id === 'misses').done && !p.steps.find(s => s.id === 'test').done);
 // End-of-day test at goal: one day isn't enough to move on.
 m = apply(m, test('gen_chem', '2026-11-16', 'daily', 128, { missIds: ['q9'] }));
 p = plan(m, '2026-11-16');
@@ -70,7 +73,8 @@ assert(dp.includes("masteryCard() + '<details class=\"today-dateplan\">"), 'TODA
 assert(app.includes("subjectPath: 'mcat2_subject_path'") && app.includes('masteryNoteAnswer(view.q, right)'), 'answers feed the path');
 assert(sp.includes('if (mini.mastery) {') && src.includes('rawToScaled(pctRight)'), 'mastery tests are scored on the 118–132 table');
 const actions = fs.readFileSync(root + '/js/actions.js', 'utf8');
-for (const a of ['startMasteryGuided', 'startMasteryMisses', 'startMasteryReinforce', 'startMasteryTest', 'setMasteryGoal', 'setMasterySubject']) assert(actions.includes("'" + a + "'"), a + ' allowlisted');
+assert(app.includes('masteryNoteLesson(view.q)') && app.includes("quiz.mastery === 'guided' && teachOf(q) && !(loadMem()[q.id] || {}).right) teachStep(1)"), 'finished lessons count; a card not yet answered right opens its lesson');
+for (const a of ['startMasteryGuided', 'startMasteryMisses', 'startMasteryFlashcards', 'startMasteryTest', 'setMasteryGoal', 'setMasterySubject']) assert(actions.includes("'" + a + "'"), a + ' allowlisted');
 for (const page of ['index.html', 'recall.html']) assert(fs.readFileSync(root + '/' + page, 'utf8').includes('<script src="js/mastery.js"></script>'), page + ' loads the path');
 assert(fs.readFileSync(root + '/sw.js', 'utf8').includes("'js/mastery.js'"), 'cached for offline use');
 // Storage keys: the path has its own key (it once collided with the topic-mastery map), is reset with the rest,
@@ -80,4 +84,4 @@ const names = [...block.matchAll(/^\s*([A-Za-z]+)\s*:/gm)].map(x => x[1]), value
 assert.equal(new Set(names).size, names.length, 'no duplicate KEYS names: ' + names.filter((n, i) => names.indexOf(n) !== i));
 assert.equal(new Set(values).size, values.length, 'no two KEYS share a storage key: ' + values.filter((n, i) => values.indexOf(n) !== i));
 assert(app.includes("subjectPath: 'mcat2_subject_path'") && app.includes('KEYS.studyPath, KEYS.subjectPath,'), 'own key, included in reset');
-console.log('Subject mastery passed: diagnostic-only first day with weak topics; then misses → 100 guided cards → optional reinforcement → end-of-day test compared with the last; goal 128/129 on 2 separate days moves to the next subject and its diagnostic; manual subject choice; corrupt data tolerated.');
+console.log('Subject mastery passed: diagnostic-only first day with weak topics; then misses → 50 flashcards → 100 Practice Exam cards with 25 lessons → end-of-day test compared with the last; goal 128/129 on 2 separate days moves to the next subject and its diagnostic; manual subject choice; corrupt data tolerated.');

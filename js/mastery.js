@@ -1,17 +1,18 @@
 // Subject Mastery path: one subject at a time, Chem/Phys first.
 //   Day 1 on a subject: a diagnostic test only (scored 118–132, weak AAMC topics shown).
-//   Every later day: review yesterday's misses → 100 guided cards (worked walkthroughs, weakest topics first)
-//   → optional reinforcement flashcards → an end-of-day test compared with the last one.
+//   Every later day: review yesterday's misses → regular flashcards on the weak topics → Practice Exam cards
+//   with step-by-step lessons (weakest topics first) → an end-of-day test compared with the last one.
 //   Reaching the goal (128 by default) on the end-of-day test on MASTERY.passDays separate days in a row moves
 //   the path to the next subject, which starts with its own diagnostic.
 // The scaled scores use the app's raw-to-scaled table (rawToScaled in app.js): an estimate, not an AAMC score.
 // masteryPlan() is pure (no storage, DOM or clock) so tools/test-mastery.cjs can test it with node.
 const MASTERY = {
   order: ['gen_chem', 'organic_chem', 'biochemistry', 'physics', 'biology'],
-  cardsPerDay: 100,     // guided cards per study day
+  flashcards: 50,       // regular flashcards per study day (weak topics first)
+  cardsPerDay: 100,     // Practice Exam cards per study day
+  lessonsPerDay: 25,    // step-by-step lessons played to the end per study day
   testSize: 45,         // questions per diagnostic / end-of-day test
   testPassages: 2,      // passages per test; the rest are discrete questions in the subject
-  reinforce: 20,        // optional regular flashcards per day
   goals: [128, 129],
   defaultGoal: 128,
   passDays: 2,          // separate days in a row at or above the goal
@@ -68,9 +69,12 @@ function masteryPlan(raw, today) {
   const reviewed = new Set(row.reviewed || []);
   const todayTest = tests.filter(t => t.kind === 'daily' && t.day === today).at(-1) || null;
   const guided = Math.min(MASTERY.cardsPerDay, row.guided || 0);
+  const lessons = Math.min(MASTERY.lessonsPerDay, (row.lessons || []).length);
+  const flash = Math.min(MASTERY.flashcards, row.flash || 0);
   if (misses.length) out.steps.push({ id: 'misses', count: misses.length, progress: misses.filter(id => reviewed.has(id)).length, ids: misses, from: prevDay, done: misses.every(id => reviewed.has(id)) });
-  out.steps.push({ id: 'guided', count: MASTERY.cardsPerDay, progress: guided, done: guided >= MASTERY.cardsPerDay });
-  out.steps.push({ id: 'reinforce', count: MASTERY.reinforce, optional: true, done: !!row.reinforced });
+  out.steps.push({ id: 'flashcards', count: MASTERY.flashcards, progress: flash, done: flash >= MASTERY.flashcards });
+  out.steps.push({ id: 'guided', count: MASTERY.cardsPerDay, progress: guided, lessons, lessonCount: MASTERY.lessonsPerDay,
+    done: guided >= MASTERY.cardsPerDay && lessons >= MASTERY.lessonsPerDay });
   out.steps.push({ id: 'test', done: !!todayTest, result: todayTest });
   return out;
 }
@@ -108,12 +112,22 @@ function masteryNoteAnswer(q, right) {
   const id = q.baseId || q.id, row = masteryDayRow(m, subj);
   let changed = false;
   if (isFl(q) && masterySubjOfCard(q) === subj && quiz.mastery === 'guided') { row.guided = (row.guided || 0) + 1; changed = true; }
+  if (quiz.mastery === 'flashcards') { row.flash = (row.flash || 0) + 1; changed = true; }
   const plan = masteryPlan(m, localDay()), missStep = plan.steps.find(s => s.id === 'misses');
   if (missStep && missStep.ids.includes(id) && !(row.reviewed || []).includes(id)) { row.reviewed = [...(row.reviewed || []), id]; changed = true; }
-  if (!right && (quiz.mastery === 'guided' || quiz.mastery === 'reinforce' || quiz.mastery === 'misses')) { row.misses = [...new Set([...(row.misses || []), id])]; changed = true; }
+  if (!right && (quiz.mastery === 'guided' || quiz.mastery === 'flashcards' || quiz.mastery === 'misses')) { row.misses = [...new Set([...(row.misses || []), id])]; changed = true; }
   if (changed) masterySave(m);
 }
-// Guided cards: this subject's Practice Exam cards, weakest topics first, then never seen or missed, repeated
+// Called when a step-by-step lesson is played to its last step during today's Practice Exam cards.
+function masteryNoteLesson(q) {
+  const m = masteryLoad(), subj = masterySubject(m, localDay());
+  if (!subj || quiz.mastery !== 'guided' || masterySubjOfCard(q) !== subj) return;
+  const row = masteryDayRow(m, subj), id = q.baseId || q.id;
+  if ((row.lessons || []).includes(id)) return;
+  row.lessons = [...(row.lessons || []), id];
+  masterySave(m);
+}
+// Practice Exam cards: this subject's Practice Exam cards, weakest topics first, then never seen or missed, repeated
 // in fresh orders until today's count is reached.
 function startMasteryGuided() {
   const m = masteryLoad(), plan = masteryPlan(m, localDay());
@@ -121,7 +135,7 @@ function startMasteryGuided() {
   if (!plan.subj || !step) return;
   const need = Math.max(1, step.count - step.progress);
   const pool = FLQ.filter(q => masterySubjOfCard(q) === plan.subj);
-  if (!pool.length) { startMasteryReinforce(); return; }
+  if (!pool.length) { startMasteryFlashcards(); return; }
   const rank = new Map(plan.weak.map((w, i) => [w.code, i]));
   const mem = loadMem();
   const score = q => (rank.has(q.aamc) ? rank.get(q.aamc) : 50) * 10 + (!mem[q.id]?.seen ? 0 : mem[q.id].right < mem[q.id].seen ? 2 : 5) + Math.random();
@@ -131,22 +145,24 @@ function startMasteryGuided() {
     if (list.length && pass[0] === list.at(-1)) pass.push(pass.shift());
     list.push(...pass);
   }
-  beginQuiz(list.slice(0, Math.min(need, 25)), DISCIPLINES[plan.subj] + ' · guided cards', { mastery: 'guided' });
+  beginQuiz(list.slice(0, Math.min(need, 25)), DISCIPLINES[plan.subj] + ' · Practice Exam cards', { mastery: 'guided' });
 }
 function startMasteryMisses() {
   const plan = masteryPlan(masteryLoad(), localDay()), step = plan.steps.find(s => s.id === 'misses');
   const qs = (step?.ids || []).map(id => lookupQ(id)).filter(Boolean);
   if (qs.length) beginQuiz(shuffled(qs), DISCIPLINES[plan.subj] + ' · yesterday’s misses', { mastery: 'misses' });
 }
-function startMasteryReinforce() {
+// Regular flashcards in the subject, weak topics first, in sessions of 25 until today's count is reached.
+function startMasteryFlashcards() {
   const m = masteryLoad(), plan = masteryPlan(m, localDay());
-  if (!plan.subj) return;
+  const step = plan.steps.find(s => s.id === 'flashcards');
+  if (!plan.subj || !step) return;
+  const need = Math.max(1, Math.min(25, step.count - step.progress));
   const weak = new Set(plan.weak.map(w => w.code));
   const inSubj = QB.filter(q => disciplineOfRecall(q) === plan.subj);
   const focus = inSubj.filter(q => weak.has(masteryCategory(q)));
-  const qs = pickQuestions(focus.length >= 10 ? focus : inSubj, MASTERY.reinforce);
-  masteryDayRow(m, plan.subj).reinforced = true; masterySave(m);
-  if (qs.length) beginQuiz(qs, DISCIPLINES[plan.subj] + ' · reinforcement flashcards', { mastery: 'reinforce' });
+  const qs = pickQuestions(focus.length >= need ? focus : inSubj, need);
+  if (qs.length) beginQuiz(qs, DISCIPLINES[plan.subj] + ' · flashcards', { mastery: 'flashcards' });
 }
 // Diagnostic / end-of-day test: 2 passages in the subject (unattempted first) + discrete questions from the
 // question bank (not the guided cards, so the score is not a memory of today's cards), timed, feedback at the end.
@@ -193,7 +209,7 @@ function masteryResultHtml(test, prev, m) {
   const nextSubj = MASTERY.order.find(s => !m.passed[s]);
   const verdict = passedNow ? '<p class="today-alldone">✓ ' + esc(DISCIPLINES[test.subj]) + ' mastered: ' + goal + '+ on ' + MASTERY.passDays + ' days in a row. ' + (nextSubj ? 'Tomorrow starts ' + esc(DISCIPLINES[nextSubj]) + ' with its diagnostic.' : 'Every subject in the path is mastered.') + '</p>'
     : test.kind === 'diagnostic' ? '<p>Study starts tomorrow, aimed at the weak topics below. Today is just the diagnostic.</p>'
-    : test.scaled >= goal ? '<p>At goal today. One more day at ' + goal + '+ moves you to the next subject.</p>' : '<p>Tomorrow: yesterday’s misses, then 100 guided cards on the weakest topics, then another test.</p>';
+    : test.scaled >= goal ? '<p>At goal today. One more day at ' + goal + '+ moves you to the next subject.</p>' : '<p>Tomorrow: yesterday’s misses, then ' + MASTERY.flashcards + ' flashcards and ' + MASTERY.cardsPerDay + ' Practice Exam cards on the weakest topics, then another test.</p>';
   const rows = weak.map(w => '<tr' + (w.pct < MASTERY.weakBelow ? ' class="mastery-weak"' : '') + '><td>' + esc(w.code) + '</td><td>' + esc(AAMC_CAT_LABEL(w.code)) + '</td><td>' + w.c + '/' + w.t + '</td><td>' + w.pct + '%</td></tr>').join('');
   const pass = test.cats.passage ? '<p class="muted-note">Passage questions: ' + test.cats.passage.c + '/' + test.cats.passage.t + '.</p>' : '';
   return '<div class="results-hero"><div class="r-label">' + esc(DISCIPLINES[test.subj]) + (test.kind === 'diagnostic' ? ' diagnostic' : ' end-of-day test') + '</div><div class="score-pct">' + test.scaled + '</div><div class="score-sub">' + test.correct + '/' + test.total + ' correct (' + test.pct + '%) · goal ' + goal + (trend ? ' · ' + trend : '') + '</div></div>' +
@@ -226,9 +242,9 @@ function masteryCard() {
       n++;
       let title = '', detail = '', button = '', count = '', time = '';
       if (s.id === 'misses') { title = 'Review yesterday’s misses'; count = s.progress + ' / ' + s.count; detail = 'Cards and test questions you missed on ' + shortDay(s.from) + '.'; time = mins(Math.ceil((s.count - s.progress) * 0.8)); if (!s.done) button = btn('Start', 'startMasteryMisses()'); }
-      if (s.id === 'guided') { title = 'Guided cards with walkthroughs'; count = s.progress + ' / ' + s.count; detail = 'Weakest topics first. Answer, then watch the walkthrough: that is where the learning happens. Sessions of 25.'; time = mins(Math.ceil((s.count - s.progress) * 1.2)); if (!s.done) button = btn(s.progress ? 'Continue' : 'Start', 'startMasteryGuided()'); }
-      if (s.id === 'reinforce') { title = 'Reinforcement flashcards'; detail = 'Optional: ' + s.count + ' regular flashcards on the same weak topics.'; if (!s.done) button = btn('Start', 'startMasteryReinforce()', false); }
-      if (s.id === 'test') { title = 'End-of-day test'; detail = s.done ? 'Today: <b>' + s.result.scaled + '</b> (' + s.result.correct + '/' + s.result.total + '). Tomorrow’s weak topics are updated.' : MASTERY.testSize + ' timed questions. Did today move your score toward ' + plan.goal + '?'; time = s.done ? '' : mins(Math.round(MASTERY.testSize * MASTERY.secondsPerItem / 60)); if (!s.done) button = btn('Start test', "startMasteryTest('daily')", plan.steps.find(x => x.id === 'guided').done); }
+      if (s.id === 'flashcards') { title = 'Flashcards'; count = s.progress + ' / ' + s.count; detail = 'Regular flashcards in this subject, weak topics first. Sessions of 25.'; time = mins(Math.ceil((s.count - s.progress) * 0.6)); if (!s.done) button = btn(s.progress ? 'Continue' : 'Start', 'startMasteryFlashcards()'); }
+      if (s.id === 'guided') { title = 'Practice Exam cards with step-by-step lessons'; count = s.progress + ' / ' + s.count + ' cards · ' + s.lessons + ' / ' + s.lessonCount + ' lessons'; detail = 'Weakest topics first. On a card you have not got right yet, the lesson opens by itself: step through it to the end (that counts as a lesson), answer, then watch the walkthrough. Sessions of 25.'; time = mins(Math.ceil((s.count - s.progress) * 1.2 + (s.lessonCount - s.lessons) * 2)); if (!s.done) button = btn(s.progress || s.lessons ? 'Continue' : 'Start', 'startMasteryGuided()'); }
+      if (s.id === 'test') { title = 'End-of-day test'; detail = s.done ? 'Today: <b>' + s.result.scaled + '</b> (' + s.result.correct + '/' + s.result.total + '). Tomorrow’s weak topics are updated.' : MASTERY.testSize + ' timed questions. Did today move your score toward ' + plan.goal + '?'; time = s.done ? '' : mins(Math.round(MASTERY.testSize * MASTERY.secondsPerItem / 60)); if (!s.done) button = btn('Start test', "startMasteryTest('daily')", plan.steps.filter(x => x.id !== 'test').every(x => x.done)); }
       return '<li class="today-step' + (s.done ? ' done' : '') + '"><span class="today-num" aria-hidden="true">' + (s.done ? '✓' : n) + '</span><div class="today-body"><div class="today-title"><b>' + title + '</b>' + (count ? ' <span class="today-count">' + count + '</span>' : '') + time + '</div><div class="today-detail">' + detail + '</div>' + button + '</div></li>';
     }).join('') + '</ol>';
   }
