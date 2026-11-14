@@ -98,7 +98,8 @@ assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(masteryApportion(w, 
 // A section with no Practice Exam cards (B/B, P/S for now) has no Practice Exam step.
 { const mb = apply({ current: 'bb' }, test('bb', '2026-11-15', 'diagnostic', 122, { cats: { '1A': { c: 2, t: 9 } } }));
   assert.deepEqual(ids(plan(mb, '2026-11-16', { guided: 0 })), ['misses', 'flashcards', 'test']); }
-// Diagnostic and end-of-day tests are half an AAMC section (59 questions in 95 minutes), at exam pace.
+// The diagnostic is a full AAMC section (59 questions, 10 passages, 95 minutes); daily tests are half of one.
+assert.equal(vm.runInContext('MASTERY.diagSize', ctx), 59, 'the diagnostic is a full section'); assert.equal(vm.runInContext('MASTERY.diagPassages', ctx), 10);
 assert.equal(vm.runInContext('MASTERY.testSize', ctx), 30); assert.equal(vm.runInContext('MASTERY.secondsPerItem', ctx), 95);
 // Wiring: TODAY leads with the path; tests are scored by the app's raw-to-scaled table; actions are allowlisted.
 const app = fs.readFileSync(root + '/js/app.js', 'utf8'), dp = fs.readFileSync(root + '/js/daily-plan.js', 'utf8'), sp = fs.readFileSync(root + '/js/study-path.js', 'utf8');

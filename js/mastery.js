@@ -18,8 +18,10 @@ const MASTERY = {
     bb: ['1A', '1B', '1C', '1D', '2A', '2B', '2C', '3A', '3B'],
     ps: ['6A', '6B', '6C', '7A', '7B', '7C', '8A', '8B', '8C', '9A', '9B', '10A'],
   },
-  testSize: 30,         // questions per diagnostic / end-of-day test: half an AAMC section (59), at exam pace
-  testPassages: 5,      // passages per test (~20 questions); the rest (~10) are discrete: the exam's ~3:1 mix
+  // Diagnostic: a full AAMC section (59 questions: 10 passages + single questions), enough data to rank every
+  // content category. End-of-day test: half a section (30: 5 passages + ~10 single). Both at exam pace.
+  diagSize: 59, diagPassages: 10,
+  testSize: 30, testPassages: 5,
   goals: [128, 129],
   defaultGoal: 128,
   passDays: 2,          // separate days in a row at or above the goal
@@ -235,10 +237,11 @@ function startMasteryTest(kind) {
   const discs = masteryDiscs(subj), passages = [];
   // Passages per discipline in the exam's proportions (C/P: 2 general chemistry, 1 each physics, biochemistry,
   // organic chemistry), each discipline's unattempted passages first.
-  const share = masteryApportion(discs, MASTERY.testPassages);
+  const full = kind === 'diagnostic', size = full ? MASTERY.diagSize : MASTERY.testSize;
+  const share = masteryApportion(discs, full ? MASTERY.diagPassages : MASTERY.testPassages);
   discs.forEach(([d], i) => passages.push(...passageOrder(d).slice(0, share[i])));
   const items = passages.flatMap(p => p.questions.map(q => ({ view: makeView(q), passage: p })));
-  const need = Math.max(0, MASTERY.testSize - items.length), pool = masteryFlashPool(subj), discrete = [];
+  const need = Math.max(0, size - items.length), pool = masteryFlashPool(subj), discrete = [];
   const dShare = masteryApportion(discs, need);
   discs.forEach(([d], i) => discrete.push(...pickQuestions(pool.filter(q => disciplineOfRecall(q) === d), dShare[i])));
   if (discrete.length < need) discrete.push(...pickQuestions(pool.filter(q => !discrete.includes(q)), need - discrete.length));
@@ -308,7 +311,7 @@ function masteryCard() {
   const topicList = ts => '<ul class="mastery-subtopics">' + ts.map(t => '<li' + (t.progress >= t.need ? ' class="done"' : '') + '>' + (t.progress >= t.need ? '✓ ' : '') + esc(t.code) + ' ' + esc(AAMC_CAT_LABEL(t.code)) + ' <span class="today-count">' + t.progress + ' / ' + t.need + '</span></li>').join('') + '</ul>';
   let body = '';
   if (plan.status === 'diagnostic') {
-    body = '<ol class="today-steps"><li class="today-step"><span class="today-num">1</span><div class="today-body"><div class="today-title"><b>' + name(plan.subj) + ' diagnostic</b>' + mins(Math.round(MASTERY.testSize * MASTERY.secondsPerItem / 60)) + '</div><div class="today-detail">First day on this section: just the diagnostic. ' + MASTERY.testSize + ' timed questions, half an AAMC section in the exam’s format: 5 passages plus single questions, across all of the section’s subjects, at exam pace. It scores you on 118–132 and shows your weak content categories; study starts tomorrow.</div>' + btn('Start diagnostic', "startMasteryTest('diagnostic')") + '</div></li></ol>';
+    body = '<ol class="today-steps"><li class="today-step"><span class="today-num">1</span><div class="today-body"><div class="today-title"><b>' + name(plan.subj) + ' diagnostic</b>' + mins(Math.round(MASTERY.diagSize * MASTERY.secondsPerItem / 60)) + '</div><div class="today-detail">First day on this section: just the diagnostic, a full AAMC section in the exam’s format. ' + MASTERY.diagSize + ' timed questions (10 passages plus single questions) across all of the section’s subjects and content categories, at exam pace, so every weak and strong area shows up. It scores you on 118–132 and shows your weak content categories; study starts tomorrow.</div>' + btn('Start diagnostic', "startMasteryTest('diagnostic')") + '</div></li></ol>';
   } else if (plan.status === 'diagnostic-done') {
     body = '<p class="today-alldone">✓ Diagnostic done today: <b>' + plan.latest.scaled + '</b>. Guided study on your weak topics starts tomorrow.</p>';
   } else {
