@@ -125,7 +125,7 @@ const KEYS = {
   plannedPassages: 'mcat2_planned_passages',
   diagnostic: 'mcat2_diagnostic',
   studyPath: 'mcat2_study_path',
-  subjectPath: 'mcat2_subject_path',   // Subject Mastery path: { goal, current, tests: [...], days: {day: {subj, flash, guided, lessons, misses, reviewed}}, passed: {subj: day} }
+  subjectPath: 'mcat2_subject_path',   // Subject Mastery path: { goal, current, tests: [...], perTopic, days: {day: {subj, topics, flashT, guidedT, lessonsN, misses, reviewed}}, passed: {subj: day} }
   finalTwo: 'mcat2_final_two',
   prefs: 'mcat2_prefs',
   stats: 'mcat2_stats',        // { "subject|tag": {c, t} }
@@ -1802,8 +1802,8 @@ function renderQuizQuestion() {
     <div id="nxt-area"></div>`;
   if ($('reveal-btn')) $('reveal-btn').focus({ preventScroll: true });
   startSpeedTimer();
-  // In today's plan, a Practice Exam card not yet answered correctly opens its step-by-step lesson by itself.
-  if (quiz.mastery === 'guided' && teachOf(q) && !(loadMem()[q.id] || {}).right) teachStep(1);
+  // In today's plan, every Practice Exam card opens its step-by-step lesson by itself.
+  if (quiz.mastery === 'guided' && teachOf(q)) teachStep(1);
 }
 // Recall first: retrieving the answer before seeing options builds stronger memory
 // than recognizing it, so the choices stay hidden until you've thought of it
