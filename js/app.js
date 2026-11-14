@@ -125,7 +125,7 @@ const KEYS = {
   plannedPassages: 'mcat2_planned_passages',
   diagnostic: 'mcat2_diagnostic',
   studyPath: 'mcat2_study_path',
-  subjectPath: 'mcat2_subject_path',   // Subject Mastery path: { goal, current, tests: [...], perDay, days: {day: {subj, topics, flashT, guidedT, lessonsN, seen, misses, reviewed}}, passed: {subj: day} }
+  subjectPath: 'mcat2_subject_path',   // Section Mastery path (subj = section id: cp, bb, ps): { goal, current, tests: [...], perDay, days: {day: {subj, topics, flashT, guidedT, lessonsN, seen, misses, reviewed}}, passed: {subj: day} }
   finalTwo: 'mcat2_final_two',
   prefs: 'mcat2_prefs',
   stats: 'mcat2_stats',        // { "subject|tag": {c, t} }
@@ -2984,7 +2984,7 @@ function renderPassageQuestion() {
   pq.answered = false;
   const view = pq.views[pq.idx], tot = pq.views.length;
   const timerPassage = pq.mini?.items[pq.idx]?.passage;
-  setStudyTimerSubject(pq.mini ? pq.mini.subj : disciplineOfPassage(timerPassage || pq.p, view.q));
+  setStudyTimerSubject(pq.mini && !pq.mini.mastery ? pq.mini.subj : timerPassage || !pq.mini ? disciplineOfPassage(timerPassage || pq.p, view.q) : disciplineOfRecall(view.q));
   $('pp-fill').style.width = (pq.idx / tot) * 100 + '%';
   $('pp-counter').textContent = `${pq.idx + 1} / ${tot}`;
   $('pp-subject').textContent = pq.p.title;
