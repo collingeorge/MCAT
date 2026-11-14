@@ -909,3 +909,13 @@ mark.step-hl{background:#fde68a;color:inherit;padding:0 2px;border-radius:2px;an
 .how-box{font-size:15px}
 .question-box .struct-row{scroll-margin-top:150px}
 .struct-row:has(.struct-fig + .struct-fig) .struct-img{min-height:80px;max-height:140px}
+/* Callouts on the question's own words (lessons): the label sits right above the highlighted words */
+.q-callout{position:relative;display:inline-block;margin-top:1.55em;line-height:1.3}
+.q-note{position:absolute;left:0;bottom:100%;margin-bottom:2px;white-space:nowrap;font:700 12.5px/1.2 var(--sans,system-ui,sans-serif);color:#fff;background:#9a3412;padding:3px 7px;border-radius:4px;animation:calcIn .45s ease both}
+.q-note::after{content:"";position:absolute;left:10px;top:100%;border:5px solid transparent;border-top-color:#9a3412}
+.q-c1 .q-note{background:#1d4ed8}.q-c1 .q-note::after{border-top-color:#1d4ed8}
+.q-c2 .q-note{background:#15803d}.q-c2 .q-note::after{border-top-color:#15803d}
+.q-c3 .q-note{background:#7c3aed}.q-c3 .q-note::after{border-top-color:#7c3aed}
+.ch-tag{fill:#9a3412}
+.ch-tag-text{font-size:17px;font-weight:700;fill:#fff}
+.ch-ann{font-size:18px}

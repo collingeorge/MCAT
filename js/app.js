@@ -1821,18 +1821,20 @@ function hintArea(view) {
   const h = howOf(view.q), level = view.hint || 0;
   if (!h) return '';
   // A card with a graph in the question teaches how to read it, on the graph itself, before you answer.
-  if (teachOf(view.q)) return view.teachCur ? teachHtml(view) : `<button class="micro-btn how-btn teach-btn" id="hint-btn" data-click="teachStep(1)">👀 ${view.q.chart ? 'Teach me how to read this graph' : 'Teach me how to solve this, step by step'}</button>`;
+  if (teachOf(view.q)) return view.teachCur ? teachHtml(view) : `<button class="micro-btn how-btn teach-btn" id="hint-btn" data-click="teachStep(1)">👀 Teach me how to solve this, step by step</button>`;
   const shown = (level >= 1 ? `<p><b>What it's asking:</b> ${fmt(h.ask)}</p>` : '') + (level >= 2 ? `<div><b>What you need to know:</b>${paragraphs(h.know)}</div>` : '');
   const label = level === 0 ? 'Show me how to start' : level === 1 ? 'Show what I need to know' : '';
   return `${shown ? `<div class="how-hint" role="status">${shown}</div>` : ''}${label ? `<button class="micro-btn how-btn" id="hint-btn" data-click="showHint()">💡 ${label}</button>` : ''}`;
 }
 // ── "Teach me this graph": steps that label and measure the question's own graph before answering ──
-function teachOf(q) { return q && !q.variant && !q.baseId && (q.chart || q.fig || q.choiceFigs) && Array.isArray(q.teach) && q.teach.length ? q.teach : null; }
+function teachOf(q) { return q && !q.variant && !q.baseId && Array.isArray(q.teach) && q.teach.length ? q.teach : null; }
 function teachHtml(view) {
   const t = teachOf(view.q), i = view.teachCur, st = t[i - 1];
   // A molecule step on a card without a drawn question shows its drawing in the lesson box itself.
-  const inBox = st.fig && !view.q.fig ? stemFigs({ fig: st.fig }) : '';
-  return `<div class="how-hint teach-box" role="status"><div class="how-title">${view.q.chart ? 'Reading the graph' : 'Step by step'} · ${i} of ${t.length}</div><p>${fmt(st.text)}</p>${inBox}
+  // Drawings, working lines and small graphs that belong to the step appear in the lesson box.
+  const inBox = (st.fig && !view.q.fig ? stemFigs({ fig: st.fig }) : '') + (st.chart ? figureHtml(st.chart, st.graph || null) : '') +
+    (Array.isArray(st.calc) && st.calc.length ? `<div class="step-calc">${st.calc.map((ln, k) => `<div class="calc-line calc-d${Math.min(k, 7)}">${fmt(ln)}</div>`).join('')}</div>` : '');
+  return `<div class="how-hint teach-box" role="status"><div class="how-title">Step by step · ${i} of ${t.length}</div><p>${fmt(st.text)}</p>${inBox}
     <div class="step-progress" aria-hidden="true"><div class="step-progress-fill" data-css="width:${Math.round(i / t.length * 100)}%"></div></div>
     <div class="step-controls"><button class="micro-btn" data-click="teachStep(-1)"${i <= 1 ? ' disabled' : ''}>◀ Back</button>
     ${i < t.length ? `<button class="micro-btn step-next" id="teach-next" data-click="teachStep(1)">Next ▶</button>` : `<button class="micro-btn" data-click="teachStep(0)">↺ Start over</button><span class="step-count">Now answer the question.</span>`}</div></div>`;
@@ -1845,13 +1847,16 @@ function teachStep(delta) {
   if ($('hint-area')) $('hint-area').innerHTML = hintArea(view);
   const st = t[view.teachCur - 1], qs = sel => (typeof document !== 'undefined' && document.querySelector ? document.querySelector(sel) : null);
   const fEl = view.q.chart && qs('#quiz-body .question-box .chart-figure');
-  if (fEl) fEl.outerHTML = figureHtml(view.q.chart, st.graph || null);
+  if (fEl) fEl.outerHTML = figureHtml(view.q.chart, st.chart ? null : (st.graph || null));
+  // The words of the question that matter at this step light up.
+  const qEl = qs('#quiz-body .question-box .question-text');
+  if (qEl) qEl.innerHTML = Array.isArray(st.marks) && st.marks.length ? markCallouts(view.q.q, st.marks) : markText(view.q.q, st.hl && String(view.q.q).includes(st.hl) ? st.hl : null);
   // Molecule lessons swap the question's drawing for the stage being explained (the OH leaving, the + charge…).
   const sEl = view.q.fig && qs('#quiz-body .question-box .struct-row');
   if (sEl) sEl.outerHTML = stemFigs({ fig: st.fig || view.q.fig });
   const next = $('teach-next'); if (next && delta > 0) next.focus({ preventScroll: true });
   // Keep the whole graph in view (below the sticky bars) with the lesson text under it.
-  const live = document.querySelector && document.querySelector('#quiz-body .question-box .chart-figure, #quiz-body .question-box .struct-row');
+  const live = document.querySelector && ((st.hl || st.marks) && !view.q.chart && !view.q.fig ? document.querySelector('#quiz-body .question-box') : document.querySelector('#quiz-body .question-box .chart-figure, #quiz-body .question-box .struct-row, #quiz-body .question-box'));
   if (live && live.scrollIntoView) live.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function showHint() {
@@ -1868,6 +1873,17 @@ function markText(text, hl) {
   const raw = String(text ?? ''), i = hl ? raw.indexOf(hl) : -1;
   if (i < 0) return fmt(raw);
   return fmt(raw.slice(0, i)) + `<mark class="step-hl">${fmt(hl)}</mark>` + fmt(raw.slice(i + hl.length));
+}
+// Callouts on the question's own words: marks = [{t: exact text, note: 'what it is'}] → each piece is highlighted with
+// its label shown right above it (used by lessons so text-only questions explain themselves in place).
+function markCallouts(text, marks) {
+  const raw = String(text ?? ''), spots = [];
+  (marks || []).forEach((m, n) => { const i = m && m.t ? raw.indexOf(m.t) : -1; if (i >= 0 && !spots.some(s => i < s.end && i + m.t.length > s.start)) spots.push({ start: i, end: i + m.t.length, note: m.note, n }); });
+  if (!spots.length) return fmt(raw);
+  spots.sort((a, b) => a.start - b.start);
+  let out = '', at = 0;
+  spots.forEach(s => { out += fmt(raw.slice(at, s.start)) + `<span class="q-callout q-c${s.n % 4}"><mark class="step-hl">${fmt(raw.slice(s.start, s.end))}</mark>${s.note ? `<span class="q-note">${fmt(s.note)}</span>` : ''}</span>`; at = s.end; });
+  return out + fmt(raw.slice(at));
 }
 function markParagraphs(text, hl) {
   return String(text ?? '').split(/\n+/).map(p => p.trim()).filter(Boolean).map(p => `<p>${markText(p, hl && p.includes(hl) ? hl : null)}</p>`).join('');
@@ -2917,8 +2933,14 @@ function chartAnnotations(fig, ov, sx, sy, bottom, W) {
     const yv = yOf(lb); if (yv == null) return;
     const px = sx(lb.x), py = sy(yv), at = lb.at || 'above';
     const [dx, dy, anchor] = at === 'below' ? [0, 34, 'middle'] : at === 'left' ? [-34, -6, 'end'] : at === 'right' ? [34, -6, 'start'] : [0, -30, 'middle'];
-    const tx = Math.min(W - C.R - 2, Math.max(C.L + 2, px + dx)), ty = Math.max(C.T + 12, Math.min(bottom - 4, py + dy));
-    out += `<g class="ch-anim ch-d${Math.min(i, 3)}"><line class="ch-ann-line" x1="${f(px)}" y1="${f(py)}" x2="${f(tx)}" y2="${f(ty + (at === 'below' ? -14 : at === 'above' ? 4 : -4))}"/><circle class="ch-ring" cx="${f(px)}" cy="${f(py)}" r="7"/><text class="ch-ann" x="${f(tx)}" y="${f(ty)}" text-anchor="${anchor}">${chartText(lb.text)}</text></g>`;
+    // Callout tag: a filled label (sized to its text) joined to the point by a line; it is kept inside the plot area.
+    const tw = Math.min(W - C.L - C.R, String(lb.text).length * 11.5 + 16), th = 28;
+    let bx = anchor === 'end' ? px + dx - tw : anchor === 'start' ? px + dx : px + dx - tw / 2;
+    bx = Math.min(W - C.R - tw, Math.max(C.L + 2, bx));
+    const by = Math.max(C.T, Math.min(bottom - th, py + dy - th / 2));
+    const cx = Math.min(Math.max(px, bx + 8), bx + tw - 8), cy = py < by ? by : py > by + th ? by + th : by + th / 2;
+    out += `<g class="ch-anim ch-d${Math.min(i, 3)}"><line class="ch-ann-line" x1="${f(px)}" y1="${f(py)}" x2="${f(cx)}" y2="${f(cy)}"/><circle class="ch-ring" cx="${f(px)}" cy="${f(py)}" r="8"/>` +
+      `<rect class="ch-tag" x="${f(bx)}" y="${f(by)}" width="${f(tw)}" height="${th}" rx="5"/><text class="ch-tag-text" x="${f(bx + tw / 2)}" y="${f(by + 19.5)}" text-anchor="middle">${chartText(lb.text)}</text></g>`;
   });
   return out;
 }

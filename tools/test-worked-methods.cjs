@@ -56,10 +56,14 @@ function checkSteps(id, q) {
   return { visual, rich };
 }
 for (const q of FL.filter(q => q.teach)) {
-  assert((q.chart || q.fig || q.choiceFigs) && Array.isArray(q.teach) && q.teach.length >= 3, q.src + ': a lesson needs a picture (graph or drawing) and at least 3 steps');
+  assert(Array.isArray(q.teach) && q.teach.length >= 3, q.src + ': a lesson has at least 3 steps');
   for (const st of q.teach) {
     assert(typeof st.text === 'string' && st.text.length > 10, q.src + ': lesson step text');
     for (const n of [].concat(st.fig ?? [])) assert(STRUCT_NAMES.has(n), q.src + ': lesson drawing ' + n + ' exists');
+    assert.deepEqual(Object.keys(st).filter(f => !['text', 'fig', 'graph', 'hl', 'marks', 'calc', 'chart'].includes(f)), [], q.src + ': lesson step fields');
+    for (const m of st.marks || []) assert(q.q.includes(m.t) && typeof m.note === 'string', q.src + ': callout marks question text');
+    if (st.hl != null) assert(q.q.includes(st.hl), q.src + ': lesson highlight is question text');
+    if (st.graph && !st.chart) assert(q.chart, q.src + ': lesson graph overlay needs the question graph or its own');
     for (const lb of (st.graph && st.graph.labels) || []) if (lb.series) assert(q.chart.series.some(s => s.name === lb.series && s.points.some(([x]) => x === lb.x)), q.src + ': lesson label points at a plotted point');
   }
 }
