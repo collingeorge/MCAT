@@ -489,6 +489,17 @@ function dailyPlanCard() {
   const done = plan.allDone && ['study', 'final'].includes(plan.status) ? '<p class="today-alldone">✓ Today’s plan is complete. Anything more is optional.</p>' : '';
   return head + (kind ? '<div class="today-kind">' + kind + '</div>' : '') + behind + notes + carry + steps + done + fl + pace;
 }
+// Below the Section Mastery plan: only the test date and the full-length calendar. The older all-subject daily
+// plan (dailyPlanCard: due reviews, new-fact quotas, passage quotas, pace warnings) no longer shows on TODAY;
+// the mastery plan replaces it.
+function testDateCard() {
+  const plan = currentDailyPlan();
+  if (plan.status === 'no-plan') return '<div class="today-head"><div><div class="section-label">Test date &amp; full-length calendar</div></div></div><p class="muted-note">Set your MCAT date to schedule your full-length practice exams.</p><button class="micro-btn" data-click="showPlan()">Set test date</button>';
+  const head = '<div class="today-head"><div><div class="today-date">' + shortDay(plan.today) + (plan.daysLeft != null && plan.daysLeft >= 0 ? ' · <b>' + plan.daysLeft + '</b> day' + (plan.daysLeft === 1 ? '' : 's') + ' to the MCAT' : '') + '</div></div><button class="text-btn" data-click="showPlan()">Edit calendar</button></div>';
+  const kind = { fl: 'Today is a full-length day: take the scheduled exam instead of the daily plan.', 'fl-done': 'Full-length done today.', review: 'Full-length review day: go over yesterday’s exam before the daily plan.', 'test-day': 'Test day. Trust your preparation, and good luck!', light: 'Day before the test: keep it light.' }[plan.status] || '';
+  const next = plan.nextFullLength && plan.status !== 'fl' && plan.status !== 'fl-done' ? '<b>Next full-length:</b> ' + (plan.nextFullLength.overdue ? 'overdue · ' : '') + shortDay(plan.nextFullLength.when) + ' · Full-length ' + plan.nextFullLength.index + ': ' + esc(plan.nextFullLength.label) + '<br><span class="muted-note">The following day (' + shortDay(plan.nextFullLength.reviewDay) + ') is its review day.</span>' : '';
+  return head + (kind ? '<p class="today-kind">' + kind + '</p>' : '') + (next || plan.fullLengths?.length ? '<div class="today-fl">' + next + fullLengthCalendarHtml(plan) + '</div>' : '');
+}
 function fullLengthCalendarHtml(plan) {
   if (!plan.fullLengths?.length) return '';
   const rows = plan.fullLengths.map(f => {
@@ -507,5 +518,5 @@ function renderDailyPlan() {
   const el = $('today-plan'); if (!el) return;
   dailyPlanRenderedDay = localDay();
   // A bad synced record must never take down the rest of the home page.
-  try { el.innerHTML = (typeof masteryCard === 'function' ? masteryCard() + '<details class="today-dateplan"><summary>Test-date plan &amp; full-length calendar</summary>' + dailyPlanCard() + '</details>' : dailyPlanCard()); } catch (e) { el.innerHTML = '<div class="section-label">TODAY › Start here</div><p class="muted-note">Today\u2019s plan could not be built from the saved progress. Your other study tools below still work.</p>'; }
+  try { el.innerHTML = (typeof masteryCard === 'function' ? masteryCard() + '<details class="today-dateplan"><summary>Test date &amp; full-length calendar</summary>' + testDateCard() + '</details>' : dailyPlanCard()); } catch (e) { el.innerHTML = '<div class="section-label">TODAY › Start here</div><p class="muted-note">Today\u2019s plan could not be built from the saved progress. Your other study tools below still work.</p>'; }
 }

@@ -251,7 +251,7 @@ for (const days of [22, 25, 27]) {
   for (const bad of ['"x"', '[]', '{"days":"oops","fullLengths":{"a":1},"passageReviews":[1],"deferred":null}', '{"days":{"__proto__":{"type":"study"},"not-a-day":{"newQuota":5},"2026-01-01":7}}']) {
     storage.set('mcat2_daily_plan', bad);
     assert.doesNotThrow(() => run('dailyPlanMemo=null;renderHome()'), 'malformed mcat2_daily_plan: ' + bad);
-    assert.match(el('today-plan').innerHTML, /TODAY › Start here/);
+    assert.match(el('today-plan').innerHTML, /TODAY › Section mastery[\s\S]*Test date &amp; full-length calendar/);
   }
   assert.equal(run('Object.prototype.type'), undefined, 'no prototype pollution from synced keys');
   // Malformed object maps from another device used to blank the app or freeze a question.
@@ -268,7 +268,7 @@ for (const days of [22, 25, 27]) {
   for (const k of ['mcat2_errors', 'mcat2_passage_evidence', 'mcat2_external_passages', 'mcat2_exam_history', 'mcat2_official']) storage.set(k, '[null, 7, [], {"t":"x","date":5,"total":"<b>","scores":["<img>"]}]');
   storage.set('mcat2_recall_days', JSON.stringify({ [run('localDay()')]: { reviews: 'x' } }));
   assert.doesNotThrow(() => run('dailyPlanMemo=null;renderHome()'), 'null rows in synced logs');
-  assert.match(el('today-plan').innerHTML, /TODAY › Start here/);
+  assert.match(el('today-plan').innerHTML, /TODAY › Section mastery[\s\S]*Test date &amp; full-length calendar/);
   // Unvalidated official scores and exam totals are never rendered as HTML.
   storage.set('mcat2_official', JSON.stringify([{ t: 1, date: '2026-01-01', form: 'x', first: true, timed: true, scores: ['<img src=x onerror=alert(1)>', 1, 2, 3] }]));
   assert.doesNotMatch(run('officialScoresCard()'), /<img/);

@@ -2668,12 +2668,10 @@ function planStrip() {
   if (!p) return `<button class="plan-strip empty" data-click="showPlan()">📅 Set your MCAT date to get a daily study plan →</button>`;
   if (p.daysLeft < 0) return `<button class="plan-strip" data-click="showPlan()">📅 Your test date has passed. Update your study plan →</button>`;
   if (p.daysLeft === 0) return `<button class="plan-strip" data-click="showPlan()">📅 Test day. Trust your preparation, and good luck!</button>`;
-  const doneAll = p.recallTargetMet;
-  const ahead = p.seen - p.expectedSeen;
+  // Only the countdown: the daily work lives in the Section Mastery plan, so no separate fact quotas or pace here.
   return `<button class="plan-strip" data-click="showPlan()">
     <span>📅 <b>${p.daysLeft}</b> day${p.daysLeft === 1 ? '' : 's'} to the MCAT${p.inFinal ? ' · final review phase' : ''}</span>
-    <span>New facts: <b>${p.recall.tracked ? p.recall.fresh : '—'}</b> / ${p.newGoal} · Reviews: <b>${p.recall.tracked ? p.recall.reviews : '—'}</b> / ${p.reviewGoal}${doneAll ? ' ✓' : ''}</span>
-    <span class="${ahead >= 0 ? 'ok' : 'behind'}">Content-coverage pace: ${ahead >= 0 ? 'on track' : `${-ahead} behind`}</span>
+    <span>Edit test date →</span>
   </button>`;
 }
 function planSummaryCard() {
