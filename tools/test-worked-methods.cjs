@@ -55,6 +55,14 @@ function checkSteps(id, q) {
   }
   return { visual, rich };
 }
+for (const q of FL.filter(q => q.teach)) {
+  assert(q.chart && Array.isArray(q.teach) && q.teach.length >= 3, q.src + ': a graph lesson needs the question graph and at least 3 steps');
+  for (const st of q.teach) {
+    assert(typeof st.text === 'string' && st.text.length > 10, q.src + ': lesson step text');
+    for (const lb of (st.graph && st.graph.labels) || []) if (lb.series) assert(q.chart.series.some(s => s.name === lb.series && s.points.some(([x]) => x === lb.x)), q.src + ': lesson label points at a plotted point');
+  }
+}
+assert(source.includes("if (teachOf(view.q)) return view.teachCur ? teachHtml(view)") && fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'teachStep'"), 'graph lessons wired and allowlisted');
 for (const q of FL) {
   // Exam-form pictures: a structure in the question and/or one per answer choice must exist.
   for (const n of [].concat(q.fig ?? [], q.choiceFigs ?? [])) assert(STRUCT_NAMES.has(n), q.src + ': drawing ' + n + ' exists');
@@ -91,8 +99,8 @@ const node = id => { if (!nodes.has(id)) nodes.set(id, { innerHTML: '' }); retur
 const card = pe6.find(q => q.src === 'pe6-cp:18');
 const ctx = vm.createContext({ $: node, quiz: { answered: false, idx: 0, items: [{ q: card }] }, String, Array });
 ctx.stepper = null; ctx.Math = Math; ctx.Number = Number; ctx.Set = Set; ctx.encodeURIComponent = encodeURIComponent;
-for (const name of ['esc', 'fmt', 'paragraphs', 'howOf', 'hintArea', 'showHint', 'howSteps', 'markText', 'markParagraphs', 'stepVisual', 'howPlayerHtml', 'applyStepContext', 'clearStepContext', 'howStepMs', 'howSchedule', 'howToggle', 'howReplay', 'howStep', 'howBox',
-  'chartNum', 'chartText', 'chartTicks', 'chartSmooth', 'chartMarker', 'chartLegend', 'chartAxes', 'lineChart', 'barChart', 'figureHtml', 'structImg', 'stemFigs']) vm.runInContext(extract(name), ctx);
+for (const name of ['esc', 'fmt', 'paragraphs', 'howOf', 'teachOf', 'teachHtml', 'teachStep', 'hintArea', 'showHint', 'howSteps', 'markText', 'markParagraphs', 'stepVisual', 'howPlayerHtml', 'applyStepContext', 'clearStepContext', 'howStepMs', 'howSchedule', 'howToggle', 'howReplay', 'howStep', 'howBox',
+  'chartNum', 'chartText', 'chartTicks', 'chartSmooth', 'chartMarker', 'chartLegend', 'chartAxes', 'chartAnnotations', 'lineChart', 'barChart', 'figureHtml', 'structImg', 'stemFigs']) vm.runInContext(extract(name), ctx);
 vm.runInContext("var CHART = { W: 560, L: 70, R: 18, T: 14, H: 250, B: 50 };", ctx);
 const view = ctx.quiz.items[0];
 
@@ -180,6 +188,13 @@ assert.equal((bars.match(/ch-hlbar/g) || []).length, 1); assert.match(bars, /cla
 ctx.evilFig = { type: 'line', caption: '<script>', x: { label: '<img>', min: 0, max: 1, step: 1 }, y: { label: 'y', min: 0, max: 1, step: 1 }, series: [{ name: '<b onload=x>', marker: 'star', line: 'none', points: [[0, 0], [1, 1]] }] };
 assert.doesNotMatch(vm.runInContext('figureHtml(evilFig)', ctx), /<script|<img|<b /, 'chart text is escaped');
 assert.equal(vm.runInContext("figureHtml({ type: 'line' })", ctx), '', 'malformed chart renders nothing');
+// Teaching annotations: highlighted axis, shaded regions, callout labels and measuring arrows draw on the graph.
+vm.runInContext(extract('chartAnnotations'), ctx);
+const ann = vm.runInContext("figureHtml(fig, { axis: 'y', shade: [{ x1: 6, x2: 7, text: 'reactants' }], labels: [{ series: 'A', x: 7.5, text: 'peak' }, { series: 'A', x: 9, text: 'missing' }], spans: [{ x: 7.5, from: 0, to: 2, text: 'Ea' }, { x: 8, from: 0, to: 1, text: 'drop', side: 'left' }] })", ctx);
+assert.match(ann, /class="ch-axis-hl"/); assert.match(ann, /class="ch-shade"/); assert.match(ann, />reactants</);
+assert.match(ann, />peak</); assert.doesNotMatch(ann, />missing</, 'labels only on plotted points');
+assert.equal((ann.match(/class="ch-span"/g) || []).length, 2); assert.match(ann, /text-anchor="end">drop</);
+assert.doesNotMatch(vm.runInContext("figureHtml(fig, { labels: [{ series: 'A', x: 7, text: '<img src=x>' }] })", ctx), /<img/, 'annotation text escaped');
 assert.match(box, /<strong>q = m × L<\/strong>/, 'bold markdown is formatted');
 // Escaping: authored text cannot inject markup.
 ctx.evil = { how: { ask: '<img src=x>', know: '<script>', steps: ['<i>'], trap: '"x"' } };

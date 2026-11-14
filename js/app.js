@@ -1820,9 +1820,33 @@ function howOf(q) { return q && !q.variant && !q.baseId && q.how && Array.isArra
 function hintArea(view) {
   const h = howOf(view.q), level = view.hint || 0;
   if (!h) return '';
+  // A card with a graph in the question teaches how to read it, on the graph itself, before you answer.
+  if (teachOf(view.q)) return view.teachCur ? teachHtml(view) : `<button class="micro-btn how-btn teach-btn" id="hint-btn" data-click="teachStep(1)">👀 Teach me how to read this graph</button>`;
   const shown = (level >= 1 ? `<p><b>What it's asking:</b> ${fmt(h.ask)}</p>` : '') + (level >= 2 ? `<div><b>What you need to know:</b>${paragraphs(h.know)}</div>` : '');
   const label = level === 0 ? 'Show me how to start' : level === 1 ? 'Show what I need to know' : '';
   return `${shown ? `<div class="how-hint" role="status">${shown}</div>` : ''}${label ? `<button class="micro-btn how-btn" id="hint-btn" data-click="showHint()">💡 ${label}</button>` : ''}`;
+}
+// ── "Teach me this graph": steps that label and measure the question's own graph before answering ──
+function teachOf(q) { return q && !q.variant && !q.baseId && q.chart && Array.isArray(q.teach) && q.teach.length ? q.teach : null; }
+function teachHtml(view) {
+  const t = teachOf(view.q), i = view.teachCur, st = t[i - 1];
+  return `<div class="how-hint teach-box" role="status"><div class="how-title">Reading the graph · step ${i} of ${t.length}</div><p>${fmt(st.text)}</p>
+    <div class="step-progress" aria-hidden="true"><div class="step-progress-fill" data-css="width:${Math.round(i / t.length * 100)}%"></div></div>
+    <div class="step-controls"><button class="micro-btn" data-click="teachStep(-1)"${i <= 1 ? ' disabled' : ''}>◀ Back</button>
+    ${i < t.length ? `<button class="micro-btn step-next" id="teach-next" data-click="teachStep(1)">Next ▶</button>` : `<button class="micro-btn" data-click="teachStep(0)">↺ Start over</button><span class="step-count">Now answer the question.</span>`}</div></div>`;
+}
+function teachStep(delta) {
+  const view = quiz.items[quiz.idx], t = view && teachOf(view.q);
+  if (!t || quiz.answered) return;
+  view.teachCur = delta === 0 ? 1 : Math.max(1, Math.min(t.length, (view.teachCur || 0) + delta));
+  view.hint = Math.max(view.hint || 0, 1);  // taught before answering: the answer starts as Unsure
+  if ($('hint-area')) $('hint-area').innerHTML = hintArea(view);
+  const fEl = typeof document !== 'undefined' && document.querySelector ? document.querySelector('#quiz-body .question-box .chart-figure') : null;
+  if (fEl) fEl.outerHTML = figureHtml(view.q.chart, t[view.teachCur - 1].graph || null);
+  const next = $('teach-next'); if (next && delta > 0) next.focus({ preventScroll: true });
+  // Keep the whole graph in view (below the sticky bars) with the lesson text under it.
+  const live = document.querySelector && document.querySelector('#quiz-body .question-box .chart-figure');
+  if (live && live.scrollIntoView) live.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function showHint() {
   const view = quiz.items[quiz.idx];
@@ -2857,9 +2881,40 @@ function lineChart(fig, ov) {
       over += `<path class="ch-trace ch-d${Math.min(i, 3)}" d="M${px.toFixed(1)} ${bottom} V${py.toFixed(1)} H${C.L}"/><circle class="ch-ring" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="8"/>
         <text class="ch-read" x="${(C.L + 6).toFixed(1)}" y="${(py - 6).toFixed(1)}">${chartNum(pt[1])}</text><text class="ch-read" x="${(px + 6).toFixed(1)}" y="${(bottom - 6).toFixed(1)}">${chartNum(pt[0])}</text>`; });
   }
+  if (ov) over += chartAnnotations(fig, ov, sx, sy, bottom, W);
   const leg = fig.series.map(s => ({ name: s.name, cls: cls(s), key: (x, y) => (s.line === 'none' ? '' : `<line class="ch-line" x1="${x - 8}" x2="${x + 8}" y1="${y}" y2="${y}"/>`) + chartMarker(s.marker, x, y) }));
   const legTop = bottom + 68, H = legTop + Math.ceil(leg.length / 2) * 20;
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(fig.caption || 'Graph')}">${chartAxes(fig, sy, W, H, xT)}${series}${over}${chartLegend(leg, legTop, W)}</svg>`;
+}
+// Teaching annotations drawn on a line graph (each appears with a short animation):
+//   axis: 'x' | 'y'                       highlight an axis and explain what it measures
+//   shade: [{x1, x2, text}]                shade a stretch of the graph and name it ("reactants")
+//   labels: [{series?, x, y?, text, at}]   a callout pointing at a point (on a series, or at x, y); at = above/below/left/right
+//   spans: [{x, from, to, text}]           a two-headed measuring arrow between two levels at x, labeled ("Ea = 80")
+function chartAnnotations(fig, ov, sx, sy, bottom, W) {
+  const C = CHART, f = n => n.toFixed(1);
+  const yOf = (a) => { if (a.y != null) return a.y; const s = fig.series.find(t => t.name === a.series); const pt = s && s.points.find(([x]) => x === a.x); return pt ? pt[1] : null; };
+  let out = '';
+  (ov.shade || []).forEach((b, i) => {
+    const x1 = sx(Math.max(fig.x.min, b.x1)), x2 = sx(Math.min(fig.x.max, b.x2));
+    out += `<g class="ch-anim ch-d${Math.min(i, 3)}"><rect class="ch-shade" x="${f(x1)}" y="${C.T}" width="${f(Math.max(2, x2 - x1))}" height="${C.H}"/>` + (b.text ? `<text class="ch-ann" x="${f((x1 + x2) / 2)}" y="${C.T + 16}" text-anchor="middle">${chartText(b.text)}</text>` : '') + '</g>';
+  });
+  if (ov.axis === 'y') out += `<g class="ch-anim"><line class="ch-axis-hl" x1="${C.L}" x2="${C.L}" y1="${C.T}" y2="${bottom}"/><path class="ch-ann-line" d="M${C.L + 6} ${C.T + 18} l14 0 M${C.L + 6} ${C.T + 18} l6 -5 M${C.L + 6} ${C.T + 18} l6 5"/><text class="ch-ann" x="${C.L + 24}" y="${C.T + 22}">higher = more ${chartText(String(fig.y.label).replace(/\s*\(.*\)\s*$/, '').toLowerCase())}</text></g>`;
+  if (ov.axis === 'x') out += `<g class="ch-anim"><line class="ch-axis-hl" x1="${C.L}" x2="${W - C.R}" y1="${bottom}" y2="${bottom}"/><text class="ch-ann" x="${W - C.R - 4}" y="${bottom - 8}" text-anchor="end">→ ${chartText(String(fig.x.label).toLowerCase())}</text></g>`;
+  (ov.spans || []).forEach((sp, i) => {
+    const x = sx(sp.x), y1 = sy(sp.from), y2 = sy(sp.to), dir = y2 < y1 ? 1 : -1, d = `ch-anim ch-d${Math.min(i + 1, 3)}`;
+    out += `<g class="${d}"><line class="ch-span-guide" x1="${C.L}" x2="${f(x)}" y1="${f(y1)}" y2="${f(y1)}"/><line class="ch-span-guide" x1="${C.L}" x2="${f(x)}" y1="${f(y2)}" y2="${f(y2)}"/>` +
+      `<path class="ch-span" d="M${f(x)} ${f(y1)} V${f(y2)} M${f(x - 5)} ${f(y2 + 8 * dir)} L${f(x)} ${f(y2)} L${f(x + 5)} ${f(y2 + 8 * dir)} M${f(x - 5)} ${f(y1 - 8 * dir)} L${f(x)} ${f(y1)} L${f(x + 5)} ${f(y1 - 8 * dir)}"/>` +
+      (sp.text ? `<text class="ch-ann ch-span-text" x="${f(sp.side === 'left' ? x - 9 : x + 9)}" y="${f((y1 + y2) / 2 + 5)}"${sp.side === 'left' ? ' text-anchor="end"' : ''}>${chartText(sp.text)}</text>` : '') + '</g>';
+  });
+  (ov.labels || []).forEach((lb, i) => {
+    const yv = yOf(lb); if (yv == null) return;
+    const px = sx(lb.x), py = sy(yv), at = lb.at || 'above';
+    const [dx, dy, anchor] = at === 'below' ? [0, 34, 'middle'] : at === 'left' ? [-34, -6, 'end'] : at === 'right' ? [34, -6, 'start'] : [0, -30, 'middle'];
+    const tx = Math.min(W - C.R - 2, Math.max(C.L + 2, px + dx)), ty = Math.max(C.T + 12, Math.min(bottom - 4, py + dy));
+    out += `<g class="ch-anim ch-d${Math.min(i, 3)}"><line class="ch-ann-line" x1="${f(px)}" y1="${f(py)}" x2="${f(tx)}" y2="${f(ty + (at === 'below' ? -14 : at === 'above' ? 4 : -4))}"/><circle class="ch-ring" cx="${f(px)}" cy="${f(py)}" r="7"/><text class="ch-ann" x="${f(tx)}" y="${f(ty)}" text-anchor="${anchor}">${chartText(lb.text)}</text></g>`;
+  });
+  return out;
 }
 function barChart(fig, ov) {
   const C = CHART, W = C.W, bottom = C.T + C.H, pw = W - C.L - C.R, n = fig.categories.length, k = fig.series.length;
