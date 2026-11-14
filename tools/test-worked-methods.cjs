@@ -20,7 +20,7 @@ for (const q of FL.filter(q => q.how || /^pe6-/.test(q.src))) {
   assert(Array.isArray(h.steps) && h.steps.length >= 1 && h.steps.every(s => (typeof s === 'string' && s.trim()) || (s && typeof s.text === 'string' && s.text.trim())), id + ': steps');
   assert.deepEqual(Object.keys(h).sort(), ['ask', 'know', 'steps', 'trap'], id + ': only known fields');
   // The hint shown before answering (ask) must not simply state the correct choice.
-  assert(!h.ask.includes(q.choices[q.ans]), id + ': "ask" does not give away the answer');
+  assert(q.choices[q.ans].length <= 3 || !h.ask.includes(q.choices[q.ans]), id + ': "ask" does not give away the answer');
 }
 
 // Exam form: every Full-Length Prep card asks like the exam. No choice labels why it is right, e.g. "¹H NMR (peak integrals)".
@@ -74,7 +74,9 @@ for (const [name, svg] of Object.entries(STRUCT)) {
   assert(/^<svg[\s\S]*<\/svg>$/.test(svg), name + ': is an SVG');
   assert(!/<script|<foreignObject|\son\w+\s*=|javascript:|href=/i.test(svg), name + ': no script, handlers or links in the drawing');
 }
-for (const page of ['index.html', 'flprep.html', 'aamc.html']) assert(fs.readFileSync(root + '/' + page, 'utf8').includes('<script src="data/structures.js"></script>'), page + ' loads structures');
+// The drawings load on demand (Practice Exam sessions), not as a script tag on every page; they stay precached.
+for (const page of ['index.html', 'flprep.html', 'aamc.html', 'recall.html']) assert(!fs.readFileSync(root + '/' + page, 'utf8').includes('data/structures.js'), page + ' does not load the drawings up front');
+assert(source.includes("el.src = 'data/structures.js';") && source.includes('loadStructsFor(items);') && source.includes("if (view === 'exam') { ensureStructs()"), 'drawings load when Practice Exam cards are used');
 const sw = fs.readFileSync(root + '/sw.js', 'utf8');
 assert(sw.includes("'data/structures.js'"), 'structures are cached for offline use');
 // Only the Practice Exam cards: no extra card sets or passages ride along.

@@ -1267,7 +1267,7 @@ function aamcSel() {
 // ── AAMC Prep tab: one tab, three sections (Question Bank cards, Practice Exam cards, Rules & Passage Prep) ──
 function aamcView() { return prefs.aamcView === 'rules' ? 'rules' : 'qbank'; }
 function openAamcView(view) {
-  if (view === 'exam') { setMode('flprep'); return; }
+  if (view === 'exam') { ensureStructs().catch(() => {}); setMode('flprep'); return; }  // prefetch drawings for the cards
   prefs.aamcView = view === 'rules' ? 'rules' : 'qbank';
   setMode('aamc');
 }
@@ -1674,6 +1674,7 @@ function beginQuiz(questions, label, opts = {}) {
   show('screen-quiz');
   startQuizTimer();
   renderQuizQuestion();
+  loadStructsFor(items);
 }
 function startQuizTimer() {
   stopQuizTimer();
@@ -1726,6 +1727,28 @@ function pick(chosen) { finishPick(chosen); }
 function answerPassage(chosen) { finishPassageAnswer(chosen); }
 
 // ── Chemical structures: skeletal drawings from data/structures.js (RDKit), shown as images ──
+// The drawings (~1.5 MB) load only when Practice Exam cards are opened, not on every page; the service worker
+// keeps them for offline use. A question drawn before they arrive is re-rendered once they load.
+let structsLoading = null;
+function ensureStructs() {
+  if (typeof STRUCT_SVG !== 'undefined') return Promise.resolve();
+  if (structsLoading) return structsLoading;
+  structsLoading = new Promise((resolve, reject) => {
+    const el = document.createElement('script');
+    el.src = 'data/structures.js';
+    el.addEventListener('load', resolve);
+    el.addEventListener('error', () => { structsLoading = null; reject(new Error('structures failed to load')); });
+    document.head.appendChild(el);
+  });
+  return structsLoading;
+}
+function needsStructs(q) {
+  return !!q && (q.fig != null || Array.isArray(q.choiceFigs) || (q.how && Array.isArray(q.how.steps) && q.how.steps.some(st => st && st.fig != null)));
+}
+function loadStructsFor(items) {
+  if (typeof STRUCT_SVG !== 'undefined' || !items.some(v => needsStructs(v.q || v))) return;
+  ensureStructs().then(() => { if (activeScreen === 'screen-quiz' && !quiz.answered && quiz.items[quiz.idx]) renderQuizQuestion(); }).catch(() => {});
+}
 function structImg(name, alt) {
   const svg = typeof STRUCT_SVG === 'undefined' || name == null ? null : STRUCT_SVG[name];
   return svg ? `<img class="struct-img" src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}" alt="${esc(alt || 'Chemical structure')}">` : '';
