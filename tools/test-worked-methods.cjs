@@ -55,6 +55,7 @@ function checkSteps(id, q) {
   }
   return { visual, rich };
 }
+for (const q of FL) assert(Array.isArray(q.teach) && q.teach.length, q.src + ': every Practice Exam card has a step-by-step lesson');
 for (const q of FL.filter(q => q.teach)) {
   assert(Array.isArray(q.teach) && q.teach.length >= 3, q.src + ': a lesson has at least 3 steps');
   for (const st of q.teach) {
