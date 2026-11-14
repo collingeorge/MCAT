@@ -344,7 +344,7 @@ const AQB_QBANK = AQB.filter(q => !AAMC_RULES_KEYS.has(q.key));  // Question Ban
 const FL_SECTION = { id: 'fl_prep', label: 'Full-Length Prep' };
 const FLQ = [];
 const FLQ_BY_ID = new Map();
-[...(typeof QB_AAMC_FL === 'undefined' ? [] : QB_AAMC_FL), ...(typeof QB_STRUCTURES === 'undefined' ? [] : QB_STRUCTURES)].forEach(q => {
+(typeof QB_AAMC_FL === 'undefined' ? [] : QB_AAMC_FL).forEach(q => {
   let id = 'fl-' + hashId(q.s + '|' + (q.idStem || q.q));
   while (FLQ_BY_ID.has(id)) id += 'x';
   Object.assign(q, { subj: FL_SECTION.id, key: FL_SECTION.id + '|' + q.s, id });
@@ -401,7 +401,7 @@ const countKeys = keys => keys.reduce((n, k) => n + (KEY_COUNTS[k] || 0), 0);
 // ════════════════════════════════════════════════════════════════
 //  PASSAGES
 // ════════════════════════════════════════════════════════════════
-const DATA_SETS = [...(typeof GRAPH_PASSAGES === 'undefined' ? [] : GRAPH_PASSAGES), ...(typeof DATA_PASSAGES === 'undefined' ? [] : DATA_PASSAGES)];
+const DATA_SETS = typeof DATA_PASSAGES === 'undefined' ? [] : DATA_PASSAGES;
 const ALL_PASSAGES = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES, ...OCHEM_PASSAGES, ...PHYSICS_PASSAGES, ...BEHAVIORAL_PASSAGES, ...DATA_SETS, ...CARS_PASSAGES, ...CARS_EXTRA, ...EXAM2_CARS_PASSAGES];
 const SKILL_LABEL = Object.assign(Object.create(null), {
   'SIRS 1': 'Skill 1: Knowledge of scientific concepts',
@@ -418,7 +418,6 @@ const PASSAGE_GROUPS = [
   { label: 'Organic Chemistry', test: id => id.startsWith('p_oc') },
   { label: 'Physics & Math', test: id => id.startsWith('p_ph') },
   { label: 'Psychology & Sociology', test: id => id.startsWith('p_bs') },
-  { label: 'Graph Reasoning (plotted figures, step-by-step solutions)', test: id => id.startsWith('p_graph') },
   { label: 'Data & Reasoning (tables, research design, statistics)', test: id => id.startsWith('p_data') },
   { label: 'CARS — Set 1', test: id => id.startsWith('p_cars') },
   { label: 'CARS — Set 2', test: id => id.startsWith('p_e2cars') },
@@ -1840,10 +1839,12 @@ function howPlayerHtml() {
   const list = steps.slice(0, cur).map((st, i) => `<li class="how-step${i === cur - 1 ? ' current' : ''}"><span class="step-text">${fmt(st.text)}</span>${i === cur - 1 ? stepVisual(st, ctx) : ''}</li>`).join('');
   return `<ol class="how-steps">${list}</ol>
     ${cur >= n && h.trap ? `<p class="how-trap"><b>4. The trap:</b> ${fmt(h.trap)}</p>` : ''}
+    <div class="step-progress" aria-hidden="true"><div class="step-progress-fill${stepper.playing && cur < n ? ' running' : ''}" data-css="width:${Math.round(cur / n * 100)}%"></div></div>
     <div class="step-controls">
       <button class="micro-btn" data-click="howStep(-1)"${cur <= 1 ? ' disabled' : ''}>◀ Back</button>
+      ${cur < n ? `<button class="micro-btn step-play" id="how-play" data-click="howToggle()">${stepper.playing ? '❚❚ Pause' : '▶ Play'}</button>` : `<button class="micro-btn step-play" data-click="howReplay()">↺ Replay</button>`}
       <span class="step-count">Step ${cur} of ${n}</span>
-      ${cur < n ? `<button class="micro-btn step-next" id="how-next" data-click="howStep(1)">Next step ▶</button><button class="micro-btn" data-click="howStep(99)">Show all</button>` : ''}
+      ${cur < n ? `<button class="micro-btn step-next" id="how-next" data-click="howStep(1)">Next ▶</button><button class="micro-btn" data-click="howStep(99)">Show all</button>` : ''}
     </div>`;
 }
 // Highlights the live passage, question and figure for the current step.
@@ -1874,14 +1875,35 @@ function clearStepContext() {
   }
   stepper = null;
 }
-function howStep(delta) {
+// Guided playback: after an answer the walkthrough plays itself, giving each step time to animate and be read
+// (longer for working lines, graphs and structures). Any manual Back/Next/Show all pauses it.
+function howStepMs(st) {
+  return 3800 + Math.min(String(st.text || '').length, 220) * 18 + (Array.isArray(st.calc) ? st.calc.length * 900 : 0) + (st.chart ? 2600 : 0) + (st.fig ? 1200 : 0) + (st.strike ? 900 : 0);
+}
+function howSchedule() {
   if (!stepper) return;
+  if (stepper.timer) clearTimeout(stepper.timer);
+  stepper.timer = null;
+  const steps = howSteps(howOf(stepper.q));
+  if (!stepper.playing || stepper.cur >= steps.length || typeof setTimeout !== 'function') { stepper.playing = stepper.playing && stepper.cur < steps.length; return; }
+  const me = stepper;
+  stepper.timer = setTimeout(() => { if (stepper === me && me.playing) howStep(1, true); }, howStepMs(steps[stepper.cur - 1]));
+}
+function howToggle() { if (!stepper) return; stepper.playing = !stepper.playing; howStep(0, true); }
+function howReplay() { if (!stepper) return; stepper.cur = 1; stepper.playing = true; howStep(0, true); }
+function howStep(delta, auto) {
+  if (!stepper) return;
+  if (!auto) stepper.playing = false;
   const n = howSteps(howOf(stepper.q)).length;
   stepper.cur = Math.max(1, Math.min(n, stepper.cur + delta));
   const el = typeof $ === 'function' ? $('how-player') : null;
   if (el) el.innerHTML = howPlayerHtml();
   applyStepContext();
-  const next = el && $('how-next'); if (next && delta > 0) next.focus({ preventScroll: true });
+  const next = el && $('how-next'); if (next && delta > 0 && !auto) next.focus({ preventScroll: true });
+  // Keep the step being played on screen as the list grows.
+  const cur = el && el.querySelector && el.querySelector('.how-step.current');
+  if (cur && delta > 0 && cur.scrollIntoView) cur.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  howSchedule();
 }
 // static: every step listed (results review); otherwise the interactive player, starting at step 1.
 function howBox(q, opts = {}) {
@@ -1894,8 +1916,11 @@ function howBox(q, opts = {}) {
   if (opts.static || !steps.length) return `<div class="how-box">${head}
     <div><b>3. Step by step:</b><ol class="how-steps">${steps.map(st => `<li>${fmt(st.text)}</li>`).join('')}</ol></div>
     ${h.trap ? `<p class="how-trap"><b>4. The trap:</b> ${fmt(h.trap)}</p>` : ''}</div>`;
-  stepper = { q, cur: 1, ctx: opts.ctx || { mode: 'recall' } };
-  return `<div class="how-box">${head}<div><b>3. Step by step:</b></div><div id="how-player" class="how-player" aria-live="polite">${howPlayerHtml()}</div></div>`;
+  if (stepper && stepper.timer) clearTimeout(stepper.timer);
+  // Plays on its own unless the reader prefers reduced motion; then it waits for Next.
+  const calm = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  stepper = { q, cur: 1, ctx: opts.ctx || { mode: 'recall' }, playing: !calm, timer: null };
+  return `<div class="how-box" id="how-box">${head}<div class="how-steps-head"><b>3. Watch it solved, step by step:</b></div><div id="how-player" class="how-player" aria-live="polite">${howPlayerHtml()}</div></div>`;
 }
 function revealChoices() {
   const view = quiz.items[quiz.idx];
@@ -1946,6 +1971,9 @@ function finishPick(chosen, other = null, answerMs = null) {
   if (howOf(view.q)) applyStepContext();
   renderNextArea();
   $('next-btn').focus({ preventScroll: true });
+  // Bring the guided walkthrough into view as it starts playing.
+  const hb = $('how-box'); if (hb && hb.scrollIntoView) hb.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  howSchedule();
 }
 function renderNextArea() {
   const last = quiz.idx + 1 >= quiz.items.length;

@@ -867,3 +867,9 @@ mark.step-hl{background:#fde68a;color:inherit;padding:0 2px;border-radius:2px;an
 .choice-btn.struck:not(.correct){opacity:.45;text-decoration:line-through;transition:opacity .4s ease}
 @media (prefers-reduced-motion:reduce){.calc-line,.strike-line{animation:none}}
 .step-visual .struct-img{min-height:80px;max-height:170px}
+/* Guided walkthrough: autoplay controls and progress */
+.how-box{scroll-margin-top:12px}
+.how-steps-head{margin:10px 0 4px;color:var(--navy)}
+.step-progress{height:4px;background:var(--border);border-radius:2px;margin-top:10px;overflow:hidden}
+.step-progress-fill{height:100%;background:#1d4ed8;transition:width .5s ease}
+.step-play{min-width:86px;font-weight:700}
