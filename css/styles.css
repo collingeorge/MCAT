@@ -866,3 +866,4 @@ mark.step-hl{background:#fde68a;color:inherit;padding:0 2px;border-radius:2px;an
 .strike-line{animation:calcIn .4s ease both}
 .choice-btn.struck:not(.correct){opacity:.45;text-decoration:line-through;transition:opacity .4s ease}
 @media (prefers-reduced-motion:reduce){.calc-line,.strike-line{animation:none}}
+.step-visual .struct-img{min-height:80px;max-height:170px}

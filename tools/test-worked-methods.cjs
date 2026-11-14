@@ -55,7 +55,10 @@ function checkSteps(id, q) {
   }
   return { visual, rich };
 }
-for (const q of FL) checkSteps(q.src, q);
+for (const q of FL) {
+  const { visual, rich } = checkSteps(q.src, q);
+  assert(visual >= 3 && rich >= 1, `${q.src}: animated walkthrough (${visual} visual steps, ${rich} calc/chart/fig)`);
+}
 
 // Structure Reading cards and their RDKit drawings.
 const STRUCT = new Function(fs.readFileSync(root + '/data/structures.js', 'utf8') + ';return STRUCT_SVG')();
