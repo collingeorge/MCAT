@@ -1821,16 +1821,18 @@ function hintArea(view) {
   const h = howOf(view.q), level = view.hint || 0;
   if (!h) return '';
   // A card with a graph in the question teaches how to read it, on the graph itself, before you answer.
-  if (teachOf(view.q)) return view.teachCur ? teachHtml(view) : `<button class="micro-btn how-btn teach-btn" id="hint-btn" data-click="teachStep(1)">👀 Teach me how to read this graph</button>`;
+  if (teachOf(view.q)) return view.teachCur ? teachHtml(view) : `<button class="micro-btn how-btn teach-btn" id="hint-btn" data-click="teachStep(1)">👀 ${view.q.chart ? 'Teach me how to read this graph' : 'Teach me how to solve this, step by step'}</button>`;
   const shown = (level >= 1 ? `<p><b>What it's asking:</b> ${fmt(h.ask)}</p>` : '') + (level >= 2 ? `<div><b>What you need to know:</b>${paragraphs(h.know)}</div>` : '');
   const label = level === 0 ? 'Show me how to start' : level === 1 ? 'Show what I need to know' : '';
   return `${shown ? `<div class="how-hint" role="status">${shown}</div>` : ''}${label ? `<button class="micro-btn how-btn" id="hint-btn" data-click="showHint()">💡 ${label}</button>` : ''}`;
 }
 // ── "Teach me this graph": steps that label and measure the question's own graph before answering ──
-function teachOf(q) { return q && !q.variant && !q.baseId && q.chart && Array.isArray(q.teach) && q.teach.length ? q.teach : null; }
+function teachOf(q) { return q && !q.variant && !q.baseId && (q.chart || q.fig || q.choiceFigs) && Array.isArray(q.teach) && q.teach.length ? q.teach : null; }
 function teachHtml(view) {
   const t = teachOf(view.q), i = view.teachCur, st = t[i - 1];
-  return `<div class="how-hint teach-box" role="status"><div class="how-title">Reading the graph · step ${i} of ${t.length}</div><p>${fmt(st.text)}</p>
+  // A molecule step on a card without a drawn question shows its drawing in the lesson box itself.
+  const inBox = st.fig && !view.q.fig ? stemFigs({ fig: st.fig }) : '';
+  return `<div class="how-hint teach-box" role="status"><div class="how-title">${view.q.chart ? 'Reading the graph' : 'Step by step'} · ${i} of ${t.length}</div><p>${fmt(st.text)}</p>${inBox}
     <div class="step-progress" aria-hidden="true"><div class="step-progress-fill" data-css="width:${Math.round(i / t.length * 100)}%"></div></div>
     <div class="step-controls"><button class="micro-btn" data-click="teachStep(-1)"${i <= 1 ? ' disabled' : ''}>◀ Back</button>
     ${i < t.length ? `<button class="micro-btn step-next" id="teach-next" data-click="teachStep(1)">Next ▶</button>` : `<button class="micro-btn" data-click="teachStep(0)">↺ Start over</button><span class="step-count">Now answer the question.</span>`}</div></div>`;
@@ -1841,11 +1843,15 @@ function teachStep(delta) {
   view.teachCur = delta === 0 ? 1 : Math.max(1, Math.min(t.length, (view.teachCur || 0) + delta));
   view.hint = Math.max(view.hint || 0, 1);  // taught before answering: the answer starts as Unsure
   if ($('hint-area')) $('hint-area').innerHTML = hintArea(view);
-  const fEl = typeof document !== 'undefined' && document.querySelector ? document.querySelector('#quiz-body .question-box .chart-figure') : null;
-  if (fEl) fEl.outerHTML = figureHtml(view.q.chart, t[view.teachCur - 1].graph || null);
+  const st = t[view.teachCur - 1], qs = sel => (typeof document !== 'undefined' && document.querySelector ? document.querySelector(sel) : null);
+  const fEl = view.q.chart && qs('#quiz-body .question-box .chart-figure');
+  if (fEl) fEl.outerHTML = figureHtml(view.q.chart, st.graph || null);
+  // Molecule lessons swap the question's drawing for the stage being explained (the OH leaving, the + charge…).
+  const sEl = view.q.fig && qs('#quiz-body .question-box .struct-row');
+  if (sEl) sEl.outerHTML = stemFigs({ fig: st.fig || view.q.fig });
   const next = $('teach-next'); if (next && delta > 0) next.focus({ preventScroll: true });
   // Keep the whole graph in view (below the sticky bars) with the lesson text under it.
-  const live = document.querySelector && document.querySelector('#quiz-body .question-box .chart-figure');
+  const live = document.querySelector && document.querySelector('#quiz-body .question-box .chart-figure, #quiz-body .question-box .struct-row');
   if (live && live.scrollIntoView) live.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function showHint() {

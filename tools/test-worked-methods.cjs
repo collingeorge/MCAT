@@ -56,9 +56,10 @@ function checkSteps(id, q) {
   return { visual, rich };
 }
 for (const q of FL.filter(q => q.teach)) {
-  assert(q.chart && Array.isArray(q.teach) && q.teach.length >= 3, q.src + ': a graph lesson needs the question graph and at least 3 steps');
+  assert((q.chart || q.fig || q.choiceFigs) && Array.isArray(q.teach) && q.teach.length >= 3, q.src + ': a lesson needs a picture (graph or drawing) and at least 3 steps');
   for (const st of q.teach) {
     assert(typeof st.text === 'string' && st.text.length > 10, q.src + ': lesson step text');
+    for (const n of [].concat(st.fig ?? [])) assert(STRUCT_NAMES.has(n), q.src + ': lesson drawing ' + n + ' exists');
     for (const lb of (st.graph && st.graph.labels) || []) if (lb.series) assert(q.chart.series.some(s => s.name === lb.series && s.points.some(([x]) => x === lb.x)), q.src + ': lesson label points at a plotted point');
   }
 }
