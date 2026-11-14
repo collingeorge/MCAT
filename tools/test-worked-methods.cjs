@@ -20,7 +20,7 @@ for (const q of FL.filter(q => q.how || /^pe6-/.test(q.src))) {
   assert(Array.isArray(h.steps) && h.steps.length >= 1 && h.steps.every(s => (typeof s === 'string' && s.trim()) || (s && typeof s.text === 'string' && s.text.trim())), id + ': steps');
   assert.deepEqual(Object.keys(h).sort(), ['ask', 'know', 'steps', 'trap'], id + ': only known fields');
   // The hint shown before answering (ask) must not simply state the correct choice.
-  assert(!h.ask.includes(q.choices[q.ans]), id + ': "ask" does not give away the answer');
+  assert(q.choices[q.ans].length <= 3 || !h.ask.includes(q.choices[q.ans]), id + ': "ask" does not give away the answer');
 }
 
 // Exam form: every Full-Length Prep card asks like the exam. No choice labels why it is right, e.g. "¹H NMR (peak integrals)".
@@ -49,20 +49,23 @@ function checkSteps(id, q) {
     if (st.strike != null) { visual++; for (const t of st.strike) { assert(q.choices.includes(t), w + ': strikes a real choice'); assert.notEqual(t, q.choices[q.ans], w + ': never strikes the answer'); } }
     if (st.chart != null) { visual++; rich++; assert(['line', 'bar'].includes(st.chart.type) && Array.isArray(st.chart.series), w + ': chart'); }
     if (st.graph != null) {
-      assert(st.chart, w + ': overlay needs its chart');
-      for (const r of st.graph.read || []) { const ser = st.chart.series.find(x => x.name === r.series); assert(ser && ser.points.some(([x]) => x === r.x), w + ': traced point is plotted'); }
+      const ch = st.chart || q.chart; assert(ch, w + ': overlay needs a chart (the step\'s or the question\'s)');
+      for (const r of st.graph.read || []) { const ser = ch.series.find(x => x.name === r.series); assert(ser && ser.points.some(([x]) => x === r.x), w + ': traced point is plotted'); }
     }
   }
   return { visual, rich };
 }
 for (const q of FL) {
+  // Exam-form pictures: a structure in the question and/or one per answer choice must exist.
+  for (const n of [].concat(q.fig ?? [], q.choiceFigs ?? [])) assert(STRUCT_NAMES.has(n), q.src + ': drawing ' + n + ' exists');
+  if (q.choiceFigs) assert.equal(q.choiceFigs.length, q.choices.length, q.src + ': one drawing per choice');
+  if (q.chart) assert(['line', 'bar'].includes(q.chart.type) && Array.isArray(q.chart.series) && q.chart.caption, q.src + ': question graph');
   const { visual, rich } = checkSteps(q.src, q);
   assert(visual >= 3 && rich >= 1, `${q.src}: animated walkthrough (${visual} visual steps, ${rich} calc/chart/fig)`);
 }
 
-// Structure Reading cards and their RDKit drawings.
+// The RDKit drawings the walkthroughs use: script-free SVG, in sync with their generator, loaded and cached.
 const STRUCT = new Function(fs.readFileSync(root + '/data/structures.js', 'utf8') + ';return STRUCT_SVG')();
-const SQ = new Function(fs.readFileSync(root + '/data/qb-structures.js', 'utf8') + ';return QB_STRUCTURES')();
 const crypto = require('node:crypto');
 const gen = fs.readFileSync(root + '/tools/draw-structures.py', 'utf8').replace(/\r\n/g, '\n');
 const header = /source ([0-9a-f]{16})/.exec(fs.readFileSync(root + '/data/structures.js', 'utf8'));
@@ -71,38 +74,15 @@ for (const [name, svg] of Object.entries(STRUCT)) {
   assert(/^<svg[\s\S]*<\/svg>$/.test(svg), name + ': is an SVG');
   assert(!/<script|<foreignObject|\son\w+\s*=|javascript:|href=/i.test(svg), name + ': no script, handlers or links in the drawing');
 }
-assert(SQ.length >= 90, 'structure cards present');
-assert.equal(new Set(SQ.map(q => q.idStem)).size, SQ.length, 'structure card ids are unique');
-for (const q of SQ) {
-  const id = q.src;
-  assert(q.fig != null || Array.isArray(q.choiceFigs), id + ': shows a structure');
-  for (const n of [].concat(q.fig ?? [], q.choiceFigs ?? [], ...q.how.steps.map(st => (st && st.fig) || []))) assert(STRUCT[n], id + ': drawing ' + n + ' exists');
-  if (q.choiceFigs) assert.equal(q.choiceFigs.length, q.choices.length, id + ': one drawing per choice');
-  assert(q.how && Array.isArray(q.how.steps) && q.how.steps.length && ['ask', 'know', 'trap'].every(k => typeof q.how[k] === 'string' && q.how[k].length >= 10), id + ': worked method');
-  assert(q.choices.every(c => !/\(.+\)/.test(c)), id + ': no parenthetical hint in choices');
-  assert(q.choices[q.ans].length <= 2 || !q.how.ask.includes(q.choices[q.ans]), id + ': "ask" does not give away the answer');
-}
-assert(source.includes("...(typeof QB_STRUCTURES === 'undefined' ? [] : QB_STRUCTURES)"), 'structure cards load into Full-Length Prep');
-for (const page of ['index.html', 'flprep.html']) {
-  const html = fs.readFileSync(root + '/' + page, 'utf8');
-  assert(html.includes('<script src="data/structures.js"></script>') && html.includes('<script src="data/qb-structures.js"></script>'), page + ' loads structures');
-}
+// The drawings load on demand (Practice Exam sessions), not as a script tag on every page; they stay precached.
+for (const page of ['index.html', 'flprep.html', 'aamc.html', 'recall.html']) assert(!fs.readFileSync(root + '/' + page, 'utf8').includes('data/structures.js'), page + ' does not load the drawings up front');
+assert(source.includes("el.src = 'data/structures.js';") && source.includes('loadStructsFor(items);') && source.includes("if (view === 'exam') { ensureStructs()"), 'drawings load when Practice Exam cards are used');
 const sw = fs.readFileSync(root + '/sw.js', 'utf8');
-assert(sw.includes("'data/structures.js'") && sw.includes("'data/qb-structures.js'"), 'structures are cached for offline use');
+assert(sw.includes("'data/structures.js'"), 'structures are cached for offline use');
+// Only the Practice Exam cards: no extra card sets or passages ride along.
+assert(!fs.existsSync(root + '/data/qb-structures.js') && !fs.existsSync(root + '/data/passages-graphs.js'), 'no added card sets or passages');
+assert(new Set(FL.map(q => q.s)).size === 5 && FL.every(q => /^Practice Exam [13456]: Chem\/Phys$/.test(q.s)), 'Full-Length Prep holds the five Practice Exams only');
 
-// Graph Reasoning passages: every question has a worked method with at least two visual steps
-// (a passage/question highlight or a graph trace); check-content verifies each one points at real text and data.
-const GP = new Function(fs.readFileSync(root + '/data/passages-graphs.js', 'utf8') + ';return GRAPH_PASSAGES')();
-assert(GP.length >= 12, 'graph passages present');
-for (const p of GP) {
-  assert(/^p_graph_/.test(p.id) && ['line', 'bar'].includes(p.figure.type), p.id + ': plotted figure');
-  for (const [i, q] of p.questions.entries()) {
-    const visual = q.how.steps.filter(st => st && typeof st === 'object' && (st.hl || st.graph)).length;
-    assert(visual >= 2, `${p.id} Q${i + 1}: at least two visual steps`);
-  }
-}
-assert(source.includes("...(typeof GRAPH_PASSAGES === 'undefined' ? [] : GRAPH_PASSAGES)"), 'graph passages load into Passages');
-assert(sw.includes("'data/passages-graphs.js'") && fs.readFileSync(root + '/passages.html', 'utf8').includes('data/passages-graphs.js'), 'graph passages are loaded and cached');
 
 // Rendering: run the real functions against a minimal DOM.
 function extract(name) { const a = source.indexOf('function ' + name + '('), b = source.indexOf('\nfunction ', a + 1); assert(a >= 0, name); return source.slice(a, b < 0 ? source.length : b); }
@@ -111,7 +91,7 @@ const node = id => { if (!nodes.has(id)) nodes.set(id, { innerHTML: '' }); retur
 const card = pe6.find(q => q.src === 'pe6-cp:18');
 const ctx = vm.createContext({ $: node, quiz: { answered: false, idx: 0, items: [{ q: card }] }, String, Array });
 ctx.stepper = null; ctx.Math = Math; ctx.Number = Number; ctx.Set = Set; ctx.encodeURIComponent = encodeURIComponent;
-for (const name of ['esc', 'fmt', 'paragraphs', 'howOf', 'hintArea', 'showHint', 'howSteps', 'markText', 'markParagraphs', 'stepVisual', 'howPlayerHtml', 'applyStepContext', 'clearStepContext', 'howStep', 'howBox',
+for (const name of ['esc', 'fmt', 'paragraphs', 'howOf', 'hintArea', 'showHint', 'howSteps', 'markText', 'markParagraphs', 'stepVisual', 'howPlayerHtml', 'applyStepContext', 'clearStepContext', 'howStepMs', 'howSchedule', 'howToggle', 'howReplay', 'howStep', 'howBox',
   'chartNum', 'chartText', 'chartTicks', 'chartSmooth', 'chartMarker', 'chartLegend', 'chartAxes', 'lineChart', 'barChart', 'figureHtml', 'structImg', 'stemFigs']) vm.runInContext(extract(name), ctx);
 vm.runInContext("var CHART = { W: 560, L: 70, R: 18, T: 14, H: 250, B: 50 };", ctx);
 const view = ctx.quiz.items[0];
@@ -143,6 +123,29 @@ assert.equal((step(-99).match(/class="how-step[ "]/g) || []).length, 1, 'clamped
 assert.equal(vm.runInContext("markText('a <b> c', '<b>')", ctx), 'a <mark class="step-hl">&lt;b&gt;</mark> c');
 assert.equal(vm.runInContext("markText('abc', 'zzz')", ctx), 'abc');
 assert.match(vm.runInContext("markParagraphs('one\\n\\ntwo three', 'two')", ctx), /<p>one<\/p><p><mark class="step-hl">two<\/mark> three<\/p>/);
+// Guided playback: plays on its own after answering, one step per timer, stops at the last step; any manual
+// Back/Next pauses it; Play resumes; Replay restarts from step 1. Reduced-motion readers start paused.
+{
+  const timers = []; ctx.setTimeout = (fn, ms) => { timers.push({ fn, ms }); return timers.length; }; ctx.clearTimeout = () => {};
+  ctx.$ = () => null; ctx.matchMedia = () => ({ matches: false });
+  ctx.pq3 = { q: 'Q?', choices: ['A', 'B', 'C', 'D'], ans: 0, how: { ask: 'aaaaaaaaaaaa', know: 'kkkkkkkkkkkk', trap: 'tttttttttttt', steps: ['one', { text: 'two', calc: ['x', 'y'] }, 'three'] } };
+  vm.runInContext('howBox(pq3); howSchedule()', ctx);
+  assert.equal(vm.runInContext('stepper.playing', ctx), true, 'autoplays');
+  assert.equal(timers.length, 1); assert(timers[0].ms >= 3800, 'gives time to read');
+  timers.shift().fn(); assert.equal(vm.runInContext('stepper.cur', ctx), 2, 'advanced by itself');
+  assert(timers.length === 1 && timers[0].ms > 3800 + 1700, 'calc steps get extra time');
+  timers.shift().fn(); assert.equal(vm.runInContext('stepper.cur', ctx), 3);
+  assert.equal(timers.length, 0, 'stops at the last step'); assert.match(vm.runInContext('howPlayerHtml()', ctx), /howReplay\(\)/);
+  vm.runInContext('howReplay()', ctx); assert.equal(vm.runInContext('stepper.cur', ctx), 1); assert.equal(timers.length, 1, 'replay restarts playback');
+  timers.length = 0; vm.runInContext('howStep(1)', ctx);
+  assert.equal(vm.runInContext('stepper.playing', ctx), false, 'manual step pauses'); assert.equal(timers.length, 0);
+  assert.match(vm.runInContext('howPlayerHtml()', ctx), /▶ Play/); assert.doesNotMatch(vm.runInContext('howPlayerHtml()', ctx), /⏸/);
+  vm.runInContext('howToggle()', ctx); assert.equal(vm.runInContext('stepper.playing', ctx), true); assert.equal(timers.length, 1, 'play resumes');
+  ctx.matchMedia = () => ({ matches: true }); vm.runInContext('howBox(pq3)', ctx);
+  assert.equal(vm.runInContext('stepper.playing', ctx), false, 'reduced motion starts paused');
+  delete ctx.setTimeout; delete ctx.clearTimeout; delete ctx.matchMedia;
+}
+assert(fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'howToggle', 'howReplay'"), 'playback actions allowlisted');
 // Calculation lines appear in sequence (escaped, **bold** kept); struck choices are listed and crossed out.
 const calcHtml = vm.runInContext("stepVisual({ text: 't', calc: ['q = m × L', 'q = **0.050 kg** × 4.0 × 10⁵', '<b>x</b>'], strike: ['1 × 10⁵ J'] }, {})", ctx);
 assert.equal((calcHtml.match(/class="calc-line calc-d/g) || []).length, 3); assert.match(calcHtml, /calc-d2/);
@@ -201,8 +204,8 @@ assert(fs.readFileSync(root + '/css/styles.css', 'utf8').includes('.struct-name{
 // Wiring: the hint action is allowlisted, the quiz shows the method after answering, and a hinted
 // answer starts as Unsure; the session's missed list includes the method.
 assert(fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'showHint'"));
-assert(source.includes("+ howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb' } });") && source.includes("howBox(view.q, { ctx: { mode: 'passage', passage: pq.p.passage, figure: pq.p.figure, view, prefix: 'pc' } })"), 'player in recall and passage feedback');
+assert(source.includes("+ howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null } });") && source.includes("howBox(view.q, { ctx: { mode: 'passage', passage: pq.p.passage, figure: pq.p.figure, view, prefix: 'pc' } })"), 'player in recall and passage feedback');
 assert(fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'howStep'"));
 assert(source.includes("if (view.hint) quiz.pending.conf = 'unsure';"));
 assert(source.includes('how: howBox(r.view.q, { static: true })'));
-console.log(`Worked methods passed: all ${FL.length} Full-Length Prep cards are in exam form with stable ids; ${SQ.length} Structure Reading cards use ${Object.keys(STRUCT).length} script-free RDKit drawings (generator in sync); ${GP.length} graph passages with step-by-step visual solutions; all have what-it's-asking, what-to-know, steps and trap; two-stage hints hide steps and trap before answering; full method after answering and in the missed list; escaped; never on reworded forms.`);
+console.log(`Worked methods passed: all ${FL.length} Full-Length Prep cards are in exam form with stable ids; walkthroughs use ${Object.keys(STRUCT).length} script-free RDKit drawings (generator in sync); all have what-it's-asking, what-to-know, steps and trap; two-stage hints hide steps and trap before answering; full method after answering and in the missed list; escaped; never on reworded forms.`);

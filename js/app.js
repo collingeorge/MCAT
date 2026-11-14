@@ -344,7 +344,7 @@ const AQB_QBANK = AQB.filter(q => !AAMC_RULES_KEYS.has(q.key));  // Question Ban
 const FL_SECTION = { id: 'fl_prep', label: 'Full-Length Prep' };
 const FLQ = [];
 const FLQ_BY_ID = new Map();
-[...(typeof QB_AAMC_FL === 'undefined' ? [] : QB_AAMC_FL), ...(typeof QB_STRUCTURES === 'undefined' ? [] : QB_STRUCTURES)].forEach(q => {
+(typeof QB_AAMC_FL === 'undefined' ? [] : QB_AAMC_FL).forEach(q => {
   let id = 'fl-' + hashId(q.s + '|' + (q.idStem || q.q));
   while (FLQ_BY_ID.has(id)) id += 'x';
   Object.assign(q, { subj: FL_SECTION.id, key: FL_SECTION.id + '|' + q.s, id });
@@ -401,7 +401,7 @@ const countKeys = keys => keys.reduce((n, k) => n + (KEY_COUNTS[k] || 0), 0);
 // ════════════════════════════════════════════════════════════════
 //  PASSAGES
 // ════════════════════════════════════════════════════════════════
-const DATA_SETS = [...(typeof GRAPH_PASSAGES === 'undefined' ? [] : GRAPH_PASSAGES), ...(typeof DATA_PASSAGES === 'undefined' ? [] : DATA_PASSAGES)];
+const DATA_SETS = typeof DATA_PASSAGES === 'undefined' ? [] : DATA_PASSAGES;
 const ALL_PASSAGES = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES, ...OCHEM_PASSAGES, ...PHYSICS_PASSAGES, ...BEHAVIORAL_PASSAGES, ...DATA_SETS, ...CARS_PASSAGES, ...CARS_EXTRA, ...EXAM2_CARS_PASSAGES];
 const SKILL_LABEL = Object.assign(Object.create(null), {
   'SIRS 1': 'Skill 1: Knowledge of scientific concepts',
@@ -418,7 +418,6 @@ const PASSAGE_GROUPS = [
   { label: 'Organic Chemistry', test: id => id.startsWith('p_oc') },
   { label: 'Physics & Math', test: id => id.startsWith('p_ph') },
   { label: 'Psychology & Sociology', test: id => id.startsWith('p_bs') },
-  { label: 'Graph Reasoning (plotted figures, step-by-step solutions)', test: id => id.startsWith('p_graph') },
   { label: 'Data & Reasoning (tables, research design, statistics)', test: id => id.startsWith('p_data') },
   { label: 'CARS — Set 1', test: id => id.startsWith('p_cars') },
   { label: 'CARS — Set 2', test: id => id.startsWith('p_e2cars') },
@@ -1268,7 +1267,7 @@ function aamcSel() {
 // ── AAMC Prep tab: one tab, three sections (Question Bank cards, Practice Exam cards, Rules & Passage Prep) ──
 function aamcView() { return prefs.aamcView === 'rules' ? 'rules' : 'qbank'; }
 function openAamcView(view) {
-  if (view === 'exam') { setMode('flprep'); return; }
+  if (view === 'exam') { ensureStructs().catch(() => {}); setMode('flprep'); return; }  // prefetch drawings for the cards
   prefs.aamcView = view === 'rules' ? 'rules' : 'qbank';
   setMode('aamc');
 }
@@ -1675,6 +1674,7 @@ function beginQuiz(questions, label, opts = {}) {
   show('screen-quiz');
   startQuizTimer();
   renderQuizQuestion();
+  loadStructsFor(items);
 }
 function startQuizTimer() {
   stopQuizTimer();
@@ -1727,6 +1727,28 @@ function pick(chosen) { finishPick(chosen); }
 function answerPassage(chosen) { finishPassageAnswer(chosen); }
 
 // ── Chemical structures: skeletal drawings from data/structures.js (RDKit), shown as images ──
+// The drawings (~1.5 MB) load only when Practice Exam cards are opened, not on every page; the service worker
+// keeps them for offline use. A question drawn before they arrive is re-rendered once they load.
+let structsLoading = null;
+function ensureStructs() {
+  if (typeof STRUCT_SVG !== 'undefined') return Promise.resolve();
+  if (structsLoading) return structsLoading;
+  structsLoading = new Promise((resolve, reject) => {
+    const el = document.createElement('script');
+    el.src = 'data/structures.js';
+    el.addEventListener('load', resolve);
+    el.addEventListener('error', () => { structsLoading = null; reject(new Error('structures failed to load')); });
+    document.head.appendChild(el);
+  });
+  return structsLoading;
+}
+function needsStructs(q) {
+  return !!q && (q.fig != null || Array.isArray(q.choiceFigs) || (q.how && Array.isArray(q.how.steps) && q.how.steps.some(st => st && st.fig != null)));
+}
+function loadStructsFor(items) {
+  if (typeof STRUCT_SVG !== 'undefined' || !items.some(v => needsStructs(v.q || v))) return;
+  ensureStructs().then(() => { if (activeScreen === 'screen-quiz' && !quiz.answered && quiz.items[quiz.idx]) renderQuizQuestion(); }).catch(() => {});
+}
 function structImg(name, alt) {
   const svg = typeof STRUCT_SVG === 'undefined' || name == null ? null : STRUCT_SVG[name];
   return svg ? `<img class="struct-img" src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}" alt="${esc(alt || 'Chemical structure')}">` : '';
@@ -1771,6 +1793,7 @@ function renderQuizQuestion() {
       ${why || q.variant ? `<div class="q-reason">${q.variant ? `<span class="variant-pill">${q.variant === 'authored' ? `Applied: ${esc(VARIANT_KIND[q.kind] || 'new angle')}` : 'Asked a different way'}</span>` : ''}${why ? `<span>Why this question: ${esc(why)}</span>` : ''}</div>` : ''}
       <div class="question-text">${fmt(q.q)}</div>
       ${stemFigs(q)}
+      ${q.chart ? figureHtml(q.chart) : ''}
     </div>
     ${howOf(q) ? `<div id="hint-area">${hintArea(view)}</div>` : ''}
     <div class="choices" id="choices-area" role="group" aria-label="Answer choices">${choicesOrPrompt(view)}</div>
@@ -1840,10 +1863,12 @@ function howPlayerHtml() {
   const list = steps.slice(0, cur).map((st, i) => `<li class="how-step${i === cur - 1 ? ' current' : ''}"><span class="step-text">${fmt(st.text)}</span>${i === cur - 1 ? stepVisual(st, ctx) : ''}</li>`).join('');
   return `<ol class="how-steps">${list}</ol>
     ${cur >= n && h.trap ? `<p class="how-trap"><b>4. The trap:</b> ${fmt(h.trap)}</p>` : ''}
+    <div class="step-progress" aria-hidden="true"><div class="step-progress-fill${stepper.playing && cur < n ? ' running' : ''}" data-css="width:${Math.round(cur / n * 100)}%"></div></div>
     <div class="step-controls">
       <button class="micro-btn" data-click="howStep(-1)"${cur <= 1 ? ' disabled' : ''}>◀ Back</button>
+      ${cur < n ? `<button class="micro-btn step-play" id="how-play" data-click="howToggle()">${stepper.playing ? '❚❚ Pause' : '▶ Play'}</button>` : `<button class="micro-btn step-play" data-click="howReplay()">↺ Replay</button>`}
       <span class="step-count">Step ${cur} of ${n}</span>
-      ${cur < n ? `<button class="micro-btn step-next" id="how-next" data-click="howStep(1)">Next step ▶</button><button class="micro-btn" data-click="howStep(99)">Show all</button>` : ''}
+      ${cur < n ? `<button class="micro-btn step-next" id="how-next" data-click="howStep(1)">Next ▶</button><button class="micro-btn" data-click="howStep(99)">Show all</button>` : ''}
     </div>`;
 }
 // Highlights the live passage, question and figure for the current step.
@@ -1860,9 +1885,10 @@ function applyStepContext() {
   if (ctx.mode === 'passage') {
     const pEl = document.querySelector('#pp-passage-box .passage-text');
     if (pEl && ctx.passage) pEl.innerHTML = markParagraphs(ctx.passage, st.hl);
-    const fEl = document.querySelector('#pp-passage-box .chart-figure');
-    if (fEl && ctx.figure) fEl.outerHTML = figureHtml(ctx.figure, st.graph || null);
   }
+  // The question's own graph traces along with the step (a step's private chart is shown inside the step).
+  const fEl = document.querySelector(ctx.mode === 'passage' ? '#pp-passage-box .chart-figure' : '#quiz-body .question-box .chart-figure');
+  if (fEl && ctx.figure) fEl.outerHTML = figureHtml(ctx.figure, st.chart ? null : (st.graph || null));
 }
 // Removes the previous question's passage and figure highlights before the next question.
 function clearStepContext() {
@@ -1874,14 +1900,35 @@ function clearStepContext() {
   }
   stepper = null;
 }
-function howStep(delta) {
+// Guided playback: after an answer the walkthrough plays itself, giving each step time to animate and be read
+// (longer for working lines, graphs and structures). Any manual Back/Next/Show all pauses it.
+function howStepMs(st) {
+  return 3800 + Math.min(String(st.text || '').length, 220) * 18 + (Array.isArray(st.calc) ? st.calc.length * 900 : 0) + (st.chart ? 2600 : 0) + (st.fig ? 1200 : 0) + (st.strike ? 900 : 0);
+}
+function howSchedule() {
   if (!stepper) return;
+  if (stepper.timer) clearTimeout(stepper.timer);
+  stepper.timer = null;
+  const steps = howSteps(howOf(stepper.q));
+  if (!stepper.playing || stepper.cur >= steps.length || typeof setTimeout !== 'function') { stepper.playing = stepper.playing && stepper.cur < steps.length; return; }
+  const me = stepper;
+  stepper.timer = setTimeout(() => { if (stepper === me && me.playing) howStep(1, true); }, howStepMs(steps[stepper.cur - 1]));
+}
+function howToggle() { if (!stepper) return; stepper.playing = !stepper.playing; howStep(0, true); }
+function howReplay() { if (!stepper) return; stepper.cur = 1; stepper.playing = true; howStep(0, true); }
+function howStep(delta, auto) {
+  if (!stepper) return;
+  if (!auto) stepper.playing = false;
   const n = howSteps(howOf(stepper.q)).length;
   stepper.cur = Math.max(1, Math.min(n, stepper.cur + delta));
   const el = typeof $ === 'function' ? $('how-player') : null;
   if (el) el.innerHTML = howPlayerHtml();
   applyStepContext();
-  const next = el && $('how-next'); if (next && delta > 0) next.focus({ preventScroll: true });
+  const next = el && $('how-next'); if (next && delta > 0 && !auto) next.focus({ preventScroll: true });
+  // Keep the step being played on screen as the list grows.
+  const cur = el && el.querySelector && el.querySelector('.how-step.current');
+  if (cur && delta > 0 && cur.scrollIntoView) cur.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  howSchedule();
 }
 // static: every step listed (results review); otherwise the interactive player, starting at step 1.
 function howBox(q, opts = {}) {
@@ -1894,8 +1941,11 @@ function howBox(q, opts = {}) {
   if (opts.static || !steps.length) return `<div class="how-box">${head}
     <div><b>3. Step by step:</b><ol class="how-steps">${steps.map(st => `<li>${fmt(st.text)}</li>`).join('')}</ol></div>
     ${h.trap ? `<p class="how-trap"><b>4. The trap:</b> ${fmt(h.trap)}</p>` : ''}</div>`;
-  stepper = { q, cur: 1, ctx: opts.ctx || { mode: 'recall' } };
-  return `<div class="how-box">${head}<div><b>3. Step by step:</b></div><div id="how-player" class="how-player" aria-live="polite">${howPlayerHtml()}</div></div>`;
+  if (stepper && stepper.timer) clearTimeout(stepper.timer);
+  // Plays on its own unless the reader prefers reduced motion; then it waits for Next.
+  const calm = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  stepper = { q, cur: 1, ctx: opts.ctx || { mode: 'recall' }, playing: !calm, timer: null };
+  return `<div class="how-box" id="how-box">${head}<div class="how-steps-head"><b>3. Watch it solved, step by step:</b></div><div id="how-player" class="how-player" aria-live="polite">${howPlayerHtml()}</div></div>`;
 }
 function revealChoices() {
   const view = quiz.items[quiz.idx];
@@ -1939,13 +1989,16 @@ function finishPick(chosen, other = null, answerMs = null) {
   $('qm-score').textContent = `✓ ${quiz.results.filter(r => r.right).length}/${quiz.results.length}`;
   $('exp-area').innerHTML = finalTwoFeedback(view, chosen, other) + explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Recall · ${view.q.s}`, view.q.q),
     timedOut ? `Time ran out (${SPEED_SECONDS} seconds). A fact you know well should come back faster: this one is now due for review.`
-      : confusion ? `You chose <b>${fmt(view.choices[chosen])}</b>. ${fmt(meaningOf(confusion))}` : '') + howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb' } });
+      : confusion ? `You chose <b>${fmt(view.choices[chosen])}</b>. ${fmt(meaningOf(confusion))}` : '') + howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null } });
   if ($('hint-area')) $('hint-area').innerHTML = '';
   // A hinted answer was not pure recall: it starts as Unsure so the card comes back (you can change it)
   if (view.hint) quiz.pending.conf = 'unsure';
   if (howOf(view.q)) applyStepContext();
   renderNextArea();
   $('next-btn').focus({ preventScroll: true });
+  // Bring the guided walkthrough into view as it starts playing.
+  const hb = $('how-box'); if (hb && hb.scrollIntoView) hb.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  howSchedule();
 }
 function renderNextArea() {
   const last = quiz.idx + 1 >= quiz.items.length;
