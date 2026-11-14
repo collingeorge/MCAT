@@ -37,3 +37,8 @@ html{scroll-behavior:smooth;scroll-padding-top:100px}body{font-family:var(--sans
 .study-masthead nav{align-items:center}
 .study-masthead nav #account-login-btn{margin:0;padding:8px 14px;font-size:12px;white-space:nowrap}
 @media(max-width:440px){.study-masthead nav{flex-wrap:wrap;row-gap:10px}.study-masthead nav #account-login-btn{flex-basis:100%}}
+
+/* Larger reading text: passages and answer choices were hard to read at 14-15px. */
+.passage-text{font-size:18px;line-height:1.8}.passage-text table{font-size:16px}
+.choice-btn{font-size:17px;line-height:1.5}
+@media(max-width:760px){.passage-text{font-size:17px}.choice-btn{font-size:16px}}
