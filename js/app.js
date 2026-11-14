@@ -125,6 +125,7 @@ const KEYS = {
   plannedPassages: 'mcat2_planned_passages',
   diagnostic: 'mcat2_diagnostic',
   studyPath: 'mcat2_study_path',
+  subjectPath: 'mcat2_subject_path',   // Subject Mastery path: { goal, current, tests: [...], days: {day: {subj, guided, misses, reviewed, reinforced}}, passed: {subj: day} }
   finalTwo: 'mcat2_final_two',
   prefs: 'mcat2_prefs',
   stats: 'mcat2_stats',        // { "subject|tag": {c, t} }
@@ -1669,7 +1670,7 @@ function beginQuiz(questions, label, opts = {}) {
   pq.mini = null; stopPassageTimer(); 
   const items = questions.map(x => (x && x.q && x.choices === undefined ? makeView(x.q, x.reason) : makeView(x)));
   // Reinforcement (mastery loop, shaky repeats, confusion follow-ups) is on for every study session
-  Object.assign(quiz, { items, idx: 0, results: [], answered: false, startedAt: Date.now(), label, adaptive: opts.adaptive !== false, speed: opts.speed || 0, extras: 0, pending: null,
+  Object.assign(quiz, { items, idx: 0, results: [], answered: false, startedAt: Date.now(), label, adaptive: opts.adaptive !== false, speed: opts.speed || 0, extras: 0, pending: null, mastery: opts.mastery || null,
     loop: new Map(), shakyDone: new Set(), lastForm: new Map(), cleared: 0 });
   show('screen-quiz');
   startQuizTimer();
@@ -1975,6 +1976,8 @@ function finishPick(chosen, other = null, answerMs = null) {
   const ms = answerMs ?? (Date.now() - quiz.qStart);
   quiz.results.push({ view, chosen: timedOut ? null : chosen, right, ms, timedOut, other });
   recordAnswer(view.q, right);
+  // Subject Mastery path: counts guided cards and remembers misses for tomorrow's review.
+  if (typeof masteryNoteAnswer === 'function') { try { masteryNoteAnswer(view.q, right); } catch (e) { console.error('mastery', e); } }
   if (right) recordFluency(view.q, Math.max(0, ms - ((view.revealedAt || quiz.qStart) - quiz.qStart)));
   // Memory and mastery are updated when you move on, so the confidence rating can count
   const confusion = right || timedOut ? null : confusionCard(view.choices[chosen], view.q);
@@ -2713,7 +2716,7 @@ function showProgress() {
 function resetProgress() {
   if (!confirm('Erase recall stats, memory history, flags, passage scores, estimates and exam history for the active study profile? If signed in, this cleared copy will replace your cloud study progress when synced. This cannot be undone.')) return;
   window.McatAccount?.clearBackup();
-  [STUDY_TIMER_KEY, KEYS.retention, KEYS.exposures, KEYS.passageEvidence, KEYS.official, KEYS.recallDays, KEYS.dailyPlan, KEYS.externalPassages, KEYS.plannedPassages, KEYS.diagnostic, KEYS.fluency, KEYS.studyPath, KEYS.finalTwo, KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
+  [STUDY_TIMER_KEY, KEYS.retention, KEYS.exposures, KEYS.passageEvidence, KEYS.official, KEYS.recallDays, KEYS.dailyPlan, KEYS.externalPassages, KEYS.plannedPassages, KEYS.diagnostic, KEYS.fluency, KEYS.studyPath, KEYS.subjectPath, KEYS.finalTwo, KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
   FULL_EXAMS.forEach(e => { store.del(KEYS.examProgress(e.id)); store.del(KEYS.examLast(e.id)); });
   visibleStudyTimer = null;
   goHome();

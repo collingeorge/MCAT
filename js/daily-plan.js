@@ -507,5 +507,5 @@ function renderDailyPlan() {
   const el = $('today-plan'); if (!el) return;
   dailyPlanRenderedDay = localDay();
   // A bad synced record must never take down the rest of the home page.
-  try { el.innerHTML = dailyPlanCard(); } catch (e) { el.innerHTML = '<div class="section-label">TODAY › Start here</div><p class="muted-note">Today\u2019s plan could not be built from the saved progress. Your other study tools below still work.</p>'; }
+  try { el.innerHTML = (typeof masteryCard === 'function' ? masteryCard() + '<details class="today-dateplan"><summary>Test-date plan &amp; full-length calendar</summary>' + dailyPlanCard() + '</details>' : dailyPlanCard()); } catch (e) { el.innerHTML = '<div class="section-label">TODAY › Start here</div><p class="muted-note">Today\u2019s plan could not be built from the saved progress. Your other study tools below still work.</p>'; }
 }
