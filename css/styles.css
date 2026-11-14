@@ -877,6 +877,7 @@ mark.step-hl{background:#fde68a;color:inherit;padding:0 2px;border-radius:2px;an
 .mastery-path{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0 10px}
 .mastery-chip{font-size:12px;padding:4px 9px;border:1px solid var(--border);border-radius:999px;color:var(--slate);background:#fff}
 .mastery-chip.on{border-color:var(--navy);color:#fff;background:var(--navy);font-weight:700}
+.mastery-subtopics{list-style:none;margin:6px 0 2px;padding:0;display:grid;gap:3px;font-size:13.5px}.mastery-subtopics li{display:flex;justify-content:space-between;gap:8px;padding:4px 8px;border-radius:6px;background:var(--surface-2,#f4f6f8)}.mastery-subtopics li.done{color:var(--slate)}.mastery-subtopics .today-count{white-space:nowrap;flex:none}
 .mastery-chip.done{border-color:#15803d;color:#15803d;background:#f0fdf4}
 .mastery-arrow{color:var(--slate);font-size:12px}
 .mastery-latest{margin:4px 0}
