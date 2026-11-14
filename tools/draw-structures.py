@@ -393,32 +393,51 @@ def fix_notes_and_radicals(svg):
     return re.sub(r"<path class='(atom-\d+)' d='([^']*)' style='fill:#000000;fill-rule:evenodd[^']*' />", dot, svg)
 
 def site_labels(d, m, notes):
-    """Exam-style site labels: each numeral sits outside the molecule, in the open direction farthest
-    from every other atom and label, with a short arrow pointing at its atom (like 'I →' on AAMC figures)."""
+    """Exam-style labels on the drawing. A one- or two-character site label ('I'-'IV') sits outside the
+    molecule with a short arrow to its atom, as on AAMC figures. A longer callout ('carbonyl carbon') is a
+    filled tag sized to its text, pushed out until it clears every atom, bond and earlier label."""
     import math
-    pts = {a.GetIdx(): d.GetDrawCoords(a.GetIdx()) for a in m.GetAtoms()}
-    P = {i: (p.x, p.y) for i, p in pts.items()}
-    placed, out = [], []
+    P = {a.GetIdx(): (d.GetDrawCoords(a.GetIdx()).x, d.GetDrawCoords(a.GetIdx()).y) for a in m.GetAtoms()}
+    pts = list(P.values())
+    for bd in m.GetBonds():                              # bond midpoints and quarter points: keep tags off bonds
+        (x1, y1), (x2, y2) = P[bd.GetBeginAtomIdx()], P[bd.GetEndAtomIdx()]
+        pts += [(x1 + (x2 - x1) * t, y1 + (y2 - y1) * t) for t in (0.25, 0.5, 0.75)]
+    def gap_pt(cx, cy, hw, hh, px, py):                  # distance from a point to a box
+        return math.hypot(max(abs(px - cx) - hw, 0), max(abs(py - cy) - hh, 0))
+    def gap_box(a, b):
+        return math.hypot(max(abs(a[0] - b[0]) - a[2] - b[2], 0), max(abs(a[1] - b[1]) - a[3] - b[3], 0))
+    boxes, out = [], []
     for idx, label in notes.items():
         x, y = P[idx]
+        short = len(label) <= 2
+        hw, hh = (len(label) * 5.2 + 4, 11) if short else (len(label) * 4.9 + 8, 13)
         nb = [P[n.GetIdx()] for n in m.GetAtomWithIdx(idx).GetNeighbors()]
         base = math.atan2(y - sum(v[1] for v in nb) / len(nb), x - sum(v[0] for v in nb) / len(nb)) if nb else -math.pi / 2
         best = None
-        for k in range(24):                                  # try 24 directions, prefer the open side
+        for k in range(24):                              # 24 directions, open side first
             ang = base + (k // 2) * (math.pi / 12) * (1 if k % 2 == 0 else -1)
-            lx, ly = x + 40 * math.cos(ang), y + 40 * math.sin(ang)
-            clear = min([math.hypot(lx - ax, ly - ay) for j, (ax, ay) in P.items() if j != idx] + [math.hypot(lx - px, ly - py) * 0.8 for px, py in placed] + [99])
-            score = clear - 0.15 * (k // 2)
-            if best is None or score > best[0]: best = (score, ang, lx, ly)
-        _, ang, lx, ly = best
-        placed.append((lx, ly))
-        ux, uy = math.cos(ang), math.sin(ang)
-        x1, y1, x2, y2 = x + ux * 28, y + uy * 28, x + ux * 12, y + uy * 12      # arrow from label to atom
-        hx1, hy1 = x2 + 5 * (ux * math.cos(0.5) - uy * math.sin(0.5)), y2 + 5 * (uy * math.cos(0.5) + ux * math.sin(0.5))
-        hx2, hy2 = x2 + 5 * (ux * math.cos(-0.5) - uy * math.sin(-0.5)), y2 + 5 * (uy * math.cos(-0.5) + ux * math.sin(-0.5))
-        out.append(f"<path class='site-arrow' d='M {x1:.1f},{y1:.1f} L {x2:.1f},{y2:.1f} M {hx1:.1f},{hy1:.1f} L {x2:.1f},{y2:.1f} L {hx2:.1f},{hy2:.1f}' style='fill:none;stroke:#9A3412;stroke-width:1.6px' />")
-        out.append(f"<text x='{lx:.1f}' y='{ly + 5.5:.1f}' class='note' style='font-size:16px;font-weight:bold;fill:#9A3412;font-family:sans-serif;text-anchor:middle' >{label}</text>")
-    return ''.join(out), placed
+            ux, uy = math.cos(ang), math.sin(ang)
+            ext = min(hw / max(abs(ux), 1e-6), hh / max(abs(uy), 1e-6))   # center-to-edge distance along this direction
+            for dist in (24, 34, 46, 60, 76):
+                cx, cy = x + ux * (dist + ext), y + uy * (dist + ext)
+                clear = min([gap_pt(cx, cy, hw, hh, px, py) for px, py in pts] + [gap_box((cx, cy, hw, hh), bx) for bx in boxes] + [99])
+                score = min(clear, 22) * 3 - 0.15 * (k // 2) - 0.12 * dist
+                if best is None or score > best[0]: best = (score, ux, uy, cx, cy, ext)
+        _, ux, uy, cx, cy, ext = best
+        boxes.append((cx, cy, hw, hh))
+        # Arrow from the label's edge to just short of the atom.
+        sx, sy = cx - ux * (ext + 2), cy - uy * (ext + 2)
+        ex, ey = x + ux * 11, y + uy * 11
+        if math.hypot(sx - ex, sy - ey) > 4:
+            hx1, hy1 = ex + 6 * (ux * math.cos(0.5) - uy * math.sin(0.5)), ey + 6 * (uy * math.cos(0.5) + ux * math.sin(0.5))
+            hx2, hy2 = ex + 6 * (ux * math.cos(-0.5) - uy * math.sin(-0.5)), ey + 6 * (uy * math.cos(-0.5) + ux * math.sin(-0.5))
+            out.append(f"<path class='site-arrow' d='M {sx:.1f},{sy:.1f} L {ex:.1f},{ey:.1f} M {hx1:.1f},{hy1:.1f} L {ex:.1f},{ey:.1f} L {hx2:.1f},{hy2:.1f}' style='fill:none;stroke:#9A3412;stroke-width:1.8px' />")
+        if short:
+            out.append(f"<text x='{cx:.1f}' y='{cy + 5.5:.1f}' class='note' style='font-size:16px;font-weight:bold;fill:#9A3412;font-family:sans-serif;text-anchor:middle' >{label}</text>")
+        else:
+            out.append(f"<rect class='note-tag' x='{cx - hw:.1f}' y='{cy - hh:.1f}' width='{2 * hw:.1f}' height='{2 * hh:.1f}' rx='5' style='fill:#9A3412;stroke:none' />")
+            out.append(f"<text x='{cx:.1f}' y='{cy + 5.5:.1f}' class='note-tag-text' style='font-size:15px;font-weight:bold;fill:#FFFFFF;font-family:sans-serif;text-anchor:middle' >{label}</text>")
+    return ''.join(out), boxes
 
 def min_gap(m):
     # Smallest distance between atoms that are not bonded: small means a crowded, overlapping layout.
@@ -457,8 +476,8 @@ def draw(m, hl):
         svg = svg.replace('</svg>', extra + '</svg>')
         # Grow the frame so every label fits (labels may sit past RDKit's own margins).
         w0, h0 = float(re.search(r"width='([\d.]+)px'", svg).group(1)), float(re.search(r"height='([\d.]+)px'", svg).group(1))
-        x0 = min([0.0] + [x - 14 for x, _ in placed]); y0 = min([0.0] + [y - 14 for _, y in placed])
-        x1 = max([w0] + [x + 14 for x, _ in placed]); y1 = max([h0] + [y + 12 for _, y in placed])
+        x0 = min([0.0] + [x - w - 4 for x, _, w, _ in placed]); y0 = min([0.0] + [y - h - 4 for _, y, _, h in placed])
+        x1 = max([w0] + [x + w + 4 for x, _, w, _ in placed]); y1 = max([h0] + [y + h + 4 for _, y, _, h in placed])
         svg = re.sub(r"width='[\d.]+px' height='[\d.]+px' viewBox='[^']*'", f"width='{x1 - x0:.0f}px' height='{y1 - y0:.0f}px' viewBox='{x0:.0f} {y0:.0f} {x1 - x0:.0f} {y1 - y0:.0f}'", svg, count=1)
     svg = fix_notes_and_radicals(svg)
     svg = re.sub(r'<\?xml[^>]*>\s*', '', svg)
