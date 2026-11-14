@@ -21,6 +21,17 @@ const MASTERY = {
   // Diagnostic: a full AAMC section (59 questions: 10 passages + single questions), enough data to rank every
   // content category. End-of-day test: half a section (30: 5 passages + ~10 single). Both at exam pace.
   diagSize: 59, diagPassages: 10,
+  // Each science passage's AAMC content category, so passage questions count toward the weak-topic ranking.
+  passageCats: {
+    p_gchem_1: '5A', p_gchem_2: '5E', p_gchem_3: '4C', p_gchem_4: '5E', p_gchem_5: '5A',
+    p_data_gc_1: '5E', p_data_gc_2: '5A', p_data_gc_3: '4C', p_data_gc_4: '4B',
+    p_ph_1: '4B', p_ph_2: '4C', p_ph_3: '4D', p_ph_4: '4E', p_ph_5: 'other',
+    p_data_ph_1: '4B', p_data_ph_2: '4C', p_data_ph_3: '4D', p_data_ph_4: '5E',
+    p_aa_1: '5D', p_enz_1: '5D', p_met_1: '5E', p_nuc_1: '5D', p_lip_1: '5D',
+    p_data_bc_1: '5D', p_data_bc_2: '5D', p_data_bc_3: '5E', p_data_bc_4: '5B',
+    p_oc_1: '5D', p_oc_2: '5D', p_oc_3: '5B', p_oc_4: '4D', p_oc_5: '5C',
+    p_data_oc_1: '5D', p_data_oc_2: '5D', p_data_oc_3: '5D', p_data_oc_4: '5C',
+  },
   testSize: 30, testPassages: 5,
   goals: [128, 129],
   defaultGoal: 128,
@@ -283,10 +294,19 @@ function masteryLayout(passages, discrete) {
 function masteryFinishTest(mini, results) {
   const correct = results.filter(r => r.right).length, total = results.length;
   const cats = {};
-  results.forEach((r, i) => { const k = mini.items[i].passage ? 'passage' : masteryCategory(r.view.q); cats[k] = cats[k] || { c: 0, t: 0 }; cats[k].t++; if (r.right) cats[k].c++; });
+  const parts = { passage: { c: 0, t: 0 }, single: { c: 0, t: 0 } }, skills = {};
+  const tally = (o, k, right) => { o[k] = o[k] || { c: 0, t: 0 }; o[k].t++; if (right) o[k].c++; };
+  // Every question counts toward its content category: a passage question by its passage's category, so the
+  // weak topics come from the whole test (passages are most of it), not just the single questions.
+  results.forEach((r, i) => {
+    const p = mini.items[i].passage;
+    tally(cats, p ? (MASTERY.passageCats[p.id] || 'other') : masteryCategory(r.view.q), r.right);
+    tally(parts, p ? 'passage' : 'single', r.right);
+    if (r.view.q.skill) tally(skills, r.view.q.skill, r.right);
+  });
   const missIds = results.filter((r, i) => !r.right && !mini.items[i].passage).map(r => r.view.q.baseId || r.view.q.id);
   const pctRight = total ? 100 * correct / total : 0;
-  const test = { subj: mini.subj, day: localDay(), t: Date.now(), kind: mini.mastery, correct, total, pct: Math.round(pctRight), scaled: rawToScaled(pctRight), cats, missIds };
+  const test = { subj: mini.subj, day: localDay(), t: Date.now(), kind: mini.mastery, correct, total, pct: Math.round(pctRight), scaled: rawToScaled(pctRight), cats, parts, skills, missIds };
   const before = masteryLoad();
   const prevTest = before.tests.filter(t => t.subj === test.subj).at(-1) || null;
   const after = masteryApplyTest(before, test);
@@ -304,7 +324,11 @@ function masteryResultHtml(test, prev, m) {
     : test.kind === 'diagnostic' ? '<p>Study starts tomorrow, aimed at the weak topics below. Today is just the diagnostic.</p>'
     : test.scaled >= goal ? '<p>At goal today. One more day at ' + goal + '+ moves you to the next section.</p>' : '<p>Tomorrow: yesterday’s misses, then flashcards and Practice Exam cards on 5 content categories (weakest first), then another test.</p>';
   const rows = weak.map(w => '<tr' + (w.pct < MASTERY.weakBelow ? ' class="mastery-weak"' : '') + '><td>' + esc(w.code) + '</td><td>' + esc(AAMC_CAT_LABEL(w.code)) + '</td><td>' + w.c + '/' + w.t + '</td><td>' + w.pct + '%</td></tr>').join('');
-  const pass = test.cats.passage ? '<p class="muted-note">Passage questions: ' + test.cats.passage.c + '/' + test.cats.passage.t + '.</p>' : '';
+  const part = test.parts || (test.cats.passage ? { passage: test.cats.passage } : {});
+  const SKILL = { 'SIRS 1': 'Knowledge of scientific concepts', 'SIRS 2': 'Scientific reasoning and problem-solving', 'SIRS 3': 'Reasoning about research design', 'SIRS 4': 'Data-based and statistical reasoning' };
+  const skillRows = Object.entries(test.skills || {}).sort().map(([k, v]) => '<tr><td>' + esc(k.replace('SIRS ', 'Skill ')) + '</td><td>' + esc(SKILL[k] || k) + '</td><td>' + v.c + '/' + v.t + '</td><td>' + Math.round(100 * v.c / v.t) + '%</td></tr>').join('');
+  const pass = (part.passage ? '<p class="muted-note">Passage questions: ' + part.passage.c + '/' + part.passage.t + (part.single ? ' · single questions: ' + part.single.c + '/' + part.single.t : '') + '.</p>' : '') +
+    (skillRows ? '<div class="section-label">Scientific skills (data-based passages)</div><table class="data-table mastery-topics"><thead><tr><th>Skill</th><th></th><th>Right</th><th>%</th></tr></thead><tbody>' + skillRows + '</tbody></table>' : '');
   return '<div class="results-hero"><div class="r-label">' + esc(masteryName(test.subj)) + (test.kind === 'diagnostic' ? ' diagnostic' : ' end-of-day test') + '</div><div class="score-pct">' + test.scaled + '</div><div class="score-sub">' + test.correct + '/' + test.total + ' correct (' + test.pct + '%) · goal ' + goal + (trend ? ' · ' + trend : '') + '</div></div>' +
     '<div class="results-card">' + verdict + '<div class="section-label">Topics, weakest first</div><table class="data-table mastery-topics"><thead><tr><th>AAMC</th><th>Topic</th><th>Right</th><th>%</th></tr></thead><tbody>' + rows + '</tbody></table>' + pass +
     '<p class="muted-note">Scaled from % correct with the app’s raw-to-scaled table: an estimate for tracking progress, not an AAMC score.</p><div class="btn-row"><button class="new-quiz-btn" data-click="goHome()">Back to TODAY</button></div></div>';

@@ -98,6 +98,10 @@ assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(masteryApportion(w, 
 // Tests look like the exam: discrete questions come from the AAMC-style question bank (not flashcards), and
 // passages come in 3 groups, each followed by a set of discrete questions.
 assert(src.includes('return AQB_QBANK.filter(q => discs.has(disciplineOfRecall(q)) && cats.has(masteryCategory(q)));') && src.includes('const items = masteryLayout(passages, shuffled(discrete));'), 'exam-style discretes, interleaved');
+// Passage questions count toward their passage's content category, so weak topics use the whole test.
+assert(src.includes("tally(cats, p ? (MASTERY.passageCats[p.id] || 'other') : masteryCategory(r.view.q), r.right);"));
+const pc = JSON.parse(vm.runInContext('JSON.stringify(MASTERY.passageCats)', ctx));
+assert(Object.values(pc).every(c => c === 'other' || JSON.parse(vm.runInContext('JSON.stringify(MASTERY.topics.cp)', ctx)).includes(c)), 'passage categories are C/P categories');
 // A section with no Practice Exam cards (B/B, P/S for now) has no Practice Exam step.
 { const mb = apply({ current: 'bb' }, test('bb', '2026-11-15', 'diagnostic', 122, { cats: { '1A': { c: 2, t: 9 } } }));
   assert.deepEqual(ids(plan(mb, '2026-11-16', { guided: 0 })), ['misses', 'flashcards', 'test']); }
