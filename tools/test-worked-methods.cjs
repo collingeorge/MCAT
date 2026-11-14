@@ -56,6 +56,9 @@ function checkSteps(id, q) {
   return { visual, rich };
 }
 for (const q of FL) {
+  // Exam-form pictures: a structure in the question and/or one per answer choice must exist.
+  for (const n of [].concat(q.fig ?? [], q.choiceFigs ?? [])) assert(STRUCT_NAMES.has(n), q.src + ': drawing ' + n + ' exists');
+  if (q.choiceFigs) assert.equal(q.choiceFigs.length, q.choices.length, q.src + ': one drawing per choice');
   const { visual, rich } = checkSteps(q.src, q);
   assert(visual >= 3 && rich >= 1, `${q.src}: animated walkthrough (${visual} visual steps, ${rich} calc/chart/fig)`);
 }

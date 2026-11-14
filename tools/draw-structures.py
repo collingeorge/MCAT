@@ -165,6 +165,15 @@ add('nf3', "FN(F)F", formula='F3N')
 add('bf3', "FB(F)F", formula='BF3')
 add('co2', "O=C=O", formula='CO2')
 add('ccl4', "ClC(Cl)(Cl)Cl", formula='CCl4')
+# ── Exam-form structure questions (labeled sites, radical products) ──
+# Guanine with four H-bearing sites labeled I–IV: N1–H, the 2-NH₂, C8–H (the only C–H), N9–H.
+add('guanine-sites', 'O=c1[nH:1]c([NH2:2])nc2[nH:4][cH:3]nc12', formula='C5H5N5O', notes={1: 'I', 2: 'II', 3: 'III', 4: 'IV'})
+# One-electron oxidation products of acetaminophen: the radical (dot) on O, on the amide N, on a ring C, or on the methyl C.
+add('guanine-c8', 'O=c1[nH:1]c([NH2:2])nc2[nH:4][cH:3]nc12', formula='C5H5N5O', notes={1: 'I', 2: 'II', 3: 'III', 4: 'IV'}, hl=[3])
+add('apap-o-radical', 'CC(=O)Nc1ccc([O])cc1', formula='C8H8NO2', radicals=1)
+add('apap-n-radical', 'CC(=O)[N]c1ccc(O)cc1', formula='C8H8NO2', radicals=1)
+add('apap-ring-radical', 'CC(=O)Nc1c[c]c(O)cc1', formula='C8H8NO2', radicals=1)
+add('apap-methyl-radical', '[CH2]C(=O)Nc1ccc(O)cc1', formula='C8H8NO2', radicals=1)
 
 def stereo_count(m):
     return len(Chem.FindMolChiralCenters(m, includeUnassigned=True, useLegacyImplementation=False))
@@ -182,6 +191,28 @@ def check(name, m, checks):
         if st != [checks['ez']]: raise SystemExit(f'{name}: double-bond E/Z {st} != {checks["ez"]}')
     return f
 
+def fix_notes_and_radicals(svg):
+    """RDKit writes an atom note one letter per <text> ('III' shows as 'I I I') and draws radical
+    electrons as sub-pixel dots. Join each note into one bold word, and redraw each dot so it is visible."""
+    notes = list(re.finditer(r"<text x='([\d.]+)' y='([\d.]+)' class='note' style='([^']*)' >([^<]*)</text>", svg))
+    groups, cur = [], []
+    for m in notes:
+        if cur and (m.group(2) != cur[-1].group(2) or float(m.group(1)) - float(cur[-1].group(1)) > 9 or svg[cur[-1].end():m.start()].strip()):
+            groups.append(cur); cur = []
+        cur.append(m)
+    if cur: groups.append(cur)
+    for g in reversed(groups):
+        style = g[0].group(3).replace('font-weight:normal', 'font-weight:bold').replace('fill:#000000', 'fill:#9A3412')
+        style = re.sub(r'font-size:\d+px', 'font-size:14px', style)
+        word = ''.join(m.group(4) for m in g)
+        svg = svg[:g[0].start()] + f"<text x='{g[0].group(1)}' y='{g[0].group(2)}' class='note' style='{style}' >{word}</text>" + svg[g[-1].end():]
+    def dot(m):
+        pts = [tuple(map(float, xy.split(','))) for xy in re.findall(r'(-?[\d.]+,-?[\d.]+)', m.group(2))]
+        xs, ys = [x for x, _ in pts], [y for _, y in pts]
+        if not pts or max(xs) - min(xs) > 3 or max(ys) - min(ys) > 3 or len(pts) < 12: return m.group(0)
+        return f"<circle class='{m.group(1)} radical' cx='{(max(xs) + min(xs)) / 2:.1f}' cy='{(max(ys) + min(ys)) / 2:.1f}' r='2.6' style='fill:#000000;stroke:none' />"
+    return re.sub(r"<path class='(atom-\d+)' d='([^']*)' style='fill:#000000;fill-rule:evenodd[^']*' />", dot, svg)
+
 def draw(m, hl):
     rdDepictor.SetPreferCoordGen(True)
     rdDepictor.Compute2DCoords(m)
@@ -189,7 +220,7 @@ def draw(m, hl):
     o = d.drawOptions()
     o.clearBackground = False; o.bondLineWidth = 2; o.fixedBondLength = 32; o.padding = 0.12
     o.minFontSize = 13; o.additionalAtomLabelPadding = 0.1
-    o.setHighlightColour((1.0, 0.82, 0.3))
+    o.setHighlightColour((1.0, 0.82, 0.3)); o.annotationFontScale = 0.95
     for a in m.GetAtoms(): a.SetAtomMapNum(0)
     hs = set(hl or [])
     # A highlighted group (2+ atoms) also lights its bonds, including the one joining it to the rest of the molecule.
@@ -197,6 +228,7 @@ def draw(m, hl):
     rdMolDraw2D.PrepareAndDrawMolecule(d, m, highlightAtoms=list(hs), highlightBonds=hb)
     d.FinishDrawing()
     svg = d.GetDrawingText()
+    svg = fix_notes_and_radicals(svg)
     svg = re.sub(r'<\?xml[^>]*>\s*', '', svg)
     svg = re.sub(r'<!-- .*? -->\s*', '', svg)
     svg = re.sub(r'(\d+\.\d)\d+', r'\1', svg)          # one decimal is plenty at this size
@@ -222,6 +254,12 @@ for name, (smi, checks) in S.items():
     from rdkit.Chem import rdCIPLabeler; rdCIPLabeler.AssignCIPLabels(m)
     check(name, m, checks)
     hl = [a.GetIdx() for a in m.GetAtoms() if a.GetAtomMapNum() in checks.get('hl', [])]
+    # notes={map: 'I'} labels atoms the way exam figures point at sites I–IV.
+    for a in m.GetAtoms():
+        if a.GetAtomMapNum() in checks.get('notes', {}): a.SetProp('atomNote', checks['notes'][a.GetAtomMapNum()])
+    if 'radicals' in checks:
+        got = sum(a.GetNumRadicalElectrons() for a in m.GetAtoms())
+        if got != checks['radicals']: raise SystemExit(f'{name}: {got} radical electrons != {checks["radicals"]}')
     out[name] = draw(Chem.Mol(m), hl)
 
 for name, (smi, sc) in SIDECHAIN.items():
@@ -232,7 +270,7 @@ for name, (smi, sc) in SIDECHAIN.items():
 root = Path(__file__).resolve().parent.parent
 cards = (root / 'data/qb-aamc-fl.js').read_text(encoding='utf-8')
 used = set()
-for m in re.finditer(r'"fig":\s*("([^"]+)"|\[([^\]]*)\])', cards):
+for m in re.finditer(r'"?(?:fig|choiceFigs)"?:\s*("([^"]+)"|\[([^\]]*)\])', cards):
     used.update([m.group(2)] if m.group(2) else re.findall(r'"([^"]+)"', m.group(3)))
 missing = used - set(out)
 if missing: raise SystemExit('cards use undrawn structures: ' + ', '.join(sorted(missing)))
