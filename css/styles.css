@@ -888,3 +888,34 @@ mark.step-hl{background:#fde68a;color:inherit;padding:0 2px;border-radius:2px;an
 .mastery-settings label{margin-right:12px}
 .today-dateplan{margin-top:14px;border-top:1px solid var(--border);padding-top:10px}
 .today-dateplan>summary{cursor:pointer;font-weight:600;color:var(--navy)}
+/* Teaching annotations on graphs */
+.ch-anim{animation:calcIn .5s ease both}
+.ch-ann{font-size:14px;font-weight:700;fill:#9a3412;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+.ch-ann-line{fill:none;stroke:#9a3412;stroke-width:1.6}
+.ch-span{fill:none;stroke:#b91c1c;stroke-width:2.4;stroke-linecap:round}
+.ch-span-text{fill:#b91c1c}
+.ch-span-guide{stroke:#b91c1c;stroke-width:1.2;stroke-dasharray:4 4;opacity:.7}
+.ch-shade{fill:#fde68a;opacity:.45}
+.ch-axis-hl{stroke:#d97706;stroke-width:5;opacity:.85}
+@media (prefers-reduced-motion:reduce){.ch-anim{animation:none}}
+.teach-btn{background:#fffbeb;border-color:#d97706;color:#7c2d12;font-weight:700}
+.question-box .chart-figure{scroll-margin-top:150px}
+/* Help and lessons: large enough to read comfortably */
+.how-hint{font-size:16px;line-height:1.75;padding:14px 18px}
+.teach-box p{font-size:17px;line-height:1.7;margin:4px 0 10px}
+.teach-box .how-title{font-size:12px}
+.teach-box .struct-row{margin:6px 0 10px}
+.teach-btn{font-size:15px;padding:10px 16px}
+.how-box{font-size:15px}
+.question-box .struct-row{scroll-margin-top:150px}
+.struct-row:has(.struct-fig + .struct-fig) .struct-img{min-height:80px;max-height:140px}
+/* Callouts on the question's own words (lessons): the label sits right above the highlighted words */
+.q-callout{position:relative;display:inline-block;margin-top:1.55em;line-height:1.3}
+.q-note{position:absolute;left:0;bottom:100%;margin-bottom:2px;white-space:nowrap;font:700 12.5px/1.2 var(--sans,system-ui,sans-serif);color:#fff;background:#9a3412;padding:3px 7px;border-radius:4px;animation:calcIn .45s ease both}
+.q-note::after{content:"";position:absolute;left:10px;top:100%;border:5px solid transparent;border-top-color:#9a3412}
+.q-c1 .q-note{background:#1d4ed8}.q-c1 .q-note::after{border-top-color:#1d4ed8}
+.q-c2 .q-note{background:#15803d}.q-c2 .q-note::after{border-top-color:#15803d}
+.q-c3 .q-note{background:#7c3aed}.q-c3 .q-note::after{border-top-color:#7c3aed}
+.ch-tag{fill:#9a3412}
+.ch-tag-text{font-size:17px;font-weight:700;fill:#fff}
+.ch-ann{font-size:18px}
