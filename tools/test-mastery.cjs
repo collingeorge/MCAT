@@ -95,6 +95,9 @@ assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(MASTERY.topics.cp)',
 const cpw = [['gen_chem', 0.30], ['physics', 0.25], ['biochemistry', 0.25], ['organic_chem', 0.15], ['biology', 0.05]];
 assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(masteryApportion(w, 5))', Object.assign(ctx, { w: cpw }))), [2, 1, 1, 1, 0], '5 passages');
 assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(masteryApportion(w, 10))', Object.assign(ctx, { w: cpw }))), [3, 3, 3, 1, 0], '10 single questions');
+// Tests look like the exam: discrete questions come from the AAMC-style question bank (not flashcards), and
+// passages come in 3 groups, each followed by a set of discrete questions.
+assert(src.includes('return AQB_QBANK.filter(q => discs.has(disciplineOfRecall(q)) && cats.has(masteryCategory(q)));') && src.includes('const items = masteryLayout(passages, shuffled(discrete));'), 'exam-style discretes, interleaved');
 // A section with no Practice Exam cards (B/B, P/S for now) has no Practice Exam step.
 { const mb = apply({ current: 'bb' }, test('bb', '2026-11-15', 'diagnostic', 122, { cats: { '1A': { c: 2, t: 9 } } }));
   assert.deepEqual(ids(plan(mb, '2026-11-16', { guided: 0 })), ['misses', 'flashcards', 'test']); }
