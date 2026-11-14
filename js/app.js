@@ -125,7 +125,7 @@ const KEYS = {
   plannedPassages: 'mcat2_planned_passages',
   diagnostic: 'mcat2_diagnostic',
   studyPath: 'mcat2_study_path',
-  subjectPath: 'mcat2_subject_path',   // Subject Mastery path: { goal, current, tests: [...], perTopic, days: {day: {subj, topics, flashT, guidedT, lessonsN, misses, reviewed}}, passed: {subj: day} }
+  subjectPath: 'mcat2_subject_path',   // Subject Mastery path: { goal, current, tests: [...], perDay, days: {day: {subj, topics, flashT, guidedT, lessonsN, seen, misses, reviewed}}, passed: {subj: day} }
   finalTwo: 'mcat2_final_two',
   prefs: 'mcat2_prefs',
   stats: 'mcat2_stats',        // { "subject|tag": {c, t} }
