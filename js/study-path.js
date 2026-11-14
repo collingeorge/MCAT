@@ -129,7 +129,7 @@ function finishSubjectMini() {
       row.t++; if (r.right) row.c++; stats[q.key] = row; store.set(KEYS.stats, stats);
       if(r.chosen!=null)updateMemory(q, r.right, r.other == null ? null : 'unsure', r.ms);
     }
-    if (!r.right) logError({ id: r.view.q.id || 'mini_' + mini.subj + '#' + i, disc: mini.subj, key: item.passage ? null : r.view.q.key, type: 'unlabeled', chosen: r.chosen == null ? '(unanswered)' : r.view.choices[r.chosen], answer: r.view.choices[r.view.ans], src: 'mini' });
+    if (!r.right) logError({ id: r.view.q.id || 'mini_' + mini.subj + '#' + i, disc: mini.mastery ? (item.passage ? disciplineOfPassage(item.passage, r.view.q) : disciplineOfRecall(r.view.q)) : mini.subj, key: item.passage ? null : r.view.q.key, type: 'unlabeled', chosen: r.chosen == null ? '(unanswered)' : r.view.choices[r.chosen], answer: r.view.choices[r.view.ans], src: 'mini' });
   });
   mini.passages.forEach(p => {
     const results = pq.results.filter((_, i) => mini.items[i].passage?.id === p.id);
