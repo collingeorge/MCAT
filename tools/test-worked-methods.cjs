@@ -64,7 +64,7 @@ for (const q of FL.filter(q => q.teach)) {
     for (const m of st.marks || []) assert(q.q.includes(m.t) && typeof m.note === 'string', q.src + ': callout marks question text');
     if (st.hl != null) assert(q.q.includes(st.hl), q.src + ': lesson highlight is question text');
     if (st.graph && !st.chart) assert(q.chart, q.src + ': lesson graph overlay needs the question graph or its own');
-    for (const lb of (st.graph && st.graph.labels) || []) if (lb.series) assert(q.chart.series.some(s => s.name === lb.series && s.points.some(([x]) => x === lb.x)), q.src + ': lesson label points at a plotted point');
+    for (const lb of (st.graph && st.graph.labels) || []) if (lb.series) assert((st.chart || q.chart).series.some(s => s.name === lb.series && s.points.some(([x]) => x === lb.x)), q.src + ': lesson label points at a plotted point');
   }
 }
 assert(source.includes("if (teachOf(view.q)) return view.teachCur ? teachHtml(view)") && fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'teachStep'"), 'graph lessons wired and allowlisted');
@@ -101,7 +101,7 @@ assert(new Set(FL.map(q => q.s)).size === 5 && FL.every(q => /^Practice Exam [13
 function extract(name) { const a = source.indexOf('function ' + name + '('), b = source.indexOf('\nfunction ', a + 1); assert(a >= 0, name); return source.slice(a, b < 0 ? source.length : b); }
 const nodes = new Map();
 const node = id => { if (!nodes.has(id)) nodes.set(id, { innerHTML: '' }); return nodes.get(id); };
-const card = pe6.find(q => q.src === 'pe6-cp:18');
+const card = { ...pe6.find(q => q.src === 'pe6-cp:18'), teach: undefined }; // the hint ladder for a card without a lesson
 const ctx = vm.createContext({ $: node, quiz: { answered: false, idx: 0, items: [{ q: card }] }, String, Array });
 ctx.stepper = null; ctx.Math = Math; ctx.Number = Number; ctx.Set = Set; ctx.encodeURIComponent = encodeURIComponent;
 for (const name of ['esc', 'fmt', 'paragraphs', 'howOf', 'teachOf', 'teachHtml', 'teachStep', 'hintArea', 'showHint', 'howSteps', 'markText', 'markParagraphs', 'stepVisual', 'howPlayerHtml', 'applyStepContext', 'clearStepContext', 'howStepMs', 'howSchedule', 'howToggle', 'howReplay', 'howStep', 'howBox',
