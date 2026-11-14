@@ -2993,10 +2993,12 @@ function renderPassageQuestion() {
     $('pp-passage-box').innerHTML = passage ? passageCard(passage.topic || '', passage.title, passage.passage, passage.figure) : '<p class="muted-note">Discrete question · no passage</p>';
     $('pp-score').textContent = pq.results.length + '/' + tot + ' answered · feedback at end';
   }
+  // Practice Exam questions can show a molecule, answer-choice drawings or a graph: load the drawings once.
+  if (typeof STRUCT_SVG === 'undefined' && needsStructs(view.q)) ensureStructs().then(() => { if (activeScreen === 'screen-passage' && pq.views[pq.idx] === view && !pq.answered) renderPassageQuestion(); }).catch(() => {});
   $('pp-question-box').innerHTML = `
     <div class="question-box"><div class="q-toolbar"><span class="q-tag">Question ${pq.idx + 1} of ${tot}${view.q.skill ? ` · ${esc(SKILL_LABEL[view.q.skill] || view.q.skill)}` : ''}</span></div>
-      <div class="question-text">${fmt(view.q.q)}</div></div>
-    <div class="choices">${choiceButtons(view.choices, 'answerPassage', { prefix: 'pc' })}</div>
+      <div class="question-text">${fmt(view.q.q)}</div>${stemFigs(view.q)}${view.q.chart ? figureHtml(view.q.chart) : ''}</div>
+    <div class="choices">${choiceButtons(view.choices, 'answerPassage', { prefix: 'pc', view })}</div>
     <div id="pp-exp"></div><div id="pp-next"></div>`;
 }
 function finishPassageAnswer(chosen, other = null, answerMs = null) {

@@ -245,24 +245,22 @@ function startMasteryTest(kind) {
   const plan = masteryPlanNow();
   if (!plan.subj) return;
   const subj = plan.subj;
-  const discs = masteryDiscs(subj);
-  // Passages per discipline in the exam's proportions (C/P: 3 general chemistry, 3 physics, 3 biochemistry,
-  // 1 organic for a diagnostic), each discipline's unattempted passages first, then mixed in turn as on the exam.
-  const full = kind === 'diagnostic', size = full ? MASTERY.diagSize : MASTERY.testSize;
-  const share = masteryApportion(discs, full ? MASTERY.diagPassages : MASTERY.testPassages);
-  const byDisc = discs.map(([d], i) => passageOrder(d).slice(0, share[i])), passages = [];
-  for (let r = 0; byDisc.some(l => l.length > r); r++) byDisc.forEach(l => { if (l[r]) passages.push(l[r]); });
-  const nPassageQs = passages.reduce((n, p) => n + p.questions.length, 0);
-  // Discrete questions are exam-style stand-alone questions (the AAMC-style question bank), not flashcards,
-  // spread over the section's disciplines by weight; flashcards only fill a gap.
-  const need = Math.max(0, size - nPassageQs), exam = masteryExamPool(subj), discrete = [];
-  const dShare = masteryApportion(discs, need);
-  discs.forEach(([d], i) => discrete.push(...pickQuestions(exam.filter(q => disciplineOfRecall(q) === d), dShare[i])));
-  if (discrete.length < need) discrete.push(...pickQuestions(exam.filter(q => !discrete.includes(q)), need - discrete.length));
-  if (discrete.length < need) discrete.push(...pickQuestions(masteryFlashPool(subj), need - discrete.length));
-  discrete.splice(need);
-  // Layout as on the exam: groups of passages, each followed by a set of discrete questions.
-  const items = masteryLayout(passages, shuffled(discrete));  if (!items.length) return;
+  // The test is built from the Practice Exam cards: questions modeled one-for-one on the AAMC practice exams,
+  // with their structures, answer-choice drawings and graphs, split over the section's disciplines by AAMC's
+  // weights, cards not yet seen first. (Sections without such cards fall back to the question bank.)
+  const full = kind === 'diagnostic', size = full ? MASTERY.diagSize : MASTERY.testSize, discs = masteryDiscs(subj);
+  const pool = masteryPracticePool(subj), passages = [];
+  const discOf = q => (q.disc === 'biology' ? 'biology' : q.disc);
+  const picked = [], share = masteryApportion(discs, size);
+  if (pool.length) {
+    discs.forEach(([d], i) => picked.push(...pickQuestions(pool.filter(q => discOf(q) === d), share[i])));
+    if (picked.length < size) picked.push(...pickQuestions(pool.filter(q => !picked.includes(q)), size - picked.length));
+  } else {
+    const exam = masteryExamPool(subj);
+    discs.forEach(([d], i) => picked.push(...pickQuestions(exam.filter(q => disciplineOfRecall(q) === d), share[i])));
+  }
+  picked.splice(size);
+  const items = shuffled(picked).map(q => ({ view: makeView(q), passage: null }));  if (!items.length) return;
   const firstExposures = Object.fromEntries(passages.map(p => [p.id, beginPassageExposure(p)]));
   stopQuizTimer(); stopPassageTimer();
   Object.assign(pq, { mini: { subj, items, passages, firstExposures, completed: false, mastery: kind === 'diagnostic' ? 'diagnostic' : 'daily' },
@@ -278,17 +276,6 @@ function startMasteryTest(kind) {
 function masteryExamPool(s) {
   const discs = new Set(masteryDiscs(s).map(([d]) => d)), cats = new Set(MASTERY.topics[s] || []);
   return AQB_QBANK.filter(q => discs.has(disciplineOfRecall(q)) && cats.has(masteryCategory(q)));
-}
-// The exam's order: passages in 3 groups, each group followed by a set of discrete questions.
-function masteryLayout(passages, discrete) {
-  const groups = 3, pSplit = masteryApportion(Array.from({ length: groups }, () => ['g', 1]), passages.length);
-  const dSplit = masteryApportion(Array.from({ length: groups }, () => ['g', 1]), discrete.length), items = [];
-  let pi = 0, di = 0;
-  for (let g = 0; g < groups; g++) {
-    passages.slice(pi, pi += pSplit[g]).forEach(p => p.questions.forEach(q => items.push({ view: makeView(q), passage: p })));
-    discrete.slice(di, di += dSplit[g]).forEach(q => items.push({ view: makeView(q), passage: null }));
-  }
-  return items;
 }
 // Called by finishSubjectMini for a mastery test: scores it, records weak topics, decides on moving on.
 function masteryFinishTest(mini, results) {
