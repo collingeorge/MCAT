@@ -103,7 +103,7 @@ assert.equal(vm.runInContext('MASTERY.diagSize', ctx), 59, 'the diagnostic is a 
 assert.equal(vm.runInContext('MASTERY.testSize', ctx), 30); assert.equal(vm.runInContext('MASTERY.secondsPerItem', ctx), 95);
 // Wiring: TODAY leads with the path; tests are scored by the app's raw-to-scaled table; actions are allowlisted.
 const app = fs.readFileSync(root + '/js/app.js', 'utf8'), dp = fs.readFileSync(root + '/js/daily-plan.js', 'utf8'), sp = fs.readFileSync(root + '/js/study-path.js', 'utf8');
-assert(dp.includes("masteryCard() + '<details class=\"today-dateplan\">"), 'TODAY leads with the mastery path');
+assert(dp.includes("masteryCard() + '<details class=\"today-dateplan\"><summary>Test date &amp; full-length calendar</summary>' + testDateCard()") && !/el\.innerHTML = [^;]*dailyPlanCard\(\)/.test(dp.slice(dp.indexOf('function renderDailyPlan'))), 'TODAY leads with the mastery path');
 assert(app.includes("subjectPath: 'mcat2_subject_path'") && app.includes('masteryNoteAnswer(view.q, right)'), 'answers feed the path');
 assert(sp.includes('if (mini.mastery) {') && src.includes('rawToScaled(pctRight)'), 'mastery tests are scored on the 118–132 table');
 const actions = fs.readFileSync(root + '/js/actions.js', 'utf8');
