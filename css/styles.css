@@ -873,3 +873,18 @@ mark.step-hl{background:#fde68a;color:inherit;padding:0 2px;border-radius:2px;an
 .step-progress{height:4px;background:var(--border);border-radius:2px;margin-top:10px;overflow:hidden}
 .step-progress-fill{height:100%;background:#1d4ed8;transition:width .5s ease}
 .step-play{min-width:86px;font-weight:700}
+/* Subject Mastery path (TODAY) */
+.mastery-path{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0 10px}
+.mastery-chip{font-size:12px;padding:4px 9px;border:1px solid var(--border);border-radius:999px;color:var(--slate);background:#fff}
+.mastery-chip.on{border-color:var(--navy);color:#fff;background:var(--navy);font-weight:700}
+.mastery-chip.done{border-color:#15803d;color:#15803d;background:#f0fdf4}
+.mastery-arrow{color:var(--slate);font-size:12px}
+.mastery-latest{margin:4px 0}
+.mastery-up{color:#15803d}.mastery-down{color:#b91c1c}
+.mastery-topics{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0}
+.mastery-topics th,.mastery-topics td{border-bottom:1px solid var(--border);padding:6px 8px;text-align:left}
+.mastery-topics tr.mastery-weak td{background:#fff7ed}
+.mastery-settings{margin-top:10px;font-size:13px}
+.mastery-settings label{margin-right:12px}
+.today-dateplan{margin-top:14px;border-top:1px solid var(--border);padding-top:10px}
+.today-dateplan>summary{cursor:pointer;font-weight:600;color:var(--navy)}

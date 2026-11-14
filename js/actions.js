@@ -13,6 +13,8 @@
     'setAamcCount', 'setAamcChip', 'aamcSelectAll', 'resumeAamc', 'continueAamc', 'reviewAamcMissed', 'reviewAamcDue', 'drillAamcWeak', 'togglePrepDone',
     // Full-Length Prep tab
     'setFlCount', 'setFlTest', 'flSelectAll', 'reviewFlMissed',
+    // Subject Mastery path
+    'startMasteryGuided', 'startMasteryMisses', 'startMasteryReinforce', 'startMasteryTest', 'setMasteryGoal', 'setMasterySubject',
     // AAMC Prep tab menu and Rules & Passage Prep section
     'openAamc', 'openAamcView', 'startRulesQuiz', 'reviewRulesMissed',
     // recall quiz
