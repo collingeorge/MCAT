@@ -146,6 +146,44 @@ async function main() {
   await evaluate('document.querySelector("[data-click^=\\"showPlan\\"]")?.click()||showPlan()');
   assert.equal(await evaluate('activeScreen'),'screen-results');
   await evaluate('goHome()');
+  // One study type scale: question text, choices and passage text compute to the same font-size on every
+  // screen at a given width (normal and exam mode); passage and figure tables share their own size.
+  const fontScreens=[
+   ['flashcard','beginQuiz(AQB_QBANK.slice(0,3),"Font flashcards",{adaptive:false});if(document.querySelector("#reveal-btn"))revealChoices();true','activeScreen==="screen-quiz" && !!document.querySelector("#quiz-body .choice-btn")',false],
+   ['guided card','startMasteryGuided(true);true','quiz.mastery==="guided" && activeScreen==="screen-quiz" && !!document.querySelector("#quiz-body .choice-btn") && !!document.querySelector("#quiz-body .teach-box")',false],
+   ['practice passage','startPassage(LISTED_PASSAGES.find(p=>p.questions&&p.questions.length));true','activeScreen==="screen-passage" && !pq.mini && !!document.querySelector("#pp-passage-box .passage-text") && !!document.querySelector("#pp-question-box .choice-btn")',true],
+   ['passage step (exam mode)','startMasteryPassages();true','activeScreen==="screen-passage" && pq.masteryPractice==="step" && !!document.querySelector("#pp-passage-box .passage-text") && !!document.querySelector("#pp-question-box .choice-btn")',true],
+   ['daily quiz','startMasteryTest("quiz");true','activeScreen==="screen-passage" && pq.mini && pq.mini.mastery==="daily" && !!document.querySelector("#pp-question-box .choice-btn")',true],
+   ['diagnostic','startMasteryTest("diagnostic");true','activeScreen==="screen-passage" && pq.mini && pq.mini.mastery==="diagnostic" && !!document.querySelector("#pp-question-box .choice-btn")',true],
+   ['full-length exam','startExam(0);beginSection();exam.qi=Math.max(0,curQuestions().findIndex(q=>q.passageTitle));renderExamQuestion();true','activeScreen==="screen-exam" && !!document.querySelector("#ex-passage .passage-text") && !!document.querySelector("#exam-body .choice-btn")',true]];
+  // Leaving an unfinished timed set asks to confirm; drop the set first so no dialog blocks the page.
+  const leave='if(pq.mini){stopPassageTimer();pq.mini=null}goHome();';
+  // A timed set may open on a stand-alone: move to its first question with a passage.
+  const toPassage='if(activeScreen==="screen-passage"&&pq.mini&&!document.querySelector("#pp-passage-box .passage-text")){const i=pq.mini.items.findIndex(x=>x.passage);if(i>=0){pq.idx=i;renderPassageQuestion()}}true';
+  const readFonts='(()=>{const s=document.getElementById(activeScreen),f=sel=>{const e=s.querySelector(sel);return e?getComputedStyle(e).fontSize:null};return {question:f(".question-text"),choice:f(".choice-btn"),choiceText:f(".choice-btn .choice-text"),passage:f(".passage-text"),passageP:f(".passage-text p"),table:f(".passage-text table, .data-figure table"),examMode:document.body.classList.contains("exam-mode")}})()';
+  for(const width of [1280,390]){
+   await command('Emulation.setDeviceMetricsOverride',{width,height:width>500?900:844,deviceScaleFactor:1,mobile:width<=500});
+   const rows=[];
+   for(const [name,start,ready,hasPassage] of fontScreens){
+    await evaluate(leave+start);
+    await until(ready);
+    await evaluate(toPassage);
+    if(hasPassage)await until('!!document.getElementById(activeScreen).querySelector(".passage-text")');
+    const got=await evaluate(readFonts);
+    rows.push({screen:name,...got});
+    assert(got.question&&got.choice,width+'px '+name+': question and choices rendered');
+    assert.equal(got.choice,got.question,width+'px '+name+': choice = question');
+    assert.equal(got.choiceText,got.question,width+'px '+name+': choice text = question');
+    if(hasPassage){assert.equal(got.passage,got.question,width+'px '+name+': passage = question');assert.equal(got.passageP,got.question,width+'px '+name+': passage paragraphs = question')}
+   }
+   await evaluate(leave);
+   assert(rows.some(r=>r.examMode)&&rows.some(r=>!r.examMode),'both normal and exam mode measured');
+   for(const role of ['question','choice','passage','table']){const sizes=[...new Set(rows.map(r=>r[role]).filter(Boolean))];assert(sizes.length<=1,width+'px '+role+' sizes differ across screens: '+JSON.stringify(rows.map(r=>[r.screen,r[role]])))}
+   assert(rows.some(r=>r.table),width+'px: at least one table measured');
+   console.log('Study font sizes at '+width+'px:');
+   console.table(rows.map(r=>({screen:r.screen,mode:r.examMode?'exam':'normal',question:r.question,choice:r.choice,passage:r.passage||'-',table:r.table||'-'})));
+  }
+  await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
   // Offline resilience: once the service worker has cached the app, a reload with no network still works.
   // Local http skips registration by design (app.js); register as the deployed https site does.
   await evaluate('navigator.serviceWorker.register("sw.js").then(()=>navigator.serviceWorker.ready).then(()=>true)');
@@ -157,7 +195,7 @@ async function main() {
   await until('document.querySelector("#today-plan .today-head")!==null && typeof AQB_QBANK!=="undefined" && AQB_QBANK.length>1000');
   // Banks that load on demand come from the offline cache too.
   assert.equal(await evaluate('typeof CP_POOL'),'undefined','the quiz sets are not loaded at startup');
-  assert.equal(await evaluate('Promise.all(Object.keys(BANKS).map(ensureBank)).then(()=>LISTED_PASSAGES.length+"/"+FLQ.length+"/"+EXAM_CARS.length+"/"+CP_POOL.length+"/"+AAMC_PREP.length)'),'36/266/18/6/3','approved content, including the on-demand banks, available offline');
+  assert.equal(await evaluate('Promise.all(Object.keys(BANKS).map(ensureBank)).then(()=>LISTED_PASSAGES.length+"/"+FLQ.length+"/"+EXAM_CARS.length+"/"+CP_POOL.length+"/"+AAMC_PREP.length)'),'36/354/18/6/3','approved content, including the on-demand banks, available offline');
   assert.equal(await evaluate('fetch("/not-cached-"+Date.now()).then(()=>false,()=>true)'),true,'the network really is offline');
   await evaluate('beginQuiz(AQB_QBANK.slice(0,2),"Offline",{adaptive:false});document.querySelector("#cb-0").click()');
   assert.equal(await evaluate('quiz.results.length'),1,'studying works offline');
@@ -189,7 +227,7 @@ async function main() {
   assert.deepEqual(await evaluate('window.__violations'),[],'no CSP violations or blocked actions');
   assert.equal(await evaluate('[...document.querySelectorAll("*")].some(e=>[...e.attributes].some(a=>/^on/.test(a.name)))'),false,'no inline handler attributes in the DOM');
   assert.equal(errors.length,0,JSON.stringify(errors));
-  console.log('Chrome smoke passed: actual script loading, strict-CSP clicks, offline reload, runner-up reflection, TODAY order and passage step, delayed diagnostic feedback, timeout scoring, study calendar, HTML escaping, and no runtime exceptions.');
+  console.log('Chrome smoke passed: actual script loading, strict-CSP clicks, offline reload, runner-up reflection, TODAY order and passage step, delayed diagnostic feedback, timeout scoring, study calendar, HTML escaping, one study font size on all six study screens at 1280 and 390 px, and no runtime exceptions.');
  } finally {
   if(socket)socket.close();
   chrome.kill();

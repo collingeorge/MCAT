@@ -41,7 +41,7 @@ assert.deepEqual(JSON.parse(run('JSON.stringify(masteryLoad().days[localDay()])'
 assert.match(el('today-plan').innerHTML, /5D 0\/12 <b>weak<\/b>/); assert.match(el('today-plan').innerHTML, /4E 0\/7 <b>weak<\/b>/); assert.doesNotMatch(el('today-plan').innerHTML, /\+ extra/);
 assert.match(el('today-plan').innerHTML, /Skill 2 0\/22/); assert.match(el('today-plan').innerHTML, /Gen chem 0\/16/); assert.match(el('today-plan').innerHTML, /Difficult 0\/20/); assert.match(el('today-plan').innerHTML, /5D × 7/);
 assert(plan.steps.filter(s => s.topics).every(s => s.topics.every(t => t.extra === 0) && s.topics.reduce((n, t) => n + t.need, 0) === s.count), 'every step sums to its count, 0 extra on every category');
-assert.match(el('hero-badge').textContent, /QBank cards · 266 Practice Exam cards · 36 C\/P passages · \d full-length exams/);
+assert.match(el('hero-badge').textContent, /QBank cards · 354 Practice Exam cards · 36 C\/P passages · \d full-length exams/);
 
 // Weakness picks, never counts: within 5D (a weak category), a card missed today, one missed on the latest test
 // and one due for review come first, then the weakest sub-topic's cards (by saved accuracy), then the rest.

@@ -18,7 +18,7 @@ Only four kinds of content, all tied to the AAMC materials:
 | Content | What it is |
 |---|---|
 | **AAMC Prep · QBank cards** | Original questions written from the concepts tested in the AAMC question packs and question bank (Biology, Chemistry, Physics, CARS, the Independent Question Bank), plus the Universal Rules cards and the 33 AAMC test-concept chemistry cards. No AAMC text. |
-| **AAMC Prep · Practice Exam cards** | 266 guided cards, one per concept tested on the AAMC C/P practice exams (Practice Exams 1, 3, 4, 5, 6), each with a step-by-step lesson. Original wording. |
+| **AAMC Prep · Practice Exam cards** | 354 guided cards, one per concept tested on the AAMC C/P Sample Test and practice exams (Practice Exams 1, 3, 4, 5, 6), each with a step-by-step lesson. Original wording. |
 | **Chem/Phys passages** | Original passages written to the AAMC C/P blueprint: a 59-question Chem/Phys Diagnostic, six 30-question daily quizzes, and 36 practice passages (144 questions) for the Passages tab and TODAY's passage step. |
 | **Full-length** | 2 timed exams, each 230 questions: C/P 59 · CARS 53 · B/B 59 · P/S 59, with real section times and breaks. |
 

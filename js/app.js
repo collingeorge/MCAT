@@ -18,6 +18,28 @@ function shuffled(arr) {
   }
   return a;
 }
+// The AAMC lists numeric answer choices in order. A choice set that is all numbers in one unit (e.g. "0.15 m",
+// "1.2 × 10²⁰ Hz", "−2", "10,000 Cal", "25%", "1/8", or "50 μM" next to "3.0 mM") is shown from lowest to highest;
+// any other set is shuffled.
+const SUP = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9', '⁻': '-', '⁺': '' };
+const SI = { p: 1e-12, n: 1e-9, μ: 1e-6, m: 1e-3, k: 1e3 };
+function choiceNumber(c) {
+  const s = String(c).trim().replace(/(\d),(?=\d{3}\b)/g, '$1');
+  const m = /^([+−-]?)(?:(\d+(?:\.\d+)?)(?:\/(\d+(?:\.\d+)?))?(?:\s*×\s*10([⁻⁺]?[⁰¹²³⁴⁵⁶⁷⁸⁹]+))?|10([⁻⁺]?[⁰¹²³⁴⁵⁶⁷⁸⁹]+))(?:\s*([%°])|\s+(\S.*))?$/.exec(s);
+  if (!m) return null;
+  const pow = e => (e ? 10 ** Number([...e].map(ch => SUP[ch]).join('')) : 1);
+  let v = m[2] != null ? Number(m[2]) / (m[3] ? Number(m[3]) : 1) * pow(m[4]) : pow(m[5]);
+  if (m[1] && m[1] !== '+') v = -v;
+  let unit = m[6] || m[7] || '';
+  const pre = /^([pnμmk])((?:g|L|M|J|W|V|A|Pa|Hz|s|m|mol|Ω|C|N|eV)(?:\/.+)?)$/.exec(unit);
+  if (pre) { v *= SI[pre[1]]; unit = pre[2]; }
+  return { v, unit };
+}
+function choiceOrder(choices) {
+  const idx = choices.map((_, i) => i), nums = choices.map(choiceNumber);
+  if (nums.length > 1 && nums.every(n => n && Number.isFinite(n.v) && n.unit === nums[0].unit)) return idx.sort((a, b) => nums[a].v - nums[b].v);
+  return shuffled(idx);
+}
 // Stable 53-bit string hash (cyrb53) used for question ids
 function hashId(str) {
   let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
@@ -190,7 +212,7 @@ const AQB_KEY_COUNTS = Object.create(null);
 [typeof QB_AAMC_BIO === 'undefined' ? [] : QB_AAMC_BIO, typeof QB_AAMC_CHEM === 'undefined' ? [] : QB_AAMC_CHEM,
   typeof QB_AAMC_PHYS === 'undefined' ? [] : QB_AAMC_PHYS, typeof QB_AAMC_BIOCHEM === 'undefined' ? [] : QB_AAMC_BIOCHEM, typeof QB_AAMC_IQB === 'undefined' ? [] : QB_AAMC_IQB,
   typeof QB_AAMC_CARS === 'undefined' ? [] : QB_AAMC_CARS, typeof QB_AAMC_RULES === 'undefined' ? [] : QB_AAMC_RULES].flat().forEach(q => {
-  let id = 'aamc-' + hashId(q.s + '|' + q.q);
+  let id = 'aamc-' + hashId(q.s + '|' + (q.idStem || q.q));
   while (AQB_BY_ID.has(id)) id += 'x';
   Object.assign(q, { subj: AAMC_SECTION.id, key: AAMC_SECTION.id + '|' + q.s, id });
   AQB.push(q);
@@ -228,7 +250,7 @@ function buildFlq() {
 // cached offline by the service worker). BANK_COUNTS gives the home screen its numbers before they load;
 // tools/test-pages.cjs checks them against the data.
 const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'] };
-const BANK_COUNTS = { fl: 266, flCp: 266, flTests: 5 };
+const BANK_COUNTS = { fl: 354, flCp: 354, flTests: 6 };
 const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined' };
 const bankDone = Object.create(null), bankLoading = Object.create(null);
 function bankReady(name) {
@@ -1187,7 +1209,7 @@ const quiz = { items: [], idx: 0, results: [], answered: false, startedAt: 0, qS
 const LOOP_TARGET = 2;   // correct answers in a row before a missed fact is cleared for the session
 
 function makeView(q, reason) {
-  const order = shuffled(q.choices.map((_, i) => i));
+  const order = choiceOrder(q.choices);
   return { q, reason: reason || null, order, choices: order.map(i => q.choices[i]), ans: order.indexOf(q.ans), ...(Array.isArray(q.choiceFigs) ? { figs: order.map(i => q.choiceFigs[i]) } : {}) };
 }
 // ── Speed drill ──
@@ -2550,7 +2572,7 @@ function startExam(ei) {
 }
 function ensureOrders() {
   if (!exam.orders[exam.si]) {
-    exam.orders[exam.si] = curQuestions().map(q => shuffled(q.choices.map((_, i) => i)));
+    exam.orders[exam.si] = curQuestions().map(q => choiceOrder(q.choices));
     saveExam();
   }
 }

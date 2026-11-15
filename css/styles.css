@@ -168,7 +168,7 @@ body::before{
 }
 .question-text{
   font-family:Arial,Helvetica,sans-serif;
-  font-size:15px;font-weight:700;line-height:1.65;color:var(--text);
+  font-size:var(--study-text);font-weight:700;line-height:1.65;color:var(--text);
 }
 
 /* Choices */
@@ -176,7 +176,7 @@ body::before{
 .choice-btn{
   display:flex;align-items:flex-start;gap:12px;padding:12px 16px;
   background:var(--white);border:1px solid var(--border-med);
-  text-align:left;font-family:Arial,Helvetica,sans-serif;font-size:13px;
+  text-align:left;font-family:Arial,Helvetica,sans-serif;font-size:var(--study-text);
   color:var(--text-body);cursor:pointer;
   transition:background .12s,border-color .12s;line-height:1.55;width:100%;
 }
@@ -345,7 +345,7 @@ body::before{
   text-transform:uppercase;margin-bottom:12px;font-weight:700;
 }
 .passage-text{
-  font-size:13px;color:var(--text-body);line-height:1.85;
+  font-size:var(--study-text);color:var(--text-body);line-height:1.85;
   border-top:1px solid var(--border);padding-top:12px;
 }
 .passage-sticky{
@@ -695,7 +695,7 @@ table.aamc tr.gap td{opacity:.65}
 
 /* ════════ Data figures, pacing, fluency, nudges ════════ */
 .data-figure{margin:14px 0 4px;overflow-x:auto}
-.data-figure table{border-collapse:collapse;font-size:12px;min-width:60%;background:var(--white)}
+.data-figure table{border-collapse:collapse;font-size:var(--study-table);min-width:60%;background:var(--white)}
 .data-figure th,.data-figure td{border:1px solid var(--border-med);padding:5px 9px;text-align:center}
 .data-figure th{background:var(--blue-light);color:var(--navy);font-weight:700}
 .data-figure td:first-child,.data-figure th:first-child{text-align:left}
