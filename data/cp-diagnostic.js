@@ -1002,10 +1002,10 @@ const CP_DIAG = {
     {
      "q": "The amide nitrogen atom in Compound 3 is best described as:",
      "choices": [
-      "sp² hybridized, and a weaker base than the nitrogen in Compound 1",
-      "sp² hybridized, and a stronger base than the nitrogen in Compound 1",
-      "sp³ hybridized, and a weaker base than the nitrogen in Compound 1",
-      "sp³ hybridized, and a stronger base than the nitrogen in Compound 1"
+      "sp² hybridized, and a weaker base than the nitrogen in Compound 1.",
+      "sp² hybridized, and a stronger base than the nitrogen in Compound 1.",
+      "sp³ hybridized, and a weaker base than the nitrogen in Compound 1.",
+      "sp³ hybridized, and a stronger base than the nitrogen in Compound 1."
      ],
      "ans": 0,
      "cat": "5D",

@@ -5173,10 +5173,10 @@ const CP_POOL = [
    {
     "q": "2-Butanone is reduced with NaBH₄ in methanol. The 2-butanol produced is best described as:",
     "choices": [
-     "a racemic mixture, because hydride adds equally to both faces of the planar carbonyl carbon",
-     "only the (R) enantiomer, because hydride adds to the less hindered face of the carbonyl",
-     "only the (S) enantiomer, because the ethyl group directs hydride to one face",
-     "a meso compound, because the product has an internal mirror plane"
+     "a racemic mixture, because hydride adds equally to both faces of the planar carbonyl carbon.",
+     "only the (R) enantiomer, because hydride adds to the less hindered face of the carbonyl.",
+     "only the (S) enantiomer, because the ethyl group directs hydride to one face.",
+     "a meso compound, because the product has an internal mirror plane."
     ],
     "ans": 0,
     "cat": "5D",

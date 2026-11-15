@@ -4170,10 +4170,10 @@ const CP_PRACTICE = [
    {
     "q": "A 1.5 T scanner and the 3.0 T scanner each send an RF pulse of the same power, each at its own Larmor frequency. Compared with the photons in the 1.5 T pulse, the photons in the 3.0 T pulse:",
     "choices": [
-     "each carry twice the energy and arrive at half the rate",
-     "each carry the same energy and arrive at the same rate",
-     "each carry twice the energy and arrive at the same rate",
-     "each carry four times the energy and arrive at one-quarter the rate"
+     "each carry twice the energy and arrive at half the rate.",
+     "each carry the same energy and arrive at the same rate.",
+     "each carry twice the energy and arrive at the same rate.",
+     "each carry four times the energy and arrive at one-quarter the rate."
     ],
     "ans": 0,
     "cat": "4D",
