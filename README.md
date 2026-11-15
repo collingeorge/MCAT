@@ -19,7 +19,7 @@ Only four kinds of content, all tied to the AAMC materials:
 |---|---|
 | **AAMC Prep · QBank cards** | Original questions written from the concepts tested in the AAMC question packs and question bank (Biology, Chemistry, Physics, CARS, the Independent Question Bank), plus the Universal Rules cards and the 33 AAMC test-concept chemistry cards. No AAMC text. |
 | **AAMC Prep · Practice Exam cards** | 354 guided cards, one per concept tested on the AAMC C/P Sample Test and practice exams (Practice Exams 1, 3, 4, 5, 6), each with a step-by-step lesson. Original wording. |
-| **Chem/Phys passages** | Original passages written to the AAMC C/P blueprint: a 59-question Chem/Phys Diagnostic, six 30-question daily quizzes, and 36 practice passages (144 questions) for the Passages tab and TODAY's passage step. |
+| **Chem/Phys passages** | Original passages written to the AAMC C/P blueprint: a 59-question Chem/Phys Diagnostic, six 30-question daily quizzes, and 36 practice passages (144 questions) for the Passages tab. |
 | **Full-length** | 2 timed exams, each 230 questions: C/P 59 · CARS 53 · B/B 59 · P/S 59, with real section times and breaks. |
 
 The app's earlier recall decks (Anki-derived), their generated variants and the app-written practice passages were removed in November 2026. Saved progress from them stays in storage (ignored, never wiped).
@@ -28,12 +28,13 @@ The app's earlier recall decks (Anki-derived), their generated variants and the 
 
 The first card on the home page is the day's routine, one MCAT section at a time (C/P first, then B/B, then P/S):
 
-1. **Diagnostic**: a full C/P section (59 questions, 95 minutes, exam order). Retake it any time.
-2. **50 flashcards**: AAMC QBank cards only, spread over 5 content categories, weakest first.
-3. **50 guided Practice Exam cards**, each with its step-by-step lesson.
-4. **50 passage questions** from the C/P practice passages (about 12–13 passages): unseen passages first, weakest content categories first. After all 36 have been used once, the step repeats the ones you answered least well and says so. Each answer counts toward the step and toward its AAMC category.
-5. **30-question quiz**: half a C/P section in exam order, one of six sets, unseen sets first.
-6. **Done for today** at the goal (128 by default), otherwise **work on what you missed**: Practice Exam cards or practice passages on the quiz's weak categories (passages not used that day first).
+First, once per section: the **diagnostic**, a full C/P section (59 questions, 95 minutes, exam order). Retake it any time. Then every day, exactly three steps:
+
+1. **50 flashcards**: AAMC QBank cards only, split exactly by AAMC content-category weight (5D 12, 5E 8, 4E 7, 5A 5, 4D 4, 4C 4, 4B 3, 5B 3, 4A 2, 5C 2), in the AAMC discipline mix over the whole day.
+2. **50 guided Practice Exam cards**, each with its step-by-step lesson, in the same exact split.
+3. **30-question quiz** from the six daily sets: half a C/P section in exam order, unseen sets first. It unlocks when steps 1 and 2 are done.
+
+After the quiz: **done for today** at the goal (128 by default), otherwise **work on what you missed**: flashcards and guided cards on the quiz's weak categories, missed and due cards first.
 
 Reaching the goal on two separate days in a row moves the path to the next section. Scaled scores use the app's raw-to-scaled table: an estimate, not an AAMC score. A collapsible **Test date & full-length calendar** schedules the full-length exams.
 

@@ -8,7 +8,7 @@
 //   matches the exact versioned URL.
 // - The drawings (data/structures.js) and the sign-in SDK are cached the first time they are used, not at install.
 // Bump CACHE when deploying, then run node tools/generate-pages.cjs.
-const CACHE = 'mcat-v2.63-day-discipline-mix-versioned-scripts-2026-11-15';
+const CACHE = 'mcat-v2.64-today-three-steps-exact-today-2026-11-15';
 const V = '?v=' + CACHE;
 const NETWORK_TIMEOUT_MS = 4000, CACHED_TIMEOUT_MS = 1500;
 const SCRIPTS = [

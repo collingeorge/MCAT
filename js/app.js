@@ -251,7 +251,7 @@ function buildFlq() {
 // tools/test-pages.cjs checks them against the data.
 // ASSET_V: the deploy's version (sw.js CACHE), added to every script the app loads on demand so the browser's HTTP
 // cache never serves one from an earlier deploy. Written by tools/generate-pages.cjs; do not edit by hand.
-const ASSET_V = '?v=mcat-v2.63-day-discipline-mix-versioned-scripts-2026-11-15';
+const ASSET_V = '?v=mcat-v2.64-today-three-steps-exact-today-2026-11-15';
 const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'] };
 const BANK_COUNTS = { fl: 354, flCp: 354, flTests: 6 };
 const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined' };
@@ -808,7 +808,7 @@ function show(id, page) {
   const nav = $('app-nav');
   if (nav) nav.hidden = id === 'screen-home';
   // A Section Mastery test runs full-screen, laid out like the real exam: no site header, menus or study bars.
-  if (typeof document !== 'undefined' && document.body) document.body.classList.toggle('exam-mode', id === 'screen-passage' && (!!(pq.mini && pq.mini.mastery && !pq.mini.completed) || !!pq.masteryPractice));
+  if (typeof document !== 'undefined' && document.body) document.body.classList.toggle('exam-mode', id === 'screen-passage' && (!!(pq.mini && pq.mini.mastery && !pq.mini.completed)));
   window.scrollTo(0, 0);
   renderStudyTimer();
 }
@@ -2138,7 +2138,7 @@ function renderPassageSelector() {
   if (!selectedPassageId || !LISTED_IDS.has(selectedPassageId)) selectedPassageId = LISTED_PASSAGES[0]?.id || null;
   $('passage-selector').innerHTML = `
     <div class="section-label">Choose a passage</div>
-    <p class="muted-note lead-note">AAMC-style Chem/Phys practice passages (${LISTED_PASSAGES.length} passages, ${LISTED_PASSAGES.reduce((n, p) => n + p.questions.length, 0)} questions). TODAY also works through them in its passage step.</p>
+    <p class="muted-note lead-note">AAMC-style Chem/Phys practice passages (${LISTED_PASSAGES.length} passages, ${LISTED_PASSAGES.reduce((n, p) => n + p.questions.length, 0)} questions).</p>
     ${grouped.filter(g => g.list.length).map(g => `
       <div class="pgroup"><div class="pgroup-label">${esc(g.label)}</div><div class="pgroup-list">
         ${g.list.map(p => {
@@ -2163,14 +2163,11 @@ function nextPassage() {
   selectedPassageId = next.id;
   startPassage();
 }
-// passage: a passage object to run instead of the selected one (Section Mastery passage practice);
-// opts.masteryPractice counts each answer toward today's passage step and offers the next passage at the end.
-function startPassage(passage, opts = {}) {
+// passage: a passage object to run instead of the selected one.
+function startPassage(passage) {
   stopQuizTimer();
   pq.mini = null; pq.completed = false; pq.errPending = null;
   pq.masteryDay = null;
-  pq.masteryPractice = opts.masteryPractice || false;   // 'step' (TODAY's passage step) or 'followup' (after the quiz)
-  pq.masteryCats = Array.isArray(opts.cats) ? opts.cats : null;
   const p = passage && passage.questions ? passage : PASSAGE_BY_ID.get(selectedPassageId);
   if (!p) return;
   // The address bar (and a reload) follow the passage actually shown, also when TODAY picked it.
@@ -2404,7 +2401,6 @@ function finishPassageAnswer(chosen, other = null, answerMs = null) {
   recordEvidence('passage', disciplineOfPassage(pq.p, view.q), right);
   if (view.q.skill) recordEvidence('skill', view.q.skill, right);
   countAnswerToday();
-  if (pq.masteryPractice && typeof masteryNotePractice === 'function') masteryNotePractice(view.q, pq.p, pq.masteryPractice);
   pq.errPending = right ? null : { id: `${pq.p.id}#${pq.idx}`, disc: disciplineOfPassage(pq.p, view.q), key: null, type: null,
     chosen: view.choices[chosen], answer: view.choices[view.ans], other: other == null ? null : view.choices[other], correctInFinalTwo: right || other === view.ans, src: 'passage' };
   view.choices.forEach((_, i) => {
@@ -2478,12 +2474,9 @@ function showPassageResults() {
       ${missed.length ? missed.map(r => reviewItem({ stem: r.view.q.q, choices: r.view.choices, ans: r.view.ans, chosen: r.chosen, other: r.other, exp: r.view.q.exp })).join('')
         : '<div class="all-correct">✓ Perfect — no missed questions.</div>'}
     </div>
-    <div class="btn-row">${pq.masteryPractice
-      ? `<button class="new-quiz-btn" data-click="masteryNextPractice()">Next practice passage →</button>
-      <button class="new-quiz-btn secondary" data-click="goHome()">Back to TODAY</button>`
-      : `<button class="new-quiz-btn" data-click="startPassage()">Retry passage</button>
+    <div class="btn-row"><button class="new-quiz-btn" data-click="startPassage()">Retry passage</button>
       <button class="new-quiz-btn secondary" data-click="nextPassage()">Next passage →</button>
-      <button class="new-quiz-btn secondary" data-click="goHome()">Home</button>`}
+      <button class="new-quiz-btn secondary" data-click="goHome()">Home</button>
     </div>
     ${(snapshotEstimate(), scoreStrip())}`;
   window.scrollTo(0, 0);
