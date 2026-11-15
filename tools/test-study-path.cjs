@@ -11,6 +11,8 @@ const storage = new Map(), nodes = new Map();
 function el(id) { if (!nodes.has(id)) nodes.set(id, { innerHTML: '', textContent: '', value: '', style: {}, dataset: {}, classList: { toggle() {}, add() {}, remove() {} }, setAttribute() {}, focus() {}, scrollIntoView() {}, remove() {}, querySelectorAll() { return []; } }); return nodes.get(id); }
 const ctx = vm.createContext({ console, Date, Math, Map, Set, URLSearchParams, setInterval() { return 1; }, clearInterval() {}, setTimeout() {}, confirm() { return true; }, alert() {}, navigator: {}, location: { protocol: 'http:', search: '' }, window: { scrollTo() {} }, document: { getElementById: el, querySelectorAll() { return []; }, addEventListener() {} }, localStorage: { getItem: k => storage.get(k), setItem: (k, v) => storage.set(k, v), removeItem: k => storage.delete(k) } });
 const run = code => vm.runInContext(code, ctx);
+// Banks the app loads on demand (BANKS in js/app.js), loaded first as the browser would have them.
+for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(root + '/js/app.js', 'utf8'))[1])()).flat()) run(fs.readFileSync(root + '/' + f, 'utf8'));
 for (const [, file] of fs.readFileSync(root + '/index.html', 'utf8').matchAll(/<script src="([^"]+)"/g)) run(fs.readFileSync(root + '/' + file, 'utf8'));
 
 // Approved content only: no recall decks, no app-written passages, exam CARS limited to passages 1–9 of each set.
@@ -74,4 +76,62 @@ const before = JSON.parse(run('JSON.stringify(masteryPlanNow().steps.find(s=>s.i
 run('answerPassage(pq.views[0].ans)');
 assert.equal(JSON.parse(run('JSON.stringify(masteryPlanNow().steps.find(s=>s.id==="passages").progress)')), before, 'follow-up answers do not count toward the step');
 assert.equal(run('masteryLoad().days[localDay()].fixQ'), 1);
+
+// ── Regressions from the code review ──
+// 1.1: every card done but lessons short → "Continue" opens today's cards whose lesson isn't finished.
+{ const d = run('localDay()'), pool = JSON.parse(run('JSON.stringify(masteryPracticePool("cp").map(q=>q.id))'));
+  run(`(() => { const m = masteryLoad(); const row = masteryDayRow(m, 'cp'); const t = row.topics; row.guidedT = Object.fromEntries(t.map(c => [c, 10])); row.lessonsN = 40;
+    row.guidedIds = ${JSON.stringify(pool.slice(0, 50))}; row.lessonIds = ${JSON.stringify(pool.slice(0, 40))}; masterySave(m); })()`);
+  let g = JSON.parse(run('JSON.stringify(masteryPlanNow().steps.find(s=>s.id==="guided"))'));
+  assert(!g.done && g.progress === 50 && g.lessons === 40, 'stuck state: 50/50 cards, 40/50 lessons');
+  run('startMasteryGuided()');
+  assert.equal(run('quiz.mastery'), 'lessons'); assert.equal(run('quiz.items.length'), 10, 'the 10 cards whose lesson is unfinished');
+  assert(run(`quiz.items.every(v => ${JSON.stringify(pool.slice(40, 50))}.includes(v.q.id))`));
+  run('while (quiz.items[quiz.idx].teachCur < teachOf(quiz.items[quiz.idx].q).length) teachStep(1); pick(quiz.items[0].ans)');
+  g = JSON.parse(run('JSON.stringify(masteryPlanNow().steps.find(s=>s.id==="guided"))'));
+  assert.equal(g.lessons, 41, 'finishing a lesson counts'); assert.equal(g.progress, 50, 'finishing lessons adds no cards');
+  run('teachStep(0)'); // replaying a lesson on the same card never counts twice
+  run('goHome()');
+  // A step with nothing to start shows a message instead of doing nothing.
+  run(`(() => { const m = masteryLoad(); const row = masteryDayRow(m, 'cp'); row.flashT = Object.fromEntries(row.topics.map(c => [c, 10])); masterySave(m); })()`);
+  el('page-notice').hidden = true; run('startMasteryFlashcards()');
+  assert.equal(el('page-notice').hidden, false); assert.match(el('page-notice').textContent, /done for today/); }
+// 2.2: only the first answer to a card in a session counts toward the step.
+{ run(`(() => { const m = masteryLoad(); const row = masteryDayRow(m, 'cp'); row.flashT = {}; masterySave(m); })()`);
+  run('startMasteryFlashcards()'); const q0 = 'quiz.items[0].q';
+  const before = run('Object.values(masteryLoad().days[localDay()].flashT||{}).reduce((a,b)=>a+b,0)');
+  run(`masteryNoteAnswer(${q0}, false); masteryNoteAnswer(${q0}, true); masteryNoteAnswer(${q0}, true)`);
+  assert.equal(run('Object.values(masteryLoad().days[localDay()].flashT||{}).reduce((a,b)=>a+b,0)') - before, 1, 're-asked card counted once');
+  run('goHome()'); }
+// Follow-up Practice Exam cards have their own mode: they count as follow-up practice, not toward step 3.
+{ const before = JSON.parse(run('JSON.stringify(masteryPlanNow().steps.find(s=>s.id==="guided"))'));
+  run(`(() => { const m = masteryLoad(); m.tests.push({ subj: 'cp', day: localDay(), t: 9, kind: 'daily', correct: 12, total: 30, pct: 40, scaled: 120, version: 'cp_half_2', cats: { '4C': { c: 0, t: 3 } } }); masterySave(m); })()`);
+  run("startMasteryFollowup('guided')"); assert.equal(run('quiz.mastery'), 'followup');
+  const fix0 = run('masteryLoad().days[localDay()].fixQ || 0');
+  run('pick(quiz.items[0].ans)');
+  const after = JSON.parse(run('JSON.stringify(masteryPlanNow().steps.find(s=>s.id==="guided"))'));
+  assert.equal(after.progress, before.progress); assert.equal(after.lessons, before.lessons);
+  assert.equal(run('masteryLoad().days[localDay()].fixQ') - fix0, 1);
+  run('goHome()'); }
+// 2.4: after the pool is used up, a passage already used today is not repeated before the others.
+{ run("(()=>{const s2={}; LISTED_PASSAGES.forEach((p,i)=>{ s2[p.id]={attempts:1,last:100,best:100,lastAt:i+1}; }); s2[LISTED_PASSAGES[3].id].last=10; s2[LISTED_PASSAGES[4].id].last=20; store.set(KEYS.passages,s2)})()");
+  run(`(() => { const m = masteryLoad(); masteryDayRow(m, 'cp').pracUsed = [LISTED_PASSAGES[3].id]; masterySave(m); })()`);
+  run('startMasteryPassages()'); assert.equal(run('pq.p.id'), run('LISTED_PASSAGES[4].id'), 'the lowest score not used today'); run('goHome()'); }
+// Midnight: answers in a session started yesterday count toward yesterday.
+{ const y = run('localDay(new Date(Date.now()-DAY))');
+  run('startMasteryFlashcards(true)'); run(`quiz.masteryDay = '${y}'`);
+  run('pick(quiz.items[0].ans)');
+  assert(run(`Object.values(masteryLoad().days['${y}']?.flashT||{}).reduce((a,b)=>a+b,0)`) >= 1, 'counted on the day the session started');
+  run('goHome()'); }
+// 2.5: "Study my mistakes from this exam" builds a card set from the approved cards (it used the removed decks).
+{ run(`examReviewState.attempt = { ei: 0, date: Date.now(), answers: FULL_EXAMS[0].sections.map(() => []), marked: [], orders: [], results: FULL_EXAMS[0].sections.map(() => ({ correct: 0, total: 1, pct: 0, scaled: 118 })) }`);
+  run('studyExamMistakes()');
+  assert.equal(run('activeScreen'), 'screen-quiz'); assert.equal(run('quiz.label'), 'Exam mistakes');
+  assert(run('quiz.items.length') >= 15 && run('quiz.items.every(v => AQB_BY_ID.has(v.q.id) || FLQ_BY_ID.has(v.q.id))'), 'QBank and Practice Exam cards only');
+  run('goHome()'); }
+// 2.6: past days drop their card-id lists from the saved (synced) copy; today and yesterday keep them.
+{ run(`(() => { const m = masteryLoad(); m.days['2026-01-01'] = { subj: 'cp', topics: ['5D'], seen: ['a','b'], guidedIds: ['a'], lessonIds: ['a'], pracUsed: ['p'], flashT: { '5D': 3 } }; masterySave(m); })()`);
+  const old = JSON.parse(run(`JSON.stringify(masteryLoad().days['2026-01-01'])`));
+  assert(!old.seen && !old.guidedIds && !old.lessonIds && !old.pracUsed && old.flashT['5D'] === 3, 'lists dropped, counts kept');
+  assert(Array.isArray(JSON.parse(run('JSON.stringify(masteryLoad().days[localDay()].pracUsed)'))), 'today keeps its lists'); }
 console.log('Passage step passed: only the 36 C/P practice passages are listed and practiced; QBank-only flashcards; answers count toward the step and their category; unseen and weakest first; after the pool is used up the lowest-scoring repeat with a note; the follow-up prefers unused passages on the quiz\'s weak categories.');

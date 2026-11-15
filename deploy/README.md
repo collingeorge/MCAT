@@ -31,10 +31,10 @@ Quick check from any terminal:
 
 ```
 curl -sI https://mcat.collinbgeorge.com/ | grep -iE 'frame|nosniff|referrer|permissions|strict-transport|set-cookie'
-curl -sI https://collinbgeorge.com/study/mcat/recall.html | grep -i location
+curl -sI https://collinbgeorge.com/study/mcat/passages.html | grep -i location
 ```
 
-The first should show the six headers and no `Set-Cookie`. The second should show `location: https://mcat.collinbgeorge.com/recall.html`.
+The first should show the six headers and no `Set-Cookie`. The second should show `location: https://mcat.collinbgeorge.com/passages.html`. (`recall.html` still exists as a legacy page that opens Overview.)
 
 ## Supabase Security Advisor
 

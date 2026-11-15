@@ -44,6 +44,9 @@ async function main() {
   // 3. The app itself is origin-relative, so it runs unchanged at the subdomain root.
   assert.equal(JSON.parse(fs.readFileSync(root + '/manifest.webmanifest', 'utf8')).scope, './');
   assert.doesNotMatch(fs.readFileSync(root + '/sw.js', 'utf8'), /study\/mcat|github\.io/);
-  console.log('Deployment passed: CNAME for mcat.collinbgeorge.com; old path 301-redirects with no fetching, forwarding, auth-code carry-over, traversal or open redirect; subdomain headers Worker adds frame-ancestors/XFO/nosniff/HSTS and strips cookies; app is origin-relative.');
+  // Regression (review 3): developer tools (validate.html runs an inline script without the CSP) and internal notes are
+// excluded from the published site.
+{ const cfg = fs.readFileSync(root + '/_config.yml', 'utf8'); for (const dir of ['tools', 'docs']) assert.match(cfg, new RegExp('^\\s*-\\s*' + dir + '\\s*$', 'm'), dir + '/ is not published'); }
+console.log('Deployment passed: CNAME for mcat.collinbgeorge.com; old path 301-redirects with no fetching, forwarding, auth-code carry-over, traversal or open redirect; subdomain headers Worker adds frame-ancestors/XFO/nosniff/HSTS and strips cookies; app is origin-relative.');
 }
 main().catch(e => { console.error(e); process.exitCode = 1; });

@@ -40,59 +40,90 @@
   const meta=(id=owner())=>read(PREFIX+id,{revision:0,dirty:false});
   function snapshot(id=owner()) {
     const values={};
-    keys().forEach(k=>{const v=localStorage.getItem(scope(k,id));if(v!=null)values[k]=JSON.parse(v);});
+    // One unreadable key must not block every cloud save: skip it (the app treats it as missing too).
+    keys().forEach(k=>{const v=localStorage.getItem(scope(k,id));if(v==null)return;try{values[k]=JSON.parse(v);}catch{}});
     return {schema:1,values};
   }
-  function validate(payload) {
-    if(!payload||payload.schema!==1||!payload.values||typeof payload.values!=='object'||Array.isArray(payload.values)||JSON.stringify(payload).length>2000000)throw Error('The saved progress format is invalid or too large.');
+  // The server limit is 2,000,000 UTF-8 bytes of the stored JSON text (which adds spaces), so an outgoing copy
+  // must stay well under it; an incoming copy the server already accepted may use the full limit.
+  const SEND_LIMIT=1700000,RECEIVE_LIMIT=2000000;
+  const bytes=payload=>new TextEncoder().encode(JSON.stringify(payload)).length;
+  class TooLargeError extends Error {}
+  function validate(payload,limit=RECEIVE_LIMIT) {
+    if(!payload||payload.schema!==1||!payload.values||typeof payload.values!=='object'||Array.isArray(payload.values))throw Error('The saved progress format is invalid.');
+    const size=bytes(payload);
+    if(size>limit)throw new TooLargeError('Your progress is too large to sync to the cloud ('+(size/1e6).toFixed(1)+' MB; limit '+(limit/1e6).toFixed(1)+' MB). It is still saved on this device.');
     const allowed=new Set(keys());
     if(Object.keys(payload.values).some(k=>!allowed.has(k)))throw Error('The saved progress contains unsupported fields.');
     return payload;
   }
+  // Replaces this user's study keys as one step: if storage fails partway (quota), the previous values are put
+  // back, so a failed switch never leaves a half-wiped copy. Guest and other-account caches stay separate.
   function apply(payload,id) {
     validate(payload);
-    // Only this user's study keys are replaced; guest and other-account caches remain separate.
-    keys().forEach(k=>localStorage.removeItem(scope(k,id)));
-    Object.entries(payload.values).forEach(([k,v])=>write(scope(k,id),v));
+    const old=new Map(keys().map(k=>[k,localStorage.getItem(scope(k,id))]));
+    try{
+      keys().forEach(k=>localStorage.removeItem(scope(k,id)));
+      Object.entries(payload.values).forEach(([k,v])=>write(scope(k,id),v));
+    }catch(e){
+      keys().forEach(k=>{try{localStorage.removeItem(scope(k,id));}catch{}});
+      old.forEach((v,k)=>{if(v!=null)try{localStorage.setItem(scope(k,id),v);}catch{}});
+      throw e;
+    }
   }
   function status(message){notice=message;const el=document.getElementById('account-status');if(el)el.textContent=message;}
-  function changed() {
+  // key: the study key written. Exam progress (every 10 s) and the study timer (every 15 s) only mark the copy
+  // as changed; they are uploaded with the next save, when the page is hidden or closed, or at the end of a
+  // section or session (flush). Other changes are batched into one upload about 45 s after the last one.
+  const SYNC_DELAY=45000;
+  const quiet=key=>typeof key==='string'&&(key===STUDY_TIMER_KEY||(typeof KEYS!=='undefined'&&typeof KEYS.examProgress==='function'&&FULL_EXAMS.some(e=>KEYS.examProgress(e.id)===key)));
+  function changed(key) {
     const id=owner();if(!id)return;
     try{const m=meta(id);m.dirty=true;m.change=(m.change||0)+1;write(PREFIX+id,m);status('Saved on this device · cloud sync pending');}catch{status('Local storage failed · progress is not safely saved');return;}
-    // One answer writes ~10 keys; batch them into one cloud save. Hidden pages flush immediately.
-    clearTimeout(timer);timer=setTimeout(()=>sync().catch(()=>{}),1500);
+    if(quiet(key))return;
+    clearTimeout(timer);timer=setTimeout(()=>sync().catch(()=>{}),SYNC_DELAY);
   }
+  function flush(){if(!client||!owner())return Promise.resolve();clearTimeout(timer);return sync().catch(()=>{});}
   async function remote() {
     const {data,error}=await client.from('mcat_progress').select('revision,payload,updated_at').eq('user_id',user.id).maybeSingle();
     if(error)throw Error('Cloud progress could not be read. Your device copy is unchanged.');
     if(data)validate(data.payload);return data;
   }
+  // Checking for newer cloud work reads only the revision number; the payload is fetched only when it differs.
+  async function remoteRevision() {
+    const {data,error}=await client.from('mcat_progress').select('revision').eq('user_id',user.id).maybeSingle();
+    if(error)throw Error('Cloud progress could not be read. Your device copy is unchanged.');
+    return data?Number(data.revision):null;
+  }
+  // One sync at a time per tab, and across tabs where the browser supports Web Locks (two tabs saving at once
+  // would otherwise see each other's save as "another device").
   let inFlight=null;
   function sync(){
     if(inFlight)return inFlight;
-    inFlight=performSync().finally(()=>{inFlight=null;});
+    const run=()=>performSync();
+    inFlight=(typeof navigator!=='undefined'&&navigator.locks?.request?navigator.locks.request('mcat-cloud-sync',run):run()).finally(()=>{inFlight=null;});
     return inFlight;
   }
   async function performSync() {
     if(choice?.empty&&user&&!busy){
-      // The user explicitly pressed Sync now for an empty account: preserve the
-      // progress currently displayed, including work done during initial setup.
+      // A new (empty) cloud account adopts the progress currently displayed on this browser: this account's
+      // device copy if there is one, otherwise the guest progress. Nothing is overwritten on either side.
       const id=user.id,claimed=read('mcat_guest_claim',null);
       const payload=validate(snapshot((owner()&&owner()!==id)||(!owner()&&claimed&&claimed!==id)?id:owner()));
       if(!owner()&&!claimed)write('mcat_guest_claim',id);
-      write('mcat_cloud_backup_'+id,snapshot(id));
       apply(payload,id);write(PREFIX+id,{revision:0,dirty:true,change:1});write(OWNER,id);choice=null;
       render();
     }
     if(busy||!client||!user||owner()!==user.id||choice)return;
     const id=user.id,m=meta(id);if(!m.dirty){
-      if(typeof activeScreen==='undefined'||activeScreen==='screen-home')await prepareSession({user});
+      // Inside the sync lock: prepareSession must not call sync() again (it would wait on itself).
+      if(typeof activeScreen==='undefined'||activeScreen==='screen-home')await prepareSession({user},true);
       else status('Cloud connected · all device changes saved');
       return;
     }
     const token=generation;busy=true;status('Saving to cloud…');
     try {
-      const payload=validate(snapshot(id));
+      const payload=validate(snapshot(id),SEND_LIMIT);
       const {data,error}=await client.rpc('save_mcat_progress',{p_expected_revision:m.revision,p_payload:payload});
       if(token!==generation)return;
       if(error)throw Error('Cloud save failed. Device progress is retained; reconnect and choose Sync now.');
@@ -100,13 +131,16 @@
       if(!Number.isInteger(data?.revision))throw Error('Cloud did not confirm the save.');
       const current=meta(id);write(PREFIX+id,{...current,revision:data.revision,dirty:current.change!==m.change});
       status(current.change!==m.change?'New changes waiting to sync':'Saved to cloud · '+new Date().toLocaleTimeString());
-      if(current.change!==m.change){clearTimeout(timer);timer=setTimeout(()=>sync().catch(()=>{}),0);}
-    } catch(e){status(e.message||'Cloud unavailable · device progress retained');}
+      if(current.change!==m.change){clearTimeout(timer);timer=setTimeout(()=>sync().catch(()=>{}),SYNC_DELAY);}
+    } catch(e){status(e instanceof TooLargeError?e.message+' Ask for help, or remove old exam attempts.':e.message||'Cloud unavailable · device progress retained');}
     finally{busy=false;}
   }
-  async function prepareSession(session) {
+  // inner: called from performSync, which already holds the sync lock, so saves run directly.
+  async function prepareSession(session,inner=false) {
     generation++;user=session?.user||null;choice=null;
     if(!user){status('Signed out · guest progress stays on this browser');if(owner()){localStorage.removeItem(OWNER);location.reload();}render();return;}
+    const save=inner?performSync:sync;
+    if(owner()===user.id&&!meta(user.id).dirty){const rev=await remoteRevision(),m0=meta(user.id);if(!m0.dirty&&rev===m0.revision){status('Cloud connected · progress saved');render();return;}}
     const cloud=await remote(),m=meta(user.id);
     // Restore clean account copies automatically after logout or on another device.
     // Unsent local changes still require conflict review before replacement.
@@ -115,9 +149,9 @@
       if(switched){apply(cloud.payload,user.id);write(PREFIX+user.id,{revision:cloud.revision,dirty:false,change:0});write(OWNER,user.id);location.reload();return;}
     }
     if(owner()===user.id && !m.dirty && cloud?.revision===m.revision){status('Cloud connected · progress saved');render();return;}
-    if(owner()===user.id && m.dirty && (cloud?.revision||0)===m.revision){await sync();render();return;}
+    if(owner()===user.id && m.dirty && (cloud?.revision||0)===m.revision){await save();render();return;}
     choice=cloud||{revision:0,payload:{schema:1,values:{}},empty:true};
-    if(choice.empty){await sync();if(!meta(user.id).dirty)location.reload();return;}
+    if(choice.empty){await save();if(!meta(user.id).dirty)location.reload();return;}
     status('Signed in · choose your progress copy to finish setup');render();
   }
   async function choose(source) {
@@ -127,13 +161,12 @@
     if(source!=='cloud'&&!confirm('Use this device copy for your account? This replaces the cloud study copy. Other devices may have newer work.'))return;
     const id=user.id,revision=choice.revision;
     const payload=source==='cloud'?choice.payload:snapshot(source==='guest'?null:id);
-    validate(payload);
-    // Back up the previous cache before replacing it. The backup is never uploaded automatically.
-    write('mcat_cloud_backup_'+id,snapshot(id));
-    apply(payload,id);write(PREFIX+id,{revision,dirty:source!=='cloud',change:1});write(OWNER,id);choice=null;
+    validate(payload,source==='cloud'?RECEIVE_LIMIT:SEND_LIMIT);
+    // apply() rolls back on failure, so no separate on-disk backup is needed (an older one is removed).
+    apply(payload,id);localStorage.removeItem('mcat_cloud_backup_'+id);write(PREFIX+id,{revision,dirty:source!=='cloud',change:1});write(OWNER,id);choice=null;
     if(source!=='cloud')await sync();
     location.reload();
-    }catch{status('Could not switch progress copies. Your previous account cache is backed up on this device; free browser storage and retry.');}
+    }catch(e){status(e instanceof TooLargeError?e.message:'Could not switch progress copies. Your previous account copy is unchanged; free browser storage and retry.');}
   }
   // Breached-password check (HaveIBeenPwned range API, k-anonymity): only the first 5 hex characters of
   // the password's SHA-1 leave the browser; the full hash and password never do, and the match runs
@@ -185,7 +218,8 @@
   }
   async function logout() {
     if(busy)return;
-    await sync();
+    // Offline or with the cloud down, the save fails; sign-out (local) still works and pending changes stay here.
+    try{await sync();}catch{}
     if(meta().dirty&&!confirm('Cloud saving is still pending. Sign out and leave the pending copy on this device?'))return;
     const {error}=await client.auth.signOut({scope:'local'});
     if(error){status('Sign-out failed. Please retry.');return;}
@@ -194,7 +228,7 @@
   // Shared computers: sign out and delete this account's cached copy, only once the cloud has it all.
   async function logoutAndForget() {
     if(!user)return;
-    const id=user.id;await sync();
+    const id=user.id;try{await sync();}catch{}
     if(busy)return;
     if(meta(id).dirty){status('Cloud saving is still pending. Sync before removing this device copy.');return;}
     if(!confirm('Sign out and remove this account\u2019s study data from this browser? Your cloud copy is kept.'))return;
@@ -274,9 +308,13 @@
     window.addEventListener('online',reconnect);
     window.addEventListener('focus',reconnect);
     document.addEventListener?.('visibilitychange',()=>{if(document.visibilityState==='hidden'&&client){clearTimeout(timer);sync().catch(()=>{});}});
+    window.addEventListener('pagehide',()=>{if(client){clearTimeout(timer);sync().catch(()=>{});}});
+    // Signing in or out in another tab switches which copy this tab must write: reload to follow it.
+    const ownerAtLoad=owner();
+    window.addEventListener('storage',e=>{if(e.key===OWNER&&owner()!==ownerAtLoad)location.reload();});
   }
   function recovery(){recovering=true;render();}
   function clearBackup(){const id=owner();if(id)localStorage.removeItem('mcat_cloud_backup_'+id);}
   function open(){if(!goHome())return;document.getElementById('account-details').open=true;document.getElementById('account-panel').scrollIntoView({block:'center',behavior:'smooth'});}
-  window.McatAccount={storageKey:scope,changed,init,action,sync,logout,logoutAndForget,deleteAccount,choose,snapshot,validate,clearBackup,open};
+  window.McatAccount={storageKey:scope,changed,flush,init,action,sync,logout,logoutAndForget,deleteAccount,choose,snapshot,validate,clearBackup,open};
 })();

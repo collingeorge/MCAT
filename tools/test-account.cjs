@@ -4,7 +4,8 @@ const A='11111111-1111-4111-8111-111111111111',B='22222222-2222-4222-8222-222222
 let loginUser={id:A,email:'student@example.test'},session=null,exchangedCode=null;
 function el(id){if(!nodes.has(id))nodes.set(id,{innerHTML:'',textContent:'',value:'',open:false});return nodes.get(id);}
 const client={auth:{onAuthStateChange(){},async exchangeCodeForSession(code){exchangedCode=code;return {data:{session}};},async getSession(){return {data:{session}};},async signInWithPassword(){session={user:loginUser};return {data:{session}};},async signUp(){return {data:{}};},async resetPasswordForEmail(){return {data:{}};},async updateUser(){return {data:{}};},async signOut(){session=null;return {}; }},from(){return {select(){return this;},eq(){return this;},async maybeSingle(){return offline?{error:{message:'offline'}}:{data:cloud};}};},async rpc(name,args){if(name==='delete_my_account'){deleteCalls.push({args,caller:session?.user?.id||null});if(deleteFails)return {error:{message:'offline'}};if(!session)return {error:{message:'Authentication required'}};otherUsersRows.delete(session.user.id);cloud=null;return {data:null};}rpcCalls++;if(offline)return {error:{message:'offline'}};assert.equal(name,'save_mcat_progress');if((cloud?.revision||0)!==args.p_expected_revision)return {data:{conflict:true,revision:cloud.revision}};cloud={revision:(cloud?.revision||0)+1,payload:JSON.parse(JSON.stringify(args.p_payload))};return {data:{revision:cloud.revision}};}};
-const ctx=vm.createContext({console,Date,Math,Set,URL,clearTimeout(){},setTimeout(){return 1;},confirm(){return true;},KEYS:{stats:'mcat2_stats',mem:'mcat2_memory',dailyPlan:'mcat2_daily_plan',externalPassages:'mcat2_external_passages'},STUDY_TIMER_KEY:'mcat2_study_timer',FULL_EXAMS:[],showProgress(){},mockSdk:{createClient(){return client;}},window:{MCAT_CLOUD_CONFIG:{url:'https://test.supabase.co',publishableKey:'sb_publishable_test'}},document:{getElementById:el},location:{href:'https://example.test/index.html',reload(){reloads++;}},localStorage:{getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)}});
+const timers=[],listeners={};
+const ctx=vm.createContext({console,Date,Math,Set,Map,URL,TextEncoder,clearTimeout(){},setTimeout(fn,ms){timers.push(ms);return 1;},confirm(){return true;},KEYS:{stats:'mcat2_stats',mem:'mcat2_memory',dailyPlan:'mcat2_daily_plan',externalPassages:'mcat2_external_passages'},STUDY_TIMER_KEY:'mcat2_study_timer',FULL_EXAMS:[],showProgress(){},mockSdk:{createClient(){return client;}},window:{MCAT_CLOUD_CONFIG:{url:'https://test.supabase.co',publishableKey:'sb_publishable_test'},addEventListener(n,f){listeners[n]=f;}},document:{getElementById:el,addEventListener(n,f){listeners['doc:'+n]=f;}},location:{href:'https://example.test/index.html',reload(){reloads++;}},localStorage:{getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)}});
 // Breach-check service double: records each request and answers from a fixed set of "breached" passwords.
 const crypto=require('node:crypto'),pwned=new Map(),pwnedCalls=[];let pwnedDown=false;
 const sha1=t=>crypto.createHash('sha1').update(t).digest('hex').toUpperCase();
@@ -125,6 +126,50 @@ async function main(){
   assert.equal((fn.split('end $$;')[0].match(/delete from/g)||[]).length,2,'no other deletes');
   assert.match(fn,/revoke all on function public\.delete_my_account\(\) from public, anon;/);assert.match(fn,/grant execute on function public\.delete_my_account\(\) to authenticated;/);
   assert.doesNotMatch(fn,/grant execute on function public\.delete_my_account\(\) to (anon|public)/);
+ }
+ // ── Regressions from the code review ──
+ {
+  loginUser={id:A,email:'student@example.test'};cloud={revision:7,payload:{schema:1,values:{mcat2_stats:{biology:{c:20,t:21}}}}};
+  el('account-email').value=loginUser.email;el('account-password').value='test-only-password';await api.action('login');
+  assert(api.storageKey('mcat2_stats').includes(A));
+  // 1.2: a store write during the cloud check (nothing pending at the start) used to wait on its own sync forever.
+  const realFrom=client.from;let hooked=false;
+  client.from=()=>{const q=realFrom();const ms=q.maybeSingle;q.maybeSingle=async()=>{if(!hooked){hooked=true;data.set(api.storageKey('mcat2_stats'),JSON.stringify({biology:{c:21,t:22}}));api.changed('mcat2_stats');}return ms.call(q);};return q;};
+  const rev0=cloud.revision;
+  const done=await Promise.race([api.sync().then(()=>'done'),new Promise(r=>setTimeout(()=>r('deadlock'),2000))]);
+  client.from=realFrom;
+  assert.equal(done,'done','sync finishes when a write lands during the cloud check');assert.equal(cloud.revision,rev0+1,'and the new write is saved');
+  // 2.7: only the revision is read when nothing changed; exam-progress and study-timer writes don't start an upload.
+  const t0=timers.length;api.changed('mcat2_study_timer');assert.equal(timers.length,t0,'study timer write: no upload scheduled');
+  api.changed('mcat2_stats');assert.equal(timers.at(-1),45000,'other writes are batched for 45 s');
+  await api.sync();
+  // 2.6: the size limit counts UTF-8 bytes, with headroom under the server's 2,000,000.
+  const big={schema:1,values:{mcat2_stats:{note:'é'.repeat(900000)}}};
+  assert(JSON.stringify(big).length<2000000,'under the old UTF-16 character count');
+  assert.doesNotThrow(()=>api.validate(big),'an incoming copy may use the server limit');
+  data.set(api.storageKey('mcat2_stats'),JSON.stringify(big.values.mcat2_stats));api.changed('mcat2_stats');const rev1=cloud.revision;await api.sync();
+  assert.equal(cloud.revision,rev1,'not uploaded');assert.match(el('account-status').textContent,/too large to sync.*1\.8 MB/,'a specific message');
+  data.set(api.storageKey('mcat2_stats'),JSON.stringify({biology:{c:22,t:23}}));api.changed('mcat2_stats');await api.sync();
+  // Snapshot: one corrupt key is skipped instead of blocking every save.
+  data.set(api.storageKey('mcat2_memory'),'{not json');const rev2=cloud.revision;api.changed('mcat2_memory');await api.sync();
+  assert.equal(cloud.revision,rev2+1,'saved despite the corrupt key');assert(!('mcat2_memory' in cloud.payload.values));
+  data.delete(api.storageKey('mcat2_memory'));
+  // 2.8: replacing the copy is all-or-nothing: a storage failure partway restores the previous values.
+  cloud={revision:cloud.revision+1,payload:{schema:1,values:{mcat2_stats:{biology:{c:99,t:99}},mcat2_memory:{x:1}}}};
+  data.set(api.storageKey('mcat2_stats'),JSON.stringify({biology:{c:23,t:24}}));api.changed('mcat2_stats');await api.sync();
+  assert.match(el('account-status').textContent,/Another device/);
+  const realSet=ctx.localStorage.setItem;let n=0;ctx.localStorage.setItem=(k,v)=>{if(k.includes(':mcat2_memory')&&++n===1)throw Error('QuotaExceededError');return realSet(k,v);};
+  await api.choose('cloud');ctx.localStorage.setItem=realSet;
+  assert.equal(JSON.parse(data.get(api.storageKey('mcat2_stats'))).biology.c,23,'previous values restored after a failed switch');
+  assert.match(el('account-status').textContent,/previous account copy is unchanged/);assert(!data.has('mcat_cloud_backup_'+A),'no unreadable backup copy is written');
+  await api.choose('device');
+  // Multiple tabs: signing in or out in another tab reloads this one.
+  const r0=reloads;data.set('mcat_cloud_owner',JSON.stringify(B));listeners.storage({key:'mcat_cloud_owner'});assert.equal(reloads,r0+1,'another tab changed the account');
+  data.set('mcat_cloud_owner',JSON.stringify(A));
+  // 2.1: sign-out works offline (the save fails, sign-out is local).
+  offline=true;data.set(api.storageKey('mcat2_stats'),JSON.stringify({biology:{c:24,t:25}}));api.changed('mcat2_stats');
+  await api.logout();offline=false;
+  assert.equal(session,null,'signed out while offline');assert.equal(api.storageKey('mcat2_stats'),'mcat2_stats');
  }
  console.log('Account tests passed: no password/token backup, explicit guest import, per-user isolation, offline queue, conflict protection, cloud restore, sign-out and RLS schema guards.');
 }

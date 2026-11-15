@@ -1132,7 +1132,81 @@ def draw(m, hl):
     svg = re.sub(r'<!-- .*? -->\s*', '', svg)
     svg = re.sub(r'(\d+\.\d)\d+', r'\1', svg)          # one decimal is plenty at this size
     svg = re.sub(r'\s*\n\s*', ' ', svg).replace('> <', '><')
-    return svg.strip()
+    return compact(svg.strip())
+
+# Style declarations that only restate the SVG default (nothing inherits from the bare <svg> root).
+DEFAULT_DECLS = {'fill-opacity:1', 'stroke-opacity:1', 'font-style:normal', 'font-weight:normal',
+                 'stroke-linecap:butt', 'stroke-linejoin:miter', 'text-anchor:start'}
+
+def num(s):
+    """Shortest spelling of a one-decimal number: 73.0 -> 73, 0.5 -> .5, -0.5 -> -.5."""
+    s = s.rstrip('0').rstrip('.') if '.' in s else s
+    if s in ('', '-', '-0'): return '0'
+    return re.sub(r'^(-?)0\.', r'\1.', s)
+
+def short_style(style, tag):
+    decls = [x.strip() for x in style.split(';') if x.strip()]
+    keep = []
+    for x in decls:
+        if x in DEFAULT_DECLS: continue
+        if x == 'stroke:none' and tag == 'text': continue          # text has no stroke by default
+        if x == 'fill-rule:evenodd' and 'fill:none' in decls: continue   # fill rule of an unfilled shape
+        x = re.sub(r'#([0-9A-Fa-f])\1([0-9A-Fa-f])\2([0-9A-Fa-f])\3\b', r'#\1\2\3', x)   # #FF0000 -> #F00
+        x = re.sub(r'(\d+\.\d+|\d+)(?=px)', lambda m: num(m.group(1)), x)
+        keep.append(x)
+    return ';'.join(keep)
+
+def short_path(d):
+    """'M 161.5,91.9 L 140.7,73.0' -> 'M161.5 91.9L140.7 73'."""
+    out, prev = [], ''
+    for tok in re.findall(r'[A-Za-z]|-?\d*\.?\d+', d):
+        if tok.isalpha(): out.append(tok)
+        else:
+            tok = num(tok)
+            if prev and not prev.isalpha() and not tok.startswith('-') and not (tok.startswith('.') and '.' in prev): out.append(' ')
+            out.append(tok)
+        prev = tok
+    return ''.join(out)
+
+def compact(svg):
+    """Rewrite RDKit's SVG into the same picture with fewer bytes. Each drawing stays a standalone SVG
+    document (the app shows it as an <img>, which cannot see page CSS), so its styles move into a <style>
+    of its own: one short class per distinct style. Unfilled strokes that share a class are joined into one
+    <path>; RDKit's root attributes, per-atom classes, default-valued declarations and '.0's are dropped."""
+    head = re.match(r"<svg [^>]*?width='([\d.]+)(?:px)?' height='([\d.]+)(?:px)?' viewBox='([^']*)'[^>]*>", svg)
+    body = svg[head.end():svg.rindex('</svg>')]
+    els = []                                   # [tag, attrs(list of (k, v)), style, text or None]
+    for m in re.finditer(r"<(\w+)((?:\s+[\w:-]+='[^']*')*)\s*(/>|>(.*?)</\1>)", body, re.S):
+        tag, attrs, text = m.group(1), re.findall(r"([\w:-]+)='([^']*)'", m.group(2)), m.group(4)
+        style = short_style(dict(attrs).get('style', ''), tag)
+        attrs = [(k, short_path(v) if k == 'd' else num(v) if re.fullmatch(r'-?[\d.]+', v) else v)
+                 for k, v in attrs if k not in ('class', 'style')]
+        if text is not None: text = text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+        els.append([tag, attrs, style, text])
+    if ''.join(re.sub(r"<(\w+)(?:\s+[\w:-]+='[^']*')*\s*(?:/>|>.*?</\1>)", '', body, flags=re.S).split()):
+        raise SystemExit('compact(): unparsed SVG content')
+    # Join unfilled strokes of one style into the first such path, as long as only other paths lie between.
+    merged, first = [], {}
+    for e in els:
+        tag, attrs, style, _ = e
+        if tag != 'path' or 'fill:none' not in style.split(';'):
+            first.clear()
+            merged.append(e); continue
+        if style in first:
+            tgt = first[style][1]
+            d = dict(tgt)['d'] + dict(attrs)['d']
+            first[style][1] = [(k, d if k == 'd' else v) for k, v in tgt]
+        else:
+            first[style] = e; merged.append(e)
+    cls = {}
+    for _, _, style, _ in merged:
+        if style and style not in cls: cls[style] = chr(ord('a') + len(cls)) if len(cls) < 26 else 'c' + str(len(cls))
+    css = ''.join(f'.{c}{{{s}}}' for s, c in cls.items())
+    parts = [f"<svg xmlns='http://www.w3.org/2000/svg' width='{num(head.group(1))}' height='{num(head.group(2))}' viewBox='{head.group(3)}'><style>{css}</style>"]
+    for tag, attrs, style, text in merged:
+        a = ''.join(f" {k}='{v}'" for k, v in attrs) + (f" class='{cls[style]}'" if style else '')
+        parts.append(f'<{tag}{a}/>' if text is None else f'<{tag}{a}>{text}</{tag}>')
+    return ''.join(parts) + '</svg>'
 
 # Amino-acid side-chain highlights ('<aa>-sc'): every heavy atom outside the N–Cα–C(=O)OH backbone.
 BACKBONE = Chem.MolFromSmarts('[NX3][CX4][CX3](=O)[OX2H1]')

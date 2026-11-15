@@ -6,30 +6,25 @@
   'use strict';
   const ACTIONS = new Set([
     // navigation and sessions
-    'goHome', 'setMode', 'startSession', 'showAbout', 'showPlan', 'savePlan', 'clearPlan', 'showProgress', 'resetProgress', 'exportMissed',
-    'startSmartSession', 'startDueReview', 'startFlagged', 'drillWeak', 'startSpeedDrill', 'retryMissed', 'drillCategory',
-    'setCount', 'setMix', 'setRecallFirst', 'toggleSubjectOpen', 'setSubjectKeys', 'sgSelectAll', 'sgClearAll',
+    'goHome', 'setMode', 'startSession', 'showAbout', 'showPlan', 'savePlan', 'clearPlan', 'showProgress', 'resetProgress', 'exportMissed', 'retryMissed',
     // AAMC Question Bank Flashcards section
     'setAamcCount', 'setAamcChip', 'aamcSelectAll', 'resumeAamc', 'continueAamc', 'reviewAamcMissed', 'reviewAamcDue', 'drillAamcWeak', 'togglePrepDone',
     // Full-Length Prep tab
     'setFlCount', 'setFlTest', 'flSelectAll', 'reviewFlMissed',
     // Subject Mastery path
-    'startMasteryGuided', 'startMasteryMisses', 'startMasteryFlashcards', 'startMasteryPassages', 'masteryNextPractice', 'startMasteryFollowup', 'startMasteryTest', 'setMasteryGoal', 'setMasteryPerDay', 'setMasterySubject',
+    'startMasteryGuided', 'startMasteryFlashcards', 'startMasteryPassages', 'masteryNextPractice', 'retryStructs', 'startMasteryFollowup', 'startMasteryTest', 'setMasteryGoal', 'setMasteryPerDay', 'setMasterySubject',
     // AAMC Prep tab menu and Rules & Passage Prep section
     'openAamc', 'openAamcView', 'startRulesQuiz', 'reviewRulesMissed',
     // recall quiz
     'pick', 'revealChoices', 'showHint', 'teachStep', 'howStep', 'howToggle', 'howReplay', 'setConfidence', 'setErrType', 'setPendingNote', 'setWrongAlternative', 'nextQ', 'endQuiz', 'flagCurrent',
     // passages and mini tests
     'selectPassage', 'startPassage', 'answerPassage', 'nextPassageQ', 'nextPassage', 'setPassageErr', 'setMiniReviewAlternative', 'leaveMiniForRecall',
-    'startSubjectWork', 'startSubjectRecall', 'startWeakTopic', 'startMissingSubject', 'startRetentionRepair', 'showConfusionReview', 'startConfusionDrill',
     // full-length exams
     'startExam', 'abandonExam', 'beginSection', 'examPick', 'examNav', 'jumpTo', 'toggleMark', 'openSectionReview', 'confirmEndSection', 'continueAfterBreak',
-    'openLastExamReview', 'setExamReview', 'setExamReviewAlternative', 'studyExamMistakes', 'recordExternalDiagnostic',
+    'openLastExamReview', 'setExamReview', 'setExamReviewAlternative', 'studyExamMistakes',
     // official scores and study timer
     'showOfficialScores', 'saveOfficialScore', 'clearOfficialScores', 'setStudyTimerGoal', 'startStudyBreak', 'resumeStudyTimer',
     // TODAY plan
-    'startYesterdayMisses', 'startPassageMissReview', 'savePassageMissNote', 'startDailyNewFacts', 'startDailyPassage', 'logExternalPassage',
-    'startDailyCloseout', 'startPlannedFullLength', 'logExternalFullLength', 'deferFullLength', 'startFullLengthReview', 'completeFullLengthReview',
     // account
     'McatAccount.action', 'McatAccount.choose', 'McatAccount.sync', 'McatAccount.logout', 'McatAccount.logoutAndForget', 'McatAccount.deleteAccount', 'McatAccount.open',
   ]);

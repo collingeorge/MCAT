@@ -87,7 +87,10 @@ assert(header && header[1] === crypto.createHash('sha256').update(gen).digest('h
 for (const [name, svg] of Object.entries(STRUCT)) {
   assert(/^<svg[\s\S]*<\/svg>$/.test(svg), name + ': is an SVG');
   assert(!/<script|<foreignObject|\son\w+\s*=|javascript:|href=/i.test(svg), name + ': no script, handlers or links in the drawing');
+  assert(!/<\?xml|<!--|rdkit/i.test(svg), name + ': compact SVG (no XML declaration, comments or RDKit metadata)');
 }
+// The generator compacts RDKit's SVG (one-decimal numbers, shared <style> classes per drawing); keep the file small.
+assert(fs.statSync(root + '/data/structures.js').size < 2.5 * 1024 * 1024, 'data/structures.js stays under its 2.5 MB budget');
 // The drawings load on demand (Practice Exam sessions), not as a script tag on every page; they stay precached.
 for (const page of ['index.html', 'flprep.html', 'aamc.html', 'recall-session.html']) assert(!fs.readFileSync(root + '/' + page, 'utf8').includes('data/structures.js'), page + ' does not load the drawings up front');
 assert(source.includes("el.src = 'data/structures.js';") && source.includes('loadStructsFor(items);') && source.includes("if (view === 'exam') { ensureStructs()"), 'drawings load when Practice Exam cards are used');
@@ -104,9 +107,9 @@ const nodes = new Map();
 const node = id => { if (!nodes.has(id)) nodes.set(id, { innerHTML: '' }); return nodes.get(id); };
 const card = { ...pe6.find(q => q.src === 'pe6-cp:18'), teach: undefined }; // the hint ladder for a card without a lesson
 const ctx = vm.createContext({ $: node, quiz: { answered: false, idx: 0, items: [{ q: card }] }, String, Array });
-ctx.stepper = null; ctx.Math = Math; ctx.Number = Number; ctx.Set = Set; ctx.encodeURIComponent = encodeURIComponent;
+ctx.stepper = null; ctx.Math = Math; ctx.Number = Number; ctx.Set = Set; ctx.Map = Map; ctx.structUrls = new Map(); ctx.structsFailed = false; ctx.encodeURIComponent = encodeURIComponent;
 for (const name of ['esc', 'fmt', 'paragraphs', 'howOf', 'teachOf', 'teachHtml', 'teachStep', 'hintArea', 'showHint', 'howSteps', 'markText', 'markParagraphs', 'stepVisual', 'howPlayerHtml', 'applyStepContext', 'clearStepContext', 'howStepMs', 'howSchedule', 'howToggle', 'howReplay', 'howStep', 'howBox',
-  'chartNum', 'chartText', 'chartTicks', 'chartSmooth', 'chartMarker', 'chartLegend', 'chartAxes', 'chartAnnotations', 'lineChart', 'barChart', 'figureHtml', 'structImg', 'stemFigs']) vm.runInContext(extract(name), ctx);
+  'chartNum', 'chartText', 'chartTicks', 'chartSmooth', 'chartMarker', 'chartLegend', 'chartAxes', 'chartAnnotations', 'lineChart', 'barChart', 'figureHtml', 'structUrl', 'structImg', 'stemFigs']) vm.runInContext(extract(name), ctx);
 vm.runInContext("var CHART = { W: 560, L: 70, R: 18, T: 14, H: 250, B: 50 };", ctx);
 const view = ctx.quiz.items[0];
 
@@ -215,7 +218,7 @@ assert.equal(vm.runInContext('howBox({}) + howBox(null)', ctx), '');
 
 // Structure rendering: drawings become escaped data-URI images; structure choices hide their names until answered.
 ctx.STRUCT_SVG = { tyr: '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0"/></svg>' }; ctx.LETTERS = ['A', 'B', 'C', 'D']; ctx.encodeURIComponent = encodeURIComponent;
-for (const name of ['structImg', 'stemFigs', 'structChoice']) vm.runInContext(extract(name), ctx);
+for (const name of ['structUrl', 'structImg', 'stemFigs', 'structChoice']) vm.runInContext(extract(name), ctx);
 const img = vm.runInContext("structImg('tyr', 'x\"y')", ctx);
 assert.match(img, /^<img class="struct-img" src="data:image\/svg\+xml;charset=utf-8,%3Csvg/); assert(img.includes('alt="x&quot;y"'));
 assert.equal(vm.runInContext("structImg('missing') + structImg(null) + stemFigs({}) + stemFigs({fig:'missing'})", ctx), '');

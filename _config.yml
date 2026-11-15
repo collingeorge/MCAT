@@ -1,0 +1,7 @@
+# GitHub Pages (Jekyll) settings. Developer tools and notes are not published: tools/validate.html runs an inline
+# script without the app's Content-Security-Policy, and docs/ holds internal review notes.
+exclude:
+  - tools
+  - docs
+  - supabase
+  - deploy

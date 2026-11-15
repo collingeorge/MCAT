@@ -2164,7 +2164,7 @@ const CP_POOL = [
      ],
      "rows": [
       [
-       "A",
+       "1",
        "2.5",
        "6.2",
        "3.0",
@@ -2172,7 +2172,7 @@ const CP_POOL = [
        "0.020"
       ],
       [
-       "B",
+       "2",
        "1.0",
        "5.8",
        "1.0",
@@ -2180,7 +2180,7 @@ const CP_POOL = [
        "0.025"
       ],
       [
-       "C",
+       "3",
        "1.8",
        "6.5",
        "2.4",
@@ -2188,7 +2188,7 @@ const CP_POOL = [
        "0.040"
       ],
       [
-       "D",
+       "4",
        "0.8",
        "5.5",
        "0.6",
@@ -2199,7 +2199,7 @@ const CP_POOL = [
     },
     "questions": [
      {
-      "q": "Given the free Ca²⁺ concentration in Patient D's urine, what is the highest free C₂O₄²⁻ concentration the urine could contain without being supersaturated with calcium oxalate?",
+      "q": "Given the free Ca²⁺ concentration in Patient 4's urine, what is the highest free C₂O₄²⁻ concentration the urine could contain without being supersaturated with calcium oxalate?",
       "choices": [
        "1.0 μM",
        "10 μM",
@@ -2210,7 +2210,7 @@ const CP_POOL = [
       "cat": "5A",
       "skill": "SIRS 2",
       "diff": "X",
-      "exp": "The urine is just saturated when [Ca²⁺][C₂O₄²⁻] = Ksp. Patient D's free Ca²⁺ is 0.25 mM = **2.5 × 10⁻⁴ M** (Table 1). So the maximum [C₂O₄²⁻] = 2.5 × 10⁻⁹ ÷ 2.5 × 10⁻⁴ = **1.0 × 10⁻⁵ M = 10 μM**. This is the **common-ion effect**: the Ca²⁺ already present lowers how much oxalate can stay dissolved. Patient D's actual value (40 μM) is four times higher.\n\n**50 μM** is √Ksp (5.0 × 10⁻⁵ M), the solubility in pure water, which ignores the Ca²⁺ already in the urine.\n**1.0 μM** results from converting 0.25 mM to 2.5 × 10⁻³ M (a factor-of-10 slip).\n**100 μM** results from converting 0.25 mM to 2.5 × 10⁻⁵ M.",
+      "exp": "The urine is just saturated when [Ca²⁺][C₂O₄²⁻] = Ksp. Patient 4's free Ca²⁺ is 0.25 mM = **2.5 × 10⁻⁴ M** (Table 1). So the maximum [C₂O₄²⁻] = 2.5 × 10⁻⁹ ÷ 2.5 × 10⁻⁴ = **1.0 × 10⁻⁵ M = 10 μM**. This is the **common-ion effect**: the Ca²⁺ already present lowers how much oxalate can stay dissolved. Patient 4's actual value (40 μM) is four times higher.\n\n**50 μM** is √Ksp (5.0 × 10⁻⁵ M), the solubility in pure water, which ignores the Ca²⁺ already in the urine.\n**1.0 μM** results from converting 0.25 mM to 2.5 × 10⁻³ M (a factor-of-10 slip).\n**100 μM** results from converting 0.25 mM to 2.5 × 10⁻⁵ M.",
       "id": "p_cpp3_3_q1"
      },
      {
@@ -2231,16 +2231,16 @@ const CP_POOL = [
      {
       "q": "Based on Table 1, which patients' urine samples were supersaturated with calcium oxalate?",
       "choices": [
-       "B and D only",
-       "D only",
-       "A and C only",
-       "A, B, C and D"
+       "Patients 2 and 4 only",
+       "Patient 4 only",
+       "Patients 1 and 3 only",
+       "All four patients"
       ],
       "ans": 0,
       "cat": "5A",
       "skill": "SIRS 4",
       "diff": "D",
-      "exp": "Compute each ion product Q = [Ca²⁺][C₂O₄²⁻] in molar units and compare it with Ksp = 2.5 × 10⁻⁹:\nA: (1.0 × 10⁻⁴)(2.0 × 10⁻⁵) = 2.0 × 10⁻⁹ (below Ksp)\nB: (2.0 × 10⁻⁴)(2.5 × 10⁻⁵) = **5.0 × 10⁻⁹ (above)**\nC: (5.0 × 10⁻⁵)(4.0 × 10⁻⁵) = 2.0 × 10⁻⁹ (below)\nD: (2.5 × 10⁻⁴)(4.0 × 10⁻⁵) = **1.0 × 10⁻⁸ (above)**\nSo **B and D** are supersaturated. Both also have the lowest urine volume and citrate, which fits the passage's advice.\n\n**D only** misses B, whose Q is twice Ksp.\n**A and C only** reverses the comparison (Q < Ksp means undersaturated).\n**All four** treats every Q of order 10⁻⁹ as matching Ksp without comparing the coefficients.",
+      "exp": "Compute each ion product Q = [Ca²⁺][C₂O₄²⁻] in molar units and compare it with Ksp = 2.5 × 10⁻⁹:\nPatient 1: (1.0 × 10⁻⁴)(2.0 × 10⁻⁵) = 2.0 × 10⁻⁹ (below Ksp)\nPatient 2: (2.0 × 10⁻⁴)(2.5 × 10⁻⁵) = **5.0 × 10⁻⁹ (above)**\nPatient 3: (5.0 × 10⁻⁵)(4.0 × 10⁻⁵) = 2.0 × 10⁻⁹ (below)\nPatient 4: (2.5 × 10⁻⁴)(4.0 × 10⁻⁵) = **1.0 × 10⁻⁸ (above)**\nSo **Patients 2 and 4** are supersaturated. Both also have the lowest urine volume and citrate, which fits the passage's advice.\n\n**Patient 4 only** misses Patient 2, whose Q is twice Ksp.\n**Patients 1 and 3 only** reverses the comparison (Q < Ksp means undersaturated).\n**All four patients** treats every Q of order 10⁻⁹ as matching Ksp without comparing the coefficients.",
       "id": "p_cpp3_3_q3"
      },
      {

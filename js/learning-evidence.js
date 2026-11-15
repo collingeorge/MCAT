@@ -1,12 +1,5 @@
 // Learning evidence is descriptive; thresholds are study heuristics, not validated cutoffs.
 const LEARNING_DELAY = 3 * 86400000;
-function recordDelayedRecall(q, right, previous, now) {
-  if (!previous?.seen || !Number.isFinite(previous.last) || now - previous.last < LEARNING_DELAY) return;
-  const rows = store.get(KEYS.retention, []);
-  rows.push({t:now,id:q.baseId||q.id,key:q.key,disc:disciplineOfRecall(q),right:!!right,gap:now-previous.last});
-  store.set(KEYS.retention, rows.slice(-2000));
-}
-function retainedFact(m) { return !!m && m.S >= 21 && (m.delayedCorrect || 0) >= 2; }
 function beginPassageExposure(p) {
   const exposures=store.get(KEYS.exposures,{}), legacy=store.get(KEYS.passages,{});
   const first=!exposures[p.id] && !legacy[p.id]?.attempts;
@@ -17,34 +10,7 @@ function beginPassageExposure(p) {
 function recordPassageEvidence(p, results, first, mode) {
   const rows=store.get(KEYS.passageEvidence,[]);
   rows.push({t:Date.now(),id:p.id,disc:disciplineOfPassage(p),first:!!first,mode,correct:results.filter(r=>r.right).length,total:results.length,answerMs:results.reduce((n,r)=>n+(Number.isFinite(r.ms)?Math.max(0,r.ms):0),0)});
-  store.set(KEYS.passageEvidence,rows.slice(-1000));
-}
-function readinessData(now=Date.now()) {
-  const recent=x=>Number.isFinite(x.t)&&x.t<=now&&now-x.t<7*DAY;
-  const retention=store.get(KEYS.retention,[]).filter(recent);
-  const passages=store.get(KEYS.passageEvidence,[]).filter(recent);
-  const errors=store.get(KEYS.errors,[]).filter(recent);
-  const types={};errors.forEach(e=>{if(ERROR_TYPES.some(x=>x[0]===e.type))types[e.type]=(types[e.type]||0)+1;});
-  const top=Object.entries(types).sort((a,b)=>b[1]-a[1])[0];
-  return {retention,passages,errors,top,first:passages.filter(x=>x.first),repeated:passages.filter(x=>!x.first)};
-}
-function startRetentionRepair() {
-  const rows=store.get(KEYS.retention,[]).filter(x=>Date.now()-x.t<7*DAY), latest=new Map();
-  rows.forEach(x=>latest.set(x.id,x));
-  const pool=[...latest.values()].filter(x=>!x.right).map(x=>QB_BY_ID.get(x.id)).filter(Boolean);
-  if(pool.length)beginQuiz(pool.slice(0,10),'Repair delayed recall');else startDueReview();
-}
-function weeklyReadinessCard() {
-  const d=readinessData(), needs=learningNeeds();
-  const ratio=rows=>{const n=rows.reduce((s,x)=>s+x.total,0),c=rows.reduce((s,x)=>s+x.correct,0);return n?pct(c,n)+'% ('+c+'/'+n+' questions; '+rows.length+' passages)':'No completed passages recorded';};
-  const choices=[];
-  if(d.retention.some(x=>!x.right))choices.push('<button class="micro-btn" data-click="startRetentionRepair()">Repair delayed recall misses</button>');
-  else choices.push('<button class="micro-btn" data-click="startDueReview()">Review due facts</button>');
-  if(needs.weak.length)choices.push('<button class="micro-btn" data-click="startWeakTopic()">Repair '+esc(KEY_LABEL[needs.weak[0].k]||needs.weak[0].k)+'</button>');
-  const work=pathRecommendation();
-  if(work)choices.push('<button class="micro-btn" data-click="startSubjectWork(&quot;'+work.subj+'&quot;,&quot;passage&quot;)">Apply learning in '+esc(DISCIPLINES[work.subj])+'</button>');
-  if(choices.length<3)choices.push('<button class="micro-btn" data-click="showOfficialScores()">Review official practice results</button>');
-  return '<div class="results-card"><div class="section-label">Weekly readiness · last 7 days</div><p><b>Delayed recall (3+ days):</b> '+(d.retention.length?pct(d.retention.filter(x=>x.right).length,d.retention.length)+'% correct across '+d.retention.length+' checks':'Not enough history yet; immediate retries do not count')+'.</p><p><b>First-exposure passages:</b> '+ratio(d.first)+'.<br><b>Repeated passages:</b> '+ratio(d.repeated)+'.</p>'+(d.first.length?'<p class="muted-note">First-exposure answer time: '+fmtTime(d.first.reduce((s,x)=>s+x.answerMs,0))+'. Tutor feedback and review time are excluded; this is not an exam pace score.</p>':'')+(d.top?'<p><b>Most reported error:</b> '+esc(ERROR_TYPES.find(x=>x[0]===d.top[0])[1])+' ('+d.top[1]+' of '+d.errors.length+' misses). '+ERROR_ADVICE[d.top[0]]+'</p>':'<p class="muted-note">Label misses to distinguish content, reasoning, calculation, reading and timing needs.</p>')+'<div class="sw-head">Three next actions</div><div class="btn-row">'+choices.slice(0,3).join('')+'</div><p class="muted-note">Practice indicators, not a readiness certification. Started or abandoned passages count as exposed; older records cannot establish first exposure.</p></div>';
+  store.set(KEYS.passageEvidence,rows.slice(-500));
 }
 // Synced rows are untrusted: keep only well-formed records with four integer section scores.
 function officialScores() { return store.get(KEYS.official,[]).filter(x=>x&&typeof x==='object'&&typeof x.date==='string'&&typeof x.form==='string'&&Array.isArray(x.scores)&&x.scores.length===4&&x.scores.every(n=>Number.isInteger(n)&&n>=118&&n<=132)).sort((a,b)=>a.date.localeCompare(b.date)||(a.t||0)-(b.t||0)); }

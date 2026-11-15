@@ -6,6 +6,8 @@ const storage=new Map(),nodes=new Map();
 function el(id){if(!nodes.has(id))nodes.set(id,{innerHTML:'',textContent:'',value:'',hidden:false,style:{},dataset:{},classList:{toggle(){},add(){},remove(){}},setAttribute(){},focus(){},scrollIntoView(){},remove(){}});return nodes.get(id);}
 const ctx=vm.createContext({console,Date,Math,Map,Set,URLSearchParams,setInterval(){return 1},clearInterval(){},setTimeout(){},confirm(){return true},alert(){},navigator:{},location:{protocol:'http:',search:''},window:{scrollTo(){}},document:{hidden:false,getElementById:el,querySelectorAll(){return []},addEventListener(){}},localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)}});
 const run=code=>vm.runInContext(code,ctx);
+// Banks the app loads on demand (BANKS in js/app.js), loaded first as the browser would have them.
+for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(root + '/js/app.js', 'utf8'))[1])()).flat()) run(fs.readFileSync(root + '/' + f, 'utf8'));
 for(const [,file]of fs.readFileSync(root+'/index.html','utf8').matchAll(/<script src="([^\"]+)"/g))run(fs.readFileSync(root+'/'+file,'utf8'));
 run('beginQuiz([AQB_QBANK[0]],"Timer",{adaptive:false});studyTimerState().last=Date.now()-1000;tickStudyTimer()');
 assert(run('studyTimerState().total')>=1000);
@@ -31,4 +33,8 @@ run('startStudyBreak(5)');assert.equal(run('studyTimerState().breakUntil'),0);as
 run('saveStudyTimer();const savedTotal=studyTimerState().total;visibleStudyTimer=null');assert.equal(run('studyTimerState().total'),run('savedTotal'),'Refresh restores accrued totals without downtime');
 run('studyTimerState().last=Date.now()-1000;tickStudyTimer(Date.now()+2*DAY)');assert.equal(run('studyTimerState().total'),0,'Local day changes clear daily totals');
 run('resetProgress()');assert.equal(run('studyTimerState().total'),0);
+// Review 4.9: the once-a-second render writes only what changed and nothing while the page is hidden.
+{ run('renderStudyTimer()'); const node = el('study-subject-totals'); let writes = 0; let html = node.innerHTML;
+  Object.defineProperty(node, 'innerHTML', { get: () => html, set: v => { writes++; html = v; }, configurable: true });
+  run('renderStudyTimer(); renderStudyTimer(); renderStudyTimer()'); assert.equal(writes, 0, 'unchanged totals are not rewritten'); }
 console.log('Study timer passed: subject switching, hidden/home/sleep exclusion, daily persistence/reset, block controls, passage/mini/exam boundaries, break countdown and unchanged exam clocks.');
