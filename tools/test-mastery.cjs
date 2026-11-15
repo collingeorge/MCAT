@@ -1,5 +1,5 @@
 // Section Mastery path rules (one MCAT section at a time, C/P first): diagnostic first (and nothing else that day), then daily misses → 50 flashcards →
-// 50 Practice Exam cards with lessons, spread over 5 content categories → end-of-day test; another set when done early; goal (128 or 129) on 2 separate days in a row moves to the next
+// 50 Practice Exam cards with lessons, split over the 10 C/P content categories by the AAMC blueprint (80%) plus the 2 weakest (20%) → end-of-day test; another set when done early; goal (128 or 129) on 2 separate days in a row moves to the next
 // subject, which starts with its own diagnostic. Test results, misses and weak topics carry into the next day.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -24,19 +24,24 @@ p = plan(m, '2026-11-15');
 assert.equal(p.status, 'study'); assert.deepEqual(ids(p), ['diagnostic', 'flashcards', 'guided', 'test']);
 assert(p.steps[0].done && p.steps[0].old, 'a diagnostic saved without a version is the old one');
 assert.deepEqual(p.weak.map(w => w.code), ['5A', '4E'], 'weak topics below 84%, weakest first; passage tally excluded');
-// Day 2: the same steps, on 5 sub-topics: the 2 weak ones in the subject's list first (5A 22%, 4E 56%),
-// then the subject's others in order. 50 flashcards and 50 Practice Exam cards (each with its lesson), 10 a sub-topic.
+// Day 2: the same steps, over all 10 C/P categories by the AAMC blueprint: 40 of 50 by weight (5D 10, 5E 6, 4E 5,
+// 5A 4, 4D 3, 4C 3, 4B 3, 5B 2, 4A 2, 5C 2) and 5 extra each to the 2 weakest (5A 22%, 4E 56%).
 p = plan(m, '2026-11-16');
 assert.deepEqual(ids(p), ['diagnostic', 'flashcards', 'guided', 'test']);
-assert.deepEqual(p.topics, ['5A', '4E', '4A', '4B', '4C'], 'C/P content categories: the 2 weakest, then in the outline\'s order');
-assert.deepEqual(p.steps[1].topics.map(t => t.need), [10, 10, 10, 10, 10]); assert.equal(p.steps[1].count, 50);
-assert.equal(p.steps[2].count, 50); assert.equal(p.steps[2].lessonCount, 50);
-// A smaller daily size (30 or 20) splits evenly, the weakest first; anything else falls back to 50.
-assert.deepEqual(plan({ ...m, perDay: 30 }, '2026-11-16').steps[1].topics.map(t => t.need), [6, 6, 6, 6, 6]);
+assert.equal(p.split, 'blueprint'); assert.deepEqual(p.weakT, ['5A', '4E']);
+assert.deepEqual(p.topics, ['5A', '4E', '5D', '5E', '4D', '4C', '4B', '5B', '4A', '5C'], 'the 2 weakest, then the rest by AAMC weight');
+const needs = s => Object.fromEntries(s.topics.map(t => [t.code, t.need]));
+assert.deepEqual(needs(p.steps[1]), { '5D': 10, '5E': 6, '4E': 10, '5A': 9, '4D': 3, '4C': 3, '4B': 3, '5B': 2, '4A': 2, '5C': 2 }); assert.equal(p.steps[1].count, 50);
+assert.deepEqual(p.steps[1].topics.filter(t => t.weak).map(t => t.code + '+' + t.bonus), ['4E+5', '5A+5']);
+assert.equal(p.steps[2].count, 50); assert.equal(p.steps[2].lessonCount, 50); assert.deepEqual(needs(p.steps[2]), needs(p.steps[1]));
+// A smaller daily size (30 or 20) splits the same way; anything else falls back to 50.
+{ const t30 = plan({ ...m, perDay: 30 }, '2026-11-16').steps[1];
+  assert.equal(t30.count, 30); assert.deepEqual(needs(t30), { '5D': 6, '5E': 4, '4E': 6, '5A': 5, '4D': 2, '4C': 2, '4B': 2, '5B': 1, '4A': 1, '5C': 1 }); }
 assert.equal(plan({ ...m, perDay: 7 }, '2026-11-16').steps[1].count, 50);
 // A subject with few Practice Exam cards caps that step at what it has.
 assert.equal(plan(m, '2026-11-16', { guided: 5 }).steps[2].count, 5);
-assert.deepEqual(plan(m, '2026-11-16', { guided: 12 }).steps[2].topics.map(t => t.need), [3, 3, 2, 2, 2]);
+assert.equal(plan(m, '2026-11-16', { guided: 12 }).steps[2].topics.reduce((n, t) => n + t.need, 0), 12);
+// A day saved before the blueprint split (5 sub-topics, no split marker) keeps its plan and counts.
 // Progress is read per sub-topic from today's row; the day's sub-topics, once saved, stay fixed.
 const all10 = { '5A': 10, '4E': 10, '4B': 10, '4C': 10, '4D': 10 };
 m.days['2026-11-16'] = { subj: 'cp', topics: ['5A', '4E', '4B', '4C', '4D'], flashT: { ...all10 }, guidedT: { ...all10, '4D': 9 }, lessonsN: 50, reviewed: ['q1', 'q2'], misses: ['g7'] };
@@ -62,11 +67,17 @@ assert.deepEqual(p.steps.at(-1).weak, ['5A', '4E'], 'still lists the quiz\'s wea
 { const below = plan(apply(m, test('cp', '2026-11-16', 'daily', 124)), '2026-11-16').steps.at(-1);
   assert(!below.atGoal && !below.done, 'below goal: work on what you missed'); } assert.equal(p.streak, 1); assert.equal(p.subj, 'cp'); assert(!m.passed.cp);
 assert.equal(p.latest.scaled, 128); assert.equal(p.previous.scaled, 122, 'compared with the last test');
-// Day 3: the weak sub-topics stay; the other slots go first
-// to the sub-topics not studied yet (5B, 5E), so every sub-topic of the subject comes around.
+// Day 3 (the day after an old 5-topic row): the blueprint split starts; the weak categories stay.
 p = plan(m, '2026-11-17');
-assert.deepEqual(p.topics, ['5A', '4E', '4A', '5B', '5C']);
-assert.deepEqual(plan({ ...m, tests: m.tests.map(t => ({ ...t, cats: {} })) }, '2026-11-17').topics.slice(0, 2), ['4A', '5B'], 'no weak topics: the ones not studied yet come first');
+assert.equal(p.split, 'blueprint'); assert.deepEqual(p.topics.slice(0, 2), ['5A', '4E']); assert.equal(p.topics.length, 10);
+{ const none = plan({ ...m, tests: m.tests.map(t => ({ ...t, cats: {} })) }, '2026-11-17');
+  assert.deepEqual(none.weakT, [], 'no weak categories'); assert.deepEqual(needs(none.steps[1]), { '5D': 12, '5E': 8, '4E': 7, '5A': 5, '4D': 4, '4C': 4, '4B': 3, '5B': 3, '4A': 2, '5C': 2 }, 'no weak categories: all 50 by weight'); }
+// Sections without a blueprint (B/B, P/S for now) keep 5 categories a day: the 2 weakest, then the others not
+// studied longest, 10 cards each.
+{ const mb = apply({ current: 'bb' }, test('bb', '2026-11-15', 'diagnostic', 122, { cats: { '1A': { c: 2, t: 9 } } }));
+  mb.days['2026-11-16'] = { subj: 'bb', topics: ['1A', '1B', '1C', '1D', '2A'] };
+  const pb = plan(mb, '2026-11-17', { guided: 0 });
+  assert.equal(pb.split, 'topics'); assert.deepEqual(pb.topics, ['1A', '2B', '2C', '3A', '3B']); assert.deepEqual(pb.steps[1].topics.map(t => t.need), [10, 10, 10, 10, 10]); }
 // A day below goal resets the streak.
 m = apply(m, test('cp', '2026-11-17', 'daily', 126));
 assert.equal(plan(m, '2026-11-17').streak, 0);
@@ -144,7 +155,7 @@ assert(src.includes("startPassage(next, { masteryPractice: followup ? 'followup'
   mp.days[day].prac = 53;
   const p53 = plan(mp, day, { guided: 266, passages: 144, passagesPoolDone: true }).steps.find(s => s.id === 'passages');
   assert(p53.done && p53.extra === 3 && p53.poolDone, 'done at 50, extra shown, pool-completed note flagged'); }
-assert(src.includes('function masteryPassageOrder(pool, rank, usedToday, followup)') && src.includes('You have completed every practice passage once'), 'unseen first, then the weakest; note after the pool is used up');
+assert(src.includes('function masteryPassageOrder(pool, rank, usedToday, followup, mix)') && src.includes('function masteryPassageRank(pool, o = {})') && src.includes('You have completed every practice passage once'), 'unseen first, then the weakest; note after the pool is used up');
 // Results saved before the Chem/Phys Diagnostic existed (no version) are labeled as the old diagnostic.
 assert(src.includes("version: mini.setId || 'cards'") && src.includes('old diagnostic version'), 'old diagnostic labeled');
 // A retake button runs the full diagnostic again once the first one is done.

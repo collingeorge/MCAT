@@ -49,6 +49,8 @@ jobs:
         run: node tools/test-mastery.cjs
       - name: Chem/Phys diagnostic and daily quizzes
         run: node tools/test-cp-diagnostic.cjs
+      - name: AAMC C/P blueprint mix for TODAY
+        run: node tools/test-blueprint-mix.cjs
       - name: C/P flashcard scope
         run: node tools/test-flashcard-scope.cjs
       - name: Worked methods (How to work it out)
