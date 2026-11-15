@@ -24,8 +24,11 @@
 //   4 choices are parallel: the same terminal punctuation, the same initial case (proper nouns, symbols, acronyms
 //     and numbers count as either case), and all numeric or none numeric;
 //   5 numeric choices carry units (dimensionless quantities excepted, see UNITLESS) and are listed in increasing or
-//     decreasing order; the order check skips choices with figures and choices that are not all plain numbers;
-//   6 two-part choices ("X; Y", "X / Y", "Yes, because …") use one frame across all four choices;
+//     decreasing order. Units that differ by an SI prefix are compared in one unit. The order is REPORTED, not
+//     enforced: the app shuffles every question's choices when it shows them (makeView in js/app.js), so the order
+//     in the data is never what a student sees, and ordering it would move the key (ans) in most items;
+//   6 two-part choices ("X; Y", "X / Y", "Yes; …" or "Yes, …") use one frame across all four choices (a reason
+//     clause such as ", because …" is part of the answer, not a frame);
 //   7 no meta wording ("this card", "flashcard", "this question card");
 //   8 explanations never name answer letters ("choice B", "(C)").
 // Run with --list to print every finding, --json=<file> to save the numbers.
@@ -76,23 +79,37 @@ for (const [file, name, all] of [['qb-aamc-chem.js', 'QB_AAMC_CHEM', true], ['qb
 }
 
 // ── Classifiers ──
-const NUM_RE = /^[−\-+±~≈<>]?\s*(\d[\d,]*(\.\d+)?|\.\d+)(\s*\/\s*\d+)?(\s*[×x]\s*10[⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+)?/;
+// A number (sign, decimals, a fraction or a power of ten), alone or followed by a space, %, ° or ′: "1-pentene",
+// "2F" and "4L/n" are names and expressions, not numbers.
+const NUM_RE = /^[−\-+±~≈<>]?\s*√?(\d[\d,]*(\.\d+)?|\.\d+)(\s*\/\s*\d+)?(\s*[×x]\s*10[⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+)?(?=$|\s|[%°′])/;
 const isNumeric = c => NUM_RE.test(strip(c).trim());
 const SUP = { '⁻': '-', '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9' };
 function numValue(c) {
   const m = NUM_RE.exec(strip(c).trim()); if (!m) return null;
-  let s = m[0].replace(/[~≈<>±+\s,]/g, '').replace('−', '-');
+  let s = m[0].replace(/[~≈<>±+\s,]/g, '').replace('−', '-'), root = false;
+  if (s.includes('√')) { root = true; s = s.replace('√', ''); }
   let e = 0; const x = /[×x]10([⁻⁰-⁹]+)$/.exec(s);
   if (x) { e = Number([...x[1]].map(ch => SUP[ch] || '').join('')); s = s.slice(0, x.index); }
   const v = s.includes('/') ? s.split('/').reduce((a, b) => Number(a) / Number(b)) : Number(s);
-  return Number.isFinite(v) ? v * 10 ** e : null;
+  return Number.isFinite(v) ? (root ? Math.sqrt(v) : v) * 10 ** e : null;
+}
+// Unit scale: units that differ only by an SI prefix (cm and m, μM and mM, kPa and Pa) are compared in one unit.
+const PREFIX = { n: 1e-9, 'μ': 1e-6, 'µ': 1e-6, m: 1e-3, c: 1e-2, d: 1e-1, k: 1e3, M: 1e6, G: 1e9 };
+function unitScales(units) {
+  if (units.every(u => u === units[0])) return units.map(() => 1);
+  for (const base of new Set(units.flatMap(u => [u, u.slice(1)]))) {
+    if (!base) continue;
+    const sc = units.map(u => (u === base ? 1 : u.slice(1) === base && PREFIX[u[0]] ? PREFIX[u[0]] : null));
+    if (sc.every(x => x !== null)) return sc;
+  }
+  return null;
 }
 const unitOf = c => strip(c).trim().replace(NUM_RE, '').trim();
 // Dimensionless quantities, which AAMC lists without units: pH and pK values, ratios, counts and "how many",
 // equivalents, factors and fractions, orders, charges and oxidation states, coefficients, indices, efficiencies,
 // probabilities, equilibrium constants (reported unitless on the MCAT), multiples ("times as great"), magnification,
 // percent (the % sign is its unit) and decibel-free logarithms.
-const UNITLESS = /\bp(H|OH|Ka|Kb|I|Ksp)\b|\bpK|ratio|how many|number of|\bcount|equivalent|factor|fraction|\border\b|charge|oxidation (state|number)|coefficient|\bindex\b|efficien|probabilit|percent|\bK(eq|a|b|sp|c|p|m|d|w)?\b|equilibrium constant|times|multiple|magnification|power of the lens|significant figures|degrees? of unsaturation|quantum number|\bn\b|\bQ\b|log|proportion|mole fraction|specific gravity|refractive|turnover|Hill coefficient|valence|multiplicity|half-lives|value of|by what|change by|increase by|decrease by|scale|exponent|stoichiometr|\bx\b|\bcos|\bsin|\btan/i;
+const UNITLESS = /\bp(H|OH|Ka|Kb|I|Ksp)\b|\bpK|ratio|how many|number\b|\bcount|equivalent|factor|fraction|\border\b|charge|oxidation (state|number)|coefficient|\bindex\b|efficien|probabilit|percent|\bK(eq|a|b|sp|c|p|m|d|w)?\b|equilibrium constant|times|multipl|magnification|power of the lens|significant figures|degrees? of unsaturation|quantum number|\bn\b|\bQ\b|log|proportion|mole fraction|specific gravity|refractive|turnover|Hill coefficient|valence|multiplicity|half-lives|value of|by what|change by|increase by|decrease by|scale|exponent|stoichiometr|\bx\b|\bcos|\bsin|\btan/i;
 const LETTER_LIKE = t => /[A-Z].*[A-Z]|[0-9]|[^A-Za-zÀ-ž'’-]/.test(t) && !/^[A-Z][a-z]+[,.;:]?$/.test(t); // acronym/symbol/formula
 const firstWord = c => strip(c).trim().split(/\s+/)[0] || '';
 const NOUNS = new Set(); // words seen capitalized mid-sentence in this content: proper nouns
@@ -100,7 +117,9 @@ for (const f of files) {
   const texts = [...f.passages.map(p => p.text), ...f.questions.flatMap(x => [x.q.q, x.q.exp, ...(x.q.choices || [])])];
   for (const t of texts) for (const m of strip(t).matchAll(/[a-z0-9,;)] ([A-Z][a-zà-ž]+(?:['’]s)?)/g)) NOUNS.add(m[1].replace(/['’]s$/, ''));
 }
-const isProper = w => { const b = w.replace(/[^\p{L}\p{N}'’-]/gu, '').replace(/['’]s$/, ''); return LETTER_LIKE(w) || NOUNS.has(b) || /^[A-Z][a-z]*-/.test(w); };
+// Symbols written in lowercase: kcat, pH, pKa, mRNA, sp².
+const SYMBOL = /^(k(cat|on|off)?|K[a-z]*|p[A-Z]\w*|[a-z]+[A-Z]\w*|sp[²³]?|[a-zα-ω])$/;
+const isProper = w => { const b = w.replace(/[^\p{L}\p{N}'’-]/gu, '').replace(/['’]s$/, ''); return LETTER_LIKE(w) || NOUNS.has(b) || SYMBOL.test(b) || /^[A-Z][a-z]*-/.test(w); };
 function caseOf(c) {
   const w = firstWord(c);
   if (!w || isNumeric(c) || !/^\p{L}/u.test(w) || isProper(w)) return '*';
@@ -111,16 +130,17 @@ const completes = stem => /(:|_{2,}\.?)$/.test(strip(stem).trim()) || /_{2,}/.te
 const isPhrase = c => !isNumeric(c) && words(c) >= 4;
 function frame(c) {
   const t = strip(c).trim();
-  const yn = /^(Yes|No)[,;]\s+(\w+)/.exec(t);
-  if (yn) return 'yesno ' + yn[2].toLowerCase();
+  const yn = /^(Yes|No)([,;])\s/.exec(t);
+  if (yn) return 'yes/no' + yn[2];
   if (t.includes('; ')) return ';';
-  if (/\S \/ \S/.test(t)) return '/';
+  if (/\S \/ \S/.test(t) && !/[=[]/.test(t)) return '/';
   return '';
 }
 
 // ── Checks ──
 const findings = [];
 const add = (f, x, band, msg) => findings.push({ file: f.file, enforced: f.enforced, id: x.id, band, msg });
+const addInfo = (f, x, band, msg) => findings.push({ file: f.file, enforced: false, id: x.id, band, msg });
 for (const f of files) {
   f.stats = { passage: [], pqStem: [], saStem: [], choice: [], fail: {} };
   const fail = band => { f.stats.fail[band] = (f.stats.fail[band] || 0) + 1; };
@@ -141,8 +161,11 @@ for (const f of files) {
     if (w[q.ans] > 1.5 * next && w[q.ans] - next >= 3) { fail('keyLength'); add(f, x, 'keyLength', `key ${w[q.ans]} words vs next ${next}`); }
     const nextC = Math.max(...cc.filter((_, i) => i !== q.ans));
     if (cc[q.ans] > 1.5 * nextC && cc[q.ans] - nextC >= 20) { f.stats.keyChars = (f.stats.keyChars || 0) + 1; }
-    // 1 stem ending
-    if (!/(\?|:|_{2,}\.?)$/.test(stem)) { fail('stemEnd'); add(f, x, 'stemEnd', 'stem ends "' + stem.slice(-25) + '"'); }
+    // 1 stem ending. Allowed after the question, as on the AAMC exams: a parenthetical with given data or a note
+    // ("? (g = 10 m/s²)", "? (Note: …)"), and display lines of equations or data below the question.
+    const lines = stem.split('\n'); while (lines.length > 1 && /[=→⇌]|^\s*\|/.test(lines[lines.length - 1])) lines.pop();
+    const ask = lines.join('\n').trim().replace(/([?:])\s*\((?:[^()]|\([^()]*\))*\)\.?$/, '$1');
+    if (!/(\?|:|_{2,}\.?)$/.test(ask)) { fail('stemEnd'); add(f, x, 'stemEnd', 'stem ends "' + stem.slice(-25) + '"'); }
     // 2 sentence-completing choices
     if (completes(q.q) && !hasFig) for (const c of ch) if (isPhrase(c)) {
       if (caseOf(c) === 'U') { fail('completeCase'); add(f, x, 'completeCase', 'capitalized: ' + c); }
@@ -163,11 +186,13 @@ for (const f of files) {
     if (nums.every(Boolean)) {
       const units = ch.map(unitOf);
       if (units.some(u => !u) && !UNITLESS.test(stem)) { fail('units'); add(f, x, 'units', stem.slice(-60) + ' ' + JSON.stringify(ch)); }
-      const plain = units.every(u => u === units[0]) || units.every(u => /^\S{1,6}$/.test(u));
-      const v = ch.map(numValue);
-      if (plain && v.every(n => n !== null)) {
+      const sc = unitScales(units), v = ch.map((c, i) => (sc && numValue(c) !== null ? numValue(c) * sc[i] : null));
+      if (sc && v.every(n => n !== null)) {
         const up = v.every((n, i) => !i || n >= v[i - 1]), down = v.every((n, i) => !i || n <= v[i - 1]);
-        if (!up && !down) { fail('order'); add(f, x, 'order', JSON.stringify(ch)); }
+        if (!up && !down) {
+          const r = [...v].sort((a, b) => a - b).indexOf(v[q.ans]);
+          f.stats.order = (f.stats.order || 0) + 1; addInfo(f, x, 'order', JSON.stringify(ch) + (r === q.ans || 3 - r === q.ans ? ' (can be ordered around the key)' : ' (key at ' + q.ans + ', rank ' + r + ')'));
+        }
       }
     }
     // 6 two-part frame
@@ -194,7 +219,7 @@ for (const f of files) {
 const summary = {};
 for (const f of files) {
   const b = a => (a.length ? { n: a.length, median: median(a), p90: pct(a, 0.9), min: Math.min(...a), max: Math.max(...a) } : null);
-  summary[f.file] = { enforced: f.enforced, passage: b(f.stats.passage), pqStem: b(f.stats.pqStem), saStem: b(f.stats.saStem), choice: b(f.stats.choice), keyLongByChars: f.stats.keyChars || 0, failures: f.stats.fail };
+  summary[f.file] = { enforced: f.enforced, passage: b(f.stats.passage), pqStem: b(f.stats.pqStem), saStem: b(f.stats.saStem), choice: b(f.stats.choice), keyLongByChars: f.stats.keyChars || 0, unordered: f.stats.order || 0, failures: f.stats.fail };
 }
 if (JSON_OUT) fs.writeFileSync(JSON_OUT, JSON.stringify({ summary, findings }, null, 1) + '\n');
 if (LIST) for (const x of findings) console.log(`${x.enforced ? 'FAIL' : 'info'} ${x.file} ${x.id} [${x.band}] ${x.msg}`);

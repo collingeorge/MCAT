@@ -227,7 +227,7 @@ async function main() {
   assert.deepEqual(await evaluate('window.__violations'),[],'no CSP violations or blocked actions');
   assert.equal(await evaluate('[...document.querySelectorAll("*")].some(e=>[...e.attributes].some(a=>/^on/.test(a.name)))'),false,'no inline handler attributes in the DOM');
   assert.equal(errors.length,0,JSON.stringify(errors));
-  console.log('Chrome smoke passed: actual script loading, strict-CSP clicks, offline reload, runner-up reflection, TODAY order and passage step, delayed diagnostic feedback, timeout scoring, study calendar, HTML escaping, and no runtime exceptions.');
+  console.log('Chrome smoke passed: actual script loading, strict-CSP clicks, offline reload, runner-up reflection, TODAY order and passage step, delayed diagnostic feedback, timeout scoring, study calendar, HTML escaping, one study font size on all six study screens at 1280 and 390 px, and no runtime exceptions.');
  } finally {
   if(socket)socket.close();
   chrome.kill();
