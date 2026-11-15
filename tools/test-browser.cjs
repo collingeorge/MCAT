@@ -76,13 +76,14 @@ async function main() {
   await evaluate('pq.startedAt=Date.now()-pq.targetMs-1;updatePassageTimer()');
   await until('document.querySelector("#pp-question-box").textContent.includes("diagnostic")');
   assert(await evaluate('document.querySelector("#pp-question-box").textContent.includes("Topics, weakest first")'));
-  // TODAY after the diagnostic, in order: diagnostic (retake), 50 flashcards, 50 Practice Exam cards, 50 passage questions, the quiz.
+  // TODAY after the diagnostic: the diagnostic (retake), then exactly 3 daily steps numbered 1–3: 50 flashcards,
+  // 50 guided Practice Exam cards, the quiz, which stays locked until steps 1 and 2 are done.
   await evaluate('goHome()');
-  assert.deepEqual(await evaluate('[...document.querySelectorAll("#today-plan .today-step .today-title > b")].map(b=>b.textContent)'),['Diagnostic','Flashcards','Guided Practice Exam cards with walkthroughs','Passage questions','30-question quiz']);
-  await evaluate('document.querySelector("#today-plan [data-click=\'startMasteryPassages()\']").click()');
-  await until('document.querySelector("#pc-0")!==null && pq.masteryPractice==="step"');
-  await evaluate('document.querySelector("#pc-"+pq.views[0].ans).click()');
-  assert.equal(await evaluate('masteryPlanNow().steps.find(s=>s.id==="passages").progress'),1,'a passage answer counts toward the step');
+  assert.deepEqual(await evaluate('[...document.querySelectorAll("#today-plan .today-step .today-title > b")].map(b=>b.textContent)'),['Diagnostic','Flashcards','Guided Practice Exam cards with walkthroughs','30-question quiz']);
+  assert.deepEqual(await evaluate('[...document.querySelectorAll("#today-plan .today-step .today-num")].map(n=>n.textContent)'),['✓','1','2','3']);
+  assert.equal(await evaluate('document.querySelector("#today-plan [data-click=\'startMasteryPassages()\']")'),null,'no passage step');
+  assert.equal(await evaluate('[...document.querySelectorAll("#today-plan [data-click]")].some(b=>b.dataset.click.includes("daily"))'),false,'the quiz is locked');
+  assert(await evaluate('document.querySelector("#today-plan").textContent.includes("Unlocks when steps 1 and 2 are done")'));
   await evaluate('goHome();showPlan()');
   await evaluate('document.querySelector("#plan-date").value=localDay(new Date(Date.now()+60*DAY));savePlan()');
   assert(await evaluate('const probe=document.createElement("div");probe.innerHTML=fmt("<img src=x onerror=alert(1)>");probe.querySelector("img")===null'));
@@ -133,12 +134,11 @@ async function main() {
   assert(await evaluate('document.querySelector("#account-status").textContent.length>0'));
   await until('performance.getEntriesByType("resource").some(r=>r.name.includes("vendor/supabase"))&&typeof window.supabase?.createClient==="function"');
   // Real clicks through delegated actions under script-src 'self' (no inline handlers).
-  await evaluate('goHome();document.querySelector("#btn-passage").click()');
-  assert.equal(await evaluate('prefs.mode'),'passage');
+  assert.equal(await evaluate('document.querySelector("#btn-passage")'),null,'no Passages tab');
+  await evaluate('goHome();document.querySelector("#btn-exam").click()');
+  assert.equal(await evaluate('prefs.mode'),'exam');
   await evaluate('document.querySelector("#btn-aamc").click()');
   assert.equal(await evaluate('["aamc","flprep"].includes(prefs.mode)'),true);
-  await evaluate('goHome();document.querySelector("#btn-passage").click()');
-  assert(await evaluate('document.querySelector("#passage-selector").textContent.includes("Chem/Phys")'));
   // A change action reads this.value: the path's goal select.
   await evaluate('goHome();const g=document.querySelector("[data-change^=\\"setMasteryGoal\\"]");g.value="129";g.dispatchEvent(new Event("change",{bubbles:true}))');
   assert.equal(await evaluate('masteryLoad().goal'),129,'change action reads this.value');
@@ -151,9 +151,8 @@ async function main() {
   const fontScreens=[
    ['flashcard','beginQuiz(AQB_QBANK.slice(0,3),"Font flashcards",{adaptive:false});if(document.querySelector("#reveal-btn"))revealChoices();true','activeScreen==="screen-quiz" && !!document.querySelector("#quiz-body .choice-btn")',false],
    ['guided card','startMasteryGuided(true);true','quiz.mastery==="guided" && activeScreen==="screen-quiz" && !!document.querySelector("#quiz-body .choice-btn") && !!document.querySelector("#quiz-body .teach-box")',false],
-   ['practice passage','startPassage(LISTED_PASSAGES.find(p=>p.questions&&p.questions.length));true','activeScreen==="screen-passage" && !pq.mini && !!document.querySelector("#pp-passage-box .passage-text") && !!document.querySelector("#pp-question-box .choice-btn")',true],
-   ['passage step (exam mode)','startMasteryPassages();true','activeScreen==="screen-passage" && pq.masteryPractice==="step" && !!document.querySelector("#pp-passage-box .passage-text") && !!document.querySelector("#pp-question-box .choice-btn")',true],
-   ['daily quiz','startMasteryTest("quiz");true','activeScreen==="screen-passage" && pq.mini && pq.mini.mastery==="daily" && !!document.querySelector("#pp-question-box .choice-btn")',true],
+   ['single passage','startPassage(EXAM_CARS[0]);true','activeScreen==="screen-passage" && !pq.mini && !!document.querySelector("#pp-passage-box .passage-text") && !!document.querySelector("#pp-question-box .choice-btn")',true],
+   ['daily quiz','(()=>{const m=masteryLoad(),r=masteryDayRow(m,"cp"),p=masteryPlanNow(m);for(const s of p.steps)if(s.topics)r[s.id==="flashcards"?"flashT":"guidedT"]=Object.fromEntries(s.topics.map(t=>[t.code,t.need]));r.lessonsN=50;masterySave(m)})();startMasteryTest("quiz");true','activeScreen==="screen-passage" && pq.mini && pq.mini.mastery==="daily" && !!document.querySelector("#pp-question-box .choice-btn")',true],
    ['diagnostic','startMasteryTest("diagnostic");true','activeScreen==="screen-passage" && pq.mini && pq.mini.mastery==="diagnostic" && !!document.querySelector("#pp-question-box .choice-btn")',true],
    ['full-length exam','startExam(0);beginSection();exam.qi=Math.max(0,curQuestions().findIndex(q=>q.passageTitle));renderExamQuestion();true','activeScreen==="screen-exam" && !!document.querySelector("#ex-passage .passage-text") && !!document.querySelector("#exam-body .choice-btn")',true]];
   // Leaving an unfinished timed set asks to confirm; drop the set first so no dialog blocks the page.
@@ -195,7 +194,7 @@ async function main() {
   await until('document.querySelector("#today-plan .today-head")!==null && typeof AQB_QBANK!=="undefined" && AQB_QBANK.length>1000');
   // Banks that load on demand come from the offline cache too.
   assert.equal(await evaluate('typeof CP_POOL'),'undefined','the quiz sets are not loaded at startup');
-  assert.equal(await evaluate('Promise.all(Object.keys(BANKS).map(ensureBank)).then(()=>LISTED_PASSAGES.length+"/"+FLQ.length+"/"+EXAM_CARS.length+"/"+CP_POOL.length+"/"+AAMC_PREP.length)'),'36/354/18/6/3','approved content, including the on-demand banks, available offline');
+  assert.equal(await evaluate('Promise.all(Object.keys(BANKS).map(ensureBank)).then(()=>(typeof CP_PRACTICE)+"/"+FLQ.length+"/"+EXAM_CARS.length+"/"+CP_POOL.length+"/"+AAMC_PREP.length)'),'undefined/354/18/6/3','approved content, including the on-demand banks, available offline');
   assert.equal(await evaluate('fetch("/not-cached-"+Date.now()).then(()=>false,()=>true)'),true,'the network really is offline');
   await evaluate('beginQuiz(AQB_QBANK.slice(0,2),"Offline",{adaptive:false});document.querySelector("#cb-0").click()');
   assert.equal(await evaluate('quiz.results.length'),1,'studying works offline');
@@ -227,7 +226,7 @@ async function main() {
   assert.deepEqual(await evaluate('window.__violations'),[],'no CSP violations or blocked actions');
   assert.equal(await evaluate('[...document.querySelectorAll("*")].some(e=>[...e.attributes].some(a=>/^on/.test(a.name)))'),false,'no inline handler attributes in the DOM');
   assert.equal(errors.length,0,JSON.stringify(errors));
-  console.log('Chrome smoke passed: actual script loading, strict-CSP clicks, offline reload, runner-up reflection, TODAY order and passage step, delayed diagnostic feedback, timeout scoring, study calendar, HTML escaping, one study font size on all six study screens at 1280 and 390 px, and no runtime exceptions.');
+  console.log('Chrome smoke passed: actual script loading, strict-CSP clicks, offline reload, runner-up reflection, TODAY 3 steps with the quiz locked, delayed diagnostic feedback, timeout scoring, study calendar, HTML escaping, one study font size on all study screens at 1280 and 390 px, and no runtime exceptions.');
  } finally {
   if(socket)socket.close();
   chrome.kill();

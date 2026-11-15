@@ -199,7 +199,7 @@ const AAMC_SECTION = { id: 'aamc_qb', label: 'AAMC Question Bank Flashcards', gr
 const AAMC_RULES_TAGS = ['Universal Rules: Reading Data', 'Universal Rules: Test Strategy', 'Universal Rules: Chemistry', 'Universal Rules: Biochemistry', 'Universal Rules: Physics'];
 
 // The app's own recall decks were removed: TODAY and every study tool use only the AAMC QBank cards,
-// the Practice Exam cards, the C/P diagnostic/quiz/practice passages and the full-length exams.
+// the Practice Exam cards, the C/P diagnostic and quiz passages and the full-length exams.
 // QB stays as an empty pool so saved recall progress is kept (and ignored) and older code paths stay safe.
 const QB = [];
 const QB_BY_ID = new Map();
@@ -249,6 +249,9 @@ function buildFlq() {
 // Pages load only what every screen needs. The large banks below load the first time a screen uses them (and are
 // cached offline by the service worker). BANK_COUNTS gives the home screen its numbers before they load;
 // tools/test-pages.cjs checks them against the data.
+// ASSET_V: the deploy's version (sw.js CACHE), added to every script the app loads on demand so the browser's HTTP
+// cache never serves one from an earlier deploy. Written by tools/generate-pages.cjs; do not edit by hand.
+const ASSET_V = '?v=mcat-v2.65-passages-tab-removed-2026-11-15';
 const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'] };
 const BANK_COUNTS = { fl: 354, flCp: 354, flTests: 6 };
 const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined' };
@@ -263,7 +266,7 @@ function bankReady(name) {
 function loadScript(src) {
   return new Promise((resolve, reject) => {
     const el = document.createElement('script');
-    el.src = src;
+    el.src = src + ASSET_V;
     el.addEventListener('load', resolve);
     el.addEventListener('error', () => { el.remove?.(); reject(new Error(src + ' failed to load')); });
     document.head.appendChild(el);
@@ -299,11 +302,12 @@ AAMC_SECTION.groups.forEach(g => g.chips.forEach(c => c.keys.forEach(k => { KEY_
 // ════════════════════════════════════════════════════════════════
 //  PASSAGES
 // ════════════════════════════════════════════════════════════════
-// Passages: the AAMC-style C/P practice passages (the Passages tab) and the CARS passages the full-length
-// exams use. The C/P diagnostic and daily-quiz passages are run only from TODAY and never listed here.
-const CP_PRACTICE_LIST = typeof CP_PRACTICE === 'undefined' ? [] : CP_PRACTICE;
+// Passages: the CARS passages the full-length exams use. The C/P diagnostic and daily-quiz passages are run only
+// from TODAY. The Passages tab and its C/P practice passages (data/cp-practice.js) were removed in November 2026:
+// their questions were not twins of the studied cards; TODAY is the only C/P path. Saved results for them stay in
+// storage (ignored, never wiped).
 const EXAM_CARS = [...(typeof CARS_PASSAGES === 'undefined' ? [] : CARS_PASSAGES), ...(typeof EXAM2_CARS_PASSAGES === 'undefined' ? [] : EXAM2_CARS_PASSAGES)];
-const ALL_PASSAGES = [...CP_PRACTICE_LIST, ...EXAM_CARS];
+const ALL_PASSAGES = [...EXAM_CARS];
 const SKILL_LABEL = Object.assign(Object.create(null), {
   'SIRS 1': 'Skill 1: Knowledge of scientific concepts',
   'SIRS 2': 'Skill 2: Scientific reasoning & problem solving',
@@ -312,16 +316,6 @@ const SKILL_LABEL = Object.assign(Object.create(null), {
 });
 const PASSAGE_BY_ID = new Map(ALL_PASSAGES.map(p => [p.id, p]));
 const EXAM_PASSAGE_IDS = new Set(FULL_EXAMS.flatMap(e => e.sections.flatMap(s => s.passageIds || [])));
-// The Passages tab lists only the C/P practice passages, grouped by lead discipline.
-const LISTED_PASSAGES = CP_PRACTICE_LIST;
-const LISTED_IDS = new Set(LISTED_PASSAGES.map(p => p.id));
-const PASSAGE_GROUPS = [
-  { label: 'Chem/Phys · General Chemistry', test: p => p.subj === 'gen_chem' },
-  { label: 'Chem/Phys · Biochemistry', test: p => p.subj === 'biochemistry' },
-  { label: 'Chem/Phys · Physics', test: p => p.subj === 'physics' },
-  { label: 'Chem/Phys · Organic Chemistry', test: p => p.subj === 'organic_chem' },
-  { label: 'Chem/Phys · Biology', test: p => p.subj === 'biology' },
-];
 
 // ════════════════════════════════════════════════════════════════
 //  SCORING — AAMC percentile ranks in effect May 1, 2026 – Apr 30, 2027
@@ -805,14 +799,14 @@ function show(id, page) {
   const nav = $('app-nav');
   if (nav) nav.hidden = id === 'screen-home';
   // A Section Mastery test runs full-screen, laid out like the real exam: no site header, menus or study bars.
-  if (typeof document !== 'undefined' && document.body) document.body.classList.toggle('exam-mode', id === 'screen-passage' && (!!(pq.mini && pq.mini.mastery && !pq.mini.completed) || !!pq.masteryPractice));
+  if (typeof document !== 'undefined' && document.body) document.body.classList.toggle('exam-mode', id === 'screen-passage' && (!!(pq.mini && pq.mini.mastery && !pq.mini.completed)));
   window.scrollTo(0, 0);
   renderStudyTimer();
 }
 
-const prefs = Object.assign({ mode: 'passage', count: 20, selected: null }, store.get(KEYS.prefs, {}));
-// The Recall tab was removed; a saved 'recall' mode opens Passages.
-prefs.mode = ['passage', 'exam'].includes(prefs.mode) ? prefs.mode : 'passage';
+const prefs = Object.assign({ mode: 'exam', count: 20, selected: null }, store.get(KEYS.prefs, {}));
+// The Recall and Passages tabs were removed; a saved 'recall' or 'passage' mode opens Full-length.
+prefs.mode = ['exam'].includes(prefs.mode) ? prefs.mode : 'exam';
 prefs.mix = ['custom', 'cp', 'bb', 'ps', 'all'].includes(prefs.mix) ? prefs.mix : 'custom';
 prefs.count = [0, 10, 20, 30, 50, 100].includes(prefs.count) ? prefs.count : 20;
 function savePrefs() { store.set(KEYS.prefs, prefs); }
@@ -833,9 +827,7 @@ function goHome() {
 }
 
 function renderHome() {
-  const passageQs = LISTED_PASSAGES.reduce((n, p) => n + p.questions.length, 0);
-  $('hero-badge').textContent = `${AQB_QBANK.length.toLocaleString()} QBank cards · ${flCount()} Practice Exam cards · ${LISTED_PASSAGES.length} C/P passages · ${FULL_EXAMS.length} full-length exams`;
-  $('mode-passage-sub').textContent = `${LISTED_PASSAGES.length} passages · ${passageQs} Qs`;
+  $('hero-badge').textContent = `${AQB_QBANK.length.toLocaleString()} QBank cards · ${flCount()} Practice Exam cards · ${FULL_EXAMS.length} full-length exams`;
   $('mode-exam-sub').textContent = `${FULL_EXAMS.length} timed exams`;
   if ($('mode-aamc-sub')) $('mode-aamc-sub').textContent = `${(AQB.length + flCount()).toLocaleString()} cards · 3 sections`;
   if ($('mode-flprep-sub')) { const nt = bankReady('fl') ? FL_TESTS.length : BANK_COUNTS.flTests; $('mode-flprep-sub').textContent = `${flCount()} cards · ${nt} test${nt === 1 ? '' : 's'}`; }
@@ -857,13 +849,13 @@ function renderHome() {
 }
 
 function setMode(mode, navigate = true) {
-  if (!['passage', 'exam', 'aamc', 'flprep'].includes(mode)) mode = 'passage';
+  if (!['exam', 'aamc', 'flprep'].includes(mode)) mode = 'exam';
   prefs.mode = mode;
   // AAMC Prep has one tab button and three sections; remember the last section opened.
   if (mode === 'flprep') prefs.aamcLast = 'exam';
   else if (mode === 'aamc') prefs.aamcLast = aamcView();
   savePrefs();
-  ['passage', 'exam', 'aamc', 'flprep'].forEach(m => {
+  ['exam', 'aamc', 'flprep'].forEach(m => {
     const btn = $('btn-' + m), on = m === mode || (m === 'aamc' && mode === 'flprep');
     if (btn) { btn.classList.toggle('active', on); btn.setAttribute('aria-selected', on); }
     if ($(m + '-config')) $(m + '-config').hidden = m !== mode;
@@ -872,7 +864,6 @@ function setMode(mode, navigate = true) {
   renderAamcMenu();
   if (mode === 'aamc') renderAamcConfig();
   if (mode === 'flprep') renderFlConfig();
-  if (mode === 'passage') renderPassageSelector();
   if (mode === 'exam') renderExamList();
   if (navigate) window.McatPages?.mode(mode);
 }
@@ -881,8 +872,7 @@ function setMode(mode, navigate = true) {
 
 
 function startSession() {
-  if (prefs.mode === 'passage') startPassage();
-  else if (prefs.mode === 'aamc') startAamc();
+  if (prefs.mode === 'aamc') startAamc();
   else if (prefs.mode === 'flprep') startFl();
 }
 
@@ -1328,7 +1318,7 @@ function ensureStructs() {
   if (structsLoading) return structsLoading;
   structsLoading = new Promise((resolve, reject) => {
     const el = document.createElement('script');
-    el.src = 'data/structures.js';
+    el.src = 'data/structures.js' + ASSET_V;
     el.addEventListener('load', () => { structsFailed = false; resolve(); });
     el.addEventListener('error', () => { structsLoading = null; structsFailed = true; el.remove?.(); rerenderStructs(); reject(new Error('structures failed to load')); });
     document.head.appendChild(el);
@@ -1949,7 +1939,7 @@ function scoreReportCards() {
 // ── Mistake patterns ──
 const ERROR_ADVICE = {
   reasoning: 'Return to the specific passage evidence. Explain why the right choice follows and why each tempting alternative goes beyond or contradicts that evidence.',
-  knowledge: 'Content gaps. TODAY aims its flashcards, Practice Exam cards and passages at your weakest topics; read the full explanation on every miss.',
+  knowledge: 'Content gaps. TODAY aims its flashcards and Practice Exam cards at your weakest topics; read the full explanation on every miss.',
   confused: 'Mix-ups between similar terms. Write a short "X vs. Y" comparison for each pair below.',
   misread: 'Reading errors. Before answering, restate what is asked: watch for NOT/EXCEPT, units, and the direction of a change (increase vs. decrease).',
   calculation: 'Calculation slips. The MCAT has no calculator: write units, round early, estimate the answer\'s size first, and practice timed math drills.',
@@ -2123,51 +2113,15 @@ function resetProgress() {
 // ════════════════════════════════════════════════════════════════
 //  PASSAGE MODE (tutor mode)
 // ════════════════════════════════════════════════════════════════
+// selectedPassageId: the passage a passage-session URL names (a full-length exam's CARS passage), for a reload.
 let selectedPassageId = null;
 const pq = { p: null, idx: 0, views: [], results: [], answered: false };
 
-function renderPassageSelector() {
-  const pstats = store.get(KEYS.passages, {});
-  const grouped = PASSAGE_GROUPS.map(g => ({ label: g.label, list: LISTED_PASSAGES.filter(p => g.test(p)) }));
-  const covered = new Set(grouped.flatMap(g => g.list.map(p => p.id)));
-  const rest = LISTED_PASSAGES.filter(p => !covered.has(p.id));
-  if (rest.length) grouped.push({ label: 'Other', list: rest });
-  if (!selectedPassageId || !LISTED_IDS.has(selectedPassageId)) selectedPassageId = LISTED_PASSAGES[0]?.id || null;
-  $('passage-selector').innerHTML = `
-    <div class="section-label">Choose a passage</div>
-    <p class="muted-note lead-note">AAMC-style Chem/Phys practice passages (${LISTED_PASSAGES.length} passages, ${LISTED_PASSAGES.reduce((n, p) => n + p.questions.length, 0)} questions). TODAY also works through them in its passage step.</p>
-    ${grouped.filter(g => g.list.length).map(g => `
-      <div class="pgroup"><div class="pgroup-label">${esc(g.label)}</div><div class="pgroup-list">
-        ${g.list.map(p => {
-          const s = pstats[p.id];
-          return `<button class="psel-btn${p.id === selectedPassageId ? ' active' : ''}${s ? ' done' : ''}" data-click="selectPassage('${p.id}')">
-            <span class="psel-name">${esc(p.title)}</span>
-            <span class="psel-meta">${EXAM_PASSAGE_IDS.has(p.id) ? '<span class="exam-dot" title="Used in a full-length exam">FL</span>' : ''}
-              ${s ? `<span class="psel-score">Best ${s.best}%</span>` : ''}<span class="psel-count">${p.questions.length}Q</span></span>
-          </button>`;
-        }).join('')}
-      </div></div>`).join('')}`;
-}
-function selectPassage(id) { selectedPassageId = id; renderPassageSelector(); window.McatPages?.mode('passage', true); }
-// Next passage of the same kind you haven't tried yet (or simply the next one)
-function nextPassage() {
-  const pstats = store.get(KEYS.passages, {});
-  const g = PASSAGE_GROUPS.find(x => x.test(pq.p));
-  const i = LISTED_PASSAGES.indexOf(pq.p);
-  const after = [...LISTED_PASSAGES.slice(i + 1), ...LISTED_PASSAGES.slice(0, i)];
-  const next = after.find(p => g && g.test(p) && !pstats[p.id]) || after.find(p => g && g.test(p)) || after[0];
-  if (!next) return;
-  selectedPassageId = next.id;
-  startPassage();
-}
-// passage: a passage object to run instead of the selected one (Section Mastery passage practice);
-// opts.masteryPractice counts each answer toward today's passage step and offers the next passage at the end.
-function startPassage(passage, opts = {}) {
+// passage: a passage object to run instead of the selected one.
+function startPassage(passage) {
   stopQuizTimer();
   pq.mini = null; pq.completed = false; pq.errPending = null;
   pq.masteryDay = null;
-  pq.masteryPractice = opts.masteryPractice || false;   // 'step' (TODAY's passage step) or 'followup' (after the quiz)
-  pq.masteryCats = Array.isArray(opts.cats) ? opts.cats : null;
   const p = passage && passage.questions ? passage : PASSAGE_BY_ID.get(selectedPassageId);
   if (!p) return;
   // The address bar (and a reload) follow the passage actually shown, also when TODAY picked it.
@@ -2401,7 +2355,6 @@ function finishPassageAnswer(chosen, other = null, answerMs = null) {
   recordEvidence('passage', disciplineOfPassage(pq.p, view.q), right);
   if (view.q.skill) recordEvidence('skill', view.q.skill, right);
   countAnswerToday();
-  if (pq.masteryPractice && typeof masteryNotePractice === 'function') masteryNotePractice(view.q, pq.p, pq.masteryPractice);
   pq.errPending = right ? null : { id: `${pq.p.id}#${pq.idx}`, disc: disciplineOfPassage(pq.p, view.q), key: null, type: null,
     chosen: view.choices[chosen], answer: view.choices[view.ans], other: other == null ? null : view.choices[other], correctInFinalTwo: right || other === view.ans, src: 'passage' };
   view.choices.forEach((_, i) => {
@@ -2475,12 +2428,8 @@ function showPassageResults() {
       ${missed.length ? missed.map(r => reviewItem({ stem: r.view.q.q, choices: r.view.choices, ans: r.view.ans, chosen: r.chosen, other: r.other, exp: r.view.q.exp })).join('')
         : '<div class="all-correct">✓ Perfect — no missed questions.</div>'}
     </div>
-    <div class="btn-row">${pq.masteryPractice
-      ? `<button class="new-quiz-btn" data-click="masteryNextPractice()">Next practice passage →</button>
-      <button class="new-quiz-btn secondary" data-click="goHome()">Back to TODAY</button>`
-      : `<button class="new-quiz-btn" data-click="startPassage()">Retry passage</button>
-      <button class="new-quiz-btn secondary" data-click="nextPassage()">Next passage →</button>
-      <button class="new-quiz-btn secondary" data-click="goHome()">Home</button>`}
+    <div class="btn-row"><button class="new-quiz-btn" data-click="startPassage()">Retry passage</button>
+      <button class="new-quiz-btn secondary" data-click="goHome()">Home</button>
     </div>
     ${(snapshotEstimate(), scoreStrip())}`;
   window.scrollTo(0, 0);
@@ -2815,7 +2764,7 @@ function showExamResults(attempt) {
       <div class="section-label">Turn mistakes into points</div>
       <p class="muted-note mt-0">The exam itself doesn't adapt, just like the real MCAT. This session does: it targets the subjects you missed, weighted by how many you missed, with the same drill-until-it-sticks reinforcement.</p>
       <button class="new-quiz-btn" data-click="studyExamMistakes()">Study my mistakes from this exam →</button>
-      ${examMissSummary(attempt).cars ? `<p class="muted-note">CARS isn't fact recall, so for the ${examMissSummary(attempt).cars} CARS misses, use the CARS passages in Passage mode.</p>` : ''}
+      ${examMissSummary(attempt).cars ? `<p class="muted-note">CARS isn't fact recall, so for the ${examMissSummary(attempt).cars} CARS misses, reread each passage in the review and work out why the right answer fits it.</p>` : ''}
     </div>` : ''}
     ${examBreakdownCard(attempt)}`;
   renderExamReview();
@@ -2953,7 +2902,7 @@ function showAbout() {
       <h2>Sources &amp; credits</h2>
       <ul>
         <li><b>AAMC Prep cards</b> (QBank cards and Practice Exam cards) are original questions written from the concepts tested in the AAMC question packs, question bank and practice exams. No AAMC passages, questions or answer choices are reproduced.</li>
-        <li><b>Chem/Phys passages</b> (the diagnostic, daily quizzes and practice passages), <b>CARS passages</b> and <b>full-length exam questions</b> are original to this app.</li>
+        <li><b>Chem/Phys passages</b> (the diagnostic and daily quizzes), <b>CARS passages</b> and <b>full-length exam questions</b> are original to this app.</li>
         <li><b>Percentile ranks and section content shares</b> are taken from published AAMC information, credited above.</li>
       </ul>
 

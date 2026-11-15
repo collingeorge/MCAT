@@ -16,7 +16,7 @@
 <a class="study-skip" href="#screen-home">Skip to study content</a>
 <div class="study-status">Independent study · Local or account-synced progress · Sources &amp; limitations documented</div>
 <header class="study-masthead"><div class="study-masthead-inner"><a class="study-brand" href="https://collinbgeorge.com/"><span class="study-brand-name">Collin B. George</span><span class="study-brand-sub">Clinical education &amp; research</span></a><nav aria-label="Portfolio navigation"><a href="https://collinbgeorge.com/">Portfolio home ↗</a><a href="https://collinbgeorge.com/projects/mcat-study/">Study guide &amp; sources ↗</a><button id="account-login-btn" type="button" data-click="McatAccount.open()">Sign in / Create account</button></nav></div></header>
-<nav class="study-pages" aria-label="MCAT pages"><div class="wrap"><a data-study-page="index" href="index.html">Overview</a><a data-study-page="passages" href="passages.html">Passages</a><a data-study-page="exams" href="exams.html">Full-length exams</a><a data-study-page="aamc" href="aamc.html">AAMC Prep</a><a data-study-page="score-report" href="score-report.html">Score report</a><a data-study-page="about" href="about.html">About & sources</a></div></nav>
+<nav class="study-pages" aria-label="MCAT pages"><div class="wrap"><a data-study-page="index" href="index.html">Overview</a><a data-study-page="exams" href="exams.html">Full-length exams</a><a data-study-page="aamc" href="aamc.html">AAMC Prep</a><a data-study-page="score-report" href="score-report.html">Score report</a><a data-study-page="about" href="about.html">About & sources</a></div></nav>
 <div id="page-notice" class="wrap advice" role="status" hidden></div>
 <div class="study-timer-header">
 <section id="study-timer" class="study-timer" aria-label="Study time and break guidance"></section>
@@ -44,16 +44,11 @@
     <div class="home-actions" id="home-actions"></div>
 
     <div class="mode-toggle" role="tablist" aria-label="Study mode">
-      <button class="mode-btn" id="btn-passage" role="tab" data-click="setMode('passage')">Passages<span class="mode-sub" id="mode-passage-sub"></span></button>
       <button class="mode-btn" id="btn-exam" role="tab" data-click="setMode('exam')">Full-length<span class="mode-sub" id="mode-exam-sub"></span></button>
       <button class="mode-btn" id="btn-aamc" role="tab" data-click="openAamc()">AAMC Prep<span class="mode-sub" id="mode-aamc-sub"></span></button>
     </div>
 
     <nav id="aamc-menu" class="aamc-menu" aria-label="AAMC Prep sections" hidden></nav>
-
-    <section id="passage-config" hidden>
-      <div class="config-card" id="passage-selector"></div>
-    </section>
 
     <section id="exam-config" hidden>
       <div id="exam-list"></div>
@@ -187,30 +182,29 @@
   </div>
 </main>
 
-<script src="js/actions.js"></script>
-<script src="js/data-css.js"></script>
-<script src="data/passages-cars.js"></script>
-<script src="data/cp-practice.js"></script>
-<script src="data/qb-aamc-bio.js"></script>
-<script src="data/qb-aamc-chem.js"></script>
-<script src="data/qb-aamc-phys.js"></script>
-<script src="data/qb-aamc-biochem.js"></script>
-<script src="data/qb-aamc-iqb.js"></script>
-<script src="data/qb-aamc-cars.js"></script>
-<script src="data/qb-aamc-rules.js"></script>
-<script src="data/exam1.js"></script>
-<script src="data/exam2-cp.js"></script>
-<script src="data/exam2-bb.js"></script>
-<script src="data/exam2-ps.js"></script>
-<script src="data/exams.js"></script>
-<script src="js/study-path.js"></script>
-<script src="js/learning-evidence.js"></script>
-<script src="js/daily-plan.js"></script>
-<script src="js/mastery.js"></script>
-<script src="js/study-timer.js"></script>
-<script src="js/cloud-config.js"></script>
-<script src="js/account.js"></script>
-<script src="js/app.js"></script>
-<script src="js/pages.js"></script>
+<script src="js/actions.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="js/data-css.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="data/passages-cars.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="data/qb-aamc-bio.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="data/qb-aamc-chem.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="data/qb-aamc-phys.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="data/qb-aamc-biochem.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="data/qb-aamc-iqb.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="data/qb-aamc-cars.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="data/qb-aamc-rules.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="data/exam1.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="data/exam2-cp.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="data/exam2-bb.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="data/exam2-ps.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="data/exams.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="js/study-path.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="js/learning-evidence.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="js/daily-plan.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="js/mastery.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="js/study-timer.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="js/cloud-config.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="js/account.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="js/app.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
+<script src="js/pages.js?v=mcat-v2.65-passages-tab-removed-2026-11-15"></script>
 </body>
 </html>

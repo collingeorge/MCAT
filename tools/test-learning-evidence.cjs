@@ -8,10 +8,10 @@ const ctx=vm.createContext({console,Date,Math,Map,Set,URLSearchParams,setInterva
 const run=code=>vm.runInContext(code,ctx);
 // Banks the app loads on demand (BANKS in js/app.js), loaded first as the browser would have them.
 for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(root + '/js/app.js', 'utf8'))[1])()).flat()) run(fs.readFileSync(root + '/' + f, 'utf8'));
-for(const [,file]of fs.readFileSync(root+'/index.html','utf8').matchAll(/<script src="([^\"]+)"/g))run(fs.readFileSync(root+'/'+file,'utf8'));
+for(const [,file]of fs.readFileSync(root+'/index.html','utf8').matchAll(/<script src="([^"?]+)/g))run(fs.readFileSync(root+'/'+file,'utf8'));
 
 // (Delayed-recall retention and the weekly readiness card were removed with the recall decks.)
-run('const passage=LISTED_PASSAGES[0];const initial=beginPassageExposure(passage)');
+run('const passage=EXAM_CARS[0];const initial=beginPassageExposure(passage)');
 assert.equal(run('initial'),true);assert.equal(run('beginPassageExposure(passage)'),false,'Abandoning a passage cannot restore first exposure');
 run('recordPassageEvidence(passage,[{right:true,ms:1000},{right:false,ms:2000}],initial,"tutor")');
 {const rows=JSON.parse(run('JSON.stringify(store.get(KEYS.passageEvidence,[]))'));assert.equal(rows.filter(r=>r.first).length,1);assert.equal(rows[0].answerMs,3000);}

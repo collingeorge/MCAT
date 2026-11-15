@@ -8,7 +8,7 @@ const ctx=vm.createContext({console,Date,Math,Map,Set,URLSearchParams,setInterva
 const run=code=>vm.runInContext(code,ctx);
 // Banks the app loads on demand (BANKS in js/app.js), loaded first as the browser would have them.
 for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(root + '/js/app.js', 'utf8'))[1])()).flat()) run(fs.readFileSync(root + '/' + f, 'utf8'));
-for(const [,file]of fs.readFileSync(root+'/index.html','utf8').matchAll(/<script src="([^\"]+)"/g))run(fs.readFileSync(root+'/'+file,'utf8'));
+for(const [,file]of fs.readFileSync(root+'/index.html','utf8').matchAll(/<script src="([^"?]+)/g))run(fs.readFileSync(root+'/'+file,'utf8'));
 run('beginQuiz([AQB_QBANK[0]],"Timer",{adaptive:false});studyTimerState().last=Date.now()-1000;tickStudyTimer()');
 assert(run('studyTimerState().total')>=1000);
 const first=run('studyTimerState().subject');assert(first);
@@ -19,7 +19,7 @@ run('document.hidden=true;const hiddenTotal=studyTimerState().total;studyTimerSt
 run('document.hidden=false;const sleepTotal=studyTimerState().total;studyTimerState().last=Date.now()-60000;tickStudyTimer()');assert.equal(run('studyTimerState().total'),run('sleepTotal'));
 run('setStudyTimerGoal(25);studyTimerState().block=26*60000;renderStudyTimer()');assert.match(el('study-break-message').textContent,/Finish this card set/);
 run('setStudyTimerGoal(999)');assert.equal(run('studyTimerState().goal'),25);
-run('selectedPassageId=LISTED_PASSAGES[0].id;startPassage();studyTimerState().block=46*60000;renderStudyTimer()');assert.match(el('study-break-message').textContent,/Finish this passage/);
+run('startPassage(EXAM_CARS[0]);studyTimerState().block=46*60000;renderStudyTimer()');assert.match(el('study-break-message').textContent,/Finish this passage/);
 assert.equal(el('study-break-actions').hidden,true);
 run('startMasteryTest("diagnostic");renderStudyTimer()');assert.match(el('study-break-message').textContent,/Finish this test/);
 run('pq.mini=null;goHome();const homeTotal=studyTimerState().total;studyTimerState().last=Date.now()-1000;tickStudyTimer()');assert.equal(run('studyTimerState().total'),run('homeTotal'));

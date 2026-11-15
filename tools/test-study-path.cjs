@@ -1,9 +1,9 @@
-// TODAY's passage step and the Passages tab, run in the real app code: only the AAMC-style C/P practice passages
-// are listed and practiced; each answer counts toward the step and its AAMC category; unseen passages come first,
-// in the AAMC category, discipline, skill and difficulty mix; flashcards split exactly by AAMC weight, weak
-// categories changing which cards (missed and due first, then weak sub-topics), never how many; after every passage was used once the step repeats the ones answered least well; the
-// post-quiz follow-up prefers passages not used today. (This file once tested the recall subject path, removed
-// with the recall decks.)
+// TODAY's 3 daily steps, run in the real app code: TODAY is the only C/P path (no passage step; the Passages tab
+// and its C/P practice passages were removed); flashcards split exactly by AAMC weight, weak categories
+// changing which cards (missed and due first, then weak sub-topics), never how many; the quiz unlocks once
+// flashcards and guided cards are done; the post-quiz follow-up reviews the quiz's misses and weak categories with
+// flashcards and guided cards, never passages. (This file once tested the recall subject path, removed with the
+// recall decks, and then TODAY's passage step, removed in favor of the 3-step day.)
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
@@ -14,34 +14,34 @@ const ctx = vm.createContext({ console, Date, Math, Map, Set, URLSearchParams, s
 const run = code => vm.runInContext(code, ctx);
 // Banks the app loads on demand (BANKS in js/app.js), loaded first as the browser would have them.
 for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(root + '/js/app.js', 'utf8'))[1])()).flat()) run(fs.readFileSync(root + '/' + f, 'utf8'));
-for (const [, file] of fs.readFileSync(root + '/index.html', 'utf8').matchAll(/<script src="([^"]+)"/g)) run(fs.readFileSync(root + '/' + file, 'utf8'));
+for (const [, file] of fs.readFileSync(root + '/index.html', 'utf8').matchAll(/<script src="([^"?]+)/g)) run(fs.readFileSync(root + '/' + file, 'utf8'));
 
 // Approved content only: no recall decks, no app-written passages, exam CARS limited to passages 1–9 of each set.
 assert.equal(run('QB.length'), 0);
-assert.equal(run('LISTED_PASSAGES.length'), 36); assert.equal(run('LISTED_PASSAGES.reduce((n,p)=>n+p.questions.length,0)'), 144);
-assert(run('LISTED_PASSAGES.every(p=>/^p_cpx\\d_\\d$/.test(p.id))'), 'the Passages tab lists only CP_PRACTICE');
-assert(run("[...CP_DIAG.passages,...CP_POOL.flatMap(s=>s.passages)].every(p=>!LISTED_IDS.has(p.id))"), 'diagnostic and quiz passages are never listed');
+assert.equal(run("typeof CP_PRACTICE"), 'undefined', 'the C/P practice passages (old Passages tab) are gone');
+assert(!fs.existsSync(root + '/data/cp-practice.js') && !fs.readFileSync(root + '/index.html', 'utf8').includes('cp-practice.js') && !fs.readFileSync(root + '/sw.js', 'utf8').includes('cp-practice.js'), 'no file, script tag or cache entry');
+assert(run("[...CP_DIAG.passages,...CP_POOL.flatMap(s=>s.passages)].every(p=>!PASSAGE_BY_ID.has(p.id))"), 'diagnostic and quiz passages run only from TODAY');
 assert.equal(run("JSON.stringify(EXAM_CARS.map(p=>p.id))"), JSON.stringify([...Array(9)].map((_, i) => 'p_cars_' + (i + 1)).concat([...Array(9)].map((_, i) => 'p_e2cars_' + (i + 1)))));
 assert(run('[...EXAM_PASSAGE_IDS].every(id=>PASSAGE_BY_ID.has(id))'), 'every exam CARS passage resolves');
-run("setMode('passage', false)"); assert.match(el('passage-selector').innerHTML, /Chem\/Phys/); assert.doesNotMatch(el('passage-selector').innerHTML, /p_cars_|p_cpd_|p_cpp/);
-run("setMode('recall', false)"); assert.equal(run('prefs.mode'), 'passage', 'a saved Recall mode opens Passages');
+run("setMode('passage', false)"); assert.equal(run('prefs.mode'), 'exam', 'a saved Passages mode opens Full-length');
+run("setMode('recall', false)"); assert.equal(run('prefs.mode'), 'exam', 'a saved Recall mode opens Full-length');
 assert.equal(typeof ctx.questionForms, 'function'); assert.equal(run('questionForms(AQB_QBANK[0]).length'), 1, 'cards are asked only as written');
 
 // Set up: the C/P diagnostic is done (weakest 5D, then 4E), so today is a study day.
 const today = run('localDay()');
 run(`store.set(KEYS.subjectPath, { tests: [{ subj: 'cp', day: '${today}', t: 1, kind: 'diagnostic', correct: 30, total: 59, pct: 51, scaled: 122, version: 'cp_diag', cats: { '5D': { c: 2, t: 14 }, '4E': { c: 4, t: 8 }, '5A': { c: 5, t: 6 } } }] })`);
 let plan = JSON.parse(run('JSON.stringify(masteryPlanNow())'));
-assert.deepEqual(plan.steps.map(s => s.id), ['diagnostic', 'flashcards', 'guided', 'passages', 'test']);
-assert.equal(plan.steps[3].count, 50); assert.equal(plan.steps[3].progress, 0);
-run('renderHome()'); assert.match(el('today-plan').innerHTML, /Passage questions/); assert.match(el('today-plan').innerHTML, /startMasteryPassages\(\)/);
+assert.deepEqual(plan.steps.map(s => s.id), ['diagnostic', 'flashcards', 'guided', 'test'], 'after the diagnostic: exactly 3 daily steps');
+run('renderHome()'); assert.doesNotMatch(el('today-plan').innerHTML, /Passage questions|startMasteryPassages/, 'no passage step on TODAY');
+assert.match(el('today-plan').innerHTML, /Unlocks when steps 1 and 2 are done/); assert.doesNotMatch(el('today-plan').innerHTML, /startMasteryTest\('daily'\)/, 'the quiz is locked');
 // Exact split: every step shows its per-category targets as chips at the AAMC weight; the two weak categories are
 // marked "weak" with the same counts (5D 12 of 50, as with no weak category); no "+ extra".
 assert.equal(plan.split, 'exact'); assert.deepEqual(plan.weakT, ['5D', '4E']);
 assert.deepEqual(JSON.parse(run('JSON.stringify(masteryLoad().days[localDay()])')).split, 'exact', 'the day row carries the split marker');
 assert.match(el('today-plan').innerHTML, /5D 0\/12 <b>weak<\/b>/); assert.match(el('today-plan').innerHTML, /4E 0\/7 <b>weak<\/b>/); assert.doesNotMatch(el('today-plan').innerHTML, /\+ extra/);
-assert.match(el('today-plan').innerHTML, /Skill 2 0\/22/); assert.match(el('today-plan').innerHTML, /Gen chem 0\/16/); assert.match(el('today-plan').innerHTML, /Difficult 0\/20/); assert.match(el('today-plan').innerHTML, /5D × 7/);
+assert.match(el('today-plan').innerHTML, /5D × 7/, 'the quiz shows its AAMC mix');
 assert(plan.steps.filter(s => s.topics).every(s => s.topics.every(t => t.extra === 0) && s.topics.reduce((n, t) => n + t.need, 0) === s.count), 'every step sums to its count, 0 extra on every category');
-assert.match(el('hero-badge').textContent, /QBank cards · 354 Practice Exam cards · 36 C\/P passages · \d full-length exams/);
+assert.match(el('hero-badge').textContent, /QBank cards · 354 Practice Exam cards · \d full-length exams/);
 
 // Weakness picks, never counts: within 5D (a weak category), a card missed today, one missed on the latest test
 // and one due for review come first, then the weakest sub-topic's cards (by saved accuracy), then the rest.
@@ -66,44 +66,34 @@ assert.equal(run('new Set(quiz.items.map(v=>v.q.id)).size'), 50, 'no card twice'
 run('goHome()');
 
 run("store.set(KEYS.mem, {}); store.set(KEYS.stats, {})");
-// Passage step: the first passage is unseen and in the weakest category (5D).
-run('startMasteryPassages()');
-assert.equal(run('pq.masteryPractice'), 'step');
-const first = run('pq.p.id');
-assert(run("[...(pq.p.cats||[]),...pq.p.questions.map(q=>q.cat)].includes('5D')"), 'weakest category first: ' + first);
-const n1 = run('pq.views.length');
-for (let i = 0; i < n1; i++) run('answerPassage(pq.views[pq.idx].ans); nextPassageQ()');
-plan = JSON.parse(run('JSON.stringify(masteryPlanNow())'));
-const ps = plan.steps.find(s => s.id === 'passages');
-assert.equal(ps.progress, n1, 'each answer counts toward the step');
-assert.equal(ps.cats.reduce((n, c) => n + c.n, 0), n1, 'and toward its AAMC category');
-const day = JSON.parse(run('JSON.stringify(masteryLoad().days[localDay()])'));
-assert.deepEqual(day.pracUsed, [first]);
-assert.equal(Object.values(day.pracD || {}).reduce((a, b) => a + b, 0), n1, "each answer counts toward its discipline"); assert.equal(Object.values(day.pracX || {}).reduce((a, b) => a + b, 0), n1, "and its difficulty");
-assert.equal(ps.diffs.reduce((n, k) => n + k.progress, 0), n1); assert.equal(ps.discs.reduce((n, k) => n + k.progress, 0) <= n1, true);
-// The results page offers the next practice passage; repeating showPassageResults never double counts.
-assert.match(el('pp-question-box').innerHTML, /masteryNextPractice\(\)/);
-const attempts = run(`store.get(KEYS.passages,{})['${first}'].attempts`); run('showPassageResults()'); assert.equal(run(`store.get(KEYS.passages,{})['${first}'].attempts`), attempts);
-// The next passage is another unseen one.
-run('masteryNextPractice()'); const second = run('pq.p.id'); assert.notEqual(second, first); assert.equal(run(`store.get(KEYS.passages,{})['${second}']`), undefined);
-run('goHome()');
+// The quiz unlocks only once flashcards and guided cards are done: starting it early shows a message instead.
+el('page-notice').hidden = true; run("startMasteryTest('daily')");
+assert.equal(el('page-notice').hidden, false); assert.match(el('page-notice').textContent, /quiz unlocks once/); assert.notEqual(run('pq.mini && pq.mini.mastery'), 'daily');
+run(`(() => { const m = masteryLoad(), row = masteryDayRow(m, 'cp'), p = masteryPlanNow(m);
+  row.flashT = Object.fromEntries(p.steps.find(s => s.id === 'flashcards').topics.map(t => [t.code, t.need]));
+  row.guidedT = Object.fromEntries(p.steps.find(s => s.id === 'guided').topics.map(t => [t.code, t.need])); row.lessonsN = 50; masterySave(m); })()`);
+run('renderHome()'); assert.match(el('today-plan').innerHTML, /startMasteryTest\('daily'\)/, 'unlocked once steps 1 and 2 are done');
+run("startMasteryTest('daily')"); assert.equal(run('pq.mini.mastery'), 'daily'); run('stopPassageTimer(); pq.mini = null; goHome()');
+run(`(() => { const m = masteryLoad(), row = masteryDayRow(m, 'cp'); row.flashT = {}; row.guidedT = {}; row.lessonsN = 0; masterySave(m); })()`);
+// A passage run on its own (a full-length's CARS passage) counts toward no TODAY step.
+run('startPassage(EXAM_CARS[0])'); run('answerPassage(pq.views[0].ans)');
+assert.equal(run('masteryLoad().days[localDay()].prac'), undefined, 'passage answers do not count toward TODAY'); run('goHome()');
 
-// Every passage done once: the step repeats the lowest-scoring passage, and TODAY says the pool was completed.
-run("const st={}; LISTED_PASSAGES.forEach((p,i)=>{ st[p.id]={attempts:1,last:100,best:100,lastAt:i+1}; }); st[LISTED_PASSAGES[7].id].last=25; store.set(KEYS.passages,st)");
-assert.equal(run('masteryPoolDone(LISTED_PASSAGES)'), true);
-run('startMasteryPassages()'); assert.equal(run('pq.p.id'), run('LISTED_PASSAGES[7].id'), 'least well answered first'); run('goHome()');
-run('renderHome()'); assert.match(el('today-plan').innerHTML, /completed every practice passage once/);
-
-// After the quiz (below goal): the follow-up aims at the quiz's weak categories and prefers passages not used today.
-run(`(() => { const m = masteryLoad(); m.tests.push({ subj: 'cp', day: localDay(), t: 2, kind: 'daily', correct: 12, total: 30, pct: 40, scaled: 120, version: 'cp_half_1', cats: { '4C': { c: 0, t: 3 } } }); masterySave(m); })()`);
-run("startMasteryFollowup('passages')");
-assert.equal(run('pq.masteryPractice'), 'followup');
-assert(!JSON.parse(run('JSON.stringify(masteryLoad().days[localDay()].pracUsed.slice(0,-1))')).includes(run('pq.p.id')), 'not a passage used today');
-assert(run("[...(pq.p.cats||[]),...pq.p.questions.map(q=>q.cat)].includes('4C')"), 'aims at the quiz weak category');
-const before = JSON.parse(run('JSON.stringify(masteryPlanNow().steps.find(s=>s.id==="passages").progress)'));
-run('answerPassage(pq.views[0].ans)');
-assert.equal(JSON.parse(run('JSON.stringify(masteryPlanNow().steps.find(s=>s.id==="passages").progress)')), before, 'follow-up answers do not count toward the step');
-assert.equal(run('masteryLoad().days[localDay()].fixQ'), 1);
+// After the quiz (below goal): the follow-up reviews the quiz's misses and weak categories with flashcards (and
+// guided cards, below); the quiz's missed card comes first; never practice passages.
+{ const miss = run("masteryFlashPool('cp').filter(q => masteryCategory(q) === '4C').at(-1).id");
+  run(`(() => { const m = masteryLoad(); m.tests.push({ subj: 'cp', day: localDay(), t: 2, kind: 'daily', correct: 12, total: 30, pct: 40, scaled: 120, version: 'cp_half_1', cats: { '4C': { c: 0, t: 3 } }, missIds: ['${miss}'] }); masterySave(m); })()`);
+  run('renderHome()'); const html = el('today-plan').innerHTML;
+  assert.match(html, /startMasteryFollowup\('flashcards'\)/); assert.match(html, /startMasteryFollowup\('guided'\)/); assert.doesNotMatch(html, /startMasteryFollowup\('passages'\)|Practice passages/);
+  run("startMasteryFollowup('flashcards')");
+  assert.equal(run('quiz.mastery'), 'followup'); assert.equal(run('activeScreen'), 'screen-quiz');
+  assert(run("quiz.items.every(v => AQB_BY_ID.has(v.q.id) && masteryCategory(v.q) === '4C')"), 'QBank flashcards from the quiz weak category');
+  assert(run(`quiz.items.some(v => v.q.id === '${miss}')`), 'the quiz\'s missed card comes first');
+  const flash0 = run('masteryPlanNow().steps.find(s=>s.id==="flashcards").progress');
+  run('pick(quiz.items[0].ans)');
+  assert.equal(run('masteryPlanNow().steps.find(s=>s.id==="flashcards").progress'), flash0, 'follow-up answers do not count toward step 1');
+  assert.equal(run('masteryLoad().days[localDay()].fixQ'), 1);
+  run('goHome()'); }
 
 // ── Regressions from the code review ──
 // 1.1: every card done but lessons short → "Continue" opens today's cards whose lesson isn't finished.
@@ -141,10 +131,6 @@ assert.equal(run('masteryLoad().days[localDay()].fixQ'), 1);
   assert.equal(after.progress, before.progress); assert.equal(after.lessons, before.lessons);
   assert.equal(run('masteryLoad().days[localDay()].fixQ') - fix0, 1);
   run('goHome()'); }
-// 2.4: after the pool is used up, a passage already used today is not repeated before the others.
-{ run("(()=>{const s2={}; LISTED_PASSAGES.forEach((p,i)=>{ s2[p.id]={attempts:1,last:100,best:100,lastAt:i+1}; }); s2[LISTED_PASSAGES[3].id].last=10; s2[LISTED_PASSAGES[4].id].last=20; store.set(KEYS.passages,s2)})()");
-  run(`(() => { const m = masteryLoad(); masteryDayRow(m, 'cp').pracUsed = [LISTED_PASSAGES[3].id]; masterySave(m); })()`);
-  run('startMasteryPassages()'); assert.equal(run('pq.p.id'), run('LISTED_PASSAGES[4].id'), 'the lowest score not used today'); run('goHome()'); }
 // Midnight: answers in a session started yesterday count toward yesterday.
 { const y = run('localDay(new Date(Date.now()-DAY))');
   run('startMasteryFlashcards(true)'); run(`quiz.masteryDay = '${y}'`);
@@ -161,5 +147,5 @@ assert.equal(run('masteryLoad().days[localDay()].fixQ'), 1);
 { run(`(() => { const m = masteryLoad(); m.days['2026-01-01'] = { subj: 'cp', topics: ['5D'], seen: ['a','b'], guidedIds: ['a'], lessonIds: ['a'], pracUsed: ['p'], flashT: { '5D': 3 } }; masterySave(m); })()`);
   const old = JSON.parse(run(`JSON.stringify(masteryLoad().days['2026-01-01'])`));
   assert(!old.seen && !old.guidedIds && !old.lessonIds && !old.pracUsed && old.flashT['5D'] === 3, 'lists dropped, counts kept');
-  assert(Array.isArray(JSON.parse(run('JSON.stringify(masteryLoad().days[localDay()].pracUsed)'))), 'today keeps its lists'); }
-console.log('Passage step passed: only the 36 C/P practice passages are listed and practiced; QBank-only flashcards; answers count toward the step and their category; unseen and weakest first; after the pool is used up the lowest-scoring repeat with a note; the follow-up prefers unused passages on the quiz\'s weak categories.');
+  assert(Array.isArray(JSON.parse(run('JSON.stringify(masteryLoad().days[localDay()].seen)'))), 'today keeps its lists'); }
+console.log('TODAY steps passed: 3 daily steps after the diagnostic (no passage step); the Passages tab and C/P practice passages are gone; QBank-only flashcards in the exact AAMC split, missed, due and weak sub-topics first; the quiz unlocks after flashcards and guided cards; the follow-up uses flashcards and guided cards on the quiz misses and weak categories; lessons, first-answer counting, midnight and synced-list regressions.');

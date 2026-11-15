@@ -3,16 +3,25 @@
 //   first visit; the cached copy is used when the network fails or is slow (1.5 s when a cached copy exists).
 // - data/*.js: cache-first with a background refresh. CACHE changes on every deploy, so a cached data file is
 //   always from the current version.
+// - Every js/*.js and data/*.js URL carries ?v=<CACHE> (the pages' script tags and the app's on-demand loads, written
+//   by tools/generate-pages.cjs), so a new deploy never reuses a script from the browser's HTTP cache. The data cache
+//   matches the exact versioned URL.
 // - The drawings (data/structures.js) and the sign-in SDK are cached the first time they are used, not at install.
-// Bump CACHE when deploying.
-const CACHE = 'mcat-v2.62-sample-test-aamc-format-2026-11-15';
+// Bump CACHE when deploying, then run node tools/generate-pages.cjs.
+const CACHE = 'mcat-v2.65-passages-tab-removed-2026-11-15';
+const V = '?v=' + CACHE;
 const NETWORK_TIMEOUT_MS = 4000, CACHED_TIMEOUT_MS = 1500;
-const ASSETS = [
-  "recall.html", "passages.html", "exams.html", "aamc.html", "flprep.html","score-report.html", "about.html", "recall-session.html", "passage-session.html", "exam-session.html", "results.html", "exam-results.html", 'js/pages.js', './', 'css/portfolio-theme.css?v=20261115', 'index.html', 'css/styles.css', 'js/app.js', 'js/study-path.js', 'js/cloud-config.js', 'js/account.js', 'js/study-timer.js', 'js/learning-evidence.js', 'js/daily-plan.js', 'js/mastery.js', 'js/actions.js', 'js/data-css.js', 'manifest.webmanifest', 'icon.svg', 'data/passages-cars.js', 'data/cp-diagnostic.js', 'data/cp-pool.js', 'data/cp-practice.js',
+const SCRIPTS = [
+  'js/pages.js', 'js/app.js', 'js/study-path.js', 'js/cloud-config.js', 'js/account.js', 'js/study-timer.js', 'js/learning-evidence.js', 'js/daily-plan.js', 'js/mastery.js', 'js/actions.js', 'js/data-css.js',
+  'data/passages-cars.js', 'data/cp-diagnostic.js', 'data/cp-pool.js',
   'data/qb-aamc-bio.js', 'data/qb-aamc-chem.js', 'data/qb-aamc-phys.js', 'data/qb-aamc-biochem.js', 'data/qb-aamc-iqb.js', 'data/qb-aamc-cars.js', 'data/qb-aamc-rules.js', 'data/qb-aamc-fl.js', 'data/aamc-prep.js',
   'data/exam1.js', 'data/exam2-cp.js', 'data/exam2-bb.js', 'data/exam2-ps.js', 'data/exams.js',
 ];
-const RUNTIME = ['data/structures.js', 'vendor/supabase-js-2.118.0.umd.js'];
+const ASSETS = [
+  "recall.html", "passages.html", "exams.html", "aamc.html", "flprep.html","score-report.html", "about.html", "recall-session.html", "passage-session.html", "exam-session.html", "results.html", "exam-results.html", './', 'css/portfolio-theme.css?v=20261115', 'index.html', 'css/styles.css', 'manifest.webmanifest', 'icon.svg',
+  ...SCRIPTS.map(path => path + V),
+];
+const RUNTIME = ['data/structures.js' + V, 'vendor/supabase-js-2.118.0.umd.js'];
 
 self.addEventListener('install', event => {
   // cache: 'no-cache' revalidates every file with the server, so the precache never stores stale files,
@@ -44,9 +53,10 @@ self.addEventListener('fetch', event => {
 });
 
 // Versioned data: answer from the cache at once and refresh it in the background; fetch it if not cached yet.
+// Only the exact URL (with its ?v=) matches, so a request for another version goes to the network.
 async function cacheFirst(req) {
   const cache = await caches.open(CACHE);
-  const cached = await cache.match(req, { ignoreSearch: true });
+  const cached = await cache.match(req);
   const network = fetch(req, { cache: 'no-cache' }).then(async res => {
     if (res.ok) { try { await cache.put(req, res.clone()); } catch (e) { /* quota: keep the response */ } }
     return res;

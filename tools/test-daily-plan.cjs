@@ -240,7 +240,7 @@ for (const days of [22, 25, 27]) {
   const el = id => { if (!nodes.has(id)) nodes.set(id, { innerHTML: '', textContent: '', value: '', style: {}, dataset: {}, classList: { toggle() {}, add() {}, remove() {} }, setAttribute() {}, focus() {}, scrollIntoView() {}, remove() {}, querySelectorAll() { return []; } }); return nodes.get(id); };
   const app = vm.createContext({ console, Date, Math, Map, Set, URLSearchParams, setInterval() { return 1; }, clearInterval() {}, setTimeout() {}, confirm() { return true; }, alert() {}, navigator: {}, location: { protocol: 'http:', search: '' }, window: { scrollTo() {} }, document: { getElementById: el, querySelectorAll() { return []; }, addEventListener() {} }, localStorage: { getItem: k => storage.get(k), setItem: (k, v) => storage.set(k, v), removeItem: k => storage.delete(k) } });
   for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(__dirname + '/../js/app.js', 'utf8'))[1])()).flat()) vm.runInContext(fs.readFileSync(__dirname + '/../' + f, 'utf8'), app);
-  for (const [, file] of fs.readFileSync(__dirname + '/../index.html', 'utf8').matchAll(/<script src="([^"]+)"/g)) if (!/account|cloud-config|pages/.test(file)) vm.runInContext(fs.readFileSync(__dirname + '/../' + file, 'utf8'), app);
+  for (const [, file] of fs.readFileSync(__dirname + '/../index.html', 'utf8').matchAll(/<script src="([^"?]+)/g)) if (!/account|cloud-config|pages/.test(file)) vm.runInContext(fs.readFileSync(__dirname + '/../' + file, 'utf8'), app);
   const run = code => vm.runInContext(code, app);
   run("store.set(KEYS.plan,{date:localDay(new Date(Date.now()+90*DAY)),start:localDay(),days:6,minutes:120})");
   // Tampered or malformed synced data must not break the home page.
@@ -250,6 +250,25 @@ for (const days of [22, 25, 27]) {
     assert.match(el('today-plan').innerHTML, /TODAY › Section mastery[\s\S]*Test date &amp; full-length calendar/);
   }
   assert.equal(run('Object.prototype.type'), undefined, 'no prototype pollution from synced keys');
+  // The exact AAMC split applies today, not tomorrow: a day row saved before it (5 weak topics × 10, no split
+  // marker) is rewritten to split 'exact' when TODAY loads, keeping the answers it already counted, and TODAY shows
+  // exactly 3 daily steps (no passage step); the removed step's saved fields are ignored.
+  { const today = run('localDay()'), yday = run('localDay(new Date(Date.now()-DAY))');
+    storage.set('mcat2_daily_plan', '{}');
+    run(`store.set(KEYS.subjectPath,{tests:[{subj:'cp',day:'${yday}',t:1,kind:'diagnostic',correct:30,total:59,pct:51,scaled:122,version:'cp_diag',cats:{'4B':{c:1,t:4},'5D':{c:6,t:14}}}],
+      days:{'${today}':{subj:'cp',topics:['4B','5D','4E','5A','5B'],flashT:{'4B':1},prac:7,pracT:{'5D':7},pracD:{physics:2},pracS:{'SIRS 1':3},pracX:{D:1}}}})`);
+    assert.doesNotThrow(() => run('calendarMemo=null;renderHome()'), 'an old day row loads');
+    const row = JSON.parse(run(`JSON.stringify(masteryLoad().days['${today}'])`));
+    assert.equal(row.split, 'exact', 'the saved row is rewritten to the exact split on load');
+    assert.deepEqual(row.flashT, { '4B': 1 }, 'its counted answers are kept');
+    const fl = JSON.parse(run("JSON.stringify(masteryPlanNow().steps.find(s=>s.id==='flashcards'))"));
+    assert.deepEqual(Object.fromEntries(fl.topics.map(t => [t.code, t.need])), { '5D': 12, '5E': 8, '4E': 7, '5A': 5, '4D': 4, '4C': 4, '4B': 3, '5B': 3, '4A': 2, '5C': 2 }, 'flashcard needs: the AAMC split');
+    assert.equal(fl.topics.find(t => t.code === '4B').progress, 1, '4B keeps its 1 counted card');
+    assert.deepEqual(JSON.parse(run("JSON.stringify(masteryPlanNow().steps.map(s=>s.id))")), ['diagnostic', 'flashcards', 'guided', 'test'], 'exactly 3 daily steps after the diagnostic');
+    const html = el('today-plan').innerHTML;
+    assert.doesNotMatch(html, /Passage questions|startMasteryPassages/, 'no passage step on TODAY');
+    assert.match(html, /Unlocks when steps 1 and 2 are done/, 'the quiz is locked until steps 1 and 2 are done');
+    run(`store.set(KEYS.subjectPath,{})`); }
   // Malformed object maps from another device used to blank the app or freeze a question.
   storage.set('mcat2_evidence', '{"biology":null,"physics":7}'); storage.set('mcat2_calibration', '{"biology":null}'); storage.set('mcat2_recall_days', JSON.stringify({ [run('localDay()')]: 5 }));
   assert.doesNotThrow(() => run('calendarMemo=null;renderHome();showProgress();goHome()'), 'malformed evidence/calibration maps');

@@ -5,10 +5,9 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const root = __dirname + '/..';
 const ctx = vm.createContext({});
-for (const f of ['data/cp-diagnostic.js', 'data/cp-pool.js', 'data/cp-practice.js', 'data/structures.js']) vm.runInContext(fs.readFileSync(root + '/' + f, 'utf8'), ctx, { filename: f });
+for (const f of ['data/cp-diagnostic.js', 'data/cp-pool.js', 'data/structures.js']) vm.runInContext(fs.readFileSync(root + '/' + f, 'utf8'), ctx, { filename: f });
 const D = JSON.parse(vm.runInContext('JSON.stringify(CP_DIAG)', ctx));
 const POOL = JSON.parse(vm.runInContext('JSON.stringify(CP_POOL)', ctx));
-const PRAC = JSON.parse(vm.runInContext('JSON.stringify(CP_PRACTICE)', ctx));
 const STRUCTS = new Set(JSON.parse(vm.runInContext('JSON.stringify(Object.keys(STRUCT_SVG))', ctx)));
 const CATS = ['4A', '4B', '4C', '4D', '4E', '5A', '5B', '5C', '5D', '5E'];
 const SKILLS = ['SIRS 1', 'SIRS 2', 'SIRS 3', 'SIRS 4'];
@@ -75,18 +74,15 @@ for (const set of POOL) {
   within(count(r.items, x => x.q.cat), { '5D': 7, '5E': 5, '4E': 4, '5A': 3, '4D': 2, '4C': 2, '4B': 2, '5B': 2, '4A': 2, '5C': 1 }, 2, set.id + ' category');
   for (const p of set.passages) { assert(!allIds.has(p.id), 'passage ids are unique across sets: ' + p.id); allIds.add(p.id); }
 }
-// Practice passages (after the quiz, for weak topics): their own passages, never in the diagnostic or a quiz.
-assert(PRAC.length >= 36, 'at least 36 practice passages');
-{ const r = checkSet({ id: 'cp_practice', passages: PRAC, standalones: [], order: PRAC.map(p => p.id) });
-  for (const p of PRAC) { assert(!allIds.has(p.id), 'practice passages are separate from the tests: ' + p.id); allIds.add(p.id); }
-  assert(new Set(r.items.map(x => x.q.cat)).size === 10, 'practice passages cover all 10 C/P categories'); }
+// The C/P practice passages (data/cp-practice.js, the old Passages tab) were removed: TODAY is the only C/P path.
+assert(!fs.existsSync(root + '/data/cp-practice.js'), 'no C/P practice passages file');
 // Question ids are unique (results and reviews key on them).
-const qids = [D, ...POOL, { passages: PRAC, standalones: [] }].flatMap(s => [...s.passages.flatMap(p => p.questions), ...s.standalones]).map(q => q.id);
+const qids = [D, ...POOL].flatMap(s => [...s.passages.flatMap(p => p.questions), ...s.standalones]).map(q => q.id);
 assert.equal(new Set(qids).size, qids.length, 'unique question ids');
 
 // Regression (review 3): choices are shuffled, so no choice or explanation may name a choice by its letter,
 // and no choice may be a bare letter list ("B and D only") that would read as answer letters.
-{ const all = [D, ...POOL, { passages: PRAC, standalones: [] }].flatMap(s => [...s.passages.flatMap(p => p.questions), ...s.standalones]);
+{ const all = [D, ...POOL].flatMap(s => [...s.passages.flatMap(p => p.questions), ...s.standalones]);
   for (const q of all) {
     assert(!q.choices.some(c => /^(?:[A-D](?:,? (?:and )?[A-D])*)(?: only)?$/.test(String(c).trim())), (q.id || q.q.slice(0, 40)) + ': a choice reads like answer letters');
     assert(!/\b(?:choice|option|answer) [A-D]\b/i.test(q.exp), (q.id || q.q.slice(0, 40)) + ': explanation names a choice letter');
@@ -98,6 +94,6 @@ assert(app.includes('function schemeHtml(row)') && app.includes('fillPassageBox(
 const BANKS = new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(app)[1])();
 assert.deepEqual(BANKS.cp, ['data/cp-diagnostic.js', 'data/cp-pool.js'], 'the sets load on demand when a mastery test starts');
 assert(mastery.includes("if (!bankReady('cp')) { withBank('cp', () => startMasteryTest(kind)); return; }"), 'a mastery test waits for the sets');
-for (const page of ['index.html', 'passages.html']) assert(!fs.readFileSync(root + '/' + page, 'utf8').includes('data/cp-pool.js'), page + ' does not load the quiz sets up front');
+for (const page of ['index.html', 'exams.html']) assert(!fs.readFileSync(root + '/' + page, 'utf8').includes('data/cp-pool.js'), page + ' does not load the quiz sets up front');
 const sw = fs.readFileSync(root + '/sw.js', 'utf8'); assert(sw.includes("'data/cp-diagnostic.js'") && sw.includes("'data/cp-pool.js'"), 'cached offline');
 console.log(`C/P diagnostic passed: 59 questions (10 passages + 15 stand-alones) in exam order, blueprint mix, ${d.structures} drawn structures; ${POOL.length} daily quiz sets of 30.`);
