@@ -113,6 +113,7 @@ function finishSubjectMini() {
   if (!mini || mini.completed) return;
   mini.completed = true;
   stopPassageTimer(); 
+  if (typeof document !== 'undefined' && document.body) document.body.classList.remove('exam-mode');
   // A timed-out test includes all unattempted items as misses, once.
   for (let i = pq.results.length; i < pq.views.length; i++) pq.results.push({ view: pq.views[i], chosen: null, other: null, right: false, ms: 0 });
   const ps = store.get(KEYS.passages, {});
@@ -124,10 +125,13 @@ function finishSubjectMini() {
       recordEvidence('passage', disciplineOfPassage(item.passage, r.view.q), r.right);
       if (r.view.q.skill) recordEvidence('skill', r.view.q.skill, r.right);
     } else {
+      // Test-only stand-alones (the C/P diagnostic and quizzes) have no flashcard behind them: no recall stats or memory.
+      if (r.view.q.key) {
       if(r.chosen!=null)recordRecallToday(r.view.q);
       const stats = store.get(KEYS.stats, {}), q = r.view.q, row = stats[q.key] || { c: 0, t: 0 };
       row.t++; if (r.right) row.c++; stats[q.key] = row; store.set(KEYS.stats, stats);
       if(r.chosen!=null)updateMemory(q, r.right, r.other == null ? null : 'unsure', r.ms);
+      }
     }
     if (!r.right) logError({ id: r.view.q.id || 'mini_' + mini.subj + '#' + i, disc: mini.mastery ? (item.passage ? disciplineOfPassage(item.passage, r.view.q) : disciplineOfRecall(r.view.q)) : mini.subj, key: item.passage ? null : r.view.q.key, type: 'unlabeled', chosen: r.chosen == null ? '(unanswered)' : r.view.choices[r.chosen], answer: r.view.choices[r.view.ans], src: 'mini' });
   });
@@ -142,7 +146,7 @@ function finishSubjectMini() {
   logStudyWork(mini.subj, 'mini', correct, total);
   $('pp-fill').style.width = '100%'; $('pp-passage-box').innerHTML = '';
   $('pp-score').textContent = '✓ ' + correct + '/' + total;
-  const reviewHtml = pq.results.map((r, i) => { const source = mini.items[i].passage; return (source && (i === 0 || mini.items[i - 1].passage?.id !== source.id) ? '<details class="results-card"><summary>Review passage: ' + esc(source.title) + '</summary>' + passageCard(source.topic || '', source.title, source.passage, source.figure) + '</details>' : '') + reviewItem({ stem: r.view.q.q, choices: r.view.choices, ans: r.view.ans, chosen: r.chosen, other: r.other, exp: r.view.q.exp, otherHandler: 'setMiniReviewAlternative.bind(null,'+i+')', otherId: 'mini-other-'+i, tag: 'Q' + (i + 1), passageTitle: mini.items[i].passage?.title }); }).join('');
+  const reviewHtml = pq.results.map((r, i) => { const source = mini.items[i].passage; return (source && (i === 0 || mini.items[i - 1].passage?.id !== source.id) ? '<details class="results-card"><summary>Review passage: ' + esc(source.title) + '</summary>' + passageCard(source.topic || '', source.title, source.passage, source.figure, source.scheme) + '</details>' : '') + reviewItem({ stem: r.view.q.q, choices: r.view.choices, ans: r.view.ans, chosen: r.chosen, other: r.other, exp: r.view.q.exp, otherHandler: 'setMiniReviewAlternative.bind(null,'+i+')', otherId: 'mini-other-'+i, tag: 'Q' + (i + 1), passageTitle: mini.items[i].passage?.title }); }).join('');
   if (mini.mastery) { $('pp-question-box').innerHTML = masteryFinishTest(mini, pq.results) + '<div class="results-card"><div class="section-label">Review every question</div></div>' + reviewHtml; snapshotEstimate(); return; }
   $('pp-question-box').innerHTML = '<div class="results-hero"><div class="r-label">Subject mini test complete</div><div class="score-pct">' + pct(correct, total) + '%</div><div class="score-sub">' + correct + '/' + total + ' · ' + esc(DISCIPLINES[mini.subj]) + ' · ' + fmtTime(Date.now() - pq.startedAt) + '</div></div><div class="results-card"><p>Review the explanations, then drill recall in this subject before the next passage. This mini test is practice, not a scaled MCAT score.</p><div class="btn-row">' + (mini.subj === 'cars' ? '' : '<button class="new-quiz-btn" data-click="leaveMiniForRecall()">Reinforce this subject</button>') + '<button class="new-quiz-btn secondary" data-click="goHome()">Home</button></div></div>' + reviewHtml;
   snapshotEstimate();

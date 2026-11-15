@@ -1069,6 +1069,8 @@ function show(id, page) {
   window.McatPages?.screen(id, page);
   const nav = $('app-nav');
   if (nav) nav.hidden = id === 'screen-home';
+  // A Section Mastery test runs full-screen, laid out like the real exam: no site header, menus or study bars.
+  if (typeof document !== 'undefined' && document.body) document.body.classList.toggle('exam-mode', id === 'screen-passage' && !!(pq.mini && pq.mini.mastery && !pq.mini.completed));
   window.scrollTo(0, 0);
   renderStudyTimer();
 }
@@ -2820,7 +2822,7 @@ function startPassage() {
   const perQ = /^p_(cars|e2cars)/.test(p.id) ? 102 : 95;
   Object.assign(pq, { p, idx: 0, views: p.questions.map(makeView), results: [], answered: false, startedAt: Date.now(), qStart: Date.now(), targetMs: perQ * 1000 * p.questions.length });
   show('screen-passage');
-  $('pp-passage-box').innerHTML = passageCard(p.topic || '', p.title, p.passage, p.figure);
+  fillPassageBox(p);
   renderPassageQuestion();
   stopPassageTimer();
   pq.timer = setInterval(updatePassageTimer, 1000);
@@ -2836,13 +2838,38 @@ function updatePassageTimer() {
   el.className = 'qm-timer' + (used > pq.targetMs ? ' danger' : used > pq.targetMs * 0.85 ? ' warn' : '');
 }
 function stopPassageTimer() { if (pq.timer) clearInterval(pq.timer); pq.timer = null; }
-function passageCard(topic, title, text, figure) {
+function passageCard(topic, title, text, figure, scheme) {
+  // Drawn structures and reaction schemes sit after the paragraph they belong to (row.after, 0-based over
+  // blank-line-separated paragraphs; default: after the first).
+  let body = paragraphs(text);
+  if (Array.isArray(scheme) && scheme.length) {
+    const chunks = String(text ?? '').split(/\n\s*\n/);
+    body = chunks.map((c, i) => paragraphs(c) + scheme.filter(r => (Number.isInteger(r.after) ? r.after : 0) === i).map(schemeHtml).join('')).join('')
+      + scheme.filter(r => Number.isInteger(r.after) && r.after >= chunks.length).map(schemeHtml).join('');
+  }
   return `<div class="passage-card">
     ${topic ? `<div class="passage-topic">${esc(topic)}</div>` : ''}
     <div class="passage-title">${esc(title)}</div>
-    <div class="passage-text">${paragraphs(text)}</div>
+    <div class="passage-text">${body}</div>
     ${figure ? figureHtml(figure) : ''}
   </div>`;
+}
+// One scheme row: structures with "+" and labeled reaction arrows between them, and a caption.
+function schemeHtml(row) {
+  const parts = (row.parts || []).map(p => {
+    if (p === '+') return '<span class="scheme-op" aria-hidden="true">+</span>';
+    if (p && typeof p === 'object') return `<span class="scheme-arrow"><span class="scheme-reagent">${fmt(p.arrow || '')}</span><span class="scheme-arrowline" aria-hidden="true">⟶</span></span>`;
+    return `<span class="scheme-mol">${structImg(p, 'Structure in ' + (row.caption || 'figure')) || '<span class="muted-note">drawing loading…</span>'}</span>`;
+  }).join('');
+  return `<figure class="pass-scheme"><div class="scheme-row">${parts}</div>${row.caption ? `<figcaption>${fmt(row.caption)}</figcaption>` : ''}</figure>`;
+}
+const passageNeedsStructs = p => !!p && Array.isArray(p.scheme) && p.scheme.length > 0;
+// Fills the passage box; a passage with drawn structures loads the drawings first, then redraws.
+function fillPassageBox(p) {
+  const box = $('pp-passage-box'); if (!box) return;
+  const html = () => passageCard(p.topic || '', p.title, p.passage, p.figure, p.scheme);
+  box.innerHTML = html();
+  if (passageNeedsStructs(p) && typeof STRUCT_SVG === 'undefined' && typeof ensureStructs === 'function') ensureStructs().then(() => { if ($('pp-passage-box') === box && box.isConnected !== false) box.innerHTML = html(); }).catch(() => {});
 }
 // ── Graph figures: line and bar charts drawn as inline SVG (presentation only, no script) ──
 // ov (optional) is one solution step's overlay: {focus:[series], read:[{series,x}], xLine, yLine, bars:[[category, series]]}.
@@ -2990,13 +3017,15 @@ function renderPassageQuestion() {
   pq.qStart = Date.now();
   if (pq.mini) {
     const passage = pq.mini.items[pq.idx].passage;
-    $('pp-passage-box').innerHTML = passage ? passageCard(passage.topic || '', passage.title, passage.passage, passage.figure) : '<p class="muted-note">Discrete question · no passage</p>';
+    if (passage) fillPassageBox(passage); else $('pp-passage-box').innerHTML = '<p class="muted-note">Discrete question · no passage</p>';
     $('pp-score').textContent = pq.results.length + '/' + tot + ' answered · feedback at end';
   }
+  // Practice Exam questions can show a molecule, answer-choice drawings or a graph: load the drawings once.
+  if (typeof STRUCT_SVG === 'undefined' && needsStructs(view.q)) ensureStructs().then(() => { if (activeScreen === 'screen-passage' && pq.views[pq.idx] === view && !pq.answered) renderPassageQuestion(); }).catch(() => {});
   $('pp-question-box').innerHTML = `
     <div class="question-box"><div class="q-toolbar"><span class="q-tag">Question ${pq.idx + 1} of ${tot}${view.q.skill ? ` · ${esc(SKILL_LABEL[view.q.skill] || view.q.skill)}` : ''}</span></div>
-      <div class="question-text">${fmt(view.q.q)}</div></div>
-    <div class="choices">${choiceButtons(view.choices, 'answerPassage', { prefix: 'pc' })}</div>
+      <div class="question-text">${fmt(view.q.q)}</div>${stemFigs(view.q)}${view.q.chart ? figureHtml(view.q.chart) : ''}</div>
+    <div class="choices">${choiceButtons(view.choices, 'answerPassage', { prefix: 'pc', view })}</div>
     <div id="pp-exp"></div><div id="pp-next"></div>`;
 }
 function finishPassageAnswer(chosen, other = null, answerMs = null) {
