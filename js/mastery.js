@@ -3,10 +3,13 @@
 //   Then every day, in this order: 50 QBank flashcards → 50 guided Practice Exam cards with step-by-step lessons
 //   → 50 passage questions from the AAMC-style C/P practice passages → a 30-question quiz, half an AAMC section in
 //   exam order → done for the day at goal, otherwise work on what the quiz showed was weak.
-//   C/P follows the AAMC blueprint (MASTERY.blueprint): each day's cards and passage questions are split over all
-//   10 content categories, 80% by how often AAMC tests each one and 20% extra on the two weakest (masteryBlueprintSplit),
-//   cards in the AAMC discipline mix within each category; the quizzes are checked against a fixed 30-question mix.
-//   Days saved before this split (5 content categories a day, equal shares) keep their counts (no split marker).
+//   C/P follows the AAMC blueprint (MASTERY.blueprint) exactly: each step's count is split 100% over all 10 content
+//   categories by how often AAMC tests each one (masteryBlueprintSplit: largest remainder, ties to the heavier
+//   category), cards in the AAMC discipline mix within each category, passage questions also in the AAMC skill
+//   and difficulty mix. Weakness never changes a count: it changes which cards are picked within a category
+//   (missed and due cards, then the weakest sub-topics, then the rest; masteryTierPick) and is marked on TODAY.
+//   Days saved before this (5 content categories a day; or split 'blueprint' with +20% on the two weakest) keep
+//   their counts for that day; the exact split starts the next day.
 //   Reaching the goal (128 by default) on the quiz on MASTERY.passDays separate days in a row moves the path to the
 //   next section, which starts with its own diagnostic.
 // Only approved content is used: the AAMC QBank cards, the Practice Exam cards, the C/P diagnostic / quiz /
@@ -32,17 +35,18 @@ const MASTERY = {
   defaultGoal: 128,
   passDays: 2,          // separate days in a row at or above the goal
   weakBelow: 84,        // % correct in a topic below this (≈128) counts as weak
-  // AAMC blueprint, in % of all 354 C/P questions on Practice Exams 1–6: content categories, disciplines and
-  // scientific skills (SIRS, passage questions). Each day's flashcards, Practice Exam cards and passage questions
-  // go 1 − extraShare by these weights and extraShare to the two weakest categories of the latest test.
+  // AAMC blueprint, in % of all 354 C/P questions on Practice Exams 1–6: content categories, disciplines,
+  // scientific skills (SIRS) and difficulty (E easy, M medium, D difficult, X hardest; passage questions' diff).
+  // Every day's flashcards, Practice Exam cards and passage questions are split 100% by these weights.
   blueprint: {
     cp: {
       cats: { '5D': 24, '5E': 15, '4E': 13, '5A': 9, '4D': 8, '4C': 8, '4B': 7, '5B': 6, '4A': 5, '5C': 4 },
       discs: { gen_chem: 32, biochemistry: 25, physics: 25, organic_chem: 16, biology: 2 },
       skills: { 'SIRS 1': 37, 'SIRS 2': 44, 'SIRS 3': 10, 'SIRS 4': 10 },
+      diffs: { D: 39, M: 30, X: 21, E: 10 },
     },
   },
-  extraShare: 0.2,
+  oldBonusShare: 0.2,   // only for a day saved with split 'blueprint' (its two weak categories got +20%): that day only
   secondsPerItem: 95,   // timed test pace: the exam's 95 min for 59 questions is about 97 s each
 };
 
@@ -99,11 +103,16 @@ function masteryTopics(m, subj, today, latest) {
   const rest = list.filter(t => !weak.includes(t)).sort((a, b) => (last[a] || '').localeCompare(last[b] || '') || list.indexOf(a) - list.indexOf(b));
   return [...weak, ...rest].slice(0, MASTERY.topicsPerDay);
 }
-// Splits n items over weighted disciplines [[d, w], …] by largest remainder, so 5 C/P passages go 2/1/1/1/0.
+// Splits n items over weighted codes [[code, w], …] by largest remainder: each gets the floor of its exact share,
+// then the items left go to the largest remainders, a tie to the higher weight (then the one listed first). For
+// C/P categories and 50 items: 5D 12, 5E 8, 4E 7, 5A 5, 4D 4, 4C 4, 4B 3, 5B 3, 4A 2, 5C 2; 5 passages go 2/1/1/1/0.
 function masteryApportion(weighted, n) {
   const total = weighted.reduce((t, [, w]) => t + w, 0) || 1;
-  const raw = weighted.map(([, w]) => n * w / total), out = raw.map(Math.floor);
-  raw.map((r, i) => [r - out[i], i]).sort((a, b) => b[0] - a[0]).slice(0, n - out.reduce((a, b) => a + b, 0)).forEach(([, i]) => out[i]++);
+  const out = weighted.map(([, w]) => Math.floor(n * w / total + 1e-9));
+  const rem = weighted.map(([, w], i) => n * w - out[i] * total);   // remainder × total (exact for whole weights)
+  const left = n - out.reduce((a, b) => a + b, 0);
+  weighted.map((_, i) => i).sort((i, j) => (Math.abs(rem[j] - rem[i]) > 1e-9 ? rem[j] - rem[i] : 0) || weighted[j][1] - weighted[i][1] || i - j)
+    .slice(0, Math.max(0, left)).forEach(i => out[i]++);
   return out;
 }
 // Splits a day's total over the sub-topics as evenly as possible; the weakest (listed first) get any extra.
@@ -113,18 +122,23 @@ function masteryWeights(subj, key = 'cats') {
   const w = MASTERY.blueprint[subj] && MASTERY.blueprint[subj][key];
   return w ? Object.entries(w).sort((a, b) => b[1] - a[1]) : null;
 }
-// Splits a day's n items over every content category: 1 − extraShare (80%) by blueprint weight, by largest
-// remainder; extraShare (20%) half each to the two weakest categories (one weak category: its half, the rest by
-// weight; none: all by weight). caps {code: items in the pool}: a category with too few gives its shortfall to the
-// next categories by weight (wrapping round) that have items left. Returns, heaviest first:
-// [{code, need, base, bonus, weak, short (moved out), to (codes it went to), spill (moved in)}].
-function masteryBlueprintSplit(n, weights, weak = [], caps = null) {
+// Splits a day's n items over every content category, 100% by blueprint weight (masteryApportion). Weak categories
+// are only marked (weak: true): their counts stay at the AAMC weight. oldBonus: a day saved with split 'blueprint'
+// before the exact split keeps its +20% (MASTERY.oldBonusShare) half each to its two weakest, for that day only.
+// caps {code: items in the pool}: a category with too few gives its shortfall to the next categories by weight
+// (wrapping round) that have items left. Returns, heaviest first: [{code, need, base (the AAMC share), extra (over
+// the AAMC share for weakness: 0 except on an old bonus day), weak, short (moved out), to (codes it went to),
+// spill (moved in)}]; need = base plus extra, minus short, plus spill.
+function masteryBlueprintSplit(n, weights, weak = [], caps = null, oldBonus = false) {
   const codes = weights.map(([c]) => c);
   weak = [...new Set(weak)].filter(c => codes.includes(c)).slice(0, 2);
-  const extra = n - Math.round(n * (1 - MASTERY.extraShare)), bonus = {};
-  if (weak.length) { bonus[weak[0]] = Math.ceil(extra / 2); if (weak.length > 1) bonus[weak[1]] = extra - bonus[weak[0]]; }
+  const bonus = {};
+  if (oldBonus && weak.length) {
+    const extra = n - Math.round(n * (1 - MASTERY.oldBonusShare));
+    bonus[weak[0]] = Math.ceil(extra / 2); if (weak.length > 1) bonus[weak[1]] = extra - bonus[weak[0]];
+  }
   const base = masteryApportion(weights, n - Object.values(bonus).reduce((a, b) => a + b, 0));
-  const out = codes.map((code, i) => ({ code, need: base[i] + (bonus[code] || 0), base: base[i], bonus: bonus[code] || 0, weak: weak.includes(code), short: 0, to: [], spill: 0 }));
+  const out = codes.map((code, i) => ({ code, need: base[i] + (bonus[code] || 0), base: base[i], extra: bonus[code] || 0, weak: weak.includes(code), short: 0, to: [], spill: 0 }));
   if (caps) {
     const cap = t => (Number.isFinite(caps[t.code]) ? Math.max(0, caps[t.code]) : 0);
     out.forEach((t, i) => {
@@ -166,12 +180,41 @@ function masteryDiscPick(cards, k, discOf, discW, pick) {
   if (got.length < k) got = got.concat(pick(cards.filter(q => !got.includes(q)), k - got.length));
   return got;
 }
+// Which cards to pick, never how many: tierOf(q) gives each card a rank (lower first) and the cards are taken a
+// whole rank at a time; pick (the app's due-first picker) chooses within the last rank that only partly fits.
+function masteryTierPick(cards, k, tierOf, pick) {
+  if (!tierOf || k <= 0) return pick(cards, k);
+  const groups = new Map();
+  cards.forEach(q => { const t = tierOf(q); if (!groups.has(t)) groups.set(t, []); groups.get(t).push(q); });
+  let got = [];
+  for (const t of [...groups.keys()].sort((a, b) => a - b)) {
+    if (got.length >= k) break;
+    const g = groups.get(t);
+    got = got.concat(g.length <= k - got.length ? g : pick(g, k - got.length));
+  }
+  return got;
+}
+// The picking order within a category (pure; the app passes its saved data): 0 missed cards (o.missed, a Set of
+// ids: today's and the latest test's misses) and cards due for review (o.due(q): memory below the target
+// retention); 1 + accuracy for cards whose sub-topic (o.acc(q): the card's s tag, for Practice Exam cards its
+// source exam; saved % right as 0–1, null when never answered) is weak (below MASTERY.weakBelow), weakest first;
+// 3 the rest.
+function masteryTierRank(o = {}) {
+  const missed = o.missed || new Set(), due = o.due || (() => false), acc = o.acc || (() => null);
+  return q => {
+    if (missed.has(q.baseId || q.id) || missed.has(q.id) || due(q)) return 0;
+    const a = acc(q);
+    return Number.isFinite(a) && a < MASTERY.weakBelow / 100 ? 1 + a : 3;
+  };
+}
 // Builds today's set for one step: for each category, the cards it still needs. Cards not seen today come first,
-// from the category itself (in the discipline mix when o.discW is given), then from the next categories in the
-// step's order (by weight), then any other; cards seen today only when no other card is left, and repeats only
-// when the pool itself runs out. pool may be [preferred, fallback]: the preferred pool's cards come first.
+// from the category itself (in the discipline mix when o.discW is given, and within each discipline in the
+// o.tierOf order: missed and due, weak sub-topics, the rest), then from the next categories in the step's order
+// (by weight), then any other; cards seen today only when no other card is left, and repeats only when the pool
+// itself runs out. pool may be [preferred, fallback]: the preferred pool's cards come first.
 function masteryTopicSet(step, pool, catOf, pick, o = {}) {
-  const seen = o.seen || new Set(), take = (cards, k) => (o.discOf && o.discW ? masteryDiscPick(cards, k, o.discOf, o.discW, pick) : pick(cards, k));
+  const seen = o.seen || new Set(), pk = o.tierOf ? (cards, k) => masteryTierPick(cards, k, o.tierOf, pick) : pick;
+  const take = (cards, k) => (o.discOf && o.discW ? masteryDiscPick(cards, k, o.discOf, o.discW, pk) : pk(cards, k));
   const list = [], topicOf = {}, used = new Set();
   const pools = Array.isArray(pool[0]) ? pool : [pool], all = pools.flat(), order = step.topics.map(t => t.code);
   for (const t of step.topics) {
@@ -188,36 +231,56 @@ function masteryTopicSet(step, pool, catOf, pick, o = {}) {
   }
   return { list, topicOf };
 }
+// The four measures a day's passage questions are matched on: [mix target key, mix answered-count key, the
+// question's value]. Category: the question's own cat, else its passage's first; discipline: its own subj, else
+// the passage's.
+const MASTERY_PASSAGE_MEASURES = [
+  ['cats', 'got', (q, p) => q.cat || (p.cats && p.cats[0])],
+  ['discs', 'gotDiscs', (q, p) => q.subj || p.subj],
+  ['skills', 'gotSkills', q => q.skill],
+  ['diffs', 'gotDiffs', q => q.diff],
+];
+// Today's gap if passage p were answered next (lower is better): the summed squared distance, over category,
+// discipline, skill and difficulty, between the answered counts plus p's questions and the day's targets scaled to
+// that many questions (target × answered / day's count, capped at 1). Scaling keeps each greedy step on the
+// blueprint's proportions, so the day doesn't front-load the biggest codes and miss the small ones at the end; the
+// squares make a passage count most for the codes furthest below target and against one it would overshoot.
+// mix: {cats, discs, skills, diffs} targets and {got, gotDiscs, gotSkills, gotDiffs} today's answered counts; a
+// measure without a target is left out.
+function masteryPassageGap(p, mix) {
+  if (!mix || !mix.cats) return 0;
+  const total = Object.values(mix.cats).reduce((a, b) => a + b, 0) || 1;
+  const after = Object.values(mix.got || {}).reduce((a, b) => a + (Number(b) || 0), 0) + p.questions.length, scale = Math.min(1, after / total);
+  let gap = 0;
+  for (const [key, gotKey, val] of MASTERY_PASSAGE_MEASURES) {
+    const need = mix[key], got = mix[gotKey] || {};
+    if (!need) continue;
+    const v = {};
+    p.questions.forEach(q => { const k = val(q, p); if (k) v[k] = (v[k] || 0) + 1; });
+    for (const k of new Set([...Object.keys(need), ...Object.keys(v)])) { const d = (need[k] || 0) * scale - (Number(got[k]) || 0) - (v[k] || 0); gap += d * d; }
+  }
+  return gap;
+}
 // Orders the practice passages; the first is next. stats: saved passage results {id: {attempts, last, lastAt}}.
-//   Today's passage step, before every passage was seen: unseen first, then not used today, then the passage that
-//     most closes the gap between today's category and skill counts and their targets (mix), then the weakest
-//     categories (rank), then practiced longest ago.
-//   Once every passage was seen: not used today first, then the lowest last score in bands of 25 points (0–24%
-//     first), then the gap, then the exact score, the weakest categories, longest ago. The band keeps "repeat what
-//     went worst" in charge while letting the mix choose between passages that went about equally badly.
+// The rules, compared in order (a later one only breaks ties in the earlier ones):
+//   Today's passage step, before every passage was seen: 1 unseen first, 2 not used today, 3 the passage that most
+//     closes today's gap on all four measures (masteryPassageGap), 4 the weakest categories (rank), 5 practiced
+//     longest ago. So the greedy mix choice is made among the unseen passages not used today.
+//   Once every passage was seen (all 36): 1 not used today first, 2 the lowest last score in bands of 25 points
+//     (0–24% first), 3 the gap, 4 the exact score, 5 the weakest categories, 6 longest ago. The band keeps "repeat
+//     what went worst" in charge while letting the mix choose between passages that went about equally badly;
+//     passages used today come last.
 //   After the quiz (followup): not used today, the quiz's weak categories, unseen, longest ago (no mix).
-// mix: {cats, skills} targets and {got, gotSkills} today's answered counts; the gap is the squared distance, so a
-// passage counts most for the categories and skills furthest below target, and against one it would overshoot.
 function masteryPassageRank(pool, o = {}) {
   const stats = o.stats || {}, rank = o.rank || new Map(), usedToday = o.usedToday || new Set(), mix = o.mix;
   const done = pool.length > 0 && pool.every(p => stats[p.id] && stats[p.id].attempts > 0);
   const catRank = p => Math.min(...[...(p.cats || []), ...p.questions.map(q => q.cat)].filter(Boolean).map(c => (rank.has(c) ? rank.get(c) : rank.size + 5)), 99);
-  const gain = p => {
-    if (!mix) return 0;
-    let g = 0;
-    for (const [key, need, got] of [['cat', mix.cats, mix.got], ['skill', mix.skills, mix.gotSkills]]) {
-      if (!need) continue;
-      const v = {};
-      p.questions.forEach(q => { const k = q[key] || (key === 'cat' && p.cats && p.cats[0]); if (k) v[k] = (v[k] || 0) + 1; });
-      for (const [k, x] of Object.entries(v)) { const d = (need[k] || 0) - ((got || {})[k] || 0); g += d * d - (d - x) * (d - x); }
-    }
-    return g;
-  };
+  const gap = new Map(pool.map(p => [p, masteryPassageGap(p, mix)]));
   const keys = new Map(pool.map(p => {
     const st = stats[p.id] || {}, used = usedToday.has(p.id) ? 1 : 0, last = Number.isFinite(st.last) ? st.last : 0;
     return [p, o.followup ? [used, catRank(p), st.attempts ? 1 : 0, st.lastAt || 0]
-      : done ? [used, Math.floor(last / 25), -gain(p), last, catRank(p), st.lastAt || 0]
-      : [st.attempts ? 1 : 0, used, -gain(p), catRank(p), st.lastAt || 0]];
+      : done ? [used, Math.floor(last / 25), gap.get(p), last, catRank(p), st.lastAt || 0]
+      : [st.attempts ? 1 : 0, used, gap.get(p), catRank(p), st.lastAt || 0]];
   }));
   return pool.slice().sort((a, b) => { const x = keys.get(a), y = keys.get(b); for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] - y[i]; return pool.indexOf(a) - pool.indexOf(b); });
 }
@@ -242,19 +305,22 @@ function masteryPlan(raw, today, sizes = {}) {
   const row = m.days[today]?.subj === subj ? m.days[today] : {};
   const todayTest = tests.filter(t => t.kind === 'daily' && t.day === today).at(-1) || null;
   const lastDiag = tests.filter(t => t.kind === 'diagnostic').at(-1);
-  // A day saved with its 5 sub-topics and no split marker keeps that plan; the blueprint split starts the next day.
-  const cw = masteryWeights(subj), legacy = Array.isArray(row.topics) && row.topics.length > 0 && row.split !== 'blueprint';
-  const split = cw && !legacy ? 'blueprint' : 'topics';
+  // The day's split, fixed with the day's row: 'exact' (100% by AAMC weight); a day saved before it keeps its plan
+  // for that day: 5 sub-topics and no split marker ('topics'), or split 'blueprint' (+20% on its two weak
+  // categories); the exact split starts the next day. Sections without a blueprint use 'topics'.
+  const cw = masteryWeights(subj), legacy = Array.isArray(row.topics) && row.topics.length > 0 && row.split !== 'blueprint' && row.split !== 'exact';
+  const split = !cw || legacy ? 'topics' : row.split === 'blueprint' ? 'blueprint' : 'exact';
   const list = MASTERY.topics[subj] || [];
-  // The day's two weak categories are fixed with the day (row.weakT), so they don't shift as tests come in.
-  const weakT = split !== 'blueprint' ? [] : (row.split === 'blueprint' && Array.isArray(row.weakT) ? row.weakT
+  // The day's weak categories (up to 2, weakest first), fixed with the day so they don't shift as tests come in.
+  // On an exact day they are only marked; the counts stay at the AAMC weight.
+  const weakT = split === 'topics' ? [] : ((row.split === 'blueprint' || row.split === 'exact') && Array.isArray(row.weakT) ? row.weakT
     : masteryWeak(latest).filter(w => w.pct < MASTERY.weakBelow).map(w => w.code)).filter(c => list.includes(c)).slice(0, 2);
-  const topics = split === 'blueprint' ? [...weakT, ...cw.map(([c]) => c).filter(c => !weakT.includes(c))]
+  const topics = split === 'exact' ? cw.map(([c]) => c) : split === 'blueprint' ? [...weakT, ...cw.map(([c]) => c).filter(c => !weakT.includes(c))]
     : legacy ? row.topics : masteryTopics(m, subj, today, latest);
   const flashN = m.perDay, guidedN = Number.isFinite(sizes.guided) ? Math.min(m.perDay, sizes.guided) : m.perDay;
   const got = (key, code) => Number((row[key] || {})[code]) || 0;
-  const tally = (key, total, caps) => (split === 'blueprint'
-    ? masteryBlueprintSplit(total, cw, weakT, caps && typeof caps === 'object' ? caps : null).map(t => ({ ...t, progress: Math.min(t.need, got(key, t.code)), raw: got(key, t.code) }))
+  const tally = (key, total, caps) => (split !== 'topics'
+    ? masteryBlueprintSplit(total, cw, weakT, caps && typeof caps === 'object' ? caps : null, split === 'blueprint').map(t => ({ ...t, progress: Math.min(t.need, got(key, t.code)), raw: got(key, t.code) }))
     : (need => topics.map((code, i) => ({ code, need: need[i], progress: Math.min(need[i], got(key, code)), raw: got(key, code) })))(masterySplit(total, topics.length)));
   const sum = (a, k = 'progress') => a.reduce((n, t) => n + t[k], 0);
   const flashT = tally('flashT', flashN, sizes.flashCats), guidedT = tally('guidedT', guidedN, sizes.guidedCats);
@@ -265,21 +331,24 @@ function masteryPlan(raw, today, sizes = {}) {
   if (guidedN > 0) out.steps.push({ id: 'guided', topics: guidedT, count: guidedCount, progress: sum(guidedT), extra: sum(guidedT, 'raw') - sum(guidedT), lessons, lessonCount: guidedCount,
     done: guidedT.every(t => t.progress >= t.need) && lessons >= guidedCount });
   // Passage questions from the C/P practice passages; each answer counts toward the step and its category (and,
-  // with the blueprint, toward the day's category and skill targets the next passage is chosen to close).
+  // with the blueprint, toward the day's category, discipline, skill and difficulty targets the next passage is
+  // chosen to close).
   const passN = Number.isFinite(sizes.passages) ? Math.min(MASTERY.passageQs, sizes.passages) : 0;
   if (passN > 0) {
     const pracT = row.pracT && typeof row.pracT === 'object' ? row.pracT : {};
     const cats = Object.entries(pracT).filter(([, v]) => Number(v) > 0).map(([code, v]) => ({ code, n: Number(v) })).sort((a, b) => b.n - a.n);
     const done = Math.min(passN, Number(row.prac) || 0);
     const step = { id: 'passages', count: passN, progress: done, extra: Math.max(0, (Number(row.prac) || 0) - passN), cats, poolDone: !!sizes.passagesPoolDone, done: done >= passN };
-    if (split === 'blueprint') {
+    if (split !== 'topics') {
       step.topics = tally('pracT', passN, sizes.passageCats);
-      const sw = masteryWeights(subj, 'skills'), sn = masteryApportion(sw, passN);
-      step.skills = sw.map(([code], i) => ({ code, need: sn[i], progress: Math.min(sn[i], got('pracS', code)), raw: got('pracS', code) }));
+      // Disciplines, skills and difficulty: each by its AAMC weight over the day's passage questions.
+      const measure = (key, gotKey) => { const w = masteryWeights(subj, key), n = masteryApportion(w, passN);
+        return w.map(([code], i) => ({ code, need: n[i], progress: Math.min(n[i], got(gotKey, code)), raw: got(gotKey, code) })); };
+      Object.assign(step, { discs: measure('discs', 'pracD'), skills: measure('skills', 'pracS'), diffs: measure('diffs', 'pracX') });
     }
     out.steps.push(step);
   }
-  out.steps.push({ id: 'test', done: !!todayTest, result: todayTest, mix: split === 'blueprint' ? masteryQuizTargets(subj) : null });
+  out.steps.push({ id: 'test', done: !!todayTest, result: todayTest, mix: split !== 'topics' ? masteryQuizTargets(subj) : null });
   if (todayTest) {
     const list = MASTERY.topics[subj] || [];
     const weakQuiz = masteryWeak(todayTest).filter(w => w.pct < MASTERY.weakBelow && list.includes(w.code)).map(w => w.code).slice(0, 3);
@@ -338,12 +407,13 @@ function masterySave(m) {
 function masteryDayRow(m, subj, day = localDay()) {
   if (m.days[day]?.subj !== subj) m.days[day] = { subj, misses: [], reviewed: [] };
   // Fix today's plan the first time the day is touched, so it doesn't shift as tests come in: with the blueprint,
-  // the split marker and the day's two weak categories; a day saved before it keeps its 5 sub-topics.
+  // the split marker ('exact') and the day's weak categories (marked only); a day saved before it keeps its plan
+  // (5 sub-topics, or split 'blueprint' with its weak bonus) for that day.
   const row = m.days[day];
-  if (row.split !== 'blueprint' && (!Array.isArray(row.topics) || !row.topics.length)) {
+  if (row.split !== 'blueprint' && row.split !== 'exact' && (!Array.isArray(row.topics) || !row.topics.length)) {
     const p = masteryPlanNow(m, day);
     row.topics = p.topics || [];
-    if (p.split === 'blueprint') Object.assign(row, { split: 'blueprint', weakT: p.weakT || [] });
+    if (p.split === 'exact') Object.assign(row, { split: 'exact', weakT: p.weakT || [] });
   }
   return row;
 }
@@ -414,12 +484,25 @@ function masteryBegin(plan, step, pool, catOf, label, mode, more) {
     if ((nested ? fresh.flat() : fresh).length >= step.count) pool = fresh;
     label += ' · another set';
   }
-  // Cards not seen today first; within a category, the AAMC discipline mix (blueprint days).
-  const discW = plan.split === 'blueprint' ? masteryWeights(plan.subj, 'discs') : null;
-  const { list, topicOf } = masteryTopicSet(step, pool, catOf, pickQuestions, { seen: new Set(row.seen || []), discOf: disciplineOfRecall, discW });
+  // Cards not seen today first; within a category, the AAMC discipline mix (blueprint days) and, within each
+  // discipline, missed and due cards, then the weakest sub-topics, then the rest (counts never change).
+  const discW = plan.split !== 'topics' ? masteryWeights(plan.subj, 'discs') : null;
+  const { list, topicOf } = masteryTopicSet(step, pool, catOf, pickQuestions, { seen: new Set(row.seen || []), discOf: disciplineOfRecall, discW, tierOf: masteryTierOf(m, plan, row) });
   if (!list.length) { masteryNotice('Nothing left to practice in this step today. Choose “Another set” for more.'); return; }
   masteryStartQuiz(list, masterySection(plan.subj).abbrev + ' · ' + label, mode);
   quiz.topicOf = topicOf;
+}
+// The picking order within a category from the saved data (masteryTierRank): missed cards (today's, the latest
+// test's and the misses saved on its day) and cards due for review (memory below TARGET_RETENTION), then cards
+// from the weakest sub-topics by saved accuracy (KEYS.stats by the card's key: its s tag, or for a Practice Exam
+// card its source exam), then the rest.
+function masteryTierOf(m, plan, row) {
+  const latest = plan.latest, lrow = latest && m.days[latest.day] && m.days[latest.day].subj === plan.subj ? m.days[latest.day] : {};
+  const missed = new Set([...(row.misses || []), ...((latest && latest.missIds) || []), ...(lrow.misses || [])].filter(x => typeof x === 'string'));
+  const mem = typeof loadMem === 'function' ? loadMem() : {}, now = Date.now(), stats = store.get(KEYS.stats, {});
+  const due = q => { const R = retrievability(mem[q.baseId || q.id] || mem[q.id], now); return R != null && R < TARGET_RETENTION; };
+  const acc = q => { const r = stats[q.key || q.s]; return r && Number.isFinite(r.c) && Number.isFinite(r.t) && r.t > 0 ? r.c / r.t : null; };
+  return masteryTierRank({ missed, due, acc });
 }
 function masteryStartQuiz(list, label, mode) {
   beginQuiz(list, label, { mastery: mode });
@@ -471,9 +554,11 @@ function startMasteryPassages(cats) {
   const ranked = followup ? cats : [...masteryWeak(plan.latest).map(w => w.code), ...(plan.topics || [])];
   const rank = new Map(); ranked.forEach(c => { if (!rank.has(c)) rank.set(c, rank.size); });
   const m = masteryLoad(), row = masteryDayRow(m, plan.subj);
-  // Today's step on a blueprint day: the passage that best closes the gap to the day's category and skill targets.
-  const st = plan.steps.find(s => s.id === 'passages'), need = ts => Object.fromEntries(ts.map(t => [t.code, t.need]));
-  const mix = !followup && st && st.topics && st.skills ? { cats: need(st.topics), skills: need(st.skills), got: row.pracT || {}, gotSkills: row.pracS || {} } : null;
+  // Today's step on a blueprint day: the passage that best closes the gap to the day's category, discipline, skill
+  // and difficulty targets.
+  const st = plan.steps.find(s => s.id === 'passages'), need = ts => (ts ? Object.fromEntries(ts.map(t => [t.code, t.need])) : null);
+  const mix = !followup && st && st.topics ? { cats: need(st.topics), discs: need(st.discs), skills: need(st.skills), diffs: need(st.diffs),
+    got: row.pracT || {}, gotDiscs: row.pracD || {}, gotSkills: row.pracS || {}, gotDiffs: row.pracX || {} } : null;
   const next = masteryPassageOrder(pool, rank, new Set(row.pracUsed || []), followup, mix)[0];
   row.pracUsed = [...new Set([...(row.pracUsed || []), next.id])];
   masterySave(m);
@@ -492,6 +577,9 @@ function masteryNotePractice(q, passage, kind) {
     row.prac = (Number(row.prac) || 0) + 1;
     row.pracT = { ...(row.pracT || {}), [cat]: (Number((row.pracT || {})[cat]) || 0) + 1 };
     if (q && q.skill) row.pracS = { ...(row.pracS || {}), [q.skill]: (Number((row.pracS || {})[q.skill]) || 0) + 1 };
+    const disc = (q && q.subj) || (passage && passage.subj);
+    if (disc) row.pracD = { ...(row.pracD || {}), [disc]: (Number((row.pracD || {})[disc]) || 0) + 1 };
+    if (q && q.diff) row.pracX = { ...(row.pracX || {}), [q.diff]: (Number((row.pracX || {})[q.diff]) || 0) + 1 };
   }
   masterySave(m);
 }
@@ -617,8 +705,8 @@ function masteryResultHtml(test, prev, m) {
   const nextSubj = MASTERY.order.find(s => !m.passed[s]);
   const verdict = passedNow ? '<p class="today-alldone">✓ ' + esc(masteryName(test.subj)) + ' mastered: ' + goal + '+ on ' + MASTERY.passDays + ' days in a row. ' + (nextSubj ? 'Tomorrow starts ' + esc(masteryName(nextSubj)) + ' with its diagnostic.' : 'Every section in the path is mastered.') + '</p>'
     : test.kind === 'diagnostic' && prev ? '<p>Diagnostic retaken. Your daily plan now aims at the weak topics below.</p>'
-    : test.kind === 'diagnostic' ? '<p>Your daily plan now aims at the weak topics below: flashcards, Practice Exam cards and passage questions, then the quiz.</p>'
-    : test.scaled >= goal ? '<p>At goal today. One more day at ' + goal + '+ moves you to the next section.</p>' : '<p>Next: review the missed questions below, then practice the weakest topics from TODAY. Tomorrow: 50 flashcards, 50 Practice Exam cards and 50 passage questions on the weakest content categories, then another quiz.</p>';
+    : test.kind === 'diagnostic' ? '<p>Your daily plan now follows the AAMC mix and, within each content category, aims at the weak topics below first: flashcards, Practice Exam cards and passage questions, then the quiz.</p>'
+    : test.scaled >= goal ? '<p>At goal today. One more day at ' + goal + '+ moves you to the next section.</p>' : '<p>Next: review the missed questions below, then practice the weakest topics from TODAY. Tomorrow: 50 flashcards, 50 Practice Exam cards and 50 passage questions in the AAMC mix, your missed and weakest cards first within each category, then another quiz.</p>';
   const rows = weak.map(w => '<tr' + (w.pct < MASTERY.weakBelow ? ' class="mastery-weak"' : '') + '><td>' + esc(w.code) + '</td><td>' + esc(AAMC_CAT_LABEL(w.code)) + '</td><td>' + w.c + '/' + w.t + '</td><td>' + w.pct + '%</td></tr>').join('');
   const part = test.parts || (test.cats.passage ? { passage: test.cats.passage } : {});
   const SKILL = { 'SIRS 1': 'Knowledge of scientific concepts', 'SIRS 2': 'Scientific reasoning and problem-solving', 'SIRS 3': 'Reasoning about research design', 'SIRS 4': 'Data-based and statistical reasoning' };
@@ -649,14 +737,15 @@ function masteryCard() {
   const weak = plan.weak.length ? '<p class="muted-note">Weak content categories: ' + plan.weak.slice(0, 4).map(w => esc(w.code) + ' ' + esc(AAMC_CAT_LABEL(w.code)) + ' (' + w.pct + '%)').join(' · ') + '</p>' : '';
   const btn = (label, fn, primary = true) => '<button class="' + (primary ? 'new-quiz-btn' : 'micro-btn') + ' today-start" data-click="' + fn + '">' + label + '</button>';
   const mins = n => '<span class="today-min">~' + n + ' min</span>';
-  const more = (fn, s) => (s.extra ? '<p class="muted-note">+' + s.extra + ' extra today.</p>' : '') + btn('Another set (' + s.count + ')', fn, false);
-  // Blueprint days: each step's per-category targets as compact chips (✓ when met; the two weak categories
-  // "+ extra"), and any category whose pool was too small, with where its shortfall went.
-  const bp = plan.split === 'blueprint';
-  const chip = (code, text, on, title, weak) => '<span class="mastery-chip' + (on ? ' done' : '') + '" title="' + esc(title) + '">' + (on ? '✓ ' : '') + esc(code) + ' ' + text + (weak ? ' <b>+ extra</b>' : '') + '</span>';
+  const more = (fn, s) => (s.extra ? '<p class="muted-note">+' + s.extra + ' more done today, beyond the set.</p>' : '') + btn('Another set (' + s.count + ')', fn, false);
+  // Blueprint days: each step's per-category targets as compact chips (✓ when met; weak categories marked "weak",
+  // their counts still the AAMC weight), and any category whose pool was too small, with where its shortfall went.
+  const bp = plan.split !== 'topics';
+  const chip = (code, text, on, title, weak) => '<span class="mastery-chip' + (on ? ' done' : '') + '" title="' + esc(title) + '">' + (on ? '✓ ' : '') + esc(code) + ' ' + text + (weak ? ' <b>weak</b>' : '') + '</span>';
   const chips = ts => '<div class="mastery-path mastery-mix">' + ts.filter(t => t.need > 0 || t.raw > 0).map(t => chip(t.code, t.progress + '/' + t.need, t.progress >= t.need, AAMC_CAT_LABEL(t.code), t.weak)).join('') + '</div>';
   const shortNote = (ts, unit) => { const sh = ts.filter(t => t.short); return sh.length ? '<p class="muted-note">Shortfall: ' + sh.map(t => esc(t.code) + ' has too few ' + unit + ', so ' + t.short + (t.to.length ? ' moved to ' + t.to.map(esc).join(', ') : ' could not be placed')).join('; ') + '.</p>' : ''; };
-  const bpNote = 'Split like the exam: 80% by how often AAMC tests each content category, 20% extra on your two weakest (<b>+ extra</b>).';
+  const bpNote = plan.split === 'blueprint' ? 'Today keeps the split it was saved with: 80% by how often AAMC tests each content category, 20% more on your two weakest. From tomorrow every count follows the AAMC weights exactly.'
+    : 'Split exactly like the exam: every content category by how often AAMC tests it. Your weak categories (<b>weak</b>) keep their AAMC count; within each category, missed and due cards come first, then your weakest sub-topics.';
   const targets = (ts, unit) => chips(ts) + shortNote(ts, unit);
   const topicList = ts => '<ul class="mastery-subtopics">' + ts.map(t => '<li' + (t.progress >= t.need ? ' class="done"' : '') + '>' + (t.progress >= t.need ? '✓ ' : '') + esc(t.code) + ' ' + esc(AAMC_CAT_LABEL(t.code)) + ' <span class="today-count">' + t.progress + ' / ' + t.need + '</span></li>').join('') + '</ul>';
   let body = '';
@@ -673,11 +762,13 @@ function masteryCard() {
       if (s.id === 'passages') {
         title = 'Passage questions'; count = s.progress + ' / ' + s.count;
         const byCat = s.cats.length ? '<ul class="mastery-subtopics">' + s.cats.map(c => '<li>' + esc(c.code) + ' ' + esc(AAMC_CAT_LABEL(c.code)) + ' <span class="today-count">' + c.n + '</span></li>').join('') + '</ul>' : '';
-        const skills = s.skills ? '<div class="mastery-path mastery-mix">' + s.skills.map(k => chip(k.code.replace('SIRS ', 'Skill '), k.progress + '/' + k.need, k.progress >= k.need, k.code, false)).join('') + '</div>' : '';
-        detail = bp ? 'AAMC-style Chem/Phys practice passages, one at a time with feedback after each question: passages you haven’t seen first, each one chosen to bring today’s categories and skills closest to the targets below (about ' + Math.ceil(s.count / 4) + ' passages). ' + bpNote + (s.poolDone ? ' <b>You have completed every practice passage once</b>, so the step now repeats the ones you answered least well.' : '') + targets(s.topics, 'questions') + skills
+        const DIFF = { E: 'Easy', M: 'Medium', D: 'Difficult', X: 'Hardest' }, DISC = { gen_chem: 'Gen chem', biochemistry: 'Biochem', physics: 'Physics', organic_chem: 'Orgo', biology: 'Bio' };
+        const mixRow = (ks, name) => (ks ? '<div class="mastery-path mastery-mix">' + ks.filter(k => k.need > 0 || k.raw > 0).map(k => chip(name(k.code), k.progress + '/' + k.need, k.progress >= k.need, k.code, false)).join('') + '</div>' : '');
+        const skills = mixRow(s.skills, c => c.replace('SIRS ', 'Skill ')) + mixRow(s.discs, c => DISC[c] || c) + mixRow(s.diffs, c => DIFF[c] || c);
+        detail = bp ? 'AAMC-style Chem/Phys practice passages, one at a time with feedback after each question: passages you haven’t seen first, each one chosen to bring today’s categories, disciplines, skills and difficulty closest to the targets below (about ' + Math.ceil(s.count / 4) + ' passages). ' + (plan.split === 'blueprint' ? bpNote : 'Every count follows the AAMC weights exactly; your weak categories (<b>weak</b>) keep their AAMC count.') + (s.poolDone ? ' <b>You have completed every practice passage once</b>, so the step now repeats the ones you answered least well.' : '') + targets(s.topics, 'questions') + skills
           : 'AAMC-style Chem/Phys practice passages, one at a time with feedback after each question: passages you haven’t seen first, weakest content categories first (about ' + Math.ceil(s.count / 4) + ' passages).' + (s.poolDone ? ' <b>You have completed every practice passage once</b>, so the step now repeats the ones you answered least well.' : '') + byCat;
         time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 1.6));
-        button = s.done ? (s.extra ? '<p class="muted-note">+' + s.extra + ' extra today.</p>' : '') + btn('Another passage', 'startMasteryPassages()', false) : btn(s.progress ? 'Continue' : 'Start', 'startMasteryPassages()');
+        button = s.done ? (s.extra ? '<p class="muted-note">+' + s.extra + ' more done today, beyond the set.</p>' : '') + btn('Another passage', 'startMasteryPassages()', false) : btn(s.progress ? 'Continue' : 'Start', 'startMasteryPassages()');
       }
       if (s.id === 'followup') {
         const ws = s.weak.map(c => esc(c) + ' ' + esc(AAMC_CAT_LABEL(c))).join(' · ');

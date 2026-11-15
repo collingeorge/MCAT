@@ -1,5 +1,5 @@
 // Section Mastery path rules (one MCAT section at a time, C/P first): diagnostic first (and nothing else that day), then daily misses → 50 flashcards →
-// 50 Practice Exam cards with lessons, split over the 10 C/P content categories by the AAMC blueprint (80%) plus the 2 weakest (20%) → end-of-day test; another set when done early; goal (128 or 129) on 2 separate days in a row moves to the next
+// 50 Practice Exam cards with lessons, split 100% over the 10 C/P content categories by the AAMC blueprint (weak categories change which cards, never how many) → end-of-day test; another set when done early; goal (128 or 129) on 2 separate days in a row moves to the next
 // subject, which starts with its own diagnostic. Test results, misses and weak topics carry into the next day.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -12,6 +12,11 @@ const plan = (m, day, sizes = {}) => JSON.parse(JSON.stringify(vm.runInContext('
 const apply = (m, t) => JSON.parse(JSON.stringify(vm.runInContext('masteryApplyTest(m, t)', Object.assign(ctx, { m, t }))));
 const test = (subj, day, kind, scaled, extra = {}) => ({ subj, day, t: 0, kind, correct: 30, total: 45, pct: 70, scaled, cats: { '5A': { c: 2, t: 9 }, '5E': { c: 8, t: 9 }, '4E': { c: 5, t: 9 }, passage: { c: 8, t: 12 } }, missIds: ['q1', 'q2'], ...extra });
 const ids = p => p.steps.map(s => s.id);
+// The AAMC split re-derived here from the weights: largest remainder, a tie to the higher weight.
+const CPW = Object.entries(JSON.parse(vm.runInContext('JSON.stringify(MASTERY.blueprint.cp.cats)', ctx))).sort((a, b) => b[1] - a[1]);
+const lr = (n, w = CPW) => { const tot = w.reduce((t, [, x]) => t + x, 0), out = w.map(([, x]) => Math.floor(n * x / tot)), rem = w.map(([, x], i) => n * x - out[i] * tot);
+  w.map((_, i) => i).sort((i, j) => rem[j] - rem[i] || w[j][1] - w[i][1] || i - j).slice(0, n - out.reduce((a, b) => a + b, 0)).forEach(i => out[i]++);
+  return Object.fromEntries(w.map(([c], i) => [c, out[i]])); };
 
 // Day 1: diagnostic only, on the first subject (General Chemistry).
 let m = {};
@@ -24,19 +29,21 @@ p = plan(m, '2026-11-15');
 assert.equal(p.status, 'study'); assert.deepEqual(ids(p), ['diagnostic', 'flashcards', 'guided', 'test']);
 assert(p.steps[0].done && p.steps[0].old, 'a diagnostic saved without a version is the old one');
 assert.deepEqual(p.weak.map(w => w.code), ['5A', '4E'], 'weak topics below 84%, weakest first; passage tally excluded');
-// Day 2: the same steps, over all 10 C/P categories by the AAMC blueprint: 40 of 50 by weight (5D 10, 5E 6, 4E 5,
-// 5A 4, 4D 3, 4C 3, 4B 3, 5B 2, 4A 2, 5C 2) and 5 extra each to the 2 weakest (5A 22%, 4E 56%).
+// Day 2: the same steps, over all 10 C/P categories exactly by the AAMC blueprint (50: 5D 12, 5E 8, 4E 7, 5A 5,
+// 4D 4, 4C 4, 4B 3, 5B 3, 4A 2, 5C 2). The 2 weakest (5A 22%, 4E 56%) are marked weak; their counts don't change.
 p = plan(m, '2026-11-16');
 assert.deepEqual(ids(p), ['diagnostic', 'flashcards', 'guided', 'test']);
-assert.equal(p.split, 'blueprint'); assert.deepEqual(p.weakT, ['5A', '4E']);
-assert.deepEqual(p.topics, ['5A', '4E', '5D', '5E', '4D', '4C', '4B', '5B', '4A', '5C'], 'the 2 weakest, then the rest by AAMC weight');
+assert.equal(p.split, 'exact'); assert.deepEqual(p.weakT, ['5A', '4E']);
+assert.deepEqual(p.topics, ['5D', '5E', '4E', '5A', '4D', '4C', '4B', '5B', '4A', '5C'], 'all 10 by AAMC weight, heaviest first');
 const needs = s => Object.fromEntries(s.topics.map(t => [t.code, t.need]));
-assert.deepEqual(needs(p.steps[1]), { '5D': 10, '5E': 6, '4E': 10, '5A': 9, '4D': 3, '4C': 3, '4B': 3, '5B': 2, '4A': 2, '5C': 2 }); assert.equal(p.steps[1].count, 50);
-assert.deepEqual(p.steps[1].topics.filter(t => t.weak).map(t => t.code + '+' + t.bonus), ['4E+5', '5A+5']);
+assert.deepEqual(lr(50), { '5D': 12, '5E': 8, '4E': 7, '5A': 5, '4D': 4, '4C': 4, '4B': 3, '5B': 3, '4A': 2, '5C': 2 }, 'the 50 split derived from the weights');
+assert.deepEqual(needs(p.steps[1]), lr(50)); assert.equal(p.steps[1].count, 50);
+assert.deepEqual(p.steps[1].topics.filter(t => t.weak).map(t => t.code + '+' + t.extra), ['4E+0', '5A+0'], 'weak: marked, 0 extra');
+assert(p.steps[1].topics.every(t => t.extra === 0 && t.need === t.base), '0 extra on every category');
 assert.equal(p.steps[2].count, 50); assert.equal(p.steps[2].lessonCount, 50); assert.deepEqual(needs(p.steps[2]), needs(p.steps[1]));
 // A smaller daily size (30 or 20) splits the same way; anything else falls back to 50.
-{ const t30 = plan({ ...m, perDay: 30 }, '2026-11-16').steps[1];
-  assert.equal(t30.count, 30); assert.deepEqual(needs(t30), { '5D': 6, '5E': 4, '4E': 6, '5A': 5, '4D': 2, '4C': 2, '4B': 2, '5B': 1, '4A': 1, '5C': 1 }); }
+for (const n of [30, 20]) { const t = plan({ ...m, perDay: n }, '2026-11-16').steps[1];
+  assert.equal(t.count, n); assert.deepEqual(needs(t), lr(n), n + ' by weight'); }
 assert.equal(plan({ ...m, perDay: 7 }, '2026-11-16').steps[1].count, 50);
 // A subject with few Practice Exam cards caps that step at what it has.
 assert.equal(plan(m, '2026-11-16', { guided: 5 }).steps[2].count, 5);
@@ -69,9 +76,10 @@ assert.deepEqual(p.steps.at(-1).weak, ['5A', '4E'], 'still lists the quiz\'s wea
 assert.equal(p.latest.scaled, 128); assert.equal(p.previous.scaled, 122, 'compared with the last test');
 // Day 3 (the day after an old 5-topic row): the blueprint split starts; the weak categories stay.
 p = plan(m, '2026-11-17');
-assert.equal(p.split, 'blueprint'); assert.deepEqual(p.topics.slice(0, 2), ['5A', '4E']); assert.equal(p.topics.length, 10);
+assert.equal(p.split, 'exact'); assert.deepEqual(p.weakT, ['5A', '4E']); assert.equal(p.topics.length, 10);
+assert.deepEqual(needs(p.steps[1]), lr(50), 'weak categories: still the AAMC counts');
 { const none = plan({ ...m, tests: m.tests.map(t => ({ ...t, cats: {} })) }, '2026-11-17');
-  assert.deepEqual(none.weakT, [], 'no weak categories'); assert.deepEqual(needs(none.steps[1]), { '5D': 12, '5E': 8, '4E': 7, '5A': 5, '4D': 4, '4C': 4, '4B': 3, '5B': 3, '4A': 2, '5C': 2 }, 'no weak categories: all 50 by weight'); }
+  assert.deepEqual(none.weakT, [], 'no weak categories'); assert.deepEqual(needs(none.steps[1]), lr(50), 'no weak categories: the same 50 by weight'); }
 // Sections without a blueprint (B/B, P/S for now) keep 5 categories a day: the 2 weakest, then the others not
 // studied longest, 10 cards each.
 { const mb = apply({ current: 'bb' }, test('bb', '2026-11-15', 'diagnostic', 122, { cats: { '1A': { c: 2, t: 9 } } }));
