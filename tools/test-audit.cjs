@@ -50,6 +50,20 @@ async function main() {
  swctx.req={method:'GET',url:'https://example.test/MCAT/js/app.js'};
  const result=await vm.runInContext('networkFirst(req)',swctx); assert.equal(result,response); assert.deepEqual(cleared,[77]);
  assert.match(index,/Content-Security-Policy/); assert.match(index,/object-src 'none'/);
+  // ── Regressions from the code review (section 3) ──
+  // Scaled scores: table points are thresholds (84% is the first 128); between points the score rounds down.
+  assert.equal(run('rawToScaled(82)'), 127); assert.equal(run('rawToScaled(84)'), 128); assert.equal(run('rawToScaled(83.9)'), 127); assert.equal(run('rawToScaled(100)'), 132);
+  // The score history uses the local calendar day.
+  run("store.set(KEYS.evidence,{gen_chem:{passage:{c:40,t:50}},physics:{passage:{c:40,t:50}},biochemistry:{passage:{c:40,t:50}},organic_chem:{passage:{c:40,t:50}},biology:{passage:{c:40,t:50}},psych_soc:{passage:{c:40,t:50}},cars:{passage:{c:40,t:50}}});snapshotEstimate()");
+  assert.equal(run('store.get(KEYS.scoreHistory,[]).at(-1).day'), run('localDay()'));
+  // Saved error rows with prototype keys or unknown types cannot break the score report.
+  run(`store.set(KEYS.errors, [...Array(6)].map((_, i) => ({ t: i, disc: i % 2 ? '__proto__' : 'biology', type: i % 3 ? 'knowledge' : 'constructor', src: 'recall' })))`);
+  assert.doesNotThrow(() => run('mistakeCard()')); assert.match(run('mistakeCard()'), /Mistake patterns/);
+  assert.equal(run('Object.prototype.knowledge'), undefined);
+  // Drawings that fail to load show a retry instead of a blank space, and the failed script tag is removed.
+  run("structsFailed = true"); assert.match(run("structImg('aspirin')"), /Drawing unavailable[\s\S]*retryStructs\(\)/);
+  run("structsFailed = false"); assert.equal(run("structImg('aspirin')"), '', 'still loading: nothing yet');
+  run('store.del(KEYS.errors);store.del(KEYS.evidence);store.del(KEYS.scoreHistory)');
   // Wording rotation never repeats the wording just shown, nor the one before it when another exists.
  {
   const draws = JSON.parse(run("JSON.stringify(Array.from({length:1000},()=>pickNextForm([{id:'A'},{id:'B'},{id:'C'}],'A','B').id))"));

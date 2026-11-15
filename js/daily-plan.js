@@ -388,7 +388,7 @@ function logExternalPassage() {
   if (!DISCIPLINES[subj] || !Number.isInteger(n) || n < 1 || n > 15 || !Number.isInteger(correct) || correct < 0 || correct > n) { $('ext-error').textContent = 'Enter 1–15 questions and a correct count no higher than that.'; return; }
   const rows = store.get(KEYS.externalPassages, []);
   rows.push({ t: Date.now(), day: localDay(), subj, source: ['aamc-sb', 'aamc-qp', 'uworld', 'other'].includes(source) ? source : 'other', n, correct, first });
-  store.set(KEYS.externalPassages, rows.slice(-1000));
+  store.set(KEYS.externalPassages, rows.slice(-500));
   renderHome();
 }
 let passageReviewKeys = [];

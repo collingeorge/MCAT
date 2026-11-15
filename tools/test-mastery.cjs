@@ -117,7 +117,7 @@ assert(dp.includes("masteryCard() + '<details class=\"today-dateplan\"><summary>
 assert(app.includes("subjectPath: 'mcat2_subject_path'") && app.includes('masteryNoteAnswer(view.q, right)'), 'answers feed the path');
 assert(sp.includes('if (mini.mastery) {') && src.includes('rawToScaled(pctRight)'), 'mastery tests are scored on the 118–132 table');
 const actions = fs.readFileSync(root + '/js/actions.js', 'utf8');
-assert(app.includes('masteryNoteLesson(view.q)') && app.includes("quiz.mastery === 'guided' && teachOf(q)) teachStep(1)"), 'finished lessons count; each Practice Exam card in the plan opens its lesson');
+assert(app.includes('masteryNoteLesson(view.q)') && app.includes("(quiz.mastery === 'guided' || quiz.mastery === 'lessons' || quiz.mastery === 'followup') && teachOf(q)) teachStep(1)"), 'finished lessons count; each Practice Exam card in the plan opens its lesson');
 for (const a of ['startMasteryGuided', 'startMasteryMisses', 'startMasteryFlashcards', 'startMasteryTest', 'setMasteryGoal', 'setMasteryPerDay', 'setMasterySubject']) assert(actions.includes("'" + a + "'"), a + ' allowlisted');
 for (const page of ['index.html', 'recall-session.html']) assert(fs.readFileSync(root + '/' + page, 'utf8').includes('<script src="js/mastery.js"></script>'), page + ' loads the path');
 assert(fs.readFileSync(root + '/sw.js', 'utf8').includes("'js/mastery.js'"), 'cached for offline use');
@@ -151,6 +151,22 @@ assert(src.includes("version: mini.setId || 'cards'") && src.includes('old diagn
 assert(src.includes("btn('Retake diagnostic', \"startMasteryTest('diagnostic')\", s.old)"), 'step 1 offers the retake (the main button while the old diagnostic is current)');
 assert(src.includes('function startMasteryFollowup(kind)') && fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'startMasteryFollowup'"), 'after-quiz practice wired and allowlisted');
 assert(src.includes('function masteryFlashPool(s) { return masteryExamPool(s); }') && !/QB\.filter/.test(src), 'flashcards are QBank cards only');
+// Regression (review 2.3): the streak counts daily quizzes on consecutive calendar days only.
+{ const d = (day, kind, scaled) => test('cp', day, kind, scaled);
+  const gap = [d('2026-11-01', 'diagnostic', 120), d('2026-11-01', 'daily', 128), d('2026-11-09', 'daily', 128)];
+  assert.equal(plan(gap.reduce(apply, {}), '2026-11-09').streak, 1, 'a calendar gap breaks the run');
+  assert(!gap.reduce(apply, {}).passed.cp, 'Nov 1 + Nov 9 at goal is not 2 days in a row');
+  const retakeHigh = [d('2026-11-01', 'diagnostic', 120), d('2026-11-02', 'daily', 128), d('2026-11-03', 'diagnostic', 129)];
+  assert.equal(plan(retakeHigh.reduce(apply, {}), '2026-11-03').streak, 1, 'a diagnostic retake at goal does not add to the streak');
+  assert(!retakeHigh.reduce(apply, {}).passed.cp);
+  const retakeLow = [d('2026-11-01', 'diagnostic', 120), d('2026-11-02', 'daily', 128), d('2026-11-03', 'daily', 129), d('2026-11-03', 'diagnostic', 125)];
+  assert.equal(retakeLow.reduce(apply, {}).passed.cp, '2026-11-03', 'a same-day diagnostic retake below goal does not break it');
+  const anyQuiz = [d('2026-11-01', 'diagnostic', 120), d('2026-11-02', 'daily', 129), d('2026-11-03', 'daily', 125), d('2026-11-03', 'daily', 128)];
+  assert.equal(anyQuiz.reduce(apply, {}).passed.cp, '2026-11-03', 'a day is at goal if any quiz that day reached it'); }
+// Regression (review 3): saved results with non-numeric counts are dropped (they would reach the page as HTML).
+{ const bad = { tests: [{ subj: 'cp', day: '2026-11-01', kind: 'diagnostic', scaled: 125, correct: '<img src=x onerror=alert(1)>', total: 59, pct: 50 },
+    { subj: 'cp', day: '2026-11-01', kind: 'diagnostic', scaled: 125, correct: 30, total: 59, pct: '<b>' }, { subj: 'cp', day: '<x>', kind: 'daily', scaled: 125, correct: 1, total: 2, pct: 50 }] };
+  assert.equal(plan(bad, '2026-11-02').status, 'diagnostic', 'malformed saved tests are ignored'); }
 // Storage keys: the path has its own key (it once collided with the topic-mastery map), is reset with the rest,
 // and no two KEYS entries share a name or a storage key.
 const block = app.slice(app.indexOf('const KEYS = {'), app.indexOf('};', app.indexOf('const KEYS = {')));

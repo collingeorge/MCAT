@@ -4,7 +4,7 @@ function recordDelayedRecall(q, right, previous, now) {
   if (!previous?.seen || !Number.isFinite(previous.last) || now - previous.last < LEARNING_DELAY) return;
   const rows = store.get(KEYS.retention, []);
   rows.push({t:now,id:q.baseId||q.id,key:q.key,disc:disciplineOfRecall(q),right:!!right,gap:now-previous.last});
-  store.set(KEYS.retention, rows.slice(-2000));
+  store.set(KEYS.retention, rows.slice(-1000));
 }
 function retainedFact(m) { return !!m && m.S >= 21 && (m.delayedCorrect || 0) >= 2; }
 function beginPassageExposure(p) {
@@ -17,7 +17,7 @@ function beginPassageExposure(p) {
 function recordPassageEvidence(p, results, first, mode) {
   const rows=store.get(KEYS.passageEvidence,[]);
   rows.push({t:Date.now(),id:p.id,disc:disciplineOfPassage(p),first:!!first,mode,correct:results.filter(r=>r.right).length,total:results.length,answerMs:results.reduce((n,r)=>n+(Number.isFinite(r.ms)?Math.max(0,r.ms):0),0)});
-  store.set(KEYS.passageEvidence,rows.slice(-1000));
+  store.set(KEYS.passageEvidence,rows.slice(-500));
 }
 function readinessData(now=Date.now()) {
   const recent=x=>Number.isFinite(x.t)&&x.t<=now&&now-x.t<7*DAY;

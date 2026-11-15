@@ -114,8 +114,8 @@ const store = {
       return shape ? rows.map(shape).filter(Boolean) : rows;
     } catch (e) { storageWarning('Some saved progress could not be read. You can keep studying, but check your browser storage settings.'); return fallback; }
   },
-  set(key, value) { try { const storageKey=window.McatAccount?.storageKey(key) || key, raw=JSON.stringify(value); if(localStorage.getItem(storageKey)!==raw){localStorage.setItem(storageKey,raw);store.rev=(store.rev||0)+1;window.McatAccount?.changed();} } catch (e) { storageWarning('Progress could not be saved. Keep this tab open and check browser storage before leaving.'); } },
-  del(key) { try { const storageKey=window.McatAccount?.storageKey(key) || key;if(localStorage.getItem(storageKey)!=null){localStorage.removeItem(storageKey);store.rev=(store.rev||0)+1;window.McatAccount?.changed();} } catch (e) { storageWarning('Saved data could not be removed. Check browser storage settings.'); } },
+  set(key, value) { try { const storageKey=window.McatAccount?.storageKey(key) || key, raw=JSON.stringify(value); if(localStorage.getItem(storageKey)!==raw){localStorage.setItem(storageKey,raw);store.rev=(store.rev||0)+1;window.McatAccount?.changed(key);} } catch (e) { storageWarning('Progress could not be saved. Keep this tab open and check browser storage before leaving.'); } },
+  del(key) { try { const storageKey=window.McatAccount?.storageKey(key) || key;if(localStorage.getItem(storageKey)!=null){localStorage.removeItem(storageKey);store.rev=(store.rev||0)+1;window.McatAccount?.changed(key);} } catch (e) { storageWarning('Saved data could not be removed. Check browser storage settings.'); } },
 };
 const KEYS = {
   retention:'mcat2_retention', exposures:'mcat2_exposures', passageEvidence:'mcat2_passage_evidence', official:'mcat2_official',
@@ -423,7 +423,8 @@ function rawToScaled(p) {
     const [p1, s1] = RAW_TO_SCALED[i];
     if (p <= p1) {
       const [p0, s0] = RAW_TO_SCALED[i - 1];
-      return Math.round(s0 + ((p - p0) / (p1 - p0 || 1)) * (s1 - s0));
+      // The table's points are thresholds (84% is the first score that earns 128), so round down between them.
+      return Math.floor(s0 + ((p - p0) / (p1 - p0 || 1)) * (s1 - s0) + 1e-9);
     }
   }
   return 132;
@@ -573,7 +574,7 @@ const ERROR_TYPES = [
 function logError(entry) {
   const log = store.get(KEYS.errors, []);
   log.push(Object.assign({ t: Date.now() }, entry));
-  store.set(KEYS.errors, log.slice(-2000));
+  store.set(KEYS.errors, log.slice(-1000));
 }
 function errorTypeRow(selected, handler) {
   return `<div class="conf-row err-row" role="group" aria-label="Why did you miss it?">
@@ -949,7 +950,7 @@ function snapshotEstimate() {
   const est = estimateScores();
   if (!est.sections.some(s => s.scaled != null)) return;
   const hist = store.get(KEYS.scoreHistory, []);
-  const day = new Date().toISOString().slice(0, 10);
+  const day = localDay();   // the local calendar day (toISOString gave the UTC date)
   const entry = { day, total: est.total, sections: Object.fromEntries(est.sections.map(s => [s.id, s.scaled])) };
   if (hist.length && hist[hist.length - 1].day === day) hist[hist.length - 1] = entry; else hist.push(entry);
   store.set(KEYS.scoreHistory, hist.slice(-120));
@@ -1558,7 +1559,7 @@ function beginQuiz(questions, label, opts = {}) {
   const items = questions.map(x => (x && x.q && x.choices === undefined ? makeView(x.q, x.reason) : makeView(x)));
   // Reinforcement (mastery loop, shaky repeats, confusion follow-ups) is on for every study session
   Object.assign(quiz, { items, idx: 0, results: [], answered: false, startedAt: Date.now(), label, adaptive: opts.adaptive !== false, speed: opts.speed || 0, extras: 0, pending: null, mastery: opts.mastery || null,
-    loop: new Map(), shakyDone: new Set(), lastForm: new Map(), cleared: 0 });
+    loop: new Map(), shakyDone: new Set(), lastForm: new Map(), cleared: 0, masteryDay: null, masteryCounted: null, topicOf: null });
   show('screen-quiz');
   startQuizTimer();
   renderQuizQuestion();
@@ -1599,7 +1600,7 @@ function recordFinalTwo(view,chosen,other,attemptKey=null) {
   let log=store.get(KEYS.finalTwo,[]);
   if(attemptKey)log=log.filter(x=>x.attemptKey!==attemptKey);
   if(other!=null)log.push({t:Date.now(),chosen:view.choices[chosen],other:view.choices[other],answer:view.choices[view.ans],right:false,included:other===view.ans,retrospective:true,attemptKey});
-  store.set(KEYS.finalTwo,log.slice(-1000));
+  store.set(KEYS.finalTwo,log.slice(-500));
 }
 function finalTwoProgress() {
   const log=store.get(KEYS.finalTwo,[]).filter(x=>x.right===false && x.retrospective);
@@ -1618,18 +1619,28 @@ function answerPassage(chosen) { finishPassageAnswer(chosen); }
 // The drawings (~1.5 MB) load only when Practice Exam cards are opened, not on every page; the service worker
 // keeps them for offline use. A question drawn before they arrive is re-rendered once they load.
 let structsLoading = null;
+// structsFailed: the drawings file could not load (offline before it was cached, or a network error). Drawings
+// then show "Drawing unavailable · Retry" instead of a blank space, and loading retries when the connection returns.
+let structsFailed = false;
 function ensureStructs() {
   if (typeof STRUCT_SVG !== 'undefined') return Promise.resolve();
   if (structsLoading) return structsLoading;
   structsLoading = new Promise((resolve, reject) => {
     const el = document.createElement('script');
     el.src = 'data/structures.js';
-    el.addEventListener('load', resolve);
-    el.addEventListener('error', () => { structsLoading = null; reject(new Error('structures failed to load')); });
+    el.addEventListener('load', () => { structsFailed = false; resolve(); });
+    el.addEventListener('error', () => { structsLoading = null; structsFailed = true; el.remove?.(); rerenderStructs(); reject(new Error('structures failed to load')); });
     document.head.appendChild(el);
   });
   return structsLoading;
 }
+// Redraws the current question or passage once the drawings are available (or have failed).
+function rerenderStructs() {
+  if (activeScreen === 'screen-quiz' && quiz.items[quiz.idx] && !quiz.answered) renderQuizQuestion();
+  if (activeScreen === 'screen-passage' && pq.p) { if (!pq.mini && pq.p.passage) fillPassageBox(pq.p); if (pq.views[pq.idx] && !pq.answered) renderPassageQuestion(); }
+}
+function retryStructs() { structsFailed = false; rerenderStructs(); return ensureStructs().then(rerenderStructs).catch(() => {}); }
+if (typeof window !== 'undefined' && window.addEventListener) window.addEventListener('online', () => { if (structsFailed) retryStructs(); });
 function needsStructs(q) {
   return !!q && (q.fig != null || Array.isArray(q.choiceFigs) || (q.how && Array.isArray(q.how.steps) && q.how.steps.some(st => st && st.fig != null)));
 }
@@ -1638,6 +1649,7 @@ function loadStructsFor(items) {
   ensureStructs().then(() => { if (activeScreen === 'screen-quiz' && !quiz.answered && quiz.items[quiz.idx]) renderQuizQuestion(); }).catch(() => {});
 }
 function structImg(name, alt) {
+  if (name != null && typeof STRUCT_SVG === 'undefined' && structsFailed) return `<span class="struct-missing muted-note">Drawing unavailable · <button class="text-btn" data-click="retryStructs()">Retry</button></span>`;
   const svg = typeof STRUCT_SVG === 'undefined' || name == null ? null : STRUCT_SVG[name];
   return svg ? `<img class="struct-img" src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}" alt="${esc(alt || 'Chemical structure')}">` : '';
 }
@@ -1690,7 +1702,7 @@ function renderQuizQuestion() {
   if ($('reveal-btn')) $('reveal-btn').focus({ preventScroll: true });
   startSpeedTimer();
   // In today's plan, every Practice Exam card opens its step-by-step lesson by itself.
-  if (quiz.mastery === 'guided' && teachOf(q)) teachStep(1);
+  if ((quiz.mastery === 'guided' || quiz.mastery === 'lessons' || quiz.mastery === 'followup') && teachOf(q)) teachStep(1);
 }
 // Recall first: retrieving the answer before seeing options builds stronger memory
 // than recognizing it, so the choices stay hidden until you've thought of it
@@ -2045,6 +2057,7 @@ function nextQ() {
   window.scrollTo(0, 0);
 }
 function endQuiz() {
+  setTimeout(() => window.McatAccount?.flush?.(), 0);   // a finished section or session goes to the cloud now
   commitPending();
   if (quiz.results.length) showQuizResults();
   else goHome();
@@ -2298,15 +2311,18 @@ const ERROR_ADVICE = {
   time: 'Pacing. Practice timed sets and aim for about 95 seconds per passage question. Skip and mark hard items instead of stalling.',
 };
 function mistakeCard() {
-  const log = store.get(KEYS.errors, []);
+  // Saved (and synced) rows are untrusted: only known types and disciplines are tallied, in prototype-free maps,
+  // so a stored "__proto__" or "constructor" cannot break the page.
+  const types = new Set(ERROR_TYPES.map(x => x[0]));
+  const log = store.get(KEYS.errors, []).filter(e => e && typeof e === 'object');
   if (log.length < 5) return '';
-  const labeled = log.filter(e => e.type !== 'unlabeled');
-  const byType = {};
+  const labeled = log.filter(e => e.type !== 'unlabeled' && types.has(e.type));
+  const byType = Object.create(null);
   labeled.forEach(e => { byType[e.type] = (byType[e.type] || 0) + 1; });
   const top = Object.entries(byType).sort((a, b) => b[1] - a[1]);
-  const byDisc = {};
-  labeled.forEach(e => { const d = byDisc[e.disc] = byDisc[e.disc] || {}; d[e.type] = (d[e.type] || 0) + 1; });
-  const pairs = {};
+  const byDisc = Object.create(null);
+  labeled.filter(e => Object.prototype.hasOwnProperty.call(DISCIPLINES, e.disc)).forEach(e => { const d = byDisc[e.disc] = byDisc[e.disc] || Object.create(null); d[e.type] = (d[e.type] || 0) + 1; });
+  const pairs = Object.create(null);
   log.filter(e => e.type === 'confused' && e.chosen && e.answer).forEach(e => {
     const k = [String(e.answer), String(e.chosen)].join(' ↔ ');
     pairs[k] = (pairs[k] || 0) + 1;
@@ -2695,6 +2711,7 @@ function nextPassage() {
 function startPassage(passage, opts = {}) {
   stopQuizTimer();
   pq.mini = null; pq.completed = false; pq.errPending = null;
+  pq.masteryDay = null;
   pq.masteryPractice = opts.masteryPractice || false;   // 'step' (TODAY's passage step) or 'followup' (after the quiz)
   pq.masteryCats = Array.isArray(opts.cats) ? opts.cats : null;
   const p = passage && passage.questions ? passage : PASSAGE_BY_ID.get(selectedPassageId);
@@ -2962,6 +2979,7 @@ function nextPassageQ() {
   $('pp-question-box').scrollIntoView({ block: 'start', behavior: 'smooth' });
 }
 function showPassageResults() {
+  setTimeout(() => window.McatAccount?.flush?.(), 0);   // a finished section or session goes to the cloud now
   if (pq.mini) { finishSubjectMini(); return; }
   if (pq.completed) return;
   pq.completed = true;
@@ -3233,6 +3251,7 @@ function confirmEndSection() {
   if (confirm(msg)) endSection();
 }
 function endSection() {
+  setTimeout(() => window.McatAccount?.flush?.(), 0);   // a finished section or session goes to the cloud now
   if (!exam || !['question', 'review'].includes(exam.phase) || exam.results[exam.si]) return;
   stopExamTimer();
   ensureOrders();
@@ -3362,17 +3381,16 @@ function examMissSummary(attempt) {
 function studyExamMistakes() {
   const { byDisc, total } = examMissSummary(examReviewState.attempt);
   if (!total) return;
+  // Cards from the approved sets (AAMC QBank cards and Practice Exam cards), split over the disciplines of the
+  // exam's misses in proportion to them, cards due or unseen first.
   const n = Math.min(40, Math.max(15, Math.round(total * 0.8)));
-  const mem = loadMem(), mast = store.get(KEYS.mastery, {}), target = targetSuccess();
-  const items = [];
+  const cards = [...AQB_QBANK, ...FLQ], items = [];
   Object.entries(byDisc).forEach(([d, misses]) => {
     const share = Math.max(1, Math.round((n * misses) / total));
-    QB.filter(q => disciplineOfRecall(q) === d)
-      .map(q => ({ q, s: Math.abs(predictedSuccess(q, mem, mast) - target) + (mem[q.id] ? 0.1 : 0) + Math.random() * 0.15 }))
-      .sort((a, b) => a.s - b.s).slice(0, share)
-      .forEach(x => items.push({ q: x.q, reason: 'exam' }));
+    pickQuestions(cards.filter(q => disciplineOfRecall(q) === d && !items.some(x => x.q === q)), share).forEach(q => items.push({ q, reason: 'exam' }));
   });
-  if (items.length) beginQuiz(interleave(items), 'Exam mistakes');
+  if (!items.length) { const el = $('page-notice'); if (el) { el.textContent = 'No cards cover the subjects of this exam’s misses yet. Review the missed questions above.'; el.hidden = false; window.scrollTo(0, 0); } return; }
+  beginQuiz(interleave(items), 'Exam mistakes');
 }
 // Per-section breakdown by discipline and by question type (passage vs discrete)
 function examBreakdownCard(attempt) {

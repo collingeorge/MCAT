@@ -84,6 +84,13 @@ assert(PRAC.length >= 36, 'at least 36 practice passages');
 const qids = [D, ...POOL, { passages: PRAC, standalones: [] }].flatMap(s => [...s.passages.flatMap(p => p.questions), ...s.standalones]).map(q => q.id);
 assert.equal(new Set(qids).size, qids.length, 'unique question ids');
 
+// Regression (review 3): choices are shuffled, so no choice or explanation may name a choice by its letter,
+// and no choice may be a bare letter list ("B and D only") that would read as answer letters.
+{ const all = [D, ...POOL, { passages: PRAC, standalones: [] }].flatMap(s => [...s.passages.flatMap(p => p.questions), ...s.standalones]);
+  for (const q of all) {
+    assert(!q.choices.some(c => /^(?:[A-D](?:,? (?:and )?[A-D])*)(?: only)?$/.test(String(c).trim())), (q.id || q.q.slice(0, 40)) + ': a choice reads like answer letters');
+    assert(!/\b(?:choice|option|answer) [A-D]\b/i.test(q.exp), (q.id || q.q.slice(0, 40)) + ': explanation names a choice letter');
+  } }
 // Wiring: Section Mastery runs the diagnostic and the pool for C/P; pages and the offline cache load them.
 const mastery = fs.readFileSync(root + '/js/mastery.js', 'utf8'), app = fs.readFileSync(root + '/js/app.js', 'utf8');
 assert(mastery.includes("kind === 'diagnostic' ? (typeof CP_DIAG !== 'undefined' ? CP_DIAG : null) : masteryNextSet(masteryLoad())"), 'mastery uses the diagnostic and the pool');

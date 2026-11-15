@@ -36,7 +36,10 @@ const MASTERY = {
 function masteryNormalize(raw) {
   const m = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
   const goal = MASTERY.goals.includes(m.goal) ? m.goal : MASTERY.defaultGoal;
-  const tests = (Array.isArray(m.tests) ? m.tests : []).filter(t => t && MASTERY.order.includes(t.subj) && typeof t.day === 'string' && Number.isFinite(t.scaled) && (t.kind === 'diagnostic' || t.kind === 'daily'));
+  // Saved (and cloud-synced) results reach the page as HTML text, so every number must be a real number.
+  const tests = (Array.isArray(m.tests) ? m.tests : []).filter(t => t && MASTERY.order.includes(t.subj) && typeof t.day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(t.day)
+    && Number.isInteger(t.scaled) && Number.isInteger(t.correct) && Number.isInteger(t.total) && t.total > 0 && t.correct >= 0 && t.correct <= t.total
+    && Number.isFinite(t.pct) && (t.kind === 'diagnostic' || t.kind === 'daily'));
   const days = m.days && typeof m.days === 'object' && !Array.isArray(m.days) ? m.days : {};
   const passed = m.passed && typeof m.passed === 'object' && !Array.isArray(m.passed) ? m.passed : {};
   const current = MASTERY.order.includes(m.current) ? m.current : null;
@@ -51,13 +54,21 @@ function masterySubject(m, today) {
   return MASTERY.order.find(s => !(m.passed[s] && m.passed[s] < today)) || null;
 }
 // Distinct test days (latest test of each day) ending at the most recent one, counted while at or above goal.
+// Consecutive calendar days, ending on the latest quiz day, on which a daily quiz reached the goal. Only daily
+// quizzes count (a diagnostic, or its retake, never adds to or breaks the streak); a day counts as at goal if any
+// quiz that day reached it; a day with no quiz breaks the run.
 function masteryStreak(tests, goal) {
-  const byDay = new Map();
-  tests.forEach(t => byDay.set(t.day, t));
+  const best = new Map();
+  tests.filter(t => t.kind === 'daily').forEach(t => best.set(t.day, Math.max(best.get(t.day) ?? -Infinity, t.scaled)));
+  const days = [...best.keys()].sort().reverse();
   let n = 0;
-  for (const day of [...byDay.keys()].sort().reverse()) { if (byDay.get(day).scaled >= goal) n++; else break; }
+  for (let i = 0; i < days.length; i++) {
+    if (i > 0 && masteryDayGap(days[i], days[i - 1]) !== 1) break;
+    if (best.get(days[i]) >= goal) n++; else break;
+  }
   return n;
 }
+function masteryDayGap(a, b) { return Math.round((Date.parse(b + 'T12:00:00Z') - Date.parse(a + 'T12:00:00Z')) / 86400000); }
 // Topics ranked weakest first from a test's per-category tallies {code: {c, t}}.
 function masteryWeak(test) {
   if (!test || !test.cats) return [];
@@ -144,10 +155,10 @@ function masteryApplyTest(raw, test) {
 }
 
 // ── Browser side: storage, sessions, tests ──
-function masteryPlanNow(m = masteryLoad()) {
-  const subj = masterySubject(m, localDay());
+function masteryPlanNow(m = masteryLoad(), day = localDay()) {
+  const subj = masterySubject(m, day);
   const pool = subj ? masteryPassagePool(subj) : [];
-  return masteryPlan(m, localDay(), { guided: subj ? masteryPracticePool(subj).length : 0, passages: pool.reduce((n, p) => n + p.questions.length, 0), passagesPoolDone: masteryPoolDone(pool) });
+  return masteryPlan(m, day, { guided: subj ? masteryPracticePool(subj).length : 0, passages: pool.reduce((n, p) => n + p.questions.length, 0), passagesPoolDone: masteryPoolDone(pool) });
 }
 const masterySection = s => MCAT_SECTIONS.find(x => x.id === s);
 const masteryName = s => { const x = masterySection(s); return x ? x.abbrev + ' · ' + x.label : String(s || ''); };
@@ -160,34 +171,44 @@ function masteryFlashPool(s) { return masteryExamPool(s); }
 const masteryPassagePool = s => (s === 'cp' && typeof CP_PRACTICE !== 'undefined' && Array.isArray(CP_PRACTICE) ? CP_PRACTICE : []);
 const masteryPracticePool = s => (s === 'cp' ? FLQ.filter(q => /^pe\d-cp:/.test(q.src)) : []);
 function masteryLoad() { return masteryNormalize(store.get(KEYS.subjectPath, {})); }
+// Keeps 60 days; the card-id lists (seen, guidedIds, lessonIds, pracUsed) matter only on their own day, so earlier
+// days drop them (they would otherwise make up most of the synced copy).
+const MASTERY_DAY_LISTS = ['seen', 'guidedIds', 'lessonIds', 'pracUsed'];
 function masterySave(m) {
-  const days = Object.fromEntries(Object.entries(m.days).sort().slice(-60));
+  const keepFrom = localDay(new Date(Date.now() - 86400000));   // yesterday too: a session can run past midnight
+  const days = Object.fromEntries(Object.entries(m.days).sort().slice(-60).map(([d, r]) => [d, d >= keepFrom || !r || typeof r !== 'object' ? r : Object.fromEntries(Object.entries(r).filter(([k]) => !MASTERY_DAY_LISTS.includes(k)))]));
   store.set(KEYS.subjectPath, { ...m, days });
 }
-function masteryDayRow(m, subj) {
-  const day = localDay();
+// day: the day a session started (answers after midnight still count toward the day the session began).
+function masteryDayRow(m, subj, day = localDay()) {
   if (m.days[day]?.subj !== subj) m.days[day] = { subj, misses: [], reviewed: [] };
   // Fix today's sub-topics the first time the day is touched, so they don't shift as tests come in.
-  if (!Array.isArray(m.days[day].topics) || !m.days[day].topics.length) m.days[day].topics = masteryPlanNow(m).topics || [];
+  if (!Array.isArray(m.days[day].topics) || !m.days[day].topics.length) m.days[day].topics = masteryPlanNow(m, day).topics || [];
   return m.days[day];
 }
 function masteryCategory(q) { return (q && q.key && typeof aamcOfKey === 'function' && aamcOfKey(q.key)) || (q && q.aamc) || 'other'; }
 // Called for every answered recall card: counts guided cards and remembers today's misses.
 function masteryNoteAnswer(q, right) {
-  const m = masteryLoad(), subj = masterySubject(m, localDay());
+  const day = quiz.masteryDay || localDay(), m = masteryLoad(), subj = masterySubject(m, day);
   if (!subj) return;
-  const id = q.baseId || q.id, row = masteryDayRow(m, subj);
+  const id = q.baseId || q.id, row = masteryDayRow(m, subj, day);
   let changed = false;
+  // Only the first answer to a card in a session counts: re-asked misses and "unsure" cards are practice, not
+  // new cards toward the 50.
+  const first = !quiz.masteryCounted || !quiz.masteryCounted.has(id);
+  if (quiz.masteryCounted) quiz.masteryCounted.add(id);
   // Each card in a flashcard or Practice Exam session was picked for one of today's sub-topics.
   const topic = quiz.topicOf && quiz.topicOf[q.id];
-  if (topic && (quiz.mastery === 'flashcards' || quiz.mastery === 'guided')) {
+  if (first && quiz.mastery === 'followup') { row.fixQ = (Number(row.fixQ) || 0) + 1; changed = true; }
+  if (first && quiz.mastery === 'guided') { row.guidedIds = [...new Set([...(row.guidedIds || []), id])].slice(-200); changed = true; }
+  if (first && topic && (quiz.mastery === 'flashcards' || quiz.mastery === 'guided')) {
     const key = quiz.mastery === 'flashcards' ? 'flashT' : 'guidedT';
     row[key] = { ...(row[key] || {}), [topic]: (Number((row[key] || {})[topic]) || 0) + 1 };
-    row.seen = [...new Set([...(row.seen || []), q.id])].slice(-400); changed = true;
+    row.seen = [...new Set([...(row.seen || []), q.id])].slice(-200); changed = true;
   }
   const plan = masteryPlanNow(m), missStep = plan.steps.find(s => s.id === 'misses');
   if (missStep && missStep.ids.includes(id) && !(row.reviewed || []).includes(id)) { row.reviewed = [...(row.reviewed || []), id]; changed = true; }
-  if (!right && (quiz.mastery === 'guided' || quiz.mastery === 'flashcards' || quiz.mastery === 'misses')) { row.misses = [...new Set([...(row.misses || []), id])]; changed = true; }
+  if (!right && ['guided', 'flashcards', 'misses', 'followup', 'lessons'].includes(quiz.mastery)) { row.misses = [...new Set([...(row.misses || []), id])]; changed = true; }
   if (changed) masterySave(m);
 }
 // After the quiz: practice the topics the quiz showed were weak (Practice Exam cards or practice passages).
@@ -195,18 +216,29 @@ function startMasteryFollowup(kind) {
   const plan = masteryPlanNow(), f = plan.steps.find(s => s.id === 'followup');
   if (!f) return;
   const cats = f.weak.length ? f.weak : plan.topics.slice(0, 3);
+  const pool = kind === 'passages' ? masteryPassagePool(plan.subj) : masteryPracticePool(plan.subj);
+  if (!pool.length) { masteryNotice(kind === 'passages' ? 'No practice passages for this section yet.' : 'No Practice Exam cards for this section yet.'); return; }
   const m = masteryLoad(); masteryDayRow(m, plan.subj).fix = (Number(masteryDayRow(m, plan.subj).fix) || 0) + 1; masterySave(m);
   if (kind === 'passages') { startMasteryPassages(cats); return; }
+  // Its own mode: these answers count as follow-up practice, never toward the guided step or its lessons.
   const step = { topics: cats.map(code => ({ code, need: 5, progress: 0 })), count: cats.length * 5 };
-  masteryBegin(plan, step, masteryPracticePool(plan.subj), q => q.aamc, 'Practice Exam cards · weak spots from the quiz', 'guided', true);
+  masteryBegin(plan, step, pool, q => q.aamc, 'Practice Exam cards · weak spots from the quiz', 'followup', true);
 }
 // Called when a step-by-step lesson is played to its last step during today's Practice Exam cards.
+// Each card's lesson counts once a day, however often it is replayed or the card is re-asked.
 function masteryNoteLesson(q) {
-  const m = masteryLoad(), subj = masterySubject(m, localDay());
-  if (!subj || quiz.mastery !== 'guided') return;
-  const row = masteryDayRow(m, subj);
+  const day = quiz.masteryDay || localDay(), m = masteryLoad(), subj = masterySubject(m, day);
+  if (!subj || (quiz.mastery !== 'guided' && quiz.mastery !== 'lessons')) return;
+  const row = masteryDayRow(m, subj, day), id = q.baseId || q.id;
+  if ((row.lessonIds || []).includes(id)) return;
+  row.lessonIds = [...(row.lessonIds || []), id].slice(-200);
   row.lessonsN = (Number(row.lessonsN) || 0) + 1;
   masterySave(m);
+}
+// A short message at the top of the page when a TODAY button has nothing to start.
+function masteryNotice(msg) {
+  const el = typeof document !== 'undefined' && document.getElementById && document.getElementById('page-notice');
+  if (el) { el.textContent = msg; el.hidden = false; if (typeof window !== 'undefined' && window.scrollTo) window.scrollTo(0, 0); }
 }
 // Builds today's set for one step: for each sub-topic, the cards still needed, from that sub-topic first, then
 // from the rest of the subject (the pool may be small), repeating cards only if the subject runs out.
@@ -228,7 +260,8 @@ function masteryTopicSet(step, pool, catOf, pick) {
 }
 // more: another full set from today's sub-topics after the day's set is done, cards not seen today first.
 function masteryBegin(plan, step, pool, catOf, label, mode, more) {
-  if (!plan.subj || !step || (step.done && !more)) return;
+  if (!plan.subj || !step) { masteryNotice('This step is not available right now.'); return; }
+  if (step.done && !more) { masteryNotice('This step is done for today. Choose “Another set” for more.'); return; }
   const m = masteryLoad(), row = masteryDayRow(m, plan.subj); masterySave(m);
   if (more) {
     const seen = new Set(row.seen || []), nested = Array.isArray(pool[0]);
@@ -238,21 +271,38 @@ function masteryBegin(plan, step, pool, catOf, label, mode, more) {
     label += ' · another set';
   }
   const { list, topicOf } = masteryTopicSet(step, pool, catOf, pickQuestions);
-  if (!list.length) return;
-  beginQuiz(list, masterySection(plan.subj).abbrev + ' · ' + label, { mastery: mode });
+  if (!list.length) { masteryNotice('Nothing left to practice in this step today. Choose “Another set” for more.'); return; }
+  masteryStartQuiz(list, masterySection(plan.subj).abbrev + ' · ' + label, mode);
   quiz.topicOf = topicOf;
 }
-// Practice Exam cards for today's sub-topics; each opens its step-by-step lesson.
+function masteryStartQuiz(list, label, mode) {
+  beginQuiz(list, label, { mastery: mode });
+  quiz.masteryDay = localDay(); quiz.masteryCounted = new Set();
+}
+// Practice Exam cards for today's sub-topics; each opens its step-by-step lesson. When every card is done but
+// some lessons are not, the step continues with today's cards whose lesson wasn't finished.
 function startMasteryGuided(more) {
   const plan = masteryPlanNow();
   const pool = masteryPracticePool(plan.subj);
   if (!pool.length) { startMasteryFlashcards(more); return; }
-  masteryBegin(plan, plan.steps.find(s => s.id === 'guided'), pool, q => q.aamc, 'Practice Exam cards', 'guided', more);
+  const step = plan.steps.find(s => s.id === 'guided');
+  if (!more && step && !step.done && step.topics.every(t => t.progress >= t.need) && step.lessons < step.lessonCount) {
+    const m = masteryLoad(), row = masteryDayRow(m, plan.subj), done = new Set(row.lessonIds || []);
+    const byId = new Map(pool.map(q => [q.id, q])), need = step.lessonCount - step.lessons;
+    let list = (row.guidedIds || []).filter(id => !done.has(id)).map(id => byId.get(id)).filter(Boolean);
+    // Older saved days have no card list: any card from today's topics whose lesson isn't done.
+    if (list.length < need) { const topics = new Set(step.topics.map(t => t.code)), have = new Set(list.map(q => q.id)); list = list.concat(pickQuestions(pool.filter(q => topics.has(q.aamc) && !done.has(q.id) && !have.has(q.id)), need - list.length)); }
+    list = list.slice(0, need);
+    if (!list.length) { masteryNotice('Every card today already has its lesson. Choose “Another set” for more.'); return; }
+    masteryStartQuiz(list, masterySection(plan.subj).abbrev + ' · Practice Exam cards · finish the lessons', 'lessons');
+    return;
+  }
+  masteryBegin(plan, step, pool, q => q.aamc, 'Practice Exam cards', 'guided', more);
 }
 function startMasteryMisses() {
   const plan = masteryPlanNow(), step = plan.steps.find(s => s.id === 'misses');
   const qs = (step?.ids || []).map(id => lookupQ(id)).filter(Boolean);
-  if (qs.length) beginQuiz(shuffled(qs), masterySection(plan.subj).abbrev + ' · yesterday’s misses', { mastery: 'misses' });
+  if (qs.length) masteryStartQuiz(shuffled(qs), masterySection(plan.subj).abbrev + ' · yesterday’s misses', 'misses');
 }
 // Regular flashcards for today's sub-topics.
 function startMasteryFlashcards(more) {
@@ -275,7 +325,8 @@ function masteryPassageOrder(pool, rank, usedToday, followup) {
   const key = p => {
     const st = stats[p.id] || {}, used = usedToday.has(p.id) ? 1 : 0;
     const seen = done ? (Number.isFinite(st.last) ? st.last : 0) : (st.attempts ? 1000 : 0);
-    return followup ? [used, catRank(p), seen, st.lastAt || 0] : [seen, used, catRank(p), st.lastAt || 0];
+    // Once every passage was seen, a passage already used today goes last, before its low score counts.
+    return followup ? [used, catRank(p), seen, st.lastAt || 0] : done ? [used, seen, catRank(p), st.lastAt || 0] : [seen, used, catRank(p), st.lastAt || 0];
   };
   return pool.slice().sort((a, b) => { const x = key(a), y = key(b); for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] - y[i]; return pool.indexOf(a) - pool.indexOf(b); });
 }
@@ -292,13 +343,14 @@ function startMasteryPassages(cats) {
   row.pracUsed = [...new Set([...(row.pracUsed || []), next.id])];
   masterySave(m);
   startPassage(next, { masteryPractice: followup ? 'followup' : 'step', cats: followup ? cats : null });
+  pq.masteryDay = localDay();
 }
 // Counts each answered practice-passage question: toward today's passage step and its AAMC category, or (after
 // the quiz) toward the follow-up practice.
 function masteryNotePractice(q, passage, kind) {
-  const m = masteryLoad(), subj = masterySubject(m, localDay());
+  const day = (typeof pq !== 'undefined' && pq.masteryDay) || localDay(), m = masteryLoad(), subj = masterySubject(m, day);
   if (!subj) return;
-  const row = masteryDayRow(m, subj);
+  const row = masteryDayRow(m, subj, day);
   if (kind === 'followup') row.fixQ = (Number(row.fixQ) || 0) + 1;
   else {
     const cat = (q && q.cat) || (passage && passage.cats && passage.cats[0]) || 'other';
@@ -341,7 +393,7 @@ function startMasteryTest(kind) {
   const items = shuffled(picked).map(q => ({ view: makeView(q), passage: null }));  if (!items.length) return;
   const firstExposures = Object.fromEntries(passages.map(p => [p.id, beginPassageExposure(p)]));
   stopQuizTimer(); stopPassageTimer();
-  Object.assign(pq, { mini: { subj, items, passages, firstExposures, completed: false, mastery: kind === 'diagnostic' ? 'diagnostic' : 'daily' },
+  Object.assign(pq, { mini: { subj, items, passages, firstExposures, completed: false, mastery: kind === 'diagnostic' ? 'diagnostic' : 'daily', day: localDay() },
     p: { id: 'mastery_' + subj, title: masteryName(subj) + (kind === 'diagnostic' ? ' diagnostic' : ' end-of-day test') },
     idx: 0, views: items.map(x => x.view), results: [], answered: false, completed: false, startedAt: Date.now(), qStart: Date.now(),
     targetMs: items.length * MASTERY.secondsPerItem * 1000, errPending: null });
@@ -373,7 +425,7 @@ function masteryRunSet(subj, kind, set) {
   if (!items.length) return;
   const passages = set.passages;
   stopQuizTimer(); stopPassageTimer();
-  Object.assign(pq, { mini: { subj, items, passages, firstExposures: Object.fromEntries(passages.map(p => [p.id, beginPassageExposure(p)])), completed: false, mastery: kind === 'diagnostic' ? 'diagnostic' : 'daily', setId: set.id },
+  Object.assign(pq, { mini: { subj, items, passages, firstExposures: Object.fromEntries(passages.map(p => [p.id, beginPassageExposure(p)])), completed: false, mastery: kind === 'diagnostic' ? 'diagnostic' : 'daily', setId: set.id, day: localDay() },
     p: { id: 'mastery_' + subj, title: set.title },
     idx: 0, views: items.map(x => x.view), results: [], answered: false, completed: false, startedAt: Date.now(), qStart: Date.now(),
     targetMs: (set.timeMin ? set.timeMin * 60 : items.length * MASTERY.secondsPerItem) * 1000, errPending: null });
@@ -404,7 +456,8 @@ function masteryFinishTest(mini, results) {
   // Tomorrow's "misses" step reviews missed bank questions; test-only questions are reviewed on the results page.
   const missIds = results.filter((r, i) => !r.right && !mini.items[i].passage).map(r => r.view.q.baseId || r.view.q.id).filter(id => id && typeof lookupQ === 'function' && lookupQ(id));
   const pctRight = total ? 100 * correct / total : 0;
-  const test = { subj: mini.subj, day: localDay(), t: Date.now(), kind: mini.mastery, correct, total, pct: Math.round(pctRight), scaled: rawToScaled(pctRight), cats, parts, skills, missIds, version: mini.setId || 'cards' };
+  // The day the test started: a quiz finished after midnight belongs to the day it was taken.
+  const test = { subj: mini.subj, day: mini.day || localDay(), t: Date.now(), kind: mini.mastery, correct, total, pct: Math.round(pctRight), scaled: rawToScaled(pctRight), cats, parts, skills, missIds, version: mini.setId || 'cards' };
   const before = masteryLoad();
   const prevTest = before.tests.filter(t => t.subj === test.subj).at(-1) || null;
   const after = masteryApplyTest(before, test);

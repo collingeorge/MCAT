@@ -109,6 +109,7 @@ function logStudyWork(subj, kind, correct, total) {
   store.set(KEYS.studyPath, history.slice(-500));
 }
 function finishSubjectMini() {
+  setTimeout(() => window.McatAccount?.flush?.(), 0);
   const mini = pq.mini;
   if (!mini || mini.completed) return;
   mini.completed = true;

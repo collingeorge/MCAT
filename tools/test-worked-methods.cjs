@@ -229,4 +229,7 @@ assert(source.includes("+ howBox(view.q, { ctx: { mode: 'recall', view, prefix: 
 assert(fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'howStep'"));
 assert(source.includes("if (view.hint) quiz.pending.conf = 'unsure';"));
 assert(source.includes('how: howBox(r.view.q, { static: true })'));
+// Regression (review 3): lessons never name a choice by letter (choices are shuffled).
+{ const fl = vm.runInContext('JSON.stringify(QB_AAMC_FL)', vm.createContext((() => { const c = {}; vm.runInContext(fs.readFileSync(root + '/data/qb-aamc-fl.js', 'utf8').replace(/^const /m, 'var '), vm.createContext(c)); return c; })()));
+  for (const q of JSON.parse(fl)) assert(!/\b(?:choice|option) [A-D]\b/i.test(JSON.stringify([q.teach, q.how, q.exp])), q.src + ' names a choice letter'); }
 console.log(`Worked methods passed: all ${FL.length} Full-Length Prep cards are in exam form with stable ids; walkthroughs use ${Object.keys(STRUCT).length} script-free RDKit drawings (generator in sync); all have what-it's-asking, what-to-know, steps and trap; two-stage hints hide steps and trap before answering; full method after answering and in the missed list; escaped; never on reworded forms.`);

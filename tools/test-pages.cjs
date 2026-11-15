@@ -18,7 +18,8 @@ function fixture(pathname = '/study/mcat/aamc.html', search = '') {
 let f=fixture();
 assert.equal(f.run('activeScreen'),'screen-home');assert.equal(f.run('prefs.mode'),'aamc');assert.equal(f.node('home-score').hidden,true);
 // The Recall page was removed: an old recall.html link (or a saved Recall mode) lands on Overview / Passages.
-assert.equal(fs.existsSync(root+'/recall.html'),false);
+// Regression (review 2.9): recall.html exists (GitHub Pages would 404 a bookmark) and routes to Overview.
+assert(fs.readFileSync(root+'/recall.html','utf8').includes('js/pages.js'),'legacy recall.html is generated');
 f=fixture('/study/mcat/recall.html');assert.match(f.location.pathname,/index.html$/);assert.equal(f.run('activeScreen'),'screen-home');
 f=fixture();
 f.run("setMode('passage')");assert.match(f.location.pathname,/passages.html$/);assert.equal(f.node('nav-passages')['aria-current'],'page');
