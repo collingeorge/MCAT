@@ -257,10 +257,10 @@ for (const days of [22, 25, 27]) {
   // Malformed object maps from another device used to blank the app or freeze a question.
   storage.set('mcat2_evidence', '{"biology":null,"physics":7}'); storage.set('mcat2_calibration', '{"biology":null}'); storage.set('mcat2_recall_days', JSON.stringify({ [run('localDay()')]: 5 }));
   assert.doesNotThrow(() => run('dailyPlanMemo=null;renderHome();showProgress();goHome()'), 'malformed evidence/calibration maps');
-  assert.doesNotThrow(() => run('recordRecallToday(QB[0])')); assert.equal(run('recallToday().fresh + recallToday().reviews'), 1);
+  assert.doesNotThrow(() => run('recordRecallToday(AQB_QBANK[0])')); assert.equal(run('recallToday().fresh + recallToday().reviews'), 1);
   ['mcat2_evidence', 'mcat2_calibration', 'mcat2_recall_days'].forEach(k => storage.delete(k));
   // The memory cache follows writes made by any path, including another tab.
-  run('loadMem()'); storage.set(run('KEYS.mem'), JSON.stringify({ [run('QB[0].id')]: { S: 1, D: 5, last: Date.now(), seen: 1, right: 1, lapses: 0 } }));
+  run('loadMem()'); storage.set(run('KEYS.mem'), JSON.stringify({ [run('AQB_QBANK[0].id')]: { S: 1, D: 5, last: Date.now(), seen: 1, right: 1, lapses: 0 } }));
   assert.equal(run('Object.keys(loadMem()).length'), 1, 'cache invalidated by a direct storage change');
   storage.delete(run('KEYS.mem'));
   // Null or malformed records in any synced log must not break the home page.
@@ -283,13 +283,12 @@ for (const days of [22, 25, 27]) {
   ['mcat2_errors', 'mcat2_passage_evidence', 'mcat2_external_passages', 'mcat2_exam_history', 'mcat2_official', 'mcat2_recall_days', run("KEYS.examProgress(FULL_EXAMS[0].id)")].forEach(k => storage.delete(k));
   // The memoized plan refreshes after any storage write.
   run('dailyPlanMemo=null');
-  const before = run("currentDailyPlan().steps.find(s=>s.id==='due').count");
   assert.equal(run('currentDailyPlan()'), run('currentDailyPlan()'), 'repeat calls reuse one computation');
-  run("const m=loadMem();QB.slice(0,7).forEach(q=>m[q.id]={S:0.1,D:5,last:Date.now()-5*DAY,seen:1,right:0,lapses:1});store.set(KEYS.mem,m)");
-  assert.equal(run("currentDailyPlan().steps.find(s=>s.id==='due').count"), before + 7, 'a storage write invalidates the cached plan');
+  run("globalThis.__planBefore=currentDailyPlan();const m=loadMem();AQB_QBANK.slice(0,7).forEach(q=>m[q.id]={S:0.1,D:5,last:Date.now()-5*DAY,seen:1,right:0,lapses:1});store.set(KEYS.mem,m)");
+  assert(run('currentDailyPlan()!==__planBefore'), 'a storage write invalidates the cached plan');
   // Efficiency budget (deterministic, not timing): with a full-size memory record, one home render
   // parses it at most once, a repeat render not at all, and one recommendation reads retention once.
-  run("const big={};QB.forEach((q,i)=>big[q.id]={S:1+i%30,D:5,last:Date.now()-(i%20)*DAY,seen:1+i%4,right:1,lapses:0});store.set(KEYS.mem,big);store.set(KEYS.retention,QB.slice(0,1500).map((q,i)=>({t:Date.now()-i*60000,id:q.id,key:q.key,disc:disciplineOfRecall(q),right:i%3>0,gap:4*DAY})))");
+  run("const big={};AQB_QBANK.forEach((q,i)=>big[q.id]={S:1+i%30,D:5,last:Date.now()-(i%20)*DAY,seen:1+i%4,right:1,lapses:0});store.set(KEYS.mem,big);store.set(KEYS.retention,AQB_QBANK.slice(0,1500).map((q,i)=>({t:Date.now()-i*60000,id:q.id,key:q.key,disc:disciplineOfRecall(q),right:i%3>0,gap:4*DAY})))");
   run("globalThis.__parses={};const _p=JSON.parse;JSON.parse=function(t,...a){if(typeof t==='string'&&t.length>40000){const k=t.slice(0,12);__parses[k]=(__parses[k]||0)+1;}return _p.call(this,t,...a)};globalThis.__restoreParse=()=>{JSON.parse=_p}");
   const memHead = run("localStorage.getItem(KEYS.mem).slice(0,12)"), retHead = run("localStorage.getItem(KEYS.retention).slice(0,12)");
   run('dailyPlanMemo=null;memCache={raw:null,mem:null};__parses={};renderHome()');
@@ -298,8 +297,8 @@ for (const days of [22, 25, 27]) {
   run('__parses={};pathRecommendation()'); assert(run(`__parses[${JSON.stringify(retHead)}]||0`) <= 1, 'retention log read once per recommendation');
   run('__restoreParse();store.del(KEYS.mem);store.del(KEYS.retention)');
   // Passage-miss notes are saved by row index; no stored text is placed in inline handlers.
-  run("const p=ALL_PASSAGES.find(p=>!EXAM_PASSAGE_IDS.has(p.id));store.set(KEYS.errors,[{t:Date.now()-2*DAY,id:p.id+'#0',src:'passage',type:'reasoning',chosen:'\"><img src=x onerror=alert(1)>',answer:'b'}]);store.set(KEYS.daily,{[localDay(new Date(Date.now()-2*DAY))]:3});startPassageMissReview()");
+  run("const p=LISTED_PASSAGES[0];store.set(KEYS.errors,[{t:Date.now()-2*DAY,id:p.id+'#0',src:'passage',type:'reasoning',chosen:'\"><img src=x onerror=alert(1)>',answer:'b'}]);store.set(KEYS.daily,{[localDay(new Date(Date.now()-2*DAY))]:3});startPassageMissReview()");
   assert.doesNotMatch(el('results-body').innerHTML, /<img src=x/, 'stored answers are escaped');
   assert.match(el('results-body').innerHTML, /data-click="savePassageMissNote\(0\)"/);
 }
-console.log('Daily plan pacing passed: 90/120-day calendars cover all 2,807 facts and 60 practice passages, 6-exam AAMC-first full-length line-up, full-length rule, missed days, carry-over, misses, behind-pace and edge cases, plus malformed synced data, escaping, tampered exam progress, short-plan/final caps, bounded carry-over and plan caching.');
+console.log('Daily plan pacing passed (the planner that still drives the test-date and full-length calendar): 90/120-day calendars over a synthetic 2,807-fact, 60-passage bank, 6-exam AAMC-first full-length line-up, full-length rule, missed days, carry-over, misses, behind-pace and edge cases, plus malformed synced data, escaping, tampered exam progress, short-plan/final caps, bounded carry-over and plan caching.');

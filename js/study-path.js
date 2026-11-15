@@ -1,7 +1,7 @@
 // Subject progression uses transparent study heuristics, not validated MCAT cutoffs.
 const PATH_RULES = { recallSeen: 20, accuracy: 0.70, passageCount: 2, miniCooldown: 7 * 86400000 };
 function subjectPassages(subj) {
-  return ALL_PASSAGES.filter(p => !EXAM_PASSAGE_IDS.has(p.id) && p.questions.length && p.questions.every(q => disciplineOfPassage(p, q) === subj));
+  return LISTED_PASSAGES.filter(p => p.questions.length && p.questions.every(q => disciplineOfPassage(p, q) === subj));
 }
 function subjectPath(subj) {
   const mem = loadMem(), stats = store.get(KEYS.stats, {}), ps = store.get(KEYS.passages, {});

@@ -8,7 +8,7 @@ const ctx=vm.createContext({console,Date,Math,Map,Set,URLSearchParams,setInterva
 const run=code=>vm.runInContext(code,ctx);
 for(const [,file]of fs.readFileSync(root+'/index.html','utf8').matchAll(/<script src="([^\"]+)"/g))run(fs.readFileSync(root+'/'+file,'utf8'));
 
-run('const fact=QB[0];updateMemory(fact,true,"knew",1000);updateMemory(fact,true,"knew",1000)');
+run('const fact=AQB_QBANK[0];updateMemory(fact,true,"knew",1000);updateMemory(fact,true,"knew",1000)');
 assert.equal(run('store.get(KEYS.retention,[]).length'),0,'Immediate retries are not delayed checks');
 run('let memories=loadMem();memories[fact.id].last=Date.now()-4*DAY;store.set(KEYS.mem,memories);updateMemory(fact,true,"knew",1000)');
 assert.equal(run('store.get(KEYS.retention,[]).length'),1);
@@ -17,7 +17,7 @@ assert.equal(run('retainedFact({...loadMem()[fact.id],S:30})'),false);
 run('memories=loadMem();memories[fact.id].last=Date.now()-4*DAY;store.set(KEYS.mem,memories);updateMemory(fact,true,"knew",1000)');
 assert.equal(run('retainedFact({...loadMem()[fact.id],S:30})'),true);
 run('updateMemory(fact,false,"knew",1000)');assert.equal(run('loadMem()[fact.id].delayedCorrect'),0);
-run('const passage=subjectPassages("biology")[0];const initial=beginPassageExposure(passage)');
+run('const passage=LISTED_PASSAGES[0];const initial=beginPassageExposure(passage)');
 assert.equal(run('initial'),true);assert.equal(run('beginPassageExposure(passage)'),false,'Abandoning a passage cannot restore first exposure');
 run('recordPassageEvidence(passage,[{right:true,ms:1000},{right:false,ms:2000}],initial,"tutor")');
 assert.equal(run('readinessData().first.length'),1);assert.equal(run('readinessData().first[0].answerMs'),3000);

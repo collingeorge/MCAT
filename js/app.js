@@ -300,23 +300,11 @@ const AAMC_SECTION = { id: 'aamc_qb', label: 'AAMC Question Bank Flashcards', gr
 const AAMC_RULES_TAGS = ['Universal Rules: Reading Data', 'Universal Rules: Test Strategy', 'Universal Rules: Chemistry', 'Universal Rules: Biochemistry', 'Universal Rules: Physics'];
 const ORGO_TAGS = new Set(['Bonding & Structure', 'Reactions & Mechanisms', 'Carbonyl Chemistry', 'Spectroscopy', 'Separations & Lab Techniques']);
 
+// The app's own recall decks were removed: TODAY and every study tool use only the AAMC QBank cards,
+// the Practice Exam cards, the C/P diagnostic/quiz/practice passages and the full-length exams.
+// QB stays as an empty pool so saved recall progress is kept (and ignored) and older code paths stay safe.
 const QB = [];
 const QB_BY_ID = new Map();
-[
-  ['biochemistry', QB_BIOCHEMISTRY], ['biology', QB_BIOLOGY], ['chemistry', QB_CHEMISTRY],
-  ['physics', QB_PHYSICS], ['equations', typeof QB_EQUATIONS === 'undefined' ? [] : QB_EQUATIONS],
-  ['behavioral', QB_BEHAVIORAL_1], ['behavioral', QB_BEHAVIORAL_2],
-].forEach(([source, arr]) => arr.forEach(q => {
-  const subj = source === 'chemistry' ? (ORGO_TAGS.has(q.s) ? 'organic_chem' : 'gen_chem') : source;
-  // Keep pre-edit question identity so memory, flags and variant links survive wording fixes.
-  let id = hashId(q.s + '|' + (q.idStem || q.q));
-  while (QB_BY_ID.has(id)) id += 'x';
-  q.subj = subj;
-  q.key = subj + '|' + q.s;
-  q.id = id;
-  QB.push(q);
-  QB_BY_ID.set(id, q);
-}));
 
 // AAMC section pool, with its own id map (kept out of QB_BY_ID so the TODAY plan, study path and
 // evidence modules, which look questions up there, never pick these questions up)
@@ -360,21 +348,6 @@ const bankOf = q => (isFl(q) ? FLQ : isAamc(q) ? AQB : QB);
 const lookupQ = id => QB_BY_ID.get(id) || AQB_BY_ID.get(id) || FLQ_BY_ID.get(id);
 const countAamcKeys = keys => keys.reduce((n, k) => n + (AQB_KEY_COUNTS[k] || 0), 0);
 
-// Authored variants: the same fact asked from another angle (scenario, prediction, EXCEPT),
-// linked to their base question by its exact tag and stem
-const AUTHORED = new Map();   // base id → variant forms
-const VARIANT_KIND = { application: 'apply the concept', prediction: 'predict the effect', scenario: 'clinical or lab scenario', except: 'which is NOT true' };
-(() => {
-  const byStem = new Map(QB.flatMap(q => [[q.s + '|' + q.q, q], ...(q.idStem ? [[q.s + '|' + q.idStem, q]] : [])]));
-  [typeof QB_VARIANTS_1 === 'undefined' ? [] : QB_VARIANTS_1, typeof QB_VARIANTS_2 === 'undefined' ? [] : QB_VARIANTS_2]
-    .flat().forEach(v => {
-      const base = byStem.get(v.ofTag + '|' + v.of);
-      if (!base) return;
-      const list = AUTHORED.get(base.id) || AUTHORED.set(base.id, []).get(base.id);
-      list.push({ ...base, id: `${base.id}~a${list.length}`, baseId: base.id, variant: 'authored', kind: v.kind, q: v.q, choices: v.choices, ans: v.ans, exp: v.exp });
-    });
-})();
-
 // Resolve taxonomy chips to keys that actually exist; unmapped tags go to an "Other" chip
 // Lookup tables keyed by names that also appear in stored data are prototype-free, so a stored
 // key such as "constructor" or "__proto__" can never match an inherited property.
@@ -402,8 +375,11 @@ const countKeys = keys => keys.reduce((n, k) => n + (KEY_COUNTS[k] || 0), 0);
 // ════════════════════════════════════════════════════════════════
 //  PASSAGES
 // ════════════════════════════════════════════════════════════════
-const DATA_SETS = typeof DATA_PASSAGES === 'undefined' ? [] : DATA_PASSAGES;
-const ALL_PASSAGES = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES, ...OCHEM_PASSAGES, ...PHYSICS_PASSAGES, ...BEHAVIORAL_PASSAGES, ...DATA_SETS, ...CARS_PASSAGES, ...CARS_EXTRA, ...EXAM2_CARS_PASSAGES];
+// Passages: the AAMC-style C/P practice passages (the Passages tab) and the CARS passages the full-length
+// exams use. The C/P diagnostic and daily-quiz passages are run only from TODAY and never listed here.
+const CP_PRACTICE_LIST = typeof CP_PRACTICE === 'undefined' ? [] : CP_PRACTICE;
+const EXAM_CARS = [...(typeof CARS_PASSAGES === 'undefined' ? [] : CARS_PASSAGES), ...(typeof EXAM2_CARS_PASSAGES === 'undefined' ? [] : EXAM2_CARS_PASSAGES)];
+const ALL_PASSAGES = [...CP_PRACTICE_LIST, ...EXAM_CARS];
 const SKILL_LABEL = Object.assign(Object.create(null), {
   'SIRS 1': 'Skill 1: Knowledge of scientific concepts',
   'SIRS 2': 'Skill 2: Scientific reasoning & problem solving',
@@ -412,16 +388,15 @@ const SKILL_LABEL = Object.assign(Object.create(null), {
 });
 const PASSAGE_BY_ID = new Map(ALL_PASSAGES.map(p => [p.id, p]));
 const EXAM_PASSAGE_IDS = new Set(FULL_EXAMS.flatMap(e => e.sections.flatMap(s => s.passageIds || [])));
+// The Passages tab lists only the C/P practice passages, grouped by lead discipline.
+const LISTED_PASSAGES = CP_PRACTICE_LIST;
+const LISTED_IDS = new Set(LISTED_PASSAGES.map(p => p.id));
 const PASSAGE_GROUPS = [
-  { label: 'Biochemistry', test: id => /^p_(aa|enz|met|nuc|lip)/.test(id) },
-  { label: 'Biology', test: id => id.startsWith('p_bio') },
-  { label: 'General Chemistry', test: id => id.startsWith('p_gchem') },
-  { label: 'Organic Chemistry', test: id => id.startsWith('p_oc') },
-  { label: 'Physics & Math', test: id => id.startsWith('p_ph') },
-  { label: 'Psychology & Sociology', test: id => id.startsWith('p_bs') },
-  { label: 'Data & Reasoning (tables, research design, statistics)', test: id => id.startsWith('p_data') },
-  { label: 'CARS — Set 1', test: id => id.startsWith('p_cars') },
-  { label: 'CARS — Set 2', test: id => id.startsWith('p_e2cars') },
+  { label: 'Chem/Phys · General Chemistry', test: p => p.subj === 'gen_chem' },
+  { label: 'Chem/Phys · Biochemistry', test: p => p.subj === 'biochemistry' },
+  { label: 'Chem/Phys · Physics', test: p => p.subj === 'physics' },
+  { label: 'Chem/Phys · Organic Chemistry', test: p => p.subj === 'organic_chem' },
+  { label: 'Chem/Phys · Biology', test: p => p.subj === 'biology' },
 ];
 
 // ════════════════════════════════════════════════════════════════
@@ -509,8 +484,6 @@ function itemPrior(q) {
   let b = 0;
   if ((q.q.match(/_{3,}/g) || []).length >= 2) b += 0.5;
   if (q.subj === 'equations') b += 0.3;
-  if (q.variant === 'reverse') b += 0.2;
-  if (q.variant === 'authored') b += 0.4;
   return b;
 }
 function itemDifficulty(q, mem) {
@@ -684,12 +657,9 @@ function weakTopics() {
 }
 function weakKeys() { return weakTopics().map(w => w.k); }
 
-// ── Reverse-direction variants ──
-// Definition cards ("_____ is/are …") can be flipped: show the term and ask
-// which description fits, with descriptions of related terms as distractors.
-let reverseIndex = null;
+// A card is always asked exactly as written: no reworded, reversed or one-blank forms are generated.
 function definitionParts(q) {
-  if ((q.q.match(/_{3,}/g) || []).length !== 1 || q.subj === 'equations') return null;
+  if ((q.q.match(/_{3,}/g) || []).length !== 1) return null;
   const m = q.q.match(/^_{3,}\s+(is|are)\s+(.{12,})$/i);
   const term = String(q.choices[q.ans]);
   if (!m || term.length > 60 || term.includes(' / ')) return null;
@@ -697,79 +667,7 @@ function definitionParts(q) {
   if (desc.toLowerCase().includes(term.toLowerCase())) return null;
   return { term, verb: m[1].toLowerCase(), desc: desc.charAt(0).toUpperCase() + desc.slice(1) };
 }
-function buildReverseIndex() {
-  const parts = new Map();
-  QB.forEach(q => { const p = definitionParts(q); if (p) parts.set(q.id, { q, ...p }); });
-  // Topic → its selector group (e.g. "Musculoskeletal System"), for same-area distractors
-  const groupOf = {};
-  SUBJECTS.forEach(s => s.groups.forEach((g, gi) => g.keys.forEach(k => { groupOf[k] = s.id + '#' + gi; })));
-  const byKey = {}, byGroup = {}, bySubj = {};
-  parts.forEach(p => {
-    (byKey[p.q.key] = byKey[p.q.key] || []).push(p);
-    (byGroup[groupOf[p.q.key]] = byGroup[groupOf[p.q.key]] || []).push(p);
-    (bySubj[p.q.subj] = bySubj[p.q.subj] || []).push(p);
-  });
-  reverseIndex = { parts, byKey, byGroup, bySubj, groupOf };
-}
-function reverseVariant(q) {
-  if (!reverseIndex) buildReverseIndex();
-  const base = reverseIndex.parts.get(q.baseId || q.id);
-  if (!base) return null;
-  const termLc = base.term.toLowerCase();
-  const usable = list => (list || []).filter(o => o.q.id !== base.q.id && o.term.toLowerCase() !== termLc && !o.desc.toLowerCase().includes(termLc));
-  // Same topic first, then same topic group, then same subject; prefer similar lengths so length gives nothing away
-  let pool = usable(reverseIndex.byKey[base.q.key]);
-  if (pool.length < 3) pool = pool.concat(usable(reverseIndex.byGroup[reverseIndex.groupOf[base.q.key]]).filter(o => !pool.includes(o)));
-  if (pool.length < 3) pool = pool.concat(usable(reverseIndex.bySubj[base.q.subj]).filter(o => !pool.includes(o)));
-  if (pool.length < 3) return null;
-  const sameArea = pool.filter(o => o.q.key === base.q.key || reverseIndex.groupOf[o.q.key] === reverseIndex.groupOf[base.q.key]);
-  if (sameArea.length >= 3) pool = sameArea;
-  // Fisher-Yates (shuffled) over the 8 closest lengths; sort(() => random - 0.5) is not a uniform shuffle.
-  const distractors = shuffled(pool.slice().sort((a, b) => Math.abs(a.desc.length - base.desc.length) - Math.abs(b.desc.length - base.desc.length))
-    .slice(0, 8)).slice(0, 3).map(o => o.desc);
-  return {
-    ...base.q, id: base.q.id + '~r', baseId: base.q.id, variant: 'reverse',
-    q: `Which description fits **${base.term}**?`,
-    choices: [base.desc, ...distractors], ans: 0,
-    exp: `**${base.term}**: ${base.desc.charAt(0).toLowerCase() + base.desc.slice(1)}. ${base.q.exp}`,
-  };
-}
-
-// ── Single-blank rewording of multi-blank cards ──
-// "An oxidizing agent _____ electrons and is _____" → ask one blank at a time,
-// with the other blanks filled in, using that slot's parts from the distractors.
-function slotVariants(q) {
-  const base = lookupQ(q.baseId || q.id) || q;
-  const blanks = (base.q.match(/_{3,}/g) || []).length;
-  if (blanks < 2) return [];
-  const split = c => String(c).split(' / ').map(s => s.trim());
-  const key = split(base.choices[base.ans]);
-  if (key.length !== blanks) return [];
-  const out = [];
-  for (let i = 0; i < blanks; i++) {
-    const wrong = [...new Set(base.choices.filter((_, ci) => ci !== base.ans).map(c => split(c)[i]).filter(Boolean))]
-      .filter(w => w.toLowerCase() !== key[i].toLowerCase());
-    if (wrong.length < 3) continue;
-    let n = 0;
-    const stem = base.q.replace(/_{3,}/g, () => (n++ === i ? '_____' : `**${key[n - 1]}**`));
-    out.push({
-      ...base, id: `${base.id}~s${i}`, baseId: base.id, variant: 'slot',
-      q: stem, choices: [key[i], ...wrong.slice(0, 3)], ans: 0,
-    });
-  }
-  return out;
-}
-// Every form a fact can be asked in: original, reversed, or one blank at a time
-function questionForms(q) {
-  const base = lookupQ(q.baseId || q.id) || q;
-  return [base, reverseVariant(base), ...slotVariants(base), ...(AUTHORED.get(base.id) || [])].filter(Boolean);
-}
-// A different form of the same fact, preferring an authored angle (for review of lapsed cards)
-function alternateForm(q) {
-  const auth = AUTHORED.get(q.baseId || q.id);
-  if (auth && auth.length) return auth[Math.floor(Math.random() * auth.length)];
-  return reverseVariant(q);
-}
+function questionForms(q) { return [lookupQ(q.baseId || q.id) || q]; }
 
 // ── Wrong-choice confusion ──
 // If the answer you picked is itself the answer to another card, that card
@@ -838,7 +736,7 @@ function buildSmartSession(n) {
     .map(q => ({ q, m: mem[q.id], R: retrievability(mem[q.id], now) }))
     .sort((a, b) => (b.m.confidentMiss ? 1 : 0) - (a.m.confidentMiss ? 1 : 0) || a.R - b.R)
     .slice(0, Math.ceil(n * 0.45))
-    .forEach(x => add(x.m.lapses && Math.random() < 0.6 ? alternateForm(x.q) || x.q : x.q,
+    .forEach(x => add(x.q,
       x.m.confidentMiss ? 'confident-miss' : x.m.lapses ? 'missed-before' : 'due'));
 
   // 2) Weakest high-yield topics: questions pitched closest to the target success rate (to ~60%)
@@ -1075,8 +973,9 @@ function show(id, page) {
   renderStudyTimer();
 }
 
-const prefs = Object.assign({ mode: 'recall', count: 20, selected: null }, store.get(KEYS.prefs, {}));
-prefs.mode = ['recall', 'passage', 'exam'].includes(prefs.mode) ? prefs.mode : 'recall';
+const prefs = Object.assign({ mode: 'passage', count: 20, selected: null }, store.get(KEYS.prefs, {}));
+// The Recall tab was removed; a saved 'recall' mode opens Passages.
+prefs.mode = ['passage', 'exam'].includes(prefs.mode) ? prefs.mode : 'passage';
 prefs.mix = ['custom', 'cp', 'bb', 'ps', 'all'].includes(prefs.mix) ? prefs.mix : 'custom';
 prefs.count = [0, 10, 20, 30, 50, 100].includes(prefs.count) ? prefs.count : 20;
 let selectedKeys = new Set((Array.isArray(prefs.selected) ? prefs.selected : ALL_KEYS).filter(k => KEY_COUNTS[k]));
@@ -1097,56 +996,43 @@ function goHome() {
 }
 
 function renderHome() {
-  const passageQs = ALL_PASSAGES.reduce((n, p) => n + p.questions.length, 0);
-  $('hero-badge').textContent = `${QB.length.toLocaleString()} recall questions · ${ALL_PASSAGES.length} passages · ${FULL_EXAMS.length} full-length exams`;
-  $('mode-recall-sub').textContent = `${QB.length.toLocaleString()} questions`;
-  $('mode-passage-sub').textContent = `${ALL_PASSAGES.length} passages · ${passageQs} Qs`;
+  const passageQs = LISTED_PASSAGES.reduce((n, p) => n + p.questions.length, 0);
+  $('hero-badge').textContent = `${AQB_QBANK.length.toLocaleString()} QBank cards · ${FLQ.length} Practice Exam cards · ${LISTED_PASSAGES.length} C/P passages · ${FULL_EXAMS.length} full-length exams`;
+  $('mode-passage-sub').textContent = `${LISTED_PASSAGES.length} passages · ${passageQs} Qs`;
   $('mode-exam-sub').textContent = `${FULL_EXAMS.length} timed exams`;
   if ($('mode-aamc-sub')) $('mode-aamc-sub').textContent = `${(AQB.length + FLQ.length).toLocaleString()} cards · 3 sections`;
   if ($('mode-flprep-sub')) $('mode-flprep-sub').textContent = `${FLQ.length} cards · ${FL_TESTS.length} test${FL_TESTS.length === 1 ? '' : 's'}`;
 
-  const due = dueQuestions().length;
-  const flagged = Object.keys(flaggedIds()).filter(id => QB_BY_ID.has(id)).length;
-  const weak = weakKeys().length;
+  // TODAY is the study routine. The old recall tools (Smart Session, due reviews, flagged recall cards,
+  // weak-topic drills, speed drill) drew on the removed recall decks and are gone.
   const inProgress = FULL_EXAMS.find(e => store.get(KEYS.examProgress(e.id), null));
   const actions = [];
-  const needs=learningNeeds();
-  const focus=needs.weak[0];
-  const plan=computePlan();
-  const optional=!!plan?.recallTargetMet;
-  actions.push(`<button class="action-btn smart" data-click="startSmartSession()" title="Adaptive: due reviews, your weakest high-yield topics and new material">
-    <span><b class="smart-title">${optional ? 'Optional extra practice' : '▶ Smart Session'}</b><small>${focus ? `Focus: ${esc(KEY_LABEL[focus.k] || focus.k)}` : 'Adapts to your strengths and weaknesses'}</small></span>
-    <b>${smartSessionSize()}</b></button>`);
   if (inProgress) actions.push(`<button class="action-btn primary" data-click="startExam(${FULL_EXAMS.indexOf(inProgress)})">Resume ${esc(inProgress.title)}</button>`);
-  actions.push(`<button class="action-btn" ${due ? '' : 'disabled'} data-click="startDueReview()">Review due <b>${due}</b></button>`);
-  actions.push(`<button class="action-btn" ${flagged ? '' : 'disabled'} data-click="startFlagged()">Flagged <b>${flagged}</b></button>`);
-  actions.push(`<button class="action-btn" ${weak ? '' : 'disabled'} data-click="drillWeak()" title="Topics under ${Math.round(WEAK_RULE.accuracy * 100)}% after at least ${WEAK_RULE.minAttempts} attempts">Drill weak topics <b>${weak}</b></button>`);
-  actions.push(`<button class="action-btn" data-click="startSpeedDrill()" title="${SPEED_N} facts you've learned, ${SPEED_SECONDS} seconds each: builds fast, automatic recall">⚡ Speed drill</button>`);
   actions.push(`<button class="action-btn" data-click="showProgress()">Score report</button>`);
   $('home-actions').innerHTML = actions.join('');
   if (typeof renderDailyPlan === 'function') renderDailyPlan();
   // The TODAY card above is the ordered routine; these cards stay as reference.
   try {
-  $('home-score').innerHTML = scoreStrip() + planStrip() + '<details class="home-reference"><summary>Reference: priorities, weekly readiness and passage path</summary>' + learningGuideCard() + weeklyReadinessCard() + studyPathCard() + '</details>';
+  $('home-score').innerHTML = scoreStrip();
   } catch (e) { $('home-score').innerHTML = '<p class="muted-note">Some saved progress could not be displayed. Study tools still work.</p>'; }
 
   setMode(prefs.mode, false);
 }
 
 function setMode(mode, navigate = true) {
+  if (!['passage', 'exam', 'aamc', 'flprep'].includes(mode)) mode = 'passage';
   prefs.mode = mode;
   // AAMC Prep has one tab button and three sections; remember the last section opened.
   if (mode === 'flprep') prefs.aamcLast = 'exam';
   else if (mode === 'aamc') prefs.aamcLast = aamcView();
   savePrefs();
-  ['recall', 'passage', 'exam', 'aamc', 'flprep'].forEach(m => {
+  ['passage', 'exam', 'aamc', 'flprep'].forEach(m => {
     const btn = $('btn-' + m), on = m === mode || (m === 'aamc' && mode === 'flprep');
     if (btn) { btn.classList.toggle('active', on); btn.setAttribute('aria-selected', on); }
     if ($(m + '-config')) $(m + '-config').hidden = m !== mode;
   });
   $('start-btn').hidden = mode === 'exam';
   renderAamcMenu();
-  if (mode === 'recall') { renderCountRow(); renderSubjectGrid(); }
   if (mode === 'aamc') renderAamcConfig();
   if (mode === 'flprep') renderFlConfig();
   if (mode === 'passage') renderPassageSelector();
@@ -1249,8 +1135,7 @@ function updateAvail() {
 }
 
 function startSession() {
-  if (prefs.mode === 'recall') startRecall();
-  else if (prefs.mode === 'passage') startPassage();
+  if (prefs.mode === 'passage') startPassage();
   else if (prefs.mode === 'aamc') startAamc();
   else if (prefs.mode === 'flprep') startFl();
 }
@@ -1793,7 +1678,7 @@ function renderQuizQuestion() {
         <button class="flag-btn${flagged ? ' on' : ''}" id="flag-btn" data-click="flagCurrent()" aria-pressed="${flagged}" title="Flag for later review (F)">⚑ ${flagged ? 'Flagged' : 'Flag'}</button>
       </div>
       ${quiz.speed ? `<div class="speed-bar"><div class="speed-fill" id="speed-fill"></div></div>` : ''}
-      ${why || q.variant ? `<div class="q-reason">${q.variant ? `<span class="variant-pill">${q.variant === 'authored' ? `Applied: ${esc(VARIANT_KIND[q.kind] || 'new angle')}` : 'Asked a different way'}</span>` : ''}${why ? `<span>Why this question: ${esc(why)}</span>` : ''}</div>` : ''}
+      ${why ? `<div class="q-reason"><span>Why this question: ${esc(why)}</span></div>` : ''}
       <div class="question-text">${fmt(q.q)}</div>
       ${stemFigs(q)}
       ${q.chart ? figureHtml(q.chart) : ''}
@@ -2362,7 +2247,7 @@ function scoreReportCards() {
       <details class="how">
         <summary>How this score is calculated</summary>
         <p>The AAMC scores each section on 118–132 (midpoint 125) and adds the four for a 472–528 total. Each section draws on fixed shares of content. C/P is 30% general chemistry, 25% physics, 25% biochemistry, 15% organic chemistry and 5% biology. B/B is 65% biology, 25% biochemistry and 5% each general and organic chemistry. P/S is 65% psychology, 30% sociology and 5% biology. CARS is reading and reasoning only.</p>
-        <p>Every subject below gets an MCAT-equivalent score from your answers. Full-length questions count 3×, passage questions 2× and recall questions 1×. Recall questions test single facts, so they're converted on a stricter curve. A section score is its subjects' scores weighted by the shares above. Subjects with fewer than ${MIN_ANSWERS} answers are left out. A section needs eligible subjects representing at least 70% of its weighting; this is not the percentage of the syllabus studied. The ± range narrows as you answer more.</p>
+        <p>Every subject below gets an MCAT-equivalent score from your answers. Full-length questions count 3× and passage questions 2×. A section score is its subjects' scores weighted by the shares above. Subjects with fewer than ${MIN_ANSWERS} answers are left out. A section needs eligible subjects representing at least 70% of its weighting; this is not the percentage of the syllabus studied. The ± range narrows as you answer more.</p>
         <p>Percentiles are the AAMC ranks in effect May 1, 2026 – April 30, 2027. These are study estimates, not predictions: the AAMC converts raw scores separately for every test form. A full-length exam is the best single indicator. <a href="#" data-click="showAbout();return false">About &amp; disclaimers</a></p>
       </details>
     </div>
@@ -2406,8 +2291,8 @@ function masteryMapCard() {
 // ── Mistake patterns ──
 const ERROR_ADVICE = {
   reasoning: 'Return to the specific passage evidence. Explain why the right choice follows and why each tempting alternative goes beyond or contradicts that evidence.',
-  knowledge: 'Content gaps. Keep using the Smart Session (it targets these topics) and read the full explanation on every miss.',
-  confused: 'Mix-ups between similar terms. The app now drills the term you picked by mistake; also write a short "X vs. Y" comparison for each pair below.',
+  knowledge: 'Content gaps. TODAY aims its flashcards, Practice Exam cards and passages at your weakest topics; read the full explanation on every miss.',
+  confused: 'Mix-ups between similar terms. Write a short "X vs. Y" comparison for each pair below.',
   misread: 'Reading errors. Before answering, restate what is asked: watch for NOT/EXCEPT, units, and the direction of a change (increase vs. decrease).',
   calculation: 'Calculation slips. The MCAT has no calculator: write units, round early, estimate the answer\'s size first, and practice timed math drills.',
   time: 'Pacing. Practice timed sets and aim for about 95 seconds per passage question. Skip and mark hard items instead of stalling.',
@@ -2699,7 +2584,6 @@ function planDetails(p) {
 function showPlan() {
   show('screen-results');
   const plan = store.get(KEYS.plan, {}) || {};
-  const p = computePlan();
   $('results-body').innerHTML = `
     <div class="results-hero"><div class="r-label">Study plan</div></div>
     <div class="results-card plan-form">
@@ -2709,9 +2593,9 @@ function showPlan() {
       <button class="new-quiz-btn" data-click="savePlan()">Save plan</button>
       ${plan.date ? '<button class="text-btn" data-click="clearPlan()">Remove plan</button>' : ''}
     </div>
-    ${p && p.daysLeft >= 0 ? `<div class="results-card"><div class="section-label">Your plan</div>${planDetails(p)}</div>${studyPathCard()}` : ''}
+    ${plan.date ? `<div class="results-card">${testDateCard()}</div>` : ''}
     <div class="results-card"><div class="section-label">How the plan works</div>
-      <p class="muted-note mt-0">Unseen questions are spread over your study days up to the final review phase (the last 2 weeks, or 1 week if the test is close). Each day's target is that new material plus everything due for review. Each study day also reserves time for one passage (or a ready subject mini test), including review; recall is capped at the remaining daily time (about ${SECONDS_PER_RECALL} seconds per question). The Smart Session sizes itself to what's left for today. Full-length exams are spaced so the last ones fall in the final month. AAMC's official practice exams are the closest match to the real test, so the plan saves them for last.</p>
+      <p class="muted-note mt-0">Your test date schedules the full-length exams: up to 6, the AAMC ones first, spaced out and ending a week before the test, each followed by a review day. The daily routine is TODAY › Section mastery on the home page.</p>
     </div>
     <div class="btn-row"><button class="new-quiz-btn secondary" data-click="goHome()">Home</button></div>`;
 }
@@ -2746,19 +2630,13 @@ function scoreStrip() {
 function showProgress() {
   show('screen-results', 'score-report');
   snapshotEstimate();
-  const html = progressCards();
+  // Recall-deck cards (readiness, plan pace, topic map, recall speed, per-topic recall stats) were removed with the decks.
   $('results-body').innerHTML = `
     <div class="results-hero"><div class="r-label">Score report & progress</div></div>
     ${scoreReportCards()}
     ${officialScoresCard()}
-    ${weeklyReadinessCard()}
-    ${planSummaryCard()}
-    ${masteryMapCard()}
-    ${aamcCard()}
     ${mistakeCard()}
     ${calibrationCard()}
-    ${fluencyCard()}
-    ${html || '<div class="results-card"><p class="muted-note">No recall answers recorded yet. Finish a few questions and your progress will appear here.</p></div>'}
     ${examHistoryCard()}
     <div class="btn-row"><button class="new-quiz-btn secondary" data-click="goHome()">Home</button></div>
     <button class="text-btn danger" data-click="resetProgress()">Reset all progress on this device…</button>`;
@@ -2780,14 +2658,14 @@ const pq = { p: null, idx: 0, views: [], results: [], answered: false };
 
 function renderPassageSelector() {
   const pstats = store.get(KEYS.passages, {});
-  const grouped = PASSAGE_GROUPS.map(g => ({ label: g.label, list: ALL_PASSAGES.filter(p => g.test(p.id)) }));
+  const grouped = PASSAGE_GROUPS.map(g => ({ label: g.label, list: LISTED_PASSAGES.filter(p => g.test(p)) }));
   const covered = new Set(grouped.flatMap(g => g.list.map(p => p.id)));
-  const rest = ALL_PASSAGES.filter(p => !covered.has(p.id));
+  const rest = LISTED_PASSAGES.filter(p => !covered.has(p.id));
   if (rest.length) grouped.push({ label: 'Other', list: rest });
-  if (!selectedPassageId || !PASSAGE_BY_ID.has(selectedPassageId)) selectedPassageId = ALL_PASSAGES[0].id;
+  if (!selectedPassageId || !LISTED_IDS.has(selectedPassageId)) selectedPassageId = LISTED_PASSAGES[0]?.id || null;
   $('passage-selector').innerHTML = `
     <div class="section-label">Choose a passage</div>
-    <p class="muted-note lead-note">Passages marked <span class="exam-dot">FL</span> appear in a full-length exam. Save them for exam day if you want a fresh practice test.</p>
+    <p class="muted-note lead-note">AAMC-style Chem/Phys practice passages (${LISTED_PASSAGES.length} passages, ${LISTED_PASSAGES.reduce((n, p) => n + p.questions.length, 0)} questions). TODAY also works through them in its passage step.</p>
     ${grouped.filter(g => g.list.length).map(g => `
       <div class="pgroup"><div class="pgroup-label">${esc(g.label)}</div><div class="pgroup-list">
         ${g.list.map(p => {
@@ -2804,10 +2682,11 @@ function selectPassage(id) { selectedPassageId = id; renderPassageSelector(); wi
 // Next passage of the same kind you haven't tried yet (or simply the next one)
 function nextPassage() {
   const pstats = store.get(KEYS.passages, {});
-  const g = PASSAGE_GROUPS.find(x => x.test(pq.p.id));
-  const i = ALL_PASSAGES.indexOf(pq.p);
-  const after = [...ALL_PASSAGES.slice(i + 1), ...ALL_PASSAGES.slice(0, i)];
-  const next = after.find(p => g && g.test(p.id) && !pstats[p.id]) || after.find(p => g && g.test(p.id)) || after[0];
+  const g = PASSAGE_GROUPS.find(x => x.test(pq.p));
+  const i = LISTED_PASSAGES.indexOf(pq.p);
+  const after = [...LISTED_PASSAGES.slice(i + 1), ...LISTED_PASSAGES.slice(0, i)];
+  const next = after.find(p => g && g.test(p) && !pstats[p.id]) || after.find(p => g && g.test(p)) || after[0];
+  if (!next) return;
   selectedPassageId = next.id;
   startPassage();
 }
@@ -2816,9 +2695,12 @@ function nextPassage() {
 function startPassage(passage, opts = {}) {
   stopQuizTimer();
   pq.mini = null; pq.completed = false; pq.errPending = null;
-  pq.masteryPractice = !!opts.masteryPractice;
+  pq.masteryPractice = opts.masteryPractice || false;   // 'step' (TODAY's passage step) or 'followup' (after the quiz)
+  pq.masteryCats = Array.isArray(opts.cats) ? opts.cats : null;
   const p = passage && passage.questions ? passage : PASSAGE_BY_ID.get(selectedPassageId);
   if (!p) return;
+  // The address bar (and a reload) follow the passage actually shown, also when TODAY picked it.
+  if (PASSAGE_BY_ID.has(p.id)) selectedPassageId = p.id;
   pq.firstExposure = beginPassageExposure(p);
   // AAMC pace: 95 min / 59 science questions ≈ 95 s; 90 min / 53 CARS questions ≈ 102 s
   const perQ = /^p_(cars|e2cars)/.test(p.id) ? 102 : 95;
@@ -3043,7 +2925,7 @@ function finishPassageAnswer(chosen, other = null, answerMs = null) {
   recordEvidence('passage', disciplineOfPassage(pq.p, view.q), right);
   if (view.q.skill) recordEvidence('skill', view.q.skill, right);
   countAnswerToday();
-  if (pq.masteryPractice && typeof masteryNotePractice === 'function') masteryNotePractice();
+  if (pq.masteryPractice && typeof masteryNotePractice === 'function') masteryNotePractice(view.q, pq.p, pq.masteryPractice);
   pq.errPending = right ? null : { id: `${pq.p.id}#${pq.idx}`, disc: disciplineOfPassage(pq.p, view.q), key: null, type: null,
     chosen: view.choices[chosen], answer: view.choices[view.ans], other: other == null ? null : view.choices[other], correctInFinalTwo: right || other === view.ans, src: 'passage' };
   view.choices.forEach((_, i) => {
@@ -3117,13 +2999,12 @@ function showPassageResults() {
         : '<div class="all-correct">✓ Perfect — no missed questions.</div>'}
     </div>
     <div class="btn-row">${pq.masteryPractice
-      ? `<button class="new-quiz-btn" data-click="startMasteryPassages()">Next practice passage →</button>
+      ? `<button class="new-quiz-btn" data-click="masteryNextPractice()">Next practice passage →</button>
       <button class="new-quiz-btn secondary" data-click="goHome()">Back to TODAY</button>`
       : `<button class="new-quiz-btn" data-click="startPassage()">Retry passage</button>
       <button class="new-quiz-btn secondary" data-click="nextPassage()">Next passage →</button>
       <button class="new-quiz-btn secondary" data-click="goHome()">Home</button>`}
     </div>
-    ${studyPathCard(disciplineOfPassage(pq.p))}
     ${(snapshotEstimate(), scoreStrip())}`;
   window.scrollTo(0, 0);
 }
@@ -3570,7 +3451,7 @@ function showAbout() {
     <div class="results-hero"><div class="r-label">About &amp; disclaimers</div></div>
     <div class="results-card about">
       <h2>About this app</h2>
-      <p>MCAT Study App is a free, open-source study tool by Collin B. George. It offers spaced-repetition recall questions, practice passages and timed full-length practice exams. Accounts are optional; guest study remains available, with no ads or study fees. The source code and content are on ${link(REPO_URL, 'GitHub')}.</p>
+      <p>MCAT Study App is a free, open-source study tool by Collin B. George. It offers a daily study plan, AAMC-concept flashcards, AAMC-style Chem/Phys passages and timed full-length practice exams. Accounts are optional; guest study remains available, with no ads or study fees. The source code and content are on ${link(REPO_URL, 'GitHub')}.</p>
 
       <h2>Not affiliated with the AAMC</h2>
       <p>MCAT® is a registered trademark of the Association of American Medical Colleges (AAMC). This app is independent: it is not affiliated with, sponsored by or endorsed by the AAMC. It contains no official AAMC exam questions. Section formats, timing and content shares follow the AAMC's public descriptions of the exam. For official information and practice materials, go to ${link('https://students-residents.aamc.org/taking-mcat-exam/take-mcat-exam', 'the AAMC MCAT website')}.</p>
@@ -3590,13 +3471,13 @@ function showAbout() {
 
       <h2>Sources &amp; credits</h2>
       <ul>
-        <li><b>Recall questions</b> are derived from the <b>MCAT Milesdown</b> Anki deck by MileDown (${link('https://ankiweb.net/shared/info/178384887', 'AnkiWeb shared deck 178384887')}, 2,884 notes, last updated May 2020). Its cloze cards were converted to multiple choice and substantially edited and corrected for this app. Credit for the original cards belongs to their creator. MileDown has no affiliation with this app and has not reviewed or endorsed it. To study the original cards with images and video links, download the deck from AnkiWeb. If you created the original decks and would like the credit worded differently, or the material changed or removed, please ${link(REPO_URL + '/issues', 'open an issue')}.</li>
-        <li><b>Passages, CARS passages, data &amp; reasoning sets (with their fictional studies and data), "applied" question variants and full-length exam questions</b> are original to this app.</li>
+        <li><b>AAMC Prep cards</b> (QBank cards and Practice Exam cards) are original questions written from the concepts tested in the AAMC question packs, question bank and practice exams. No AAMC passages, questions or answer choices are reproduced.</li>
+        <li><b>Chem/Phys passages</b> (the diagnostic, daily quizzes and practice passages), <b>CARS passages</b> and <b>full-length exam questions</b> are original to this app.</li>
         <li><b>Percentile ranks and section content shares</b> are taken from published AAMC information, credited above.</li>
       </ul>
 
       <h2>License</h2>
-      <p>The app's code and original content are licensed under ${link('https://creativecommons.org/licenses/by-nc/4.0/', 'Creative Commons BY-NC 4.0')}. You may share and adapt them for non-commercial purposes with attribution. Third-party material, including the original MileDown cards, remains subject to its owners' terms.</p>
+      <p>The app's code and original content are licensed under ${link('https://creativecommons.org/licenses/by-nc/4.0/', 'Creative Commons BY-NC 4.0')}. You may share and adapt them for non-commercial purposes with attribution.</p>
 
       <p class="muted-note">Version 2.7 · Last updated October 2026</p>
     </div>

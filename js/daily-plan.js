@@ -265,7 +265,7 @@ function saveDailyPlanStore(s) {
   const recent = obj => Object.fromEntries(Object.entries(obj).sort((a, b) => a[0].localeCompare(b[0])).slice(-90));
   store.set(KEYS.dailyPlan, { days: recent(s.days), passageReviews: Object.fromEntries(Object.entries(s.passageReviews).slice(-500)), fullLengths: s.fullLengths.slice(-50), deferred: recent(s.deferred), reviewed: recent(s.reviewed) });
 }
-function appPracticePassages() { return ALL_PASSAGES.filter(p => !EXAM_PASSAGE_IDS.has(p.id) && p.questions.length); }
+function appPracticePassages() { return LISTED_PASSAGES.filter(p => p.questions.length); }
 function passageSeen(p, exposures, legacy) { return !!exposures[p.id] || !!legacy[p.id]?.attempts; }
 function resolvePassageMiss(e) {
   const m = /^(.+)#(\d+)$/.exec(String(e.id || ''));

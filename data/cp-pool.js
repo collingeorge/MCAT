@@ -11,7 +11,7 @@ const CP_POOL = [
    "p_cpp1_3",
    "p_cpp1_4",
    3,
-   "p_cpp1_5",
+   "p_cpp1_6",
    3
   ],
   "passages": [
@@ -293,19 +293,19 @@ const CP_POOL = [
     "passage": "A sports-medicine laboratory studied loads on the elbow in high-school pitchers who were recovering from overuse injuries. In the static model the team used, the forearm acts as a lever with its pivot at the elbow joint. The biceps tendon attaches to the forearm 4.0 cm from the elbow, the center of mass of the forearm and hand (combined weight 20 N) lies 16 cm from the elbow, and a dumbbell held in the hand is 32 cm from the elbow. When the forearm is held horizontal, the biceps is assumed to pull straight up, and the humerus exerts whatever force at the elbow is needed for equilibrium.\n\nIn the first test, each athlete held a 50 N dumbbell with the forearm horizontal for 10 s and then performed slow curls, raising the dumbbell 0.30 m per repetition. The researchers estimated metabolic cost by assuming that skeletal muscle converts about 25% of the free energy of ATP hydrolysis into mechanical work and that ΔG for ATP hydrolysis under cellular conditions is about −50 kJ/mol.\n\nIn the second test, each athlete threw a 0.15 kg ball. High-speed video showed that a typical ball left the hand at 20 m/s at an angle of 30° above the horizontal. Air resistance was neglected, and g was taken as 10 m/s².\n\nThroughout both tests, arterial blood pressure was measured with an inflatable cuff on the upper arm, positioned level with the heart. Blood has a density of about 1050 kg/m³, and 1 mmHg ≈ 133 Pa.",
     "questions": [
      {
-      "q": "While an athlete holds the 50 N dumbbell with the forearm horizontal, what is the magnitude of the force that the humerus exerts on the forearm at the elbow?",
+      "id": "p_cpp1_3_q1b",
+      "q": "At the highest point of its flight, what is the speed of the ball thrown in the second test?",
       "choices": [
-       "70 N",
-       "410 N",
-       "480 N",
-       "550 N"
+       "0 m/s",
+       "10 m/s",
+       "17 m/s",
+       "20 m/s"
       ],
-      "ans": 1,
+      "ans": 2,
       "cat": "4A",
       "skill": "SIRS 2",
       "diff": "X",
-      "exp": "Step 1, torques about the elbow (the elbow force has no lever arm there):\nF(biceps) × 0.040 m = (50 N)(0.32 m) + (20 N)(0.16 m) = 16 + 3.2 = 19.2 N·m\nF(biceps) = 19.2 ÷ 0.040 = **480 N** upward.\nStep 2, net force = 0. Up: 480 N. Down: 50 + 20 = 70 N. The humerus must push **down** on the forearm with 480 − 70 = **410 N**.\n\n**480 N** is the biceps force, not the joint force.\n**550 N** adds the weights to the biceps force instead of balancing them (wrong direction for the joint force).\n**70 N** is just the total weight, which ignores the large biceps pull that a short lever arm requires.",
-      "id": "p_cpp1_3_q1"
+      "exp": "With no air resistance, the **horizontal velocity stays constant**; only the vertical part is slowed by gravity. At the top the vertical velocity is zero, so the speed equals the horizontal component: 20 m/s × cos 30° ≈ 20 × 0.87 ≈ **17 m/s**.\n**0 m/s** forgets the horizontal motion.\n**10 m/s** is the starting vertical component (20 × sin 30°), which is the part that becomes zero.\n**20 m/s** is the launch speed, which would only hold if gravity did no work on the way up."
      },
      {
       "q": "For the typical throw described in the passage, how high above its release point does the ball rise?",
@@ -453,7 +453,7 @@ const CP_POOL = [
     ]
    },
    {
-    "id": "p_cpp1_5",
+    "id": "p_cpp1_6",
     "subj": "gen_chem",
     "type": "passage",
     "topic": "C/P",
@@ -462,123 +462,69 @@ const CP_POOL = [
      "4E",
      "5D"
     ],
-    "title": "Tonicity of Intravenous Fluids",
-    "passage": "Plasma has an osmolarity of about 290 mOsm/L. Intravenous (IV) fluids are chosen partly by how they will move water into or out of cells. Normal saline is 0.90% (w/v) NaCl (molar mass 58.5 g/mol), which means 0.90 g of NaCl per 100 mL. D5W is 5.0% (w/v) glucose (molar mass 180 g/mol). Although D5W is close to isotonic in the bag, the glucose is quickly taken up and metabolized by cells, so the infusion behaves like free water. Lactated Ringer's solution contains 130 mM Na⁺, 4 mM K⁺, 1.5 mM Ca²⁺, 109 mM Cl⁻ and 28 mM lactate; the liver metabolizes the lactate, and the overall process consumes H⁺, so the solution has a mild alkalinizing effect.\n\nThe red blood cell (RBC) membrane is very permeable to water but nearly impermeable to Na⁺ and Cl⁻ over short times. In a hypotonic solution, water enters the RBC until the cell swells past its maximum volume and the membrane ruptures, releasing hemoglobin (hemolysis).\n\nClinicians use this behavior in the osmotic fragility test. Samples of blood are added to a series of buffered NaCl solutions, incubated for 30 minutes, and centrifuged. The hemoglobin left in the supernatant is measured by its absorbance at 540 nm and expressed as a percentage of the absorbance after complete lysis in water. Figure 1 shows results for blood from a healthy donor and from a patient with hereditary spherocytosis, a condition in which RBCs have lost membrane surface area and are more spherical than normal. Assume NaCl dissociates completely.",
+    "title": "pH-Dependent Solubility and Stability of Aspirin",
+    "scheme": [
+     {
+      "after": 0,
+      "caption": "Figure 1 Structure of aspirin (Compound 1)",
+      "parts": [
+       "aspirin"
+      ]
+     }
+    ],
+    "passage": "Aspirin (acetylsalicylic acid, Compound 1, molar mass 180 g/mol) is a weak carboxylic acid with a pKa of 3.5. Only the neutral form crosses cell membranes readily, so the ionization state of aspirin affects both how much of a dose dissolves and how quickly it is absorbed along the digestive tract, where the pH ranges from about 1.5 in the stomach to about 6.5 in the small intestine.\n\nIn moist air, aspirin slowly hydrolyzes at its ester group, and an old tablet that smells of vinegar has partly decomposed. Pharmaceutical chemists therefore test tablet stability as well as solubility.\n\nTo study solubility, researchers stirred excess powdered Compound 1 in a series of buffers at 25°C until equilibrium was reached, filtered each mixture, and measured the dissolved aspirin by UV absorbance. Buffers below pH 2 were made from dilute HCl and KCl, and those from pH 2.5 to 5.0 from citrate; all had the same ionic strength. Each measurement was made in triplicate, and the averages are shown in Figure 2. The total solubility S at each pH follows S = S₀(1 + 10^(pH − pKa)), where S₀ is the solubility of the neutral form.",
     "figure": {
      "type": "line",
-     "caption": "Figure 1 Osmotic fragility of red blood cells",
+     "caption": "Figure 2 Equilibrium solubility of Compound 1 at 25°C",
      "x": {
-      "label": "NaCl concentration (% w/v)",
-      "min": 0,
-      "max": 0.9,
-      "step": 0.1
+      "label": "pH",
+      "min": 1,
+      "max": 5,
+      "step": 0.5
      },
      "y": {
-      "label": "Hemolysis (%)",
+      "label": "Solubility (g/L)",
       "min": 0,
-      "max": 100,
+      "max": 120,
       "step": 20
      },
      "series": [
       {
-       "name": "Healthy donor",
+       "name": "Compound 1",
        "marker": "circle",
        "line": "smooth",
        "points": [
         [
-         0.1,
-         100
+         1.0,
+         3.3
         ],
         [
-         0.2,
-         100
+         2.0,
+         3.4
         ],
         [
-         0.3,
-         98
+         2.5,
+         3.6
         ],
         [
-         0.35,
-         85
+         3.0,
+         4.3
         ],
         [
-         0.4,
-         50
+         3.5,
+         6.6
         ],
         [
-         0.45,
-         15
+         4.0,
+         13.7
         ],
         [
-         0.5,
-         3
+         4.5,
+         36.3
         ],
         [
-         0.6,
-         0
-        ],
-        [
-         0.7,
-         0
-        ],
-        [
-         0.8,
-         0
-        ],
-        [
-         0.9,
-         0
-        ]
-       ]
-      },
-      {
-       "name": "Hereditary spherocytosis",
-       "marker": "square-open",
-       "line": "smooth",
-       "points": [
-        [
-         0.1,
-         100
-        ],
-        [
-         0.2,
-         100
-        ],
-        [
-         0.3,
-         100
-        ],
-        [
-         0.4,
-         97
-        ],
-        [
-         0.5,
-         85
-        ],
-        [
-         0.55,
-         70
-        ],
-        [
-         0.6,
-         50
-        ],
-        [
-         0.65,
-         25
-        ],
-        [
-         0.7,
-         8
-        ],
-        [
-         0.8,
-         1
-        ],
-        [
-         0.9,
-         0
+         5.0,
+         107.6
         ]
        ]
       }
@@ -586,65 +532,64 @@ const CP_POOL = [
     },
     "questions": [
      {
-      "q": "What is the osmolarity of D5W?",
+      "id": "p_cpp1_6_q1",
+      "q": "What percentage of the aspirin dissolved in the small intestine (pH 6.5) is in the ionized form?",
       "choices": [
-       "28 mOsm/L",
-       "140 mOsm/L",
-       "280 mOsm/L",
-       "560 mOsm/L"
+       "0.1%",
+       "50%",
+       "99%",
+       "99.9%"
       ],
-      "ans": 2,
+      "ans": 3,
       "cat": "5A",
       "skill": "SIRS 2",
       "diff": "D",
-      "exp": "5.0% (w/v) means 5.0 g per 100 mL, or **50 g/L**.\nMolarity = 50 g/L ÷ 180 g/mol ≈ 0.28 M.\nGlucose does not dissociate (**i = 1**), so osmolarity ≈ 0.28 Osm/L = **280 mOsm/L**, close to plasma's 290 mOsm/L, which is why D5W is roughly isotonic in the bag.\n\n**28 mOsm/L** reads 5.0% as 5.0 g/L instead of 50 g/L.\n**560 mOsm/L** uses i = 2 as if glucose dissociated like NaCl.\n**140 mOsm/L** halves the value, as if each glucose counted as half a particle.",
-      "id": "p_cpp1_5_q1"
+      "exp": "Use **Henderson–Hasselbalch**: [A⁻]/[HA] = 10^(pH − pKa) = 10^(6.5 − 3.5) = 10³ = 1000. Out of every 1001 molecules, 1000 are ionized: 1000 ÷ 1001 ≈ **99.9%**.\n**99%** is the answer for a 2-unit difference (a ratio of 100 to 1).\n**50%** would need pH = pKa.\n**0.1%** is the fraction still neutral, not the ionized fraction."
      },
      {
-      "q": "A physician orders 20 mEq of K⁺ to be added to 1.0 L of normal saline as KCl (molar mass 74.5 g/mol). What mass of KCl is needed?",
+      "id": "p_cpp1_6_q2",
+      "q": "A standard tablet contains 325 mg of Compound 1. Approximately how many moles of aspirin is that?",
       "choices": [
-       "0.75 g",
-       "1.5 g",
-       "3.0 g",
-       "15 g"
+       "5.5 × 10⁻⁴ mol",
+       "1.8 × 10⁻³ mol",
+       "0.55 mol",
+       "1.8 mol"
       ],
       "ans": 1,
       "cat": "4E",
       "skill": "SIRS 2",
       "diff": "M",
-      "exp": "K⁺ has a charge of +1, so **1 mEq = 1 mmol** of K⁺. Each KCl supplies one K⁺, so 20 mmol KCl is needed.\nMass = 0.020 mol × 74.5 g/mol = 1.49 g ≈ **1.5 g**.\n\n**0.75 g** halves the moles, which would be right only for a 2+ ion such as Ca²⁺ (1 mmol = 2 mEq).\n**3.0 g** doubles the moles, as if each KCl counted as two equivalents (one for each ion).\n**15 g** is a decimal slip in converting mmol to mol.",
-      "id": "p_cpp1_5_q2"
+      "exp": "n = mass ÷ molar mass = 0.325 g ÷ 180 g/mol = **1.8 × 10⁻³ mol**. Convert mg to g first.\n**1.8 mol** forgets the mg → g conversion.\n**0.55 mol** and **5.5 × 10⁻⁴ mol** divide the molar mass by the mass (the ratio upside down)."
      },
      {
-      "q": "The lactate in lactated Ringer's solution is best described as:",
+      "id": "p_cpp1_6_q3",
+      "q": "Which products form when the ester group of Compound 1 is hydrolyzed?",
       "choices": [
-       "the conjugate base of a 2-hydroxycarboxylic acid, almost entirely deprotonated at pH 7.4.",
-       "a 2-hydroxycarboxylic acid that is mostly protonated at pH 7.4.",
-       "the conjugate base of a 2-oxocarboxylic acid, almost entirely deprotonated at pH 7.4.",
-       "the conjugate base of a 3-hydroxycarboxylic acid, almost entirely deprotonated at pH 7.4."
+       "Salicylic acid and acetic acid",
+       "Salicylic acid and ethanol",
+       "Phenol and acetic acid",
+       "Benzoic acid and methanol"
       ],
       "ans": 0,
       "cat": "5D",
       "skill": "SIRS 1",
       "diff": "M",
-      "subj": "biochemistry",
-      "exp": "Lactic acid is **CH₃CH(OH)COOH**: the OH is on C-2, the carbon next to the carboxyl, so it is a **2-hydroxy (α-hydroxy) acid**. Its pKa is about 3.9, so at pH 7.4 (about 3.5 units above the pKa) the ratio [A⁻]/[HA] is about 10³·⁵, or more than 3000 to 1. It exists as the **anion, lactate**, which is why it is listed as a counter-ion alongside Na⁺.\n\n\"Mostly protonated\" would require the pH to be below the pKa.\nThe 2-oxo acid is pyruvic acid (CH₃COCOOH), which lactate becomes when it is oxidized by lactate dehydrogenase.\nA 3-hydroxy acid would have the OH on the β carbon, as in 3-hydroxybutyrate, a ketone body.",
-      "id": "p_cpp1_5_q3"
+      "exp": "Aspirin is the **acetyl ester** of salicylic acid's phenolic OH. Water splits the ester into the acid that carries the phenol (**salicylic acid**) and the acyl part as a carboxylic acid (**acetic acid**), which is the vinegar smell the passage mentions.\n**Ethanol** or **methanol** would come from an ethyl or methyl ester, but here the ester's alcohol part is the phenol of salicylic acid.\n**Phenol** alone would mean losing the ring's COOH group, which hydrolysis doesn't touch."
      },
      {
-      "q": "Based on Figure 1, the RBCs from the patient with hereditary spherocytosis are 50% hemolyzed in an NaCl solution of approximately what osmolarity?",
+      "id": "p_cpp1_6_q4",
+      "q": "Based on Figure 2, the solubility of Compound 1 at pH 4.5 is approximately how many times its solubility at pH 1.0?",
       "choices": [
-       "100 mOsm/L",
-       "140 mOsm/L",
-       "200 mOsm/L",
-       "310 mOsm/L"
+       "4",
+       "11",
+       "33",
+       "3200"
       ],
-      "ans": 2,
+      "ans": 1,
       "cat": "5A",
       "skill": "SIRS 4",
       "diff": "X",
-      "exp": "Read the open-square curve: it crosses **50% hemolysis at 0.60% NaCl**.\n0.60% (w/v) = 6.0 g/L. Molarity = 6.0 ÷ 58.5 ≈ 0.10 M. NaCl gives **2 particles (i = 2)**, so osmolarity ≈ 0.20 Osm/L = **200 mOsm/L**.\nShortcut: 0.60% is two-thirds of normal saline (0.90% ≈ 308 mOsm/L), and ⅔ × 308 ≈ 205 mOsm/L.\nThese cells lyse in a much less hypotonic solution than normal cells, because a sphere has the least surface area for its volume and so can't swell much before the membrane tears.\n\n**100 mOsm/L** forgets that NaCl dissociates into two ions.\n**140 mOsm/L** comes from reading the healthy donor's curve (50% at 0.40% NaCl).\n**310 mOsm/L** is normal saline, where no cells are lysed.",
-      "id": "p_cpp1_5_q4"
+      "exp": "Read the graph: about **36 g/L** at pH 4.5 and about **3.3 g/L** at pH 1.0. 36 ÷ 3.3 ≈ **11**. The passage's equation agrees: at pH 4.5, 1 + 10^(4.5 − 3.5) = 11, and at pH 1.0 nearly all aspirin is neutral, so S ≈ S₀.\n**4** is the factor at pH 4.0.\n**33** is the factor at pH 5.0.\n**3200** is 10^(4.5 − 1.0), which wrongly treats the solubility as if it scaled with the pH difference from pH 1.0 instead of with the pH above the pKa."
      }
     ]
    }
@@ -753,20 +698,20 @@ const CP_POOL = [
     "id": "cp_half_1_sa6"
    },
    {
-    "q": "The mass of a helium-4 nucleus is 0.030 u less than the total mass of its 2 protons and 2 neutrons. If 1 u of mass is equivalent to 931 MeV of energy, what is the binding energy per nucleon of helium-4?",
+    "id": "cp_half_1_sa7b",
+    "q": "Which ion has the same ground-state electron configuration as neon?",
     "choices": [
-     "233 MeV",
-     "7.0 MeV",
-     "14 MeV",
-     "28 MeV"
+     "K⁺",
+     "Na⁺",
+     "Cl⁻",
+     "Ca²⁺"
     ],
     "ans": 1,
     "cat": "4E",
     "skill": "SIRS 2",
     "diff": "M",
-    "subj": "physics",
-    "exp": "The missing mass is the **mass defect**; it was released as **binding energy** when the nucleons came together (E = Δmc²). Using 931 MeV per u:\nE = 0.030 u × 931 MeV/u ≈ **28 MeV** for the whole nucleus.\nHelium-4 has **4 nucleons** (2 protons + 2 neutrons), so the binding energy per nucleon is 28 MeV ÷ 4 ≈ **7.0 MeV**.\n\n**14 MeV** divides by the 2 protons only; neutrons are nucleons too.\n**28 MeV** is the total binding energy of the nucleus, not the energy per nucleon.\n**233 MeV** divides 931 MeV by 4 without multiplying by the mass defect, as if a whole 1 u of mass had been converted.",
-    "id": "cp_half_1_sa7"
+    "subj": "gen_chem",
+    "exp": "Neon has 10 electrons (1s² 2s² 2p⁶). **Na** (11 electrons) loses one to become **Na⁺ with 10**, the same configuration.\n**K⁺**, **Cl⁻** and **Ca²⁺** each have 18 electrons, matching argon, not neon."
    },
    {
     "q": "Newborn jaundice is treated with blue light of wavelength 450 nm, which converts bilirubin into a more water-soluble isomer. What is the energy of one photon of this light? (h = 6.6 × 10⁻³⁴ J·s, c = 3.0 × 10⁸ m/s)",
@@ -2515,20 +2460,20 @@ const CP_POOL = [
     "id": "cp_half_3_sa2"
    },
    {
-    "q": "A sample tube sits at the rim of a centrifuge rotor whose diameter is 0.20 m. If the tube moves at 30 m/s, its centripetal acceleration is closest to how many times g? (Use g = 9.8 m/s².)",
+    "id": "cp_half_3_sa3b",
+    "q": "A 0.20 kg sled on a lab track is pulled from rest to a speed of 3.0 m/s in 0.50 s. What average net force acted on it?",
     "choices": [
-     "9.2",
-     "31",
-     "4.6 × 10²",
-     "9.2 × 10²"
+     "0.30 N",
+     "0.60 N",
+     "1.2 N",
+     "6.0 N"
     ],
-    "ans": 3,
+    "ans": 2,
     "cat": "4A",
     "skill": "SIRS 2",
     "diff": "D",
     "subj": "physics",
-    "exp": "Centripetal acceleration is **a = v²/r**, and r is the radius, half the diameter: r = 0.10 m.\na = (30 m/s)² ÷ 0.10 m = 900 ÷ 0.10 = **9.0 × 10³ m/s²**.\nIn units of g: 9,000 ÷ 9.8 ≈ **9.2 × 10² g**.\n\n**4.6 × 10²** uses the diameter (0.20 m) as r.\n**31** uses v/r instead of v²/r.\n**9.2** multiplies v² by r instead of dividing.",
-    "id": "cp_half_3_sa3"
+    "exp": "a = Δv/Δt = 3.0 m/s ÷ 0.50 s = 6.0 m/s². **F = ma** = 0.20 kg × 6.0 m/s² = **1.2 N**.\n**0.60 N** is m × v (the momentum change) without dividing by the time.\n**0.30 N** multiplies by the time instead of dividing.\n**6.0 N** is the acceleration's value, not the force."
    },
    {
     "q": "A nurse pushes horizontally with a force of 40 N on a hospital bed whose wheels are locked, and the bed does not move. What is the static friction force exerted on the bed by the floor?",
@@ -2657,7 +2602,7 @@ const CP_POOL = [
    "p_cpp4_1",
    "p_cpp4_2",
    4,
-   "p_cpp4_3",
+   "p_cpp4_6",
    "p_cpp4_4",
    3,
    "p_cpp4_5",
@@ -2872,127 +2817,99 @@ const CP_POOL = [
     ]
    },
    {
-    "id": "p_cpp4_3",
-    "subj": "gen_chem",
+    "id": "p_cpp4_6",
+    "subj": "biochemistry",
     "type": "passage",
     "topic": "C/P",
     "cats": [
      "5E",
      "5D"
     ],
-    "title": "Accelerated Stability Testing of Procaine",
-    "passage": "Procaine (Compound 1) is an ester-type local anesthetic. In aqueous injection solutions it slowly hydrolyzes at its ester group into two products, neither of which blocks sodium channels well. Because this reaction limits the shelf life of the product, manufacturers measure its rate at several elevated temperatures and extrapolate to storage conditions. This procedure is called accelerated stability testing.\n\nProcaine is a tertiary amine (pKa about 9.0), so at pH 8.0 it exists mainly as the protonated cation. Solutions of Compound 1 (10 mM in pH 8.0 borate buffer) were sealed in 2.0 mL glass ampules and held at 40°C, 50°C, or 60°C. Ampules were removed at intervals, cooled on ice to stop the reaction, diluted tenfold with the mobile phase, and analyzed by HPLC with UV detection at 290 nm. At each temperature, a plot of ln[Compound 1] versus time was linear. Water is present in large excess, so the reaction behaves as a first-order (pseudo-first-order) process. Figure 2 shows the fraction of Compound 1 remaining over 16 days.\n\nThe temperature dependence of a rate constant k follows the Arrhenius equation, k = Ae^(−Ea/RT), where Ea is the activation energy, R is the gas constant, and A is a constant for a given reaction. Over a narrow temperature range, the rate constant of many drug hydrolyses roughly doubles with each 10°C increase. The product is labeled for storage at room temperature, and the HPLC method separates Compound 1 from both of its hydrolysis products.",
-    "scheme": [
-     {
-      "after": 0,
-      "caption": "Figure 1 Structure of procaine (Compound 1)",
-      "parts": [
-       "cpp4-procaine"
-      ]
-     }
-    ],
+    "title": "Lactate Dehydrogenase and the Pyruvate Analog Oxamate",
+    "passage": "Lactate dehydrogenase (LDH) catalyzes the last step of anaerobic glycolysis: the reduction of pyruvate (CH₃COCOO⁻) to lactate (CH₃CH(OH)COO⁻) by NADH. Regenerating NAD⁺ in this step lets glycolysis continue when oxygen is limited, and tumor cells that rely heavily on glycolysis often overexpress LDH. Oxamate, a small analog of pyruvate in which the methyl group is replaced by an amino group (–NH₂), is studied as an LDH inhibitor.\n\nIn the active site, a positively charged arginine side chain binds the carboxylate group of pyruvate, and a histidine side chain donates a proton to the carbonyl oxygen while NADH transfers a hydride ion (H⁻) to the carbonyl carbon (Figure 1). Oxamate keeps the carboxylate and the carbonyl group, so it fits the same site, but its carbonyl carbon is bonded to nitrogen and is not reduced.\n\nResearchers measured LDH activity in 1.0 cm cuvettes containing 0.20 mM NADH, buffer at pH 7.4 and 25°C, a fixed amount of purified enzyme, and pyruvate at concentrations from 0.10 to 3.2 mM. The rate of each reaction was taken from the decrease in absorbance at 340 nm (NADH absorbs there; NAD⁺ does not) during the first 30 s. The experiment was then repeated with 0.40 mM oxamate in every cuvette. The initial rates are plotted in Figure 2.",
     "figure": {
      "type": "line",
-     "caption": "Figure 2 Fraction of Compound 1 remaining in pH 8.0 buffer at three temperatures",
+     "caption": "Figure 2 Initial rate of LDH versus pyruvate concentration",
      "x": {
-      "label": "Time (days)",
+      "label": "Pyruvate (mM)",
       "min": 0,
-      "max": 16,
-      "step": 4
+      "max": 3.2,
+      "step": 0.4
      },
      "y": {
-      "label": "Fraction of Compound 1 remaining",
+      "label": "Initial rate (μM/min)",
       "min": 0,
-      "max": 1,
-      "step": 0.2
+      "max": 140,
+      "step": 20
      },
      "series": [
       {
-       "name": "60°C",
+       "name": "No inhibitor",
        "marker": "circle",
        "line": "smooth",
        "points": [
         [
-         0,
-         1
+         0.1,
+         40
         ],
         [
-         2,
-         0.5
+         0.2,
+         60
         ],
         [
-         4,
-         0.25
+         0.4,
+         80
         ],
         [
-         6,
-         0.125
+         0.6,
+         90
         ],
         [
-         8,
-         0.0625
+         0.8,
+         96
         ],
         [
-         12,
-         0.016
+         1.6,
+         106.7
+        ],
+        [
+         3.2,
+         112.9
         ]
        ]
       },
       {
-       "name": "50°C",
-       "marker": "square",
+       "name": "0.40 mM oxamate",
+       "marker": "square-open",
        "line": "smooth",
        "points": [
         [
-         0,
-         1
+         0.1,
+         17.1
         ],
         [
-         2,
-         0.71
+         0.2,
+         30
         ],
         [
-         4,
-         0.5
+         0.4,
+         48
         ],
         [
-         8,
-         0.25
+         0.6,
+         60
         ],
         [
-         12,
-         0.125
+         0.8,
+         68.6
         ],
         [
-         16,
-         0.0625
-        ]
-       ]
-      },
-      {
-       "name": "40°C",
-       "marker": "triangle",
-       "line": "smooth",
-       "points": [
-        [
-         0,
-         1
+         1.6,
+         87.3
         ],
         [
-         4,
-         0.71
-        ],
-        [
-         8,
-         0.5
-        ],
-        [
-         12,
-         0.35
-        ],
-        [
-         16,
-         0.25
+         3.2,
+         101.1
         ]
        ]
       }
@@ -3000,71 +2917,84 @@ const CP_POOL = [
     },
     "questions": [
      {
-      "q": "Based on Figure 2, what is the rate constant for hydrolysis of Compound 1 at 50°C?",
+      "id": "p_cpp4_6_q1",
+      "q": "Without inhibitor, the fitted Vmax was 120 μM/min. Based on Figure 2, what is the KM of LDH for pyruvate?",
       "choices": [
-       "0.087 day⁻¹",
-       "0.17 day⁻¹",
-       "0.25 day⁻¹",
-       "2.8 day⁻¹"
+       "0.10 mM",
+       "0.20 mM",
+       "0.40 mM",
+       "1.6 mM"
       ],
       "ans": 1,
+      "cat": "5E",
       "skill": "SIRS 4",
-      "cat": "5E",
       "diff": "M",
-      "exp": "Read the half-life from the 50°C curve: the fraction reaches 0.50 at **4 days** (and 0.25 at 8 days, confirming first-order behavior). For a first-order reaction, **k = 0.693/t½** = 0.693 ÷ 4 days ≈ **0.17 day⁻¹**.\n\n**0.25 day⁻¹** is 1/t½; the factor ln 2 = 0.693 is missing.\n**2.8 day⁻¹** multiplies 0.693 × 4 instead of dividing.\n**0.087 day⁻¹** reads the 40°C curve (t½ = 8 days).",
-      "id": "p_cpp4_3_q1"
+      "exp": "**KM is the substrate concentration that gives half of Vmax.** Half of 120 is 60 μM/min, and the no-inhibitor curve passes through 60 μM/min at **0.20 mM** pyruvate.\n**0.10 mM** gives only 40 μM/min.\n**0.40 mM** is where the curve reaches 80 μM/min (two-thirds of Vmax).\n**1.6 mM** is where the rate is close to its maximum, not half of it."
      },
      {
-      "q": "If the temperature trend in Figure 2 holds, how long would it take for Compound 1 to fall to 25% of its initial concentration at 30°C?",
+      "id": "p_cpp4_6_q2",
+      "q": "Which type of inhibition by oxamate is most consistent with Figure 2?",
       "choices": [
-       "16 days",
-       "24 days",
-       "32 days",
-       "48 days"
+       "Competitive, because the curve rises toward the same plateau",
+       "Noncompetitive, because the rate is lower at every [pyruvate]",
+       "Uncompetitive, because the inhibitor lowers both KM and Vmax",
+       "Irreversible, because some activity is lost at every [pyruvate]"
       ],
-      "ans": 2,
+      "ans": 0,
+      "cat": "5E",
       "skill": "SIRS 2",
-      "cat": "5E",
       "diff": "X",
-      "exp": "From Figure 2 the half-lives are **2 days at 60°C, 4 days at 50°C and 8 days at 40°C**: each 10°C drop halves k and doubles t½, as the passage describes. Extending the pattern, t½ at 30°C ≈ **16 days**. Falling to 25% takes **two half-lives** (100% → 50% → 25%), so 2 × 16 = **32 days**.\n\n**16 days** is one half-life, which only gets to 50%.\n**24 days** extrapolates the half-life linearly (adding 4 days per 10°C to get 12 days) instead of doubling it.\n**48 days** is three half-lives, which gets to 12.5%.",
-      "id": "p_cpp4_3_q2"
+      "exp": "At high pyruvate the inhibited rate climbs toward the **same ~120 μM/min plateau** (101 μM/min at 3.2 mM and still rising), while the pyruvate needed for half the maximal rate rises from 0.20 to about **0.60 mM**. **Higher apparent KM with unchanged Vmax = competitive inhibition**, which fits oxamate being a pyruvate look-alike that competes for the active site.\nA lower rate at every concentration is true of all inhibitors; noncompetitive inhibition would also lower the plateau.\nUncompetitive inhibition lowers KM, but here the half-maximal concentration went up.\nAn irreversible inhibitor would lower Vmax no matter how much substrate is added."
      },
      {
-      "q": "A reviewer suggested that some of the loss of Compound 1 might be due to oxidation by dissolved O₂ rather than hydrolysis. Which additional experiment would best test this suggestion?",
+      "id": "p_cpp4_6_q3",
+      "q": "Why did the researchers measure each rate during only the first 30 s of the reaction?",
       "choices": [
-       "Repeating the 60°C study in ampules purged with nitrogen and comparing the rate constants",
-       "Repeating the study at 70°C to see whether the rate constant doubles again",
-       "Repeating the study in pH 6.0 buffer to see whether the rate constant changes",
-       "Measuring the UV absorbance of each solution before the ampules are sealed"
+       "So substrate use and product buildup had not yet changed the rate",
+       "So the enzyme had enough time to reach its maximum rate",
+       "So the NADH absorbance would be as large as possible",
+       "So the oxamate had time to bind the enzyme irreversibly"
       ],
       "ans": 0,
-      "skill": "SIRS 3",
       "cat": "5E",
+      "skill": "SIRS 3",
       "diff": "D",
-      "exp": "To test whether O₂ matters, change **only the amount of O₂** and keep everything else the same. Purging with N₂ removes dissolved O₂. If k is unchanged, oxidation is not contributing; if k drops, part of the loss was oxidative.\n\nA 70°C run tests the temperature dependence, which both mechanisms would show.\nChanging the pH alters hydrolysis (OH⁻ attacks the ester) as well as any oxidation, so the result could not separate the two.\nA reading taken before sealing gives only the starting concentration; it says nothing about why the drug is lost.",
-      "id": "p_cpp4_3_q3"
+      "exp": "Michaelis–Menten analysis uses **initial rates**: early on, [pyruvate] and [NADH] are still close to their starting values and almost no lactate or NAD⁺ has formed, so the rate matches the stated substrate concentration.\nAn enzyme doesn't need time to speed up; its rate is highest at the start and falls as substrate is used.\nThe size of the absorbance doesn't depend on measuring early.\nNothing suggests oxamate binds irreversibly, and Figure 2 shows the inhibition is overcome by more substrate."
      },
      {
-      "q": "Which compound is the aromatic product formed when Compound 1 is hydrolyzed?",
+      "id": "p_cpp4_6_q4",
+      "q": "Which structure is oxamate?",
       "choices": [
-       "4-aminobenzoic acid",
-       "4-aminophenol",
-       "4-aminobenzaldehyde",
-       "ethyl 4-aminobenzoate (benzocaine)"
-      ],
-      "choiceFigs": [
-       "cpp4-4-aminobenzoic-acid",
-       "cpp4-4-aminophenol",
-       "cpp4-4-aminobenzaldehyde",
-       "benzocaine"
+       "Oxamate (H₂N–CO–COO⁻)",
+       "Glycinate (H₂N–CH₂–COO⁻)",
+       "3-Aminopyruvate (H₂N–CH₂–CO–COO⁻)",
+       "N-Methyloxamate (CH₃NH–CO–COO⁻)"
       ],
       "ans": 0,
-      "skill": "SIRS 1",
       "cat": "5D",
+      "skill": "SIRS 1",
       "diff": "M",
-      "subj": "organic_chem",
-      "exp": "Ester hydrolysis is a **nucleophilic acyl substitution**. Water (or OH⁻) attacks the carbonyl carbon, and the **acyl–oxygen bond** breaks. The carbonyl carbon keeps both of its oxygens, so the acyl part becomes a **carboxylic acid**: **4-aminobenzoic acid** (PABA). The other product is the amino alcohol 2-(diethylamino)ethanol.\n\n**4-Aminophenol** would require breaking the bond between the ring and the carbonyl carbon, which hydrolysis does not do.\n**4-Aminobenzaldehyde** is at a lower oxidation level; making it would require a reduction, not hydrolysis.\n**Benzocaine** is another ester (the ethyl ester). Forming it would need ethanol, which is not present.",
-      "id": "p_cpp4_3_q4"
+      "exp": "Start from pyruvate, CH₃–C(=O)–COO⁻, and **replace the methyl group with –NH₂**: the result is H₂N–C(=O)–COO⁻. The nitrogen is now bonded to a carbonyl carbon, so the ketone unit has become an **amide**, while the carboxylate is unchanged.\n\n**Glycinate** has lost the C=O next to the nitrogen: it is an amine, not an amide, and it no longer has pyruvate's carbonyl.\n**3-Aminopyruvate** keeps the CH₃ carbon and adds –NH₂ to it, so a carbon was substituted rather than replaced.\n**N-Methyloxamate** puts the CH₃ on the nitrogen: the methyl was kept and an N–H inserted, rather than the methyl being replaced.",
+      "choiceFigs": [
+       "cpp4-oxamate",
+       "cpp4-glycinate",
+       "cpp4-3-aminopyruvate",
+       "cpp4-n-methyloxamate"
+      ],
+      "subj": "organic_chem"
+     }
+    ],
+    "scheme": [
+     {
+      "after": 1,
+      "caption": "Figure 1 Reduction of pyruvate to L-lactate by LDH",
+      "parts": [
+       "cpp4-pyruvate",
+       {
+        "arrow": "NADH + H⁺ → NAD⁺ (LDH)"
+       },
+       "cpp4-l-lactate"
+      ]
      }
     ]
    },
@@ -3198,7 +3128,7 @@ const CP_POOL = [
      "4D"
     ],
     "title": "Radioiodine Uptake Testing of the Thyroid",
-    "passage": "The thyroid gland concentrates iodide (I⁻) from the blood using the sodium–iodide symporter and builds it into thyroid hormones. A radioactive isotope of iodine is handled by the gland exactly like stable iodine-127. So the fraction of an oral dose that the gland takes up is a measure of how active it is. An overactive gland, as in Graves disease, takes up more than normal, and an underactive gland takes up less.\n\nTwo iodine isotopes are used. Iodine-123 (half-life 13 h) decays by electron capture: the nucleus absorbs an inner-shell electron, which converts a proton into a neutron. The daughter nucleus then emits a 159 keV gamma ray, which is well suited to gamma cameras. Iodine-131 (half-life 8.0 days) decays by beta-minus emission followed by a 364 keV gamma ray. Its beta particles deposit their energy within a few millimeters of tissue. Large doses of iodine-131 are therefore used to destroy overactive thyroid tissue, while small doses of iodine-123 are preferred for diagnosis.\n\nIn an uptake test, the patient swallows a capsule of Na¹²³I. At set times afterward, a shielded detector held a fixed distance from the neck counts gamma rays from the thyroid. Background counts are subtracted, and the result is compared with the counts from an identical capsule (the standard) counted in a plastic neck model in the same geometry. Normal uptake is about 10–30% at 24 h.\n\nGamma rays are absorbed exponentially, so shielding is described by the half-value layer (HVL): the thickness of a material that cuts the beam intensity in half. In lead, the HVL is about 0.4 mm for 159 keV gamma rays and 3.0 mm for 364 keV gamma rays. Technetium-99m (half-life 6.0 h; 140 keV gamma rays; HVL in lead 0.3 mm) is trapped by the thyroid as pertechnetate (TcO₄⁻) and is sometimes used instead for imaging.",
+    "passage": "The thyroid gland concentrates iodide (I⁻) from the blood using the sodium–iodide symporter and builds it into thyroid hormones. A radioactive isotope of iodine is handled by the gland exactly like stable iodine-127. So the fraction of an oral dose that the gland takes up is a measure of how active it is. An overactive gland, as in Graves disease, takes up more than normal, and an underactive gland takes up less.\n\nTwo iodine isotopes are used. Iodine-123 (half-life 13 h) decays by electron capture: the nucleus absorbs an inner-shell electron, which converts a proton into a neutron. The daughter nucleus then emits a 159 keV gamma ray, which is well suited to gamma cameras. Iodine-131 (half-life 8.0 days) decays by beta-minus emission followed by a 364 keV gamma ray. Its beta particles deposit their energy within a few millimeters of tissue. Large doses of iodine-131 are therefore used to destroy overactive thyroid tissue, while small doses of iodine-123 are preferred for diagnosis.\n\nIn an uptake test, the patient swallows a capsule of Na¹²³I. At set times afterward, a shielded detector held a fixed distance from the neck counts gamma rays from the thyroid. Background counts are subtracted, and the result is compared with the counts from an identical capsule (the standard) counted in a plastic neck model in the same geometry. Normal uptake is about 10–30% at 24 h.\n\nTechnetium-99m (half-life 6.0 h; 140 keV gamma rays) is trapped by the thyroid as pertechnetate (TcO₄⁻) and is sometimes used instead for imaging.",
     "questions": [
      {
       "q": "A vial of Na¹³¹I solution had an activity of 80 mCi when it was delivered to a hospital. What is its activity 24 days later?",
@@ -3232,18 +3162,19 @@ const CP_POOL = [
       "id": "p_cpp4_5_q2"
      },
      {
-      "q": "A technologist stores an iodine-131 source in a lead container. What wall thickness is needed to reduce the intensity of its gamma rays to 12.5% of the unshielded value?",
-      "choices": [
-       "1.2 mm",
-       "6.0 mm",
-       "9.0 mm",
-       "24 mm"
-      ],
-      "ans": 2,
       "skill": "SIRS 2",
       "cat": "4D",
       "diff": "D",
-      "exp": "12.5% = 1/8 = (1/2)³, so **3 half-value layers** are needed. Iodine-131 emits 364 keV gamma rays, with an HVL in lead of 3.0 mm: 3 × 3.0 mm = **9.0 mm**.\n\n**1.2 mm** uses the 0.4 mm HVL for the 159 keV gamma rays of iodine-123.\n**6.0 mm** is only two HVLs, which leaves 25%.\n**24 mm** multiplies by 8, treating absorption as linear instead of exponential.",
+      "q": "The gamma ray emitted after iodine-123 decays has an energy of 159 keV. Approximately what is its frequency? (h ≈ 4.0 × 10⁻¹⁵ eV·s)",
+      "choices": [
+       "4.0 × 10¹⁹ Hz",
+       "4.0 × 10¹⁶ Hz",
+       "6.4 × 10⁻¹⁰ Hz",
+       "2.5 × 10⁻²⁰ Hz"
+      ],
+      "ans": 0,
+      "exp": "A photon's energy and frequency are related by **E = hf**, so **f = E/h**. Convert the energy to electron-volts first: 159 keV = 1.59 × 10⁵ eV ≈ 1.6 × 10⁵ eV.\nf = (1.6 × 10⁵ eV) ÷ (4.0 × 10⁻¹⁵ eV·s) = **4.0 × 10¹⁹ Hz**. Gamma rays have the highest frequencies in the electromagnetic spectrum, far above visible light (about 10¹⁴–10¹⁵ Hz).\n\n**4.0 × 10¹⁶ Hz** leaves the energy in keV (159 instead of 159,000 eV), a factor of 1000 too small.\n**6.4 × 10⁻¹⁰ Hz** multiplies E by h instead of dividing (1.6 × 10⁵ × 4.0 × 10⁻¹⁵).\n**2.5 × 10⁻²⁰ Hz** divides h by E, inverting the relation.",
+      "subj": "physics",
       "id": "p_cpp4_5_q3"
      },
      {
@@ -3432,7 +3363,7 @@ const CP_POOL = [
   "title": "Chem/Phys Quiz 5",
   "order": [
    "p_cpp5_1",
-   "p_cpp5_2",
+   "p_cpp5_6",
    4,
    "p_cpp5_3",
    "p_cpp5_4",
@@ -3910,7 +3841,7 @@ const CP_POOL = [
     ]
    },
    {
-    "id": "p_cpp5_2",
+    "id": "p_cpp5_6",
     "subj": "physics",
     "type": "passage",
     "topic": "C/P",
@@ -3919,108 +3850,88 @@ const CP_POOL = [
      "4A",
      "4C"
     ],
-    "title": "Noise Exposure and Hearing Protection",
-    "passage": "Noise-induced hearing loss occurs when loud sound damages the hair cells of the cochlea. The strength of a sound reaching the ear is described by its intensity I, the power carried per unit area (W/m²), or by its sound intensity level β = 10 log(I/I₀), measured in decibels (dB), where I₀ = 1.0 × 10⁻¹² W/m² is the threshold of hearing. Sound traveling down the ear canal sets the eardrum (tympanic membrane), which has an area of about 0.50 cm², into vibration. The middle-ear bones pass this vibration to the oval window of the cochlea. Hearing is most sensitive between about 2 and 5 kHz, partly because the ear canal, a tube about 2.5 cm long that is closed at the eardrum, resonates near 3.5 kHz. The speed of sound in air at body temperature is about 350 m/s.\n\nOccupational guidelines limit how long a worker may be exposed to a given sound level each day. The limits in Table 1 use a 3-dB exchange rate: each 3-dB increase in sound level halves the permitted daily exposure time.\n\nAn audiology clinic evaluated workers from a metal-stamping plant. Workers whose hearing had already declined were fitted with hearing aids. Each hearing aid picks up sound with a microphone, amplifies it, and drives a tiny speaker in the ear canal. It is powered by a zinc–air button cell with a nominal voltage of 1.4 V and a capacity of 150 mAh. Workers who were still exposed to noise on the job were also given earmuffs, which lower the sound level that reaches the ear.",
+    "title": "How a Pulse Oximeter Measures Oxygen Saturation",
+    "passage": "A pulse oximeter clipped to a fingertip estimates the fraction of hemoglobin that is carrying oxygen. Two light-emitting diodes (LEDs), one red (660 nm) and one infrared (940 nm), shine through the finger in turn, and a photodiode on the other side measures how much light gets through. Oxyhemoglobin (HbO₂) and deoxyhemoglobin (Hb) absorb the two wavelengths differently, as shown in Table 1, so the ratio of the absorbances at 660 nm and 940 nm reveals the proportion of HbO₂.\n\nOnly the part of the absorbance that rises and falls with each heartbeat is used, because it comes from arterial blood. Skin, bone and venous blood also absorb light, but their absorbance stays nearly constant from beat to beat. The pressure pulse travels along the arteries much faster than the blood itself flows. In one adult, the pulse reached the fingertip 0.15 s after the heartbeat, along an arterial path about 0.75 m long.\n\nHealthy adults at rest usually read 95–100%. A portable unit is powered by a 3.0 V lithium coin cell rated at 220 mAh. While measuring, the LEDs and electronics together draw an average current of 30 mA.",
     "figure": {
-     "caption": "Table 1 Recommended maximum daily noise exposure",
+     "caption": "Table 1 Molar absorptivity of hemoglobin (cm⁻¹·M⁻¹)",
      "columns": [
-      "Sound level (dB)",
-      "Maximum daily exposure",
-      "Typical source"
+      "Wavelength",
+      "HbO₂",
+      "Hb"
      ],
      "rows": [
       [
-       "85",
-       "8 h",
-       "Heavy city traffic"
+       "660 nm",
+       "320",
+       "3230"
       ],
       [
-       "88",
-       "4 h",
-       "Food blender"
-      ],
-      [
-       "91",
-       "2 h",
-       "Subway train"
-      ],
-      [
-       "94",
-       "1 h",
-       "Power drill"
-      ],
-      [
-       "97",
-       "30 min",
-       "Motorcycle"
-      ],
-      [
-       "100",
-       "15 min",
-       "Stamping press"
+       "940 nm",
+       "1210",
+       "690"
       ]
      ]
     },
     "questions": [
      {
-      "q": "The 3-dB exchange rate in Table 1 keeps which quantity approximately the same at every sound level?",
+      "id": "p_cpp5_6_q1",
+      "q": "Based on Table 1, which statement correctly compares the two forms of hemoglobin?",
       "choices": [
-       "The sound energy delivered per unit area during the daily exposure",
-       "The sound intensity reaching the eardrum",
-       "The product of the sound level in decibels and the exposure time",
-       "The product of the sound frequency and the exposure time"
+       "At 660 nm, Hb absorbs about 10 times more strongly than HbO₂.",
+       "At 660 nm, HbO₂ absorbs about 10 times more strongly than Hb.",
+       "At 940 nm, Hb absorbs about 2 times more strongly than HbO₂.",
+       "At both wavelengths, the two forms absorb about equally."
       ],
       "ans": 0,
       "cat": "4D",
       "skill": "SIRS 4",
       "diff": "X",
-      "exp": "A 3-dB increase multiplies the intensity by 10^(3/10) = 10^0.3 ≈ **2**. Table 1 halves the time for each 3-dB step, so **intensity × time stays constant**. Intensity is power per area (W/m² = J/(s·m²)), so intensity × time is **energy per unit area (J/m²)**: the total sound energy dose.\n\nThe intensity itself doubles with every row, so it is not constant.\nDecibels × time is not constant either: 85 × 8 = 680, but 88 × 4 = 352. The decibel scale is logarithmic, so it can't be multiplied by time this way.\nThe table says nothing about frequency.",
-      "id": "p_cpp5_2_q1"
+      "exp": "At 660 nm: Hb 3230 vs HbO₂ 320, so Hb absorbs about **10 times** more strongly. That is why deoxygenated blood looks darker in red light.\nThe second choice reverses the 660 nm row.\nAt 940 nm the order flips: HbO₂ (1210) absorbs about 2 times more than Hb (690), so the third choice reverses that row.\nThe two forms clearly differ at both wavelengths, which is why two wavelengths are used."
      },
      {
-      "q": "Earmuffs lower the sound level at a worker's ear from 105 dB to 85 dB. By what factor do they reduce the sound intensity?",
+      "id": "p_cpp5_6_q2",
+      "q": "What is the energy of one photon emitted by the red LED? (hc = 1240 eV·nm)",
       "choices": [
-       "2",
-       "20",
-       "100",
-       "1.0 × 10²⁰"
+       "0.53 eV",
+       "1.3 eV",
+       "1.9 eV",
+       "3.8 eV"
       ],
       "ans": 2,
       "cat": "4D",
       "skill": "SIRS 2",
       "diff": "M",
-      "exp": "Each **10 dB is a factor of 10 in intensity**. The drop is 105 − 85 = 20 dB = 2 × 10 dB, so the intensity falls by 10² = **100**. With the formula: Δβ = 10 log(I₁/I₂), so 20 = 10 log(I₁/I₂), log(I₁/I₂) = 2 and I₁/I₂ = 100.\n\n**20** treats decibels as if they were proportional to intensity.\n**2** divides 20 dB by 10 but forgets to raise 10 to that power.\n**1.0 × 10²⁰** uses the 20-dB difference as the exponent without dividing by 10.",
-      "id": "p_cpp5_2_q2"
+      "exp": "**E = hc/λ** = 1240 eV·nm ÷ 660 nm ≈ **1.9 eV**.\n**1.3 eV** is the infrared (940 nm) photon.\n**0.53 eV** divides λ by hc (upside down).\n**3.8 eV** doubles the correct value."
      },
      {
-      "q": "What is the sound power striking a worker's eardrum when the sound level at the ear is 100 dB?",
+      "id": "p_cpp5_6_q3",
+      "q": "What was the average speed of the pressure pulse along the arterial path described in the passage?",
       "choices": [
-       "5.0 × 10⁻¹⁵ W",
-       "5.0 × 10⁻⁷ W",
-       "5.0 × 10⁻⁵ W",
-       "5.0 × 10⁻³ W"
+       "0.11 m/s",
+       "0.20 m/s",
+       "5.0 m/s",
+       "50 m/s"
       ],
-      "ans": 1,
+      "ans": 2,
       "cat": "4A",
       "skill": "SIRS 2",
       "diff": "D",
-      "exp": "First find the intensity: β = 100 dB means I/I₀ = 10^(100/10) = 10¹⁰, so I = 10¹⁰ × 1.0 × 10⁻¹² W/m² = **1.0 × 10⁻² W/m²**.\nNext convert the eardrum area: 0.50 cm² × (10⁻² m/cm)² = **5.0 × 10⁻⁵ m²**.\nPower = intensity × area = 1.0 × 10⁻² W/m² × 5.0 × 10⁻⁵ m² = **5.0 × 10⁻⁷ W**.\n\n**5.0 × 10⁻³ W** uses 0.50 m² as the area (no unit conversion).\n**5.0 × 10⁻⁵ W** converts cm² to m² with 10⁻² instead of 10⁻⁴.\n**5.0 × 10⁻¹⁵ W** multiplies I₀ by 100 instead of by 10¹⁰.",
-      "id": "p_cpp5_2_q3"
+      "exp": "**Average speed = distance ÷ time** = 0.75 m ÷ 0.15 s = **5.0 m/s**.\n**0.20 m/s** divides the time by the distance.\n**0.11 m/s** multiplies distance by time.\n**50 m/s** is a factor-of-10 slip in the division."
      },
      {
-      "q": "What is the total charge that the hearing-aid battery can deliver according to its rated capacity?",
+      "id": "p_cpp5_6_q4",
+      "q": "If the unit measures continuously, about how long will a fully charged coin cell last?",
       "choices": [
-       "9.0 C",
-       "150 C",
-       "540 C",
-       "5.4 × 10⁵ C"
+       "0.14 h",
+       "7.3 h",
+       "22 h",
+       "6600 h"
       ],
-      "ans": 2,
+      "ans": 1,
       "cat": "4C",
       "skill": "SIRS 2",
       "diff": "D",
-      "exp": "A milliamp-hour is a unit of **charge** (current × time). Convert both parts to SI: 150 mA = 0.150 A and 1 h = 3600 s. Q = It = 0.150 A × 3600 s = **540 C**.\n\n**150 C** treats mAh as if it were already coulombs.\n**9.0 C** converts hours to minutes (× 60) instead of seconds (× 3600).\n**5.4 × 10⁵ C** leaves the current in mA (150 × 3600).\nThe 1.4 V rating is not needed; it would be needed for the stored energy (540 C × 1.4 V ≈ 760 J).",
-      "id": "p_cpp5_2_q4"
+      "exp": "A **mAh rating is a charge**: time = charge ÷ current = 220 mAh ÷ 30 mA = **7.3 h**.\n**0.14 h** divides the current by the capacity.\n**22 h** multiplies 7.3 h by the 3.0 V voltage, which doesn't belong in a charge-and-current calculation.\n**6600 h** multiplies the capacity by the current."
      }
     ]
    },
@@ -4455,20 +4366,20 @@ const CP_POOL = [
     "id": "cp_half_5_sa2"
    },
    {
-    "q": "Iodine-131 (Z = 53), used to treat thyroid disease, decays by β⁻ emission. What is the product nucleus?",
+    "id": "cp_half_5_sa3b",
+    "q": "Radium-226 (Z = 88) decays by α emission. What is the product nucleus?",
     "choices": [
-     "Xenon-131",
-     "Tellurium-131",
-     "Iodine-130",
-     "Antimony-127"
+     "Radon-222",
+     "Radium-222",
+     "Thorium-230",
+     "Radon-226"
     ],
     "ans": 0,
     "cat": "4E",
     "skill": "SIRS 1",
     "diff": "E",
     "subj": "physics",
-    "exp": "In **β⁻ decay a neutron becomes a proton** and an electron is emitted. The mass number stays the same (131) and the atomic number rises by 1 (53 → 54). Element 54 is **xenon**, so the product is xenon-131.\n\nTellurium-131 (Z = 52) would come from β⁺ emission or electron capture, where Z falls by 1.\nIodine-130 would mean losing a neutron, which is not a β process.\nAntimony-127 (Z = 51, A = 127) is the product of α decay.",
-    "id": "cp_half_5_sa3"
+    "exp": "An **α particle is a helium-4 nucleus**: the mass number drops by 4 (226 → 222) and Z drops by 2 (88 → 86, which is radon).\n**Radium-222** keeps Z the same.\n**Thorium-230** adds the α particle instead of removing it.\n**Radon-226** changes Z but forgets that the mass number drops by 4."
    },
    {
     "q": "Chlorine, found in the body mainly as Cl⁻, has two stable isotopes, chlorine-35 and chlorine-37. The average atomic mass of chlorine is 35.5. Which statement about natural chlorine is correct?",
@@ -4941,19 +4852,19 @@ const CP_POOL = [
       "id": "p_cpp6_3_q1"
      },
      {
-      "q": "Which value is the patient's static respiratory compliance, and why is the plateau pressure used to calculate it?",
+      "id": "p_cpp6_3_q2b",
+      "q": "The team wants to confirm that the rise from 10.5 μA to 20.0 μA reflects a higher FiO₂ and not only the higher pressure in the patient circuit. Which check is most appropriate?",
       "choices": [
-       "50 mL/cm H₂O, because plateau pressure is measured with no flow, so it reflects only the elastic recoil of the lungs and chest wall",
-       "50 mL/cm H₂O, because plateau pressure includes the pressure needed to overcome airway resistance",
-       "25 mL/cm H₂O, because peak pressure is measured with no flow, so it reflects only elastic recoil",
-       "25 mL/cm H₂O, because peak pressure includes the pressure needed to overcome airway resistance"
+       "Read room air at the circuit's pressure, since the current tracks P(O₂) = FiO₂ × total pressure",
+       "Read room air at 27°C, since the current tracks only the temperature of the gas",
+       "Replace the lead electrode, since the current tracks only how much lead remains",
+       "Raise the tidal volume, since the current tracks the gas volume delivered per breath"
       ],
       "ans": 0,
       "cat": "4B",
       "skill": "SIRS 3",
       "diff": "D",
-      "exp": "Compliance = ΔV/ΔP. The volume added is 500 mL, and the pressure rise above the baseline is plateau − PEEP = 15 − 5 = 10 cm H₂O, so C = 500 ÷ 10 = **50 mL/cm H₂O**.\n\nThe plateau is measured during the **breath hold with no flow**. With no flow there is no pressure drop across the airways (ΔP = flow × resistance = 0), so the measured pressure reflects only the elastic stretch of the respiratory system, which is what compliance describes.\n\n**25 mL/cm H₂O** uses the peak pressure (500 ÷ (25 − 5)). Peak pressure is measured while gas is flowing, so it includes the extra 10 cm H₂O needed to push gas through the airway resistance.",
-      "id": "p_cpp6_3_q2"
+      "exp": "The passage says the current is proportional to the **partial pressure of O₂**. By **Dalton's law**, P(O₂) = FiO₂ × total pressure, so a higher circuit pressure alone would raise the current even at FiO₂ = 0.21. Reading room air at the same pressure shows how much of the change comes from pressure, which is the control the team needs.\nTemperature, the remaining lead and the tidal volume are not what the passage says sets the current."
      },
      {
       "q": "Which electrode is the anode of the galvanic oxygen sensor, and what happens there?",
@@ -5340,20 +5251,20 @@ const CP_POOL = [
     "id": "cp_half_6_sa6"
    },
    {
-    "q": "Iodine-131 has a half-life of 8.0 days. What percentage of an I-131 sample remains 24 days after it is prepared?",
+    "id": "cp_half_6_sa7b",
+    "q": "Strontium-89, used to relieve bone pain from cancer, has a half-life of 50 days. What percentage of a dose remains 200 days after it is given?",
     "choices": [
-     "6.25%",
-     "12.5%",
      "25%",
-     "33%"
+     "12.5%",
+     "6.25%",
+     "3.1%"
     ],
-    "ans": 1,
+    "ans": 2,
     "cat": "4E",
     "skill": "SIRS 1",
     "diff": "E",
     "subj": "physics",
-    "exp": "24 days ÷ 8.0 days = **3 half-lives**. Each half-life halves the amount: 100% → 50% → 25% → **12.5%**, or (1/2)³ = 1/8.\n\n**25%** stops after two half-lives.\n**6.25%** counts four half-lives.\n**33%** divides 100% by the number of half-lives (3) instead of halving repeatedly; radioactive decay is exponential, not linear.",
-    "id": "cp_half_6_sa7"
+    "exp": "200 days ÷ 50 days = 4 half-lives, and (½)⁴ = 1/16 = 6.25% remains.\n25% stops after 2 half-lives.\n12.5% stops after 3 half-lives.\n3.1% counts 5 half-lives."
    },
    {
     "q": "What is the pH of a 0.010 M solution of a weak acid HA with Ka = 1.0 × 10⁻⁶?",

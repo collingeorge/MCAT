@@ -1,171 +1,41 @@
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-![Version](https://img.shields.io/badge/Version-2.17-blue.svg)
+![Version](https://img.shields.io/badge/Version-2.18-blue.svg)
 ![Last Updated](https://img.shields.io/badge/Updated-Nov_2026-purple.svg)
 
 # MCAT Study App
-*Recall · Passages · Full-length exams · Collin B. George*
+*TODAY · AAMC Prep · Passages · Full-length exams · Collin B. George*
 
 ## → [Launch App](https://mcat.collinbgeorge.com/)
 
 A free MCAT practice app that runs in the browser with no build step. Guest study works without an account; optional email/password accounts save progress to the cloud for recovery on other devices. After the first visit, study content works offline and the app can be installed from the browser menu. Offline changes sync after reconnection.
 
-It sits between Anki (pure recall) and UWorld (full exam simulation). You get fast recall questions with spaced repetition, AAMC-style passage sets with explanations, and timed full-length practice exams.
-
 ---
 
 ## What's inside
 
-| Mode | Content |
+Only four kinds of content, all tied to the AAMC materials:
+
+| Content | What it is |
 |---|---|
-| **Recall** | 2,807 questions derived from the [MCAT Milesdown](https://ankiweb.net/shared/info/178384887) Anki deck, rewritten as 4-option multiple choice with explanations, including 105 Essential Equations, constants and units |
-| **Passages** | 78 passages / 353 questions: 30 science passages, 24 data & reasoning sets with tables, and 24 original CARS passages |
-| **Full-length** | 2 timed exams, each 230 questions: C/P 59 · CARS 53 · B/B 59 · P/S 59, with real section times and breaks |
+| **AAMC Prep · QBank cards** | Original questions written from the concepts tested in the AAMC question packs and question bank (Biology, Chemistry, Physics, CARS, the Independent Question Bank), plus the Universal Rules cards and the 33 AAMC test-concept chemistry cards. No AAMC text. |
+| **AAMC Prep · Practice Exam cards** | 266 guided cards, one per concept tested on the AAMC C/P practice exams (Practice Exams 1, 3, 4, 5, 6), each with a step-by-step lesson. Original wording. |
+| **Chem/Phys passages** | Original passages written to the AAMC C/P blueprint: a 59-question Chem/Phys Diagnostic, six 30-question daily quizzes, and 36 practice passages (144 questions) for the Passages tab and TODAY's passage step. |
+| **Full-length** | 2 timed exams, each 230 questions: C/P 59 · CARS 53 · B/B 59 · P/S 59, with real section times and breaks. |
 
-### Recall bank by subject
-| Subject | Questions |
-|---|---|
-| Biochemistry | 509 |
-| Biology | 581 |
-| General Chemistry | 228 |
-| Organic Chemistry | 277 |
-| Physics & Math (incl. research methods & statistics) | 284 |
-| Essential Equations, constants & units | 105 |
-| Psychology & Sociology | 823 |
+The app's earlier recall decks (Anki-derived), their generated variants and the app-written practice passages were removed in November 2026. Saved progress from them stays in storage (ignored, never wiped).
 
----
+## TODAY › Section mastery
 
-## TODAY › Start here: one ordered daily checklist
+The first card on the home page is the day's routine, one MCAT section at a time (C/P first, then B/B, then P/S):
 
-The first card on the home page, directly under the account bar, is the day's routine. It is recomputed every day from your calendar (test date, study days per week, daily time). The cards that used to share the home page (priorities, weekly readiness, the recall → passage → mini-test path, Smart Session) remain below it as reference.
+1. **Diagnostic**: a full C/P section (59 questions, 95 minutes, exam order). Retake it any time.
+2. **50 flashcards**: AAMC QBank cards only, spread over 5 content categories, weakest first.
+3. **50 guided Practice Exam cards**, each with its step-by-step lesson.
+4. **50 passage questions** from the C/P practice passages (about 12–13 passages): unseen passages first, weakest content categories first. After all 36 have been used once, the step repeats the ones you answered least well and says so. Each answer counts toward the step and toward its AAMC category.
+5. **30-question quiz**: half a C/P section in exam order, one of six sets, unseen sets first.
+6. **Done for today** at the goal (128 by default), otherwise **work on what you missed**: Practice Exam cards or practice passages on the quiz's weak categories (passages not used that day first).
 
-**Every study day, in this order.** Each step shows a count, estimated minutes, a Start button and a ✓ when done.
-
-1. **Yesterday's missed recall.** Facts answered wrong on your previous *study* day (not calendar day), grouped by subject, shown regardless of the spaced-review schedule. Misses that were never revisited carry forward for up to 14 days.
-2. **Yesterday's missed passage questions.** Review mode: reread the passage and explanation and write one line on why the answer is right (saved to the mistake log's "Explain it" note). Not scored and not counted as a first exposure.
-3. **Due reviews.** Everything the memory model says is due.
-4. **New facts.** Today's quota, weak topics first, then weighted by the app's MCAT content shares.
-5. **New passages.** About 3 a day (1 CARS + 2 science), preferring the subject of your top weak topic. Use **I did an external passage** (subject, source, questions, correct) for AAMC Section Bank/Question Packs, UWorld and others; first exposures count toward the target and repeats do not.
-6. **Close-out.** X vs. Y comparisons for the day's mix-ups.
-
-**Pacing rules** (planning heuristics, not validated readiness thresholds):
-
-| Rule | How it is computed |
-|---|---|
-| New facts | `ceil(unseen facts / remaining new-fact days)`. Remaining new-fact days are study days before the final 21-day window, excluding rest, full-length and review days. |
-| App passages | `ceil(unseen app passages / remaining passage days)`. The six non-exam CARS passages are spaced at one every `floor(days / unseen CARS)` study days so they last. Daily target = max(3, app passages); the shortfall is external. |
-| Full-lengths | Six, capped: **AAMC Sample Test** as the baseline diagnostic at the end of week 2, **this app's Full-Length 1** halfway to the final month, then **AAMC Practice Exams 1–4** weekly in the final month, the last one 7 days before the test. Long plans stretch the early gaps instead of adding exams; the app's Full-Length 2 is listed as an optional extra. The card lists every date. AAMC exams are taken on aamc.org and marked done when you record their scores under Official results. A full-length day replaces the checklist; the next day is a review day (that exam's misses, then due reviews). A missed full-length rolls forward to your next non-rest day until the next slot's window opens. |
-| Final 21 days | No new facts unless bank coverage is incomplete; 4 timed passages a day (5 with a 3-hour budget); a weekly full-length. |
-| Missed days | Remaining work is redistributed over the remaining days. An unfinished quota from the last planned day is shown as **Carried over** and added to today. |
-| Over budget | Steps 1–3 stay intact and steps 4–5 stay at the pace that finishes on time. The card shows **Behind pace: +X min/day needed, or move your test date** instead of shrinking the quotas. |
-
-The 18 passages used in the app's two full-length exams are not scheduled as daily practice, so those exams stay unseen. Completion state and external passage logs sync with your account like other progress. The pacing function is `computeDailyPlan()` in `js/daily-plan.js`; `node tools/test-daily-plan.cjs` checks 90- and 120-day calendars, the six-exam full-length line-up, missed days and carry-over.
-
-## Daily recall, passages, and subject mini tests
-
-The study plan now schedules passage work alongside recall, instead of listing only full-length exams. Home, the plan, and recall results show a recommended subject and launch buttons. The plan lists suggested passage dates for the next seven days and reserves time for the passage block and its review before setting the remaining recall budget.
-
-1. **Build and apply together.** Start with 10 recall questions, then one existing passage in the same subject. Passage practice is available from the beginning; you do not have to master the entire bank first.
-2. **Progress to a subject mini test.** The recommendation uses 20 distinct recall facts seen with at least 70% cumulative subject accuracy, plus two distinct completed passages averaging at least 70% on their latest attempts. CARS uses the passage criterion only. These are adjustable code heuristics, not validated readiness cutoffs.
-3. **Simulate a short test.** A mini test combines two existing passages with up to five recall-bank discrete questions in that subject (CARS has no recall discretes). Timing follows the app's passage pace. Feedback and explanations appear at the end; the timer finishes the block automatically and counts unanswered items as misses.
-4. **Reinforce and rotate.** Review explanations and use the same-subject recall button, which prioritizes review through the existing question picker. Unseen passages come first, followed by the least recently completed ones. The plan rotates subjects so strong areas do not crowd out weaker areas or CARS. A completed mini test has a seven-day recommendation cooldown.
-5. **Keep the daily budget realistic.** If a mini test plus recall would exceed the selected time budget, the plan recommends one passage instead. Completed passage work is tracked separately from the recall target. The final two days schedule light review rather than a new passage block.
-
-Mini tests reuse the existing question bank and passage sets; they do not generate new passages. Passages assigned to full-length exams are excluded from this progression to preserve those exams. Discretes remain recall evidence and passage items remain passage evidence, without claiming a scaled mini-MCAT score. Subject-level reinforcement does not imply an exact topic match between every discrete and passage.
-
-Completed blocks and passage recency are stored on this device. An unfinished mini test is not saved; exiting asks before discarding it. The next-seven-day dates spread work across your selected number of study days; they are suggestions rather than fixed weekday appointments and update as you practice.
-
-## How reinforcement helps you learn
-
-The app uses adaptive practice and spaced repetition to help you retain content, distinguish similar concepts, and retrieve facts more quickly. Here, “reinforcement” means targeted study and feedback; it is not a machine-learning reinforcement-learning model or a guarantee of a higher MCAT score.
-
-| Feature | What it does | Why it is included |
-|---|---|---|
-| Missed-fact loop | Re-asks a missed fact later, in another form when available, aiming for two consecutive correct answers within session limits. | Gives you another retrieval attempt after feedback instead of stopping at reading the explanation. |
-| Delayed review | Schedules facts using estimated memory strength, confidence, correctness, and answer time. | Checks retention beyond the current session; two immediate successes do not establish long-term mastery. |
-| Alternative-answer reflection | After an incorrect answer, optionally asks which other answer you considered. | Supports comparison with the correct answer; this retrospective response is not a validated closeness measure. |
-| Concept comparison | When a submitted wrong answer or another option considered after a mistake matches another recall concept, provides its definition and can add a related recall question. | Helps you identify the distinction between concepts you confuse. Matching definitions are available only where the question bank supports them. |
-| Uncertain-correct reinforcement | Rechecks correct recall answers with guesses, uncertainty, or slow responses, subject to session limits. | A correct selection can still hide uncertainty. |
-| Different question forms | Uses applied scenarios, reverse definitions, and individual blanks where available. | Practices the underlying idea across wording and contexts. |
-| Mixed-topic practice | Interleaves topics and prioritizes due facts and weak areas. | Makes you choose the relevant concept instead of relying on a block of identical problems. |
-| Confidence and mistake review | Tracks confidence, mistake types, and confused pairs; supports short self-explanations. | Helps you choose whether to review content, reasoning, reading, calculations, or pacing. |
-| Speed drills and passages | Times learned facts and passage practice. | Builds retrieval fluency and makes pacing problems visible. |
-
-### Reflecting after an incorrect answer
-
-1. Select an answer to submit it immediately.
-2. Correct answers proceed directly to normal confidence/review controls, without an alternative-answer prompt or closeness analysis.
-3. After an incorrect recall or tutor-passage answer, optionally answer **Which other answer were you considering?** below the feedback. Compare it with the explanation.
-4. Timed mini tests and full-lengths show the prompt only for incorrect submitted answers during post-test review.
-
-The dashboard counts retrospective mistake reflections and how often the recorded alternative was correct. It does not award partial credit or claim to measure scientific closeness. Changing or clearing a reflection updates that attempt rather than adding duplicates. Older before-feedback records are retained but excluded from this new reflection metric; correct-answer alternatives are not analyzed.
-
-### Getting this update
-
-Open or refresh the [live app](https://mcat.collinbgeorge.com/) while online. The service worker fetches current files and keeps an offline copy; this release also changes the cache version so older cached assets are replaced. If an already-open tab still shows the previous flow, close and reopen it, or use **Ctrl+Shift+R** (Windows) / **Cmd+Shift+R** (Mac). Previously cached offline copies need an online visit to receive the update. Refreshing preserves browser progress. Clearing site data removes local copies; confirmed cloud progress can be restored by signing in.
-
----
-
-## Personalized next steps and honest progress
-
-Home now combines demonstrated weak topics, missing practice evidence, and recent mix-ups. It provides direct actions for targeted recall, concept comparison, a CARS baseline, and underrepresented science subjects. Passage recommendations modestly prefer matching topic metadata when available, while still protecting full-length passages and allowing broad practice. The daily passage assignment stays stable and is completed only by matching work in that subject; another subject's passage cannot complete CARS.
-
-New facts and review attempts are counted separately. Repeating a fact does not add new coverage. Existing answers are retained, but earlier attempts cannot be retroactively classified into the new daily split. Once both daily recall goals are met, another Smart Session is labeled optional. Content-coverage pace does not establish exam readiness. Smart Sessions reserve room for sparse subjects as well as due and weak material.
-
-No full-length diagnostic recorded here? The plan adds a baseline within the next week, when time allows, rather than postponing all diagnostics to the final six weeks. Review the result to adjust study priorities, consistent with [AAMC study-plan guidance](https://students-residents.aamc.org/prepare-mcat-exam/creating-your-mcat-exam-study-plan). Thresholds and rankings remain study heuristics, not score guarantees.
-
-## Features
-
-- **Always-visible Home navigation.** Every page away from Home has a top-left **← Home** button that stays visible while scrolling. It uses the normal exit behavior: active full-length exam progress is saved, and an unfinished mini test asks before being discarded.
-
-- **Incorrect-answer reflection.** Selecting an answer submits immediately. Only after a mistake, optionally record the other answer you considered and compare it with the explanation. Timed tests defer this to review; correct answers skip this process.
-
-- **Smart Session (adaptive).** One button builds a session around you:
-  - questions you're about to forget, with confident mistakes first;
-  - your weakest high-yield topics;
-  - new material, weighted by how much of the MCAT each subject covers.
-
-  Questions are pitched near 80% predicted success: easier when you're struggling, harder when you're cruising. Topics are mixed so the same one never runs back to back. If you miss a question, a related question from the same topic follows shortly after, and the missed fact comes back a few questions later, asked a different way when possible. Each question says why it was chosen.
-- **Memory model.** This is a simplified FSRS-style model that replaced the old fixed intervals. Each question's memory strength and difficulty update from whether you were right, how sure you were, and how long you took. Each card comes back when your chance of recalling it drops to about 90%.
-- **Confidence ratings.** After each answer, tap Guessed, Unsure or Knew it (keys G / U / K). A lucky guess isn't counted as mastery, and a wrong answer you were sure of is prioritized.
-- **Drill until it sticks (mastery loop).** In every study session, a question you miss keeps coming back a few questions later until you answer it correctly twice in a row. It's asked in a different form each time when one exists. Facts that are still shaky at the end of a session become top priority for your next review.
-- **Repeat shaky answers.** If you got it right but guessed, weren't sure, or took a long time, the question comes back once later in the session to confirm it stuck.
-- **Learn from your wrong choice.** If the answer you picked is the answer to a different question (for example, picking *transformation* when the answer was *transduction*), the explanation tells you what your choice actually means. That other question then comes up next, so you learn to tell the two apart.
-- **Asked a different way.** There are 3,957 ways to ask the 2,807 facts:
-  - 327 high-yield facts have a hand-written **applied** version: a clinical or lab scenario, a prediction ("what happens if…"), or a NOT/EXCEPT question. Recalling a definition is not the same as using it, and the MCAT asks you to use it;
-  - 565 definition questions can be reversed: the app shows the term and asks which description fits, with wrong answers drawn from definitions in the same topic;
-  - multi-blank questions can be asked one blank at a time, with the other blanks filled in.
-
-  Facts you've missed before come back in a different form when they're due, so you can't pass by recognizing the wording.
-- **Data & reasoning sets.** 24 original experiments with data tables (4 per science discipline, plus psychology and sociology) test the AAMC's scientific reasoning skills: predicting from data (Skill 2), research design, controls and confounds (Skill 3), and reading trends, calculations and statistics (Skill 4). Each question shows the skill it tests.
-- **Pacing.** Passage mode shows your time against the AAMC pace (about 95 seconds per science question and 102 per CARS question), and the results show whether you were on pace and which questions ran long.
-- **⚡ Speed drill.** 20 facts you've already learned, 20 seconds each. A timeout counts as a miss, so slow facts come back for review. The Score report shows your median recall time per subject: fast recall leaves more time for passage reasoning.
-- **Explain it.** After a miss you can write one sentence on why the right answer is right. Self-explanation turns a mistake into understanding, and your notes appear in the mistake log for review before an exam.
-- **Study-habit nudges.** A break reminder after 45 minutes of continuous study, and an evidence-based study tip on each results screen.
-- **Recall first (optional).** Hide the answer choices until you've thought of the answer (Space to reveal). Producing an answer from memory builds stronger retention than recognizing it in a list.
-- **Mistake log.** After a miss, tap why: didn't know it, mixed it up, misread, calculation slip, or ran out of time. The Score report shows your patterns overall and by subject, your most-confused pairs (for example transduction ↔ transformation), and targeted advice. Passage mode is included.
-- **Confidence calibration.** Shows how often your "Knew it", "Unsure" and "Guessed" answers are actually right in each subject, and flags where you're overconfident (the costliest pattern) or underconfident.
-- **Study plan to your test date.** Enter your MCAT date, study days per week, and daily time. The app then:
-  - spreads unseen material over your study days up to a final review phase;
-  - sets a daily question target (new plus due), and sizes the Smart Session to what's left for today;
-  - tracks whether you're on pace;
-  - recommends an early baseline diagnostic if none is recorded, followed by later full-length milestones and selected official practice exams. An external diagnostic can be marked reviewed without entering a score.
-- **AAMC content categories.** Every psychology and sociology question is tagged individually to its AAMC content category (6A–10A); science questions use their topic's primary category (1A–5E, plus scientific reasoning skills). The map shows coverage, mastery and a one-click drill per category, and lists categories that recall questions don't cover.
-- **Study your exam mistakes.** Full-length exams don't adapt while you take them, just like the real MCAT. Afterward, one click builds a reinforcement session from the subjects you missed, weighted by how many you missed in each.
-- **Topic mastery map.** Every subtopic is rated as weak, building, solid or mastered, with the next recommended focus. Ratings weigh harder questions more and recent answers most.
-- **Shuffled answers.** Choice order is randomized every time, so you learn the content, not the letter position.
-- **Teaching explanations.** Each explanation says why the answer is right and usually why the tempting wrong answer is wrong.
-- **Topic selector.** Pick a subject, a topic, or any mix of the 82 subtopics, with live question counts.
-- **Flagging.** Flag any question (F key) and review all flagged questions later from the home screen.
-- **Drill weak topics.** One click drills every weak topic. Every feature uses the same definition: at least 5 attempts and under 80% correct, ranked by how far below 80% and by MCAT content yield.
-- **Progress dashboard.** Shows all-time accuracy, questions seen, questions mastered, accuracy by subject, your weakest and strongest topics, and your exam history.
-- **Full-length exams that behave like test day:**
-  - Section timers that submit automatically at 0:00, plus optional 10/30/10-minute breaks.
-  - Passage on the left and question on the right on wide screens.
-  - "Mark for review", plus a navigator grid of answered, unanswered and marked questions before you end a section.
-  - No feedback until you finish. Then you get section scores and an estimated total, AAMC percentile ranks, and a full answer review you can filter to incorrect or marked questions.
-  - Progress is saved, so you can leave and resume (the timer pauses).
-- **Keyboard shortcuts:** `1–4` / `A–D` to answer, `Enter` for the next question, `F` to flag. In exams, `←/→` to move between questions and `M` to mark.
-- **Report a problem.** Every explanation has a link that opens a pre-filled GitHub issue.
+Reaching the goal on two separate days in a row moves the path to the next section. Scaled scores use the app's raw-to-scaled table: an estimate, not an AAMC score. A collapsible **Test date & full-length calendar** schedules the full-length exams.
 
 ### MCAT score report
 The **Score report** (home screen) estimates your MCAT the way the AAMC builds it:
@@ -236,17 +106,19 @@ Found something that still looks wrong? Use **Report a problem** under the expla
 ```
 index.html            App shell
 css/styles.css        Styles
-js/app.js             Quiz, passages, exams, spaced repetition, stats and plan integration
-js/study-path.js      Subject progression, passage scheduling and timed mini tests
-js/daily-plan.js      TODAY checklist: pure pacing (computeDailyPlan) and its card
+js/app.js             Card quizzes, passages, exams, stats and score report
+js/mastery.js         TODAY › Section mastery: the daily plan (pure masteryPlan) and its card
+js/study-path.js      Timed test runner shared by the diagnostic and quizzes
+js/daily-plan.js      Test date and full-length calendar
 js/actions.js         Delegated, allowlisted UI actions (strict CSP: no inline handlers)
 js/data-css.js        Allowlisted computed styles (strict CSP: no inline styles)
 js/account.js         Optional Supabase account and cloud progress sync
 vendor/               Self-hosted, SRI-pinned third-party code (Supabase SDK)
 data/                 Question data, one file per subject or exam section
-  qb-*.js             Recall questions  {s: tag, aamc?, q, choices[4], ans, exp}
-  qb-variants-*.js    Applied variants, linked to a recall question by its exact tag + stem  {ofTag, of, kind, q, choices, ans, exp}
-  passages-*.js       Passage-mode passages  {id, title, topic, passage, figure?, questions[]}  (data sets: questions carry skill: 'SIRS 2'–'SIRS 4')
+  qb-aamc-*.js        AAMC Prep cards: QBank packs, Universal Rules, Practice Exam cards (qb-aamc-fl.js)
+  cp-diagnostic.js, cp-pool.js, cp-practice.js   Chem/Phys Diagnostic, daily quizzes, practice passages
+  passages-cars.js    The full-length exams' CARS passages
+  structures.js       RDKit drawings (generated by tools/draw-structures.py)
   exam1.js, exam2-*.js, exams.js   Full-length exam sections and definitions
 sw.js, manifest.webmanifest, icon.svg   Offline support / installable app
 tools/validate.html   Data checker (structure, duplicate choices, broken cloze keys, letter references, giveaways)
@@ -255,7 +127,7 @@ tools/serve.ps1       Tiny local web server for development
 
 ### Testing study progression
 
-Run `node tools/test-study-path.cjs`, `node tools/test-final-two.cjs`, `node tools/test-audit.cjs`, `node tools/test-editorial.cjs`, `node tools/test-learning-guide.cjs`, and `node tools/check-content.cjs`. GitHub Actions runs these on Windows and Linux. A Linux Chrome smoke test (`node tools/test-browser.cjs`, Node 22+ and Chrome required) also checks actual page loading and interactions. The progression integration test loads the real question and passage data with a simulated DOM and checks readiness, subject matching, time budgets, deferred feedback, timeout scoring, persistence, and repeat-completion guards. It does not replace browser visual testing.
+Run `node tools/test-mastery.cjs`, `node tools/test-study-path.cjs` (TODAY's passage step in the real app code), `node tools/test-cp-diagnostic.cjs`, `node tools/test-final-two.cjs`, `node tools/test-audit.cjs`, `node tools/test-editorial.cjs`, `node tools/test-learning-guide.cjs`, and `node tools/check-content.cjs`. GitHub Actions runs these on Windows and Linux. A Linux Chrome smoke test (`node tools/test-browser.cjs`, Node 22+ and Chrome required) also checks actual page loading and interactions. The integration tests load the real data with a simulated DOM. They do not replace browser visual testing.
 
 Run every suite with `for f in tools/test-*.cjs tools/check-content.cjs; do node "$f" || break; done`. Beyond the feature tests:
 
@@ -266,7 +138,7 @@ Run every suite with `for f in tools/test-*.cjs tools/check-content.cjs; do node
 - **`test-daily-plan.cjs`**: also enforces an efficiency budget. One home render parses the large memory record at most once, and a repeat render not at all.
 
 ### Editing questions
-1. Edit the relevant file in `data/`. When revising an existing recall stem, retain its original text in `idStem` so saved memory, flags, and exact-stem variant links keep their identity; do not change an existing `idStem`. Keep the `s:` tag (it drives the topic selector). `ans` is the 0-based index of the correct choice; order doesn't matter, because choices are shuffled when shown.
+1. Edit the relevant file in `data/`. When revising an existing card stem, retain its original text in `idStem` so saved memory and flags keep their identity; do not change an existing `idStem`. Keep the `s:` tag (it drives the topic selector). `ans` is the 0-based index of the correct choice; order doesn't matter, because choices are shuffled when shown.
 2. Don't refer to choices by letter in explanations, since the letters change.
 3. Run a local server and open the validator:
    ```
@@ -278,7 +150,7 @@ Run every suite with `for f in tools/test-*.cjs tools/check-content.cjs; do node
 ---
 
 ## Source material
-The recall questions are derived from the [**MCAT Milesdown** Anki deck by MileDown](https://ankiweb.net/shared/info/178384887) (AnkiWeb shared deck 178384887, 2,884 cloze notes, last updated May 2020). They were converted to multiple choice and substantially edited for accuracy. Credit for the original cards belongs to their creator, and MileDown is not affiliated with this project. All passages, CARS passages, data sets (fictional studies), applied variants and full-length exam items are original.
+All questions, passages and exam items are original to this app. The AAMC Prep cards and the Chem/Phys passages are written from the concepts the AAMC practice materials test; no AAMC passages, questions or answer choices are reproduced.
 
 ## Privacy
 Guest progress stays on this browser. Optional accounts use Supabase Auth for email/password authentication, and signed-in progress is stored with Supabase. The app does not store passwords in study data. When you create an account or set a new password, and once after each sign-in, the first 5 characters of the password's SHA-1 hash are sent to HaveIBeenPwned (`api.pwnedpasswords.com`, served by Cloudflare) to check for known breaches; the password and its full hash never leave the device, and nothing else is sent. There are no analytics, ads or tracking cookies. **Reset all progress** clears the active copy and queues the cleared copy for cloud sync; clearing browser storage alone does not remove cloud data. Account deletion is self-service: signed-in users choose **Delete my account and cloud data** in the account panel and type DELETE to confirm. This permanently removes the Supabase account and its synced progress (`delete_my_account()` in `supabase/schema.sql`) along with this device's copy. Never put passwords or private study records in a public GitHub issue. The site is hosted on GitHub Pages, which may keep standard server logs under the [GitHub Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement). Visits to mcat.collinbgeorge.com pass through Cloudflare, which adds the security headers, before reaching GitHub Pages. Cloudflare keeps its own standard request logs, such as IP address and requested URL. "Report a problem" opens a **public** GitHub issue.
@@ -287,13 +159,13 @@ Guest progress stays on this browser. Optional accounts use Supabase Auth for em
 For MCAT study only. This is not medical, clinical or psychological advice. Content is provided as is, and errors are possible. Score estimates are study aids, not predictions of official scores. The full text is on the app's **About & disclaimers** page.
 
 ## License
-The app's code and original content are licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/): free to share and adapt with attribution, but not for commercial use. Third-party material, including the original MileDown cards, remains subject to its owners' terms.
+The app's code and original content are licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/): free to share and adapt with attribution, but not for commercial use.
 
 ## Citation
 George, C. B. (2026). *MCAT Study App* (Version 2.6). https://github.com/collingeorge/MCAT
 
 ---
-*For MCAT practice only. MCAT® is a registered trademark of the Association of American Medical Colleges (AAMC), which does not endorse this project. Not affiliated with the AAMC or MileDown.*
+*For MCAT practice only. MCAT® is a registered trademark of the Association of American Medical Colleges (AAMC), which does not endorse this project. Not affiliated with the AAMC.*
 
 ## Learning evidence and weekly readiness
 
