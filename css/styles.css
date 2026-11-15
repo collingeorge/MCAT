@@ -502,6 +502,7 @@ body::before{
 .missed-tag{font-size:10px;color:var(--navy-mid);letter-spacing:.06em;text-transform:uppercase;font-weight:700;margin-bottom:4px}
 .missed-exp{margin-top:6px;font-size:12px;color:var(--text-body);line-height:1.7}
 .missed-exp summary{cursor:pointer;color:var(--navy-mid);font-weight:700;font-size:11px}
+.twin-from{margin-top:8px;font-size:12px;color:var(--text-body);line-height:1.6}.twin-from .text-btn{margin-left:4px}
 .missed-exp p{margin:6px 0 0}
 .hist-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:6px 0;border-bottom:1px solid var(--border)}
 

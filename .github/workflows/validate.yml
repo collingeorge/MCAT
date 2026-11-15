@@ -57,6 +57,8 @@ jobs:
         run: node tools/test-aamc-format.cjs
       - name: Worked methods (How to work it out)
         run: node tools/test-worked-methods.cjs
+      - name: Twins of studied cards (C/P tests)
+        run: node tools/test-twins.cjs
       - name: Cloud account isolation and sync regression
         run: node tools/test-account.cjs
       - name: Content validation

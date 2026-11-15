@@ -160,7 +160,9 @@ assert(fs.readFileSync(root + '/sw.js', 'utf8').includes("'js/mastery.js'"), 'ca
 // After the quiz, below goal: the follow-up reviews the quiz's misses and weak categories with flashcards and
 // guided cards only; it never sends the student to practice passages. The quiz unlocks once steps 1 and 2 are done.
 { let mp = apply({}, test('cp', '2026-11-15', 'diagnostic', 122, { version: 'cp_diag' }));
-  assert(!plan(mp, '2026-11-15').steps[0].old, 'a versioned diagnostic is current');
+  assert(plan(mp, '2026-11-15').steps[0].old, 'a diagnostic from the earlier version (cp_diag) is labeled as earlier');
+  mp = apply({}, test('cp', '2026-11-15', 'diagnostic', 122, { version: 'cp_diag2' }));
+  assert(!plan(mp, '2026-11-15').steps[0].old, 'the current diagnostic version is current');
   mp = apply(mp, test('cp', '2026-11-16', 'daily', 120, { version: 'cp_half_1' }));
   const f = plan(mp, '2026-11-16', { guided: 266, passages: 144 }).steps.at(-1);
   assert.equal(f.id, 'followup'); assert(!f.atGoal && !('passages' in f), 'below goal: no passage practice'); }
@@ -169,7 +171,7 @@ assert(!/startMasteryPassages|masteryNextPractice|masteryNotePractice|masteryPas
 assert(src.includes("if (kind !== 'diagnostic' && !masteryQuizUnlocked(plan))") && src.includes("plan.steps.filter(s => s.id === 'flashcards' || s.id === 'guided').every(s => s.done)"), 'the quiz unlocks once steps 1 and 2 are done');
 assert(src.includes("'<p class=\"muted-note\">Unlocks when steps 1 and 2 are done.</p>'"), 'TODAY shows the quiz locked until then');
 // Results saved before the Chem/Phys Diagnostic existed (no version) are labeled as the old diagnostic.
-assert(src.includes("version: mini.setId || 'cards'") && src.includes('old diagnostic version'), 'old diagnostic labeled');
+assert(src.includes("version: mini.setId || 'cards'") && src.includes('<b>earlier version</b> of the diagnostic'), 'old diagnostic labeled');
 // A retake button runs the full diagnostic again once the first one is done.
 assert(src.includes("btn('Retake diagnostic', \"startMasteryTest('diagnostic')\", s.old)"), 'step 1 offers the retake (the main button while the old diagnostic is current)');
 assert(src.includes('function startMasteryFollowup(kind)') && fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'startMasteryFollowup'"), 'after-quiz practice wired and allowlisted');

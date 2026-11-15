@@ -1,0 +1,808 @@
+{
+ "order": [
+  "p_cpq4_1",
+  "p_cpq4_2",
+  4,
+  "p_cpq4_3",
+  "p_cpq4_4",
+  "p_cpq4_5",
+  4
+ ],
+ "passages": [
+  {
+   "id": "p_cpq4_1",
+   "subj": "organic_chem",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "5D",
+    "5C",
+    "5B"
+   ],
+   "title": "Three Reactions of Alkyl Halides",
+   "passage": "Alkyl halides are usually made from alcohols, and they are then converted into other functional groups by nucleophilic substitution. An undergraduate research group studied three reactions of this kind.\n\nIn Reaction 1, 3-methyl-2-pentanol was heated under reflux with concentrated hydrobromic acid. After workup, four products were isolated and identified by NMR spectroscopy: Product W, 2-bromo-3-methylpentane; Product X, 3-bromo-3-methylpentane; Product Y, 3-methyl-1-pentene; and Product Z, 3-methyl-2-pentene. Before purification, a sample of the crude organic layer, which still held some unreacted alcohol, was analyzed by gas chromatography (GC) on a nonpolar column kept at 110 °C, with helium as the carrier gas.\n\nIn Reaction 2, several alkyl bromides were tested separately with a 15% sodium iodide solution in acetone at 40 °C. Sodium iodide dissolves in acetone but sodium bromide does not, so the time until a cloudy precipitate appeared served as a measure of how fast each bromide reacted.\n\nIn Reaction 3, enantiomerically pure (R)-3-bromohexane was stirred with sodium azide, NaN₃, in dimethyl sulfoxide (DMSO), a polar aprotic solvent. Kinetic runs at several starting concentrations showed that the rate was first order in the alkyl bromide and first order in azide ion. Azide ion is a strong nucleophile but a weak base, and the group isolated a single major organic product.",
+   "questions": [
+    {
+     "q": "Which bromide would form a precipitate first under the conditions of Reaction 2?",
+     "choices": [
+      "3-Bromo-3-methylpentane",
+      "Bromocyclohexane",
+      "Bromoethane",
+      "3-(Bromomethyl)-3-methylpentane"
+     ],
+     "ans": 2,
+     "cat": "5D",
+     "skill": "SIRS 3",
+     "diff": "D",
+     "twin": "pe1-cp:6",
+     "exp": "1. Name the mechanism from the conditions: iodide, a strong nucleophile, in acetone, a polar aprotic solvent → SN2. R–Br + I⁻ → R–I + Br⁻ in one step; rate = k[R–Br][I⁻]; NaBr is insoluble in acetone, so the **precipitate** marks the reaction.\n2. In SN2, I⁻ must reach the back of the C–Br carbon. Count the carbons attached to that carbon: 3-bromo-3-methylpentane: **3** C → 3°, no SN2; bromocyclohexane: **2** C → 2°, slow; bromoethane: **1** C → 1°; 3-(bromomethyl)-3-methylpentane: **1** C → 1°, but that carbon carries a CH₃ and two ethyl groups.\n3. Tertiary and secondary carbons are crowded at the back side, so \"3-Bromo-3-methylpentane\" and \"Bromocyclohexane\" are slow.\n4. Compare the two primary bromides. In 3-(bromomethyl)-3-methylpentane the neighboring carbon is quaternary, like the one in neopentyl bromide, and its three alkyl groups sit right where I⁻ must enter, so it reacts extremely slowly. Bromoethane's neighbor is only a CH₃.\n5. Answer: bromoethane.\n\n**Rule to reuse:** SN2 is fastest when the C–X carbon and its neighbor are least crowded (1° > 2° ≫ 3°). For each choice, count carbons on and next to the C–Br carbon.",
+     "id": "p_cpq4_1_q1"
+    },
+    {
+     "q": "Which product of Reaction 1 could form only if a hydrogen or a methyl group first shifted within the carbocation intermediate?",
+     "choices": [
+      "Product W",
+      "Product Y",
+      "Product Z",
+      "Product X"
+     ],
+     "ans": 3,
+     "cat": "5D",
+     "skill": "SIRS 3",
+     "diff": "X",
+     "twin": "pe1-cp:7",
+     "exp": "1. Hot HBr with a 2° alcohol: –OH is protonated, water leaves C2, and a 2° cation forms there. Its neighbor C3 carries one H (plus a CH₃ and an ethyl group). CH₃–CH(OH)–CH(CH₃)–CH₂CH₃ + H⁺ → CH₃–CH(OH₂⁺)–CH(CH₃)–CH₂CH₃ → CH₃–**C⁺H**–CH(CH₃)–CH₂CH₃ + H₂O (2° at C2).\n2. List what the C2 cation gives directly: Br⁻ at C2 → 2-bromo-3-methylpentane (Product W); loss of H⁺ from C1 → C1=C2 → 3-methyl-1-pentene (Product Y); loss of H⁺ from C3 → C2=C3 → **3-methyl-2-pentene** (Product Z). So \"Product W\", \"Product Y\" and \"Product Z\" all have a direct route.\n3. Product X, 3-bromo-3-methylpentane, has Br on C3, a carbon that never held the OH. That needs the C3 hydrogen to shift to C2 first: 2° C⁺ at C2 → 1,2-H shift → **3° C⁺** at C3; 3° C⁺ + Br⁻ → 3-bromo-3-methylpentane. (Product Z can also form from this 3° cation, but it has a direct route as well.)\n4. Answer: Product X.\n\n**Rule to reuse:** a new group on the OH carbon, or a C=C touching it, forms directly; on any other carbon, something moved first. Check each product.",
+     "id": "p_cpq4_1_q2"
+    },
+    {
+     "q": "In the GC analysis of the crude product from Reaction 1, which component elutes first, and for what reason?",
+     "choices": [
+      "Alcohol, highest polarity",
+      "Bromide, largest mass",
+      "Alkene, lowest boiling point",
+      "Bromide, lowest polarity"
+     ],
+     "ans": 2,
+     "cat": "5C",
+     "skill": "SIRS 3",
+     "diff": "M",
+     "twin": "pe1-cp:8",
+     "exp": "1. In GC the mobile phase is a gas. A component that boils easily spends more time in the gas and reaches the detector first.\n2. Rank the intermolecular forces: unreacted 3-methyl-2-pentanol (102 g/mol): hydrogen bonding + dipole + London; the bromides W and X (165 g/mol): dipole + large London forces from the heavy, polarizable Br; the alkenes Y and Z (84 g/mol): **London forces only, smallest mass**.\n3. Weakest forces → lowest boiling point → most volatile. The boiling points agree: the alkenes boil between about 54 and 70 °C, while the alcohol boils near 134 °C.\n4. Polarity and mass both RAISE the boiling point, so \"Alcohol, highest polarity\" and \"Bromide, largest mass\" describe components that come out late, not first.\n5. The bromide is not the least polar component; the alkenes are, so \"Bromide, lowest polarity\" is false. Answer: alkene, lowest boiling point.\n\n**Rule to reuse:** in GC, order of exit = order of boiling point. Weakest intermolecular forces (no H-bonding, small mass) → most volatile → reaches the detector first.",
+     "id": "p_cpq4_1_q3"
+    },
+    {
+     "q": "What is the major organic product of Reaction 3?",
+     "choices": [
+      "(R)-3-Azidohexane",
+      "(S)-3-Azidohexane",
+      "Hexyl azide",
+      "(E)-3-Hexene"
+     ],
+     "ans": 1,
+     "cat": "5B",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe1-cp:9",
+     "exp": "1. Read the rate law: first order in each reactant → bimolecular, one step → **SN2**. One step means no carbocation, so no racemization and no shifts.\n2. Find the stereocenter: C3 carries Br, an ethyl group, a propyl group and H. N₃⁻ enters from the side opposite Br, and the arrangement inverts.\n3. Check whether the priority order changes when N₃ replaces Br. Before: **Br** (Z = 35) > propyl > ethyl > H. After: **N₃** (Z = 7) > propyl > ethyl > H (propyl beats ethyl at the second carbon, C versus H). Same rank order + inverted arrangement → R becomes **S**.\n4. Retention, \"(R)-3-Azidohexane\", would need attack from the Br side. \"Hexyl azide\" puts N₃ on the wrong carbon, and \"(E)-3-Hexene\" is an elimination product, which a strong but weakly basic nucleophile with an SN2 rate law does not give.\n5. Answer: (S)-3-azidohexane.\n\n**Rule to reuse:** SN2 = same carbon, inverted; if the new group keeps the old rank, R/S flips. For each choice, check N₃'s carbon, any C=C, and the R/S label.",
+     "id": "p_cpq4_1_q4"
+    }
+   ]
+  },
+  {
+   "id": "p_cpq4_2",
+   "subj": "gen_chem",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "5B",
+    "5A",
+    "4E"
+   ],
+   "title": "Methylamine and the Fountain Experiment",
+   "passage": "Methylamine, CH₃NH₂, is a colorless gas with a fishy odor. It is the simplest primary amine and, like ammonia, is very soluble in water, where it acts as a weak base: CH₃NH₂ + H₂O ⇌ CH₃NH₃⁺ + OH⁻, Kb = 4.4 × 10⁻⁴. Its conjugate acid, CH₃NH₃⁺, has Ka = 2.3 × 10⁻¹¹. Aqueous methylamine is sold at several concentrations, and a 0.50 M stock is common in teaching laboratories.\n\nIn one classroom demonstration, methylamine gas is generated by gently heating methylammonium chloride with the solid hydroxide of a metal X. Metal X has successive ionization energies, first through fourth, of 590, 1145, 4912, and 6491 kJ/mol. The gas is collected in a dry, inverted flask, which is then closed with a stopper that holds a dropper of water and a glass tube. The lower end of the tube dips into a beaker of water containing phenolphthalein. When a few drops of water are squeezed into the flask, beaker water sprays up through the tube into the flask as a pink fountain.\n\nThe instructor then filled the same apparatus with other gases, listed with methylamine in Table 1, to show students how molecular structure affects behavior in water. Only some of these gases produced a fountain, and the students were asked to explain the difference.",
+   "figure": {
+    "caption": "Table 1 Gases used in the fountain apparatus",
+    "columns": [
+     "Gas",
+     "Condensed formula",
+     "Molar mass (g/mol)",
+     "Boiling point (°C)"
+    ],
+    "rows": [
+     [
+      "Methylamine",
+      "CH₃NH₂",
+      "31",
+      "−6"
+     ],
+     [
+      "Trimethylamine",
+      "(CH₃)₃N",
+      "59",
+      "3"
+     ],
+     [
+      "Dimethyl ether",
+      "CH₃OCH₃",
+      "46",
+      "−24"
+     ],
+     [
+      "Fluoromethane",
+      "CH₃F",
+      "34",
+      "−78"
+     ]
+    ]
+   },
+   "questions": [
+    {
+     "q": "Based on Table 1, which compound, as a pure liquid, forms hydrogen bonds with other molecules of its own kind?",
+     "choices": [
+      "Trimethylamine",
+      "Fluoromethane",
+      "Dimethyl ether",
+      "Methylamine"
+     ],
+     "ans": 3,
+     "cat": "5B",
+     "skill": "SIRS 4",
+     "diff": "D",
+     "twin": "pe4-cp:17",
+     "exp": "1. The question asks about hydrogen bonds between identical molecules, so each molecule must both donate and accept.\n2. Check each heteroatom in Table 1 for an attached H: trimethylamine, (CH₃)₃N: H on N = **0**; fluoromethane, CH₃F: H on F = **0** (all three H are on C); dimethyl ether, CH₃OCH₃: H on O = **0**; methylamine, CH₃NH₂: H on N = **2**.\n3. No donor H means no self-hydrogen-bonding, even with a lone pair present, so \"Trimethylamine\", \"Fluoromethane\" and \"Dimethyl ether\" are out.\n4. Methylamine's N–H donates to the lone pair on a neighbor's N. The table agrees: methylamine (31 g/mol) boils at −6 °C, above the heavier dimethyl ether (46 g/mol, −24 °C).\n5. Answer: methylamine.\n\n**Rule to reuse:** self hydrogen bonding needs an **H directly on N, O or F**. In each formula, find every N and O and ask: is an H attached?",
+     "id": "p_cpq4_2_q1"
+    },
+    {
+     "q": "Approximately what is [CH₃NH₃⁺] at equilibrium in the 0.50 M methylamine stock described in the passage?",
+     "choices": [
+      "0.0034 mM",
+      "0.22 mM",
+      "15 mM",
+      "21 mM"
+     ],
+     "ans": 2,
+     "cat": "5A",
+     "skill": "SIRS 2",
+     "diff": "X",
+     "twin": "pe4-cp:18",
+     "exp": "1. Translate: methylamine is a weak base; [CH₃NH₃⁺] equals the x formed by CH₃NH₂ + H₂O ⇌ CH₃NH₃⁺ + OH⁻.\n2. Pick the right constant: the reaction uses CH₃NH₂ as a base, so use Kb. The Ka of CH₃NH₃⁺ is extra data.\n3. Set up the weak-base approximation: Kb = x² ÷ (C − x) ≈ x² ÷ C; x² = **4.4 × 10⁻⁴** × **0.50** = **2.2 × 10⁻⁴**; x = √(2.2 × 10⁻⁴) ≈ **1.5 × 10⁻² M = 15 mM**.\n4. The wrong choices come from forgetting the square root, using Ka, or leaving out C: x² = 2.2 × 10⁻⁴ M = \"0.22 mM\"; √(Ka × C) = √(1.15 × 10⁻¹¹) ≈ 3.4 × 10⁻⁶ M = \"0.0034 mM\"; √Kb = √(4.4 × 10⁻⁴) ≈ 0.021 M = \"21 mM\".\n5. Check the approximation: 0.015 M ÷ 0.50 M = 3% ionized, under 5%, so dropping x from C − x was valid.\n6. Answer: [CH₃NH₃⁺] ≈ 15 mM.\n\n**Rule to reuse:** weak base of concentration C: [OH⁻] = [BH⁺] ≈ √(Kb × C). Use the constant of the species you start with; for a weak acid, √(Ka × C).",
+     "id": "p_cpq4_2_q2"
+    },
+    {
+     "q": "If the flask were filled with ethane, CH₃CH₃, instead of methylamine, which result would be expected?",
+     "choices": [
+      "A fountain; ethane dissolves as readily",
+      "No fountain; nonpolar ethane barely dissolves",
+      "A fountain; ethane reacts with water",
+      "No fountain; polar ethane remains gaseous"
+     ],
+     "ans": 1,
+     "cat": "5A",
+     "skill": "SIRS 1",
+     "diff": "D",
+     "twin": "pe4-cp:19",
+     "exp": "1. Translate the demonstration: the fountain forms because methylamine leaves the gas phase by dissolving in the few drops of water, so the pressure inside the flask drops below the outside air pressure.\n2. Link moles of gas to pressure at fixed V and T: PV = nRT → P ∝ n; methylamine dissolves: n(gas) ↓ → **P(inside) ↓**; P(outside) > P(inside) → air pressure on the beaker pushes water up the tube.\n3. Now judge ethane: its C–C and C–H bonds are nearly nonpolar and the molecule is symmetric, so ethane is nonpolar and barely dissolves in water. It is not polar and does not react with water, so \"A fountain; ethane reacts with water\" and \"No fountain; polar ethane remains gaseous\" fail.\n4. Little ethane dissolves, so n(gas) and the pressure stay almost constant: **P(inside) ≈ P(outside)** → no fountain. \"A fountain; ethane dissolves as readily\" is wrong.\n5. Answer: no fountain; nonpolar ethane barely dissolves.\n\n**Rule to reuse:** a sealed container collapses only if its gas disappears (dissolves or reacts). Polar/H-bonding gases dissolve in water; nonpolar gases do not.",
+     "id": "p_cpq4_2_q3"
+    },
+    {
+     "q": "The ionization energies of metal X given in the passage indicate that X is in which family, and what is its usual ion?",
+     "choices": [
+      "Alkali metal; X⁺",
+      "Alkaline earth metal; X²⁺",
+      "Boron family; X³⁺",
+      "Carbon family; X⁴⁺"
+     ],
+     "ans": 1,
+     "cat": "4E",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe4-cp:20",
+     "exp": "1. The passage gives four successive ionization energies; find where they break.\n2. Look at the 3rd and 4th values: both are far larger than the first two.\n3. Compare each step as a ratio: IE2 ÷ IE1 = 1145 ÷ 590 ≈ **1.9**; IE3 ÷ IE2 = 4912 ÷ 1145 ≈ **4.3** ← biggest break; IE4 ÷ IE3 = 6491 ÷ 4912 ≈ **1.3**.\n4. Two electrons come off before the break, so X has two valence electrons. One, three or four valence electrons do not fit, so \"Alkali metal; X⁺\", \"Boron family; X³⁺\" and \"Carbon family; X⁴⁺\" are out.\n5. Answer: alkaline earth metal (Group 2); X²⁺. These are calcium's values, and Ca(OH)₂ is a common base for releasing an amine from its salt.\n\n**Rule to reuse:** in successive ionization energies, count the electrons removed before the giant jump: that is the number of valence electrons and the ion's charge.",
+     "id": "p_cpq4_2_q4"
+    }
+   ]
+  },
+  {
+   "id": "p_cpq4_3",
+   "subj": "biochemistry",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "5E",
+    "5D"
+   ],
+   "title": "Engineering Bacteria to Make Indole",
+   "passage": "Indole, a bicyclic aromatic compound that contributes to the scent of jasmine, is used in perfumes. A biotechnology group engineered Escherichia coli to make indole from glucose. In the engineered strain, a short linear pathway is active: enzyme TrpS converts a precursor into tryptophan, tryptophanase (TnaA) cleaves tryptophan to release indole, and a flavin monooxygenase (FmoA) oxidizes indole to indoxyl. Indoxyl reacts with O₂ from the air and dimerizes to indigo, a blue dye that stains both the culture and the product.\n\nTnaA requires the cofactor pyridoxal phosphate (PLP), whose aldehyde group forms an imine with the amino group of the substrate. To guide the design of a more active enzyme, the group solved a crystal structure of TnaA with a bound inhibitor. The inhibitor's protonated amino group, which carries a charge of +1 at pH 7, lies 2.9 Å from the side chain of one active-site residue, where the two form a salt bridge, while the inhibitor's indole ring is stacked parallel to the ring of a second residue at a distance of 3.6 Å.\n\nBecause the blue color appears quickly in cultures, the group also studied the nonenzymatic air oxidation of indoxyl. Figure 1 shows the free-energy profile they obtained for this step, from indoxyl and O₂ on the left, through the transition state, to the oxidized product on the right. Steps whose activation energy is under roughly 45 kJ/mol occur rapidly at 310 K.",
+   "figure": {
+    "type": "line",
+    "caption": "Figure 1 Free energy along the reaction coordinate for the air oxidation of indoxyl",
+    "x": {
+     "label": "Reaction progress",
+     "min": 0,
+     "max": 10,
+     "step": 2
+    },
+    "y": {
+     "label": "Free energy (kJ/mol)",
+     "min": 0,
+     "max": 70,
+     "step": 10
+    },
+    "series": [
+     {
+      "name": "Indoxyl oxidation",
+      "marker": "circle",
+      "line": "smooth",
+      "points": [
+       [
+        0,
+        25
+       ],
+       [
+        1,
+        25
+       ],
+       [
+        2,
+        29
+       ],
+       [
+        3,
+        40
+       ],
+       [
+        4,
+        53
+       ],
+       [
+        5,
+        60
+       ],
+       [
+        6,
+        52
+       ],
+       [
+        7,
+        33
+       ],
+       [
+        8,
+        15
+       ],
+       [
+        9,
+        6
+       ],
+       [
+        10,
+        5
+       ]
+      ]
+     }
+    ]
+   },
+   "questions": [
+    {
+     "q": "To accumulate indole in the engineered strain while eliminating the blue stain, which enzyme's gene should be deleted?",
+     "choices": [
+      "TnaA",
+      "TrpS",
+      "TrpS and FmoA",
+      "FmoA"
+     ],
+     "ans": 3,
+     "cat": "5E",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe5-cp:41",
+     "exp": "1. Write the pathway and the goal: precursor —TrpS→ tryptophan —TnaA→ **indole** —FmoA→ indoxyl → indigo; goal: keep **indole**, lose indoxyl and the blue indigo.\n2. Knocking out TrpS stops everything after the precursor: no tryptophan, indole or indoxyl. Losing the stain is good, but losing indole fails the goal, so \"TrpS\" and \"TrpS and FmoA\" are out.\n3. Knocking out TnaA stops indole itself from being made, so \"TnaA\" is out.\n4. Block the step right after the desired product. Indole is still made and has nowhere to go, so it builds up while indoxyl and indigo disappear. Answer: FmoA.\n\n**Rule to reuse:** to build up a compound in a chain, block the enzyme right after it. To remove a compound, block any step before it.",
+     "id": "p_cpq4_3_q1"
+    },
+    {
+     "q": "Which two residues best account for the two inhibitor contacts seen in the TnaA crystal structure?",
+     "choices": [
+      "Lysine and phenylalanine",
+      "Aspartate and phenylalanine",
+      "Glutamate and asparagine",
+      "Arginine and tryptophan"
+     ],
+     "ans": 1,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe5-cp:42",
+     "exp": "1. A salt bridge pairs opposite charges. The inhibitor's +1 ammonium group needs a negative side chain: Asp or Glu.\n2. Lys and Arg are positive at pH 7, so they would repel the ammonium group; \"Lysine and phenylalanine\" and \"Arginine and tryptophan\" are out.\n3. Parallel stacking needs an aromatic ring: Phe, Tyr or Trp. Asn has none, so \"Glutamate and asparagine\" is out.\n4. Asp's carboxylate (−1) bridges the ammonium group, and Phe's benzene ring stacks with the indole ring. Answer: aspartate and phenylalanine.\n\n**Rule to reuse:** salt bridge to a negative group → Lys or Arg; to a positive group → Asp or Glu. Parallel ring stacking → Phe, Tyr or Trp.",
+     "id": "p_cpq4_3_q2"
+    },
+    {
+     "q": "TnaA catalyzes C₁₁H₁₂N₂O₂ (tryptophan, as a zwitterion) + H₂O → C₃H₃O₃⁻ (pyruvate) + NH₄⁺ + ___. What is the missing product?",
+     "choices": [
+      "C₈H₆N⁻",
+      "C₈H₇N",
+      "C₈H₈N⁺",
+      "C₈H₉NO"
+     ],
+     "ans": 1,
+     "cat": "5E",
+     "skill": "SIRS 2",
+     "diff": "M",
+     "twin": "pe5-cp:43",
+     "exp": "1. Count the reactants. Tryptophan zwitterion C₁₁H₁₂N₂O₂ (NH₃⁺ and COO⁻, charge 0) + H₂O: C: 11; H: 12 + 2 = 14; N: 2; O: 2 + 1 = 3; charge: **0**.\n2. Count the known products and subtract. C₃H₃O₃⁻ + NH₄⁺: C 3, H 3 + 4 = 7, N 1, O 3, charge −1 + 1 = 0. Missing = C 11 − 3 = 8; H 14 − 7 = 7; N 2 − 1 = 1; O 3 − 3 = 0; charge 0 − 0 = 0 → **C₈H₇N** (indole).\n3. No oxygen is left over, so \"C₈H₉NO\" (indole plus a water) cannot balance it. No charge is left over either: \"C₈H₆N⁻\" treats pyruvate as neutral pyruvic acid, C₃H₄O₃, and \"C₈H₈N⁺\" treats ammonium as neutral NH₃.\n4. Answer: C₈H₇N.\n\n**Rule to reuse:** to find a missing product, count every atom and the net charge on both sides; the difference is the missing species.",
+     "id": "p_cpq4_3_q3"
+    },
+    {
+     "q": "According to Figure 1 and the passage, the air oxidation of indoxyl is best described as:",
+     "choices": [
+      "fast and spontaneous.",
+      "slow and spontaneous.",
+      "fast and nonspontaneous.",
+      "slow and nonspontaneous."
+     ],
+     "ans": 0,
+     "cat": "5E",
+     "skill": "SIRS 4",
+     "diff": "X",
+     "subj": "gen_chem",
+     "twin": "pe5-cp:44",
+     "exp": "1. Read the three key heights in Figure 1: reactants **25 kJ/mol**; transition state **60 kJ/mol**; products **5 kJ/mol**.\n2. Ea is the climb from the reactants to the peak. Compare it with the cutoff: Ea = 60 − 25 = **35 kJ/mol**; 35 < 45 → **fast**.\n3. Ea is low, so drop both slow choices, \"slow and spontaneous.\" and \"slow and nonspontaneous.\" (Reading Ea as the peak height itself, 60 kJ/mol, would wrongly make the step look slow.)\n4. The products end below the reactants: downhill overall. ΔG = 5 − 25 = **−20 kJ/mol**; ΔG < 0 → **spontaneous**, so \"fast and nonspontaneous.\" is out.\n5. Answer: fast and spontaneous, which fits the quick appearance of the blue color.\n\n**Rule to reuse:** Ea = peak − reactants (small Ea = fast). ΔG = products − reactants (negative = spontaneous). Always measure from the reactant level, never from zero.",
+     "id": "p_cpq4_3_q4"
+    }
+   ]
+  },
+  {
+   "id": "p_cpq4_4",
+   "subj": "biochemistry",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "5E",
+    "5D"
+   ],
+   "title": "Cytosine Protonation and DNA Triplexes",
+   "passage": "A DNA triplex forms when a third strand made of pyrimidines lies in the major groove of a double helix and pairs with the purine strand through Hoogsteen hydrogen bonds. Thymine in the third strand pairs with the A of an A–T pair, but cytosine can pair with the G of a G–C pair only when its N3 is protonated (C⁺·G–C). The N3 pKa of free deoxycytidine is about 4.3; inside a triplex the apparent pKa is near 5.5, because nearby phosphate groups stabilize the cation. Methylation of cytosine at C5 raises the apparent pKa further, to about 6.0.\n\nCells also remove methylated cytosines from DNA. TET enzymes use O₂ to oxidize 5-methylcytosine to 5-hydroxymethylcytosine and then to 5-formylcytosine, and a DNA glycosylase then cuts the modified base away from its deoxyribose.\n\nIn Experiment 1, researchers followed the unfolding of two intramolecular triplexes, each a single strand that folds back on itself twice, by UV absorbance at pH 6.0. In Strand A the fifteen triplets form one continuous stack; in Strand B the same triplets are split into three stacks by additional flexible loops. Figure 1 plots the fraction of molecules folded against temperature.\n\nIn Experiment 2, a third intramolecular triplex, Strand C, was held at pH 7.0 and 25 °C, where few of its cytosines are protonated. At equilibrium, 80% of the Strand C molecules were unfolded.",
+   "figure": {
+    "type": "line",
+    "caption": "Figure 1 Unfolding of Strands A and B at pH 6.0",
+    "x": {
+     "label": "Temperature (°C)",
+     "min": 30,
+     "max": 75,
+     "step": 5
+    },
+    "y": {
+     "label": "Fraction folded",
+     "min": 0,
+     "max": 1,
+     "step": 0.2
+    },
+    "series": [
+     {
+      "name": "Strand A",
+      "marker": "circle",
+      "line": "smooth",
+      "points": [
+       [
+        30,
+        1
+       ],
+       [
+        40,
+        1
+       ],
+       [
+        45,
+        0.99
+       ],
+       [
+        48,
+        0.97
+       ],
+       [
+        50,
+        0.9
+       ],
+       [
+        51,
+        0.75
+       ],
+       [
+        52,
+        0.5
+       ],
+       [
+        53,
+        0.25
+       ],
+       [
+        54,
+        0.1
+       ],
+       [
+        56,
+        0.02
+       ],
+       [
+        60,
+        0
+       ],
+       [
+        75,
+        0
+       ]
+      ]
+     },
+     {
+      "name": "Strand B",
+      "marker": "square",
+      "line": "smooth",
+      "points": [
+       [
+        30,
+        0.99
+       ],
+       [
+        35,
+        0.96
+       ],
+       [
+        39,
+        0.9
+       ],
+       [
+        44,
+        0.77
+       ],
+       [
+        48,
+        0.64
+       ],
+       [
+        52,
+        0.5
+       ],
+       [
+        56,
+        0.36
+       ],
+       [
+        60,
+        0.23
+       ],
+       [
+        65,
+        0.1
+       ],
+       [
+        70,
+        0.03
+       ],
+       [
+        75,
+        0.01
+       ]
+      ]
+     }
+    ]
+   },
+   "questions": [
+    {
+     "q": "Enzyme 1 converts 5-hydroxymethylcytosine (–CH₂OH at C5) into 5-formylcytosine (–CHO) using O₂, and enzyme 2 uses water to release that base from deoxyribose. Which enzyme classes describe enzymes 1 and 2, respectively?",
+     "choices": [
+      "Hydrolase; oxidoreductase",
+      "Oxidoreductase; ligase",
+      "Oxidoreductase; hydrolase",
+      "Transferase; ligase"
+     ],
+     "ans": 2,
+     "cat": "5E",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe3-cp:40",
+     "exp": "1. Compare the base before and after enzyme 1. The only change is at C5: –CH₂OH becomes –CHO. C₅H₇N₃O₂ → C₅H₅N₃O₂; change: **−2 H**; that carbon's oxidation state goes from −1 to **+1**, so it is oxidized, with O₂ as the oxidant → **oxidoreductase**.\n2. Nothing was moved from a donor and no water was added in step 1, so enzyme 1 is not a transferase or a hydrolase: \"Hydrolase; oxidoreductase\" and \"Transferase; ligase\" are out.\n3. Look at enzyme 2: 5-formyl-deoxycytidine in DNA + H₂O → free 5-formylcytosine + a sugar left on the backbone. One molecule becomes two, and water is consumed.\n4. A ligase joins two molecules using ATP; here a bond is broken by water, so \"Oxidoreductase; ligase\" is out. Enzyme 2 is a **hydrolase** (a glycosylase).\n5. Answer: oxidoreductase; hydrolase.\n\n**Rule to reuse:** spot the change between two structures, then name it: a group moved from a donor = transferase; C gains O or loses H (often with O₂, NAD⁺ or FAD) = oxidoreductase; water splits one molecule into two = hydrolase; two molecules joined using ATP = ligase.",
+     "id": "p_cpq4_4_q1"
+    },
+    {
+     "q": "For the unfolding of Strand C in Experiment 2 (F ⇌ U, where F is folded and U is unfolded), which expression gives ΔG°′, and what is its sign?",
+     "choices": [
+      "−RT ln([F]/[U]) > 0",
+      "−RT ln([U]/[F]) > 0",
+      "−RT ln([U]/[F]) < 0",
+      "+RT ln([U]/[F]) < 0"
+     ],
+     "ans": 2,
+     "cat": "5E",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe3-cp:41",
+     "exp": "1. Write K for the process as written, products over reactants: F ⇌ U; K = **[U]/[F]**; ΔG°′ = −RT ln K = −RT ln([U]/[F]). \"−RT ln([F]/[U]) > 0\" builds K for folding, the reverse direction.\n2. Plug in the measured fractions: K = 80/20 = **4.0**; ln 4.0 = **+1.39**.\n3. Compute ΔG°′: −RT × (positive number) is negative. RT = 8.314 × 298 = **2478 J/mol**; ΔG°′ = −(2478)(1.39) ≈ **−3.4 kJ/mol**. So \"−RT ln([U]/[F]) > 0\" has the wrong sign, and \"+RT ln([U]/[F]) < 0\" drops the minus sign, which would make the value positive, not negative.\n4. Answer: −RT ln([U]/[F]) < 0. More than half unfolded means K > 1 and ΔG°′ < 0: at pH 7.0, with few protonated cytosines, the unfolded form is favored.\n\n**Rule to reuse:** ΔG° = −RT ln K, with K = products/reactants as written. K < 1 → ΔG° positive (reactants favored); K > 1 → negative.",
+     "id": "p_cpq4_4_q2"
+    },
+    {
+     "q": "Based on Figure 1, which strand unfolds more cooperatively, and why?",
+     "choices": [
+      "Strand B; it melts over more degrees",
+      "Equal; both share the same Tm",
+      "Strand B; it starts melting sooner",
+      "Strand A; it melts over fewer degrees"
+     ],
+     "ans": 3,
+     "cat": "5D",
+     "skill": "SIRS 4",
+     "diff": "X",
+     "twin": "pe3-cp:42",
+     "exp": "1. Read the midpoint of each curve, where fraction folded = 0.5: Tm of Strand A = **52 °C**; Tm of Strand B = **52 °C**. Same midpoint → same stability, not same cooperativity.\n2. Sharing a midpoint says nothing about how sharp each transition is, so \"Equal; both share the same Tm\" is out.\n3. Measure the width of Strand A's transition, from 0.9 to 0.1 folded: 0.90 at 50 °C → 0.10 at 54 °C; width ≈ **4 °C**.\n4. Measure Strand B's width the same way: 0.90 at 39 °C → 0.10 at 65 °C; width ≈ **26 °C**.\n5. A wide, gradual transition is the less cooperative one; starting earlier is not itself a measure of cooperativity, so both Strand B choices are out. The loops in Strand B let its three segments unfold separately.\n6. Answer: Strand A; it melts over fewer degrees.\n\n**Rule to reuse:** on an unfolding curve, the midpoint (Tm, 0.5) = stability; the steepness (narrow 0.9 → 0.1 width) = cooperativity. Read them separately.",
+     "id": "p_cpq4_4_q3"
+    },
+    {
+     "q": "At pH 6.5, compared with a triplex whose third-strand cytosines are unmodified, a triplex in which they are all 5-methylcytosine is:",
+     "choices": [
+      "less stable; less of it is protonated.",
+      "more stable; more of it is protonated.",
+      "less stable; more of it is protonated.",
+      "unchanged; pKa does not matter here."
+     ],
+     "ans": 1,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe3-cp:43",
+     "exp": "1. The triplex depends on protonated cytosines (C⁺·G–C).\n2. Compare pH with each apparent pKa: unmodified: pH − pKa = 6.5 − 5.5 = 1.0; methylated: pH − pKa = 6.5 − 6.0 = **0.5** → closer to its pKa → **more protonated**. Fraction protonated = 1 ÷ (1 + 10^(pH − pKa)): 1 ÷ 11 ≈ 0.09 versus 1 ÷ 4.2 ≈ 0.24.\n3. A higher pKa means more readily protonated, so the \"less of it is protonated\" choice is backwards; \"less stable; more of it is protonated.\" pairs the right protonation with the wrong outcome; and protonation is exactly what this structure needs, so \"unchanged; pKa does not matter here.\" fails.\n4. Answer: more stable; more of it is protonated.\n\n**Rule to reuse:** lowering a group's pKa makes it less protonated at a given pH; if a structure needs that protonated form, it becomes less stable.",
+     "id": "p_cpq4_4_q4"
+    },
+    {
+     "q": "A single-stranded DNA used to build a triplex target has the base composition A 38%, G 47%, C 15%, T 0%. After its complementary strand is made, which nucleoside is absent from the new strand, and what percentage of it is deoxycytidine?",
+     "choices": [
+      "Deoxythymidine; 15%",
+      "Deoxyadenosine; 15%",
+      "Deoxyguanosine; 38%",
+      "Deoxyadenosine; 47%"
+     ],
+     "ans": 3,
+     "cat": "5D",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "subj": "biology",
+     "twin": "pe3-cp:44",
+     "exp": "1. This is ONE strand, so Chargaff's A = T, G = C does not apply within it. Use base pairing to build the other strand.\n2. Each template base dictates its partner in the new strand: template A **38%** → complement T **38%**; template G **47%** → complement C **47%**; template C **15%** → complement G **15%**; template T **0%** → complement A **0%**.\n3. Read the complement: C is 47% and A is absent. \"Deoxythymidine; 15%\" copies the template's missing base instead of pairing it, \"Deoxyadenosine; 15%\" copies the template's C value, and \"Deoxyguanosine; 38%\" pairs the wrong bases.\n4. The missing base is adenine (its nucleoside is deoxyadenosine), and deoxycytidine is 47%.\n5. Answer: deoxyadenosine is absent; deoxycytidine is 47%.\n\n**Rule to reuse:** to build the partner strand, swap A↔T and G↔C: partner %G = template %C, partner %T = template %A, and so on.",
+     "id": "p_cpq4_4_q5"
+    }
+   ]
+  },
+  {
+   "id": "p_cpq4_5",
+   "subj": "gen_chem",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "5A",
+    "4E",
+    "4C",
+    "5D"
+   ],
+   "title": "Rechargeable Aqueous Zinc Batteries",
+   "passage": "Rechargeable aqueous zinc batteries are being developed as a safer, nonflammable alternative to lithium-ion cells for storing electricity on the power grid. A typical cell has a zinc-metal anode, a cathode of manganese dioxide (MnO₂) coated on carbon paper, and an aqueous solution of zinc chloride between the electrodes. During discharge, zinc is oxidized at the anode (Zn → Zn²⁺ + 2e⁻) and MnO₂ is reduced at the cathode. The cathode half-reaction has a standard reduction potential of +1.23 V, and the cell has a standard potential of 1.99 V.\n\nFor dilute test solutions, a research group used a 6.0 mM ZnCl₂ stock solution. Each cathode carried a 6.00 mg coating that was 75% MnO₂ (86.94 g/mol; Mn, 54.94 g/mol; O, 16.00 g/mol) by mass, the rest being carbon black and a polymer binder.\n\nA known problem with zinc anodes is the growth of needle-like zinc deposits during charging, which can pierce the separator and short the cell. The group tested the amino acid histidine as an electrolyte additive, because the imidazole side chain binds Zn²⁺ through the lone pair on a ring nitrogen and helps zinc deposit smoothly. Histidine's pKa values are 1.8 (α-COOH), 6.0 (imidazolium side chain), and 9.2 (α-NH₃⁺). The additive worked well in near-neutral electrolyte, but it stopped binding Zn²⁺ when the electrolyte became acidic, near pH 5.0.",
+   "questions": [
+    {
+     "q": "How many moles of chloride ions are present in a 2.5 mL portion of the ZnCl₂ stock solution?",
+     "choices": [
+      "15 μmol",
+      "30 μmol",
+      "300 μmol",
+      "30 mmol"
+     ],
+     "ans": 1,
+     "cat": "5A",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe6-cp:38",
+     "exp": "1. Convert both quantities to SI units: 6.0 mM = **6.0 × 10⁻³ mol/L**; 2.5 mL = **2.5 × 10⁻³ L**.\n2. Multiply concentration by volume: n(ZnCl₂) = 6.0 × 10⁻³ × 2.5 × 10⁻³ = **1.5 × 10⁻⁵ mol** = **15 μmol**.\n3. Each ZnCl₂ gives two Cl⁻ ions: 2 × 15 μmol = **30 μmol**. \"15 μmol\" counts the formula units (or the Zn²⁺ ions), not the chloride ions.\n4. \"300 μmol\" and \"30 mmol\" come from slipping a factor of 10 or skipping the mL → L conversion (6.0 × 10⁻³ × 2.5 × 2 = 0.030 mol).\n5. Answer: 30 μmol of Cl⁻.\n\n**Rule to reuse:** moles = M × V with M in mol/L and V in L; then multiply by how many of that ion one formula unit gives.",
+     "id": "p_cpq4_5_q1"
+    },
+    {
+     "q": "About what mass of manganese does one cathode coating contain?",
+     "choices": [
+      "2.84 mg",
+      "3.49 mg",
+      "3.79 mg",
+      "4.50 mg"
+     ],
+     "ans": 0,
+     "cat": "4E",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe6-cp:39",
+     "exp": "1. Find the oxide mass: 0.75 × 6.00 mg = **4.50 mg** MnO₂.\n2. Find manganese's share of MnO₂: one Mn per formula unit: 54.94 ÷ 86.94 ≈ **0.632**.\n3. Multiply: 4.50 mg × 0.632 ≈ **2.84 mg** Mn.\n4. \"3.79 mg\" skips the 75% (6.00 × 0.632); \"4.50 mg\" is the oxide, not the manganese; \"3.49 mg\" counts only one O atom (54.94 ÷ 70.94 ≈ 0.774; 4.50 × 0.774 ≈ 3.49).\n5. Answer: about 2.84 mg of manganese.\n\n**Rule to reuse:** mass of an element = sample mass × fraction that is the compound × (atoms × atomic mass ÷ molar mass); apply every fraction in turn.",
+     "id": "p_cpq4_5_q2"
+    },
+    {
+     "q": "Based on the passage, the anode half-reaction of the zinc cell has what standard reduction potential?",
+     "choices": [
+      "+1.99 V",
+      "+0.76 V",
+      "−0.76 V",
+      "−1.23 V"
+     ],
+     "ans": 2,
+     "cat": "4C",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe6-cp:41",
+     "exp": "1. Write the rule: E°cell = E°cathode − E°anode, both as reduction potentials.\n2. Substitute and solve: 1.99 = 1.23 − E°anode; E°anode = 1.23 − 1.99 = **−0.76 V**.\n3. Picture it: the anode sits 1.99 V below the cathode on the reduction-potential scale.\n4. \"+1.99 V\" is the cell value; \"+0.76 V\" subtracts the cathode from the cell value (1.99 − 1.23); \"−1.23 V\" just flips the cathode sign.\n5. Answer: −0.76 V, the standard reduction potential of Zn²⁺/Zn.\n\n**Rule to reuse:** E°cell = E°cathode − E°anode, using reduction potentials for both. Never flip a sign yourself.",
+     "id": "p_cpq4_5_q3"
+    },
+    {
+     "q": "Which form of free histidine predominates in the electrolyte at pH 5.0, where its Zn²⁺ binding is lost?",
+     "choices": [
+      "All groups protonated, net +2",
+      "Protonated imidazole, net +1",
+      "Uncharged imidazole, net 0",
+      "Free NH₂ group, net −1"
+     ],
+     "ans": 1,
+     "cat": "5D",
+     "skill": "SIRS 2",
+     "diff": "X",
+     "subj": "organic_chem",
+     "twin": "pe6-cp:42",
+     "exp": "1. Use the pKa list and compare 5.0 with each value: α-COOH: 5.0 > 1.8 → **COO⁻**; imidazolium: 5.0 < 6.0 → **protonated ring (+)**; α-NH₃⁺: 5.0 < 9.2 → **NH₃⁺**; net charge: −1 + 1 + 1 = **+1**.\n2. The matching form has one COO⁻, a protonated imidazolium side chain and NH₃⁺.\n3. An uncharged imidazole with net 0 is the form above pH 6.0, the one that binds Zn²⁺; all groups protonated (net +2) needs pH below 1.8. So \"Uncharged imidazole, net 0\" and \"All groups protonated, net +2\" are out.\n4. A free NH₂ needs pH above 9.2, so \"Free NH₂ group, net −1\" is out.\n5. Answer: protonated imidazole, net +1. The protonated ring nitrogen has no free lone pair, which is why Zn²⁺ is released.\n\n**Rule to reuse:** pH below pKa → the group keeps its H⁺ (protonated form); pH above pKa → it has lost the H⁺.",
+     "id": "p_cpq4_5_q4"
+    },
+    {
+     "q": "What role does the aqueous ZnCl₂ solution between the two electrodes play in the cell?",
+     "choices": [
+      "Gets oxidized at the zinc anode",
+      "Gets reduced at the MnO₂ cathode",
+      "Carries Zn²⁺ ions inside the cell",
+      "Carries electrons inside the cell"
+     ],
+     "ans": 2,
+     "cat": "4C",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe6-cp:43",
+     "exp": "1. Translate: a salt dissolved in water between the electrodes is an electrolyte, a medium of mobile ions (Zn²⁺ and Cl⁻).\n2. Electrons cannot travel through an ionic solution; they go through the external wire, so \"Carries electrons inside the cell\" is out.\n3. Oxidation and reduction happen to the electrode materials, zinc metal and MnO₂, not to the dissolved salt, so \"Gets oxidized at the zinc anode\" and \"Gets reduced at the MnO₂ cathode\" are out.\n4. Charge balance: the charge passing through the wire is matched by ions moving in the electrolyte (Zn²⁺ toward the cathode, Cl⁻ toward the anode). For example, 0.50 A for 1.0 h moves 1800 C, about **0.019 mol** of electrons through the wire and the same charge carried by ions inside.\n5. Answer: it carries Zn²⁺ ions inside the cell, completing the circuit between the electrodes.\n\n**Rule to reuse:** a dissolved salt between electrodes is the electrolyte; it carries ions, never electrons, and is not itself oxidized or reduced.",
+     "id": "p_cpq4_5_q5"
+    }
+   ]
+  }
+ ],
+ "standalones": [
+  {
+   "q": "A stationary sonar buoy pings a whale swimming directly away from it and uses the Doppler shift of the echo to find the whale's speed. What must the buoy's processor know or measure?",
+   "choices": [
+    "Both frequencies and seawater sound speed",
+    "Sent frequency and the whale's distance",
+    "Whale's speed, sound speed, and distance",
+    "Wavelength in air and the pulse energy"
+   ],
+   "ans": 0,
+   "cat": "4D",
+   "skill": "SIRS 1",
+   "diff": "E",
+   "subj": "physics",
+   "twin": "sample-cp:27",
+   "exp": "1. Identify the unknown: the whale's speed.\n2. List what the Doppler shift depends on: inputs: f(sent), f(echo), v(sound in seawater); unknown: v(whale).\n3. The whale's speed is the answer, not an input. Its distance and the pulse energy do not enter the Doppler shift, and the sound travels in seawater, not air. So \"Whale's speed, sound speed, and distance\", \"Sent frequency and the whale's distance\" and \"Wavelength in air and the pulse energy\" are out.\n4. Answer: both frequencies (sent and received) and the speed of sound in seawater.\n\n**Rule to reuse:** to get an object's speed from a Doppler shift, you need the emitted and received frequencies and the wave speed in the medium; the object's speed is the output.",
+   "id": "cp_q4_sa1"
+  },
+  {
+   "q": "A biomedical engineer reports a dialysis pump's mechanical output in several unit expressions. Which unit expression is NOT a valid unit of power?",
+   "choices": [
+    "J/s",
+    "Pa·L/min",
+    "kW·h",
+    "cal/s"
+   ],
+   "ans": 2,
+   "cat": "4A",
+   "skill": "SIRS 1",
+   "diff": "E",
+   "subj": "physics",
+   "twin": "pe1-cp:59",
+   "exp": "1. Power = energy ÷ time = J/s, and a joule in base units is kg·m²·s⁻². J = N·m = kg·m·s⁻² × m = **kg·m²·s⁻²**; W = J/s = **kg·m²·s⁻³**.\n2. Test each choice: J/s → power ✓; cal/s = energy ÷ time → power ✓; Pa·L = pressure × volume = energy → per minute = power ✓; kW·h = (J/s) × s = **J** → energy only ✗. So \"J/s\", \"Pa·L/min\" and \"cal/s\" are all power units.\n3. The odd one out has no 'per time'. Answer: kW·h, a unit of energy (1 kW·h = 3.6 × 10⁶ J).\n\n**Rule to reuse:** reduce units to kg, m, s. Energy = kg·m²·s⁻²; power = kg·m²·s⁻³ (one more ÷ s). Pressure × volume = energy.",
+   "id": "cp_q4_sa2"
+  },
+  {
+   "q": "In a mountain town where air pressure is 9.0 × 10⁴ Pa, a pipe closed at the top stands with its open end in a brine pond (ρ = 1250 kg/m³), and the air inside is pumped out. Fresh water has ρ = 1000 kg/m³; g = 10 m/s². How high can the brine rise?",
+   "choices": [
+    "0.14 m",
+    "7.2 m",
+    "9.0 m",
+    "72 m"
+   ],
+   "ans": 1,
+   "cat": "4B",
+   "skill": "SIRS 2",
+   "diff": "D",
+   "subj": "physics",
+   "twin": "pe3-cp:58",
+   "exp": "1. With vacuum above the brine, nothing pushes down from the top. The column rises until its own pressure at the base equals the air pressure: P_top = **0**; ρ_brine g h = P_atm.\n2. Solve for h: h = P_atm ÷ (ρg) = 9.0 × 10⁴ Pa ÷ (**1250** kg/m³ × **10** m/s²) = 9.0 × 10⁴ ÷ 1.25 × 10⁴ = **7.2 m**. Forgetting g gives 9.0 × 10⁴ ÷ 1250 = \"72 m\"; flipping the ratio gives 1.25 × 10⁴ ÷ 9.0 × 10⁴ ≈ \"0.14 m\".\n3. The fresh-water density is for a different fluid: 9.0 × 10⁴ ÷ (1000 × 10) = **9.0 m**, the height a fresh-water column would reach, not the brine. So \"9.0 m\" is out.\n4. Answer: 7.2 m.\n\n**Rule to reuse:** a liquid column rises until ρgh = the pressure pushing it, so h = P/(ρg). One atmosphere holds up about 10 m of water.",
+   "id": "cp_q4_sa3"
+  },
+  {
+   "q": "Five period-3 elements melt at these temperatures: Na 98 °C; Al 660 °C; Si 1414 °C; S 115 °C; Cl₂ −102 °C. Which element is a covalent network solid in its standard state, and why?",
+   "choices": [
+    "Sulfur; its S₈ rings are strongly bonded",
+    "Aluminum; it melts above 600 °C",
+    "Silicon; covalent bonds link every atom",
+    "Chlorine; Cl–Cl bonds join its atoms"
+   ],
+   "ans": 2,
+   "cat": "4E",
+   "skill": "SIRS 1",
+   "diff": "E",
+   "subj": "gen_chem",
+   "twin": "pe3-cp:59",
+   "exp": "1. Compare the melting points: silicon, at 1414 °C, is far above everything else.\n2. Sulfur (S₈ rings) and chlorine (Cl₂) are small discrete molecules. Melting breaks only weak London forces between molecules, not the strong S–S or Cl–Cl bonds inside each one, so \"Sulfur; its S₈ rings are strongly bonded\" and \"Chlorine; Cl–Cl bonds join its atoms\" are out.\n3. Na and Al are metals: their atoms are held by delocalized electrons (metallic bonding), not directional covalent bonds, so a fairly high melting point does not make aluminum a network solid. \"Aluminum; it melts above 600 °C\" is out.\n4. Answer: silicon; each Si atom is covalently bonded to four neighbors in a diamond-like lattice, so melting means breaking covalent bonds.\n\n**Rule to reuse:** very high melting point + nonmetal (C, Si, SiO₂) → covalent network. Strong bonds inside small molecules (S₈, Cl₂) don't raise the melting point.",
+   "id": "cp_q4_sa4"
+  },
+  {
+   "q": "Green laser light (λ = 532 nm) passes through a 60 μm gap between two razor blades. On a screen 1.5 m away, a row of equally spaced light and dark fringes appears on either side of the central spot. Which effect mainly produces the fringes?",
+   "choices": [
+    "Diffraction",
+    "Refraction",
+    "Polarization",
+    "Reflection"
+   ],
+   "ans": 0,
+   "cat": "4D",
+   "skill": "SIRS 2",
+   "diff": "D",
+   "subj": "physics",
+   "twin": "pe4-cp:46",
+   "exp": "1. Translate: equally spaced light and dark fringes on both sides of the central spot are an interference pattern.\n2. Compare the gap with the wavelength: 60 μm ÷ 0.532 μm ≈ **113** wavelengths, narrow enough to spread the light noticeably.\n3. Predict the fringe spacing with the single-slit formula: Δy ≈ λL ÷ a = (5.32 × 10⁻⁷ m)(1.5 m) ÷ (6.0 × 10⁻⁵ m) ≈ **1.3 × 10⁻² m ≈ 1.3 cm**, easily visible.\n4. Refraction and reflection at the blade edges do not produce evenly spaced fringes, and polarization changes only the orientation of the light's field, not a band pattern. So \"Refraction\", \"Polarization\" and \"Reflection\" are out.\n5. Answer: diffraction of light at the edges of the narrow gap.\n\n**Rule to reuse:** bright/dark fringes around a small obstacle or through a narrow slit (size near λ) = diffraction plus interference. Spacing ≈ λL/a.",
+   "id": "cp_q4_sa5"
+  },
+  {
+   "q": "A narrow glass tube 1.0 cm across and an aquarium 80 cm across are both open to the air and filled with seawater to well over 30 cm. How does the absolute pressure 30 cm below the surface in the aquarium compare with that in the tube?",
+   "choices": [
+    "Equal; both are open to the air",
+    "Greater in the aquarium; more water above",
+    "Greater in the tube; weight on less area",
+    "Equal; same liquid and same depth"
+   ],
+   "ans": 3,
+   "cat": "4B",
+   "skill": "SIRS 1",
+   "diff": "M",
+   "subj": "physics",
+   "twin": "pe5-cp:9",
+   "exp": "1. In a fluid at rest, pressure depends on how deep the point is below the open surface, not on how much fluid the container holds.\n2. Compute the pressure 30 cm down in either container: P = P_atm + ρgh; ρgh = 1025 × 9.8 × **0.30 m** ≈ **3.0 kPa**; P ≈ 101.3 + 3.0 ≈ **104.3 kPa** in both.\n3. Both points fall on the same pressure–depth line, whatever the container's width or volume.\n4. Volume and width do not appear in ρgh. The aquarium holds more water, but its weight is spread over a proportionally larger area, so \"Greater in the aquarium; more water above\" and \"Greater in the tube; weight on less area\" are out.\n5. Being open to the air is needed but not enough: open containers at different depths still differ, so \"Equal; both are open to the air\" gives an incomplete reason. Answer: equal; same liquid and same depth.\n\n**Rule to reuse:** pressure in a still liquid depends only on ρ, g and depth h (P = P_atm + ρgh). Tank shape, width and total volume never change it.",
+   "id": "cp_q4_sa6"
+  },
+  {
+   "q": "In a model of stage rigging, a 3.0 kg sandbag and a 7.0 kg sandbag are tied to the two ends of a light rope draped over a frictionless, massless pulley. With g = 10 m/s², how large is their acceleration once they are released from rest?",
+   "choices": [
+    "3.0 m/s²",
+    "4.0 m/s²",
+    "5.7 m/s²",
+    "10 m/s²"
+   ],
+   "ans": 1,
+   "cat": "4A",
+   "skill": "SIRS 2",
+   "diff": "X",
+   "subj": "physics",
+   "twin": "pe5-cp:47",
+   "exp": "1. Treat both sandbags and the rope as one system: the heavy side falls, the light side rises, and both have the same |a|.\n2. The net external force is the difference of the weights; tension is internal and cancels: F_net = (7.0 − 3.0) × 10 = **40 N**.\n3. Divide by the total mass that accelerates: m_total = 7.0 + 3.0 = **10 kg**; a = 40 ÷ 10 = **4.0 m/s²**.\n4. The sandbags gain speed more slowly than free fall, because the light bag's weight opposes the motion, so \"10 m/s²\" is out.\n5. \"5.7 m/s²\" divides by only the 7.0 kg bag (40 ÷ 7.0); \"3.0 m/s²\" is 10 × 3.0 ÷ 10. Answer: 4.0 m/s².\n\n**Rule to reuse:** pulley with two hanging masses → a = (heavy − light) × g ÷ (heavy + light). Pull = difference of weights; mass moved = sum.",
+   "id": "cp_q4_sa7"
+  },
+  {
+   "q": "Polonium-210 (Z = 84), found in trace amounts in tobacco smoke, emits an alpha particle. Which nucleus remains after this decay?",
+   "choices": [
+    "²⁰⁶Pb",
+    "²⁰⁶Rn",
+    "²⁰⁸At",
+    "²⁰⁸Bi"
+   ],
+   "ans": 0,
+   "cat": "4E",
+   "skill": "SIRS 1",
+   "diff": "M",
+   "subj": "physics",
+   "twin": "pe6-cp:58",
+   "exp": "1. Write what an alpha particle removes: a ⁴He nucleus, 2 protons and 2 neutrons.\n2. Balance mass number and atomic number: ²¹⁰₈₄Po → ⁴₂He + ᴬ_Z X; A = 210 − 4 = **206**; Z = 84 − 2 = **82** → **Pb**.\n3. Mass number 208 subtracts only 2; Rn (Z 86) adds protons instead of removing them; At (Z 85) and Bi (Z 83) change Z by only 1. So \"²⁰⁶Rn\", \"²⁰⁸At\" and \"²⁰⁸Bi\" are out.\n4. Answer: ²⁰⁶Pb.\n\n**Rule to reuse:** alpha decay → mass number − 4 and Z − 2; beta-minus → Z + 1 with mass unchanged. Then read the element from Z.",
+   "id": "cp_q4_sa8"
+  }
+ ]
+}

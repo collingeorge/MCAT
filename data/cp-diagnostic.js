@@ -1,535 +1,727 @@
-// Chem/Phys Diagnostic: original passages and stand-alone questions written to the AAMC C/P blueprint
-// (10 passages + 15 stand-alones, 59 questions, 95 minutes, in the exam's order). Not AAMC material.
+// Chem/Phys Diagnostic: original passages and stand-alone questions in the AAMC C/P section format (10 passages +
+// 15 stand-alones, 59 questions, 95 minutes, in the exam's order). Every question is a twin of one studied card
+// (`twin`: the card's src): the same concept, method, thing asked and kinds of traps, with new numbers, scenario and
+// wording. Map: tools/twin-map.json. Not AAMC material.
 const CP_DIAG = {
- "id": "cp_diag",
+ "id": "cp_diag2",
  "title": "Chem/Phys Diagnostic",
  "timeMin": 95,
  "order": [
-  "p_cpd_1",
-  "p_cpd_3",
+  "p_cpd2_1",
+  "p_cpd2_2",
   4,
-  "p_cpd_s1",
-  "p_cpd_6",
-  "p_cpd_7",
+  "p_cpd2_3",
+  "p_cpd2_4",
+  "p_cpd2_5",
   4,
-  "p_cpd_4",
-  "p_cpd_2",
-  "p_cpd_5",
+  "p_cpd2_6",
+  "p_cpd2_7",
+  "p_cpd2_8",
   4,
-  "p_cpd_9",
-  "p_cpd_8",
+  "p_cpd2_9",
+  "p_cpd2_10",
   3
  ],
  "passages": [
   {
-   "id": "p_cpd_1",
+   "id": "p_cpd2_1",
    "subj": "biochemistry",
    "type": "passage",
    "topic": "C/P",
    "cats": [
     "5D"
    ],
-   "title": "Carnosine Analogs That Resist Serum Carnosinase",
-   "passage": "Carnosine (β-alanyl-L-histidine, Compound 1) is a dipeptide found at millimolar concentrations in skeletal muscle and brain. Its N-terminal residue is β-alanine, in which the amino group is attached to the carbon two positions away from the carbonyl carbon instead of to the α-carbon. Carnosine helps buffer the H⁺ released during intense exercise, and its imidazole ring can coordinate Cu²⁺ and Zn²⁺. In carnosine, the carboxyl, imidazole and amino groups have pKa values of 2.6, 6.8 and 9.4, respectively.\n\nCarnosine also scavenges reactive aldehydes such as 4-hydroxynonenal (HNE), a product of lipid peroxidation that forms covalent adducts with lysine and cysteine side chains. Because HNE-modified proteins accumulate in the diabetic kidney and retina, carnosine has been proposed as a therapy. Its use is limited by serum carnosinase (CN1), a zinc-dependent hydrolase that cleaves carnosine into its two amino acids (Figure 1). Human serum contains far more CN1 activity than rodent serum, so studies in mice may overstate how long carnosine survives in patients.\n\nTo find a form of carnosine that resists CN1 but keeps its useful properties, researchers compared Compound 1 with three related compounds (Figure 2): anserine (Compound 2), which carries a methyl group on the ring nitrogen nearest the side chain; D-carnosine (Compound 3), which contains D-histidine; and N-acetylcarnosine (Compound 4). Each compound (1.0 mM) was incubated in pooled human serum at 37°C, and the amount remaining was measured by HPLC at several times. In a separate assay, each compound (5.0 mM) was mixed with 0.50 mM HNE in pH 7.4 phosphate buffer, and the HNE remaining after 1 hour was measured. The imidazole pKa of each compound was found by titration. The results are shown in Table 1.",
+   "title": "β-Lactoglobulin as a Carrier for a Cationic Drug",
+   "passage": "β-Lactoglobulin (BLG), the most abundant whey protein in cow's milk, belongs to the lipocalin family. Eight antiparallel β-strands fold into a barrel whose interior forms a cup-shaped cavity called the calyx. The calyx is lined with nonpolar side chains, and lysine side chains sit at its entrance, so it binds molecules that combine a long nonpolar chain with one negative charge. Because folded BLG resists digestion by pepsin, food scientists have proposed using it to carry poorly soluble drugs through the stomach to the intestine.\n\nResearchers tested BLG as a carrier for Compound 1, a drug that has a fused three-ring aromatic system and carries a charge of +1 at pH 7.0. In Experiment 1, the binding constant (Kb) of Compound 1 for BLG was measured by fluorescence titration at 25°C in pH 7.0 buffer alone and with 5.0 mM CaCl₂ or 5.0 mM KCl added. In Experiment 2, Kb was measured again with one of two site markers present at a concentration high enough to fill its site: Probe P, which binds only in the calyx, or Probe Q, which binds only at a shallow groove on the outer surface of the barrel.\n\nEach measurement was repeated three times, and the mean values are shown in Table 1. A smaller Kb means that, at the same total concentration, more of the drug is free in solution rather than bound to BLG.",
+   "figure": {
+    "caption": "Table 1 Binding of Compound 1 to BLG at 25°C, pH 7.0",
+    "columns": [
+     "Experiment",
+     "Added to the buffer",
+     "Kb (M⁻¹)",
+     "Kb ÷ Kb with no marker"
+    ],
+    "rows": [
+     [
+      "1",
+      "nothing",
+      "8.0 × 10⁵",
+      "—"
+     ],
+     [
+      "1",
+      "5.0 mM CaCl₂",
+      "2.4 × 10⁵",
+      "—"
+     ],
+     [
+      "1",
+      "5.0 mM KCl",
+      "7.7 × 10⁵",
+      "—"
+     ],
+     [
+      "2",
+      "Probe P (calyx)",
+      "—",
+      "0.85"
+     ],
+     [
+      "2",
+      "Probe Q (surface groove)",
+      "—",
+      "0.20"
+     ]
+    ]
+   },
+   "questions": [
+    {
+     "q": "Based on Experiment 1, which added ion substantially weakens the binding of Compound 1 to BLG, and by about how much?",
+     "choices": [
+      "Ca²⁺, by about 70%",
+      "Ca²⁺, by about 30%",
+      "K⁺, by about 70%",
+      "K⁺, by about 30%"
+     ],
+     "ans": 0,
+     "cat": "5D",
+     "skill": "SIRS 3",
+     "diff": "M",
+     "twin": "sample-cp:30",
+     "exp": "1. Take the control value: buffer alone, Kb = **8.0 × 10⁵ M⁻¹**.\n2. Compare each ion with the control: Ca²⁺: 2.4 ÷ 8.0 = **0.30** → a **70%** drop; K⁺: 7.7 ÷ 8.0 ≈ **0.96** → about a 4% drop.\n3. Both values are below the control, and Ca²⁺, not K⁺, has the large effect, so neither K⁺ choice fits.\n4. 0.30 is the fraction of binding that remains, not the drop: 1 − 0.30 = 0.70, so \"about 30%\" reports the ratio as the change.\n5. Answer: Ca²⁺, by about 70%.\n\n**Rule to reuse:** judge an effect by its ratio to the control: divide, then turn 1 − ratio into a percent change.",
+     "id": "p_cpd2_1_q1"
+    },
+    {
+     "q": "Based on the passage, which molecule found in milk would bind most tightly in the calyx of BLG?",
+     "choices": [
+      "Palmitate",
+      "Citrate",
+      "Lactose",
+      "Alanine"
+     ],
+     "ans": 0,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "E",
+     "twin": "sample-cp:31",
+     "exp": "1. The calyx sets two requirements, a long nonpolar chain and one negative charge, and a ligand must meet both.\n2. Score each molecule on the two requirements: palmitate (C₁₅H₃₁COO⁻): long C–H chain ✓, one –COO⁻ (−1) ✓; citrate: no chain, about −3 at pH 7.0 ✗✗; lactose: no chain, polar and uncharged ✗✗; alanine: small zwitterion, net charge 0 ✗✗.\n3. Lactose is polar and uncharged, and alanine is small and zwitterionic; neither has a nonpolar chain.\n4. Citrate is negatively charged, but it carries about −3, not −1, and it has no hydrocarbon chain.\n5. Answer: palmitate, a fatty acid anion with a long nonpolar tail and one carboxylate.\n\n**Rule to reuse:** match a binding site requirement by requirement. A long nonpolar region plus one negative charge describes a fatty acid anion.",
+     "id": "p_cpd2_1_q2"
+    },
+    {
+     "q": "According to Experiment 2, where on BLG does Compound 1 mainly bind?",
+     "choices": [
+      "The surface groove",
+      "The calyx",
+      "The calyx and groove equally",
+      "Neither marked site"
+     ],
+     "ans": 0,
+     "cat": "5D",
+     "skill": "SIRS 3",
+     "diff": "M",
+     "twin": "sample-cp:32",
+     "exp": "1. Probe P binds only in the calyx and Probe Q only at the surface groove, so each marker tests one site.\n2. Read how much each marker lowers Kb: Probe P (calyx): 1.00 → **0.85**, a 15% drop; Probe Q (groove): 1.00 → **0.20**, an **80%** drop.\n3. Probe P barely changes binding, so Compound 1 does not depend on the calyx. The two sites are not equal, and \"neither marked site\" cannot explain the large effect of Probe Q.\n4. Answer: the surface groove, the site Probe Q competes for.\n\n**Rule to reuse:** the marker that displaces a drug most marks the drug's binding site; a value near the control means a different site.",
+     "id": "p_cpd2_1_q3"
+    },
+    {
+     "q": "Which two residues lining the surface groove would best hold Compound 1 by both its charge and its ring system?",
+     "choices": [
+      "Glu and Trp",
+      "Lys and Arg",
+      "Ser and Asn",
+      "Lys and Ala"
+     ],
+     "ans": 0,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "sample-cp:33",
+     "exp": "1. Compound 1 has two features to match: a +1 charge and a fused aromatic ring system.\n2. Match each feature with a side chain: Compound 1 (+) ↔ Glu (–COO⁻): salt bridge; aromatic rings ↔ Trp (indole ring): hydrophobic and π-stacking contact.\n3. Lys and Arg are both positive and would repel the cation; Lys and Ala adds a repelling charge and no ring.\n4. Ser and Asn are polar and uncharged: no salt bridge and no ring.\n5. Answer: Glu and Trp.\n\n**Rule to reuse:** line a pocket with complements of the ligand: − residues (Asp, Glu) for cations, aromatic residues (Phe, Tyr, Trp) for rings.",
+     "id": "p_cpd2_1_q4"
+    }
+   ]
+  },
+  {
+   "id": "p_cpd2_2",
+   "subj": "gen_chem",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "5A",
+    "4E"
+   ],
+   "title": "Which Bond Breaks? Acids and Bases of the Form AOₘ(OH)ₙ",
+   "passage": "Many inorganic compounds can be written AOₘ(OH)ₙ, where a central atom A carries m oxo (=O) groups and n hydroxyl groups. Whether such a compound acts as an acid or as a base in water depends on which bond of the A–O–H unit breaks. When A is an electronegative nonmetal, it pulls electron density toward itself through the oxygen, the O–H bond becomes strongly polarized, and the compound releases H⁺. When A is a metal, the A–O bond is largely ionic, so that bond breaks instead and the compound releases OH⁻.\n\nAmong compounds of this kind, a more electronegative central atom draws more electron density away from the O–H bond, so the compound gives up H⁺ more easily and is a stronger acid. Extra oxo groups strengthen the same effect. Two acids of this type, nitric acid, NO₂(OH), and hypochlorous acid, Cl(OH), are shown in Figure 1.\n\nA group of students prepared 0.0050 M aqueous solutions of NO₂(OH), Cl(OH) and calcium hydroxide, Ca(OH)₂, at 25 °C. They measured the pH of each solution with a calibrated meter and converted each reading to the hydronium ion concentration (Table 1). At 25 °C, water's ion product is Kw = [H₃O⁺][OH⁻] = 1.0 × 10⁻¹⁴, so a neutral solution has [H₃O⁺] = 1.0 × 10⁻⁷ M.",
    "scheme": [
     {
      "after": 1,
-     "caption": "Figure 1 Hydrolysis of carnosine (Compound 1) by CN1",
+     "caption": "Figure 1 Nitric acid (left) and hypochlorous acid (right)",
      "parts": [
-      "cpd-carnosine",
-      {
-       "arrow": "CN1, H₂O"
-      },
-      "cpd-beta-alanine",
-      "+",
-      "cpd-l-histidine"
-     ]
-    },
-    {
-     "after": 2,
-     "caption": "Figure 2 Compounds 2–4",
-     "parts": [
-      "cpd-anserine",
-      "cpd-d-carnosine",
-      "cpd-n-acetylcarnosine"
+      "cpd-nitric-acid",
+      "cpd-hypochlorous-acid"
      ]
     }
    ],
    "figure": {
-    "caption": "Table 1 Properties of carnosine and three analogs",
+    "caption": "Table 1 Hydronium ion concentration of 0.0050 M solutions at 25 °C",
     "columns": [
-     "Compound",
-     "Molar mass (g/mol)",
-     "Imidazole pKa",
-     "Half-life in human serum (min)",
-     "HNE removed in 1 h (%)"
+     "Solution",
+     "Central atom",
+     "[H₃O⁺] (M)"
     ],
     "rows": [
      [
-      "1 Carnosine",
-      "226",
-      "6.8",
-      "5",
-      "62"
+      "NO₂(OH)",
+      "N",
+      "5.0 × 10⁻³"
      ],
      [
-      "2 Anserine",
-      "240",
-      "7.0",
-      "40",
-      "58"
+      "Cl(OH)",
+      "Cl",
+      "1.2 × 10⁻⁵"
      ],
      [
-      "3 D-Carnosine",
-      "226",
-      "6.8",
-      ">240",
-      "61"
+      "Ca(OH)₂",
+      "Ca",
+      "1.0 × 10⁻¹²"
+     ]
+    ]
+   },
+   "questions": [
+    {
+     "q": "What is the pH of the Ca(OH)₂ solution in Table 1?",
+     "choices": [
+      "13",
+      "12",
+      "2",
+      "−12"
+     ],
+     "ans": 1,
+     "cat": "5A",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "sample-cp:10",
+     "exp": "1. Read the hydronium concentration for Ca(OH)₂ in Table 1: [H₃O⁺] = **1.0 × 10⁻¹² M**.\n2. Take the negative log: pH = −log(1.0 × 10⁻¹²) = −(−12) = **12**. (Check: [OH⁻] = 2 × 0.0050 = 0.010 M, and 1.0 × 10⁻¹⁴ ÷ 0.010 = 1.0 × 10⁻¹² M.)\n3. 2 is the pOH (14 − 12 = 2), not the pH. 13 is off by one from the exponent, and −12 drops the minus sign in front of the log.\n4. Answer: 12.\n\n**Rule to reuse:** for [H₃O⁺] = 1 × 10⁻ˣ M, pH = x; subtract from 14 only when you need pOH.",
+     "id": "p_cpd2_2_q1"
+    },
+    {
+     "q": "Based on Table 1, how is Cl(OH) best classified, and about what percentage of it ionizes in its solution?",
+     "choices": [
+      "Strong acid; 100%",
+      "Weak acid; 24%",
+      "Weak acid; 0.24%",
+      "Weak base; 0.24%"
+     ],
+     "ans": 2,
+     "cat": "5A",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "sample-cp:11",
+     "exp": "1. Read the data: [H₃O⁺] = **1.2 × 10⁻⁵ M** in a **0.0050 M** solution of Cl(OH).\n2. 1.2 × 10⁻⁵ M is above 1.0 × 10⁻⁷ M, so the solution is acidic, and \"Weak base; 0.24%\" is out.\n3. Compare with full ionization: a strong acid would give [H₃O⁺] ≈ 0.0050 M. Fraction ionized = 1.2 × 10⁻⁵ ÷ 5.0 × 10⁻³ = 2.4 × 10⁻³ = **0.24%**. 24% is the same fraction multiplied by 100 twice.\n4. About 0.24% ionized is far from complete, so Cl(OH) is not a strong acid; \"Strong acid; 100%\" would need [H₃O⁺] = 5.0 × 10⁻³ M, the value measured for NO₂(OH).\n5. Answer: weak acid; 0.24%.\n\n**Rule to reuse:** compare [H⁺] with the acid's concentration; equal → strong acid, much smaller → weak acid.",
+     "id": "p_cpd2_2_q2"
+    },
+    {
+     "q": "According to the passage's rule, how do PO(OH)₃ and Sr(OH)₂ behave in water, in that order?",
+     "choices": [
+      "Acid; base",
+      "Base; acid",
+      "Acid; acid",
+      "Base; base"
+     ],
+     "ans": 0,
+     "cat": "5A",
+     "skill": "SIRS 1",
+     "diff": "E",
+     "twin": "sample-cp:12",
+     "exp": "1. Read the rule in the passage: a nonmetal A → the O–H bond breaks → H⁺ is released (acid); a metal A → the A–O bond breaks → OH⁻ is released (base).\n2. Apply it to each compound: PO(OH)₃: P is a nonmetal → O–H breaks → **H⁺** (it is phosphoric acid); Sr(OH)₂: Sr is a metal → Sr–O breaks → **OH⁻** (a base).\n3. The two central atoms differ in kind, so the two compounds cannot behave the same way, which rules out \"Acid; acid\" and \"Base; base\". \"Base; acid\" reverses the two.\n4. Answer: acid; base.\n\n**Rule to reuse:** in A–O–H compounds, an electronegative nonmetal A breaks O–H and gives an acid (H⁺); a metal A breaks A–O and gives a base (OH⁻).",
+     "id": "p_cpd2_2_q3"
+    },
+    {
+     "q": "Among hydroxy compounds of the period 2 elements listed, for which central atom would the compound be the strongest acid?",
+     "choices": [
+      "Lithium",
+      "Beryllium",
+      "Boron",
+      "Nitrogen"
+     ],
+     "ans": 3,
+     "cat": "4E",
+     "skill": "SIRS 1",
+     "diff": "E",
+     "twin": "sample-cp:13",
+     "exp": "1. Read the rule in the passage: the more electronegative the central atom, the more it polarizes the O–H bond and the stronger the acid.\n2. Order the four atoms across period 2: Li (group 1) < Be (2) < B (13) < N (15); electronegativity is **highest for N**.\n3. LiOH is a base, Be(OH)₂ is amphoteric, and B(OH)₃ is only a very weak acid; none pulls on the O–H bond as strongly as N does in NO₂(OH).\n4. Answer: N.\n\n**Rule to reuse:** for oxyacids AO(OH)ₙ, the more electronegative the central atom (farther right in a period), the more acidic the compound.",
+     "id": "p_cpd2_2_q4"
+    }
+   ]
+  },
+  {
+   "id": "p_cpd2_3",
+   "subj": "physics",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "4D",
+    "4B"
+   ],
+   "title": "Sorting Cells with Sound in a Microfluidic Chip",
+   "passage": "Acoustofluidic chips use ultrasound to move cells without touching them. In one design, a piezoelectric transducer 8.0 mm wide is bonded to the underside of a borosilicate glass chip and driven at 3.5 MHz. The sound passes up through the glass, in which it travels at 5,600 m/s, into a buffer-filled channel, where it travels at 1,520 m/s. There it sets up a pressure pattern that pushes cells toward the center line of the channel. A second, identical transducer resting on the polymer (PDMS) lid, in which sound travels at 1,030 m/s, picks up the waves that cross from the buffer into the lid and is used to monitor the signal.\n\nCells enter through an inlet channel 12 mm long. The inlet's cross-sectional area is 0.020 mm², and tracking of fluorescent beads showed a mean flow speed of 750 μm/s in it. In general terms, the inlet has area S and mean speed V. Downstream, the inlet divides into N identical outlet branches, each with cross-sectional area s, so that focused cells leave through the central branch and other particles through the side branches. In the design tested, the combined area of the branches, Ns, is smaller than S.\n\nThe buffer is treated as incompressible, and fluid leaves the chip only through the outlet branches. The researchers varied the transducer voltage and recorded the fraction of cells collected from the central branch at each setting.",
+   "questions": [
+    {
+     "q": "How do the frequency f and wavelength λ of the ultrasound in the PDMS lid compare with those in the buffer?",
+     "choices": [
+      "f unchanged; λ longer",
+      "f unchanged; λ shorter",
+      "f lower; λ unchanged",
+      "f higher; λ unchanged"
+     ],
+     "ans": 1,
+     "cat": "4D",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe3-cp:49",
+     "exp": "1. Frequency is set by the source and stays the same when a wave crosses into a new medium, so \"f lower; λ unchanged\" and \"f higher; λ unchanged\" are out.\n2. Wavelength in the buffer: λ = v/f = 1520 m/s ÷ **3.5 × 10⁶ Hz** = 4.3 × 10⁻⁴ m = **0.43 mm**.\n3. Wavelength in the lid: the speed falls and f stays fixed, so λ shrinks: λ = 1030 m/s ÷ 3.5 × 10⁶ Hz = 2.9 × 10⁻⁴ m = **0.29 mm**. \"λ longer\" would need a faster medium.\n4. Answer: f unchanged; λ shorter.\n\n**Rule to reuse:** crossing into a new material, frequency stays fixed (set by the source); speed changes, so wavelength changes in proportion (λ = v/f).",
+     "id": "p_cpd2_3_q1"
+    },
+    {
+     "q": "At what volume flow rate does buffer pass through the inlet channel?",
+     "choices": [
+      "0.015 mm³/s",
+      "0.18 mm³/s",
+      "15 mm³/s",
+      "38 mm³/s"
+     ],
+     "ans": 0,
+     "cat": "4B",
+     "skill": "SIRS 2",
+     "diff": "X",
+     "twin": "pe3-cp:50",
+     "exp": "1. Put everything in mm first: 750 μm/s ÷ 1000 μm/mm = **0.75 mm/s**.\n2. Volume flow rate = area × average speed: Q = Av = 0.020 mm² × **0.75 mm/s** = **0.015 mm³/s**; units: mm² × mm/s = mm³/s ✓.\n3. The 12 mm channel length does not enter Q = Av. Multiplying by it, skipping the μm → mm step, or dividing gives the other choices: 0.015 × 12 = 0.18 ✗; 0.020 × 750 = 15 ✗; 0.75 ÷ 0.020 ≈ 38 ✗.\n4. Answer: 0.015 mm³/s.\n\n**Rule to reuse:** volume flow rate Q = area × average speed. Put both in the same length unit first; channel length does not matter.",
+     "id": "p_cpd2_3_q2"
+    },
+    {
+     "q": "About how long is one wavelength of the ultrasound inside the glass chip?",
+     "choices": [
+      "0.16 mm",
+      "1.6 mm",
+      "16 mm",
+      "1600 m"
+     ],
+     "ans": 1,
+     "cat": "4D",
+     "skill": "SIRS 2",
+     "diff": "X",
+     "twin": "pe3-cp:51",
+     "exp": "1. Convert the frequency to hertz: 3.5 MHz = **3.5 × 10⁶ Hz**.\n2. λ = v/f with the glass speed: λ = 5600 m/s ÷ **3.5 × 10⁶ Hz** = **1.6 × 10⁻³ m**; × 1000 mm/m = **1.6 mm**.\n3. Spot the slips: forgetting the 10⁶ gives 5600 ÷ 3.5 = 1600 m ✗; misplacing the decimal in the m → mm step gives 0.16 mm or 16 mm ✗.\n4. The 8.0 mm transducer width is extra data; it affects the beam's width, not its wavelength.\n5. Answer: about 1.6 mm.\n\n**Rule to reuse:** λ = v/f. Convert MHz to Hz (× 10⁶) first, then convert m to mm (× 1000) at the end.",
+     "id": "p_cpd2_3_q3"
+    },
+    {
+     "q": "Which expression gives the mean speed u in each outlet branch, and is u faster or slower than V?",
+     "choices": [
+      "NsV/S; slower",
+      "SV/Ns; slower",
+      "SV/Ns; faster",
+      "SV/s; faster"
+     ],
+     "ans": 2,
+     "cat": "4B",
+     "skill": "SIRS 2",
+     "diff": "M",
+     "twin": "pe3-cp:52",
+     "exp": "1. The buffer is incompressible, so the volume flow in equals the total flow out through all N branches: Q_in = **SV**; Q_out = N × s × u = **Nsu**.\n2. Set them equal and solve for u: SV = Nsu → u = **SV/(Ns)**. Flipping the ratio gives NsV/S, and forgetting that the flow is shared among N branches gives SV/s.\n3. Compare: the combined branch area is smaller, so Ns < S → S/(Ns) > 1 → **u > V**; for example, Ns = 0.80S → u = 1.25V. \"SV/Ns; slower\" has the right formula but the wrong comparison.\n4. Answer: u = SV/Ns; faster than V.\n\n**Rule to reuse:** for an incompressible fluid, area × speed is the same everywhere (A₁v₁ = A₂v₂). Bigger total area → slower flow.",
+     "id": "p_cpd2_3_q4"
+    }
+   ]
+  },
+  {
+   "id": "p_cpd2_4",
+   "subj": "physics",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "4D",
+    "4C",
+    "4A",
+    "5E"
+   ],
+   "title": "A Laser Handpiece with a Liquid Lens",
+   "passage": "Some surgical laser handpieces focus the beam with a liquid lens instead of a glass lens. The lens is a drop of oil surrounded by salt water in a small sealed cell. Light refracts at the curved oil–water interface, and how strongly the lens focuses depends on the difference between the refractive indices of the two liquids and on the radius of curvature R of the interface; the lens has focal length f. The shape of the interface is set by electrowetting: a voltage applied between the salt water and a flat metal electrode beneath a thin insulating film changes how the water wets the film, and therefore how curved the interface is. The conducting water and the electrode are separated only by the 4.0-μm film, so they act as the two plates of a parallel-plate capacitor. The controller applies up to 48 V.\n\nThe handpiece holds the lens at a fixed distance from the skin and is attached to a pulsed infrared laser used to treat superficial skin lesions. Water in the tissue absorbs the light and converts it to heat, which spreads into neighboring tissue over a few milliseconds. Table 1 lists three operating modes; Mode B has the same peak power as the continuous Mode C.\n\nIn a clinical test, the focal point at first lay deeper in the skin than the target layer. The controller then made the oil–water interface more strongly curved, and the focus moved up to the target layer.",
+   "figure": {
+    "caption": "Table 1 Operating modes of the laser",
+    "columns": [
+     "Mode",
+     "Pulse length",
+     "Time from one pulse start to the next",
+     "Energy per pulse"
+    ],
+    "rows": [
+     [
+      "A",
+      "40 μs",
+      "125 ms",
+      "0.30 J"
      ],
      [
-      "4 N-Acetylcarnosine",
-      "268",
-      "6.8",
-      ">240",
+      "B",
+      "4.0 ms",
+      "20 ms",
+      "—"
+     ],
+     [
+      "C",
+      "continuous",
+      "—",
+      "—"
+     ]
+    ]
+   },
+   "questions": [
+    {
+     "q": "What best explains why making the interface more curved moved the focus up to the target layer?",
+     "choices": [
+      "R increases; f increases",
+      "R decreases; f increases",
+      "R decreases; f decreases",
+      "n increases; f decreases"
+     ],
+     "ans": 2,
+     "cat": "4D",
+     "skill": "SIRS 2",
+     "diff": "M",
+     "twin": "pe4-cp:13",
+     "exp": "1. Translate: the focus lay too deep, so the focal length was too long. The fix must shorten it.\n2. A more strongly curved interface has a smaller radius of curvature, so \"R increases; f increases\" is out.\n3. For a refracting surface, 1/f ∝ (n₂ − n₁)/R: R ↓ → 1/f ↑ → **f ↓**, so the light converges closer to the lens. \"R decreases; f increases\" moves f the wrong way.\n4. The voltage changes the interface's shape, not the liquids' refractive indices, so the index option is out.\n5. Answer: R decreases, so f decreases and the focus moves up onto the target layer.\n\n**Rule to reuse:** curvier surface (small R) = stronger focusing, short f; flatter surface (large R) = weaker focusing, long f. Focus too deep = too weak, so strengthen it.",
+     "id": "p_cpd2_4_q1"
+    },
+    {
+     "q": "How strong is the electric field across the insulating film when the controller applies 48 V?",
+     "choices": [
+      "12 V/m",
+      "192 V/m",
+      "12 kV/m",
+      "12 MV/m"
+     ],
+     "ans": 3,
+     "cat": "4C",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe4-cp:14",
+     "exp": "1. Translate: the water and the electrode act as parallel plates, so the field in the film is uniform: E = V/d.\n2. Convert to SI units first: V = **48 V**; d = 4.0 μm = **4.0 × 10⁻⁶ m**.\n3. Divide: E = 48 V ÷ 4.0 × 10⁻⁶ m = **1.2 × 10⁷ V/m = 12 MV/m**.\n4. 12 V/m leaves the gap in μm, 12 kV/m converts μm as if it were mm (4.0 × 10⁻³ m), and 192 V/m multiplies 48 × 4.0 instead of dividing.\n5. Answer: 12 MV/m.\n\n**Rule to reuse:** uniform field between parallel plates: E = V ÷ d. Always turn μm into m before dividing.",
+     "id": "p_cpd2_4_q2"
+    },
+    {
+     "q": "In Mode A, how often do the pulses repeat, and what average power does the beam deliver?",
+     "choices": [
+      "0.008 Hz; 2.4 mW",
+      "8.0 Hz; 2.4 W",
+      "8.0 Hz; 7.5 kW",
+      "25 kHz; 7.5 kW"
+     ],
+     "ans": 1,
+     "cat": "4A",
+     "skill": "SIRS 3",
+     "diff": "X",
+     "twin": "pe4-cp:15",
+     "exp": "1. Translate: the repetition period is the time from one pulse start to the next, 125 ms. The 40 μs is how long each pulse lasts, a different time.\n2. Frequency is the reciprocal of the period, in seconds: T = 125 ms = **0.125 s**; f = 1 ÷ 0.125 s = **8.0 Hz**. Using 1/125 without converting ms gives 0.008 Hz, and 1 ÷ 40 μs gives 25 kHz.\n3. Picture the pulse train: a 40-μs spike every 0.125 s, dark almost the whole time.\n4. Average power = energy per pulse × number of pulses per second: P_avg = **0.30 J** × **8.0 s⁻¹** = **2.4 W**.\n5. Peak power uses the 40-μs duration and is a different quantity: P_peak = 0.30 J ÷ 4.0 × 10⁻⁵ s = **7.5 kW**; peak ≠ average, so \"8.0 Hz; 7.5 kW\" is out.\n6. Answer: 8.0 Hz with an average power of 2.4 W.\n\n**Rule to reuse:** period = start-to-start time; f = 1/T in seconds. Average power = energy per pulse × f; peak power = energy ÷ pulse duration.",
+     "id": "p_cpd2_4_q3"
+    },
+    {
+     "q": "Compared with the continuous Mode C, Mode B is most likely to:",
+     "choices": [
+      "raise the average power.",
+      "limit heating of surrounding tissue.",
+      "reduce the beam's peak power.",
+      "focus the beam to a smaller spot."
+     ],
+     "ans": 1,
+     "cat": "5E",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe4-cp:16",
+     "exp": "1. Translate: same peak power, but Mode B is on only part of the time. Compare energy per second and what happens between pulses.\n2. Find the duty cycle, the fraction of time the light is on: 4.0 ms ÷ 20 ms = **0.20 = 20%**, so P_avg of Mode B = **20%** of the power of Mode C. Mode B lowers the average power rather than raising it.\n3. Picture both beams: Mode B reaches the same peak, then is dark for 16 ms of every 20 ms, longer than the few milliseconds heat needs to spread away from the target.\n4. Pulsing changes timing only: the passage sets the peak powers equal, and the spot size is set by the liquid lens, not by the pulse pattern, so the peak-power and spot-size choices describe nothing in the passage.\n5. Answer: Mode B limits heating of surrounding tissue, since heat diffuses away between pulses.\n\n**Rule to reuse:** pulsed vs continuous at the same peak power: average power = peak × duty cycle, and the off-time lets heat diffuse away, sparing nearby tissue.",
+     "id": "p_cpd2_4_q4"
+    }
+   ]
+  },
+  {
+   "id": "p_cpd2_5",
+   "subj": "biochemistry",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "5D",
+    "5C",
+    "5E"
+   ],
+   "title": "Alanine Racemase and Resistance to D-Cycloserine",
+   "passage": "Bacterial cell walls contain D-alanine, which bacteria make from L-alanine with the enzyme alanine racemase (Alr). Using a pyridoxal phosphate cofactor, Alr removes the hydrogen from one atom of the amino acid and returns a hydrogen to the opposite side of that atom (Figure 1). Human cells do not need D-alanine, so Alr is a target for antibiotics. D-Cycloserine (DCS, 102 g/mol), a small cyclic analog of D-alanine with a free amino group, binds in the active site of Alr and blocks it.\n\nResearchers studied a soil bacterium that survives high doses of DCS and found two changes. First, its Alr carries a single substitution, valine → threonine, in a loop on the protein surface (Figure 2). Second, the bacterium makes an N-acetyltransferase that moves the acetyl group of acetyl-CoA (810 g/mol) onto the amino group of DCS, forming coenzyme A (CoA, 768 g/mol) and N-acetyl-DCS, which no longer binds Alr.\n\nTo learn whether the substitution changes how easily Alr is digested, the researchers incubated the purified 41-kDa enzyme with trypsin at 37 °C and pH 7.4. Samples taken at 0, 10, 30 and 90 min were heated with SDS loading dye, which denatures every protein present, and separated side by side by SDS-PAGE. The mutant and normal enzymes were compared in the same way.",
+   "scheme": [
+    {
+     "after": 0,
+     "caption": "Figure 1 Reaction catalyzed by alanine racemase",
+     "parts": [
+      "alanine",
+      {
+       "arrow": "Alr"
+      },
+      "cpd-d-alanine"
+     ]
+    },
+    {
+     "after": 1,
+     "caption": "Figure 2 Valine (left) and threonine (right)",
+     "parts": [
+      "valine",
+      "threonine"
+     ]
+    }
+   ],
+   "questions": [
+    {
+     "q": "Which atom of L-alanine changes configuration in the Alr reaction?",
+     "choices": [
+      "The methyl carbon",
+      "The carboxyl carbon",
+      "The amino nitrogen",
+      "The α carbon"
+     ],
+     "ans": 3,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "subj": "organic_chem",
+     "twin": "pe5-cp:17",
+     "exp": "1. Moving an H to the other side of an atom changes the configuration only at a stereocenter.\n2. Count the different groups on each atom: amino N: lone pair, inverts freely: **not a stereocenter**; α carbon: H, NH₂, COOH, CH₃: **4 different**; carboxyl carbon: **3 groups**, planar; methyl carbon: **three identical H**.\n3. The nitrogen and the planar carboxyl carbon cannot hold a fixed configuration, so they are out.\n4. The methyl carbon carries three H atoms; putting one back on another side gives the same molecule, so it is out.\n5. Answer: the α carbon. L vs D, like R vs S, is decided at the carbon bearing four different groups.\n\n**Rule to reuse:** **Chiral center (stereocenter):** an sp³ atom bonded to four different groups. Swapping two of its groups gives the enantiomer.",
+     "id": "p_cpd2_5_q1"
+    },
+    {
+     "q": "The hydroxyl group of threonine has a pKa of about 13. At pH 7.4, which side-chain property does the substitution leave unchanged?",
+     "choices": [
+      "Net charge",
+      "Molar mass",
+      "Hydrophobicity",
+      "Hydrogen bonding"
+     ],
+     "ans": 0,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe5-cp:18",
+     "exp": "1. Put the two side chains side by side (Figure 2): valine has –CH(CH₃)₂; threonine has –CH(OH)CH₃, so the only change is one CH₃ replaced by an O–H.\n2. Ask whether the new O–H ionizes at this pH: pH 7.4 < pKa 13; [A⁻]/[HA] = 10^(7.4 − 13) = 10^**−5.6** ≈ **1/400,000** → the O–H stays **protonated and neutral**, like valine's side chain.\n3. The O–H adds polarity and an H-bond donor and acceptor, so hydrophobicity and hydrogen bonding both change.\n4. The mass changes too: valine, C₅H₁₁NO₂: **117** g/mol; threonine, C₄H₉NO₃: **119** g/mol; difference: **+2** (OH, 17, replaces CH₃, 15).\n5. Answer: net charge.\n\n**Rule to reuse:** compare side chains by the atoms that differ, then check each new group's pKa against the pH.",
+     "id": "p_cpd2_5_q2"
+    },
+    {
+     "q": "As the time of incubation with trypsin increases, what should the gel lanes show?",
+     "choices": [
+      "Intact band fades; smaller bands grow",
+      "Intact band fades; larger bands grow",
+      "No change; SDS stops trypsin",
+      "Bands migrate faster; extra charge"
+     ],
+     "ans": 0,
+     "cat": "5C",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe5-cp:19",
+     "exp": "1. Each cut that trypsin makes splits the 41-kDa chain into fragments, each smaller than 41 kDa.\n2. SDS-PAGE sorts by mass alone: smaller runs farther. Heating in SDS denatures trypsin and stops cutting in that sample only.\n3. Later samples had more time with trypsin, so the intact 41-kDa band fades and the fragment bands grow.\n4. Cutting cannot make anything bigger than 41 kDa, and SDS gives every chain about the same charge per mass, so extra charge does not explain band movement. \"Larger bands grow\" and \"Bands migrate faster; extra charge\" are out.\n5. Heating freezes each sample at its own time point, so the lanes still differ, and \"No change; SDS stops trypsin\" is out. Answer: the intact band fades and smaller bands grow.\n\n**Rule to reuse:** SDS-PAGE separates by size only (smaller runs farther). Digestion over time → the full-size band fades and lower bands appear.",
+     "id": "p_cpd2_5_q3"
+    },
+    {
+     "q": "How heavy is N-acetyl-DCS, and by how much does the total mass of DCS plus acetyl-CoA change in the reaction?",
+     "choices": [
+      "60 g/mol; zero",
+      "144 g/mol; zero",
+      "144 g/mol; −42 g/mol",
+      "145 g/mol; +43 g/mol"
+     ],
+     "ans": 1,
+     "cat": "5E",
+     "skill": "SIRS 2",
+     "diff": "X",
+     "twin": "pe5-cp:20",
+     "exp": "1. A transferase only moves a group from one molecule to another, so total mass is conserved.\n2. Cofactor side: acetyl-CoA loses the acetyl group: CoA − acetyl-CoA = 768 − 810 = **−42 g/mol**.\n3. Substrate side: N–H becomes N–C(O)CH₃, so the acetyl group is gained and an H is lost: +C₂H₃O (43) − H (1) = **+42**; 102 + 42 = **144 g/mol**. Adding the whole acetyl group without removing the H gives 145, and subtracting 42 gives 60.\n4. Add both sides: before: 102 + 810 = **912**; after: 144 + 768 = **912**; net change = **zero**, so \"144 g/mol; −42 g/mol\" counts only the cofactor's side. Answer: 144 g/mol; no net change in total mass.\n\n**Rule to reuse:** swapping H for an acetyl group (COCH₃) adds 42 g/mol. A transferase only moves atoms, so the total mass of all molecules is unchanged.",
+     "id": "p_cpd2_5_q4"
+    }
+   ]
+  },
+  {
+   "id": "p_cpd2_6",
+   "subj": "biochemistry",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "5D",
+    "4E"
+   ],
+   "title": "Peroxynitrite Damage to a Bacterial Esterase",
+   "passage": "During inflammation, macrophages release superoxide and nitric oxide, which combine to form peroxynitrite (ONOO⁻). Peroxynitrite and the radicals derived from it attach a nitro group (–NO₂) to proteins mainly at one kind of side chain, always at the ring carbon immediately beside the ring carbon that carries an –OH group. The added group is strongly electron-withdrawing and can disturb folding near the modified site. Because nitrated proteins accumulate in inflamed tissue, they are widely used as markers of oxidative stress.\n\nResearchers studied this damage in EstB, a 32-kDa bacterial esterase with an isoelectric point (pI) of 5.4. In Experiment 1, samples of unmodified EstB were loaded at the center of agarose gels run in buffers of pH 3.8, 5.4 and 8.6, and the direction in which the protein moved was recorded. In Experiment 2, EstB was given one of four treatments, and the percentage of molecules that had unfolded was measured from the fluorescence of its buried tryptophans (Table 1).\n\nTo follow EstB after injection into mice, the team attached a chelator holding indium-113m (¹¹³ᵐIn) to a surface lysine. Indium-113m is a metastable nuclide that relaxes to its ground state by emitting a 392-keV gamma ray, with a half-life of about 1.7 h, so the label can be imaged with a gamma camera for several hours and then fades quickly.",
+   "figure": {
+    "caption": "Table 1 Unfolding of EstB after each treatment (25°C, pH 7.0)",
+    "columns": [
+     "Treatment",
+     "EstB unfolded (%)"
+    ],
+    "rows": [
+     [
+      "Heating to 75 °C for 10 min",
+      "91"
+     ],
+     [
+      "2.5 M guanidinium chloride",
+      "72"
+     ],
+     [
+      "1.0 mM peroxynitrite",
+      "15"
+     ],
+     [
+      "0.40 M ammonium sulfate",
       "4"
      ]
     ]
    },
    "questions": [
     {
-     "q": "Unlike the alanine residues found in proteins, the β-alanine residue of Compound 1:",
+     "q": "In Experiment 1, toward which electrode does unmodified EstB move in the pH 3.8, 5.4 and 8.6 buffers, respectively?",
      "choices": [
-      "has no stereocenter, because none of its carbons is bonded to four different groups.",
-      "has the D configuration, which is why Compound 1 is cleaved by CN1.",
-      "has its amino group on the carbon directly bonded to the carboxyl carbon.",
-      "has a side chain that carries a negative charge at pH 7.4."
-     ],
-     "ans": 0,
-     "cat": "5D",
-     "skill": "SIRS 1",
-     "diff": "M",
-     "exp": "β-Alanine is H₂N–CH₂–CH₂–COOH. Each of its two CH₂ carbons carries **two hydrogens**, so neither is bonded to four different groups, and the residue has **no stereocenter**. Alanine (H₂N–CH(CH₃)–COOH) is chiral because its α-carbon bears H, CH₃, NH₂ and COOH. The only stereocenter in Compound 1 is the histidine α-carbon.\n\nWithout a stereocenter, β-alanine cannot be D or L.\nThe amino group on the carbon next to the carboxyl carbon describes an **α**-amino acid; the passage says β-alanine's amino group is one carbon farther away.\nβ-Alanine has no side chain at all, let alone a negatively charged one.",
-     "id": "p_cpd_1_q1"
-    },
-    {
-     "q": "Based on the pKa values given in the passage, what is the isoelectric point of Compound 1?",
-     "choices": [
-      "4.7",
-      "6.0",
-      "6.3",
-      "8.1"
-     ],
-     "ans": 3,
-     "cat": "5D",
-     "skill": "SIRS 2",
-     "diff": "D",
-     "exp": "Track the net charge as the pH rises. Below pH 2.6, all three groups are protonated: –COOH (0), imidazolium (+1) and –NH₃⁺ (+1), net **+2**. Above 2.6 the carboxyl is ionized (−1): net **+1**. Above 6.8 the imidazole loses its H⁺: net **0**. Above 9.4 the amine loses its H⁺: net **−1**.\n\nThe neutral form exists between the two pKa values on either side of it, so **pI = (6.8 + 9.4) ÷ 2 = 8.1**. (At pH 7.4, Compound 1 is therefore slightly positive, about +0.2.)\n\n**4.7** = (2.6 + 6.8) ÷ 2 averages the pKa values that bracket the +1 form, the rule for an amino acid with an acidic side chain.\n**6.0** = (2.6 + 9.4) ÷ 2 ignores the imidazole, as if Compound 1 were a simple amino acid.\n**6.3** averages all three pKa values.",
-     "id": "p_cpd_1_q2"
-    },
-    {
-     "q": "Which conclusion about the structure of Compound 1 is best supported by Table 1?",
-     "choices": [
-      "The free amino group is required for removing HNE but not for buffering near pH 7.",
-      "The configuration of the histidine α-carbon determines how well the compound removes HNE.",
-      "Methylating the imidazole ring makes the compound a weaker buffer at pH 7.4.",
-      "Resistance to CN1 requires an unmodified amino group."
-     ],
-     "ans": 0,
-     "cat": "5D",
-     "skill": "SIRS 4",
-     "diff": "X",
-     "exp": "Compare Compound 4 with Compound 1. Acetylating the amino group drops HNE removal from **62% to 4%**, but the imidazole pKa stays at **6.8**, so the group that buffers near pH 7 is unchanged. So the free amine is needed for the reaction with the aldehyde (an amine can add to a C=O to form an imine), while the imidazole does the buffering.\n\nD-Carnosine removes 61% of HNE, essentially the same as carnosine (62%), so the α-carbon configuration doesn't matter for scavenging (it matters for CN1, whose half-life jumps from 5 to >240 min).\nAnserine's imidazole pKa (7.0) is **closer** to 7.4 than carnosine's (6.8). A buffer works best when pH ≈ pKa, so anserine is a slightly **better** buffer at 7.4, not a weaker one.\nCompound 4, whose amino group is acetylated, is the most CN1-resistant compound (>240 min), so an unmodified amine is not required for resistance.",
-     "id": "p_cpd_1_q3"
-    },
-    {
-     "q": "Which bond in Compound 1 is broken by CN1?",
-     "choices": [
-      "The amide C–N bond between the β-alanine carbonyl carbon and the histidine nitrogen",
-      "The C–N bond between the β-alanine amino group and the adjacent carbon",
-      "A C–N bond within the imidazole ring",
-      "The C–C bond between the histidine α-carbon and its carboxyl carbon"
-     ],
-     "ans": 0,
-     "cat": "5D",
-     "skill": "SIRS 1",
-     "diff": "E",
-     "exp": "CN1 is a **hydrolase**: it adds water across the **peptide (amide) bond** joining the two residues. Figure 1 shows the products, β-alanine and L-histidine, so the bond broken must be the one between the β-alanine C=O carbon and the histidine N–H nitrogen. The carbonyl carbon gains –OH (a new COOH on β-alanine) and the nitrogen gains –H (a free NH₂ on histidine).\n\nBreaking the β-alanine C–NH₂ bond would release ammonia, not β-alanine.\nThe aromatic imidazole ring stays intact in histidine.\nBreaking the α-carbon–carboxyl C–C bond would be a decarboxylation releasing CO₂, not a hydrolysis.",
-     "id": "p_cpd_1_q4"
-    }
-   ]
-  },
-  {
-   "id": "p_cpd_2",
-   "subj": "biochemistry",
-   "type": "passage",
-   "topic": "C/P",
-   "cats": [
-    "5D",
-    "5E",
-    "5A"
-   ],
-   "title": "The Serine Synthesis Pathway in Breast Cancer Cells",
-   "passage": "Most cells take up the amino acid serine from the blood, but many tumors also make it from glucose. The glycolytic intermediate 3-phosphoglycerate (Compound 1) is diverted into a three-step pathway (Figure 1). In Step 1, phosphoglycerate dehydrogenase (PHGDH) uses NAD⁺ to oxidize the secondary alcohol of Compound 1 to a ketone. In Step 2, phosphoserine aminotransferase (PSAT1) transfers the amino group of glutamate to Compound 2, producing α-ketoglutarate. In Step 3, phosphoserine phosphatase hydrolyzes the phosphate ester of Compound 3 to give serine (Compound 4). The PHGDH gene is amplified in some breast cancers and melanomas.\n\nStep 1 is uphill under standard conditions (ΔG°′ = +12 kJ/mol), so the pathway runs forward only because the products of Step 1 are kept at low concentration by Steps 2 and 3. At 37°C, 2.303RT = 5.9 kJ/mol.\n\nResearchers measured PHGDH activity in cell extracts with a coupled fluorescence assay: the NADH made in Step 1 was used by a second enzyme, diaphorase, to reduce a nonfluorescent dye to a fluorescent product. Assays were run at 25°C in 50 mM Tris buffer (pKa = 8.1) adjusted to pH 9.1.\n\nThree cell lines were compared: Line A, a breast cancer line with PHGDH amplification; Line B, a breast cancer line without amplification; and Line C, made from Line A by deleting the PHGDH gene. The percentage of cellular serine made from glucose was found by isotope tracing. Each line was also grown for 4 days in complete medium or in serine-free medium, with or without 10 μM Compound 5, a selective PHGDH inhibitor. The results are shown in Table 1.",
-   "scheme": [
-    {
-     "after": 0,
-     "caption": "Figure 1 The serine synthesis pathway",
-     "parts": [
-      "cpd-3-phosphoglycerate",
-      {
-       "arrow": "Step 1: PHGDH, NAD⁺ → NADH"
-      },
-      "cpd-3-phosphohydroxypyruvate",
-      {
-       "arrow": "Step 2: PSAT1, Glu → α-KG"
-      },
-      "cpd-phosphoserine",
-      {
-       "arrow": "Step 3: phosphatase, H₂O → Pi"
-      },
-      "cpd-l-serine"
-     ]
-    }
-   ],
-   "figure": {
-    "caption": "Table 1 Serine synthesis and growth of three cell lines (growth relative to the same line in complete medium without inhibitor)",
-    "columns": [
-     "Line",
-     "PHGDH activity (nmol·min⁻¹·mg⁻¹)",
-     "Serine made from glucose (%)",
-     "Growth, serine-free",
-     "Growth, serine-free + Compound 5",
-     "Growth, complete + Compound 5"
-    ],
-    "rows": [
-     [
-      "A",
-      "42",
-      "45",
-      "0.95",
-      "0.20",
-      "0.85"
-     ],
-     [
-      "B",
-      "5.0",
-      "8",
-      "0.30",
-      "0.25",
-      "0.95"
-     ],
-     [
-      "C",
-      "<0.5",
-      "<1",
-      "0.05",
-      "0.05",
-      "0.90"
-     ]
-    ]
-   },
-   "questions": [
-    {
-     "q": "Which cofactor does PSAT1 most likely require to carry out Step 2?",
-     "choices": [
-      "Pyridoxal phosphate",
-      "Thiamine pyrophosphate",
-      "Biotin",
-      "FAD"
-     ],
-     "ans": 0,
-     "cat": "5D",
-     "skill": "SIRS 1",
-     "diff": "M",
-     "exp": "Step 2 moves an amino group from glutamate to the ketone of Compound 2, a **transamination**. Aminotransferases use **pyridoxal phosphate (PLP, from vitamin B₆)**: the amino group is passed to PLP (forming pyridoxamine phosphate) and then to the keto acid acceptor.\n\nThiamine pyrophosphate is used for decarboxylating α-keto acids (pyruvate dehydrogenase).\nBiotin carries CO₂ in carboxylations (pyruvate carboxylase).\nFAD is a redox cofactor; Step 2 involves no oxidation or reduction of the carbon skeleton overall.",
-     "id": "p_cpd_2_q1"
-    },
-    {
-     "q": "In the PHGDH assay buffer, approximately what percentage of the Tris is in its protonated (TrisH⁺) form?",
-     "choices": [
-      "9%",
-      "10%",
-      "50%",
-      "91%"
-     ],
-     "ans": 0,
-     "cat": "5A",
-     "skill": "SIRS 2",
-     "diff": "M",
-     "subj": "gen_chem",
-     "exp": "Use **Henderson–Hasselbalch**: pH = pKa + log([Tris]/[TrisH⁺]). So 9.1 = 8.1 + log(ratio), log(ratio) = 1, and **[Tris]/[TrisH⁺] = 10**.\n\nFor every 1 TrisH⁺ there are 10 Tris, so TrisH⁺ is 1 part in 11: 1 ÷ 11 ≈ **9%**.\n\n**10%** treats the 1 : 10 ratio as if it were a fraction of the total.\n**91%** is the fraction in the basic (Tris) form.\n**50%** would be true only at pH = pKa (8.1).",
-     "id": "p_cpd_2_q2"
-    },
-    {
-     "q": "In Line A cells at 37°C, the ratio [Compound 2][NADH]/([Compound 1][NAD⁺]) is about 1 × 10⁻³. What is ΔG for Step 1 in these cells?",
-     "choices": [
-      "−6 kJ/mol",
-      "+9 kJ/mol",
-      "+30 kJ/mol",
-      "−18 kJ/mol"
-     ],
-     "ans": 0,
-     "cat": "5E",
-     "skill": "SIRS 2",
-     "diff": "X",
-     "exp": "Use **ΔG = ΔG°′ + 2.303RT log Q**. Here log Q = log(10⁻³) = −3, and the passage gives 2.303RT = 5.9 kJ/mol.\nΔG = +12 + (5.9)(−3) = 12 − 17.7 ≈ **−6 kJ/mol**.\nKeeping the products scarce makes Q small enough to turn an uphill standard reaction downhill.\n\n**+9** uses log Q (−3) without multiplying by 2.303RT.\n**+30** adds 17.7 instead of subtracting it (a sign slip, as if Q were 10³).\n**−18** drops ΔG°′ and keeps only the 2.303RT log Q term.",
-     "id": "p_cpd_2_q3"
-    },
-    {
-     "q": "Which conclusion is best supported by the data in Table 1?",
-     "choices": [
-      "Line A needs PHGDH activity for growth only when serine is unavailable from the medium.",
-      "Line B makes a larger percentage of its serine from glucose than Line A does.",
-      "Compound 5 slows the growth of Line B in complete medium more than it slows Line A.",
-      "Deleting PHGDH prevents Line C from growing even when serine is supplied."
-     ],
-     "ans": 0,
-     "cat": "5D",
-     "skill": "SIRS 4",
-     "diff": "D",
-     "exp": "In serine-free medium, Compound 5 cuts Line A's growth from **0.95 to 0.20**. In complete medium, Line A treated with Compound 5 still grows at **0.85**. So blocking PHGDH matters only when Line A can't take serine up from the medium.\n\nLine B makes **8%** of its serine from glucose versus **45%** for Line A.\nIn complete medium with Compound 5, Line B grows at 0.95 and Line A at 0.85, so Line B is slowed **less**.\nLine C grows at 0.90 in complete medium with serine available; it fails only in serine-free medium (0.05).",
-     "id": "p_cpd_2_q4"
-    },
-    {
-     "q": "Which method would allow the researchers to find the percentage of cellular serine made from glucose, as reported in Table 1?",
-     "choices": [
-      "Feed fully ¹³C-labeled glucose; find the serine fraction 3 mass units heavier.",
-      "Feed fully ¹³C-labeled glucose; find the serine fraction 6 mass units heavier.",
-      "Feed ¹³C-labeled serine; find the fraction of Compound 1 that is labeled.",
-      "Feed ¹⁴C-labeled glucose; measure the total radioactivity of the cells."
-     ],
-     "ans": 0,
-     "cat": "5D",
-     "skill": "SIRS 3",
-     "diff": "D",
-     "exp": "To trace serine back to glucose, label the glucose and look in the serine. Glycolysis splits [U-¹³C]glucose into two 3-carbon units, so Compound 1 carries **three ¹³C atoms**, and so does the serine made from it. Serine has only **3 carbons**, so newly made serine is **M+3** (3 mass units heavier), while serine taken up from the medium is unlabeled. The M+3 fraction is the percentage made from glucose.\n\nSerine can't be 6 mass units heavier: it has only three carbons to label.\nLabeling serine and looking in Compound 1 traces the pathway backward, which it doesn't run in cells.\nTotal cell radioactivity includes label in every glucose-derived molecule (lipids, nucleotides, glycogen), not just serine.",
-     "id": "p_cpd_2_q5"
-    }
-   ]
-  },
-  {
-   "id": "p_cpd_3",
-   "subj": "gen_chem",
-   "type": "passage",
-   "topic": "C/P",
-   "cats": [
-    "4C",
-    "4E"
-   ],
-   "title": "Corrosion of Biodegradable Magnesium Stents",
-   "passage": "Coronary stents made of magnesium alloys are designed to hold an artery open for several months and then dissolve. Magnesium is biocompatible, and the Mg²⁺ released is excreted by the kidneys like dietary magnesium. In the body, the metal is oxidized to Mg²⁺ (the reverse of Reaction 1), mainly coupled to the reduction of water (Reaction 2). Dissolved O₂ (Reaction 3) is scarce in tissue. The OH⁻ produced raises the local pH, and Mg(OH)₂ and magnesium phosphates precipitate on the metal surface.\n\nMg²⁺ + 2e⁻ → Mg   E° = −2.37 V\nReaction 1\n2H₂O + 2e⁻ → H₂ + 2OH⁻   E° = −0.83 V\nReaction 2\nO₂ + 2H₂O + 4e⁻ → 4OH⁻   E° = +0.40 V\nReaction 3\n\nIf a stent corrodes too fast, it loses mechanical support before the artery heals, and the H₂ released can form gas pockets in the tissue; each mole of Mg that corrodes by Reactions 1 and 2 releases one mole of H₂. Alloying elements are added to slow corrosion. Researchers compared pure Mg with three alloys, AZ31 (3% Al, 1% Zn), WE43 (4% Y, 3% rare-earth metals) and Mg–Zn–Ca, and with 316L stainless steel, a nondegradable stent material.\n\nPolished samples were immersed in simulated body fluid at 37°C. The corrosion potential (Ecorr) and the corrosion current density (icorr) of each sample were found from polarization curves measured in a three-electrode cell with a platinum counter electrode. The H₂ evolved was collected in an inverted burette over each sample. The results are shown in Table 1. All potentials are reported versus the standard hydrogen electrode.",
-   "figure": {
-    "caption": "Table 1 Corrosion of stent materials in simulated body fluid at 37°C",
-    "columns": [
-     "Material",
-     "Ecorr (V)",
-     "icorr (μA/cm²)",
-     "H₂ evolved (mL·cm⁻²·day⁻¹)"
-    ],
-    "rows": [
-     [
-      "Pure Mg",
-      "−1.38",
-      "180",
-      "2.0"
-     ],
-     [
-      "AZ31",
-      "−1.33",
-      "50",
-      "0.57"
-     ],
-     [
-      "WE43",
-      "−1.28",
-      "25",
-      "0.28"
-     ],
-     [
-      "Mg–Zn–Ca",
-      "−1.31",
-      "60",
-      "0.68"
-     ],
-     [
-      "316L steel",
-      "−0.05",
-      "0.05",
-      "not detected"
-     ]
-    ]
-   },
-   "questions": [
-    {
-     "q": "The Mg²⁺ ion has a much smaller radius than a neutral Mg atom because Mg²⁺:",
-     "choices": [
-      "has lost its 3s electrons, leaving its outermost electrons in n = 2.",
-      "has gained two protons, which pull the electrons closer to the nucleus.",
-      "has two more electrons than Mg, increasing their attraction to the nucleus.",
-      "has a more massive nucleus, which holds the electrons more tightly."
-     ],
-     "ans": 0,
-     "cat": "4E",
-     "skill": "SIRS 1",
-     "diff": "E",
-     "exp": "Mg is 1s²2s²2p⁶3s². Forming Mg²⁺ removes the **two 3s electrons**, leaving 1s²2s²2p⁶ (the neon configuration). The outermost electrons are now in the **n = 2 shell**, much closer to the nucleus, and the 12 protons now pull on only 10 electrons. Both effects shrink the ion.\n\nIonization removes electrons; it never adds protons.\nA cation has fewer electrons than its atom, not more.\nThe nucleus is unchanged, so its mass is the same.",
-     "id": "p_cpd_3_q1"
-    },
-    {
-     "q": "What is the standard cell potential for the corrosion of magnesium by water, Mg + 2H₂O → Mg²⁺ + H₂ + 2OH⁻?",
-     "choices": [
-      "+1.54 V",
-      "+3.20 V",
-      "−1.54 V",
-      "+0.77 V"
-     ],
-     "ans": 0,
-     "cat": "4C",
-     "skill": "SIRS 2",
-     "diff": "M",
-     "exp": "Water is reduced at the cathode (Reaction 2) and Mg is oxidized at the anode (the reverse of Reaction 1). Using reduction potentials:\nE°cell = E°cathode − E°anode = (−0.83 V) − (−2.37 V) = **+1.54 V**.\nThe positive value means the corrosion is spontaneous under standard conditions.\n\n**+3.20 V** adds the magnitudes (2.37 + 0.83), as if water reduction were +0.83 V.\n**−1.54 V** subtracts in the wrong order (anode − cathode).\n**+0.77 V** divides by the 2 electrons transferred; E° is an intensive quantity and isn't scaled by n.",
-     "id": "p_cpd_3_q2"
-    },
-    {
-     "q": "An AZ31 stent has 2.0 cm² of surface exposed to blood. If icorr stays at the value in Table 1 and all of the current comes from oxidation of Mg (24.3 g/mol), approximately what mass of Mg corrodes in 1.0 × 10⁶ s (about 12 days)? (F = 96,500 C/mol)",
-     "choices": [
-      "6.3 mg",
-      "13 mg",
-      "25 mg",
-      "13 g"
+      "Anode, neither, cathode",
+      "Cathode, neither, anode",
+      "Cathode, anode, anode",
+      "Anode, neither, anode"
      ],
      "ans": 1,
-     "cat": "4C",
+     "cat": "5D",
      "skill": "SIRS 2",
-     "diff": "X",
-     "exp": "Current: I = 50 μA/cm² × 2.0 cm² = 100 μA = **1.0 × 10⁻⁴ A**.\nCharge: Q = It = (1.0 × 10⁻⁴ A)(1.0 × 10⁶ s) = **100 C**.\nMoles of electrons: 100 ÷ 96,500 ≈ 1.04 × 10⁻³ mol.\nEach Mg gives **2 electrons**: 1.04 × 10⁻³ ÷ 2 ≈ 5.2 × 10⁻⁴ mol Mg.\nMass: 5.2 × 10⁻⁴ mol × 24.3 g/mol ≈ 0.0126 g ≈ **13 mg**.\n\n**6.3 mg** uses the current density without multiplying by the 2.0 cm² area.\n**25 mg** assumes one electron per Mg atom.\n**13 g** treats μA as mA (a factor of 1000).",
-     "id": "p_cpd_3_q3"
+     "diff": "D",
+     "twin": "pe6-cp:29",
+     "exp": "1. Rule: at pH = pI (5.4) the net charge is zero; below the pI, groups pick up H⁺ (net +); above it, they lose H⁺ (net −).\n2. Read the charge in each buffer: pH 3.8 < 5.4 → net **+**; pH 5.4 = pI → **0**; pH 8.6 > 5.4 → net **−**.\n3. Zero net charge means no net force, so at pH 5.4 EstB stays where it was loaded; \"Cathode, anode, anode\" has it moving at its pI.\n4. Opposite charges attract: the anode is +, the cathode is −. Net + at pH 3.8 → **cathode**; net − at pH 8.6 → **anode**. \"Anode, neither, cathode\" swaps both electrodes, and \"Anode, neither, anode\" sends the positive protein at pH 3.8 to the positive electrode.\n5. Answer: cathode, neither, anode.\n\n**Rule to reuse:** pH below pI → net + → cathode (−). pH = pI → no movement. pH above pI → net − → anode (+).",
+     "id": "p_cpd2_6_q1"
     },
     {
-     "q": "A WE43 stent is placed so that it overlaps and touches a 316L stainless steel stent from an earlier procedure. Based on Table 1, what is the most likely result?",
+     "q": "Based on the passage, which side chain does peroxynitrite modify in EstB?",
      "choices": [
-      "WE43 acts as the anode and corrodes faster than it would alone.",
-      "Steel acts as the anode and corrodes faster than it would alone.",
-      "WE43 corrodes more slowly, because the steel supplies it with electrons.",
-      "Neither corrosion rate changes, because both are metals in the same fluid."
+      "Phe",
+      "His",
+      "Tyr",
+      "Thr"
      ],
-     "ans": 0,
-     "cat": "4C",
-     "skill": "SIRS 4",
+     "ans": 2,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe6-cp:30",
+     "exp": "1. The passage sets two requirements: an aromatic ring, and an –OH on that ring (the nitro group goes on the ring carbon beside the C–OH, the ortho position).\n2. Check each side chain for both features: Phe: ring **yes**, OH **no**; Thr: ring **no**, OH **yes**; His: ring **yes** (imidazole), OH **no** (N–H instead); Tyr: ring **yes**, OH **yes**.\n3. Phe and Thr each have only one of the two features.\n4. His's ring carries N–H, not O–H.\n5. Answer: Tyr, a phenol; nitration gives 3-nitrotyrosine, with –NO₂ ortho to the OH.\n\n**Rule to reuse:** **Ortho** = the ring position next to a substituent; meta = two away; para = across the ring.",
+     "id": "p_cpd2_6_q2"
+    },
+    {
+     "q": "Based on Table 1, after which treatment are the most of EstB's nonpolar side chains in contact with water?",
+     "choices": [
+      "2.5 M guanidinium chloride",
+      "75 °C heat",
+      "1.0 mM peroxynitrite",
+      "0.40 M ammonium sulfate"
+     ],
+     "ans": 1,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "E",
+     "twin": "pe6-cp:31",
+     "exp": "1. In folded EstB the nonpolar side chains are buried in the core, so more unfolding → more of them exposed to water.\n2. Rank the treatments by percent unfolded: heating to 75 °C **91%** > guanidinium chloride 72% > peroxynitrite 15% > ammonium sulfate 4%.\n3. Guanidinium chloride, peroxynitrite and ammonium sulfate unfold less EstB, so they leave more of the core buried.\n4. Answer: heating to 75 °C.\n\n**Rule to reuse:** exposure of a protein's hydrophobic core tracks how much it is denatured, so the treatment with the highest percent denatured exposes the most.",
+     "id": "p_cpd2_6_q3"
+    },
+    {
+     "q": "Which nuclide remains after a ¹¹³ᵐIn nucleus emits its gamma ray?",
+     "choices": [
+      "¹⁰⁹Ag",
+      "¹¹²In",
+      "¹¹³Sn",
+      "¹¹³In"
+     ],
+     "ans": 3,
+     "cat": "4E",
+     "skill": "SIRS 2",
      "diff": "D",
-     "exp": "Two metals in electrical contact in an electrolyte form a **galvanic couple**. The metal with the more negative corrosion potential becomes the **anode**. WE43's Ecorr (**−1.28 V**) is far more negative than steel's (**−0.05 V**), so electrons flow from WE43 to the steel, where water is reduced. WE43 is oxidized faster than it would be alone.\n\nSteel is the cathode, so it is protected rather than corroded.\nElectrons flow from WE43 to steel, not the other way, so WE43 corrodes faster, not slower.\nA 1.2 V difference in Ecorr drives a current between the metals; contact between dissimilar metals is exactly what causes galvanic corrosion.",
-     "id": "p_cpd_3_q4"
+     "subj": "physics",
+     "twin": "pe6-cp:32",
+     "exp": "1. Translate: a gamma ray is a photon, with no charge and no nucleons.\n2. Match each product to the emission that would make it: ¹⁰⁹Ag (Z 49 → 47, A 113 → 109) is alpha decay; ¹¹³Sn (Z 49 → 50) is beta-minus decay; ¹¹²In (A 113 → 112) is loss of a neutron.\n3. Check the mass carried off by the photon: E = 392 keV × 1.6 × 10⁻¹⁶ J/keV = **6.3 × 10⁻¹⁴ J**; Δm = E/c² = 6.3 × 10⁻¹⁴ ÷ (3.0 × 10⁸)² = **7.0 × 10⁻³¹ kg**; one nucleon ≈ 1.7 × 10⁻²⁷ kg → **no nucleon lost**.\n4. Compare the nuclide before and after: Z = 49 and A = 113 both times; only the excited (m) state is gone.\n5. Answer: ¹¹³In, the ground state of the same nuclide.\n\n**Rule to reuse:** α: Z −2, A −4. β⁻: Z +1. β⁺: Z −1. γ: nothing changes; only energy leaves.",
+     "id": "p_cpd2_6_q4"
     }
    ]
   },
   {
-   "id": "p_cpd_4",
+   "id": "p_cpd2_7",
    "subj": "gen_chem",
    "type": "passage",
    "topic": "C/P",
    "cats": [
-    "5A",
-    "5E"
+    "4B",
+    "5E",
+    "4E"
    ],
-   "title": "Phenobarbital: Acid–Base Behavior and Overdose Treatment",
-   "passage": "Phenobarbital (Compound 1, molar mass 232 g/mol) is a barbiturate used to treat seizures, including seizures in newborns. It is a weak acid: an N–H proton located between two carbonyl groups is lost with pKa = 7.4 at 25°C. The neutral form of the drug crosses cell membranes readily, but the anion does not. About half of the drug in plasma is bound to albumin. Normally about 25% of a dose is excreted unchanged in the urine, and the rest is oxidized in the liver by cytochrome P450 enzymes, mainly to p-hydroxyphenobarbital.\n\nBecause phenobarbital is eliminated slowly (half-life about 4 days), an overdose can cause prolonged coma. Phenobarbital filtered by the kidney is partly reabsorbed by passive diffusion across the wall of the renal tubule. One treatment for overdose is intravenous sodium bicarbonate, which raises the pH of the urine from about 6.4 to as high as 8.4 and increases the amount of drug excreted. The sodium salt of Compound 1 is far more water-soluble than the neutral acid, so injectable phenobarbital is supplied as the sodium salt in a solution with a pH of about 10.\n\nTo check the drug content of an oral liquid formulation, a pharmacist diluted a sample with water to 50 mL and titrated it with 0.020 M NaOH at 25°C, recording the pH with a glass electrode that had been calibrated with standard buffers of pH 4.00, 7.00 and 10.00. No other ingredient in the formulation reacts with NaOH. The titration curve is shown in Figure 1.",
-   "scheme": [
-    {
-     "after": 0,
-     "caption": "Compound 1 Phenobarbital",
-     "parts": [
-      "cpd-phenobarbital"
-     ]
-    }
-   ],
+   "title": "Ammonium Carbonate as a Leavening Agent",
+   "passage": "Before baking powder was common, bakers leavened thin crackers and cookies with ammonium carbonate, (NH₄)₂CO₃, which decomposes completely when heated:\n\n(NH₄)₂CO₃(s) → 2 NH₃(g) + CO₂(g) + H₂O(g)   (Reaction 1)\n\nAt oven temperatures all three products are gases, so the solid leaves no residue, but the ammonia must escape before the food is eaten. The compound is still used in some traditional recipes, where its rapid release of gas gives an especially light, crisp texture. Figure 1 shows a simplified energy profile for Reaction 1.\n\nIn Experiment 1, a 0.48-g sample of ammonium carbonate was heated in a sealed tube connected to a gas syringe that kept the pressure at 1.0 atm. In one trial the tube and syringe were held at 180 °C; in a second trial, with an identical sample, they were held at 120 °C. The solid decomposed completely in both trials, yet the gas volume measured at 120 °C was smaller.\n\nIn Experiment 2, pure ammonia was frozen at −110 °C and 1.0 atm and then warmed slowly to 20 °C at the same pressure. Ammonia has a triple point at 0.060 atm and −77.7 °C and a normal boiling point of −33.3 °C. For comparison, carbon dioxide has a triple point at 5.1 atm and −56.6 °C, so solid CO₂ sublimes when it is warmed at 1.0 atm.",
    "figure": {
     "type": "line",
-    "caption": "Figure 1 Titration of a phenobarbital sample with 0.020 M NaOH at 25°C",
+    "caption": "Figure 1 Simplified energy profile for Reaction 1",
     "x": {
-     "label": "Volume of NaOH added (mL)",
+     "label": "Reaction progress",
      "min": 0,
-     "max": 16,
+     "max": 10,
      "step": 2
     },
     "y": {
-     "label": "pH",
-     "min": 2,
-     "max": 12,
-     "step": 2
+     "label": "Energy (kJ/mol)",
+     "min": 0,
+     "max": 350,
+     "step": 50
     },
     "series": [
      {
-      "name": "Sample",
+      "name": "Reaction 1",
       "marker": "circle",
       "line": "smooth",
       "points": [
        [
         0,
-        4.9
+        40
        ],
        [
         1,
-        6.45
+        40
        ],
        [
         2,
-        6.8
+        52
        ],
        [
         3,
-        7.03
+        110
        ],
        [
         4,
-        7.22
+        230
        ],
        [
         5,
-        7.4
+        300
        ],
        [
         6,
-        7.58
+        288
        ],
        [
         7,
-        7.77
+        268
        ],
        [
         8,
-        8.0
+        255
        ],
        [
         9,
-        8.35
-       ],
-       [
-        9.5,
-        8.67
+        250
        ],
        [
         10,
-        9.46
-       ],
-       [
-        10.5,
-        10.23
-       ],
-       [
-        11,
-        10.52
-       ],
-       [
-        12,
-        10.81
-       ],
-       [
-        14,
-        11.1
-       ],
-       [
-        16,
-        11.26
+        250
        ]
       ]
      }
@@ -537,276 +729,326 @@ const CP_DIAG = {
    },
    "questions": [
     {
-     "q": "When sodium bicarbonate raises the urine pH to 8.4, approximately what percentage of the Compound 1 in the urine is in its ionized form?",
+     "q": "Which explanation best accounts for the smaller gas volume measured at 120 °C in Experiment 1?",
      "choices": [
-      "9%",
-      "50%",
-      "91%",
-      "99%"
+      "Less of the solid decomposed",
+      "No decomposition occurred",
+      "Greater pressure in the syringe",
+      "Equal moles, colder gas"
      ],
-     "ans": 2,
-     "cat": "5A",
+     "ans": 3,
+     "cat": "4B",
      "skill": "SIRS 2",
      "diff": "D",
-     "exp": "Henderson–Hasselbalch: log([A⁻]/[HA]) = pH − pKa = 8.4 − 7.4 = 1, so **[A⁻]/[HA] = 10**. Ionized fraction = 10 ÷ (10 + 1) ≈ **91%**.\nThe anion can't diffuse back across the tubule wall, so it is **trapped** in the urine and excreted. At the normal urine pH of 6.4, only about 9% is ionized.\n\n**9%** inverts the ratio (the result at pH 6.4).\n**50%** is the result at pH = pKa (7.4).\n**99%** would need pH − pKa = 2.",
-     "id": "p_cpd_4_q1"
+     "twin": "pe6-cp:53",
+     "exp": "1. \"Decomposed completely\" means the identical 0.48-g samples give the same moles of gas in both trials, so \"Less of the solid decomposed\" and \"No decomposition occurred\" contradict the data.\n2. Both trials were read at 1.0 atm, so \"Greater pressure in the syringe\" contradicts the setup.\n3. With n and P fixed, V ∝ T in kelvin: T₁ = 180 + 273 = **453 K**; T₂ = 120 + 273 = **393 K**; V₂/V₁ = 393/453 = **0.87**.\n4. Answer: equal moles, colder gas: the gas fills about 13% less volume at 120 °C.\n\n**Rule to reuse:** list what is held fixed (P, n), then use PV = nRT: at fixed P and n, volume tracks kelvin temperature.",
+     "id": "p_cpd2_7_q1"
     },
     {
-     "q": "Based on Figure 1, approximately what mass of Compound 1 was in the titrated sample?",
+     "q": "In Experiment 2, which sequence of phase changes does the ammonia undergo as it warms?",
      "choices": [
-      "4.6 mg",
-      "23 mg",
-      "46 mg",
-      "93 mg"
+      "Sublimation alone",
+      "Melting, then boiling",
+      "Melting alone",
+      "Boiling, then melting"
      ],
-     "ans": 2,
-     "cat": "5A",
-     "skill": "SIRS 2",
-     "diff": "D",
-     "exp": "The steep jump in Figure 1 (the equivalence point) is at **10.0 mL** of NaOH. Phenobarbital loses one proton, so moles of drug = moles of NaOH:\n(0.0100 L)(0.020 mol/L) = **2.0 × 10⁻⁴ mol**.\nMass = 2.0 × 10⁻⁴ mol × 232 g/mol = 0.0464 g ≈ **46 mg**.\n\n**23 mg** uses the half-equivalence volume (5.0 mL, where pH = pKa = 7.4).\n**93 mg** assumes both N–H protons are titrated; the curve shows only one jump.\n**4.6 mg** is a factor-of-10 slip in converting mL to L.",
-     "id": "p_cpd_4_q2"
-    },
-    {
-     "q": "The N–H proton lost by Compound 1 is far more acidic than the N–H proton of a typical amine because the conjugate base of Compound 1:",
-     "choices": [
-      "spreads its negative charge onto the oxygen atoms of the two adjacent carbonyl groups by resonance.",
-      "places its negative charge on a carbon atom of the phenyl ring.",
-      "becomes aromatic when the proton is removed, like the cyclopentadienyl anion.",
-      "is stabilized only by the electron-donating ethyl group on the ring."
-     ],
-     "ans": 0,
-     "cat": "5A",
+     "ans": 1,
+     "cat": "5E",
      "skill": "SIRS 1",
      "diff": "M",
-     "exp": "Acid strength depends on how stable the **conjugate base** is. When the N–H between the two C=O groups is removed, the nitrogen's lone pair is delocalized into **both carbonyls**, putting the negative charge on two electronegative oxygen atoms. An amine anion (R₂N⁻) has no such resonance, so amines have N–H pKa values near 35, while Compound 1's is 7.4.\n\nThe phenyl ring is attached to the sp³ carbon C5, which blocks any conjugation between the ring and the nitrogen.\nThe barbiturate ring isn't made aromatic by losing this proton.\nAn electron-**donating** alkyl group would destabilize an anion, not stabilize it.",
-     "id": "p_cpd_4_q3"
+     "twin": "pe6-cp:54",
+     "exp": "1. Constant pressure means a horizontal path on the phase diagram: follow 1.0 atm from −110 °C to 20 °C.\n2. Compare with the triple point: **0.060 atm**, −77.7 °C; 1.0 atm > 0.060 atm → a liquid region exists on this path.\n3. Warming, the path first crosses the solid–liquid line: melting, at about **−77.7 °C**.\n4. Then it crosses the liquid–gas line: boiling at **−33.3 °C**; at 20 °C the ammonia is a gas. It never touches the solid–gas line, so there is no sublimation, and melting cannot come after boiling.\n5. Answer: melting, then boiling.\n\n**Rule to reuse:** draw a horizontal line at the given pressure; each border it crosses, in order, is a phase change. Sublimation only happens below the triple-point pressure.",
+     "id": "p_cpd2_7_q2"
     },
     {
-     "q": "The researchers hypothesized that ionization of Compound 1 in water is endothermic. Which experiment would best test this hypothesis?",
+     "q": "According to Figure 1, which statement describes the forward direction of Reaction 1?",
      "choices": [
-      "Titrate at several temperatures; compare the pH at half-equivalence.",
-      "Titrate several concentrations of Compound 1; compare the pH at half-equivalence.",
-      "Titrate at several temperatures; compare the NaOH volume needed for equivalence.",
-      "Titrate with 0.20 M NaOH; compare the pH at equivalence."
+      "ΔH > 0; Ea = 260 kJ/mol",
+      "ΔH < 0; Ea = 260 kJ/mol",
+      "ΔH > 0; Ea = 300 kJ/mol",
+      "ΔH > 0; Ea = 50 kJ/mol"
      ],
      "ans": 0,
      "cat": "5E",
-     "skill": "SIRS 3",
-     "diff": "X",
-     "exp": "At the half-equivalence point, pH = **pKa**, so titrating at several temperatures measures how Ka changes with temperature. By **Le Châtelier's principle**, if ionization absorbs heat, raising the temperature shifts the equilibrium toward the ions: Ka rises and pKa falls. A lower half-equivalence pH at higher temperature would support the hypothesis.\n\nKa is a constant at a given temperature; changing the drug concentration doesn't change it, so this varies the wrong thing.\nThe equivalence volume depends only on the moles of acid (stoichiometry), not on Ka or on temperature.\nChanging the titrant concentration only changes dilution at the equivalence point, at one temperature.",
-     "id": "p_cpd_4_q4"
+     "skill": "SIRS 1",
+     "diff": "D",
+     "twin": "pe6-cp:55",
+     "exp": "1. Read the two ends: reactants on the left at **40 kJ/mol**, products on the right at **250 kJ/mol**; ΔH = 250 − 40 = **+210 kJ/mol** → products higher → **endothermic** (ΔH > 0).\n2. Products above reactants rules out \"ΔH < 0; Ea = 260 kJ/mol\".\n3. Read the peak, the transition state, and measure up from the reactants: Ea = 300 − 40 = **260 kJ/mol**.\n4. 300 kJ/mol is the peak read from zero, and 50 = 300 − 250 is the activation energy of the reverse reaction.\n5. Answer: ΔH > 0; Ea = 260 kJ/mol.\n\n**Rule to reuse:** ΔH = right end − left end (positive = endothermic); forward Ea = peak − left end; reverse Ea = peak − right end.",
+     "id": "p_cpd2_7_q3"
+    },
+    {
+     "q": "In the gas released by Reaction 1, what fraction of the moles is NH₃?",
+     "choices": [
+      "0.25",
+      "0.40",
+      "0.50",
+      "0.67"
+     ],
+     "ans": 2,
+     "cat": "4E",
+     "skill": "SIRS 2",
+     "diff": "M",
+     "twin": "pe6-cp:56",
+     "exp": "1. Only gases count in a gas mole fraction; (NH₄)₂CO₃(s) is excluded.\n2. Read the coefficients of the gaseous products: NH₃ **2**, CO₂ **1**, H₂O **1**.\n3. Divide NH₃ moles by total gas moles: n_total = 2 + 1 + 1 = **4**; X(NH₃) = 2/4 = **0.50**.\n4. 0.40 (2/5) adds the solid reactant to the total; 0.25 (1/4) puts the CO₂ or H₂O coefficient on top; 0.67 (2/3) leaves out the water vapor, which is a gas at oven temperature.\n5. Answer: 2/4 = 0.50.\n\n**Rule to reuse:** mole fraction of a gas = its coefficient ÷ sum of the gas coefficients; leave out solids and liquids.",
+     "id": "p_cpd2_7_q4"
     }
    ]
   },
   {
-   "id": "p_cpd_5",
-   "subj": "physics",
+   "id": "p_cpd2_8",
+   "subj": "gen_chem",
    "type": "passage",
    "topic": "C/P",
    "cats": [
     "4C",
-    "4A",
-    "4B"
+    "4E"
    ],
-   "title": "Occlusion Alarm in an Ambulatory Syringe Driver",
-   "passage": "Patients in palliative care often receive drugs such as morphine by slow, continuous injection under the skin from a battery-powered syringe driver worn in a holster. In one design, a small DC motor turns a lead screw that pushes the syringe plunger forward at a constant speed. The syringe has an inner cross-sectional area of 2.0 cm², and a typical prescription delivers 2.0 mL/h of drug solution through a long, narrow catheter that ends in a fine needle under the skin.\n\nThe motor is powered by four 1.5 V alkaline cells, each rated at 2500 mAh, connected in series. A 2.0 Ω current-sensing resistor is wired in series with the motor. During normal delivery, the motor behaves electrically like a 28 Ω resistor. A microcontroller continuously measures the voltage across the sense resistor, and its own current draw is negligible. The battery's internal resistance can also be neglected.\n\nIf the catheter kinks or the needle clots, fluid can no longer leave the syringe. The pressure in the syringe then rises, the motor slows, and its effective resistance falls, so the current through the circuit increases. The controller stops the motor and sounds an occlusion alarm when the voltage across the sense resistor reaches 0.60 V. In bench tests, the gauge pressure inside the syringe was about 20 kPa during normal delivery and about 100 kPa when the alarm sounded. Nearly all of the normal 20 kPa pressure difference is needed to push the solution through the catheter.\n\nBecause a delayed alarm means the patient goes without pain relief, the manufacturer tested how quickly the alarm sounded after a complete occlusion. At 2.0 mL/h the alarm took about 25 minutes, mainly because the plunger must compress small air bubbles and stretch the plastic tubing before the pressure can build. At higher flow rates the alarm sounded sooner.",
+   "title": "Metals, Galvanic Cells and a Lamp Circuit",
+   "passage": "A general chemistry class used the standard reduction potentials in Table 1 to predict reactions between metals and ions at 25 °C. Each prediction was then tested at the bench, and observations were recorded before any interpretation.\n\nIn Part A, a zinc strip was placed in a pale yellow solution of gold(III) chloride. The yellow color faded, and a gold-colored solid coated the strip. In Part B, a galvanic cell was built from an iron electrode in 1 M Fe(NO₃)₂ and a copper electrode in 1 M Cu(NO₃)₂, joined by a salt bridge; as the cell ran, the copper electrode gained mass. In Part C, the students tested metal Q, which is known to be more easily oxidized than iron, by dropping a piece into dilute sulfuric acid, H₂SO₄.\n\nIn Part D, the class wired a lamp circuit from a 2.4-V battery pack, copper leads and a 12-Ω lamp. Spare parts included an 8-Ω lamp, a 24-Ω lamp, a thinner copper lead, and a longer copper lead of the same thickness. In Part E, a power supply held at a steady 0.78 V was connected directly across a short heating filament. In Parts D and E, the resistance of the leads was negligible compared with that of the lamp or filament, and every resistance was assumed to stay constant as current flowed.",
+   "figure": {
+    "caption": "Table 1 Standard reduction potentials at 25 °C",
+    "columns": [
+     "Half-reaction",
+     "E° (V)"
+    ],
+    "rows": [
+     [
+      "Au³⁺ + 3e⁻ → Au",
+      "+1.50"
+     ],
+     [
+      "Ag⁺ + e⁻ → Ag",
+      "+0.80"
+     ],
+     [
+      "Cu²⁺ + 2e⁻ → Cu",
+      "+0.34"
+     ],
+     [
+      "2H⁺ + 2e⁻ → H₂",
+      "0.00"
+     ],
+     [
+      "Fe²⁺ + 2e⁻ → Fe",
+      "−0.44"
+     ],
+     [
+      "Zn²⁺ + 2e⁻ → Zn",
+      "−0.76"
+     ]
+    ]
+   },
    "questions": [
     {
-     "q": "At the moment the occlusion alarm sounds, what is the effective resistance of the motor?",
+     "q": "In Part D, which single replacement would increase the current through the lamp?",
      "choices": [
-      "3.0 Ω",
-      "18 Ω",
-      "20 Ω",
-      "28 Ω"
+      "A thinner lead",
+      "A longer lead",
+      "The 8-Ω lamp",
+      "The 24-Ω lamp"
+     ],
+     "ans": 2,
+     "cat": "4C",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "subj": "physics",
+     "twin": "pe1-cp:52",
+     "exp": "1. With a fixed battery voltage, the current depends only on total resistance: I = V ÷ R.\n2. Original current (lead resistance is tiny): I = 2.4 V ÷ 12 Ω = **0.20 A**.\n3. Compare the lamp swaps: 8 Ω: 2.4 ÷ 8 = **0.30 A** (up); 24 Ω: 2.4 ÷ 24 = **0.10 A** (down).\n4. Leads: R = ρL/A, so a thinner (smaller A) or longer (larger L) lead RAISES resistance and lowers the current.\n5. Answer: the 8-Ω lamp, since I = V/R.\n\n**Rule to reuse:** fixed voltage → I = V/R, so lower resistance means more current. Wires get MORE resistive when longer or thinner (R = ρL/A).",
+     "id": "p_cpd2_8_q1"
+    },
+    {
+     "q": "In Part C, will H₂ gas form, and why?",
+     "choices": [
+      "Yes; H⁺ gives electrons to Q",
+      "Yes; Q gives electrons to H⁺",
+      "No; SO₄²⁻ gives electrons to Q",
+      "No; Q forms ions but no gas"
      ],
      "ans": 1,
      "cat": "4C",
      "skill": "SIRS 2",
-     "diff": "X",
-     "exp": "Work from the sense resistor outward. The alarm voltage across the 2.0 Ω resistor gives the current: **I = V/R = 0.60 V ÷ 2.0 Ω = 0.30 A**. In a series circuit the same current flows through everything, so the total resistance is **6.0 V ÷ 0.30 A = 20 Ω** (four 1.5 V cells in series give 6.0 V). Subtract the sense resistor: 20 Ω − 2.0 Ω = **18 Ω** for the motor. That is lower than the normal 28 Ω, which matches the passage: a stalled motor's effective resistance falls.\n\n**20 Ω** is the total resistance; the 2.0 Ω sense resistor was not subtracted.\n**28 Ω** is the normal-delivery value, so it ignores the rise in current.\n**3.0 Ω** uses one cell's 1.5 V instead of the 6.0 V pack (1.5 ÷ 0.30 = 5.0 Ω, minus 2.0 Ω).",
-     "id": "p_cpd_5_q1"
+     "diff": "M",
+     "twin": "pe1-cp:53",
+     "exp": "1. \"More easily oxidized than iron\" means Q's reduction potential is LOWER than iron's: E°red(Q) **< −0.44 V**.\n2. Place Q, Fe and H⁺ on one scale: H⁺/H₂ (0.00 V) > Fe²⁺/Fe (−0.44 V) > Q.\n3. The species with the higher E°red (H⁺) is reduced; the lower one (Q) is oxidized: E°cell = E°cathode − E°anode = 0.00 − (below −0.44) = **> +0.44 V** → spontaneous.\n4. Q is the electron donor, so H⁺ cannot give electrons to Q; sulfate is not oxidized here; and the electrons Q loses go to H⁺, which leaves as H₂ gas.\n5. Answer: yes; Q gives electrons to H⁺, which is reduced to H₂.\n\n**Rule to reuse:** any metal with E°red below 0.00 V (more active than H₂) is oxidized by acid and releases H₂; the higher-E° species is always the one reduced.",
+     "id": "p_cpd2_8_q2"
     },
     {
-     "q": "Compared with a single one of the cells described in the passage, the battery pack used in the syringe driver has:",
+     "q": "Which net ionic equation, correctly balanced, represents the change observed in Part A?",
      "choices": [
-      "four times the voltage and the same charge capacity.",
-      "the same voltage and four times the charge capacity.",
-      "four times the voltage and four times the charge capacity.",
-      "the same voltage and the same charge capacity."
+      "Zn + Au³⁺ → Zn²⁺ + Au",
+      "3Zn²⁺ + 2Au → 3Zn + 2Au³⁺",
+      "2Zn + 3Au³⁺ → 2Zn²⁺ + 3Au",
+      "3Zn + 2Au³⁺ → 3Zn²⁺ + 2Au"
+     ],
+     "ans": 3,
+     "cat": "4E",
+     "skill": "SIRS 2",
+     "diff": "X",
+     "twin": "pe1-cp:54",
+     "exp": "1. Use the observations: yellow Au³⁺ fades and gold metal appears → Au³⁺ is reduced, so Zn (the lower E°, −0.76 V versus +1.50 V) is oxidized. \"3Zn²⁺ + 2Au → 3Zn + 2Au³⁺\" runs backward.\n2. Write the half-reactions: oxidation: Zn → Zn²⁺ + **2e⁻**; reduction: Au³⁺ + **3e⁻** → Au.\n3. Match electrons: the LCM of 2 and 3 is 6: 3Zn → 3Zn²⁺ + 6e⁻; 2Au³⁺ + 6e⁻ → 2Au; sum: **3Zn + 2Au³⁺ → 3Zn²⁺ + 2Au**.\n4. Check charge on each choice: 3Zn + 2Au³⁺: +6 → 3Zn²⁺: +6 ✓; Zn + Au³⁺: +3 → Zn²⁺: +2 ✗; 2Zn + 3Au³⁺: +9 → 2Zn²⁺: +4 ✗.\n5. Answer: 3Zn + 2Au³⁺ → 3Zn²⁺ + 2Au.\n\n**Rule to reuse:** lower E° is oxidized, higher E° reduced; multiply halves so electrons cancel, add, then check atoms AND total charge.",
+     "id": "p_cpd2_8_q3"
+    },
+    {
+     "q": "What standard potential does the Part B cell have, and does its reaction proceed spontaneously?",
+     "choices": [
+      "+0.78 V, spontaneous",
+      "+0.78 V, nonspontaneous",
+      "−0.10 V, nonspontaneous",
+      "−0.78 V, nonspontaneous"
      ],
      "ans": 0,
      "cat": "4C",
-     "skill": "SIRS 1",
-     "diff": "M",
-     "exp": "In a **series** connection the emfs add: 4 × 1.5 V = **6.0 V**. But the same current passes through every cell, so each cell is drained at the same rate and the pack runs out when one cell does. The charge the pack can deliver is still **2500 mAh**, the capacity of one cell. (The stored energy does quadruple, because each coulomb now gains 6.0 J instead of 1.5 J.)\n\nThe same voltage with four times the capacity describes cells wired in **parallel**.\nFour times both would require the series and parallel benefits at once, which four cells can't give.\nThe same voltage and capacity would be true of only one cell.",
-     "id": "p_cpd_5_q2"
+     "skill": "SIRS 2",
+     "diff": "X",
+     "twin": "pe1-cp:55",
+     "exp": "1. Use the observation to assign the electrodes: copper gains mass → Cu²⁺ is reduced there → Cu is the cathode, Fe the anode. Cathode: Cu²⁺ + 2e⁻ → Cu; anode: Fe → Fe²⁺ + 2e⁻.\n2. Silver and gold are distractors: they are not in this cell.\n3. Compute E°cell = E°cathode − E°anode = +0.34 − (−0.44) = 0.34 + 0.44 = **+0.78 V**. \"−0.10 V\" adds the two potentials, and \"−0.78 V\" swaps cathode and anode.\n4. The sign tells spontaneity: ΔG° = −nFE°cell = −(2)(96,485)(0.78) ≈ **−151 kJ/mol** < 0 → spontaneous. Copper plating out on its own agrees, so \"+0.78 V, nonspontaneous\" fails.\n5. Answer: +0.78 V, spontaneous.\n\n**Rule to reuse:** find the cathode (gains mass, higher E°), then E°cell = E°cathode − E°anode. Positive E°cell ↔ negative ΔG° ↔ spontaneous.",
+     "id": "p_cpd2_8_q4"
     },
     {
-     "q": "During normal delivery, about how much work does the motor do pushing the plunger in 1 hour, based on the gauge pressure in the syringe?",
+     "q": "In Part E, the filament's resistance is 260 mΩ. What current flows through it?",
      "choices": [
-      "4.0 × 10⁻⁵ J",
-      "0.040 J",
-      "4.0 J",
-      "40 J"
+      "3.0 mA",
+      "0.20 A",
+      "3.0 A",
+      "330 A"
      ],
-     "ans": 1,
-     "cat": "4A",
+     "ans": 2,
+     "cat": "4C",
      "skill": "SIRS 2",
      "diff": "D",
-     "exp": "The back of the plunger is open to the air, so atmospheric pressure helps push it forward and the motor has to supply only the **gauge pressure**, 20 kPa = 2.0 × 10⁴ Pa. For a piston pushing fluid at constant pressure, **W = Fd = (PA)d = PΔV**. In 1 hour the syringe delivers 2.0 mL = 2.0 cm³ = **2.0 × 10⁻⁶ m³** (1 cm³ = 10⁻⁶ m³).\nW = (2.0 × 10⁴ Pa)(2.0 × 10⁻⁶ m³) = **0.040 J**.\n\nCheck with force × distance: F = PA = (2.0 × 10⁴ Pa)(2.0 × 10⁻⁴ m²) = 4.0 N, and the plunger moves 2.0 cm³ ÷ 2.0 cm² = 1.0 cm = 0.010 m, so W = 4.0 N × 0.010 m = 0.040 J.\nThis is the motor's **net** work. The total work done on the solution also includes the atmosphere's push on the plunger, (1.0 × 10⁵ Pa)(2.0 × 10⁻⁶ m³) = 0.20 J, which the motor does not supply.\n\n**4.0 × 10⁻⁵ J** leaves the pressure in kPa (20 × 2.0 × 10⁻⁶).\n**4.0 J** multiplies 4.0 N by the distance in centimeters instead of meters.\n**40 J** treats 1 mL as 10⁻³ m³ (that is 1 L).",
-     "id": "p_cpd_5_q3"
-    },
-    {
-     "q": "If the catheter were replaced by one of the same length but half the inner radius, how would the pressure difference needed to keep delivering 2.0 mL/h change?",
-     "choices": [
-      "It increases 4-fold.",
-      "It increases 16-fold.",
-      "It decreases 4-fold.",
-      "It decreases 16-fold."
-     ],
-     "ans": 1,
-     "cat": "4B",
-     "skill": "SIRS 1",
-     "diff": "M",
-     "exp": "For slow, smooth (laminar) flow through a tube, **Poiseuille's law** gives Q = πr⁴ΔP/(8ηL). To keep the flow rate Q the same, ΔP must vary as **1/r⁴**. Halving r divides r⁴ by 2⁴ = 16, so ΔP must rise **16-fold**: from about 20 kPa to about 320 kPa. That is above the 100 kPa reached at the alarm, so this catheter would set off the occlusion alarm during normal delivery.\n\nA factor of **4** comes from scaling with cross-sectional area (r²) instead of r⁴.\nA **decrease** reverses the relationship: a narrower tube resists flow more, so it needs more pressure, not less.",
-     "id": "p_cpd_5_q4"
+     "subj": "physics",
+     "twin": "pe1-cp:56",
+     "exp": "1. Convert the resistance to ohms first: m = milli = 10⁻³, so 260 mΩ = 260 × 10⁻³ Ω = **0.26 Ω**.\n2. Apply Ohm's law: I = V ÷ R = 0.78 V ÷ 0.26 Ω = **3.0 A**.\n3. Eliminate: 3.0 mA treats 260 mΩ as 260 Ω; 0.20 A multiplies V × R (0.78 × 0.26); 330 A divides R in mΩ by V (260 ÷ 0.78).\n4. Sense check: a resistance below 1 Ω gives a current larger than the voltage number. Answer: 3.0 A.\n\n**Rule to reuse:** convert every prefix to base units first (m = 10⁻³, k = 10³, M = 10⁶), then I = V/R. Small R → big current.",
+     "id": "p_cpd2_8_q5"
     }
    ]
   },
   {
-   "id": "p_cpd_6",
-   "subj": "physics",
+   "id": "p_cpd2_9",
+   "subj": "gen_chem",
    "type": "passage",
    "topic": "C/P",
    "cats": [
     "4D",
-    "4E"
+    "5A",
+    "5E"
    ],
-   "title": "Fluorescence-Guided Removal of Brain Tumors",
-   "passage": "Malignant gliomas spread into normal brain tissue, and under white light their edges are hard to see. Before surgery, some patients drink a solution of 5-aminolevulinic acid (5-ALA), a natural precursor of heme. Glioma cells take up 5-ALA and convert it to protoporphyrin IX (PpIX), but they insert iron into PpIX to make heme only slowly, so PpIX builds up in the tumor. PpIX is a large, planar ring with an extended system of conjugated double bonds. It absorbs violet light strongly and fluoresces red. Because 5-ALA itself does not fluoresce, any red signal reports PpIX made inside living cells.\n\nThe surgical microscope can switch from white light to violet light at 405 nm. Light reflected from the tissue and light emitted by it pass through a filter before reaching the eyepiece and camera. Tumor tissue then appears pink-red against a dark blue background.\n\nTo choose the best filter, researchers recorded emission spectra from fresh tissue samples excited at 405 nm (Figure 1). All samples received the same light intensity, and both spectra were scaled to the height of the tumor's main peak. Tumor samples showed a sharp emission peak at 635 nm and a smaller peak at 705 nm. Normal brain showed only weak, broad autofluorescence, mostly from flavins, which peaked near 510 nm. Under continuous illumination, the red PpIX signal fell by about half in 10 minutes as the dye was photobleached, so surgeons switch to violet light only briefly. Photon energies can be estimated from E = hc/λ, with hc ≈ 1240 eV·nm. The refractive index of brain tissue is about 1.4.",
+   "title": "Assaying a Sugar Phosphatase with Malachite Green",
+   "passage": "Sugar phosphatases of the haloacid dehalogenase (HAD) family remove phosphate groups from metabolites in two steps. First, the carboxylate of an active-site aspartate attacks the substrate's phosphate group, forming a covalent aspartyl-phosphate intermediate and releasing the sugar. Water then hydrolyzes the intermediate, releasing inorganic phosphate (Pi) and regenerating the enzyme. Researchers characterized SppA, a bacterial HAD phosphatase that acts on glucose 6-phosphate (Figure 1).\n\nReleased Pi was measured with a malachite green assay, in which Pi forms a phosphomolybdate complex that binds the dye. The colored complex has a molar absorptivity of 6.0 × 10⁴ M⁻¹cm⁻¹ at 630 nm and 1.8 × 10⁴ M⁻¹cm⁻¹ at 420 nm. Absorbance was read at 630 nm in 1.0-cm cuvettes on a spectrophotometer whose readings stay proportional to concentration only below A = 1.2, and the samples gave readings from 0.20 to 2.9.\n\nAll reactions were run in a buffer prepared from a weak acid, HB, and its conjugate base, B⁻. The researchers counted a buffer as effective only when [B⁻]/[HB] was no lower than 0.1 and no higher than 10.\n\nFinally, initial rates were measured for wild-type SppA (WT) and for a mutant in which a loop residue near the active site was replaced, each at 0.020 μM enzyme (Figure 2). Curve fits gave Vmax values of 1.6 μM/s for the wild type and 0.60 μM/s for the mutant.",
+   "scheme": [
+    {
+     "after": 0,
+     "caption": "Figure 1 Hydrolysis of glucose 6-phosphate by SppA",
+     "parts": [
+      "cpd-glucose-6-phosphate",
+      {
+       "arrow": "SppA, H₂O"
+      },
+      "beta-glucopyranose",
+      "+",
+      "cpd-phosphate"
+     ]
+    }
+   ],
    "figure": {
     "type": "line",
-    "caption": "Figure 1 Emission spectra of tumor and normal brain tissue excited at 405 nm",
+    "caption": "Figure 2 Initial rate versus [glucose 6-phosphate], [E] = 0.020 μM for both enzymes",
     "x": {
-     "label": "Wavelength (nm)",
-     "min": 450,
-     "max": 750,
-     "step": 50
+     "label": "[S] (μM)",
+     "min": 0,
+     "max": 200,
+     "step": 40
     },
     "y": {
-     "label": "Relative emission intensity",
+     "label": "v₀ (μM/s)",
      "min": 0,
-     "max": 1,
+     "max": 1.6,
      "step": 0.2
     },
     "series": [
      {
-      "name": "Glioma tissue",
+      "name": "Wild type",
       "marker": "circle",
       "line": "smooth",
       "points": [
        [
-        450,
-        0.06
+        0,
+        0
        ],
        [
-        480,
-        0.1
+        5,
+        0.178
        ],
        [
-        510,
-        0.14
+        10,
+        0.32
        ],
        [
-        540,
-        0.12
+        20,
+        0.533
        ],
        [
-        570,
-        0.1
+        40,
+        0.8
        ],
        [
-        600,
-        0.2
+        80,
+        1.067
        ],
        [
-        620,
-        0.62
+        120,
+        1.2
        ],
        [
-        635,
-        1.0
+        160,
+        1.28
        ],
        [
-        650,
-        0.55
-       ],
-       [
-        670,
-        0.22
-       ],
-       [
-        690,
-        0.3
-       ],
-       [
-        705,
-        0.42
-       ],
-       [
-        720,
-        0.24
-       ],
-       [
-        750,
-        0.06
+        200,
+        1.333
        ]
       ]
      },
      {
-      "name": "Normal brain",
-      "marker": "square-open",
+      "name": "Mutant",
+      "marker": "square",
       "line": "smooth",
       "points": [
        [
-        450,
-        0.06
+        0,
+        0
        ],
        [
-        480,
-        0.12
+        5,
+        0.3
        ],
        [
-        510,
-        0.15
+        10,
+        0.4
        ],
        [
-        540,
-        0.12
+        20,
+        0.48
        ],
        [
-        570,
-        0.08
+        40,
+        0.533
        ],
        [
-        600,
-        0.06
+        80,
+        0.565
        ],
        [
-        635,
-        0.05
+        120,
+        0.576
        ],
        [
-        670,
-        0.04
+        160,
+        0.582
        ],
        [
-        705,
-        0.03
-       ],
-       [
-        750,
-        0.02
+        200,
+        0.585
        ]
       ]
      }
@@ -814,852 +1056,818 @@ const CP_DIAG = {
    },
    "questions": [
     {
-     "q": "For each PpIX molecule that absorbs a 405 nm photon and then emits a photon at the main emission peak, approximately how much energy is lost as heat rather than emitted as light?",
+     "q": "A sample reads A = 0.54 at 630 nm. How concentrated is the dye complex?",
      "choices": [
-      "1.1 eV",
-      "2.0 eV",
-      "3.1 eV",
-      "5.1 eV"
-     ],
-     "ans": 0,
-     "cat": "4D",
-     "skill": "SIRS 2",
-     "diff": "D",
-     "exp": "Photon energy is **E = hc/λ**, so shorter wavelengths carry more energy.\nAbsorbed photon: 1240 eV·nm ÷ 405 nm ≈ **3.1 eV**.\nEmitted photon at the 635 nm peak (Figure 1): 1240 ÷ 635 ≈ **2.0 eV**.\nThe difference, 3.1 − 2.0 ≈ **1.1 eV**, is lost as the excited molecule relaxes to the lowest vibrational level of its excited state before emitting. This is why fluorescence is always shifted to longer wavelength (the Stokes shift).\n\n**2.0 eV** is the energy of the emitted photon, not the energy lost.\n**3.1 eV** is the energy of the absorbed photon.\n**5.1 eV** adds the two photon energies instead of subtracting.",
-     "id": "p_cpd_6_q1"
-    },
-    {
-     "q": "Based on Figure 1, which filter in front of the eyepiece would give the greatest contrast between tumor and normal tissue under violet light?",
-     "choices": [
-      "A long-pass filter that transmits only wavelengths longer than 600 nm",
-      "A long-pass filter that transmits only wavelengths longer than 400 nm",
-      "A short-pass filter that transmits only wavelengths shorter than 550 nm",
-      "A band-pass filter that transmits only wavelengths from 400 to 410 nm"
-     ],
-     "ans": 0,
-     "cat": "4D",
-     "skill": "SIRS 3",
-     "diff": "D",
-     "exp": "The goal is to see **only the light that differs between the two tissues**. In Figure 1, the tumor and normal curves overlap below about 570 nm (both show the weak flavin autofluorescence), but above 600 nm the tumor emits strongly at 635 and 705 nm while normal tissue emits almost nothing. A **long-pass filter above 600 nm** passes the PpIX peaks and blocks both the autofluorescence and the far brighter 405 nm light reflected from the tissue.\n\n**Longer than 400 nm** lets the reflected 405 nm excitation light through, which would swamp the weak fluorescence.\n**Shorter than 550 nm** passes only the region where the two tissues look the same and blocks the tumor signal.\n**400 to 410 nm** passes only reflected excitation light, which every tissue reflects.",
-     "id": "p_cpd_6_q2"
-    },
-    {
-     "q": "When the 405 nm light passes from air into brain tissue, which property of the light does NOT change?",
-     "choices": [
-      "Its frequency",
-      "Its wavelength",
-      "Its speed",
-      "Its direction, for light striking the surface at an angle"
-     ],
-     "ans": 0,
-     "cat": "4D",
-     "skill": "SIRS 1",
-     "diff": "E",
-     "exp": "At a boundary, the **frequency is fixed by the source**: each wave crest arriving at the surface produces one crest on the other side, so f stays the same. The speed drops to **v = c/n** ≈ c/1.4, and because v = fλ with f fixed, the wavelength also shrinks by a factor of 1.4 (to about 290 nm inside the tissue). The light's color and photon energy (E = hf) do not change.\n\n**Wavelength** and **speed** both decrease by the factor n.\n**Direction** changes by refraction (Snell's law, n₁ sin θ₁ = n₂ sin θ₂) whenever the light strikes the surface at an angle other than along the normal.",
-     "id": "p_cpd_6_q3"
-    },
-    {
-     "q": "Tumor tissue shows emission peaks at both 635 nm and 705 nm, although only one excitation wavelength was used. The second peak most likely arises because the excited PpIX molecule:",
-     "choices": [
-      "can return to more than one vibrational level of the ground state.",
-      "can be raised to two excited electronic states by the same photon.",
-      "loses part of each 635 nm photon's energy by refraction in tissue.",
-      "ejects an electron that carries away part of the absorbed energy."
-     ],
-     "ans": 0,
-     "cat": "4E",
-     "skill": "SIRS 2",
-     "diff": "X",
-     "exp": "Compare the energies: 1240 ÷ 635 ≈ 1.95 eV and 1240 ÷ 705 ≈ 1.76 eV, a gap of only about **0.2 eV**. That is far smaller than the ~2 eV electronic gap but typical of **vibrational spacings**. Fluorescence starts from the lowest level of the excited state and can end on different **vibrational levels of the ground state**: landing on v = 0 gives the 635 nm photon, landing one vibrational level higher gives a lower-energy, 705 nm photon. The extra energy then leaves as heat.\n\nOne photon has one energy, so it can't populate **two electronic states** at once, and emission occurs from the lowest excited state anyway.\n**Refraction** changes speed and wavelength inside the tissue but not frequency, so it cannot turn a 635 nm photon into a 705 nm one.\n**Ejecting an electron** is ionization (as in the photoelectric effect). A 3.1 eV photon is far below the ionization energy of an organic molecule, and an ionized molecule would not fluoresce.",
-     "id": "p_cpd_6_q4"
-    }
-   ]
-  },
-  {
-   "id": "p_cpd_7",
-   "subj": "organic_chem",
-   "type": "passage",
-   "topic": "C/P",
-   "cats": [
-    "5D",
-    "5C"
-   ],
-   "title": "A Two-Step Synthesis of Phenacetin",
-   "passage": "Phenacetin (Compound 3) was one of the first synthetic pain relievers. It was withdrawn in many countries after long-term use was linked to kidney damage. In the liver, phenacetin is converted mainly to acetaminophen (Compound 2), which is responsible for most of its analgesic effect. A teaching laboratory prepared phenacetin from 4-aminophenol (Compound 1) in two steps (Figure 1).\n\nIn Step 1, Compound 1 was warmed with acetic anhydride in water at 85°C for 15 minutes. On cooling in ice, Compound 2 crystallized and was collected by vacuum filtration, then recrystallized from hot water, in 85% yield. Acetic acid, the by-product, stayed in the aqueous filtrate.\n\nIn Step 2, 1.51 g of Compound 2 (10.0 mmol; M = 151 g/mol) was heated at reflux in acetone with bromoethane and powdered potassium carbonate for 1 hour. The solid salts were removed by filtration and the acetone was evaporated. The residue was dissolved in ethyl acetate, and the solution was washed twice with 1 M NaOH, once with saturated NaCl solution, dried over anhydrous MgSO₄, filtered and evaporated. Recrystallization from ethanol–water gave 1.25 g of Compound 3 (M = 179 g/mol), a 70% yield.\n\nEach product was checked by melting point and by thin-layer chromatography (TLC) on silica gel, a polar stationary phase, using 1:1 ethyl acetate–hexane as the eluent. A narrow melting range close to the literature value was taken as evidence of a pure solid. Properties of the three compounds are listed in Table 1. Carbonic acid (H₂CO₃) has pKa 6.4.",
-   "scheme": [
-    {
-     "after": 0,
-     "caption": "Figure 1 Synthesis of phenacetin (Compound 3)",
-     "parts": [
-      "cpd-4-aminophenol",
-      "+",
-      "acetic-anhydride",
-      {
-       "arrow": "H₂O, 85°C (Step 1)"
-      },
-      "acetaminophen",
-      {
-       "arrow": "CH₃CH₂Br, K₂CO₃, acetone, reflux (Step 2)"
-      },
-      "cpd-phenacetin"
-     ]
-    }
-   ],
-   "figure": {
-    "caption": "Table 1 Properties of Compounds 1–3",
-    "columns": [
-     "Compound",
-     "Melting point (°C)",
-     "pKa of phenol O–H",
-     "pKa of conjugate acid (most basic site)",
-     "TLC Rf"
-    ],
-    "rows": [
-     [
-      "1 (4-aminophenol)",
-      "187",
-      "10.3",
-      "5.5 (NH₃⁺)",
-      "0.10"
-     ],
-     [
-      "2 (acetaminophen)",
-      "169",
-      "9.5",
-      "about −1",
-      "0.30"
-     ],
-     [
-      "3 (phenacetin)",
-      "134",
-      "— (no O–H)",
-      "about −1",
-      "0.55"
-     ]
-    ]
-   },
-   "questions": [
-    {
-     "q": "In Step 1, acetic anhydride reacts selectively at which atom of Compound 1, and why?",
-     "choices": [
-      "The nitrogen, because the amino group is the stronger nucleophile",
-      "The nitrogen, because the amino group is the stronger acid",
-      "The oxygen, because the hydroxyl group is the stronger nucleophile",
-      "The oxygen, because the hydroxyl group is the stronger acid"
-     ],
-     "ans": 0,
-     "cat": "5D",
-     "skill": "SIRS 1",
-     "diff": "M",
-     "exp": "Compound 2 is an **amide** (N–C(=O)CH₃) with a free phenol, so the acetyl group went onto **nitrogen**. Nitrogen is less electronegative than oxygen, so it holds its lone pair less tightly and is the **better nucleophile**; Table 1 shows the same thing from the base side (the NH₃⁺ conjugate acid of Compound 1 has pKa 5.5, so the amino group is a far better electron-pair donor than the phenol oxygen). The amine attacks a carbonyl carbon of acetic anhydride, and acetate leaves (nucleophilic acyl substitution).\n\nAcidity is the wrong property: acylation needs a lone pair to attack, not an H⁺ to give away. The N–H is in fact the weaker acid.\nAcylation at **oxygen** would give an ester, 4-aminophenyl acetate, which is not the product drawn in Figure 1.",
-     "id": "p_cpd_7_q1"
-    },
-    {
-     "q": "Which change to Step 2 would most likely increase the rate at which Compound 3 forms?",
-     "choices": [
-      "Replacing bromoethane with iodoethane",
-      "Replacing bromoethane with chloroethane",
-      "Using ethanol as solvent",
-      "Cooling to 25°C from reflux"
-     ],
-     "ans": 0,
-     "cat": "5D",
-     "skill": "SIRS 2",
-     "diff": "D",
-     "exp": "Step 2 is a **Williamson ether synthesis**: K₂CO₃ removes the phenol H of Compound 2, and the phenoxide ion attacks the CH₂ carbon of bromoethane in an **SN2** reaction, displacing Br⁻. The rate depends on the leaving group, and **I⁻ is a better leaving group than Br⁻** (it is larger, more polarizable and a weaker base), so iodoethane reacts faster.\n\n**Chloroethane** has a poorer leaving group (Cl⁻ is a stronger base than Br⁻), so it reacts more slowly.\n**Ethanol** is a polar protic solvent; it hydrogen-bonds to the phenoxide and makes it a weaker nucleophile. Polar aprotic acetone favors SN2.\n**Lower temperature** slows almost every reaction.",
-     "id": "p_cpd_7_q2"
-    },
-    {
-     "q": "The ethyl acetate solution in Step 2 was washed with 1 M NaOH rather than with saturated NaHCO₃. What is the best reason for this choice?",
-     "choices": [
-      "NaOH, unlike NaHCO₃, converts unreacted Compound 2 to a water-soluble ion.",
-      "NaOH, unlike NaHCO₃, converts Compound 3 to a water-soluble ion.",
-      "NaHCO₃ would ionize unreacted Compound 2 but also hydrolyze Compound 3.",
-      "NaHCO₃ would react with bromoethane, and NaOH removes leftover K₂CO₃."
-     ],
-     "ans": 0,
-     "cat": "5C",
-     "skill": "SIRS 3",
-     "diff": "X",
-     "exp": "The wash is meant to remove **unreacted Compound 2** while leaving the product in ethyl acetate. Compound 2 has a phenol O–H (pKa 9.5); Compound 3 does not, and its amide N–H is far too weak an acid to be removed by aqueous base. An acid–base reaction goes forward when the base's conjugate acid is **weaker** (higher pKa) than the acid being deprotonated.\nOH⁻ → H₂O (pKa ≈ 15.7) is well above 9.5, so NaOH turns Compound 2 into its **phenoxide ion**, which moves into the water.\nHCO₃⁻ → H₂CO₃ (pKa 6.4) is below 9.5, so bicarbonate leaves Compound 2 mostly un-ionized and in the organic layer. (Bicarbonate is the usual choice for removing carboxylic acids, pKa ≈ 4–5.)\n\nPulling **Compound 3** into water would throw away the product; neither base can deprotonate it.\nBicarbonate is too weak a base to deprotonate Compound 2, and a brief cold wash does not hydrolyze an amide.\nBromoethane (bp 38°C) and the K₂CO₃ salts were already removed by evaporation and filtration.",
-     "id": "p_cpd_7_q3"
-    },
-    {
-     "q": "On the silica TLC plate, Compound 3 travels farther than Compound 2 mainly because Compound 3:",
-     "choices": [
-      "lacks a phenolic O–H group, so it binds less strongly to the silica.",
-      "has a larger molar mass, so the eluent carries it faster.",
-      "lacks a phenolic O–H group, so it binds more strongly to the silica.",
-      "is more polar, so it dissolves better in the eluent."
-     ],
-     "ans": 0,
-     "cat": "5C",
-     "skill": "SIRS 2",
-     "diff": "M",
-     "exp": "Silica gel is covered with polar Si–OH groups. Compounds that hydrogen-bond strongly to it **stay near the baseline** (low Rf); less polar compounds spend more time in the moving eluent (high Rf). Converting Compound 2's phenol O–H into an ethyl ether removes a strong **hydrogen-bond donor**, so Compound 3 is less polar, binds the silica more weakly, and moves farther: Rf **0.55 vs 0.30** in Table 1. Compound 1, with both an NH₂ and an OH, has the lowest Rf (0.10).\n\nTLC separates by **polarity**, not size; heavier molecules don't move faster.\nBinding **more strongly** to the silica would lower Rf, not raise it.\nCompound 3 is **less** polar than Compound 2, not more.",
-     "id": "p_cpd_7_q4"
-    },
-    {
-     "q": "The amide nitrogen atom in Compound 3 is best described as:",
-     "choices": [
-      "sp² hybridized, and a weaker base than the nitrogen in Compound 1.",
-      "sp² hybridized, and a stronger base than the nitrogen in Compound 1.",
-      "sp³ hybridized, and a weaker base than the nitrogen in Compound 1.",
-      "sp³ hybridized, and a stronger base than the nitrogen in Compound 1."
-     ],
-     "ans": 0,
-     "cat": "5D",
-     "skill": "SIRS 1",
-     "diff": "D",
-     "exp": "In an amide, the nitrogen lone pair is **delocalized into the C=O** (resonance form ⁻O–C=N⁺). To overlap with the carbonyl π system, the lone pair sits in a p orbital, so the nitrogen is **sp² hybridized and planar**, and the C–N bond has partial double-bond character. Because that lone pair is tied up in resonance, it is hardly available to accept H⁺: Table 1 lists the conjugate acid pKa as **about −1** for the amide (and even then H⁺ adds to the carbonyl O, not N), versus **5.5** for the amino group of Compound 1. A lower conjugate-acid pKa means a **weaker base**.\n\n**sp³** is the hybridization you would assign by counting three bonds plus one lone pair without considering resonance.\n**Stronger base** reverses the trend that the pKa values in Table 1 show.",
-     "id": "p_cpd_7_q5"
-    }
-   ]
-  },
-  {
-   "id": "p_cpd_8",
-   "subj": "gen_chem",
-   "type": "passage",
-   "topic": "C/P",
-   "cats": [
-    "4E",
-    "4A"
-   ],
-   "title": "Matched Radioisotopes for Imaging and Treating Prostate Cancer",
-   "passage": "Most prostate cancer cells carry large amounts of prostate-specific membrane antigen (PSMA) on their surface. Small molecules that bind PSMA can be attached to a cage-like chelator that holds a metal ion tightly. Because the chelator accepts several different metal ions, the same targeting molecule can carry either an imaging isotope or a therapeutic one. This approach is called theranostics.\n\nFor imaging, the chelator is loaded with gallium-68, a positron (β⁺) emitter. It is eluted on site from a small generator that contains its longer-lived parent isotope, and its short half-life keeps the patient's radiation dose low. Each positron travels a few millimeters through tissue, then meets an electron and annihilates. A positron emission tomography (PET) scanner surrounds the patient with a ring of detectors and records these annihilation events to map where the tracer has collected.\n\nIf the scan shows strong uptake, the patient can be treated with the same molecule carrying lutetium-177, a β⁻ emitter. The tumor dose comes from the kinetic energy that emitted particles deposit in nearby tissue. Lutetium-177 also emits a 208 keV γ-ray, which allows the treatment dose to be imaged. For tumors that no longer respond to β⁻ therapy, the alpha emitter actinium-225 is being tested. Yttrium-90, another β⁻ emitter, is used in a different treatment in which tiny glass beads are lodged in liver tumors.\n\nTable 1 lists properties of these isotopes. The mean range is the average distance an emitted particle travels in soft tissue before it has lost nearly all of its kinetic energy.",
-   "figure": {
-    "caption": "Table 1 Properties of medical radioisotopes",
-    "columns": [
-     "Isotope",
-     "Z",
-     "Decay",
-     "Half-life",
-     "Mean particle energy (MeV)",
-     "Mean range in tissue (mm)"
-    ],
-    "rows": [
-     [
-      "⁶⁸Ga",
-      "31",
-      "β⁺",
-      "68 min",
-      "0.83",
-      "3.5"
-     ],
-     [
-      "⁹⁰Y",
-      "39",
-      "β⁻",
-      "64 h",
-      "0.93",
-      "2.5"
-     ],
-     [
-      "¹⁷⁷Lu",
-      "71",
-      "β⁻",
-      "6.7 d",
-      "0.13",
-      "0.67"
-     ],
-     [
-      "²²⁵Ac",
-      "89",
-      "α",
-      "10 d",
-      "5.8",
-      "0.05"
-     ]
-    ]
-   },
-   "questions": [
-    {
-     "q": "What nucleus is produced when actinium-225 decays?",
-     "choices": [
-      "²²¹Fr",
-      "²²³Fr",
-      "²²¹At",
-      "²²⁵Th"
-     ],
-     "ans": 0,
-     "cat": "4E",
-     "skill": "SIRS 2",
-     "diff": "M",
-     "exp": "Table 1 lists ²²⁵Ac (Z = 89) as an **α emitter**. An α particle is a helium nucleus, ⁴₂He, so the parent loses **4 from the mass number and 2 from the atomic number**:\n²²⁵₈₉Ac → ²²¹₈₇X + ⁴₂He\nElement 87 is francium, so the product is **²²¹Fr**.\n\n**²²³Fr** subtracts only 2 from the mass number, confusing the α particle's charge with its mass.\n**²²¹At** (Z = 85) subtracts 4 from the atomic number as well as the mass number.\n**²²⁵Th** (Z = 90) is the product of β⁻ decay, in which A stays the same and Z rises by 1.",
-     "id": "p_cpd_8_q1"
-    },
-    {
-     "q": "A patient is given 7.4 GBq of the ¹⁷⁷Lu-labeled drug. Ignoring excretion from the body, approximately what activity of ¹⁷⁷Lu remains 20 days later?",
-     "choices": [
-      "0.46 GBq",
-      "0.93 GBq",
-      "1.9 GBq",
-      "2.5 GBq"
+      "0.90 μM",
+      "9.0 μM",
+      "30 μM",
+      "32,000 M"
      ],
      "ans": 1,
-     "cat": "4E",
+     "cat": "4D",
+     "skill": "SIRS 2",
+     "diff": "X",
+     "twin": "pe4-cp:38",
+     "exp": "1. Translate: Beer's law, A = εbc. A was measured at 630 nm, so use ε at 630 nm; the 420 nm value is extra.\n2. Solve for c: c = A ÷ (εb) = 0.54 ÷ (**6.0 × 10⁴** M⁻¹cm⁻¹ × **1.0** cm) = **9.0 × 10⁻⁶ M**.\n3. Convert to μM: 9.0 × 10⁻⁶ M × 10⁶ μM/M = **9.0 μM**. \"0.90 μM\" is a ×10 slip, and \"32,000 M\" multiplies A × ε (0.54 × 6.0 × 10⁴ = 3.2 × 10⁴).\n4. Using ε at 420 nm by mistake gives 0.54 ÷ (1.8 × 10⁴) = 3.0 × 10⁻⁵ M = 30 μM (wrong ε).\n5. Answer: 9.0 μM.\n\n**Rule to reuse:** c = A ÷ (εb). Use the ε for the wavelength where A was measured, then convert units (1 M = 10⁶ μM = 10³ mM).",
+     "id": "p_cpd2_9_q1"
+    },
+    {
+     "q": "Which change would bring the samples reading A = 2.9 into the instrument's linear range?",
+     "choices": [
+      "A longer light path",
+      "A cuvette twice as wide",
+      "A warmer sample",
+      "A threefold dilution"
+     ],
+     "ans": 3,
+     "cat": "4D",
      "skill": "SIRS 2",
      "diff": "D",
-     "exp": "The half-life of ¹⁷⁷Lu is 6.7 days (Table 1), so 20 days is about **20 ÷ 6.7 ≈ 3 half-lives**. Each half-life halves the activity:\n7.4 → 3.7 → 1.85 → **0.93 GBq** (that is, 7.4 ÷ 2³ = 7.4 ÷ 8).\n\n**1.9 GBq** stops after two half-lives.\n**0.46 GBq** counts four half-lives.\n**2.5 GBq** divides by the number of half-lives (7.4 ÷ 3) instead of by 2 raised to that number.",
-     "id": "p_cpd_8_q2"
+     "twin": "pe4-cp:39",
+     "exp": "1. Translate: the strongest samples (A = 2.9) must drop below the instrument's 1.2 limit.\n2. Beer's law: A = εbc, so A is proportional to both c and the path length b. To go from 2.9 to below 1.2, A must fall by more than 2.9 ÷ 1.2 = **2.4×**.\n3. Dividing c by 3 divides A by 3: 2.9 ÷ 3 = **0.97**, inside the linear range.\n4. A longer light path raises A; a wider cuvette does not change the distance light travels through the sample; warming does not reliably lower A.\n5. Answer: a threefold dilution, then multiply the result back by 3.\n\n**Rule to reuse:** A = εbc, so A is proportional to concentration and path length. Too high → dilute or use a shorter path; then multiply back by the dilution factor.",
+     "id": "p_cpd2_9_q2"
     },
     {
-     "q": "The radiation that a PET scanner detects from gallium-68 consists mainly of:",
+     "q": "The graph below shows the titration of HB. By the researchers' criterion, at which pH would an HB/B⁻ buffer NOT be effective?",
      "choices": [
-      "pairs of 511 keV photons traveling in opposite directions.",
-      "pairs of 1022 keV photons traveling in the same direction.",
-      "single 511 keV photons traveling in random directions.",
-      "positrons that escape the body after leaving the tumor."
+      "pH 8.5",
+      "pH 7.9",
+      "pH 7.2",
+      "pH 6.5"
      ],
      "ans": 0,
-     "cat": "4E",
-     "skill": "SIRS 1",
-     "diff": "D",
-     "exp": "When a positron meets an electron, the two **annihilate** and their rest mass becomes energy. Each particle has a rest energy of mc² = **511 keV**, so 1022 keV in total. Because the pair is nearly at rest, momentum conservation requires the energy to leave as **two 511 keV γ photons moving in opposite directions**. The scanner counts an event only when two detectors on opposite sides of the ring fire at the same instant, which places the annihilation on the line between them.\n\n**1022 keV photons** double-count the energy: 1022 keV is the total shared by the two photons.\nPhotons moving **in the same direction**, or a **single photon**, would leave net momentum where there was essentially none.\n**Positrons** travel only about 3.5 mm in tissue (Table 1) before annihilating, so they don't leave the body.",
-     "id": "p_cpd_8_q3"
-    },
-    {
-     "q": "Suppose each emitted particle is slowed by a constant average retarding force from the tissue until it has lost all of its kinetic energy. Based on Table 1, which ranks the average retarding force from greatest to least?",
-     "choices": [
-      "²²⁵Ac α > ⁹⁰Y β⁻ > ¹⁷⁷Lu β⁻",
-      "²²⁵Ac α > ¹⁷⁷Lu β⁻ > ⁹⁰Y β⁻",
-      "⁹⁰Y β⁻ > ¹⁷⁷Lu β⁻ > ²²⁵Ac α",
-      "¹⁷⁷Lu β⁻ > ⁹⁰Y β⁻ > ²²⁵Ac α"
-     ],
-     "ans": 0,
-     "cat": "4A",
+     "cat": "5A",
      "skill": "SIRS 4",
      "diff": "X",
-     "exp": "By the **work–energy theorem**, the work done by the retarding force equals the kinetic energy lost: F·d = KE, so **F = KE ÷ range**. Use the mean energy and mean range in Table 1:\n²²⁵Ac α: 5.8 MeV ÷ 0.05 mm ≈ **120 MeV/mm**\n⁹⁰Y β⁻: 0.93 ÷ 2.5 ≈ **0.37 MeV/mm**\n¹⁷⁷Lu β⁻: 0.13 ÷ 0.67 ≈ **0.19 MeV/mm**\nSo α > ⁹⁰Y > ¹⁷⁷Lu. The heavy, doubly charged α particle dumps its energy over a tiny distance, which is why α emitters damage the cells they bind with little harm to neighbors.\n\n**α > Lu > Y** ranks by range alone (shortest range = largest force) and ignores the energies.\n**Y > Lu > α** assumes a longer range means a larger force.\n**Lu > Y > α** inverts the ratio (range ÷ energy).",
-     "id": "p_cpd_8_q4"
-    }
-   ]
-  },
-  {
-   "id": "p_cpd_9",
-   "subj": "gen_chem",
-   "type": "passage",
-   "topic": "C/P",
-   "cats": [
-    "5B",
-    "4B",
-    "5E"
-   ],
-   "title": "Delivering Volatile Anesthetics",
-   "passage": "General anesthesia is usually maintained with a volatile halogenated ether breathed in with oxygen. Three ethers are in common use: desflurane (Compound 1), isoflurane (Compound 2) and sevoflurane (Compound 3). Nitrous oxide (N₂O), a gas at room temperature, is often added, although its MAC is above 100%, so it cannot produce full anesthesia on its own at 1 atm. An anesthetic's effect depends on its partial pressure in the brain, which comes to match its partial pressure in the inhaled gas. Potency is reported as the minimum alveolar concentration (MAC), the percentage of 1 atm that prevents movement in response to a skin incision in half of patients. More lipid-soluble agents (higher oil/gas partition coefficient) have lower MAC values. Agents that dissolve poorly in blood (low blood/gas partition coefficient) reach a steady brain partial pressure quickly, so patients both fall asleep and wake up faster.\n\nThe liquid agents are stored in a vaporizer. Part of the fresh gas flow passes through a chamber where it becomes saturated with vapor, and this stream is then mixed with the rest of the flow to give the dialed concentration. Sevoflurane liquid has a density of 1.5 g/mL and a molar mass of 200 g/mol.\n\nEarly vaporizers were made of thin glass. During long operations their output fell steadily, and the liquid inside was found to be several degrees colder than the room. Desflurane presents a different problem. Its boiling point is close to room temperature, so it is delivered from a special vaporizer that heats the liquid to 39°C and holds the vapor at about 2 atm.",
-   "scheme": [
-    {
-     "after": 0,
-     "caption": "Figure 1 Structures of desflurane (Compound 1), isoflurane (Compound 2) and sevoflurane (Compound 3)",
-     "parts": [
-      "cpd-desflurane",
-      "cpd-isoflurane",
-      "cpd-sevoflurane"
-     ]
-    }
-   ],
-   "figure": {
-    "caption": "Table 1 Properties of inhaled anesthetics",
-    "columns": [
-     "Agent",
-     "Boiling point (°C)",
-     "Vapor pressure at 20°C (mmHg)",
-     "Blood/gas partition coefficient",
-     "Oil/gas partition coefficient",
-     "MAC (%)"
-    ],
-    "rows": [
-     [
-      "Nitrous oxide",
-      "−88",
-      "gas",
-      "0.47",
-      "1.4",
-      "104"
-     ],
-     [
-      "Desflurane (1)",
-      "23",
-      "670",
-      "0.42",
-      "19",
-      "6.0"
-     ],
-     [
-      "Isoflurane (2)",
-      "48",
-      "240",
-      "1.4",
-      "98",
-      "1.2"
-     ],
-     [
-      "Sevoflurane (3)",
-      "59",
-      "160",
-      "0.65",
-      "47",
-      "2.0"
-     ]
-    ]
-   },
-   "questions": [
-    {
-     "q": "Compound 1 differs from Compound 2 only in having F in place of Cl, yet it boils 25°C lower. What is the best explanation?",
-     "choices": [
-      "F is less polarizable than Cl, so London dispersion forces are weaker.",
-      "F is less electronegative than Cl, so hydrogen bonds are weaker.",
-      "The C–F bond is stronger, so the molecules separate more easily.",
-      "F is more electronegative than Cl, so dipole–dipole forces are stronger."
-     ],
-     "ans": 0,
-     "cat": "5B",
-     "skill": "SIRS 1",
-     "diff": "M",
-     "exp": "Boiling separates whole molecules from each other, so it depends on **intermolecular** forces. Chlorine is a larger atom than fluorine, with more electrons held farther from the nucleus. Its electron cloud is more **polarizable**, so molecules containing Cl attract each other through stronger **London dispersion forces**. Swapping Cl for F (and lowering the molar mass from 184.5 to 168 g/mol) weakens these forces, so desflurane boils at 23°C instead of 48°C (Table 1).\n\nFluorine is the **most** electronegative element, and neither compound has an O–H or N–H, so neither forms hydrogen bonds with itself.\nC–F bond strength concerns **covalent** bonds inside the molecule, which don't break when a liquid boils.\nStronger dipole–dipole forces would **raise** the boiling point, not lower it.",
-     "id": "p_cpd_9_q1"
+     "chart": {
+      "type": "line",
+      "caption": "Titration of 30 mL of 0.10 M HB with 0.10 M NaOH",
+      "x": {
+       "label": "Volume of NaOH added (mL)",
+       "min": 0,
+       "max": 40,
+       "step": 5
+      },
+      "y": {
+       "label": "pH",
+       "min": 0,
+       "max": 14,
+       "step": 2
+      },
+      "series": [
+       {
+        "name": "pH",
+        "marker": "circle",
+        "line": "smooth",
+        "points": [
+         [
+          0,
+          4.1
+         ],
+         [
+          3,
+          6.25
+         ],
+         [
+          7.5,
+          6.72
+         ],
+         [
+          15,
+          7.2
+         ],
+         [
+          22.5,
+          7.68
+         ],
+         [
+          27,
+          8.15
+         ],
+         [
+          29.5,
+          8.97
+         ],
+         [
+          30,
+          9.95
+         ],
+         [
+          30.5,
+          10.9
+         ],
+         [
+          35,
+          11.9
+         ],
+         [
+          40,
+          12.15
+         ]
+        ]
+       }
+      ]
+     },
+     "twin": "pe4-cp:40",
+     "exp": "1. The buffer limit is a ratio of 10 either way, which means pKa ± 1.\n2. Find the equivalence point: the steep jump at **30 mL**.\n3. Half of 30 mL is 15 mL; read the pH there. That is the pKa: V½ = 30 ÷ 2 = **15 mL**; pH at 15 mL = **7.2** = pKa.\n4. Convert each pH to [B⁻]/[HB] = 10^(pH − pKa): pH 6.5: 10^−0.7 ≈ **1 : 5**; pH 7.2: 10⁰ = **1 : 1**; pH 7.9: 10^0.7 ≈ **5 : 1**; pH 8.5: 10^1.3 ≈ **20 : 1** → outside 10 : 1.\n5. Answer: pH 8.5.\n\n**Rule to reuse:** pKa = pH at half the equivalence volume. A buffer works only within 1 pH unit of pKa (ratio 1 : 10 to 10 : 1).",
+     "id": "p_cpd2_9_q3"
     },
     {
-     "q": "If 1.0 mL of liquid Compound 3 evaporates completely, approximately what volume would the vapor occupy as an ideal gas at 20°C and 1.0 atm (for example, once mixed into the fresh gas flow)?",
+     "q": "In the first step of SppA catalysis, which atom of glucose 6-phosphate does the aspartate carboxylate attack?",
      "choices": [
-      "0.18 mL",
-      "180 mL",
-      "1.8 L",
-      "36 L"
+      "A nonbridging O⁻",
+      "The phosphorus atom",
+      "The bridging O6 oxygen",
+      "Carbon 6 of glucose"
      ],
      "ans": 1,
-     "cat": "4B",
-     "skill": "SIRS 2",
+     "cat": "5E",
+     "skill": "SIRS 1",
      "diff": "D",
-     "exp": "First find moles, then use the **ideal gas law**.\nMass: 1.0 mL × 1.5 g/mL = 1.5 g.\nMoles: 1.5 g ÷ 200 g/mol = **7.5 × 10⁻³ mol**.\nAt 20°C (293 K) and 1.0 atm, one mole of gas occupies RT/P = 0.0821 × 293 ≈ **24 L**.\nV = 7.5 × 10⁻³ mol × 24 L/mol = 0.18 L = **180 mL**.\n(Pure sevoflurane vapor can't actually exist at 1.0 atm and 20°C: its vapor pressure is only 160 mmHg (Table 1), so above that partial pressure it condenses. Once it is mixed into the fresh gas its partial pressure is far lower, and at a total pressure of 1.0 atm it still accounts for this 180 mL of the mixture's volume.)\nSo each milliliter of liquid makes about 180 times its volume of vapor.\n\n**0.18 mL** reports the answer in liters but labels it milliliters.\n**1.8 L** slips a decimal place in 1.5 ÷ 200 (0.075 mol).\n**36 L** treats the 1.5 g as 1.5 mol, skipping the molar mass.",
-     "id": "p_cpd_9_q2"
+     "subj": "biochemistry",
+     "twin": "pe4-cp:41",
+     "exp": "1. The intermediate is an aspartyl phosphate: an Asp oxygen bonded to P. That already says where the nucleophile ends up.\n2. Look at what each atom is: a nonbridging O⁻ carries extra electrons → **electron-rich**; P is bonded to four O → **strongly δ+**; the bridging O6 → **leaves with glucose**; C6 → stays on glucose.\n3. An electron-rich O⁻ repels a lone pair, and C6 is not where the phosphoryl group goes, so \"A nonbridging O⁻\" and \"Carbon 6 of glucose\" fail.\n4. O6 is in the leaving group: the P–O6 bond breaks, and glucose leaves with that oxygen, so \"The bridging O6 oxygen\" fails.\n5. Answer: the phosphorus atom, the electrophile.\n\n**Rule to reuse:** a lone pair attacks the most electron-poor atom; in phosphate transfer that is P, and the bridging O–R leaves. Ask of each label: electron-poor, and does it stay?",
+     "id": "p_cpd2_9_q4"
     },
     {
-     "q": "For the conversion of liquid Compound 1 to its vapor at a pressure of 1.0 atm and a temperature of 15°C, what are the signs of ΔH, ΔS and ΔG?",
+     "q": "Based on Figure 2, which enzyme is the more efficient catalyst, and by about how much?",
      "choices": [
-      "ΔH > 0, ΔS > 0, ΔG > 0",
-      "ΔH > 0, ΔS > 0, ΔG < 0",
-      "ΔH < 0, ΔS > 0, ΔG < 0",
-      "ΔH < 0, ΔS < 0, ΔG > 0"
+      "WT, by its Vmax",
+      "WT, threefold",
+      "Mutant, threefold",
+      "Neither, being equal"
      ],
-     "ans": 0,
+     "ans": 2,
      "cat": "5E",
-     "skill": "SIRS 2",
+     "skill": "SIRS 4",
      "diff": "X",
-     "exp": "Vaporization always **absorbs heat** (intermolecular attractions must be overcome), so **ΔH > 0**, and the gas is far more disordered than the liquid, so **ΔS > 0**. With both positive, ΔG = ΔH − TΔS is negative only above the temperature where ΔH = TΔS, which is the **normal boiling point**: 23°C for Compound 1 (Table 1). At 15°C, below the boiling point, TΔS < ΔH, so **ΔG > 0**: liquid desflurane will not turn into vapor at a pressure of 1 atm.\n(It still evaporates into room air, because there its partial pressure is far below its 670 mmHg vapor pressure. The question fixes the vapor at 1.0 atm.)\n\n**ΔG < 0 with both positive** would be correct above 23°C.\n**ΔH < 0** confuses the cooling of the remaining liquid (the system absorbs heat from it) with an exothermic process.\n**ΔS < 0** describes condensation, not vaporization.",
-     "id": "p_cpd_9_q3"
-    },
-    {
-     "q": "Which change to the design of the early vaporizers would best keep their output steady during long operations?",
-     "choices": [
-      "Encasing the chamber in thick metal of high specific heat and conductivity",
-      "Surrounding the chamber with insulation to block heat exchange with the room",
-      "Sealing the chamber so that it stays at a higher total pressure",
-      "Passing a larger fraction of the fresh gas flow through the chamber"
-     ],
-     "ans": 0,
-     "cat": "5E",
-     "skill": "SIRS 3",
-     "diff": "D",
-     "exp": "The passage gives the cause: the liquid became **colder** than the room. Evaporation absorbs the **heat of vaporization** from the remaining liquid, and as the liquid cools, its **vapor pressure falls**, so the saturated stream carries less anesthetic. The fix is to supply heat as fast as it is used: a large metal block stores heat (high **specific heat**, q = mcΔT, so its temperature drops little) and conducts it quickly into the liquid (high **thermal conductivity**). Modern vaporizers are built this way, with heavy copper or brass.\n\n**Insulation** blocks the room's heat from reaching the liquid, so it would cool faster.\nA **higher total pressure** in the chamber dilutes the vapor (its partial pressure stays at the vapor pressure while the total rises), and it doesn't address the cooling.\nSending **more gas** through the chamber evaporates more liquid per minute, which speeds the cooling; it would only mask the drift for a while.",
-     "id": "p_cpd_9_q4"
+     "subj": "biochemistry",
+     "twin": "pe4-cp:43",
+     "exp": "1. Both Vmax values and the enzyme concentration are given, so kcat follows directly: wild type kcat = 1.6 ÷ 0.020 = **80 s⁻¹**; mutant kcat = 0.60 ÷ 0.020 = **30 s⁻¹**.\n2. Wild type: half of 1.6 is 0.80 μM/s, reached at [S] = **40 μM**. That is its KM.\n3. Mutant: half of 0.60 is 0.30 μM/s, reached already at [S] = **5.0 μM**.\n4. Divide kcat by KM for each: wild type 80 ÷ 40 = **2.0 μM⁻¹s⁻¹**; mutant 30 ÷ 5.0 = **6.0 μM⁻¹s⁻¹**; ratio = 6.0 ÷ 2.0 = **3** in favor of the mutant.\n5. Answer: the mutant, threefold. A higher Vmax alone does not make WT more efficient.\n\n**Rule to reuse:** kcat = Vmax ÷ [E]; KM = [S] at half Vmax (read across, then down); efficiency = kcat/KM. Compare the ratio, not the plateaus.",
+     "id": "p_cpd2_9_q5"
     }
    ]
   },
   {
-   "id": "p_cpd_s1",
+   "id": "p_cpd2_10",
    "subj": "biochemistry",
    "type": "passage",
    "topic": "C/P",
    "cats": [
     "5E",
     "5D",
-    "4D"
+    "4E",
+    "5A"
    ],
-   "title": "Alcohol Dehydrogenase and Toxic Alcohol Poisoning",
-   "passage": "Methanol and ethylene glycol (HOCH₂CH₂OH) are not very toxic themselves. The damage comes from their metabolites. In the liver, the zinc-containing enzyme alcohol dehydrogenase (ADH) oxidizes each alcohol to an aldehyde, and a second enzyme oxidizes the aldehyde to a carboxylic acid. Methanol is converted to formic acid, which causes metabolic acidosis and damages the optic nerve. Ethylene glycol is eventually converted to oxalate, which precipitates in the kidney as calcium oxalate. ADH uses NAD⁺ as a cofactor, as shown for ethanol in Reaction 1.\n\nCH₃CH₂OH + NAD⁺ → CH₃CHO + NADH + H⁺\nReaction 1\n\nBecause the toxic products form only after ADH acts, poisoned patients are treated by blocking ADH. One antidote is fomepizole (Compound 1, molar mass 82.1 g/mol), a small heterocycle that binds the catalytic zinc ion in the active site. Before fomepizole was available, patients were given ethanol, which is also an ADH substrate.\n\nResearchers compared the three alcohols as ADH substrates. Each assay contained purified human ADH, 2.0 mM NAD⁺ and one alcohol in a pH 7.5 phosphate buffer at 25°C in a 1.0 cm cuvette. The initial rate was found by following the increase in absorbance at 340 nm, where NADH absorbs (ε = 6.2 × 10³ M⁻¹·cm⁻¹) and NAD⁺ does not. Each alcohol was tested at several concentrations, and the data were fit to the Michaelis–Menten equation. The ethanol assays were then repeated in the presence of 1.0 μM Compound 1. The results are shown in Table 1.",
+   "title": "A Flavin N-Hydroxylase in Siderophore Synthesis",
+   "passage": "Iron is scarce for bacteria, so many species secrete siderophores, small molecules whose hydroxamic acid groups bind Fe³⁺ very tightly. In one soil bacterium, siderophore assembly begins when the flavoenzyme NhyA adds an oxygen atom to the side-chain nitrogen of L-lysine, forming N⁶-hydroxy-L-lysine (HO-Lys; Figure 1). An acetyltransferase then moves an acetyl group from acetyl-CoA onto the nitrogen of HO-Lys, creating the hydroxamic acid. When iron is scarce, strains that make the siderophore grow far better than mutants lacking NhyA.\n\nNhyA carries a tightly bound FMN cofactor and acts in two steps:\n\nStep 1: E–FMN + NADH + H⁺ → E–FMNH₂ + NAD⁺\nStep 2: E–FMNH₂ + O₂ + Lys → E–FMN + HO-Lys + H₂O\n\nIf lysine is absent from the active site when E–FMNH₂ meets O₂, the enzyme instead releases hydrogen peroxide (E–FMNH₂ + O₂ → E–FMN + H₂O₂). This wasteful side reaction, called uncoupling, uses up NADH without making product.\n\nThe researchers measured first-order rate constants for hydroxylation and for uncoupling at three pH values (Table 1). NhyA takes up free lysine from the cytoplasm, where the pH is about 7.6; in free lysine, the α-carboxyl, α-amino and side-chain amino groups have pKa values of 2.2, 9.0 and 10.5. The acetyltransferase was assayed separately at 25 °C in a buffer adjusted to pH 8.5.",
+   "scheme": [
+    {
+     "after": 0,
+     "caption": "Figure 1 Hydroxylation of L-lysine by NhyA",
+     "parts": [
+      "lysine",
+      {
+       "arrow": "NhyA, NADH, O₂"
+      },
+      "cpd-n6-hydroxylysine"
+     ]
+    }
+   ],
    "figure": {
-    "caption": "Table 1 Kinetic constants for human ADH (pH 7.5, 25°C)",
+    "caption": "Table 1 Rate constants for NhyA at 25 °C",
     "columns": [
-     "Substrate",
-     "Compound 1",
-     "KM (mM)",
-     "kcat (s⁻¹)"
+     "pH",
+     "Hydroxylation k (s⁻¹)",
+     "Uncoupling k (s⁻¹)"
     ],
     "rows": [
      [
-      "Ethanol",
-      "none",
-      "0.50",
-      "3.0"
+      "7.0",
+      "3.1",
+      "2.2"
      ],
      [
-      "Methanol",
-      "none",
-      "20",
-      "0.60"
-     ],
-     [
-      "Ethylene glycol",
-      "none",
-      "40",
+      "7.6",
+      "5.6",
       "1.6"
      ],
      [
-      "Ethanol",
-      "1.0 μM",
-      "5.5",
-      "3.0"
+      "8.5",
+      "4.4",
+      "0.9"
      ]
     ]
    },
    "questions": [
     {
-     "q": "Based on Table 1, by approximately what factor is the catalytic efficiency of ADH for ethanol greater than its catalytic efficiency for ethylene glycol?",
+     "q": "Which equation is the net reaction catalyzed by NhyA in Steps 1 and 2?",
      "choices": [
-      "1.9",
-      "80",
-      "150",
-      "1500"
+      "E–FMN + NADH + H⁺ → E–FMNH₂ + NAD⁺",
+      "Lys + NADH + H⁺ + O₂ → HO-Lys + NAD⁺ + H₂O",
+      "E–FMNH₂ + O₂ + Lys → E–FMN + HO-Lys + H₂O",
+      "Lys + NADH + H⁺ + O₂ + E–FMN → HO-Lys + NAD⁺ + H₂O + E–FMNH₂"
      ],
-     "ans": 2,
+     "ans": 1,
      "cat": "5E",
-     "skill": "SIRS 4",
-     "exp": "Catalytic efficiency is **kcat/KM**, so you need both columns. Ethanol: 3.0 s⁻¹ ÷ 0.50 mM = 6.0 mM⁻¹·s⁻¹. Ethylene glycol: 1.6 s⁻¹ ÷ 40 mM = 0.040 mM⁻¹·s⁻¹. The ratio is 6.0 ÷ 0.040 = **150**.\n\n**1.9** compares only kcat (3.0 ÷ 1.6).\n**80** compares only KM (40 ÷ 0.50).\n**1500** is a factor-of-10 slip in the division.",
-     "diff": "D",
-     "id": "p_cpd_s1_q1"
-    },
-    {
-     "q": "Which type of inhibition by Compound 1 is most consistent with the results in Table 1?",
-     "choices": [
-      "Competitive, because KM increased while kcat did not change",
-      "Uncompetitive, because KM and kcat both decreased",
-      "Noncompetitive, because kcat decreased while KM did not change",
-      "Mixed, because KM increased while kcat decreased"
-     ],
-     "ans": 0,
-     "cat": "5E",
-     "skill": "SIRS 2",
-     "exp": "Compare the two ethanol rows. With Compound 1, **KM rose 11-fold (0.50 → 5.5 mM) and kcat stayed at 3.0 s⁻¹**. Only a competitive inhibitor raises KM without changing kcat (or Vmax): enough substrate can still outcompete it. That fits the passage: Compound 1 binds the active-site zinc, the same place the substrate binds.\n\n**Uncompetitive** inhibition would lower both constants.\n**Noncompetitive** inhibition would lower kcat only.\n**Mixed** inhibition would also lower kcat, but kcat didn't change.\n\nExtra: KM,app = KM(1 + [I]/Ki), so 5.5 = 0.50(1 + 1.0 μM/Ki), giving Ki ≈ 0.10 μM.",
+     "skill": "SIRS 1",
      "diff": "M",
-     "id": "p_cpd_s1_q2"
+     "twin": "pe3-cp:29",
+     "exp": "1. Write Step 1: FMN is reduced by NADH.\n2. Write Step 2: FMNH₂ is reoxidized by O₂ as lysine is hydroxylated, regenerating E–FMN.\n3. Add the steps and cancel anything on both sides: E–FMN + NADH + H⁺ + E–FMNH₂ + O₂ + Lys → E–FMNH₂ + NAD⁺ + E–FMN + HO-Lys + H₂O; cancel **E–FMN** and **E–FMNH₂**; net: **Lys + NADH + H⁺ + O₂ → HO-Lys + NAD⁺ + H₂O**. The choice that keeps E–FMN and E–FMNH₂ treats the regenerated cofactor as consumed.\n4. Check balance, and eliminate the single steps: O: 2 → **1** (in HO-Lys) + **1** (in H₂O) ✓; charge: +1 (H⁺) → +1 (NAD⁺) ✓. The other two choices are just Step 1 or Step 2.\n5. Answer: Lys + NADH + H⁺ + O₂ → HO-Lys + NAD⁺ + H₂O.\n\n**Rule to reuse:** to get an overall reaction, add all the steps and cancel anything on both sides. Catalysts (used then remade) and intermediates (made then used) never appear in it.",
+     "id": "p_cpd2_10_q1"
     },
     {
-     "q": "In one ethanol assay, the absorbance at 340 nm increased by 0.093 during the first minute. What was the initial rate of NADH formation?",
+     "q": "Writing HO-Lys as R–NH–OH, which product does the acetyltransferase form?",
      "choices": [
-      "0.15 μM/min",
-      "1.5 μM/min",
-      "15 μM/min",
-      "150 μM/min"
+      "R–NH–C(=O)CH₃",
+      "R–N(OH)–CH₃",
+      "R–NH–O–C(=O)CH₃",
+      "R–N(OH)–C(=O)CH₃"
+     ],
+     "ans": 3,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "E",
+     "subj": "organic_chem",
+     "twin": "pe3-cp:30",
+     "exp": "1. The reacting atom is named: nitrogen. R–NH–OH; N–H → N–C(=O)CH₃; → **R–N(OH)–C(=O)CH₃**.\n2. Acylating O instead puts the acetyl on oxygen: an O-acyl hydroxylamine, \"R–NH–O–C(=O)CH₃\".\n3. Losing the OH would give a plain amide, \"R–NH–C(=O)CH₃\", and adding CH₃ (not CH₃C=O) is methylation, not acetylation.\n4. Answer: R–N(OH)–C(=O)CH₃, the hydroxamic acid.\n\n**Rule to reuse:** acylation puts R–C(=O)– on the atom that reacts and keeps everything else; a hydroxamic acid is an N-acyl hydroxylamine, C(=O)–N–OH.",
+     "id": "p_cpd2_10_q2"
+    },
+    {
+     "q": "At cytoplasmic pH, how many times faster is hydroxylation than uncoupling, assuming equal access to E–FMNH₂?",
+     "choices": [
+      "0.29",
+      "3.5",
+      "4.0",
+      "7.2"
+     ],
+     "ans": 1,
+     "cat": "5E",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe3-cp:31",
+     "exp": "1. Pick out the two rate constants at pH 7.6 (the cytoplasmic pH): hydroxylation k = 5.6 s⁻¹; uncoupling k = 1.6 s⁻¹.\n2. Divide hydroxylation by uncoupling: 5.6 ÷ 1.6 = **3.5**.\n3. 0.29 is the ratio upside down (1.6 ÷ 5.6); 4.0 is the difference (5.6 − 1.6), not a ratio; 7.2 is the sum.\n4. Answer: hydroxylation is 3.5 times faster.\n\n**Rule to reuse:** \"how many times faster\" is a ratio, larger ÷ smaller for the one asked about; never a difference.",
+     "id": "p_cpd2_10_q3"
+    },
+    {
+     "q": "During uncoupling, what happens to the oxygen atoms of O₂ as H₂O₂ forms?",
+     "choices": [
+      "Oxidized (e⁻ gained)",
+      "Reduced (−1 → zero)",
+      "Reduced (zero → −1)",
+      "Oxidized (H gained)"
      ],
      "ans": 2,
-     "cat": "4D",
+     "cat": "4E",
      "skill": "SIRS 2",
-     "exp": "Use **A = εbc** to turn absorbance into concentration: Δc = ΔA ÷ (εb) = 0.093 ÷ (6.2 × 10³ M⁻¹·cm⁻¹ × 1.0 cm) = 1.5 × 10⁻⁵ M. That formed in 1 minute, so the rate is 1.5 × 10⁻⁵ M/min = **15 μM/min** (1 μM = 10⁻⁶ M).\n\nThe other choices are the same digits with the power of ten off, which is what happens if you drop the exponent in 10³ or convert M → μM the wrong way.",
      "diff": "D",
-     "id": "p_cpd_s1_q3"
+     "subj": "gen_chem",
+     "twin": "pe3-cp:32",
+     "exp": "1. Assign oxygen's oxidation state on each side: O₂ is an element → O = **0**; in H₂O₂, 2(+1) + 2x = 0 → x = **−1** (a peroxide: the O–O bond is why it is not the usual −2). \"Reduced (−1 → zero)\" reverses before and after.\n2. 0 → −1 is a decrease: each O gains 1 electron, so 2 O × 1 e⁻ = **2 e⁻** per O₂, the 2 e⁻ that E–FMNH₂ supplies ✓.\n3. Gaining electrons is reduction (OIL RIG), and gaining H in an organic sense is also reduction, so both \"Oxidized\" choices fail.\n4. Answer: the oxygen atoms are reduced, from zero to −1.\n\n**Rule to reuse:** find the oxidation state on each side (element alone = 0, O in compounds = −2, H = +1). Number goes down = gained electrons = reduced; up = lost = oxidized.",
+     "id": "p_cpd2_10_q4"
     },
     {
-     "q": "When ADH acts on ethylene glycol, which functional-group change occurs?",
+     "q": "Listing the α-carboxyl, α-amino and side-chain groups in order, which forms does free lysine mainly have in the cytoplasm?",
      "choices": [
-      "A primary alcohol is oxidized to an aldehyde.",
-      "A secondary alcohol is oxidized to a ketone.",
-      "An aldehyde is reduced to a primary alcohol.",
-      "A primary alcohol is dehydrated to an alkene."
+      "COO⁻, NH₃⁺, NH₃⁺",
+      "COO⁻, NH₃⁺, NH₂",
+      "COOH, NH₃⁺, NH₃⁺",
+      "COOH, NH₂, NH₂"
      ],
      "ans": 0,
      "cat": "5D",
-     "skill": "SIRS 1",
-     "exp": "Each OH in HOCH₂CH₂OH sits on a CH₂ carbon that is bonded to only one other carbon, so both are **primary** alcohols. Reaction 1 shows what ADH does: it removes H from the alcohol (NAD⁺ → NADH), which is an **oxidation**, giving an aldehyde (–CH₂OH → –CHO).\n\nA ketone needs a secondary alcohol (the OH carbon bonded to two carbons).\nReduction is the reverse direction.\nDehydration loses water rather than hydrogen, and NAD⁺ isn't involved.",
-     "diff": "E",
-     "id": "p_cpd_s1_q4"
-    },
-    {
-     "q": "In assays with 40 mM ethylene glycol, the absorbance rose beyond the detector's linear range within 10 seconds. Which change would best allow a valid initial-rate measurement without altering the KM being measured?",
-     "choices": [
-      "Lowering the concentration of ADH in each assay",
-      "Raising the concentration of NAD⁺ in each assay",
-      "Raising the concentration of ethylene glycol",
-      "Measuring the absorbance at 260 nm instead"
-     ],
-     "ans": 0,
-     "cat": "5E",
-     "skill": "SIRS 3",
-     "exp": "The rate is proportional to **enzyme concentration** (Vmax = kcat[E]), but KM doesn't depend on [E]. Using less ADH slows the absorbance rise into the measurable range, and the constants being measured stay the same.\n\nRaising NAD⁺ or the alcohol would make the reaction faster, not slower.\nAt 260 nm both NAD⁺ and NADH absorb (they both contain adenine), so the signal would no longer track product formation.",
+     "skill": "SIRS 4",
      "diff": "X",
-     "id": "p_cpd_s1_q5"
+     "twin": "pe3-cp:33",
+     "exp": "1. The condition to test every group against: the cytoplasmic pH, 7.6.\n2. Compare 7.6 with each pKa: below the pKa keeps H⁺, above loses it. α-COOH: 7.6 > 2.2 → **COO⁻**, −1; α-NH₂: 7.6 < 9.0 → **NH₃⁺**, +1; side chain: 7.6 < 10.5 → **NH₃⁺**, +1; net = −1 + 1 + 1 = **+1**.\n3. The side-chain amine stays protonated until the pH nears 10.5, so \"COO⁻, NH₃⁺, NH₂\" fails.\n4. COOH stays protonated only below pH 2.2, and a form with no charges at all does not exist in significant amounts in water near neutral pH, so \"COOH, NH₃⁺, NH₃⁺\" and \"COOH, NH₂, NH₂\" fail.\n5. Answer: COO⁻, NH₃⁺, NH₃⁺ (net +1).\n\n**Rule to reuse:** **pH below pKa → the group keeps its H⁺** (protonated). **pH above pKa → it loses H⁺.**",
+     "id": "p_cpd2_10_q5"
     },
     {
-     "q": "The results in Table 1 best explain why ethanol was effective as an antidote for methanol poisoning because ethanol:",
+     "q": "What hydroxide concentration does the pH 8.5 acetyltransferase buffer contain, and how does it relate to [H⁺]?",
      "choices": [
-      "binds ADH more tightly, so it outcompetes methanol for the active site.",
-      "raises the kcat of ADH for methanol, so methanol is cleared faster.",
-      "is turned over more slowly than methanol, so it occupies ADH longer.",
-      "lowers the KM of ADH for methanol, so less formic acid forms."
+      "3.2 nM; equal to [H⁺]",
+      "3.2 nM; 1000-fold below [H⁺]",
+      "3.2 μM; 1000-fold below [H⁺]",
+      "3.2 μM; 1000-fold above [H⁺]"
      ],
-     "ans": 0,
-     "cat": "5E",
-     "skill": "SIRS 2",
-     "exp": "Ethanol and methanol compete for the same active site. Ethanol's **KM is 40 times lower** (0.50 vs 20 mM), so at similar concentrations ADH is mostly occupied by ethanol. Methanol is oxidized only slowly, giving the body time to excrete it unchanged.\n\nEthanol's kcat (3.0 s⁻¹) is actually *higher* than methanol's (0.60 s⁻¹), so \"turned over more slowly\" contradicts the table.\nNothing in the data shows ethanol changing methanol's own constants.\nMaking methanol clear faster through ADH would make the poisoning worse, not better.",
-     "diff": "M",
-     "id": "p_cpd_s1_q6"
+     "ans": 3,
+     "cat": "5A",
+     "skill": "SIRS 3",
+     "diff": "D",
+     "subj": "gen_chem",
+     "twin": "pe3-cp:34",
+     "exp": "1. Get [H⁺] straight from the pH: [H⁺] = 10^(−8.5) = **3.2 × 10⁻⁹ M** = 3.2 nM.\n2. Use Kw to get [OH⁻]: [OH⁻] = Kw ÷ [H⁺] = 1.0 × 10⁻¹⁴ ÷ 3.2 × 10⁻⁹ = **3.2 × 10⁻⁶ M** = 3.2 μM (pOH = 14 − 8.5 = 5.5). Both 3.2 nM choices give [H⁺], not [OH⁻].\n3. Compare the two: they differ by 3 powers of ten, and the basic side has more OH⁻: [OH⁻]/[H⁺] = 10^(−5.5) ÷ 10^(−8.5) = **10³**. \"1000-fold below\" flips the comparison.\n4. Answer: 3.2 μM, 1000-fold above [H⁺] (pH > 7, so the buffer is basic).\n\n**Rule to reuse:** at 25 °C, pH + pOH = 14 and [H⁺][OH⁻] = 10⁻¹⁴. Each pH unit is ×10, so a gap of n units = 10ⁿ times.",
+     "id": "p_cpd2_10_q6"
     }
    ]
   }
  ],
  "standalones": [
   {
-   "q": "During a cardiac stress test, a treadmill belt moves at a constant 2.0 m/s while the motor exerts a 150 N force on the belt to overcome friction and the runner's push. What power does the motor deliver during a 1-minute stage of the test?",
+   "q": "In the liver, lanosterol, the first molecule with the fused four-ring sterol core, is made by folding and cyclizing one long open-chain terpene. Which molecule is that open-chain precursor?",
    "choices": [
-    "0 W",
-    "75 W",
-    "300 W",
-    "18,000 W"
+    "Squalene, a triterpene",
+    "Isoprene",
+    "Palmitic acid",
+    "Phosphatidylcholine"
+   ],
+   "ans": 0,
+   "cat": "5D",
+   "skill": "SIRS 1",
+   "diff": "D",
+   "subj": "organic_chem",
+   "twin": "sample-cp:14",
+   "exp": "1. Identify the target: the fused four-ring core, first formed in lanosterol.\n2. Trace the terpene pathway to that ring system: isoprene units (C₅) → **squalene (C₃₀)** → cyclization → lanosterol → cholesterol → steroid hormones.\n3. Isoprene is the C₅ building block; six of them make squalene, so isoprene itself is not the chain that cyclizes. Palmitic acid is a fatty acid, and phosphatidylcholine is a membrane lipid built on a glycerol backbone; neither supplies a ring skeleton.\n4. Answer: squalene.\n\n**Rule to reuse:** the steroid ring skeleton comes from the terpene pathway, isoprene → squalene (C₃₀) → lanosterol → cholesterol.",
+   "id": "cp_diag2_sa1"
+  },
+  {
+   "q": "Cellobiose reduces Ag⁺ in Tollens' test, but trehalose, two glucose units joined by an α,α-1,1-glycosidic bond, does not. Why is trehalose a nonreducing sugar?",
+   "choices": [
+    "It has no free hemiacetal.",
+    "Its α geometry prevents ring opening.",
+    "Its ring oxygens cannot be oxidized.",
+    "Glucose is a ketose sugar."
+   ],
+   "ans": 0,
+   "cat": "5D",
+   "skill": "SIRS 1",
+   "diff": "M",
+   "subj": "organic_chem",
+   "twin": "sample-cp:16",
+   "exp": "1. Note the observation to explain: trehalose fails Tollens' test, while cellobiose passes.\n2. Check trehalose's anomeric carbons: the glycosidic bond joins glucose C1 to glucose C1, so both anomeric carbons are used → **no free hemiacetal** → no ring can open to an aldehyde.\n3. The ring oxygens are not what Tollens' reagent oxidizes, and cellobiose's own glycosidic bond does not stop it from reacting; the problem is the anomeric carbons, not ring oxygens, and α geometry does not stop a free hemiacetal from opening.\n4. Glucose is an aldose (its open chain has an aldehyde), not a ketose.\n5. Answer: it has no free hemiacetal.\n\n**Rule to reuse:** a sugar is reducing if it has a free hemiacetal (anomeric carbon not in a glycosidic bond); trehalose links both anomeric carbons, so it is non-reducing.",
+   "id": "cp_diag2_sa2"
+  },
+  {
+   "q": "Water's triple point is at 0.61 kPa and 0.01 °C. A food plant dries frozen strawberry slices without heating them enough to damage their flavor. Under which conditions does the ice change directly into water vapor?",
+   "choices": [
+    "Below 0.61 kPa, with gentle warming",
+    "Above 0.61 kPa, with gentle warming",
+    "Below 0.61 kPa, with rapid cooling",
+    "Above 101 kPa, with strong heating"
+   ],
+   "ans": 0,
+   "cat": "5D",
+   "skill": "SIRS 1",
+   "diff": "E",
+   "subj": "organic_chem",
+   "twin": "sample-cp:44",
+   "exp": "1. Two routes for the water are compared: ice → vapor directly (sublimation), or ice → liquid → vapor (melting, then boiling).\n2. Follow each route on the phase diagram: below the triple-point pressure (**0.61 kPa**) no liquid can exist, so gently warmed ice goes straight to vapor and the slices stay cold; above it, warming melts the ice first, and boiling at 101 kPa needs 100 °C, enough heat to damage flavor compounds.\n3. Above 0.61 kPa the ice melts before it evaporates. Sublimation absorbs heat, so cooling cannot drive it. Strong heating at 101 kPa is ordinary boiling, the heat the process avoids.\n4. Answer: below 0.61 kPa, with gentle warming.\n\n**Rule to reuse:** below the triple-point pressure a solid sublimes; freeze-drying removes water without heat, protecting heat-sensitive flavor compounds.",
+   "id": "cp_diag2_sa3"
+  },
+  {
+   "q": "In the resting human airway, the trachea has a cross-sectional area of 2.5 cm² and a mean air speed of 160 cm/s. The terminal bronchioles, each about 0.5 mm wide, have a combined cross-sectional area of 200 cm². Treating air as incompressible, what is the mean air speed in the terminal bronchioles, and why?",
+   "choices": [
+    "12,800 cm/s; combined area is larger",
+    "160 cm/s; volume per second is fixed",
+    "2.0 cm/s; combined area is larger",
+    "2.0 cm/s; each bronchiole is narrow"
+   ],
+   "ans": 2,
+   "cat": "4B",
+   "skill": "SIRS 4",
+   "diff": "D",
+   "subj": "biology",
+   "twin": "pe1-cp:26",
+   "exp": "1. Air treated as incompressible passes every level at the same volume per second, so the flow rate is constant: Q = A × v = constant.\n2. Find Q at the trachea: Q = 2.5 cm² × 160 cm/s = **400 cm³/s**.\n3. Solve for v in the bronchioles using their combined area: v = Q ÷ A = 400 cm³/s ÷ 200 cm² = **2.0 cm/s**; area × 80 → speed ÷ 80. Keeping 160 cm/s ignores the area change, and 12,800 cm/s (160 × 200 ÷ 2.5) multiplies by the area ratio instead of dividing.\n4. Check the reason: the 0.5 mm width of one bronchiole is not what slows the air; a single narrow tube would speed it up. The air is shared among many bronchioles whose combined area is large.\n5. Answer: 2.0 cm/s, since the combined area is larger.\n\n**Rule to reuse:** continuity: A₁v₁ = A₂v₂. More total area → slower speed. Use the COMBINED area of parallel bronchioles, not one bronchiole's size.",
+   "id": "cp_diag2_sa4"
+  },
+  {
+   "q": "On a potential–pH diagram for iron in water, the boundary separating Fe³⁺ from Fe(OH)₃ is a vertical line. What does this orientation show about that equilibrium?",
+   "choices": [
+    "No electron transfer",
+    "No pH dependence",
+    "Both H⁺ and e⁻ transfer",
+    "Both forms dissolved"
+   ],
+   "ans": 0,
+   "cat": "4E",
+   "skill": "SIRS 1",
+   "diff": "M",
+   "subj": "gen_chem",
+   "twin": "pe1-cp:27",
+   "exp": "1. The boundary is vertical: the pH is fixed while the potential varies, so the equilibrium is set by pH alone and **no electrons are transferred**. Here Fe³⁺ + 3 H₂O ⇌ Fe(OH)₃ + 3 H⁺, and iron stays +3.\n2. \"No pH dependence\" describes a horizontal line, and \"Both H⁺ and e⁻ transfer\" describes a sloped line.\n3. The line's direction says nothing about whether the forms are dissolved or solid.\n4. Answer: no electron transfer.\n\n**Rule to reuse:** on a Pourbaix diagram, horizontal = redox, pH-independent; vertical = pH-dependent, no electron transfer; a sloped line involves both.",
+   "id": "cp_diag2_sa5"
+  },
+  {
+   "q": "In the complex ion [HgI₃]⁻, three iodide ligands surround the mercury ion in one plane, and every I–Hg–I angle is 120°. What hybridization of mercury's orbitals matches this shape?",
+   "choices": [
+    "sp",
+    "sp²",
+    "dsp³",
+    "sp³d²"
+   ],
+   "ans": 1,
+   "cat": "5B",
+   "skill": "SIRS 2",
+   "diff": "D",
+   "subj": "gen_chem",
+   "twin": "pe1-cp:28",
+   "exp": "1. Count the ligands and read the angles: 3 ligands in one plane at 120° = trigonal planar.\n2. One hybrid orbital is needed per ligand bond: 3 ligands → **3** hybrid orbitals needed.\n3. Count the orbitals each choice makes: sp²: 1 + 2 = **3** → trigonal planar; sp: 1 + 1 = 2 → linear; dsp³: 1 + 1 + 3 = 5 → trigonal bipyramidal; sp³d²: 1 + 3 + 2 = 6 → octahedral.\n4. Only sp² gives three, so sp, dsp³ and sp³d² are out.\n5. Answer: sp².\n\n**Rule to reuse:** count the groups around the central atom = number of hybrid orbitals. 3 (trigonal planar, 120°) → sp², 4 → sp³/dsp², 5 → sp³d, 6 → d²sp³ or sp³d².",
+   "id": "cp_diag2_sa6"
+  },
+  {
+   "q": "The graph gives the heat released when 1 mol of each of three liquid C₇H₁₆ isomers is burned to CO₂ and H₂O. Isomer A is unbranched, B has one methyl branch, and C has three. Which isomer is most thermodynamically stable?",
+   "choices": [
+    "Isomer A",
+    "Isomer B",
+    "Isomer C",
+    "All three equally"
+   ],
+   "ans": 2,
+   "cat": "5B",
+   "skill": "SIRS 1",
+   "diff": "M",
+   "subj": "organic_chem",
+   "twin": "pe3-cp:9",
+   "chart": {
+    "type": "bar",
+    "caption": "Heat released on complete combustion, liquid C₇H₁₆ isomers",
+    "x": {
+     "label": "Isomer"
+    },
+    "y": {
+     "label": "Heat released (kJ/mol)",
+     "min": 4790,
+     "max": 4820,
+     "step": 10
+    },
+    "categories": [
+     "A (unbranched)",
+     "B (one branch)",
+     "C (three branches)"
+    ],
+    "series": [
+     {
+      "name": "Heat released",
+      "values": [
+       4817,
+       4812,
+       4804
+      ]
+     }
+    ]
+   },
+   "exp": "1. Every isomer burns to the same products, and that shared end point is what lets you compare them: C₇H₁₆ + 11 O₂ → **7 CO₂ + 8 H₂O** for all three.\n2. Read the bars, noting that the axis starts at 4790, so the differences are small: A: **4817** kJ/mol; C: **4804** kJ/mol; difference: **13 kJ/mol**.\n3. Flip the picture: the heat released is how far each isomer sits above the shared products. The shortest bar sits lowest, so it is the most stable.\n4. Releasing the most heat means starting highest, so isomer A is the least stable. The middle value of isomer B is not special, and the isomers differ by 13 kJ/mol, so they are not equally stable.\n5. Answer: isomer C, the most branched. For isomers, less heat of combustion means more stable.\n\n**Rule to reuse:** for isomers burning to the same products, LESS heat of combustion = lower starting energy = MORE stable. Branched alkanes are a bit more stable than straight chains.",
+   "id": "cp_diag2_sa7"
+  },
+  {
+   "q": "A sled starts from rest and slides in a straight line down a uniform slope with constant acceleration. The graph shows how far it has traveled at 1-s intervals. How does distance depend on time, and what is the sled's acceleration?",
+   "choices": [
+    "d ∝ t; 18 m/s²",
+    "d ∝ t; 9.0 m/s²",
+    "d ∝ t²; 3.0 m/s²",
+    "d ∝ t²; 1.5 m/s²"
    ],
    "ans": 2,
    "cat": "4A",
-   "skill": "SIRS 2",
-   "diff": "M",
-   "subj": "physics",
-   "exp": "For a constant force along the motion, **P = Fv** = (150 N)(2.0 m/s) = **300 W**. The 1-minute length doesn't change the power, only the total work.\n\n**0 W** confuses zero net force with zero work. The motor's force does positive work on the belt; friction removes that energy as heat.\n**75 W** divides F by v instead of multiplying.\n**18,000 W** is the work done in one minute (300 W × 60 s = 18,000 J), which is an energy, not a power.",
-   "id": "cp_diag_sa1"
-  },
-  {
-   "q": "An IV bag of saline (density 1.0 × 10³ kg/m³) hangs so that the top of the fluid is 0.80 m above the catheter in a patient's arm. With the line clamped, what is the gauge pressure of the saline at the catheter? (g = 10 m/s²)",
-   "choices": [
-    "8.0 Pa",
-    "0.80 kPa",
-    "8.0 kPa",
-    "109 kPa"
-   ],
-   "ans": 2,
-   "cat": "4B",
-   "skill": "SIRS 2",
-   "diff": "D",
-   "subj": "physics",
-   "exp": "Gauge pressure in a fluid at rest is **P = ρgh** = (1.0 × 10³ kg/m³)(10 m/s²)(0.80 m) = 8.0 × 10³ Pa = **8.0 kPa** (about 60 mmHg, more than enough to exceed venous pressure).\n\n**8.0 Pa** uses a density of 1.0 (the value in g/cm³) without converting to kg/m³.\n**0.80 kPa** leaves out g.\n**109 kPa** is the **absolute** pressure (8 kPa + 101 kPa atmospheric); gauge pressure excludes the atmosphere.",
-   "id": "cp_diag_sa2"
-  },
-  {
-   "q": "A sealed, rigid container of oxygen gas is heated until its absolute temperature doubles. Which quantity also doubles?",
-   "choices": [
-    "Average molecular kinetic energy",
-    "Root-mean-square molecular speed",
-    "Moles of gas",
-    "Gas density"
-   ],
-   "ans": 0,
-   "cat": "4B",
-   "skill": "SIRS 1",
-   "diff": "M",
-   "subj": "physics",
-   "exp": "Kinetic molecular theory gives the average translational kinetic energy of a gas molecule as **(3/2)kT**, which is **directly proportional to the absolute temperature**. Doubling T doubles the average kinetic energy (and, at constant volume, the pressure).\n\nBecause KE = ½mv², the rms speed scales as √T, so it increases by a factor of √2 ≈ 1.4, not 2.\nThe container is sealed, so the amount of gas is unchanged.\nThe mass and volume are both unchanged, so the density is too.",
-   "id": "cp_diag_sa3"
-  },
-  {
-   "q": "In an eye-examination device, a converging lens with a focal length of 0.50 m forms an image of an object placed 0.75 m from the lens. Where is the image, and what type is it?",
-   "choices": [
-    "1.5 m, on the side opposite the object; real and inverted",
-    "0.30 m, on the side opposite the object; real and inverted",
-    "1.5 m, on the same side as the object; virtual and upright",
-    "0.25 m, on the side opposite the object; real and inverted"
-   ],
-   "ans": 0,
-   "cat": "4D",
-   "skill": "SIRS 2",
+   "skill": "SIRS 4",
    "diff": "X",
    "subj": "physics",
-   "exp": "Thin-lens equation: 1/f = 1/o + 1/i, so 1/i = 1/0.50 − 1/0.75 = 2.0 − 1.33 = 0.67 m⁻¹, and **i = +1.5 m**. A positive image distance means a **real** image on the far side of the lens, and real images from a single lens are **inverted** (m = −i/o = −2).\n\n**0.30 m** adds 1/f and 1/o (2.0 + 1.33 = 3.33 m⁻¹) instead of subtracting.\nA virtual, upright image forms only when the object is inside the focal length (o < f); here o = 0.75 m > f = 0.50 m.\n**0.25 m** subtracts the distances (0.75 − 0.50) instead of their reciprocals.",
-   "id": "cp_diag_sa4"
+   "twin": "pe3-cp:48",
+   "chart": {
+    "type": "line",
+    "caption": "Sled distance vs time",
+    "x": {
+     "label": "Time (s)",
+     "min": 0,
+     "max": 6,
+     "step": 1
+    },
+    "y": {
+     "label": "Distance (m)",
+     "min": 0,
+     "max": 60,
+     "step": 10
+    },
+    "series": [
+     {
+      "name": "Sled",
+      "marker": "circle",
+      "line": "smooth",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        1.5
+       ],
+       [
+        2,
+        6
+       ],
+       [
+        3,
+        13.5
+       ],
+       [
+        4,
+        24
+       ],
+       [
+        5,
+        37.5
+       ],
+       [
+        6,
+        54
+       ]
+      ]
+     }
+    ]
+   },
+   "exp": "1. From rest with constant acceleration, expect d = ½at², a parabola.\n2. Test the shape: read d at 1 s and 2 s: t: 1 → 2 s, ×2; d: 1.5 → 6.0 m, **×4** → **d ∝ t²**, a curve, not a straight line.\n3. A straight-line relationship would need d to double when t doubles, so both \"d ∝ t\" choices are out (9.0 is the average speed 54 ÷ 6, and 18 is 2 × 54 ÷ 6).\n4. Read one clear point and solve for a: d = ½at² → a = 2d/t² = 2 × 54 ÷ 6² = 108 ÷ 36 = **3.0 m/s²**.\n5. The data fit d = **1.5**t² = ½at² → ½a = 1.5 → a = **3.0**; reading the 1.5 as a gives \"d ∝ t²; 1.5 m/s²\".\n6. Answer: d ∝ t²; 3.0 m/s². From rest, a = 2d/t², twice the coefficient of t².\n\n**Rule to reuse:** from rest, d = ½at². Doubling t quadruples d (d ∝ t²), and a = 2d/t², twice the number in front of t².",
+   "id": "cp_diag2_sa8"
   },
   {
-   "q": "A hospital receives a vial of ¹⁸F-labeled glucose analog (half-life 110 min) with an activity of 800 MBq at 7:00 a.m. What is its activity at 12:30 p.m. the same day?",
+   "q": "In the alkene drawn, a Cl atom sits on one sp² carbon, and the two propyl chains are cis to each other. What is the compound's name?",
    "choices": [
-    "50 MBq",
-    "100 MBq",
-    "200 MBq",
-    "267 MBq"
+    "(Z)-4-chlorooct-4-ene",
+    "(E)-5-chlorooct-4-ene",
+    "(E)-4-chlorooct-4-ene",
+    "(Z)-5-chlorooct-4-ene"
+   ],
+   "ans": 2,
+   "cat": "5B",
+   "skill": "SIRS 4",
+   "diff": "X",
+   "subj": "organic_chem",
+   "fig": "cpd-e-4-chlorooct-4-ene",
+   "twin": "pe4-cp:11",
+   "exp": "1. The question points at the propyl chains, but E/Z compares the highest-priority group on each carbon, not the matching groups.\n2. Number the eight-carbon chain from the end that gives the double bond and then Cl the lowest numbers: the double bond is C4=C5 either way, and Cl lands on C4, not C5. Left to right: C=C at **4**, Cl at **4**; right to left: C=C at **4**, Cl at **5**; parent: **4-chlorooct-4-ene**. Both 5-chloro names fail.\n3. Rank each end. C4 carries Cl and a propyl group; C5 carries a propyl group and H: C4: Cl **17** > C 6 → Cl wins; C5: C **6** > H 1 → propyl wins.\n4. Cl and the C5 propyl group sit on opposite sides of the double bond, so the alkene is E, even though the two propyl chains are cis; \"(Z)-4-chlorooct-4-ene\" fails.\n5. Answer: (E)-4-chlorooct-4-ene.\n\n**Rule to reuse:** number the chain, find the top-ranked atom on each double-bond carbon, then ask: same side (Z) or opposite (E)? Check each answer's number and letter.",
+   "id": "cp_diag2_sa9"
+  },
+  {
+   "q": "Phosphorus-32 has a half-life of 14 days. A vial of ³²P-labeled ATP is prepared on March 3, and on April 14 of the same year it holds 2.5 μg of ³²P. How much ³²P did it hold on March 3?",
+   "choices": [
+    "0.31 μg",
+    "7.5 μg",
+    "20 μg",
+    "105 μg"
+   ],
+   "ans": 2,
+   "cat": "4E",
+   "skill": "SIRS 2",
+   "diff": "D",
+   "subj": "physics",
+   "twin": "pe4-cp:45",
+   "exp": "1. Translate: work backward in time from the April 14 mass to the March 3 mass.\n2. Count half-lives in the elapsed time: March 3 → April 3 = 31 days, → April 14 = **42 days**; n = 42 ÷ 14 = **3** half-lives.\n3. Going backward, each half-life doubles the mass: m₀ = 2.5 μg × 2³ = 2.5 × **8** = **20 μg**.\n4. Check on the decay curve: 20 → 10 → 5.0 → 2.5 μg ✓.\n5. Answer: 20 μg. 0.31 μg decays forward instead of backward (2.5 ÷ 8), 7.5 μg multiplies by 3 instead of 2³, and 105 μg multiplies by the 42 days.\n\n**Rule to reuse:** n = time ÷ half-life. Forward: remaining = start × (½)ⁿ. Backward: start = remaining × 2ⁿ.",
+   "id": "cp_diag2_sa10"
+  },
+  {
+   "q": "L-Asparagine (left) tastes flat, but D-asparagine (right) tastes sweet. The two share a melting point and water solubility, and their optical rotations have the same magnitude but opposite signs. Which conclusion best fits these data?",
+   "choices": [
+    "Diastereomers; tastes differ",
+    "Enantiomers; taste proteins are chiral",
+    "Enantiomers; unequal melting points",
+    "Structural isomers; opposite rotations"
    ],
    "ans": 1,
-   "cat": "4E",
-   "skill": "SIRS 2",
-   "diff": "E",
-   "subj": "physics",
-   "exp": "From 7:00 a.m. to 12:30 p.m. is 5.5 h = **330 min = 3 half-lives** (330 ÷ 110). Each half-life halves the activity: 800 → 400 → 200 → **100 MBq**.\n\n**267 MBq** divides by 3 instead of halving three times.\n**200 MBq** stops after two half-lives.\n**50 MBq** counts four half-lives.",
-   "id": "cp_diag_sa5"
-  },
-  {
-   "q": "Which of the following atoms has the largest first ionization energy?",
-   "choices": [
-    "Boron",
-    "Carbon",
-    "Nitrogen",
-    "Oxygen"
-   ],
-   "ans": 2,
-   "cat": "4E",
-   "skill": "SIRS 1",
-   "diff": "D",
-   "subj": "gen_chem",
-   "exp": "Ionization energy generally rises across a period as nuclear charge increases, but there's an exception between groups 15 and 16. **Nitrogen** (2p³) has one electron in each 2p orbital, a stable half-filled set. **Oxygen** (2p⁴) has one orbital holding a **pair** of electrons, and the repulsion between them makes that electron easier to remove. So IE(N) > IE(O).\n\nOxygen is the answer you get from applying the trend alone.\nBoron and carbon have lower nuclear charge and lower ionization energies than nitrogen; boron is also below beryllium because its 2p electron is higher in energy than a 2s electron.",
-   "id": "cp_diag_sa6"
-  },
-  {
-   "q": "Zinc is the catalytic metal in many enzymes, where it is present as Zn²⁺. What is the ground-state electron configuration of Zn²⁺?",
-   "choices": [
-    "[Ar]3d¹⁰",
-    "[Ar]4s²3d⁸",
-    "[Ar]4s²3d¹⁰",
-    "[Ar]4s¹3d⁹"
-   ],
-   "ans": 0,
-   "cat": "4E",
-   "skill": "SIRS 1",
+   "cat": "5B",
+   "skill": "SIRS 3",
    "diff": "M",
-   "subj": "gen_chem",
-   "exp": "Neutral Zn is [Ar]4s²3d¹⁰. When transition metals form cations, the **4s electrons are removed first**, so Zn²⁺ is **[Ar]3d¹⁰**. Its filled d subshell is why Zn²⁺ is colorless and doesn't undergo redox reactions in enzymes; it acts as a Lewis acid instead.\n\n**[Ar]4s²3d⁸** removes the 3d electrons first, following filling order backward.\n**[Ar]4s²3d¹⁰** is neutral zinc.\n**[Ar]4s¹3d⁹** has the right number of electrons (28) but removes one 3d electron instead of the second 4s electron, so it is not the ground state.",
-   "id": "cp_diag_sa7"
+   "subj": "organic_chem",
+   "fig": [
+    "asparagine",
+    "cpd-d-asparagine"
+   ],
+   "twin": "pe5-cp:27",
+   "exp": "1. Compare the two drawings: same chain, same groups, same connections. Only the wedge at the α-carbon differs.\n2. Classify from the drawings: connectivity **same** → not structural isomers; stereocenters: **1**, inverted → mirror images: **enantiomers**. With a single stereocenter they cannot be diastereomers.\n3. The data agree: identical melting points and solubilities, as enantiomers must have, so \"Enantiomers; unequal melting points\" fails.\n4. Taste is detected by receptor proteins built from L-amino acids. A chiral receptor binds two enantiomers differently, as a right glove fits only a right hand.\n5. Answer: they are enantiomers, and the taste proteins are chiral.\n\n**Rule to reuse:** **Constitutional isomers:** same formula, different connectivity. **Stereoisomers:** same connectivity, different 3D arrangement.",
+   "id": "cp_diag2_sa11"
   },
   {
-   "q": "A technician dilutes 10 mL of 0.10 M HCl with water to a final volume of 1.0 L. What is the pH of the diluted solution?",
+   "q": "Enthalpy profiles for one reaction are plotted for the catalyzed and the uncatalyzed paths. What are Ea for the catalyzed path and ΔH for the reaction?",
    "choices": [
-    "1",
-    "2",
-    "3",
-    "11"
+    "45 kJ/mol; +60 kJ/mol",
+    "45 kJ/mol; −60 kJ/mol",
+    "75 kJ/mol; −60 kJ/mol",
+    "130 kJ/mol; −60 kJ/mol"
    ],
-   "ans": 2,
-   "cat": "5A",
-   "skill": "SIRS 2",
-   "diff": "E",
-   "subj": "gen_chem",
-   "exp": "Use **M₁V₁ = M₂V₂**: (0.10 M)(0.010 L) = M₂(1.0 L), so M₂ = 1.0 × 10⁻³ M. HCl is a strong acid, so [H⁺] = 1.0 × 10⁻³ M and **pH = 3**.\n\n**1** is the pH before dilution.\n**2** assumes a 10-fold dilution; going from 10 mL to 1000 mL is 100-fold.\n**11** is the pOH, not the pH.",
-   "id": "cp_diag_sa8"
-  },
-  {
-   "q": "Bone mineral contains calcium phosphate, Ca₃(PO₄)₂. If the molar solubility of Ca₃(PO₄)₂ in pure water is s, which expression gives its Ksp?",
-   "choices": [
-    "s⁵",
-    "6s⁵",
-    "72s⁵",
-    "108s⁵"
-   ],
-   "ans": 3,
-   "cat": "5A",
-   "skill": "SIRS 1",
-   "diff": "D",
-   "subj": "gen_chem",
-   "exp": "Each formula unit dissolves as Ca₃(PO₄)₂ ⇌ 3Ca²⁺ + 2PO₄³⁻, so [Ca²⁺] = **3s** and [PO₄³⁻] = **2s**.\nKsp = [Ca²⁺]³[PO₄³⁻]² = (3s)³(2s)² = 27s³ × 4s² = **108s⁵**.\n\n**s⁵** forgets that each formula unit releases 3 Ca²⁺ and 2 PO₄³⁻.\n**6s⁵** multiplies the coefficients (3 × 2) without raising them to their powers.\n**72s⁵** swaps the exponents (3² × 2³).",
-   "id": "cp_diag_sa9"
-  },
-  {
-   "q": "An enzyme increases the rate of a reversible reaction by a factor of 10⁶. Compared with the uncatalyzed reaction, the enzyme-catalyzed reaction has:",
-   "choices": [
-    "a lower activation energy in both the forward and reverse directions.",
-    "a larger equilibrium constant.",
-    "a more negative standard free energy change.",
-    "a lower activation energy in the forward direction only."
-   ],
-   "ans": 0,
+   "ans": 1,
    "cat": "5E",
    "skill": "SIRS 1",
-   "diff": "M",
-   "subj": "gen_chem",
-   "exp": "A catalyst provides a pathway with a **lower-energy transition state**. Because the forward and reverse reactions pass through the same transition state, **both activation energies drop by the same amount**, and both rates increase.\n\nThe energies of reactants and products don't change, so ΔG° and K stay the same; the catalyst only gets the system to equilibrium faster.\nLowering only the forward barrier would change K, which a catalyst cannot do.",
-   "id": "cp_diag_sa10"
-  },
-  {
-   "q": "Which of the following compounds has the highest boiling point?",
-   "choices": [
-    "1-Butanol",
-    "Diethyl ether",
-    "Butanal",
-    "Pentane"
-   ],
-   "choiceFigs": [
-    "1-butanol",
-    "diethyl-ether",
-    "butanal",
-    "cpd-pentane"
-   ],
-   "ans": 0,
-   "cat": "5B",
-   "skill": "SIRS 1",
    "diff": "D",
-   "subj": "organic_chem",
-   "exp": "All four have similar molar masses (72–74 g/mol), so London dispersion forces are about the same, and the difference comes from the other intermolecular forces. Only **1-butanol** has an O–H group, so it can **hydrogen-bond** to itself (bp ≈ 117°C).\n\nButanal has a polar C=O and dipole–dipole forces but no O–H to donate (bp ≈ 75°C).\nDiethyl ether has a weakly polar C–O–C and no O–H (bp ≈ 35°C).\nPentane has only dispersion forces (bp ≈ 36°C).",
-   "id": "cp_diag_sa11"
+   "subj": "gen_chem",
+   "chart": {
+    "type": "line",
+    "caption": "Enthalpy along the reaction coordinate, with and without catalyst",
+    "x": {
+     "label": "Reaction progress",
+     "min": 0,
+     "max": 10,
+     "step": 2
+    },
+    "y": {
+     "label": "Enthalpy (kJ/mol)",
+     "min": 0,
+     "max": 180,
+     "step": 20
+    },
+    "series": [
+     {
+      "name": "Uncatalyzed",
+      "marker": "circle",
+      "line": "smooth",
+      "points": [
+       [
+        0,
+        85
+       ],
+       [
+        1,
+        85
+       ],
+       [
+        2,
+        92
+       ],
+       [
+        3,
+        115
+       ],
+       [
+        4,
+        145
+       ],
+       [
+        5,
+        160
+       ],
+       [
+        6,
+        140
+       ],
+       [
+        7,
+        95
+       ],
+       [
+        8,
+        50
+       ],
+       [
+        9,
+        30
+       ],
+       [
+        10,
+        25
+       ]
+      ]
+     },
+     {
+      "name": "Catalyzed",
+      "marker": "square",
+      "line": "smooth",
+      "points": [
+       [
+        0,
+        85
+       ],
+       [
+        1,
+        85
+       ],
+       [
+        2,
+        90
+       ],
+       [
+        3,
+        105
+       ],
+       [
+        4,
+        123
+       ],
+       [
+        5,
+        130
+       ],
+       [
+        6,
+        120
+       ],
+       [
+        7,
+        85
+       ],
+       [
+        8,
+        45
+       ],
+       [
+        9,
+        29
+       ],
+       [
+        10,
+        25
+       ]
+      ]
+     }
+    ]
+   },
+   "twin": "pe5-cp:46",
+   "exp": "1. Read the levels on the catalyzed curve: reactants **85 kJ/mol**; catalyzed peak **130 kJ/mol**; products **25 kJ/mol**.\n2. Ea is the climb from the reactants to the lower peak: Ea, catalyzed = 130 − 85 = **45 kJ/mol**.\n3. 75 is the uncatalyzed climb, 160 − 85; 130 is the catalyzed peak read from zero instead of from the reactants.\n4. The products end below the reactants: exothermic, so ΔH is negative: ΔH = 25 − 85 = **−60 kJ/mol**, the same for both curves, because the catalyst moves only the peak. \"+60 kJ/mol\" has the wrong sign.\n5. Answer: 45 kJ/mol and −60 kJ/mol.\n\n**Rule to reuse:** Ea = peak − reactants (a catalyst lowers it). ΔH = products − reactants (a catalyst never changes it). Measure from the reactant level, not from 0.",
+   "id": "cp_diag2_sa12"
   },
   {
-   "q": "A mixture is spotted on a silica gel TLC plate and developed with 4:1 hexane–ethyl acetate. Which component travels the farthest up the plate?",
+   "q": "The stopping distance d of a car braking hard on dry pavement was measured at several initial speeds v, as plotted. Which relationship between d and v fits these data?",
    "choices": [
-    "Benzyl alcohol",
-    "Ethylbenzene",
-    "Phenylacetic acid",
-    "Acetophenone"
+    "d ∝ √v",
+    "d ∝ v",
+    "d ∝ v⁻¹",
+    "d ∝ v²"
    ],
-   "choiceFigs": [
-    "benzyl-alcohol",
-    "ethylbenzene",
-    "phenylacetic-acid",
-    "acetophenone"
+   "ans": 3,
+   "cat": "4A",
+   "skill": "SIRS 3",
+   "diff": "D",
+   "subj": "physics",
+   "chart": {
+    "type": "line",
+    "caption": "Stopping distance versus initial speed on dry pavement",
+    "x": {
+     "label": "Initial speed v (m/s)",
+     "min": 0,
+     "max": 40,
+     "step": 10
+    },
+    "y": {
+     "label": "Stopping distance d (m)",
+     "min": 0,
+     "max": 140,
+     "step": 20
+    },
+    "series": [
+     {
+      "name": "Car",
+      "marker": "circle",
+      "line": "smooth",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        10,
+        7.5
+       ],
+       [
+        20,
+        30
+       ],
+       [
+        30,
+        67.5
+       ],
+       [
+        40,
+        120
+       ]
+      ]
+     }
+    ]
+   },
+   "twin": "pe6-cp:11",
+   "exp": "1. Look at the shape: the points curve upward instead of lying on a straight line, so d is not simply proportional to v; \"d ∝ v\" fails.\n2. Read d at 10 and 20 m/s and compare: v × **2** (10 → 20 m/s); d: 7.5 → 30 m, × **4** = 2².\n3. Confirm with a second pair: v × **3** (10 → 30 m/s); d: 7.5 → 67.5 m, × **9** = 3².\n4. √v would make the curve level off, and v⁻¹ would make d fall as v rises.\n5. Answer: d ∝ v². Rule: multiply x by k; if y goes up by k², it is a square law.\n\n**Rule to reuse:** multiply x by k. If y goes ×k → linear; ×k² → square law; ×√k → square root; ÷k → inverse.",
+   "id": "cp_diag2_sa13"
+  },
+  {
+   "q": "An iodine-125 seed for brachytherapy, with a half-life of about 60 days, measured 48 mCi when it was calibrated 240 days ago. What is its activity now?",
+   "choices": [
+    "0.20 mCi",
+    "3.0 mCi",
+    "6.0 mCi",
+    "12 mCi"
    ],
    "ans": 1,
-   "cat": "5B",
-   "skill": "SIRS 1",
+   "cat": "4E",
+   "skill": "SIRS 2",
    "diff": "D",
-   "subj": "organic_chem",
-   "exp": "Silica gel is a **polar** stationary phase, and this eluent is mostly nonpolar hexane. Polar compounds stick to the silica and move slowly; nonpolar compounds stay in the mobile phase and travel farthest (highest Rf). **Ethylbenzene** is a hydrocarbon with no polar functional group, so it has the highest Rf.\n\nAcetophenone has a polar C=O, so it moves less.\nBenzyl alcohol hydrogen-bonds to the silica's Si–OH groups.\nPhenylacetic acid, with a carboxylic acid, binds most strongly and moves least.",
-   "id": "cp_diag_sa12"
+   "subj": "physics",
+   "twin": "pe6-cp:57",
+   "exp": "1. Count half-lives in the elapsed time: n = 240 days ÷ 60 days = **4** half-lives.\n2. Halve once per half-life: 48 → **24** → **12** → **6.0** → **3.0 mCi**; A = 48 × (½)⁴ = 48 ÷ 16 = **3.0 mCi**.\n3. On the decay curve, the activity halves every 60 days, so at 240 days it reads 3.0 mCi.\n4. Decay is exponential, not linear: 0.20 mCi is 48/240 (dividing by the days); 12 mCi is 48/4 (dividing by the number of half-lives); 6.0 mCi stops one halving short.\n5. Answer: 3.0 mCi after four half-lives.\n\n**Rule to reuse:** half-lives = time ÷ t½; then halve that many times: A = A₀ × (½)ⁿ.",
+   "id": "cp_diag2_sa14"
   },
   {
-   "q": "In acidic solution, the compound shown cyclizes by intramolecular esterification. The ring in the product contains:",
-   "fig": "cpd-4-hydroxybutanoic-acid",
+   "q": "On silica gel TLC developed with 4:1 hexane/ethyl acetate, a four-component mixture gives spots at Rf 0.78, 0.47, 0.26 and 0.12. Which component most likely produced the spot at Rf 0.12?",
    "choices": [
-    "five atoms, one oxygen.",
-    "four atoms, one oxygen.",
-    "six atoms, two oxygens.",
-    "five atoms, two oxygens."
+    "Phenylacetic acid",
+    "Cyclohexanol",
+    "Acetophenone",
+    "Toluene"
    ],
    "ans": 0,
-   "cat": "5D",
-   "skill": "SIRS 2",
+   "cat": "5C",
+   "skill": "SIRS 1",
    "diff": "M",
    "subj": "organic_chem",
-   "exp": "The compound is 4-hydroxybutanoic acid, HO–CH₂CH₂CH₂–COOH. The hydroxyl oxygen attacks the carboxyl carbon, and water is lost. The ring closes through C1 (the carbonyl carbon), C2, C3, C4 and the **ester oxygen**: **5 atoms, 1 of them oxygen**. The product is γ-butyrolactone.\n\n**Four atoms** counts only the carbons.\nThe carbonyl oxygen is double-bonded to C1 outside the ring; counting it as a ring atom gives the choices with two oxygens (five or six atoms).",
-   "id": "cp_diag_sa13"
-  },
-  {
-   "q": "In an α-helix, the C=O group of the backbone of each residue forms a hydrogen bond with:",
-   "choices": [
-    "the backbone N–H of the residue four positions farther along the chain.",
-    "the side chain of the residue four positions farther along the chain.",
-    "the backbone N–H of a residue in a neighboring strand.",
-    "the backbone N–H of the next residue in the chain."
-   ],
-   "ans": 0,
-   "cat": "5D",
-   "skill": "SIRS 1",
-   "diff": "D",
-   "subj": "biochemistry",
-   "exp": "The α-helix is held together by **backbone–backbone** hydrogen bonds running parallel to the helix axis: the C=O of residue **i** accepts a hydrogen bond from the N–H of residue **i + 4**. That gives 3.6 residues per turn, with side chains pointing outward.\n\nSecondary structure is defined by backbone hydrogen bonds; side chains aren't involved.\nHydrogen bonds between neighboring strands define a **β-sheet**.\nThe adjacent residue (i + 1) is too close; its N–H can't reach the C=O in the right geometry.",
-   "id": "cp_diag_sa14"
-  },
-  {
-   "q": "A freshly prepared aqueous solution of pure α-D-glucopyranose shows an optical rotation that changes over about an hour before leveling off. Which statement best explains this observation?",
-   "choices": [
-    "Ring opening and closing forms β-D-glucopyranose, which has a different specific rotation.",
-    "Glucose slowly racemizes to L-glucose, which rotates light the opposite way.",
-    "Water hydrolyzes a glycosidic bond, releasing glucose with a different specific rotation.",
-    "Glucose epimerizes at C2 to mannose, which has a different specific rotation."
-   ],
-   "ans": 0,
-   "cat": "5D",
-   "skill": "SIRS 1",
-   "diff": "X",
-   "subj": "biochemistry",
-   "exp": "This is **mutarotation**. Glucopyranose is a cyclic **hemiacetal**, so in water the ring opens to the open-chain aldehyde and recloses. Attack from either face of the C=O gives either anomer at C1, so α and β interconvert until they reach equilibrium (about one-third α, two-thirds β). The **anomers** differ only at C1, so they are diastereomers with different specific rotations, and the rotation of the solution changes until equilibrium is reached.\n\nTurning D-glucose into L-glucose would require inverting all four stereocenters (C2–C5), which doesn't happen in water.\nA monosaccharide has no glycosidic bond to hydrolyze.\nC2 epimerization needs an enzyme or strong base; ring opening and closing changes only C1.",
-   "id": "cp_diag_sa15"
+   "twin": "cp-gap-chem:G27",
+   "exp": "1. Silica is a polar stationary phase covered with Si–OH groups, and the eluent is mostly nonpolar, so the compound that binds silica most strongly moves least.\n2. Phenylacetic acid hydrogen-bonds to silica through an acidic O–H and a C=O, so it binds most strongly and has the **lowest Rf (0.12)**.\n3. Toluene is a nonpolar hydrocarbon, so it runs nearly with the solvent (0.78).\n4. Acetophenone has a C=O but no O–H, so it moves farther (0.47); cyclohexanol has one O–H but binds less strongly than the acid (0.26).\n5. Answer: phenylacetic acid.\n\n**Rule to reuse:** on silica, Rf falls as hydrogen bonding to the Si–OH surface rises: hydrocarbons run highest and carboxylic acids lowest.",
+   "id": "cp_diag2_sa15"
   }
  ]
 };

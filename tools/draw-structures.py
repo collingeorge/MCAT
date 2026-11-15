@@ -1002,6 +1002,18 @@ add('cpp4-glycinate', "NCC(=O)[O-]", formula='C2H4NO2-')
 add('cpp4-3-aminopyruvate', "NCC(=O)C(=O)[O-]", formula='C3H4NO3-')
 add('cpp4-n-methyloxamate', "CNC(=O)C(=O)[O-]", formula='C3H4NO3-')
 
+# ── Chem/Phys twin rebuild (2026-11): diagnostic and quiz passages ──
+add('cpd-nitric-acid', "O[N+](=O)[O-]", formula='HNO3', centers=0)
+add('cpd-hypochlorous-acid', "OCl", formula='HClO', centers=0)
+add('cpd-d-alanine', "N[C@H](C)C(=O)O", formula='C3H7NO2', centers=1)
+add('cpd-n6-hydroxylysine', "N[C@@H](CCCCNO)C(=O)O", formula='C6H14N2O3', centers=1)
+add('cpd-glucose-6-phosphate', "O=P(O)(O)OC[C@H]1O[C@@H](O)[C@H](O)[C@@H](O)[C@@H]1O", formula='C6H13O9P', centers=5)
+add('cpd-phosphate', "OP(=O)(O)O", formula='H3O4P', centers=0)
+add('cpd-e-4-chlorooct-4-ene', "CCC/C(Cl)=C\\CCC", formula='C8H15Cl', centers=0, ez='E')
+add('cpd-d-asparagine', "N[C@H](CC(N)=O)C(=O)O", formula='C4H8N2O3', centers=1)
+add('cpd-bbr3', "BrB(Br)Br", formula='BBr3', centers=0)
+add('cpd-pbr3', "BrP(Br)Br", formula='Br3P', centers=0)
+
 def stereo_count(m):
     return len(Chem.FindMolChiralCenters(m, includeUnassigned=True, useLegacyImplementation=False))
 
@@ -1246,7 +1258,7 @@ used = set()
 for m in re.finditer(r'"?(?:fig|choiceFigs)"?:\s*("([^"]+)"|\[([^\]]*)\])', cards):
     used.update([m.group(2)] if m.group(2) else re.findall(r'"([^"]+)"', m.group(3)))
 # The Chem/Phys diagnostic and daily quiz passages draw structures in their schemes, questions and choices.
-for f in ['data/cp-diagnostic.js', 'data/cp-pool.js', 'data/cp-practice.js']:
+for f in ['data/cp-diagnostic.js', 'data/cp-pool.js']:
     path = root / f
     if not path.exists(): continue
     text = path.read_text(encoding='utf-8')

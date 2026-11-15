@@ -1,0 +1,779 @@
+{
+ "order": [
+  "p_cpq6_1",
+  "p_cpq6_2",
+  4,
+  "p_cpq6_3",
+  "p_cpq6_4",
+  "p_cpq6_5",
+  4
+ ],
+ "passages": [
+  {
+   "id": "p_cpq6_1",
+   "subj": "gen_chem",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "4D",
+    "5B",
+    "5E"
+   ],
+   "title": "Two Cone Opsins in a Reef Damselfish",
+   "passage": "Many reef fish see color with only two classes of cone. In one damselfish species, short cones contain Opsin B and long cones contain Opsin G. Each opsin is a seven-helix membrane protein that holds the chromophore retinal in a pocket buried among its helices, away from water. Retinal is attached through a Schiff base to a lysine at one end of the pocket; the rest of the chromophore, a ring and a chain of conjugated C=C bonds, is made only of carbon and hydrogen. Absorbing a photon isomerizes one C=C bond of the chromophore, and the opsin changes shape. The light-activated opsin is later switched off when opsin kinase phosphorylates serine and threonine residues on its cytoplasmic tail, using ATP as the phosphate donor.\n\nResearchers expressed both opsins in cultured cells, rebuilt them with retinal, and recorded their absorbance spectra (Figure 1). Each cone signals only the number of photons its opsin absorbs. To study the switch-off step, the team incubated light-activated Opsin G with opsin kinase and one of four labeled ATPs: ³²P at the α, β or γ phosphorus, or ¹⁴C at C8 of the adenine ring. Radioactivity in the opsin was then measured.\n\nTo calibrate their photoisomerization assay, the team also used Compound 1, hex-4-en-1-yne, HC≡C–CH₂–CH=CH–CH₃, with its carbons numbered C1 to C6 starting from the alkyne end. Compound 1 has two geometric isomers, which stay separate for weeks at 25°C.",
+   "figure": {
+    "type": "line",
+    "caption": "Figure 1 Relative absorbance of the damselfish cone opsins",
+    "x": {
+     "label": "Wavelength (nm)",
+     "min": 400,
+     "max": 650,
+     "step": 50
+    },
+    "y": {
+     "label": "Relative absorbance",
+     "min": 0,
+     "max": 1,
+     "step": 0.2
+    },
+    "series": [
+     {
+      "name": "Opsin B",
+      "marker": "triangle",
+      "line": "smooth",
+      "points": [
+       [
+        400,
+        0.45
+       ],
+       [
+        420,
+        0.7
+       ],
+       [
+        440,
+        0.92
+       ],
+       [
+        460,
+        1.0
+       ],
+       [
+        480,
+        0.85
+       ],
+       [
+        490,
+        0.72
+       ],
+       [
+        500,
+        0.55
+       ],
+       [
+        520,
+        0.28
+       ],
+       [
+        540,
+        0.12
+       ],
+       [
+        560,
+        0.04
+       ],
+       [
+        570,
+        0.02
+       ],
+       [
+        580,
+        0.01
+       ],
+       [
+        600,
+        0
+       ],
+       [
+        650,
+        0
+       ]
+      ]
+     },
+     {
+      "name": "Opsin G",
+      "marker": "circle",
+      "line": "smooth",
+      "points": [
+       [
+        400,
+        0.05
+       ],
+       [
+        420,
+        0.08
+       ],
+       [
+        440,
+        0.15
+       ],
+       [
+        460,
+        0.25
+       ],
+       [
+        480,
+        0.42
+       ],
+       [
+        490,
+        0.52
+       ],
+       [
+        500,
+        0.62
+       ],
+       [
+        520,
+        0.85
+       ],
+       [
+        540,
+        1.0
+       ],
+       [
+        560,
+        0.9
+       ],
+       [
+        570,
+        0.78
+       ],
+       [
+        580,
+        0.62
+       ],
+       [
+        600,
+        0.32
+       ],
+       [
+        620,
+        0.12
+       ],
+       [
+        640,
+        0.04
+       ],
+       [
+        650,
+        0.02
+       ]
+      ]
+     }
+    ]
+   },
+   "questions": [
+    {
+     "q": "A 490-nm light and a 570-nm light are adjusted so that Opsin G absorbs equal numbers of photons from each. What lets the fish distinguish the two lights?",
+     "choices": [
+      "Opsin G cones signal more at 570 nm",
+      "Opsin B and G output ratios differ",
+      "Neither light excites both opsins",
+      "Opsin B absorbs mostly the 570-nm light"
+     ],
+     "ans": 1,
+     "cat": "4D",
+     "skill": "SIRS 4",
+     "diff": "X",
+     "subj": "organic_chem",
+     "twin": "pe1-cp:30",
+     "exp": "1. Lock in the condition: Opsin G absorbs the same number of photons from both lights, so the G cones send identical signals. That rules out \"Opsin G cones signal more at 570 nm\".\n2. Read every opsin at 490 nm: G ≈ **0.52**, B ≈ **0.72**; B/G ≈ 0.72 ÷ 0.52 ≈ **1.4**.\n3. Now read them at 570 nm: G ≈ **0.78**, B ≈ **0.02**; B/G ≈ 0.02 ÷ 0.78 ≈ **0.03**.\n4. The curves overlap: at 490 nm both opsins absorb strongly, so \"Neither light excites both opsins\" is false, and Opsin B absorbs almost nothing at 570 nm, so \"Opsin B absorbs mostly the 570-nm light\" is false too.\n5. Answer: Opsin B and G output ratios differ (about 1.4 versus 0.03), and the brain reads color from that comparison.\n\n**Rule to reuse:** one receptor type can't report color (it can't separate color from brightness); color comes from the ratio of responses across overlapping receptors.",
+     "id": "p_cpq6_1_q1"
+    },
+    {
+     "q": "Side chains of which amino acid would form most of the opsin pocket's surface around retinal's ring and chain?",
+     "choices": [
+      "Glutamate",
+      "Arginine",
+      "Valine",
+      "Threonine"
+     ],
+     "ans": 2,
+     "cat": "5B",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe1-cp:31",
+     "exp": "1. Scan the ligand: retinal is one six-membered ring plus a conjugated chain. Free retinal is C₂₀H₂₈O: **20 C**, 28 H, **1 O**; 20 ÷ 21 ≈ **95%** of its heavy atoms are carbon → **hydrophobic**.\n2. The pocket is buried among the helices, away from water, so most of its lining must match a hydrocarbon surface.\n3. Look at each side chain. Glutamate ends in –COO⁻ and arginine in a positively charged guanidinium group at pH 7.4: charges that want water. That rules out glutamate and arginine.\n4. Threonine's side chain carries a polar –OH. Valine's isopropyl side chain is all C and H: it packs against retinal's ring and chain through London dispersion forces. That rules out threonine.\n5. Answer: valine. One charged residue may sit near the Schiff-base end, but it cannot set the character of most of the lining.\n\n**Rule to reuse:** to line a pocket for a nonpolar molecule, pick side chains of only C and H. For each choice, check the side chain for O, N or a charge.",
+     "id": "p_cpq6_1_q2"
+    },
+    {
+     "q": "Which labeled ATP would make the phosphorylated Opsin G radioactive?",
+     "choices": [
+      "[8-¹⁴C]ATP",
+      "[α-³²P]ATP",
+      "[β-³²P]ATP",
+      "[γ-³²P]ATP"
+     ],
+     "ans": 3,
+     "cat": "5E",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "subj": "biochemistry",
+     "twin": "pe1-cp:32",
+     "exp": "1. The radioactivity must end up in the opsin, so the label must ride on the group the kinase moves: ATP + opsin–Ser–OH → ADP + opsin–Ser–O–**PO₃²⁻**; the moved group is the **terminal (γ)** phosphoryl.\n2. Name the labeled positions by walking out from the ribose: the α phosphorus is bonded through O to C5′ of ribose, β is in the middle, and γ is at the end of the chain. C8 is a carbon of the adenine ring.\n3. The α and β phosphates stay behind as ADP, and the adenine ring never leaves ADP. That rules out [α-³²P]ATP, [β-³²P]ATP and [8-¹⁴C]ATP.\n4. The γ-phosphoryl group is what opsin kinase hands to the serine and threonine residues of the opsin tail.\n5. Answer: [γ-³²P]ATP.\n\n**Rule to reuse:** a tag goes wherever its atom goes, and kinases move only ATP's γ (end) phosphate. For each label, ask: is it in the last phosphate?",
+     "id": "p_cpq6_1_q3"
+    },
+    {
+     "q": "Based on the formula of Compound 1, which carbon is trigonal planar and belongs to the bond that cannot rotate?",
+     "choices": [
+      "C2",
+      "C3",
+      "C5",
+      "C6"
+     ],
+     "ans": 2,
+     "cat": "5B",
+     "skill": "SIRS 4",
+     "diff": "X",
+     "twin": "pe1-cp:33",
+     "exp": "1. Geometric isomers that do not interconvert point to a C=C, here C4=C5: rotation there would break the π bond.\n2. Count domains for each candidate carbon in HC≡C–CH₂–CH=CH–CH₃: C2 (≡C–, bonded to C1 and C3): 2 atoms → **sp**; C3 (CH₂): 4 atoms → **sp³**; C5 (=CH–): 3 atoms, 0 lone pairs → **sp²**; C6 (CH₃): 4 atoms → **sp³**.\n3. sp³ carbons have only single bonds, which rotate freely. That rules out C3 and C6.\n4. C2 is an alkyne carbon, sp and linear; its π bonds cannot make cis/trans forms. That rules out C2.\n5. The two alkene carbons, C4 and C5, are sp². Each has one unhybridized p orbital, and the two overlap side by side as the π bond that locks the geometry; C4 carries H and CH₂, and C5 carries H and CH₃, so cis and trans forms exist.\n6. Answer: C5.\n\n**Rule to reuse:** neighbors + lone pairs → 4 tetrahedral, 3 trigonal planar, 2 linear; only a C=C locks rotation. Count for each labeled carbon.",
+     "id": "p_cpq6_1_q4"
+    }
+   ]
+  },
+  {
+   "id": "p_cpq6_2",
+   "subj": "gen_chem",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "4E",
+    "5E"
+   ],
+   "title": "Direct Synthesis of Nickel(II) Bromide",
+   "passage": "Nickel(II) bromide is used as a catalyst precursor in organic synthesis, and it can be prepared directly from the elements:\n\nNi(s) + Br₂ → NiBr₂\n\nA student placed 3.0 g of fine nickel powder in a flask of dry acetonitrile and slowly added 3.0 g of liquid bromine (molar masses: Ni 58.7 g/mol, Br 79.9 g/mol, NiBr₂ 218.5 g/mol). The red-brown color of the bromine faded as the metal was consumed, and the solution turned green. A conductivity probe in the flask recorded a steady rise in electrical conductivity until the reaction stopped. Because bromine is toxic and volatile, the addition was done in a fume hood, and the flask was cooled in a water bath because the mixture warmed noticeably. Gray, unreacted nickel powder remained at the bottom of the flask and was filtered off, and evaporating the filtrate left the solid product.\n\nNickel (Z = 28) can show several oxidation states, but only one nickel ion is present in this product. Magnetic measurements on the dried solid showed that it is paramagnetic, with two unpaired electrons per nickel ion.\n\nTo discuss the energetics of the reaction with a classmate, the student treated it as a single elementary step. Figure 1 shows the energy of the system along the reaction coordinate for this simplified model.",
+   "figure": {
+    "type": "line",
+    "caption": "Figure 1 Energy diagram for the one-step model of Ni + Br₂ → NiBr₂",
+    "x": {
+     "label": "Reaction coordinate",
+     "min": 0,
+     "max": 10,
+     "step": 2
+    },
+    "y": {
+     "label": "Energy (kJ/mol)",
+     "min": 0,
+     "max": 180,
+     "step": 20
+    },
+    "series": [
+     {
+      "name": "Ni + Br₂ → NiBr₂",
+      "marker": "circle",
+      "line": "smooth",
+      "points": [
+       [
+        0,
+        60
+       ],
+       [
+        2,
+        60
+       ],
+       [
+        5,
+        160
+       ],
+       [
+        8,
+        20
+       ],
+       [
+        10,
+        20
+       ]
+      ]
+     }
+    ]
+   },
+   "questions": [
+    {
+     "q": "Which reactant limited the student's synthesis, and what was the theoretical yield of NiBr₂?",
+     "choices": [
+      "Br₂; 4.1 g",
+      "Br₂; 8.2 g",
+      "Ni; 4.1 g",
+      "Ni; 11 g"
+     ],
+     "ans": 0,
+     "cat": "4E",
+     "skill": "SIRS 2",
+     "diff": "X",
+     "twin": "pe3-cp:13",
+     "exp": "1. Convert both masses to moles; equal grams do not mean equal moles. Ni: 3.0 g ÷ 58.7 g/mol = **0.0511 mol**.\n2. Bromine is diatomic, so use 2 × 79.9: M(Br₂) = **159.8 g/mol**; Br₂: 3.0 g ÷ 159.8 g/mol = **0.0188 mol**.\n3. The reaction is 1 : 1, so the smaller amount, Br₂, runs out first. The leftover nickel powder confirms it. That rules out \"Ni; 4.1 g\" and \"Ni; 11 g\".\n4. Yield comes from the limiting reagent: n(NiBr₂) = n(Br₂) = **0.0188 mol**; m = 0.0188 mol × 218.5 g/mol = **4.1 g** (0.0511 × 218.5 = 11 g would wrongly use Ni). \"Br₂; 8.2 g\" uses 79.9 g/mol for Br₂: 3.0 ÷ 79.9 = 0.0375 mol, × 218.5 = 8.2 g.\n5. Answer: Br₂ is limiting, and the theoretical yield is 4.1 g of NiBr₂.\n\n**Rule to reuse:** convert every reactant to MOLES, divide by its coefficient, and the smallest is limiting. Yield = limiting moles × ratio × product molar mass. Diatomics (Br₂, O₂…) use 2 × atomic mass.",
+     "id": "p_cpq6_2_q1"
+    },
+    {
+     "q": "According to Figure 1, how large is the forward activation energy, per mole, in the student's model?",
+     "choices": [
+      "−40 kJ",
+      "100 kJ",
+      "140 kJ",
+      "160 kJ"
+     ],
+     "ans": 1,
+     "cat": "5E",
+     "skill": "SIRS 4",
+     "diff": "D",
+     "twin": "pe3-cp:14",
+     "exp": "1. Forward means starting from Ni + Br₂, the left plateau.\n2. Read the reactant level: **60 kJ** per mole.\n3. Read the peak, the transition state, and subtract: Ea = E(TS) − E(reactants) = 160 − 60 = **100 kJ**.\n4. 160 kJ measures the peak from zero, not from the reactants. That rules out \"160 kJ\".\n5. Read the products, at 20 kJ: reverse Ea = 160 − 20 = **140**, the barrier going backward; ΔH = 20 − 60 = **−40**. That rules out \"140 kJ\" and \"−40 kJ\".\n6. Answer: 100 kJ. Forward Ea is always peak minus the starting plateau.\n\n**Rule to reuse:** forward Ea = peak − reactant level; reverse Ea = peak − product level; ΔH = products − reactants. Always measure from a plateau, never from the axis.",
+     "id": "p_cpq6_2_q2"
+    },
+    {
+     "q": "Which electron configuration describes the nickel ion in the product in its ground state?",
+     "choices": [
+      "[Ar]3d⁶4s²",
+      "[Ar]3d⁷4s¹",
+      "[Ar]3d⁸",
+      "[Ar]3d⁸4s²"
+     ],
+     "ans": 2,
+     "cat": "4E",
+     "skill": "SIRS 2",
+     "diff": "X",
+     "twin": "pe3-cp:15",
+     "exp": "1. Count electrons in the neutral atom and fill past [Ar]: 28 − 18 = **10** electrons beyond [Ar]; 4s takes **2** → 8 left; 3d takes **8** → Ni = **[Ar]3d⁸4s²**.\n2. Ni²⁺ has two fewer electrons: 28 − 2 = **26** = 18 + **8**. \"[Ar]3d⁸4s²\" holds 28 electrons, so it is the neutral atom, not the ion.\n3. Ionization removes the outermost electrons first: 4s (n = 4) before 3d (n = 3), even though 4s filled first: [Ar]3d⁸**4s²** → [Ar]3d⁸ + 2 e⁻.\n4. Check with the data: d⁸ puts five electrons in the five 3d orbitals and pairs three, leaving **2 unpaired**, as measured. \"[Ar]3d⁶4s²\" has 4 unpaired d electrons, and \"[Ar]3d⁷4s¹\" has 3 + 1 = 4 unpaired, so neither fits.\n5. Answer: [Ar]3d⁸, since the 4s electrons are lost before any 3d electrons.\n\n**Rule to reuse:** transition-metal ions lose 4s electrons BEFORE 3d. Write the neutral atom first, then remove from the highest n.",
+     "id": "p_cpq6_2_q3"
+    },
+    {
+     "q": "Based on the observations, the reaction of nickel with bromine is best categorized as:",
+     "choices": [
+      "precipitation of NiBr₂ crystals.",
+      "redox, with Ni reduced.",
+      "acid–base, with Ni²⁺ as Lewis acid.",
+      "redox, with Ni oxidized."
+     ],
+     "ans": 3,
+     "cat": "4E",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe3-cp:16",
+     "exp": "1. Observations: nickel metal dissolves and ions appear (conductivity rises). Assign oxidation states before: Ni(s) **0**; Br₂ **0** (element).\n2. In NiBr₂, bromide is −1, so nickel must be +2: Ni + 2(Br) = 0; Br = **−1** → Ni = **+2**.\n3. Ni lost electrons (0 → +2, oxidized); each Br gained one (0 → −1, reduced): Ni → Ni²⁺ + **2 e⁻**; Br₂ + **2 e⁻** → 2 Br⁻. That rules out \"redox, with Ni reduced.\"\n4. Rising conductivity means dissolved ions form, not a solid, and no proton or electron-pair transfer is the main event. That rules out the precipitation and Lewis acid–base choices.\n5. Answer: redox, with Ni oxidized.\n\n**Rule to reuse:** assign oxidation states before and after; if any change, it is redox. Metals go up (oxidized), halogens go down to −1 (reduced).",
+     "id": "p_cpq6_2_q4"
+    }
+   ]
+  },
+  {
+   "id": "p_cpq6_3",
+   "subj": "physics",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "4A",
+    "4C"
+   ],
+   "title": "A Cordless Electric Nail Driver",
+   "passage": "Cordless nail drivers store energy from a rechargeable battery and release it in a fraction of a second. In one design, an 18-V lithium-ion battery pack labeled 2.5 A·h charges a 250-μF capacitor to 600 V through a voltage-boosting circuit. When the trigger is pulled, the capacitor discharges through a motor that drives a steel piston against the head of the nail. The piston then returns to its starting position and the capacitor recharges, ready for the next nail.\n\nEngineers characterized the tool in several bench tests. In a low-power test firing, a high-speed camera tracked a lighter 80-g test piston; its speed rose from 150 cm/s to 450 cm/s in 0.020 s, and the net force on it was nearly constant during that time. To give users a sense of scale, the engineers also compared the energy stored in the charged capacitor with the energy needed to lift familiar objects.\n\nThe control circuit board is mounted inside a closed aluminum housing. On job sites, the tool is often used near generators and heavy cables, where strong external electric fields can be present, but sensitive parts on the board must be kept free of such fields. The engineers modeled the housing as a hollow conductor that has reached electrostatic equilibrium in a uniform external field of 3.0 × 10³ N/C.",
+   "questions": [
+    {
+     "q": "Taking g ≈ 10 m/s², the energy stored in the charged capacitor equals the energy needed to raise a 1.5-kg toolbox through what height?",
+     "choices": [
+      "0.30 m",
+      "3.0 m",
+      "6.0 m",
+      "30 m"
+     ],
+     "ans": 1,
+     "cat": "4A",
+     "skill": "SIRS 2",
+     "diff": "X",
+     "twin": "pe4-cp:53",
+     "exp": "1. Translate: find the capacitor's stored energy, then the height h at which mgh equals it.\n2. Convert to SI units: C = 250 μF = **2.5 × 10⁻⁴ F**; V = 600 V = **6.0 × 10² V**.\n3. Energy stored in a capacitor: U = ½CV² = ½ × 2.5 × 10⁻⁴ × (6.0 × 10²)² = ½ × 2.5 × 10⁻⁴ × **3.6 × 10⁵** = **45 J**.\n4. Set mgh = U and solve: h = U ÷ (mg) = 45 J ÷ (1.5 kg × 10 m/s²) = 45 ÷ 15 = **3.0 m**.\n5. Dropping the ½ gives 90 J and 6.0 m, and 0.30 m or 30 m come from a factor-of-10 slip in the powers of ten.\n6. Answer: 3.0 m.\n\n**Rule to reuse:** capacitor energy U = ½CV² (SI units: F, V); lifting energy PE = mgh. Set the energies equal and solve for the unknown.",
+     "id": "p_cpq6_3_q1"
+    },
+    {
+     "q": "Approximately how much charge can the fully charged battery pack deliver on a full discharge?",
+     "choices": [
+      "2.5 C",
+      "150 C",
+      "9,000 C",
+      "160,000 C"
+     ],
+     "ans": 2,
+     "cat": "4C",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe4-cp:54",
+     "exp": "1. Translate: an amp-hour is current × time, which is charge. The 18-V rating is not needed for charge.\n2. Convert hours to seconds: Q = I × t = 2.5 A × 1 h; 1 h = **3600 s**; Q = 2.5 × 3600 = **9,000 C**. \"2.5 C\" leaves the hour unconverted, and \"150 C\" converts it to minutes (2.5 × 60).\n3. Multiplying by 18 V would give energy in joules, a different quantity: E = QV = 9,000 C × 18 V ≈ 1.6 × 10⁵ J (energy, not charge). That rules out \"160,000 C\".\n4. Answer: about 9,000 C.\n\n**Rule to reuse:** A·h × 3600 = coulombs (Q = It, t in seconds). Multiplying by voltage gives energy in joules, not charge.",
+     "id": "p_cpq6_3_q2"
+    },
+    {
+     "q": "What average net force acted on the test piston during the low-power test firing?",
+     "choices": [
+      "12 N",
+      "18 N",
+      "1,200 N",
+      "12,000 N"
+     ],
+     "ans": 0,
+     "cat": "4A",
+     "skill": "SIRS 2",
+     "diff": "X",
+     "twin": "pe4-cp:55",
+     "exp": "1. Translate: use the change in velocity over time to find the acceleration, then F = ma.\n2. Convert to SI units: m = 80 g = **0.080 kg**; Δv = 450 − 150 = 300 cm/s = **3.0 m/s**.\n3. Acceleration is the slope of the v–t graph: a = Δv/Δt = 3.0 ÷ 0.020 = **150 m/s²**.\n4. Apply Newton's second law: F = ma = 0.080 kg × 150 m/s² = **12 N**. \"1,200 N\" keeps the speeds in cm/s (a = 15,000), \"12,000 N\" keeps the mass in grams (80 × 150), and \"18 N\" uses the final speed instead of the change (4.5 ÷ 0.020 = 225; 0.080 × 225 = 18).\n5. Answer: 12 N.\n\n**Rule to reuse:** a = (final − initial speed) ÷ time; F = ma. Convert g → kg and cm → m before multiplying.",
+     "id": "p_cpq6_3_q3"
+    },
+    {
+     "q": "In the engineers' model, the electric field at the circuit board inside the housing is:",
+     "choices": [
+      "unchanged, because aluminum lets fields cross freely.",
+      "reduced, because aluminum absorbs part of the field.",
+      "zero, because mobile charges shift to the surface.",
+      "zero, because aluminum holds no free electrons."
+     ],
+     "ans": 2,
+     "cat": "4C",
+     "skill": "SIRS 1",
+     "diff": "E",
+     "twin": "pe4-cp:56",
+     "exp": "1. Translate: the closed aluminum housing is a conductor at electrostatic equilibrium; ask what its free charges do.\n2. The external field pushes free electrons to one face of the housing, leaving the opposite face positive. Metal does not absorb field, and aluminum is full of free electrons. That rules out \"reduced, because aluminum absorbs part of the field.\" and \"zero, because aluminum holds no free electrons.\"\n3. The surface charges make a field opposite the external 3.0 × 10³ N/C field, and they keep moving until the two cancel inside. That rules out \"unchanged, because aluminum lets fields cross freely.\"\n4. Answer: zero, because mobile charges shift to the surface, the principle of a Faraday cage.\n\n**Rule to reuse:** inside a conductor at electrostatic equilibrium, E = 0; charge sits on the surface. A closed metal shell shields its inside (Faraday cage).",
+     "id": "p_cpq6_3_q4"
+    }
+   ]
+  },
+  {
+   "id": "p_cpq6_4",
+   "subj": "organic_chem",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "5D",
+    "4D",
+    "5E"
+   ],
+   "title": "Yeast Production of a Peach Lactone",
+   "passage": "γ-Decalactone gives peaches much of their aroma and is produced commercially by fermentation. Its precursor is 4-hydroxydecanoic acid, which closes into the lactone, a cyclic ester, when the oxygen of its hydroxyl group attacks the carboxyl carbon in acidic solution. Like all fatty acids, the ten-carbon chain of the precursor is assembled from acetyl-CoA, a thioester formed when acetate is joined to the sulfur atom of coenzyme A. In yeast, the same acetyl-CoA pool also supplies the pathway that makes sterols.\n\nA biotechnology group engineered a yeast strain to make the lactone from glucose. To trace the flow of carbon, they fed the cells sodium [1-¹³C]acetate, in which only the carboxyl carbon carries the label, and analyzed the products by NMR spectroscopy and mass spectrometry. Because ¹³C has a nuclear spin and ¹²C does not, the labeled positions could be identified directly in the ¹³C NMR spectrum of each product.\n\nIn the engineered pathway, a reductase converts 4-oxodecanoic acid, an achiral keto acid, into the hydroxy acid. Chiral chromatography showed that only (R)-4-hydroxydecanoic acid formed, and the lactone isolated after acidification was more than 99% (R). Because the lactone in peaches is mainly the (R) enantiomer, the product matched the natural flavor. The purified lactone, a colorless oil, was also characterized by infrared spectroscopy before it was sent for sensory testing.",
+   "questions": [
+    {
+     "q": "In the feeding experiment, where is the ¹³C label in the acetyl-CoA formed from the labeled acetate?",
+     "choices": [
+      "The CH₃ carbon",
+      "The thioester C=O carbon",
+      "The CoA sulfur",
+      "Both carbons equally"
+     ],
+     "ans": 1,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "E",
+     "twin": "sample-cp:38",
+     "exp": "1. The label is on the carboxyl carbon only (C1 of acetate).\n2. Follow each carbon through the bonds that change: CH₃–¹³COO⁻ → CH₃–¹³C(=O)–S–CoA. The carboxyl C has its O⁻ replaced by S and becomes the thioester C=O, keeping the label; the methyl C changes no bonds.\n3. The CH₃ carbon came from the unlabeled methyl group, carbon labels do not move to sulfur, and nothing scrambles the two carbons. That rules out \"The CH₃ carbon\", \"The CoA sulfur\" and \"Both carbons equally\".\n4. Answer: the thioester C=O carbon.\n\n**Rule to reuse:** track a labeled atom by following each carbon through only the bonds that actually change; untouched carbons keep their labels.",
+     "id": "p_cpq6_4_q1"
+    },
+    {
+     "q": "How many atoms make up the ring of γ-decalactone?",
+     "choices": [
+      "Four",
+      "Five",
+      "Six",
+      "Ten"
+     ],
+     "ans": 1,
+     "cat": "5D",
+     "skill": "SIRS 2",
+     "diff": "M",
+     "twin": "sample-cp:39",
+     "exp": "1. Number the chain: C1 is the COOH carbon, C4 carries the –OH, and the chain runs to C10: HOOC1–C2H₂–C3H₂–C4H(OH)–C5…C10.\n2. The C4 –OH oxygen attacks C1. Count the ring: C1, C2, C3, C4 + O; 4 + 1 = **5** atoms.\n3. \"Four\" counts only the ring carbons and forgets the ring O; \"Six\" miscounts the chain, and \"Ten\" counts every carbon, including the six-carbon tail outside the ring.\n4. Answer: five atoms in the lactone ring.\n\n**Rule to reuse:** a lactone ring holds the carbons from C1 to the OH carbon plus the ring O; an OH on C4 gives a 5-membered ring.",
+     "id": "p_cpq6_4_q2"
+    },
+    {
+     "q": "Which features would the infrared spectrum of the purified lactone show?",
+     "choices": [
+      "C=O stretch, no O–H stretch",
+      "C=O and broad O–H stretches",
+      "Broad O–H stretch only",
+      "Aromatic C=C and C=O stretches"
+     ],
+     "ans": 0,
+     "cat": "4D",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "sample-cp:40",
+     "exp": "1. Read the structure: γ-decalactone is a cyclic ester with only alkyl groups; the –OH of the precursor was used up in closing the ring.\n2. List what it has and lacks: C=O, yes → strong band near **1770 cm⁻¹** (ring strain raises a five-membered lactone above the 1735–1750 cm⁻¹ of open-chain esters); O–H, no → no broad 3200–3500 cm⁻¹ band; benzene ring, no → no aromatic C=C near 1600 cm⁻¹.\n3. Any choice with a broad O–H band needs an O–H, which the lactone lacks, and there is no ring for aromatic bands. That rules out \"C=O and broad O–H stretches\", \"Broad O–H stretch only\" and \"Aromatic C=C and C=O stretches\".\n4. Answer: C=O stretch, no O–H stretch.\n\n**Rule to reuse:** list the groups a molecule has and lacks, then match each to its band; an ester shows C=O near 1740 cm⁻¹ without the broad O–H.",
+     "id": "p_cpq6_4_q3"
+    },
+    {
+     "q": "What best explains why the reductase forms only (R)-4-hydroxydecanoic acid?",
+     "choices": [
+      "The keto acid is chiral",
+      "The (R) product is more stable",
+      "The enzyme exposes one carbonyl face",
+      "The aqueous medium favors (R)"
+     ],
+     "ans": 2,
+     "cat": "5E",
+     "skill": "SIRS 1",
+     "diff": "E",
+     "subj": "biochemistry",
+     "twin": "sample-cp:41",
+     "exp": "1. The starting keto acid is achiral (C4 is a planar C=O), yet only the (R) alcohol forms.\n2. Check each candidate source of selectivity: keto acid, achiral (given) ✗; water, achiral ✗; (R) vs (S), enantiomers of equal stability ✗; enzyme active site, chiral ✓.\n3. The keto acid is stated to be achiral, water is not chiral, and enantiomers are equally stable. That rules out \"The keto acid is chiral\", \"The aqueous medium favors (R)\" and \"The (R) product is more stable\".\n4. Answer: the enzyme exposes one carbonyl face: its chiral active site holds the keto acid so hydride adds to one face, making one transition state lower in energy.\n\n**Rule to reuse:** an achiral reactant gives one enantiomer only in a chiral environment, such as an enzyme active site; enantiomers themselves are equally stable.",
+     "id": "p_cpq6_4_q4"
+    },
+    {
+     "q": "Yeast acetyl-CoA also feeds the synthesis of sterols, and in animals cholesterol gives rise to steroid hormones. Which compound listed below is NOT a steroid?",
+     "choices": [
+      "Progesterone",
+      "Testosterone",
+      "Leukotriene B₄",
+      "Cortisone"
+     ],
+     "ans": 2,
+     "cat": "5D",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "subj": "biochemistry",
+     "twin": "sample-cp:42",
+     "exp": "1. The question asks for the one that is NOT a steroid.\n2. Sort each molecule by its parent: progesterone, cholesterol → 4 fused rings; testosterone, cholesterol → 4 fused rings; cortisone, cholesterol → 4 fused rings; leukotriene B₄, arachidonic acid (20 C) → an open chain with no rings.\n3. Progesterone, testosterone and cortisone are steroid hormones made from cholesterol. That rules them out.\n4. Answer: leukotriene B₄, an eicosanoid.\n\n**Rule to reuse:** steroid = four fused rings from cholesterol; eicosanoids (leukotrienes) come from arachidonic acid and are lipids but not steroids.",
+     "id": "p_cpq6_4_q5"
+    }
+   ]
+  },
+  {
+   "id": "p_cpq6_5",
+   "subj": "biochemistry",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "5D",
+    "5C",
+    "5A"
+   ],
+   "title": "Purifying a Membrane-Bound Steroid Hydroxylase",
+   "passage": "Steroid 21-hydroxylase (CYP21A2) is a heme enzyme anchored in the endoplasmic reticulum membrane of adrenal cortex cells. It adds an –OH group at carbon 21 of progesterone, a step on the pathways to cortisol and aldosterone. Mutations in CYP21A2 cause congenital adrenal hyperplasia, so researchers want pure, active enzyme for structural studies.\n\nA research team expressed human CYP21A2 in E. coli with eight histidines added to its C-terminus. Because the enzyme is held in the membrane by a stretch of hydrophobic residues, the bacterial membranes were first treated with a solubilizing additive. The extract, in a pH 7.8 buffer, was loaded onto a resin carrying immobilized Co²⁺ ions. Contaminating proteins washed through, and the enzyme was then released with a buffer containing 400 mM imidazole (68.1 g/mol). A gel-filtration column was used as a final step.\n\nThree kinds of results were reported. SDS-PAGE showed a single band at 56 kDa, the expected mass of the tagged enzyme, and the His tag was still attached. The enzyme eluted as one symmetric peak from both columns. When reconstituted with its electron-donating reductase partner, the purified enzyme converted progesterone to 11-deoxycorticosterone with Km = 2.3 μM, close to the 2.1 μM measured for the enzyme in adrenal microsomes.",
+   "questions": [
+    {
+     "q": "Progesterone is made in one step from a 21-carbon precursor whose four fused rings are already in place. Which compound is it?",
+     "choices": [
+      "Squalene",
+      "Arachidonic acid",
+      "Pregnenolone",
+      "Ceramide"
+     ],
+     "ans": 2,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "D",
+     "subj": "organic_chem",
+     "twin": "pe5-cp:21",
+     "exp": "1. The clue is structural: find the compound that already has progesterone's ring system.\n2. Read the core of the product: rings, **3** six-membered + **1** five-membered, all fused; carbons, **21**.\n3. Squalene (a C₃₀ hydrocarbon chain), arachidonic acid (a C₂₀ fatty acid) and ceramide (sphingosine joined to a fatty acid) are open chains with no rings. That rules them out.\n4. Pregnenolone has the identical four rings: it is cholesterol with its side chain shortened, **27** C − a **6**-carbon piece = **21** C, as in progesterone.\n5. Answer: pregnenolone. Every steroid hormone is cholesterol with its side chain trimmed.\n\n**Rule to reuse:** **Steroids** share one core: four fused rings, three of six carbons and one of five.",
+     "id": "p_cpq6_5_q1"
+    },
+    {
+     "q": "The step on the Co²⁺ resin is best categorized as:",
+     "choices": [
+      "separation on a cation exchanger.",
+      "separation by specific affinity.",
+      "separation on an anion exchanger.",
+      "separation by molecular size."
+     ],
+     "ans": 1,
+     "cat": "5C",
+     "skill": "SIRS 3",
+     "diff": "M",
+     "twin": "pe5-cp:22",
+     "exp": "1. The His side chain is an imidazole ring. Its ring N lone pairs coordinate transition-metal ions such as Co²⁺.\n2. Free imidazole is the same ring. At 400 mM it outcompetes the tag for the Co²⁺ sites and releases the enzyme.\n3. Binding is to the metal, not by charge: at pH 7.8, His is mostly neutral. pH − pKa = 7.8 − 6.0 = 1.8; [His] : [HisH⁺] = 10^1.8 ≈ **63 : 1** → mostly **neutral**. That rules out \"separation on a cation exchanger.\" and \"separation on an anion exchanger.\"\n4. Size exclusion uses no binding, and eight His add only about 8 × 0.137 ≈ 1.1 kDa. That rules out \"separation by molecular size.\" Answer: separation by specific affinity (affinity chromatography), since imidazole competes for the Co²⁺ sites.\n\n**Rule to reuse:** specific binding to a partner + release by a competitor = affinity chromatography. Release by salt = ion exchange; no binding = size exclusion.",
+     "id": "p_cpq6_5_q2"
+    },
+    {
+     "q": "Which additive would best release CYP21A2 from the membranes and hold it in aqueous solution?",
+     "choices": [
+      "Dodecyl maltoside",
+      "Maltose",
+      "Dodecane",
+      "Tristearin"
+     ],
+     "ans": 0,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "D",
+     "twin": "pe5-cp:23",
+     "exp": "1. Two jobs: reach into the nonpolar bilayer and stay in water. That needs a molecule with both kinds of region.\n2. Sort each additive into nonpolar tail and polar head: dodecyl maltoside, tail **C₁₂**, head **7 O–H**; maltose, tail **none**, head **8 O–H**; dodecane, tail **C₁₂**, head **none**; tristearin, **3** C₁₇ tails, head with **no O–H** (only ester groups).\n3. Maltose is all head: it dissolves in water but cannot cover the enzyme's nonpolar membrane anchor. That rules out maltose.\n4. Dodecane and tristearin are all tail: they dissolve in the bilayer, not in water. That rules them out.\n5. Answer: dodecyl maltoside. Its C₁₂ chain coats the hydrophobic anchor, and its sugar head faces the water.\n\n**Rule to reuse:** **Amphipathic:** one molecule with a hydrophobic part (C–C and C–H chains) and a hydrophilic part (O–H groups, charged groups).",
+     "id": "p_cpq6_5_q3"
+    },
+    {
+     "q": "To make 250 mL of the elution buffer, what amount of imidazole is required, in moles and in grams?",
+     "choices": [
+      "0.010 mol; 0.68 g",
+      "0.10 mol; 6.8 g",
+      "1.0 mol; 68 g",
+      "1.6 mol; 110 g"
+     ],
+     "ans": 1,
+     "cat": "5A",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "subj": "gen_chem",
+     "twin": "pe5-cp:24",
+     "exp": "1. Convert to mol/L and liters first: 400 mM = **0.400 M**; 250 mL = **0.250 L**.\n2. Moles = molarity × volume: n = 0.400 mol/L × 0.250 L = **0.100 mol**.\n3. Mass = moles × molar mass: m = 0.100 mol × 68.1 g/mol ≈ **6.8 g**.\n4. 0.010 and 1.0 mol are factor-of-10 slips; 1.6 mol divides M by V (0.400 ÷ 0.250) instead of multiplying, and 1.6 × 68.1 ≈ 110 g. Answer: 0.10 mol; 6.8 g.\n\n**Rule to reuse:** moles = molarity (mol/L) × volume (L); grams = moles × molar mass. Convert mM → M and mL → L first.",
+     "id": "p_cpq6_5_q4"
+    },
+    {
+     "q": "Which result is the best evidence that the purified CYP21A2 has its native fold?",
+     "choices": [
+      "A single 56-kDa band",
+      "Retention of the C-terminal tag",
+      "One symmetric peak per column",
+      "A Km matching adrenal microsomes"
+     ],
+     "ans": 3,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe5-cp:25",
+     "exp": "1. Native fold means the correct 3-D structure. Look for an observation that would fail if the enzyme were unfolded.\n2. SDS unfolds every protein before it runs, so folded and unfolded enzyme give the same 56-kDa band. That rules out \"A single 56-kDa band\".\n3. The tag stays on and the enzyme elutes as one peak whether or not it is folded correctly; these report identity and purity, not structure. That rules out \"Retention of the C-terminal tag\" and \"One symmetric peak per column\".\n4. Turning over progesterone needs a correctly formed active site, and the Km values agree: 2.3 ÷ 2.1 ≈ **1.1**. Answer: a Km matching adrenal microsomes.\n\n**Rule to reuse:** to prove a protein is folded, use a test of function (binding, activity). Mass, tags and purity look the same for unfolded protein.",
+     "id": "p_cpq6_5_q5"
+    }
+   ]
+  }
+ ],
+ "standalones": [
+  {
+   "q": "An enzyme assay must be held at pH 10.5. Which buffer pKa would be the best choice for this experiment?",
+   "choices": [
+    "6.1",
+    "8.1",
+    "10.3",
+    "12.4"
+   ],
+   "ans": 2,
+   "cat": "5A",
+   "skill": "SIRS 3",
+   "diff": "D",
+   "subj": "gen_chem",
+   "twin": "sample-cp:57",
+   "exp": "1. The target is pH 10.5.\n2. Find each pKa's distance from 10.5: |6.1 − 10.5| = 4.4; |8.1 − 10.5| = 2.4; |10.3 − 10.5| = **0.2** ✓; |12.4 − 10.5| = 1.9.\n3. The pKa values 6.1, 8.1 and 12.4 are more than 1 unit from 10.5, so one form of the buffer would dominate. That rules them out.\n4. Answer: pKa 10.3.\n\n**Rule to reuse:** pick the buffer with pKa within about 1 unit of the target pH, as close as possible.",
+   "id": "cp_q6_sa1"
+  },
+  {
+   "q": "A 0.50-kg iron skillet takes in 2700 J while its temperature rises from 20 °C to 32 °C. What is the specific heat of the iron?",
+   "choices": [
+    "5,400 J/(kg·°C)",
+    "450 J/(kg·°C)",
+    "225 J/(kg·°C)",
+    "104 J/(kg·°C)"
+   ],
+   "ans": 1,
+   "cat": "5E",
+   "skill": "SIRS 2",
+   "diff": "D",
+   "subj": "gen_chem",
+   "twin": "sample-cp:58",
+   "exp": "1. Find ΔT: ΔT = 32 − 20 = **12 °C**.\n2. Solve q = mcΔT for c: c = q ÷ (m × ΔT) = 2700 ÷ (0.50 × 12) = 2700 ÷ 6.0 = **450 J/(kg·°C)**.\n3. \"5,400\" leaves out ΔT (2700 ÷ 0.50). \"104\" divides by 52 °C, the sum of the temperatures, not the change (2700 ÷ 26 ≈ 104), and \"225\" doubles ΔT: 2700 ÷ (0.50 × 24) = 225.\n4. Answer: 450 J/(kg·°C).\n\n**Rule to reuse:** c = q/(mΔT); divide by both the mass and the temperature change.",
+   "id": "cp_q6_sa2"
+  },
+  {
+   "q": "Barium-137m, made in a classroom isotope generator, gives off radiation and turns into barium-137; neither its mass number nor its atomic number changes. An electric field does not bend the radiation's path. The emission is best identified as:",
+   "choices": [
+    "an alpha particle, with charge +2.",
+    "a beta particle, with charge −1.",
+    "a gamma ray, with no charge or mass.",
+    "a neutron, with one mass unit."
+   ],
+   "ans": 2,
+   "cat": "4E",
+   "skill": "SIRS 2",
+   "diff": "D",
+   "subj": "physics",
+   "twin": "pe1-cp:46",
+   "exp": "1. An electric field does not bend the path → the radiation has no charge. That rules out \"an alpha particle, with charge +2.\" and \"a beta particle, with charge −1.\"\n2. Balance the nuclear equation with A and Z unchanged: ¹³⁷ᵐ₅₆Ba → ¹³⁷₅₆Ba + ?; A: 137 = 137 + **0**; Z: 56 = 56 + **0**; the emission has A = 0, Z = 0 → a γ photon.\n3. A neutron has A = 1; emitting one would give ¹³⁶Ba (¹³⁷Ba → ¹³⁶Ba + ¹₀n, not observed). That rules out \"a neutron, with one mass unit.\"\n4. The 'm' means metastable: an excited nucleus drops to its ground state by releasing a high-energy photon. Answer: a gamma ray, with no charge or mass.\n\n**Rule to reuse:** A and Z both unchanged + no deflection → gamma (photon) from an excited nucleus. Deflected → charged (α, β⁻, β⁺); A drops → α or neutron.",
+   "id": "cp_q6_sa3"
+  },
+  {
+   "q": "A cell-culture protocol calls for 2.7 g of urea (M = 60.0 g/mol), added from a 0.150 M urea stock. How much of the stock solution should be measured out?",
+   "choices": [
+    "3.3 L",
+    "300 mL",
+    "30 mL",
+    "6.8 mL"
+   ],
+   "ans": 1,
+   "cat": "5A",
+   "skill": "SIRS 3",
+   "diff": "D",
+   "subj": "gen_chem",
+   "twin": "pe1-cp:58",
+   "exp": "1. Convert grams to moles: n = 2.7 g ÷ 60.0 g/mol = **0.0450 mol**.\n2. Use molarity = moles ÷ liters, solved for volume: V = n ÷ M = 0.0450 mol ÷ 0.150 mol/L = **0.300 L**.\n3. Convert to mL: 0.300 L × 1000 mL/L = **300 mL**.\n4. Eliminate: \"30 mL\" is off by a factor of 10 in the last conversion; \"3.3 L\" flips the ratio (0.150 ÷ 0.0450 ≈ 3.3), and \"6.8 mL\" multiplies moles × molarity (0.0450 × 0.150 = 0.00675 L). Carry units through every line: g → mol → L → mL.\n5. Answer: 300 mL.\n\n**Rule to reuse:** mass → moles (÷ molar mass) → volume (÷ molarity) → convert units. Write the units every line so a flipped ratio shows itself.",
+   "id": "cp_q6_sa4"
+  },
+  {
+   "q": "A lipid-soluble hormone crosses the plasma membrane, binds a receptor inside the cell, and the complex then changes gene transcription. If this messenger is a steroid, which of the following could it be?",
+   "choices": [
+    "Aldosterone",
+    "Thyroxine",
+    "Epinephrine",
+    "Linoleic acid"
+   ],
+   "ans": 0,
+   "cat": "5D",
+   "skill": "SIRS 1",
+   "diff": "M",
+   "subj": "biochemistry",
+   "twin": "pe3-cp:25",
+   "exp": "1. The question fixes the class: a steroid. Look for the steroid ring pattern, not just lipid solubility.\n2. The steroid nucleus is four fused rings, three six-membered and one five-membered. Count the rings in each: steroid core, **6-6-6-5**, four fused rings; thyroxine, **2** benzene rings joined through an O, not fused; epinephrine, **1** benzene ring + amine; linoleic acid, **0** rings.\n3. Epinephrine is a catecholamine: one aromatic ring and an amine, water-soluble. That rules it out.\n4. Linoleic acid is a fatty acid, a long chain ending in COOH with no rings, and thyroxine has two separate rings linked by an ether O. That rules them out.\n5. Aldosterone shows the 6-6-6-5 fused core, with a C=O on ring A.\n6. Answer: aldosterone. Four fused rings, three of six and one of five, means steroid.\n\n**Rule to reuse:** **Steroid nucleus:** four fused rings in a 6-6-6-5 pattern, called A, B, C, D, usually with methyl groups at two ring junctions and an O on ring A.",
+   "id": "cp_q6_sa5"
+  },
+  {
+   "q": "Carbon dioxide has its triple point at 5.1 atm and −57 °C. Dry ice in an open container at 0.95 atm and −79 °C sits at a point where two phases are in equilibrium. Which phase change occurs there?",
+   "choices": [
+    "Sublimation",
+    "Melting",
+    "Boiling",
+    "Condensation"
+   ],
+   "ans": 0,
+   "cat": "5E",
+   "skill": "SIRS 1",
+   "diff": "M",
+   "subj": "physics",
+   "twin": "pe4-cp:27",
+   "exp": "1. Note the conditions to locate on the phase diagram: 0.95 atm and −79 °C.\n2. Compare the pressure with the triple point: 0.95 atm < **5.1 atm**, so the point lies below the triple point, where the only border is the solid–gas curve.\n3. The solid–liquid and liquid–gas lines both start at the triple point and run above 5.1 atm, so at 0.95 atm the liquid region is never reached.\n4. Melting, boiling and condensation each need a liquid phase. That rules out \"Melting\", \"Boiling\" and \"Condensation\".\n5. Answer: sublimation, on the solid–gas line. Below the triple-point pressure, solid goes straight to gas.\n\n**Rule to reuse:** find the point (T across, P up), see which line it sits on, and name that border. Below the triple-point pressure, a solid turns straight into gas (sublimes).",
+   "id": "cp_q6_sa6"
+  },
+  {
+   "q": "A plastic cube floats in fresh water (1.0 g/cm³) with three-quarters of its volume submerged. In a second liquid, the same cube floats with exactly half of its volume below the surface. What density must the second liquid have?",
+   "choices": [
+    "0.38 g/cm³",
+    "0.67 g/cm³",
+    "0.75 g/cm³",
+    "1.5 g/cm³"
+   ],
+   "ans": 3,
+   "cat": "4B",
+   "skill": "SIRS 2",
+   "diff": "D",
+   "subj": "physics",
+   "twin": "pe6-cp:28",
+   "exp": "1. Rule for a floating object: fraction submerged = ρ_object ÷ ρ_fluid. In water: 0.75 = ρ_cube ÷ 1.0 g/cm³ → ρ_cube = **0.75 g/cm³**.\n2. Translate the second observation: half submerged means fraction = 0.50.\n3. Apply the same rule in the new liquid: 0.50 = 0.75 g/cm³ ÷ ρ_liquid → ρ_liquid = 0.75 ÷ 0.50 = **1.5 g/cm³**.\n4. In a liquid of 0.75 g/cm³ (equal to the cube's density) the cube would float just fully submerged (fraction 1), not half; \"0.38 g/cm³\" (0.75 × 0.50) and \"0.67 g/cm³\" (0.50 ÷ 0.75) are less dense than the cube, which would sink. That rules them out.\n5. Answer: 1.5 g/cm³. The cube rides higher than in water, so the liquid must be denser than water.\n\n**Rule to reuse:** fraction submerged = ρ_object ÷ ρ_fluid. Floating just fully submerged means the two densities are equal.",
+   "id": "cp_q6_sa7"
+  },
+  {
+   "q": "A giraffe's brain sits about 2 m above its heart, and the wall of its left ventricle is far thicker than that of its right ventricle. The most likely reason is that the giraffe's left ventricle:",
+   "choices": [
+    "moves more blood each cycle than the right.",
+    "receives blood returning from the head.",
+    "must reach a far higher pressure.",
+    "carries blood that is poor in O₂."
+   ],
+   "ans": 2,
+   "cat": "4B",
+   "skill": "SIRS 2",
+   "diff": "M",
+   "subj": "biology",
+   "twin": "pe6-cp:46",
+   "exp": "1. Rule: both ventricles eject the same stroke volume each beat, or blood would pile up in one circuit. That rules out \"moves more blood each cycle than the right.\"\n2. Blood returning from the head enters the right atrium through the venae cavae, and the left ventricle pumps oxygenated blood. That rules out \"receives blood returning from the head.\" and \"carries blood that is poor in O₂.\"\n3. Compare the pressures each ventricle must reach. Just lifting blood 2 m to the brain takes ρgh = 1050 kg/m³ × 10 m/s² × 2.0 m = **21,000 Pa** ≈ 21,000 ÷ 133 ≈ **160 mmHg**; a giraffe's systemic pressure (≈ 280 mmHg) is about 280 ÷ 30 ≈ **9×** its pulmonary pressure. Wall stress ∝ P·r/h, so higher P needs a thicker wall h.\n4. Answer: the left ventricle must reach a far higher pressure, so it has more muscle.\n\n**Rule to reuse:** heart wall thickness follows the pressure the chamber must generate, not the volume it pumps.",
+   "id": "cp_q6_sa8"
+  }
+ ]
+}

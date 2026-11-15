@@ -251,7 +251,7 @@ function buildFlq() {
 // tools/test-pages.cjs checks them against the data.
 // ASSET_V: the deploy's version (sw.js CACHE), added to every script the app loads on demand so the browser's HTTP
 // cache never serves one from an earlier deploy. Written by tools/generate-pages.cjs; do not edit by hand.
-const ASSET_V = '?v=mcat-v2.65-passages-tab-removed-2026-11-15';
+const ASSET_V = '?v=mcat-v2.66-cp-twins-2026-11-15';
 const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'] };
 const BANK_COUNTS = { fl: 354, flCp: 354, flTests: 6 };
 const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined' };
@@ -1819,7 +1819,30 @@ function barRow(label, c, t) {
     <div class="sr-pct">${p}%</div><div class="sr-n">${c}/${t}</div>
   </div>`;
 }
-function reviewItem({ stem, choices, ans, chosen, exp, how, tag, passageTitle, other, otherHandler, otherId }) {
+// The studied card a test question twins (its `twin` is the card's src): a Practice Exam card (data/qb-aamc-fl.js,
+// with a walkthrough) or a QBank card. Practice Exam cards need the fl bank (loaded before a C/P test starts).
+let twinIndex = null;
+function twinCardOf(src) {
+  if (typeof src !== 'string' || !src) return null;
+  if (!twinIndex || (bankReady('fl') && !twinIndex.fl)) {
+    twinIndex = new Map(); twinIndex.fl = bankReady('fl');
+    for (const q of [...AQB, ...(twinIndex.fl ? FLQ : [])]) if (q.src && !twinIndex.has(q.src)) twinIndex.set(q.src, q);
+  }
+  return twinIndex.get(src) || null;
+}
+// "Method from:" the first ~80 characters of the twin card's stem, and a button that opens the card.
+function twinFromHtml(src) {
+  const card = twinCardOf(src);
+  if (!card) return '';
+  const plain = String(card.q).replace(/\*\*|<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  const cut = plain.length > 80 ? plain.slice(0, 80).replace(/\s+\S*$/, '') + '…' : plain;
+  return `<div class="twin-from"><b>Method from:</b> ${esc(cut)} <button type="button" class="text-btn" data-click="studyTwinCard('${esc(src).replace(/'/g, '')}')">Study this card</button></div>`;
+}
+// Opens the twin card on its own (a Practice Exam card keeps its step-by-step lesson).
+function studyTwinCard(src) {
+  withBank('fl', () => { const card = twinCardOf(src); if (card) beginQuiz([card], 'Method from your test'); });
+}
+function reviewItem({ stem, choices, ans, chosen, exp, how, tag, passageTitle, other, otherHandler, otherId, twin }) {
   return `<div class="missed-item">
     ${tag ? `<div class="missed-tag">${esc(tag)}</div>` : ''}
     ${passageTitle ? `<div class="missed-tag">Passage: ${esc(passageTitle)}</div>` : ''}
@@ -1830,6 +1853,7 @@ function reviewItem({ stem, choices, ans, chosen, exp, how, tag, passageTitle, o
     <div${otherId ? ` id="alternative-feedback-${otherId}"` : ''}>${finalTwoFeedback({choices,ans,q:{id:'review'}},chosen,other)}</div>
     <details class="missed-exp"><summary>Explanation</summary>${paragraphs(exp)}</details>
     ${how ? `<details class="missed-exp"><summary>How to work it out</summary>${how}</details>` : ''}
+    ${twin ? twinFromHtml(twin) : ''}
   </div>`;
 }
 function exportMissed() {

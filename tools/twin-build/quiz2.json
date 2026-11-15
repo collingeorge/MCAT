@@ -1,0 +1,1001 @@
+{
+ "order": [
+  "p_cpq2_1",
+  "p_cpq2_2",
+  4,
+  "p_cpq2_3",
+  "p_cpq2_4",
+  "p_cpq2_5",
+  4
+ ],
+ "passages": [
+  {
+   "id": "p_cpq2_1",
+   "subj": "physics",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "4C",
+    "4E",
+    "4A"
+   ],
+   "title": "Conduction in a Demyelinated Nerve",
+   "passage": "Peripheral axons are wrapped by Schwann cells, which lay down many layers of lipid-rich membrane called myelin. The myelin is interrupted about every millimeter at nodes of Ranvier, where voltage-gated Na⁺ channels cluster. In each internode, the stretch between two nodes, the axon behaves like a leaky capacitor: the cytoplasm and the extracellular fluid are the two conductors, and the axon membrane together with its myelin wrapping is the insulator between them. At rest the inside of the axon sits about −80 mV below the extracellular fluid, and at the peak of an action potential it reaches about +35 mV.\n\nTo model a demyelinating disease, researchers injected lysolecithin, a detergent-like lipid, into one segment of the rat sciatic nerve. Over several days the lipid strips myelin from the internodes while leaving the axons themselves intact and of unchanged radius. The nerve was then stimulated at one end, and the impulse was picked up by two recording electrodes placed farther along the nerve. Conduction velocity was found by dividing the distance between the recording electrodes by the delay between the signals they detected. The amplifier cannot resolve delays shorter than 0.8 ms, so the electrodes must be far enough apart to give a longer delay.\n\nTable 1 shows the mean results for untreated nerves and for treated nerves 7 days after injection, with six rats in each group.",
+   "figure": {
+    "caption": "Table 1 Conduction in untreated and lysolecithin-treated rat sciatic nerves",
+    "columns": [
+     "Nerve",
+     "Conduction velocity (m/s)",
+     "Signal amplitude (mV)"
+    ],
+    "rows": [
+     [
+      "Untreated",
+      "45",
+      "8.2"
+     ],
+     [
+      "Treated, day 7",
+      "14",
+      "5.1"
+     ]
+    ]
+   },
+   "questions": [
+    {
+     "q": "At the peak of an action potential, the electric field within the axon membrane points:",
+     "choices": [
+      "inward, toward the cytoplasm.",
+      "outward, toward the extracellular fluid.",
+      "along the length of the axon.",
+      "zero everywhere inside it."
+     ],
+     "ans": 1,
+     "cat": "4C",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "sample-cp:5",
+     "exp": "1. Read the potential difference across the membrane at the peak: the interior is at +35 mV relative to the outside fluid.\n2. Rank the two sides and point the field from high to low: outside = 0 mV (reference); inside = +35 mV; high → low: **inside → outside**.\n3. Pointing \"inward, toward the cytoplasm\" runs from low to high potential, the reverse of the field direction.\n4. A potential difference across the membrane means a field across it, not along it and not zero, so \"along the length of the axon\" and \"zero everywhere inside it\" are out.\n5. Answer: outward, toward the extracellular fluid. (At rest, with the interior at −80 mV, the same rule gives an inward field.)\n\n**Rule to reuse:** electric field always points from higher to lower potential; a positive interior means an outward-pointing field across the membrane.",
+     "id": "p_cpq2_1_q1"
+    },
+    {
+     "q": "Compared with the same internode before treatment, a demyelinated internode of equal radius has membrane capacitance and membrane resistance that are, respectively:",
+     "choices": [
+      "lower and higher.",
+      "both lower.",
+      "higher and lower.",
+      "both unchanged."
+     ],
+     "ans": 2,
+     "subj": "biology",
+     "cat": "4C",
+     "skill": "SIRS 1",
+     "diff": "E",
+     "twin": "sample-cp:6",
+     "exp": "1. Identify what changes: the lysolecithin strips the myelin from the internode, while the radius stays the same.\n2. Removing myelin thins the insulating layer between the inner and outer conductors: thickness ↓ → C ∝ 1/thickness → **C ↑**; insulator ↓ → ion leak ↑ → **R ↓**.\n3. \"Lower and higher\" is the effect of adding insulation, not removing it; \"both lower\" gets resistance right but sends capacitance the wrong way.\n4. The comparison is at the same radius, and losing myelin does change C and R, so \"both unchanged\" is out.\n5. Answer: higher and lower, which is why conduction slows after demyelination.\n\n**Rule to reuse:** myelin, an insulator, lowers membrane capacitance (C ∝ 1/thickness) and raises membrane resistance, which speeds conduction.",
+     "id": "p_cpq2_1_q2"
+    },
+    {
+     "q": "Of these ions, which one has the largest radius?",
+     "choices": [
+      "Al³⁺",
+      "F⁻",
+      "Ca²⁺",
+      "S²⁻"
+     ],
+     "ans": 3,
+     "subj": "gen_chem",
+     "cat": "4E",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "sample-cp:7",
+     "exp": "1. Count electrons for each ion: Al³⁺: 13 − 3 = 10 e⁻; F⁻: 9 + 1 = 10 e⁻; Ca²⁺: 20 − 2 = 18 e⁻; S²⁻: 16 + 2 = 18 e⁻.\n2. Al³⁺ and F⁻ have only 10 electrons, one shell fewer than the 18-electron ions, so neither can be the largest.\n3. Ca²⁺ and S²⁻ both have 18 electrons, but S²⁻ has only 16 protons pulling on them versus 20: same 18 e⁻; 16 p⁺ < 20 p⁺ → **S²⁻ larger**. S²⁻ also has extra electron repulsion.\n4. Answer: S²⁻ has the largest radius.\n\n**Rule to reuse:** compare ion size by number of shells first; among isoelectronic ions, the one with more protons is smaller.",
+     "id": "p_cpq2_1_q3"
+    },
+    {
+     "q": "For untreated nerves, what is the smallest distance between the two recording electrodes that gives a delay the amplifier can resolve?",
+     "choices": [
+      "0.0036 m",
+      "0.036 m",
+      "0.36 m",
+      "56 m"
+     ],
+     "ans": 1,
+     "cat": "4A",
+     "skill": "SIRS 3",
+     "diff": "D",
+     "twin": "sample-cp:8",
+     "exp": "1. Take the shortest delay the amplifier can resolve, 0.8 ms, and the untreated conduction velocity from Table 1, 45 m/s.\n2. Convert to seconds and multiply by the speed: t = 0.8 ms = 0.8 × 10⁻³ s; d = v × t = 45 × 0.8 × 10⁻³ = **0.036 m** (3.6 cm).\n3. 56 m comes from 45 ÷ 0.8 (dividing, with no ms → s conversion). 0.0036 m and 0.36 m are the right digits off by a factor of 10.\n4. Answer: 0.036 m. Electrodes any closer give a delay under 0.8 ms, which cannot be resolved.\n\n**Rule to reuse:** d = v × t with time in seconds; convert ms → s (× 10⁻³) before multiplying.",
+     "id": "p_cpq2_1_q4"
+    }
+   ]
+  },
+  {
+   "id": "p_cpq2_2",
+   "subj": "physics",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "4B",
+    "4E",
+    "4A"
+   ],
+   "title": "Pressure and Radiation in Eye Care",
+   "passage": "The fluid inside the eye is held at an intraocular pressure (IOP), reported as a gauge pressure: the amount by which it exceeds atmospheric pressure. Normal IOP is about 10–21 mmHg. Blood flowing to the retina and optic nerve must push against this pressure, so clinicians estimate the mean ocular perfusion pressure (OPP) from the mean arterial pressure (MAP) measured at the arm:\n\nOPP = (2/3)MAP − IOP\n\nThe factor 2/3 corrects for the height of the eye above the heart. An OPP that stays below about 50 mmHg is linked to optic nerve damage in glaucoma, so lowering IOP with eye drops or surgery is the main treatment.\n\nTumors inside the eye are often treated with a small gold plaque that holds seeds of iodine-125 and is sewn to the outside of the eyeball. ¹²⁵I decays by electron capture and emits low-energy photons that are absorbed within a few centimeters of tissue, so the tumor receives a large dose while distant tissue is spared. Because the seeds lose activity, the time the plaque stays in place is set from the activity on the day of surgery. Figure 1 shows the activity of one batch of seeds, measured at intervals after calibration.\n\nSmall tumors can instead be heated with an infrared laser aimed through the pupil. The beam is focused to a spot a few millimeters across and delivers a steady power for a few minutes, raising the temperature of the tumor by about 10 °C.",
+   "figure": {
+    "type": "line",
+    "caption": "Figure 1 Activity of a batch of ¹²⁵I seeds after calibration",
+    "x": {
+     "label": "Time after calibration (days)",
+     "min": 0,
+     "max": 300,
+     "step": 60
+    },
+    "y": {
+     "label": "Activity (MBq)",
+     "min": 0,
+     "max": 1000,
+     "step": 200
+    },
+    "series": [
+     {
+      "name": "Activity",
+      "marker": "circle",
+      "line": "smooth",
+      "points": [
+       [
+        0,
+        960
+       ],
+       [
+        30,
+        679
+       ],
+       [
+        60,
+        480
+       ],
+       [
+        90,
+        339
+       ],
+       [
+        120,
+        240
+       ],
+       [
+        150,
+        170
+       ],
+       [
+        180,
+        120
+       ],
+       [
+        210,
+        85
+       ],
+       [
+        240,
+        60
+       ]
+      ]
+     }
+    ]
+   },
+   "questions": [
+    {
+     "q": "A glaucoma patient has an OPP of 50 mmHg and an IOP of 22 mmHg. According to the passage formula, what is this patient’s MAP?",
+     "choices": [
+      "42 mmHg",
+      "48 mmHg",
+      "72 mmHg",
+      "108 mmHg"
+     ],
+     "ans": 3,
+     "cat": "4B",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe1-cp:18",
+     "exp": "1. The formula is given; the unknown is MAP: OPP + IOP = (2/3)MAP; MAP = (3/2)(OPP + IOP).\n2. Plug in the patient’s values: MAP = (3/2)(50 + 22); MAP = 1.5 × 72; MAP = **108 mmHg**. Check: (2/3)(108) − 22 = 72 − 22 = 50 ✓.\n3. 72 mmHg is OPP + IOP, which is only (2/3)MAP: it forgets to multiply by 3/2. 42 mmHg (subtracting IOP instead of adding it) and 48 mmHg (multiplying by 2/3 instead of 3/2) do not follow from the formula.\n4. Answer: the MAP is 108 mmHg.\n\n**Rule to reuse:** to solve a given formula for one variable, undo the operations in reverse order (subtract, then multiply), then plug in and check.",
+     "id": "p_cpq2_2_q1"
+    },
+    {
+     "q": "After treatment with eye drops, a patient’s IOP falls from 34 mmHg to 15 mmHg. Using 760 mmHg = 101 kPa = 1 atm, about what percent of 1 atm is this decrease?",
+     "choices": [
+      "2.0%",
+      "2.5%",
+      "4.5%",
+      "19%"
+     ],
+     "ans": 1,
+     "subj": "gen_chem",
+     "cat": "4B",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe1-cp:19",
+     "exp": "1. Find the decrease from the two readings: 34 − 15 = **19 mmHg**.\n2. Compare in matching units: use 760 mmHg for 1 atm (no kPa needed): 19 mmHg ÷ 760 mmHg = 0.025; 0.025 × 100% = **2.5%**.\n3. See the sizes on one scale: the change in eye pressure is a small fraction of the pressure of the atmosphere.\n4. Eliminate the slips: 4.5% = 34 ÷ 760 (the starting IOP, not the decrease); 2.0% = 15 ÷ 760 (the final IOP); 19% = 19 ÷ 101 (mmHg divided by kPa).\n5. Answer: about 2.5%.\n\n**Rule to reuse:** IOP decrease = starting IOP − final IOP. To compare two pressures, put them in the same unit first, then part ÷ whole × 100.",
+     "id": "p_cpq2_2_q2"
+    },
+    {
+     "q": "If the trend in Figure 1 continues, what percentage of the ¹²⁵I nuclei present at calibration will have decayed by day 300, and what activity will the seeds then have?",
+     "choices": [
+      "3% decayed; 30 MBq",
+      "6% decayed; 60 MBq",
+      "94% decayed; 60 MBq",
+      "97% decayed; 30 MBq"
+     ],
+     "ans": 3,
+     "cat": "4E",
+     "skill": "SIRS 3",
+     "diff": "X",
+     "twin": "pe1-cp:20",
+     "exp": "1. Read the half-life off the curve: start at 960 MBq and find when the activity reaches 480 MBq: 960 → 480 MBq at t = **60 days**; t½ = **60 days**.\n2. Check with a second halving: 480 → 240 MBq should take another 60 days: 240 MBq at 120 days ✓ (two half-lives).\n3. Count half-lives to day 300 and apply (½)ⁿ: n = 300 ÷ 60 = **5**; remaining = (½)⁵ = **1/32** ≈ 3%; decayed = 1 − 1/32 = **31/32** ≈ **97%**; activity = 960 × 1/32 = **30 MBq**.\n4. 3% is what remains, not what decayed; 4 half-lives would be only day 240, where the data stop (94% decayed, 60 MBq), and 6% is what remains then.\n5. Answer: 97% decayed; 30 MBq.\n\n**Rule to reuse:** read t½ where the curve hits half its start. n = time ÷ t½; remaining = (½)ⁿ; decayed = 1 − (½)ⁿ; activity scales with what remains.",
+     "id": "p_cpq2_2_q3"
+    },
+    {
+     "q": "During a 2.5-min treatment, the laser delivers a steady 0.60 W through a 3.0-mm spot. How much energy does the beam deliver to the tissue?",
+     "choices": [
+      "1.5 J",
+      "36 J",
+      "90 J",
+      "270 J"
+     ],
+     "ans": 2,
+     "cat": "4A",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe1-cp:21",
+     "exp": "1. Energy from power: W = P × t. Power in watts is joules per second, so time must be in seconds.\n2. Convert time: t = 2.5 min × 60 s/min = **150 s**.\n3. Multiply: W = 0.60 J/s × 150 s = **90 J**.\n4. The spot size is a distractor: it is not part of the energy equation. Multiplying by 3.0 too gives 270 J; using minutes instead of seconds gives 0.60 × 2.5 = 1.5 J; using 1 minute (60 s) instead of 2.5 minutes gives 36 J.\n5. Answer: 90 J.\n\n**Rule to reuse:** work = power × time, with power in watts (J/s) and time in **seconds**. Ignore numbers that don't belong to the equation.",
+     "id": "p_cpq2_2_q4"
+    }
+   ]
+  },
+  {
+   "id": "p_cpq2_3",
+   "subj": "organic_chem",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "4D",
+    "5D",
+    "5B"
+   ],
+   "title": "Making and Checking Fragrance Alcohols",
+   "passage": "Many fragrance ingredients are small alcohols, aldehydes and ketones whose odors depend on their exact structures, so even closely related isomers can smell quite different. A student prepared one fragrance compound in two steps and analyzed a commercial sample of another. Each product was purified by column chromatography before any spectrum was recorded.\n\nIn Step 1, 3-phenyl-1-propanol was treated with pyridinium chlorochromate (PCC) in dry dichloromethane, a mild oxidant that works in the absence of water. After workup, the product was a colorless oil with a strong floral odor, and its IR spectrum is shown in Figure 1. In Step 2, the product of Step 1 was treated with ethylmagnesium bromide (CH₃CH₂MgBr) in dry ether, followed by aqueous acid, to give a new compound with a milder odor.\n\nIn a separate analysis, the student examined a commercial sample of crude dihydromyrcenol (2,6-dimethyloct-7-en-2-ol), a citrus-scented alcohol widely used in soaps and detergents because it is stable in base. It is made industrially by adding water across a C=C bond of a diene in the presence of acid. The crude material contained a second compound, 2,6-dimethyloct-6-en-2-ol, in which the C=C sits at a different position in the chain. Both compounds have one tertiary O–H group and one C=C bond, and neither has a conjugated π system. Because the two smell different, the producer must know how much of each is present.",
+   "figure": {
+    "type": "line",
+    "caption": "Figure 1 IR spectrum of the product of Step 1",
+    "x": {
+     "label": "Wavenumber (cm⁻¹)",
+     "min": 500,
+     "max": 4000,
+     "step": 500
+    },
+    "y": {
+     "label": "Transmittance (%)",
+     "min": 0,
+     "max": 100,
+     "step": 20
+    },
+    "series": [
+     {
+      "name": "Product",
+      "marker": "circle",
+      "line": "smooth",
+      "points": [
+       [
+        500,
+        84
+       ],
+       [
+        600,
+        80
+       ],
+       [
+        700,
+        30
+       ],
+       [
+        750,
+        38
+       ],
+       [
+        850,
+        80
+       ],
+       [
+        1000,
+        76
+       ],
+       [
+        1100,
+        74
+       ],
+       [
+        1200,
+        72
+       ],
+       [
+        1300,
+        70
+       ],
+       [
+        1450,
+        50
+       ],
+       [
+        1500,
+        58
+       ],
+       [
+        1600,
+        72
+       ],
+       [
+        1660,
+        88
+       ],
+       [
+        1725,
+        8
+       ],
+       [
+        1790,
+        90
+       ],
+       [
+        2000,
+        93
+       ],
+       [
+        2400,
+        93
+       ],
+       [
+        2650,
+        90
+       ],
+       [
+        2720,
+        62
+       ],
+       [
+        2770,
+        84
+       ],
+       [
+        2820,
+        58
+       ],
+       [
+        2930,
+        42
+       ],
+       [
+        3030,
+        66
+       ],
+       [
+        3100,
+        88
+       ],
+       [
+        3300,
+        92
+       ],
+       [
+        3600,
+        94
+       ],
+       [
+        4000,
+        95
+       ]
+      ]
+     }
+    ]
+   },
+   "questions": [
+    {
+     "q": "Which type of product from Step 1 is consistent with the IR spectrum in Figure 1?",
+     "choices": [
+      "A carboxylic acid",
+      "An aldehyde",
+      "An alcohol",
+      "An ether"
+     ],
+     "ans": 1,
+     "cat": "4D",
+     "skill": "SIRS 3",
+     "diff": "M",
+     "twin": "pe6-cp:1",
+     "exp": "1. Start from the reaction: an oxidant acting on a primary alcohol should remove the O–H and form a C=O.\n2. Read the carbonyl window first: a deep, narrow dip at 1725 cm⁻¹ means a C=O is present: 1725 cm⁻¹: transmittance **8%** → strong C=O. The two weaker dips at 2720 and 2820 cm⁻¹ are the C–H stretch of a CHO group.\n3. Now the O–H window: at 3300 cm⁻¹ the trace stays near the top (about 92%), so there is no O–H. That removes the alcohol and the acid, whose O–H bands are broad and deep.\n4. An ether has no C=O, so it could not make the 1725 cm⁻¹ dip.\n5. Answer: an aldehyde, 3-phenylpropanal. Rule: look at 1700 for C=O, then at 3300 for O–H; C=O with no O–H means a ketone or aldehyde.\n\n**Rule to reuse:** IR shows which bonds a molecule has. Check only the windows that matter: **O–H ≈ 3200–3600 cm⁻¹, broad and rounded**; **C=O ≈ 1700–1750 cm⁻¹, sharp and strong**; sp³ C–H ≈ 2850–3000 cm⁻¹ (almost every organic molecule has it); C=C ≈ 1650 cm⁻¹, weak.",
+     "id": "p_cpq2_3_q1"
+    },
+    {
+     "q": "Which method would best determine the mole ratio of the two alcohols in the commercial sample?",
+     "choices": [
+      "IR band positions",
+      "UV absorbance",
+      "Proton NMR integrals",
+      "Boiling point"
+     ],
+     "ans": 2,
+     "cat": "4D",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe6-cp:2",
+     "exp": "1. Translate: the question asks for amounts, a ratio, not for identity.\n2. The two alcohols share their functional groups (one O–H, one C=C), so their IR bands overlap, and the boiling behavior of the mixture only shows that it is not pure.\n3. UV absorbance needs conjugation differences, and neither compound is conjugated; it gives no H-by-H count either.\n4. Rule: a ¹H NMR integral is proportional to the number of H making the peak. Dihydromyrcenol has a unique =CH₂ peak (2 H) near 4.9 ppm; its isomer has a unique =CH– peak (1 H) near 5.1 ppm.\n5. Divide each integral by its number of H to get moles of each isomer: for integrals of 3.0 and 0.5: dihydromyrcenol: 3.0 ÷ 2 H = **1.5**; isomer: 0.5 ÷ 1 H = **0.5**; ratio = **3 : 1**.\n6. Answer: proton NMR integrals, because peak areas count H atoms and so give the mole ratio of the two isomers.\n\n**Rule to reuse:** \"how much of each\" in a mixture → ¹H NMR integrals (area ∝ number of H). IR/UV tell you *what* groups are there, not how much.",
+     "id": "p_cpq2_3_q2"
+    },
+    {
+     "q": "Which compound is the product of Step 2 (Ph = phenyl)?",
+     "choices": [
+      "PhCH₂CH₂CH(OH)CH₂CH₃",
+      "PhCH₂CH₂CH₂CH₂CH₂OH",
+      "PhCH₂CH₂COCH₂CH₃",
+      "PhCH₂CH₂COOH"
+     ],
+     "ans": 0,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe6-cp:3",
+     "exp": "1. Start from the aldehyde made in Step 1: PhCH₂CH₂–CHO + CH₃CH₂⁻ (from CH₃CH₂MgBr) → PhCH₂CH₂–CH(O⁻)–CH₂CH₃; H₃O⁺ → **PhCH₂CH₂–CH(OH)–CH₂CH₃**.\n2. Name it: five-carbon chain, OH on C3, phenyl on C1; the OH carbon has two carbon neighbors → secondary: **1-phenyl-3-pentanol**. PhCH₂CH₂CH₂CH₂CH₂OH, a primary alcohol, would need the ethyl group to add at the end of the chain instead of at the carbonyl carbon.\n3. A Grignard reagent is a nucleophile, not an oxidant, so it cannot give the ketone PhCH₂CH₂COCH₂CH₃ or the acid PhCH₂CH₂COOH.\n4. Answer: PhCH₂CH₂CH(OH)CH₂CH₃, a secondary alcohol.\n\n**Rule to reuse:** a Grignard adds its carbon to the carbonyl carbon; formaldehyde → 1°, other aldehydes → 2°, ketones → 3° alcohols, with no oxidation.",
+     "id": "p_cpq2_3_q3"
+    },
+    {
+     "q": "Which carbon of the main chain in dihydromyrcenol, 2,6-dimethyloct-7-en-2-ol, is a chirality center?",
+     "choices": [
+      "C2",
+      "C3",
+      "C6",
+      "C7"
+     ],
+     "ans": 2,
+     "cat": "5B",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe6-cp:4",
+     "exp": "1. You need a carbon with four different groups. Write the chain from the name: CH₃(C1)–C(OH)(CH₃)(C2)–CH₂(C3)–CH₂(C4)–CH₂(C5)–CH(CH₃)(C6)–CH(C7)=CH₂(C8).\n2. C3 is a CH₂, with two identical H atoms. C7 is an sp² alkene carbon with only three neighbors.\n3. C2: list its groups: OH, **CH₃** (C1), **CH₃** (the 2-methyl group), CH₂–chain; two identical groups → not a chirality center.\n4. C6: list its groups: H, CH₃, CH=CH₂, CH₂–chain; **four different** → chirality center.\n5. Answer: C6. Rule: skip CH₂, CH₃ and sp² carbons, then check the rest for two matching branches.\n\n**Rule to reuse:** **Chirality center (stereocenter):** a carbon with four different groups attached; it makes the molecule non-superimposable on its mirror image.",
+     "id": "p_cpq2_3_q4"
+    }
+   ]
+  },
+  {
+   "id": "p_cpq2_4",
+   "subj": "biochemistry",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "5D",
+    "4E"
+   ],
+   "title": "Metal Ions in a DNA-Cutting Enzyme",
+   "passage": "Restriction endonucleases cut double-stranded DNA at short recognition sequences. Most require a divalent metal cation, usually Mg²⁺, which binds to the carboxylate side chains of acidic residues in the active site and positions a water molecule to attack a backbone phosphate. Recognition depends on hydrogen bonds between the enzyme and the edges of the bases in the major groove, so the bases must be in their normal tautomeric forms for the enzyme to find its site.\n\nResearchers studied a restriction enzyme from a soil bacterium. In its active site, the side-chain carboxylate of Asp45 binds Mg²⁺, and replacing Asp45 with alanine abolishes cleavage. To test other replacements, the team planned four mutants; the side chains they would place at position 45 are listed in Table 1. They also tested whether other metal ions could replace Mg²⁺.\n\nActivity was measured at 37 °C with a synthetic 60-base-pair DNA duplex containing one recognition site. One strand was made with phosphorothioate linkages, in which a sulfur atom replaces one nonbridging oxygen of a phosphate; the enzyme cuts such DNA at nearly its normal rate, and the sulfur was the radioactive isotope sulfur-35, a β⁻ emitter. After the reaction, the DNA was separated on a gel, and the cut and uncut strands were detected by their radioactivity.",
+   "figure": {
+    "caption": "Table 1 Side chains at position 45 (pH 7)",
+    "columns": [
+     "Residue",
+     "Side chain"
+    ],
+    "rows": [
+     [
+      "Asp (wild type)",
+      "–CH₂–COO⁻"
+     ],
+     [
+      "Glu",
+      "–CH₂–CH₂–COO⁻"
+     ],
+     [
+      "Asn",
+      "–CH₂–CONH₂"
+     ],
+     [
+      "Lys",
+      "–(CH₂)₄–NH₃⁺"
+     ],
+     [
+      "Leu",
+      "–CH₂–CH(CH₃)₂"
+     ]
+    ]
+   },
+   "questions": [
+    {
+     "q": "Which thymine tautomer is the main form in DNA at pH 7.4, the one that pairs correctly with adenine?",
+     "choices": [
+      "O4-enol form",
+      "O2-enol form",
+      "Diketo (lactam) form",
+      "O2,O4-dienol form"
+     ],
+     "ans": 2,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "D",
+     "twin": "pe4-cp:48",
+     "exp": "1. You want the common form in DNA, the one that pairs with A.\n2. Spot the keto form: both oxygens as C=O and the ring nitrogens as N–H (in DNA, N1 bears the sugar, so N3–H is the one that shows). Only the diketo (lactam) form has that.\n3. Check the face that meets adenine: thymine keto face: N3–H = **D**, C4=O = **A**; adenine face: N1 = **A**, N6–H = **D**; D↔A and A↔D: **match**.\n4. An enol at O4 turns that face into O–H donor and N3 acceptor, the guanine-pairing pattern; the O2-enol and the dienol are rare forms that do not predominate.\n5. Answer: the diketo (lactam) form. Rule: nucleobases in DNA and RNA are drawn as keto/amino tautomers; enol or imino forms mean mispairing.\n\n**Rule to reuse:** normal DNA/RNA bases are **keto** (C=O + ring N–H). For each tautomer ask: are both O's C=O, and do both ring N's carry an H?",
+     "id": "p_cpq2_4_q1"
+    },
+    {
+     "q": "When a ³⁵S nucleus in the labeled strand undergoes β⁻ decay, what nucleus forms, and how many neutrons does it have?",
+     "choices": [
+      "³⁴S, 18 neutrons",
+      "³⁵Cl, 18 neutrons",
+      "³⁵Cl, 20 neutrons",
+      "³⁵P, 20 neutrons"
+     ],
+     "ans": 1,
+     "subj": "physics",
+     "cat": "4E",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe4-cp:49",
+     "exp": "1. Translate: β⁻ emission means a neutron in the nucleus turns into a proton and an electron: n → p + e⁻ + ν̄.\n2. Balance the nuclear equation: ³⁵₁₆S → ᴬ_ZX + ⁰₋₁e + ν̄; A: 35 = A + 0 → A = **35**; Z: 16 = Z − 1 → Z = **17** = chlorine. That rules out ³⁵P (Z down by 1, as in β⁺ decay) and ³⁴S (same element, one nucleon lost).\n3. Count neutrons before and after: ³⁵S: N = 35 − 16 = **19**; ³⁵Cl: N = 35 − 17 = **18** → **one fewer** neutron, so \"³⁵Cl, 20 neutrons\" is out.\n4. Compare the nucleon counts side by side: 16 p + 19 n → 17 p + 18 n; the total stays 35.\n5. Answer: ³⁵Cl, 18 neutrons.\n\n**Rule to reuse:** β⁻: Z + 1, A same (one neutron → proton). β⁺: Z − 1, A same. α: Z − 2, A − 4. Neutrons = A − Z.",
+     "id": "p_cpq2_4_q2"
+    },
+    {
+     "q": "Based on Table 1, which replacement for Asp45 is most likely to preserve Mg²⁺ binding and cleavage?",
+     "choices": [
+      "Glutamate",
+      "Asparagine",
+      "Lysine",
+      "Leucine"
+     ],
+     "ans": 0,
+     "cat": "5D",
+     "skill": "SIRS 4",
+     "diff": "D",
+     "twin": "pe4-cp:50",
+     "exp": "1. The job of the Asp45 side chain is to coordinate a 2+ metal through its carboxylate.\n2. Read the end group of each side chain in Table 1: glutamate: –CH₂–CH₂–COO⁻ → **charge −1**; asparagine: –CH₂–CONH₂ → **charge 0**; lysine: –(CH₂)₄–NH₃⁺ → **charge +1**; leucine: –CH₂–CH(CH₃)₂ → **no O or N**.\n3. A positive side chain repels Mg²⁺, and a C/H-only side chain has nothing to bind it, so lysine and leucine are out.\n4. Asparagine matches the size of aspartate but not the charge: its amide is neutral.\n5. Glutamate keeps the carboxylate, only one CH₂ longer. Answer: glutamate. Rule: preserve the functional group that does the job; length is secondary.\n\n**Rule to reuse:** keep the side chain's working group; length is secondary. In each Table 1 side chain, read the end and ask: will it be negative at pH 7?",
+     "id": "p_cpq2_4_q3"
+    },
+    {
+     "q": "In the 60-bp substrate duplex, cytosine makes up 30% of all the bases. If every base is Watson–Crick paired, how many hydrogen bonds join the bases of the two strands?",
+     "choices": [
+      "138",
+      "144",
+      "156",
+      "180"
+     ],
+     "ans": 2,
+     "cat": "5D",
+     "skill": "SIRS 2",
+     "diff": "X",
+     "twin": "pe4-cp:51",
+     "exp": "1. Translate: the percentage is of bases, not base pairs. A 60-bp duplex has 120 bases.\n2. Use Chargaff's rule C = G to count G–C pairs: bases = 2 × 60 = **120**; C = 30% × 120 = **36**; each C pairs with one G → **36 G–C pairs**; A–T pairs = 60 − 36 = **24**. Taking 30% of the 60 pairs instead gives 18 G–C and 42 A–T pairs: 18 × 3 + 42 × 2 = 138, so 138 is out.\n3. Count hydrogen bonds per pair: G–C has 3, A–T has 2: G–C: 36 × **3** = 108; A–T: 24 × **2** = 48; total = **156**.\n4. Swapping the counts gives 144, and giving every pair 3 bonds gives 180: swapped: 24 × 3 + 36 × 2 = 144; all G–C: 60 × 3 = 180.\n5. Answer: 156 hydrogen bonds.\n\n**Rule to reuse:** n base pairs = 2n bases; %G = %C; G–C pairs = #G; H-bonds = 3 × (G–C pairs) + 2 × (A–T pairs).",
+     "id": "p_cpq2_4_q4"
+    },
+    {
+     "q": "Valence configurations: Mn, [Ar]3d⁵4s²; Co, [Ar]3d⁷4s²; Ca, [Ar]4s²; K, [Ar]4s¹. Which of these metals cannot readily form a 2+ ion, and why?",
+     "choices": [
+      "Ca, lacking d electrons",
+      "Co, also forming Co³⁺",
+      "Mn, with a half-filled d subshell",
+      "K, forming only K⁺"
+     ],
+     "ans": 3,
+     "subj": "gen_chem",
+     "cat": "4E",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe4-cp:52",
+     "exp": "1. Translate: the enzyme needs a 2+ cation. Find which metal cannot lose two electrons easily.\n2. Read the valence configurations: Mn, Co and Ca each have two outer 4s electrons to lose. Having no d electrons, a half-filled d subshell or a 3+ option does not prevent a 2+ ion.\n3. K has one valence electron; the second would come from the [Ar] core. The second ionization energies show the cost.\n4. Quantify the jump: K: IE₂ ÷ IE₁ = 3052 ÷ 419 ≈ **7.3**; Ca: IE₂ ÷ IE₁ = 1145 ÷ 590 ≈ **1.9** (kJ/mol).\n5. Answer: K, forming only K⁺.\n\n**Rule to reuse:** count the outer s electrons: ns² → 2+ ion easily; ns¹ (group 1) → 1+ only, because the next electron is in the core.",
+     "id": "p_cpq2_4_q5"
+    }
+   ]
+  },
+  {
+   "id": "p_cpq2_5",
+   "subj": "biochemistry",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "5D",
+    "5A",
+    "5C"
+   ],
+   "title": "Probing the Active Site of a Xylanase",
+   "passage": "Xylanases break down xylan, a major polysaccharide of plant cell walls, and are used in paper bleaching and animal feed. In one common family, two side chains in a cleft on the enzyme surface carry out catalysis: one donates a proton to the departing sugar, and the other, which must be deprotonated, attacks the sugar carbon at the cut site.\n\nTo identify the group that must be deprotonated, researchers measured the initial rate of xylan hydrolysis at 30 °C in buffers from pH 2 to pH 7 (Figure 1). Over this range, the change in activity reflects the ionization of that one group, and replacing it with alanine abolished activity at every pH. The team also treated the enzyme with a water-soluble carbodiimide and a fluorescent amine, which together label exposed carboxylate side chains, and used mass spectrometry to find which Asp and Glu residues were labeled and to what extent.\n\nThe enzyme purified from E. coli is a mixture of two forms of nearly the same mass: the native protein and a form in which two lysine side chains carry acetyl groups. Before mass spectrometry, every sample was exchanged into a volatile buffer made by neutralizing formic acid, HCOOH, with triethylamine, (C₂H₅)₃N. This buffer evaporates in the ion source and leaves no salt deposits.",
+   "figure": {
+    "type": "line",
+    "caption": "Figure 1 Activity of the xylanase versus pH",
+    "x": {
+     "label": "pH",
+     "min": 2,
+     "max": 7,
+     "step": 1
+    },
+    "y": {
+     "label": "Relative activity (%)",
+     "min": 0,
+     "max": 100,
+     "step": 20
+    },
+    "series": [
+     {
+      "name": "Activity",
+      "marker": "circle",
+      "line": "smooth",
+      "points": [
+       [
+        2,
+        1
+       ],
+       [
+        2.5,
+        2
+       ],
+       [
+        3,
+        6
+       ],
+       [
+        3.2,
+        9
+       ],
+       [
+        3.5,
+        17
+       ],
+       [
+        4,
+        39
+       ],
+       [
+        4.2,
+        50
+       ],
+       [
+        4.5,
+        67
+       ],
+       [
+        5,
+        86
+       ],
+       [
+        5.2,
+        91
+       ],
+       [
+        5.5,
+        95
+       ],
+       [
+        6,
+        98
+       ],
+       [
+        7,
+        100
+       ]
+      ]
+     }
+    ]
+   },
+   "questions": [
+    {
+     "q": "Percent labeling at pH 4.5 was E86 25%, E172 0%, D37 30%; at pH 6.0 it was E86 0%, E172 0%, D37 55%. Which residue can be labeled alone, and when?",
+     "choices": [
+      "D37, at pH 4.5",
+      "E86, at pH 4.5",
+      "E172, at either pH",
+      "D37, at pH 6.0"
+     ],
+     "ans": 3,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe5-cp:30",
+     "exp": "1. pH 4.5: two residues are labeled: E86 25%, D37 30% → **two** labeled → not selective, so \"D37, at pH 4.5\" and \"E86, at pH 4.5\" are out.\n2. pH 6.0: only one residue is labeled: E86 0%, E172 0%, D37 **55%** → selective for D37.\n3. E172 is 0% at both pH values: it is never labeled, so \"E172, at either pH\" is out.\n4. Answer: D37, at pH 6.0.\n\n**Rule to reuse:** for \"selective\" questions, scan for a condition where the target is above 0% and every other site is exactly 0%; the highest percentage alone does not make it selective.",
+     "id": "p_cpq2_5_q1"
+    },
+    {
+     "q": "Based on Figure 1, which residue is most likely the catalytic group that must be deprotonated?",
+     "choices": [
+      "Glutamate",
+      "Histidine",
+      "Cysteine",
+      "Lysine"
+     ],
+     "ans": 0,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "D",
+     "twin": "pe5-cp:32",
+     "exp": "1. Activity rises as the residue loses its proton, so the curve is a titration curve of that one group.\n2. Find half of the maximum on the y-axis, go across to the curve, then down to the pH axis: maximum activity ≈ **100%** → half = **50%**; curve crosses 50% at pH **4.2** → pKa ≈ **4.2**.\n3. Check: one pH unit on either side should give about 9% and 91% for a single group with pKa 4.2: pH 3.2: 1 / (1 + 10¹) ≈ **9%**; pH 5.2: 1 / (1 + 10⁻¹) ≈ **91%** ✓.\n4. A pKa near 6 (histidine) would center the curve at pH 6; a pKa near 8.3 (cysteine) or 10.5 (lysine) would keep the enzyme nearly inactive across the whole range.\n5. Answer: glutamate, whose side-chain carboxyl group (pKa ≈ 4.1) matches. Rule: the pH at half-maximal activity reads out the pKa of the catalytic group.\n\n**Rule to reuse:** for a pH–activity curve, the pH at half-maximal activity is the pKa of the catalytic group. pKa ≈ 6 → histidine; ≈ 4 → Asp/Glu; ≈ 10 → Tyr/Lys.",
+     "id": "p_cpq2_5_q2"
+    },
+    {
+     "q": "E172 is never labeled at 25 °C. After the enzyme is heated to 80 °C in buffer with no protease, E172 is labeled, and the heated, unlabeled enzyme keeps its original mass. What best explains this?",
+     "choices": [
+      "Cleavage of the backbone",
+      "Nicking by a protease",
+      "Unfolding of the chain",
+      "Reagent penetration of the intact fold"
+     ],
+     "ans": 2,
+     "cat": "5D",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe5-cp:33",
+     "exp": "1. No labeling at 25 °C means the carboxylate is hidden from the reagent, not missing.\n2. Backbone hydrolysis adds water and breaks the chain, which would change the mass: each hydrolyzed peptide bond: + H₂O = **+18 Da**; observed Δmass = **0**, so \"Cleavage of the backbone\" is out.\n3. Nicking requires a protease to catalyze the hydrolysis, and none was present (it would also add 18 Da per cut), so \"Nicking by a protease\" is out.\n4. Heat breaks noncovalent interactions, so the chain unfolds and the buried carboxylate becomes exposed; covalent structure is untouched. A folded core has no pores for the reagent to pass through. Answer: unfolding of the chain.\n\n**Rule to reuse:** heat denatures by breaking noncovalent bonds; covalent structure and mass stay the same. Buried groups become reachable once the protein unfolds.",
+     "id": "p_cpq2_5_q3"
+    },
+    {
+     "q": "Using molar masses N 14, O 16, C 12, H 1 g/mol, which salt is in the volatile buffer described in the passage, and what is its molar mass?",
+     "choices": [
+      "(C₂H₅)₂NH₂HCO₂, 119 g/mol",
+      "(C₂H₅)₃NHHCO₂, 147 g/mol",
+      "(C₂H₅)₃NHCH₃CO₂, 161 g/mol",
+      "(C₂H₅)₃NHHCO₃, 163 g/mol"
+     ],
+     "ans": 1,
+     "subj": "gen_chem",
+     "cat": "5A",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe5-cp:34",
+     "exp": "1. Neutralization transfers H⁺ from the acid to the amine: HCOOH + (C₂H₅)₃N → **(C₂H₅)₃NH⁺** + **HCO₂⁻**.\n2. The salt is cation + anion: (C₂H₅)₃NHHCO₂, triethylammonium formate.\n3. Add up the molar mass: N: 1 × 14 = 14; H: 17 × 1 = **17**; C: 7 × 12 = **84**; O: 2 × 16 = 32; total = **147 g/mol**.\n4. (C₂H₅)₃NHCH₃CO₂ is triethylammonium acetate, from a two-carbon acid; (C₂H₅)₃NHHCO₃ is triethylammonium bicarbonate; (C₂H₅)₂NH₂HCO₂ is diethylammonium formate, from a different amine. Answer: (C₂H₅)₃NHHCO₂, 147 g/mol.\n\n**Rule to reuse:** acid + base → the acid loses H⁺ (its anion) and the base gains H⁺ (its cation); the salt is the two ions together. Then add atom masses carefully.",
+     "id": "p_cpq2_5_q4"
+    },
+    {
+     "q": "At pH 5.0, the net charge is +5 on the native enzyme and +3 on the acetylated form. Which column type resolves the two forms, and which form comes off last as the salt gradient rises?",
+     "choices": [
+      "Anion exchanger; native form",
+      "Cation exchanger; native form",
+      "Cation exchanger; acetylated form",
+      "Gel filtration; acetylated form"
+     ],
+     "ans": 1,
+     "cat": "5C",
+     "skill": "SIRS 1",
+     "diff": "E",
+     "twin": "pe5-cp:35",
+     "exp": "1. Both forms are positive at pH 5.0, so they stick to a negatively charged cation-exchange resin. An anion exchanger would bind neither, so \"Anion exchanger; native form\" is out.\n2. Gel filtration separates by size, and two acetyl groups (2 × 42 = 84 Da) change the mass by far less than 1%, so \"Gel filtration; acetylated form\" is out.\n3. The more charge, the tighter the binding: binding strength ∝ |net charge|; |+5| > |+3|; native form binds **tighter** → needs **more salt**.\n4. Salt cations compete for the resin's − sites: the +3 form comes off first, the +5 form later, so \"Cation exchanger; acetylated form\" is out. Answer: cation exchanger; native form.\n\n**Rule to reuse:** negative protein → anion exchange (+ beads); positive → cation exchange. The more charge, the tighter it binds and the later it elutes as salt rises.",
+     "id": "p_cpq2_5_q5"
+    }
+   ]
+  }
+ ],
+ "standalones": [
+  {
+   "q": "Assuming complete dissociation, what is the concentration of Fe³⁺ ions in a 0.080 M aqueous solution of iron(III) sulfate, Fe₂(SO₄)₃?",
+   "choices": [
+    "0.080 M",
+    "0.16 M",
+    "0.24 M",
+    "0.40 M"
+   ],
+   "ans": 1,
+   "subj": "gen_chem",
+   "cat": "5A",
+   "skill": "SIRS 2",
+   "diff": "M",
+   "twin": "sample-cp:15",
+   "exp": "1. Read the salt concentration: 0.080 M Fe₂(SO₄)₃.\n2. Dissociate and multiply by the iron subscript: Fe₂(SO₄)₃ → 2 Fe³⁺ + 3 SO₄²⁻; [Fe³⁺] = 2 × 0.080 M = **0.16 M**.\n3. 0.24 M is the SO₄²⁻ concentration (3 × 0.080); 0.40 M is all ions together (5 × 0.080); 0.080 M ignores the subscript.\n4. Answer: 0.16 M.\n\n**Rule to reuse:** ion concentration = (number of that ion per formula unit) × salt concentration, assuming complete dissociation.",
+   "id": "cp_q2_sa1"
+  },
+  {
+   "q": "Hydrogen fluoride (HF, 20 g/mol) boils at 19.5 °C, but hydrogen chloride (HCl, 36.5 g/mol), a heavier molecule with a similar structure, boils at −85 °C. Which factor best accounts for this difference?",
+   "choices": [
+    "HCl is the lighter molecule",
+    "Dispersion forces are larger in HF",
+    "HF molecules H-bond, but HCl molecules do not",
+    "The H–F bond is less polar"
+   ],
+   "ans": 2,
+   "subj": "gen_chem",
+   "cat": "5B",
+   "skill": "SIRS 1",
+   "diff": "E",
+   "twin": "sample-cp:28",
+   "exp": "1. Note the puzzle: the heavier molecule boils lower.\n2. Compare the atoms bonded to H and the masses: F: small, very electronegative → **H-bonds**; Cl: larger, less electronegative → no significant H-bonds; mass: HCl 36.5 > HF 20 g/mol.\n3. HCl is heavier, not lighter, so dispersion favors HCl, not HF. And the H–F bond is more polar, not less.\n4. Answer: HF molecules H-bond, but HCl molecules do not.\n\n**Rule to reuse:** when a lighter molecule boils far higher than a heavier analog, look for hydrogen bonding (H on N, O or F).",
+   "id": "cp_q2_sa2"
+  },
+  {
+   "q": "Poured on a cut, 3% hydrogen peroxide foams as catalase in the tissue rapidly decomposes it: 2H₂O₂(aq) → 2H₂O(l) + O₂(g); ΔH° ≈ −190 kJ. What are the most likely signs of ΔG° and ΔS° for this reaction?",
+   "choices": [
+    "ΔG° negative, ΔS° positive",
+    "ΔG° negative, ΔS° negative",
+    "ΔG° positive, ΔS° positive",
+    "ΔG° positive, ΔS° negative"
+   ],
+   "ans": 0,
+   "subj": "gen_chem",
+   "cat": "5E",
+   "skill": "SIRS 2",
+   "diff": "M",
+   "twin": "pe1-cp:47",
+   "exp": "1. Proceeds on its own, vigorously, at body temperature → spontaneous → ΔG° < 0. (Catalase only speeds the reaction; it does not change ΔG°.) Both \"ΔG° positive\" choices are out.\n2. Count gas moles on each side: a gas forms from a solution, so disorder rises: gas moles: reactants **0** → products **1**; Δn(gas) = +1 → **ΔS° > 0**, so \"ΔG° negative, ΔS° negative\" is out.\n3. Check consistency with ΔG° = ΔH° − TΔS°: ΔH° < 0 (−190 kJ); −TΔS° < 0 (since ΔS° > 0); ΔG° = (−) + (−) → **negative** at every T ✓.\n4. Answer: ΔG° negative, ΔS° positive.\n\n**Rule to reuse:** happens on its own → ΔG < 0. Gas produced from solids/liquids (more gas moles) → ΔS > 0. Confirm with ΔG = ΔH − TΔS.",
+   "id": "cp_q2_sa3"
+  },
+  {
+   "q": "The titration curve shown is for acetic acid with NaOH. An acetic acid–sodium acetate buffer reads pH 5.1. To shift it to the pH of greatest buffer capacity, what should be added, and why?",
+   "choices": [
+    "NaOH, lowering base:acid from 2.0",
+    "CH₃COONa, lowering base:acid from 2.0",
+    "CH₃COOH, raising base:acid from 0.50",
+    "CH₃COOH, lowering base:acid from 2.0"
+   ],
+   "ans": 3,
+   "subj": "gen_chem",
+   "cat": "5A",
+   "skill": "SIRS 4",
+   "diff": "X",
+   "twin": "pe3-cp:26",
+   "chart": {
+    "type": "line",
+    "caption": "Titration of acetic acid with NaOH",
+    "x": {
+     "label": "Equivalents of OH⁻ added",
+     "min": 0,
+     "max": 1,
+     "step": 0.2
+    },
+    "y": {
+     "label": "pH",
+     "min": 3,
+     "max": 7,
+     "step": 1
+    },
+    "series": [
+     {
+      "name": "pH",
+      "marker": "circle",
+      "line": "smooth",
+      "points": [
+       [
+        0.1,
+        3.85
+       ],
+       [
+        0.25,
+        4.32
+       ],
+       [
+        0.4,
+        4.62
+       ],
+       [
+        0.5,
+        4.8
+       ],
+       [
+        0.6,
+        4.98
+       ],
+       [
+        0.75,
+        5.28
+       ],
+       [
+        0.9,
+        5.75
+       ]
+      ]
+     }
+    ]
+   },
+   "exp": "1. Find the point of greatest capacity: the flattest part of the curve, at half-equivalence. Its pH is the pKa: half-equivalence: [CH₃COO⁻] = [CH₃COOH]; pH = pKa = **4.8**.\n2. Locate the buffer as it is now, at pH 5.1, and get its ratio: 5.1 = 4.8 + log(base/acid); log(base/acid) = **+0.3**; base/acid = 10⁰·³ = **2.0**.\n3. The ratio is 2.0, not 0.50, and it must fall to 1, not rise, so \"CH₃COOH, raising base:acid from 0.50\" is out.\n4. Lowering the ratio needs more acid form. Adding CH₃COONa, the base form, or NaOH raises the ratio instead, so both are out.\n5. Answer: add CH₃COOH, moving the buffer left along the curve to the flat center at pH 4.8. Rule: below the pKa, add the base form; above it, add the acid form.\n\n**Rule to reuse:** best buffer = pH = pKa (ratio 1). Below pKa, add the base form; above pKa, add the acid form. base/acid = 10^(pH − pKa).",
+   "id": "cp_q2_sa4"
+  },
+  {
+   "q": "Water has a specific heat of 4.2 J/(g·°C). An electric kettle rated at 1.4 kW heats 0.60 kg of water from 15 °C to 85 °C. If all the electrical energy goes into the water, about how long does this take?",
+   "choices": [
+    "0.13 s",
+    "0.45 min",
+    "2.1 min",
+    "2.6 min"
+   ],
+   "ans": 2,
+   "subj": "gen_chem",
+   "cat": "5E",
+   "skill": "SIRS 2",
+   "diff": "X",
+   "twin": "pe4-cp:59",
+   "exp": "1. Translate: heat needed q = mcΔT, then time = q ÷ power.\n2. Match units: c is per gram, so convert kg to g; use the temperature change: m = 0.60 kg = **600 g**; ΔT = 85 − 15 = **70 °C**. Leaving the mass in kilograms gives 0.60 × 4.2 × 70 = 176 J and 176 ÷ 1400 = 0.13 s, so 0.13 s is out.\n3. Compute the heat absorbed: q = m c ΔT; q = 600 × 4.2 × 70; q = **1.764 × 10⁵ J**. Using the final temperature instead of the change gives 600 × 4.2 × 85 = 214,200 J and 153 s ≈ 2.6 min, so 2.6 min is out.\n4. Divide by power: 1.4 kW = 1400 J each second: t = q ÷ P = 1.764 × 10⁵ J ÷ 1.4 × 10³ J/s; t = **126 s** = **2.1 min**.\n5. 0.45 min uses the start temperature (15 °C) as ΔT: 600 × 4.2 × 15 = 37,800 J and 37,800 ÷ 1400 = 27 s = 0.45 min.\n6. Answer: about 2.1 min.\n\n**Rule to reuse:** q = mcΔT (units of m must match c; ΔT = final − initial), then time = q ÷ power, with 1 W = 1 J/s.",
+   "id": "cp_q2_sa5"
+  },
+  {
+   "q": "Heat was supplied at a steady rate to 10.0 g of solid ethanol at its melting point, −114 °C, giving the heating curve shown. Which step absorbs the most heat?",
+   "choices": [
+    "Melting the solid, 1100 J",
+    "Heating the liquid, 4700 J",
+    "Boiling the liquid, 8400 J",
+    "Heating the vapor, 14,000 J"
+   ],
+   "ans": 2,
+   "subj": "gen_chem",
+   "cat": "5E",
+   "skill": "SIRS 4",
+   "diff": "X",
+   "twin": "pe5-cp:48",
+   "chart": {
+    "type": "line",
+    "caption": "Heating curve for 10.0 g of ethanol",
+    "x": {
+     "label": "Heat added (J)",
+     "min": 0,
+     "max": 16000,
+     "step": 2000
+    },
+    "y": {
+     "label": "Temperature (°C)",
+     "min": -120,
+     "max": 120,
+     "step": 40
+    },
+    "series": [
+     {
+      "name": "Ethanol",
+      "marker": "circle",
+      "line": "straight",
+      "points": [
+       [
+        0,
+        -114
+       ],
+       [
+        1080,
+        -114
+       ],
+       [
+        5760,
+        78
+       ],
+       [
+        14170,
+        78
+       ],
+       [
+        14450,
+        98
+       ]
+      ]
+     }
+    ]
+   },
+   "exp": "1. Heat is on the x-axis, so the heat for a step is the width of its segment.\n2. Read where each of the first two segments starts and ends: melting plateau: 1080 − 0 = **1080 J**; liquid warming: 5760 − 1080 = **4680 J**.\n3. The 78 °C plateau is by far the widest: boiling plateau: 14,170 − 5760 = **8410 J**; check: 10.0 g × 841 J/g (ethanol’s heat of vaporization) = **8410 J**.\n4. Melting and warming the liquid are shorter. The vapor segment is tiny; 14,000 J is where it starts, not how wide it is: vapor warming: 14,450 − 14,170 = **280 J**.\n5. Answer: boiling the liquid, about 8400 J. Rule: on a heating curve, heat for a step = segment width; the boiling plateau is the widest.\n\n**Rule to reuse:** on a heating curve, heat for a step = the width of its segment on the x axis. Flat = phase change (q = m·ΔH); sloped = warming (q = m·c·ΔT). Vaporizing usually wins.",
+   "id": "cp_q2_sa6"
+  },
+  {
+   "q": "In a flask at 60 °C, H₂SO₄ catalyzes the transesterification CH₃CH₂COOCH₃ + C₄H₉OH ⇌ CH₃CH₂COOC₄H₉ + CH₃OH, for which K = 1.0. Which change would leave the equilibrium amount of butyl propanoate unchanged?",
+   "choices": [
+    "Adding more 1-butanol",
+    "Adding more methyl propanoate",
+    "Distilling off methanol",
+    "Adding more H₂SO₄"
+   ],
+   "ans": 3,
+   "subj": "organic_chem",
+   "cat": "5E",
+   "skill": "SIRS 2",
+   "diff": "X",
+   "twin": "pe5-cp:58",
+   "exp": "1. Set up the equilibrium yield, assuming 1.0 M methyl propanoate and 1.0 M butanol: K = [butyl propanoate][CH₃OH] / ([methyl propanoate][butanol]) = 1.0; x² / (1 − x)² = 1.0 → x / (1 − x) = 1; x = **0.50 M** butyl propanoate.\n2. Add a reactant: the equilibrium shifts toward product: 2.0 M butanol: x² / ((1 − x)(2 − x)) = 1.0; x² = 2 − 3x + x² → x = **0.67 M** ↑. Adding more 1-butanol or more methyl propanoate therefore increases the product.\n3. Methanol is a product, so distilling it off also pulls the reaction toward butyl propanoate.\n4. A catalyst lowers Ea equally for both directions, so equilibrium arrives sooner but at the same position. Answer: adding more H₂SO₄.\n\n**Rule to reuse:** catalysts and enzymes change only the speed, never K or the equilibrium amounts. Adding reactant or removing product shifts toward product.",
+   "id": "cp_q2_sa7"
+  },
+  {
+   "q": "A pot of water boils steadily on a stove at 1 atm. As long as liquid water remains in the pot, its temperature:",
+   "choices": [
+    "holds at 100 °C.",
+    "rises above 100 °C.",
+    "falls below 100 °C.",
+    "rises, then falls."
+   ],
+   "ans": 0,
+   "subj": "physics",
+   "cat": "5E",
+   "skill": "SIRS 1",
+   "diff": "M",
+   "twin": "aamc-phys-qpack:Q23",
+   "exp": "1. Boiling is a **phase change**: the added heat supplies the latent heat of vaporization, pulling molecules apart into vapor rather than raising their kinetic energy.\n2. So while liquid and vapor coexist at 1 atm, the temperature stays at the boiling point, 100 °C; a hotter burner only makes the water boil away faster.\n3. The temperature could rise above 100 °C only after all the liquid is gone, and it does not fall, or rise and then fall, while heat keeps flowing in.\n4. Answer: holds at 100 °C.\n\n**Rule to reuse:** during a phase change, added heat supplies the latent heat rather than raising kinetic energy, so the temperature stays constant until the change is complete.",
+   "id": "cp_q2_sa8"
+  }
+ ]
+}
