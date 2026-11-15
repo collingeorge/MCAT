@@ -69,10 +69,10 @@ function harvest() {
 }
 const day = n => run('localDay(new Date(Date.now()+(' + n + ')*DAY))');
 run(`store.set(KEYS.plan,{date:'${day(83)}',start:'${day(-7)}',days:6,minutes:120});const ids=AQB_QBANK.slice(0,4).map(q=>q.id);const m={};ids.forEach(id=>m[id]={S:0.3,D:5,last:Date.now()-2*DAY,seen:1,right:0,lapses:1});store.set(KEYS.mem,m);
-  const p=LISTED_PASSAGES[0];store.set(KEYS.errors,[...ids.map((id,i)=>({t:Date.now()-2*DAY+i,id,src:'recall',type:i?'knowledge':'confused',chosen:'a',answer:'b'})),{t:Date.now()-2*DAY+9,id:p.id+'#0',src:'passage',type:'reasoning',chosen:'a',answer:'b'}]);store.set(KEYS.daily,{['${day(-2)}']:5})`);
+  const p=EXAM_CARS[0];store.set(KEYS.errors,[...ids.map((id,i)=>({t:Date.now()-2*DAY+i,id,src:'recall',type:i?'knowledge':'confused',chosen:'a',answer:'b'})),{t:Date.now()-2*DAY+9,id:p.id+'#0',src:'passage',type:'reasoning',chosen:'a',answer:'b'}]);store.set(KEYS.daily,{['${day(-2)}']:5})`);
 run(`store.set(KEYS.subjectPath,{tests:[{subj:'cp',day:localDay(),t:1,kind:'diagnostic',correct:30,total:59,pct:51,scaled:122,version:'cp_diag',cats:{'5D':{c:2,t:14}}},{subj:'cp',day:localDay(),t:2,kind:'daily',correct:12,total:30,pct:40,scaled:120,version:'cp_half_1',cats:{'4C':{c:0,t:3}}}]})`);
-const screens = ['renderHome()', "setMode('passage')", "setMode('exam')", "setMode('aamc')", "setMode('flprep')", 'showPlan()', 'showProgress()', 'showOfficialScores()', 'showAbout()', 
-  'startMasteryFlashcards();pick((quiz.items[0].ans+1)%4);renderNextArea()', 'endQuiz()', "selectedPassageId=LISTED_PASSAGES[0].id;startPassage();answerPassage((pq.views[0].ans+1)%4)", "goHome();startMasteryTest('daily')", 'goHome();startExam(0)', 'beginSection()', 'openSectionReview()', 'renderStudyTimer()'];
+const screens = ['renderHome()', "setMode('exam')", "setMode('aamc')", "setMode('flprep')", 'showPlan()', 'showProgress()', 'showOfficialScores()', 'showAbout()', 
+  'startMasteryFlashcards();pick((quiz.items[0].ans+1)%4);renderNextArea()', 'endQuiz()', "startPassage(EXAM_CARS[0]);answerPassage((pq.views[0].ans+1)%4)", "goHome();startMasteryTest('daily')", 'goHome();startExam(0)', 'beginSection()', 'openSectionReview()', 'renderStudyTimer()'];
 for (const code of screens) { run(code); harvest(); }
 for (const name of seen) assert(ACTIONS.has(name), name + ' rendered but not allowlisted');
 assert(seen.size >= 45, 'harvested ' + seen.size + ' distinct actions');

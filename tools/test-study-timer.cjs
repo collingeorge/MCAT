@@ -19,7 +19,7 @@ run('document.hidden=true;const hiddenTotal=studyTimerState().total;studyTimerSt
 run('document.hidden=false;const sleepTotal=studyTimerState().total;studyTimerState().last=Date.now()-60000;tickStudyTimer()');assert.equal(run('studyTimerState().total'),run('sleepTotal'));
 run('setStudyTimerGoal(25);studyTimerState().block=26*60000;renderStudyTimer()');assert.match(el('study-break-message').textContent,/Finish this card set/);
 run('setStudyTimerGoal(999)');assert.equal(run('studyTimerState().goal'),25);
-run('selectedPassageId=LISTED_PASSAGES[0].id;startPassage();studyTimerState().block=46*60000;renderStudyTimer()');assert.match(el('study-break-message').textContent,/Finish this passage/);
+run('startPassage(EXAM_CARS[0]);studyTimerState().block=46*60000;renderStudyTimer()');assert.match(el('study-break-message').textContent,/Finish this passage/);
 assert.equal(el('study-break-actions').hidden,true);
 run('startMasteryTest("diagnostic");renderStudyTimer()');assert.match(el('study-break-message').textContent,/Finish this test/);
 run('pq.mini=null;goHome();const homeTotal=studyTimerState().total;studyTimerState().last=Date.now()-1000;tickStudyTimer()');assert.equal(run('studyTimerState().total'),run('homeTotal'));

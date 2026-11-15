@@ -22,7 +22,6 @@
 <script src="../data/passages-cars.js"></script>
 <script src="../data/cp-diagnostic.js"></script>
 <script src="../data/cp-pool.js"></script>
-<script src="../data/cp-practice.js"></script>
 <script src="../data/qb-aamc-bio.js"></script>
 <script src="../data/qb-aamc-chem.js"></script>
 <script src="../data/qb-aamc-phys.js"></script>
@@ -181,8 +180,7 @@
 
   // Chem/Phys Diagnostic and daily quiz sets (data/cp-diagnostic.js, data/cp-pool.js): original passages in the
   // exam's layout. Each set's order must name every passage once and use every stand-alone exactly once.
-  const cpSets = [...(typeof CP_DIAG === 'undefined' || !CP_DIAG ? (warn('CP_DIAG', 'not loaded'), []) : [CP_DIAG]), ...(typeof CP_POOL === 'undefined' ? (warn('CP_POOL', 'not loaded'), []) : CP_POOL),
-    ...(typeof CP_PRACTICE === 'undefined' ? (warn('CP_PRACTICE', 'not loaded'), []) : CP_PRACTICE.length ? [{ id: 'cp_practice', passages: CP_PRACTICE, standalones: [], order: CP_PRACTICE.map(p => p.id) }] : [])];
+  const cpSets = [...(typeof CP_DIAG === 'undefined' || !CP_DIAG ? (warn('CP_DIAG', 'not loaded'), []) : [CP_DIAG]), ...(typeof CP_POOL === 'undefined' ? (warn('CP_POOL', 'not loaded'), []) : CP_POOL)];
   const CP_CATS = new Set(['4A', '4B', '4C', '4D', '4E', '5A', '5B', '5C', '5D', '5E']);
   cpSets.forEach(set => {
     const named = set.order.filter(x => typeof x === 'string'), saN = set.order.filter(x => typeof x === 'number').reduce((a, b) => a + b, 0);

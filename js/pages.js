@@ -2,8 +2,9 @@
 (() => {
   'use strict';
   if (typeof history === 'undefined' || !location.pathname) return;
-  const titles = {index:'Overview',passages:'Passages',exams:'Full-length exams',aamc:'AAMC Prep',flprep:'AAMC Prep · Practice Exam cards','score-report':'Score report',about:'About & sources','recall-session':'Flashcard session','passage-session':'Passage session','exam-session':'Exam session',results:'Session results','exam-results':'Exam results'};
-  const modes = {passages:'passage',exams:'exam',aamc:'aamc',flprep:'flprep'};
+  const titles = {index:'Overview',exams:'Full-length exams',aamc:'AAMC Prep',flprep:'AAMC Prep · Practice Exam cards','score-report':'Score report',about:'About & sources','recall-session':'Flashcard session','passage-session':'Passage session','exam-session':'Exam session',results:'Session results','exam-results':'Exam results'};
+  // passages.html (the removed Passages tab) and recall.html have no route: old links open Overview.
+  const modes = {exams:'exam',aamc:'aamc',flprep:'flprep'};
   let applying = false;
   let current = 'index';
   const pageFromURL = () => location.pathname.split('/').pop().replace(/\.html$/, '') || 'index';
@@ -11,20 +12,20 @@
     const params = new URLSearchParams();
     // A timed test (diagnostic or quiz) has no single passage: its URL names none.
     const testRunning = page === 'passage-session' && typeof pq !== 'undefined' && !!pq.mini;
-    if (['passages','passage-session'].includes(page) && !testRunning && PASSAGE_BY_ID.has(selectedPassageId)) params.set('passage', selectedPassageId);
+    if (page === 'passage-session' && !testRunning && PASSAGE_BY_ID.has(selectedPassageId)) params.set('passage', selectedPassageId);
     if (['exam-session','exam-results'].includes(page) && exam) params.set('exam', FULL_EXAMS[exam.ei].id);
     return params.size ? '?' + params.toString() : '';
   }
   function paint(page) {
     current = page;
-    const focused = ['passages','exams','aamc','flprep'].includes(page);
+    const focused = ['exams','aamc','flprep'].includes(page);
     $('home-score').hidden = focused;
     $('home-actions').hidden = focused;
     if ($('today-plan')) $('today-plan').hidden = focused;
     const heading = document.querySelector('.hero-title');
-    heading.textContent = focused ? {passages:'Passage practice',exams:'Full-length exams',aamc:'AAMC Prep',flprep:'AAMC Prep'}[page] : 'MCAT Study App';
+    heading.textContent = focused ? {exams:'Full-length exams',aamc:'AAMC Prep',flprep:'AAMC Prep'}[page] : 'MCAT Study App';
     document.title = titles[page] + ' | MCAT Study App';
-    const parent = {'recall-session':'aamc','passage-session':'passages','exam-session':'exams',results:'score-report','exam-results':'exams',flprep:'aamc'}[page] || page;
+    const parent = {'recall-session':'aamc','passage-session':'index','exam-session':'exams',results:'score-report','exam-results':'exams',flprep:'aamc'}[page] || page;
     document.querySelectorAll('[data-study-page]').forEach(a => {
       if (a.dataset.studyPage === parent) a.setAttribute('aria-current','page');
       else a.removeAttribute('aria-current');
@@ -48,7 +49,6 @@
   function apply(page, fromHistory = false) {
     const priorURL = current + '.html' + context(current);
     const params = new URLSearchParams(location.search);
-    const passage = params.get('passage');
     const examId = params.get('exam');
     applying = true;
     if (!goHome()) {
@@ -65,15 +65,13 @@
         if (saved) { openLastExamReview(ei); actual = 'exam-results'; }
         else { actual = 'exams'; notice = 'No completed exam for this link is saved in this browser. Choose an exam below.'; }
       } else {
-        const fallback = {'recall-session':'aamc','passage-session':'passages','exam-session':'exams',results:'score-report'};
+        const fallback = {'recall-session':'aamc','passage-session':'index','exam-session':'exams',results:'score-report'};
         actual = fallback[actual];
         notice = 'Session links do not contain answers or a live attempt. Choose or resume practice below; saved progress stays in this browser.';
       }
     }
-    if (modes[actual]) {
-      setMode(modes[actual], false);
-      if (actual === 'passages' && passage && PASSAGE_BY_ID.has(passage)) { selectedPassageId = passage; renderPassageSelector(); }
-    } else if (actual === 'score-report') showProgress();
+    if (modes[actual]) setMode(modes[actual], false);
+    else if (actual === 'score-report') showProgress();
     else if (actual === 'about') showAbout();
     applying = false;
     $('page-notice').textContent = notice;
@@ -84,7 +82,7 @@
     main.setAttribute('tabindex','-1');
     main.focus({preventScroll:true});
   }
-  window.McatPages = {screen, mode:(mode, replace = false) => write({passage:'passages',exam:'exams',aamc:'aamc',flprep:'flprep'}[mode],replace)};
+  window.McatPages = {screen, mode:(mode, replace = false) => write({exam:'exams',aamc:'aamc',flprep:'flprep'}[mode],replace)};
   document.addEventListener('click', e => {
     const link = e.target.closest('a[data-study-page]');
     if (!link || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;

@@ -1,5 +1,5 @@
-// TODAY's 3 daily steps and the Passages tab, run in the real app code: the Passages tab lists only the AAMC-style
-// C/P practice passages (TODAY has no passage step); flashcards split exactly by AAMC weight, weak categories
+// TODAY's 3 daily steps, run in the real app code: TODAY is the only C/P path (no passage step; the Passages tab
+// and its C/P practice passages were removed); flashcards split exactly by AAMC weight, weak categories
 // changing which cards (missed and due first, then weak sub-topics), never how many; the quiz unlocks once
 // flashcards and guided cards are done; the post-quiz follow-up reviews the quiz's misses and weak categories with
 // flashcards and guided cards, never passages. (This file once tested the recall subject path, removed with the
@@ -18,13 +18,13 @@ for (const [, file] of fs.readFileSync(root + '/index.html', 'utf8').matchAll(/<
 
 // Approved content only: no recall decks, no app-written passages, exam CARS limited to passages 1–9 of each set.
 assert.equal(run('QB.length'), 0);
-assert.equal(run('LISTED_PASSAGES.length'), 36); assert.equal(run('LISTED_PASSAGES.reduce((n,p)=>n+p.questions.length,0)'), 144);
-assert(run('LISTED_PASSAGES.every(p=>/^p_cpx\\d_\\d$/.test(p.id))'), 'the Passages tab lists only CP_PRACTICE');
-assert(run("[...CP_DIAG.passages,...CP_POOL.flatMap(s=>s.passages)].every(p=>!LISTED_IDS.has(p.id))"), 'diagnostic and quiz passages are never listed');
+assert.equal(run("typeof CP_PRACTICE"), 'undefined', 'the C/P practice passages (old Passages tab) are gone');
+assert(!fs.existsSync(root + '/data/cp-practice.js') && !fs.readFileSync(root + '/index.html', 'utf8').includes('cp-practice.js') && !fs.readFileSync(root + '/sw.js', 'utf8').includes('cp-practice.js'), 'no file, script tag or cache entry');
+assert(run("[...CP_DIAG.passages,...CP_POOL.flatMap(s=>s.passages)].every(p=>!PASSAGE_BY_ID.has(p.id))"), 'diagnostic and quiz passages run only from TODAY');
 assert.equal(run("JSON.stringify(EXAM_CARS.map(p=>p.id))"), JSON.stringify([...Array(9)].map((_, i) => 'p_cars_' + (i + 1)).concat([...Array(9)].map((_, i) => 'p_e2cars_' + (i + 1)))));
 assert(run('[...EXAM_PASSAGE_IDS].every(id=>PASSAGE_BY_ID.has(id))'), 'every exam CARS passage resolves');
-run("setMode('passage', false)"); assert.match(el('passage-selector').innerHTML, /Chem\/Phys/); assert.doesNotMatch(el('passage-selector').innerHTML, /p_cars_|p_cpd_|p_cpp/);
-run("setMode('recall', false)"); assert.equal(run('prefs.mode'), 'passage', 'a saved Recall mode opens Passages');
+run("setMode('passage', false)"); assert.equal(run('prefs.mode'), 'exam', 'a saved Passages mode opens Full-length');
+run("setMode('recall', false)"); assert.equal(run('prefs.mode'), 'exam', 'a saved Recall mode opens Full-length');
 assert.equal(typeof ctx.questionForms, 'function'); assert.equal(run('questionForms(AQB_QBANK[0]).length'), 1, 'cards are asked only as written');
 
 // Set up: the C/P diagnostic is done (weakest 5D, then 4E), so today is a study day.
@@ -41,7 +41,7 @@ assert.deepEqual(JSON.parse(run('JSON.stringify(masteryLoad().days[localDay()])'
 assert.match(el('today-plan').innerHTML, /5D 0\/12 <b>weak<\/b>/); assert.match(el('today-plan').innerHTML, /4E 0\/7 <b>weak<\/b>/); assert.doesNotMatch(el('today-plan').innerHTML, /\+ extra/);
 assert.match(el('today-plan').innerHTML, /5D × 7/, 'the quiz shows its AAMC mix');
 assert(plan.steps.filter(s => s.topics).every(s => s.topics.every(t => t.extra === 0) && s.topics.reduce((n, t) => n + t.need, 0) === s.count), 'every step sums to its count, 0 extra on every category');
-assert.match(el('hero-badge').textContent, /QBank cards · 354 Practice Exam cards · 36 C\/P passages · \d full-length exams/);
+assert.match(el('hero-badge').textContent, /QBank cards · 354 Practice Exam cards · \d full-length exams/);
 
 // Weakness picks, never counts: within 5D (a weak category), a card missed today, one missed on the latest test
 // and one due for review come first, then the weakest sub-topic's cards (by saved accuracy), then the rest.
@@ -75,9 +75,9 @@ run(`(() => { const m = masteryLoad(), row = masteryDayRow(m, 'cp'), p = mastery
 run('renderHome()'); assert.match(el('today-plan').innerHTML, /startMasteryTest\('daily'\)/, 'unlocked once steps 1 and 2 are done');
 run("startMasteryTest('daily')"); assert.equal(run('pq.mini.mastery'), 'daily'); run('stopPassageTimer(); pq.mini = null; goHome()');
 run(`(() => { const m = masteryLoad(), row = masteryDayRow(m, 'cp'); row.flashT = {}; row.guidedT = {}; row.lessonsN = 0; masterySave(m); })()`);
-// The Passages tab still runs a practice passage on its own (it counts toward no TODAY step).
-run('startPassage(LISTED_PASSAGES[0])'); run('answerPassage(pq.views[0].ans)');
-assert.equal(run('masteryLoad().days[localDay()].prac'), undefined, 'passage answers no longer count toward TODAY'); run('goHome()');
+// A passage run on its own (a full-length's CARS passage) counts toward no TODAY step.
+run('startPassage(EXAM_CARS[0])'); run('answerPassage(pq.views[0].ans)');
+assert.equal(run('masteryLoad().days[localDay()].prac'), undefined, 'passage answers do not count toward TODAY'); run('goHome()');
 
 // After the quiz (below goal): the follow-up reviews the quiz's misses and weak categories with flashcards (and
 // guided cards, below); the quiz's missed card comes first; never practice passages.
@@ -148,4 +148,4 @@ assert.equal(run('masteryLoad().days[localDay()].prac'), undefined, 'passage ans
   const old = JSON.parse(run(`JSON.stringify(masteryLoad().days['2026-01-01'])`));
   assert(!old.seen && !old.guidedIds && !old.lessonIds && !old.pracUsed && old.flashT['5D'] === 3, 'lists dropped, counts kept');
   assert(Array.isArray(JSON.parse(run('JSON.stringify(masteryLoad().days[localDay()].seen)'))), 'today keeps its lists'); }
-console.log('TODAY steps passed: 3 daily steps after the diagnostic (no passage step); the Passages tab lists only the 36 C/P practice passages; QBank-only flashcards in the exact AAMC split, missed, due and weak sub-topics first; the quiz unlocks after flashcards and guided cards; the follow-up uses flashcards and guided cards on the quiz misses and weak categories; lessons, first-answer counting, midnight and synced-list regressions.');
+console.log('TODAY steps passed: 3 daily steps after the diagnostic (no passage step); the Passages tab and C/P practice passages are gone; QBank-only flashcards in the exact AAMC split, missed, due and weak sub-topics first; the quiz unlocks after flashcards and guided cards; the follow-up uses flashcards and guided cards on the quiz misses and weak categories; lessons, first-answer counting, midnight and synced-list regressions.');

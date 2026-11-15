@@ -1,5 +1,5 @@
-// AAMC length and format for every Chem/Phys (C/P) item: the passages and questions of data/cp-practice.js,
-// data/cp-pool.js and data/cp-diagnostic.js, and the C/P flashcards (the cards TODAY's flashcard step uses,
+// AAMC length and format for every Chem/Phys (C/P) item: the passages and questions of data/cp-pool.js and
+// data/cp-diagnostic.js, and the C/P flashcards (the cards TODAY's flashcard step uses,
 // masteryExamPool('cp') in js/mastery.js: every card of qb-aamc-chem.js, qb-aamc-phys.js and qb-aamc-biochem.js,
 // and the cards of qb-aamc-iqb.js in a C/P content category, 4A–5E). data/qb-aamc-fl.js (Practice Exam cards,
 // which put passage context into the stem) is measured and reported but never fails the test.
@@ -75,7 +75,6 @@ function passageFile(file, name, get) {
   }
   files.push({ file, enforced: true, passages, questions });
 }
-passageFile('cp-practice.js', 'CP_PRACTICE', d => [{ passages: d }]);
 passageFile('cp-pool.js', 'CP_POOL', d => d);
 passageFile('cp-diagnostic.js', 'CP_DIAG', d => [d]);
 for (const [file, name, all] of [['qb-aamc-chem.js', 'QB_AAMC_CHEM', true], ['qb-aamc-phys.js', 'QB_AAMC_PHYS', true],

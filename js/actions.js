@@ -18,7 +18,7 @@
     // recall quiz
     'pick', 'revealChoices', 'showHint', 'teachStep', 'howStep', 'howToggle', 'howReplay', 'setConfidence', 'setErrType', 'setPendingNote', 'setWrongAlternative', 'nextQ', 'endQuiz', 'flagCurrent',
     // passages and mini tests
-    'selectPassage', 'startPassage', 'answerPassage', 'nextPassageQ', 'nextPassage', 'setPassageErr', 'setMiniReviewAlternative', 'leaveMiniForRecall',
+    'startPassage', 'answerPassage', 'nextPassageQ', 'setPassageErr', 'setMiniReviewAlternative', 'leaveMiniForRecall',
     // full-length exams
     'startExam', 'abandonExam', 'beginSection', 'examPick', 'examNav', 'jumpTo', 'toggleMark', 'openSectionReview', 'confirmEndSection', 'continueAfterBreak',
     'openLastExamReview', 'setExamReview', 'setExamReviewAlternative', 'studyExamMistakes',

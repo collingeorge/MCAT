@@ -134,12 +134,11 @@ async function main() {
   assert(await evaluate('document.querySelector("#account-status").textContent.length>0'));
   await until('performance.getEntriesByType("resource").some(r=>r.name.includes("vendor/supabase"))&&typeof window.supabase?.createClient==="function"');
   // Real clicks through delegated actions under script-src 'self' (no inline handlers).
-  await evaluate('goHome();document.querySelector("#btn-passage").click()');
-  assert.equal(await evaluate('prefs.mode'),'passage');
+  assert.equal(await evaluate('document.querySelector("#btn-passage")'),null,'no Passages tab');
+  await evaluate('goHome();document.querySelector("#btn-exam").click()');
+  assert.equal(await evaluate('prefs.mode'),'exam');
   await evaluate('document.querySelector("#btn-aamc").click()');
   assert.equal(await evaluate('["aamc","flprep"].includes(prefs.mode)'),true);
-  await evaluate('goHome();document.querySelector("#btn-passage").click()');
-  assert(await evaluate('document.querySelector("#passage-selector").textContent.includes("Chem/Phys")'));
   // A change action reads this.value: the path's goal select.
   await evaluate('goHome();const g=document.querySelector("[data-change^=\\"setMasteryGoal\\"]");g.value="129";g.dispatchEvent(new Event("change",{bubbles:true}))');
   assert.equal(await evaluate('masteryLoad().goal'),129,'change action reads this.value');
@@ -152,7 +151,7 @@ async function main() {
   const fontScreens=[
    ['flashcard','beginQuiz(AQB_QBANK.slice(0,3),"Font flashcards",{adaptive:false});if(document.querySelector("#reveal-btn"))revealChoices();true','activeScreen==="screen-quiz" && !!document.querySelector("#quiz-body .choice-btn")',false],
    ['guided card','startMasteryGuided(true);true','quiz.mastery==="guided" && activeScreen==="screen-quiz" && !!document.querySelector("#quiz-body .choice-btn") && !!document.querySelector("#quiz-body .teach-box")',false],
-   ['practice passage','startPassage(LISTED_PASSAGES.find(p=>p.questions&&p.questions.length));true','activeScreen==="screen-passage" && !pq.mini && !!document.querySelector("#pp-passage-box .passage-text") && !!document.querySelector("#pp-question-box .choice-btn")',true],
+   ['single passage','startPassage(EXAM_CARS[0]);true','activeScreen==="screen-passage" && !pq.mini && !!document.querySelector("#pp-passage-box .passage-text") && !!document.querySelector("#pp-question-box .choice-btn")',true],
    ['daily quiz','(()=>{const m=masteryLoad(),r=masteryDayRow(m,"cp"),p=masteryPlanNow(m);for(const s of p.steps)if(s.topics)r[s.id==="flashcards"?"flashT":"guidedT"]=Object.fromEntries(s.topics.map(t=>[t.code,t.need]));r.lessonsN=50;masterySave(m)})();startMasteryTest("quiz");true','activeScreen==="screen-passage" && pq.mini && pq.mini.mastery==="daily" && !!document.querySelector("#pp-question-box .choice-btn")',true],
    ['diagnostic','startMasteryTest("diagnostic");true','activeScreen==="screen-passage" && pq.mini && pq.mini.mastery==="diagnostic" && !!document.querySelector("#pp-question-box .choice-btn")',true],
    ['full-length exam','startExam(0);beginSection();exam.qi=Math.max(0,curQuestions().findIndex(q=>q.passageTitle));renderExamQuestion();true','activeScreen==="screen-exam" && !!document.querySelector("#ex-passage .passage-text") && !!document.querySelector("#exam-body .choice-btn")',true]];
@@ -195,7 +194,7 @@ async function main() {
   await until('document.querySelector("#today-plan .today-head")!==null && typeof AQB_QBANK!=="undefined" && AQB_QBANK.length>1000');
   // Banks that load on demand come from the offline cache too.
   assert.equal(await evaluate('typeof CP_POOL'),'undefined','the quiz sets are not loaded at startup');
-  assert.equal(await evaluate('Promise.all(Object.keys(BANKS).map(ensureBank)).then(()=>LISTED_PASSAGES.length+"/"+FLQ.length+"/"+EXAM_CARS.length+"/"+CP_POOL.length+"/"+AAMC_PREP.length)'),'36/354/18/6/3','approved content, including the on-demand banks, available offline');
+  assert.equal(await evaluate('Promise.all(Object.keys(BANKS).map(ensureBank)).then(()=>(typeof CP_PRACTICE)+"/"+FLQ.length+"/"+EXAM_CARS.length+"/"+CP_POOL.length+"/"+AAMC_PREP.length)'),'undefined/354/18/6/3','approved content, including the on-demand banks, available offline');
   assert.equal(await evaluate('fetch("/not-cached-"+Date.now()).then(()=>false,()=>true)'),true,'the network really is offline');
   await evaluate('beginQuiz(AQB_QBANK.slice(0,2),"Offline",{adaptive:false});document.querySelector("#cb-0").click()');
   assert.equal(await evaluate('quiz.results.length'),1,'studying works offline');
