@@ -1093,7 +1093,7 @@ used = set()
 for m in re.finditer(r'"?(?:fig|choiceFigs)"?:\s*("([^"]+)"|\[([^\]]*)\])', cards):
     used.update([m.group(2)] if m.group(2) else re.findall(r'"([^"]+)"', m.group(3)))
 # The Chem/Phys diagnostic and daily quiz passages draw structures in their schemes, questions and choices.
-for f in ['data/cp-diagnostic.js', 'data/cp-pool.js']:
+for f in ['data/cp-diagnostic.js', 'data/cp-pool.js', 'data/cp-practice.js']:
     path = root / f
     if not path.exists(): continue
     text = path.read_text(encoding='utf-8')

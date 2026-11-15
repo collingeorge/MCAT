@@ -118,6 +118,16 @@ assert(app.includes('masteryNoteLesson(view.q)') && app.includes("quiz.mastery =
 for (const a of ['startMasteryGuided', 'startMasteryMisses', 'startMasteryFlashcards', 'startMasteryTest', 'setMasteryGoal', 'setMasteryPerDay', 'setMasterySubject']) assert(actions.includes("'" + a + "'"), a + ' allowlisted');
 for (const page of ['index.html', 'recall.html']) assert(fs.readFileSync(root + '/' + page, 'utf8').includes('<script src="js/mastery.js"></script>'), page + ' loads the path');
 assert(fs.readFileSync(root + '/sw.js', 'utf8').includes("'js/mastery.js'"), 'cached for offline use');
+// Passage practice: a daily step before the test when the section has practice passages (C/P), counted from today's row.
+{ const mp = apply({}, test('cp', '2026-11-15', 'diagnostic', 122));
+  let pp = plan(mp, '2026-11-16', { guided: 266, passages: 144 });
+  assert.deepEqual(ids(pp), ['misses', 'flashcards', 'guided', 'passages', 'test']); assert.equal(pp.steps[3].count, 50);
+  mp.days['2026-11-16'] = { subj: 'cp', prac: 50 }; pp = plan(mp, '2026-11-16', { guided: 266, passages: 144 });
+  assert(pp.steps.find(s => s.id === 'passages').done, '50 practice passage questions complete the step');
+  assert.deepEqual(ids(plan(mp, '2026-11-16', { guided: 266, passages: 0 })), ['misses', 'flashcards', 'guided', 'test'], 'no practice passages: no step'); }
+assert(src.includes("startPassage(next, { masteryPractice: true });") && fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'startMasteryPassages'"), 'passage practice wired and allowlisted');
+// Results saved before the Chem/Phys Diagnostic existed (no version) are labeled as the old diagnostic.
+assert(src.includes("version: mini.setId || 'cards'") && src.includes('old diagnostic version'), 'old diagnostic labeled');
 // A retake button runs the full diagnostic again once the first one is done.
 assert(src.includes('data-click="startMasteryTest(\\\'diagnostic\\\')">Retake diagnostic</button>'), 'retake diagnostic button');
 // Storage keys: the path has its own key (it once collided with the topic-mastery map), is reset with the rest,

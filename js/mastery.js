@@ -119,8 +119,13 @@ function masteryPlan(raw, today, sizes = {}) {
   out.topics = topics; out.perDay = m.perDay;
   if (misses.length) out.steps.push({ id: 'misses', count: misses.length, progress: misses.filter(id => reviewed.has(id)).length, ids: misses, from: prevDay, done: misses.every(id => reviewed.has(id)) });
   out.steps.push({ id: 'flashcards', topics: flashT, count: flashN, progress: sum(flashT), extra: sum(flashT, 'raw') - sum(flashT), done: flashT.every(t => t.progress >= t.need) });
+  // Passage practice (C/P): exam-style passages with an explanation after each question; its own passages, so
+  // the daily quiz stays unseen. sizes.passages: how many practice passage questions the section has.
+  const pracN = Number.isFinite(sizes.passages) ? Math.min(m.perDay, sizes.passages) : 0;
+  const pracSteps = pracN > 0 ? [{ id: 'passages', count: pracN, progress: Math.min(pracN, Number(row.prac) || 0), extra: Math.max(0, (Number(row.prac) || 0) - pracN), done: (Number(row.prac) || 0) >= pracN }] : [];
   if (guidedN > 0) out.steps.push({ id: 'guided', topics: guidedT, count: guidedN, progress: sum(guidedT), extra: sum(guidedT, 'raw') - sum(guidedT), lessons, lessonCount: guidedN,
     done: guidedT.every(t => t.progress >= t.need) && lessons >= guidedN });
+  out.steps.push(...pracSteps);
   out.steps.push({ id: 'test', done: !!todayTest, result: todayTest });
   return out;
 }
@@ -141,7 +146,7 @@ function masteryApplyTest(raw, test) {
 // ── Browser side: storage, sessions, tests ──
 function masteryPlanNow(m = masteryLoad()) {
   const subj = masterySubject(m, localDay());
-  return masteryPlan(m, localDay(), { guided: subj ? masteryPracticePool(subj).length : 0 });
+  return masteryPlan(m, localDay(), { guided: subj ? masteryPracticePool(subj).length : 0, passages: subj ? masteryPassagePool(subj).reduce((n, p) => n + p.questions.length, 0) : 0 });
 }
 const masterySection = s => MCAT_SECTIONS.find(x => x.id === s);
 const masteryName = s => { const x = masterySection(s); return x ? x.abbrev + ' · ' + x.label : String(s || ''); };
@@ -153,6 +158,8 @@ function masteryFlashPool(s) {
   return QB.filter(q => { if (!discs.has(disciplineOfRecall(q))) return false; const c = masteryCategory(q); return cats.has(c) || c === 'other'; });
 }
 // Practice Exam cards: the C/P cards come from the AAMC practice exams' C/P sections.
+// Practice passages for the daily passage step (data/cp-practice.js), separate from the diagnostic and quizzes.
+const masteryPassagePool = s => (s === 'cp' && typeof CP_PRACTICE !== 'undefined' && Array.isArray(CP_PRACTICE) ? CP_PRACTICE : []);
 const masteryPracticePool = s => (s === 'cp' ? FLQ.filter(q => /^pe\d-cp:/.test(q.src)) : []);
 function masteryLoad() { return masteryNormalize(store.get(KEYS.subjectPath, {})); }
 function masterySave(m) {
@@ -239,6 +246,24 @@ function startMasteryMisses() {
 function startMasteryFlashcards(more) {
   const plan = masteryPlanNow();
   masteryBegin(plan, plan.steps.find(s => s.id === 'flashcards'), masteryFlashPool(plan.subj), masteryCategory, 'flashcards', 'flashcards', more);
+}
+// Passage practice: one passage at a time with feedback after each question; unseen passages first, then those
+// on today's content categories, then the ones practiced longest ago.
+function startMasteryPassages() {
+  const plan = masteryPlanNow(), pool = masteryPassagePool(plan.subj);
+  if (!pool.length) return;
+  const stats = store.get(KEYS.passages, {}), topics = new Set(plan.topics || []);
+  const score = p => (stats[p.id]?.attempts ? 1000 : 0) + (p.cats || []).some(c => topics.has(c)) * -100 + (stats[p.id]?.lastAt || 0) / 1e12;
+  const next = pool.slice().sort((a, b) => score(a) - score(b))[0];
+  startPassage(next, { masteryPractice: true });
+}
+// Counts each answered practice passage question toward today's passage step.
+function masteryNotePractice() {
+  const m = masteryLoad(), subj = masterySubject(m, localDay());
+  if (!subj) return;
+  const row = masteryDayRow(m, subj);
+  row.prac = (Number(row.prac) || 0) + 1;
+  masterySave(m);
 }
 // Diagnostic / end-of-day test: 2 passages from the section's main disciplines (unattempted first) + discrete
 // questions spread over its disciplines in the exam's proportions, from the
@@ -332,7 +357,7 @@ function masteryFinishTest(mini, results) {
   // Tomorrow's "misses" step reviews missed bank questions; test-only questions are reviewed on the results page.
   const missIds = results.filter((r, i) => !r.right && !mini.items[i].passage).map(r => r.view.q.baseId || r.view.q.id).filter(id => id && typeof lookupQ === 'function' && lookupQ(id));
   const pctRight = total ? 100 * correct / total : 0;
-  const test = { subj: mini.subj, day: localDay(), t: Date.now(), kind: mini.mastery, correct, total, pct: Math.round(pctRight), scaled: rawToScaled(pctRight), cats, parts, skills, missIds };
+  const test = { subj: mini.subj, day: localDay(), t: Date.now(), kind: mini.mastery, correct, total, pct: Math.round(pctRight), scaled: rawToScaled(pctRight), cats, parts, skills, missIds, version: mini.setId || 'cards' };
   const before = masteryLoad();
   const prevTest = before.tests.filter(t => t.subj === test.subj).at(-1) || null;
   const after = masteryApplyTest(before, test);
@@ -375,7 +400,9 @@ function masteryCard() {
   const head = '<div class="today-head"><div><div class="section-label">TODAY › Section mastery</div><div class="today-date">' + (plan.subj ? '<b>' + name(plan.subj) + '</b> · goal ' + plan.goal + ' on ' + MASTERY.passDays + ' days in a row' : 'All sections mastered') + '</div></div></div>' +
     '<div class="mastery-path">' + path + '</div>';
   if (plan.status === 'complete') return head + '<p class="today-alldone">✓ Every section in the path is at goal. Keep your scores up with due reviews and full-length practice.</p>';
-  const latest = plan.latest ? '<p class="mastery-latest">Last test: <b>' + plan.latest.scaled + '</b> (' + plan.latest.correct + '/' + plan.latest.total + ')' + (plan.previous ? ' · ' + (plan.latest.scaled > plan.previous.scaled ? '<b class="mastery-up">▲ up ' + (plan.latest.scaled - plan.previous.scaled) + '</b>' : plan.latest.scaled < plan.previous.scaled ? '<b class="mastery-down">▼ down ' + (plan.previous.scaled - plan.latest.scaled) + '</b>' : 'no change') : '') + ' · days at goal in a row: ' + plan.streak + '/' + MASTERY.passDays + '</p>' : '';
+  // Results saved before the Chem/Phys Diagnostic existed carry no version: label them as the old diagnostic.
+  const oldDiag = t => t && t.kind === 'diagnostic' && !t.version;
+  const latest = plan.latest ? '<p class="mastery-latest">Last test: <b>' + plan.latest.scaled + '</b> (' + plan.latest.correct + '/' + plan.latest.total + ')' + (oldDiag(plan.latest) ? ' · <b>old diagnostic version</b>: retake the new one below for a fresh start' : '') + (plan.previous ? ' · ' + (plan.latest.scaled > plan.previous.scaled ? '<b class="mastery-up">▲ up ' + (plan.latest.scaled - plan.previous.scaled) + '</b>' : plan.latest.scaled < plan.previous.scaled ? '<b class="mastery-down">▼ down ' + (plan.previous.scaled - plan.latest.scaled) + '</b>' : 'no change') : '') + ' · days at goal in a row: ' + plan.streak + '/' + MASTERY.passDays + '</p>' : '';
   const weak = plan.weak.length ? '<p class="muted-note">Weak content categories: ' + plan.weak.slice(0, 4).map(w => esc(w.code) + ' ' + esc(AAMC_CAT_LABEL(w.code)) + ' (' + w.pct + '%)').join(' · ') + '</p>' : '';
   const btn = (label, fn, primary = true) => '<button class="' + (primary ? 'new-quiz-btn' : 'micro-btn') + ' today-start" data-click="' + fn + '">' + label + '</button>';
   const mins = n => '<span class="today-min">~' + n + ' min</span>';
@@ -394,6 +421,7 @@ function masteryCard() {
       if (s.id === 'misses') { title = 'Review yesterday’s misses'; count = s.progress + ' / ' + s.count; detail = 'Cards and test questions you missed on ' + shortDay(s.from) + '.'; time = mins(Math.ceil((s.count - s.progress) * 0.8)); if (!s.done) button = btn('Start', 'startMasteryMisses()'); }
       if (s.id === 'flashcards') { title = 'Flashcards'; count = s.progress + ' / ' + s.count; detail = 'Learn the facts first, across the section’s disciplines, spread over today’s content categories.' + topicList(s.topics); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 0.6)); button = s.done ? more('startMasteryFlashcards(true)', s) : btn(s.progress ? 'Continue' : 'Start', 'startMasteryFlashcards()'); }
       if (s.id === 'guided') { title = 'Practice Exam cards with step-by-step lessons'; count = s.progress + ' / ' + s.count + ' cards · ' + s.lessons + ' / ' + s.lessonCount + ' lessons'; detail = 'Then use them the way the exam asks. Each card opens its lesson: step through it to the end, answer, then watch the walkthrough.' + topicList(s.topics); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 1.2 + (s.lessonCount - s.lessons) * 2)); button = s.done ? more('startMasteryGuided(true)', s) : btn(s.progress || s.lessons ? 'Continue' : 'Start', 'startMasteryGuided()'); }
+      if (s.id === 'passages') { title = 'Passage practice'; count = s.progress + ' / ' + s.count + ' questions'; detail = 'Exam-style passages, one at a time, with the explanation after each question. These are not the quiz passages, so the quiz stays unseen.'; time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 1.8)); button = s.done ? (s.extra ? '<p class="muted-note">+' + s.extra + ' extra today.</p>' : '') + btn('Another passage', 'startMasteryPassages()', false) : btn(s.progress ? 'Continue' : 'Start', 'startMasteryPassages()'); }
       if (s.id === 'test') { title = 'End-of-day test'; detail = s.done ? 'Today: <b>' + s.result.scaled + '</b> (' + s.result.correct + '/' + s.result.total + '). Tomorrow’s weak topics are updated.' : MASTERY.testSize + ' timed questions, half an AAMC section at exam pace. Did today move your score toward ' + plan.goal + '?'; time = s.done ? '' : mins(Math.round(MASTERY.testSize * MASTERY.secondsPerItem / 60)); if (!s.done) button = btn('Start test', "startMasteryTest('daily')", plan.steps.filter(x => x.id !== 'test').every(x => x.done)); }
       return '<li class="today-step' + (s.done ? ' done' : '') + '"><span class="today-num" aria-hidden="true">' + (s.done ? '✓' : n) + '</span><div class="today-body"><div class="today-title"><b>' + title + '</b>' + (count ? ' <span class="today-count">' + count + '</span>' : '') + time + '</div><div class="today-detail">' + detail + '</div>' + button + '</div></li>';
     }).join('') + '</ol>';
@@ -402,6 +430,6 @@ function masteryCard() {
   const controls = '<details class="mastery-settings"><summary>Path settings</summary><label>Goal <select data-change="setMasteryGoal(this.value)">' + MASTERY.goals.map(g => '<option value="' + g + '"' + (g === plan.goal ? ' selected' : '') + '>' + g + '</option>').join('') + '</select></label> <label>Cards a day <select data-change="setMasteryPerDay(this.value)">' + MASTERY.perDay.map(n => '<option value="' + n + '"' + (n === plan.perDay ? ' selected' : '') + '>' + n + ' + ' + n + '</option>').join('') + '</select></label> <label>Study this section now <select data-change="setMasterySubject(this.value)"><option value="">Next in path</option>' + MASTERY.order.map(s => '<option value="' + s + '"' + (s === plan.subj && masteryLoad().current === s ? ' selected' : '') + '>' + name(s) + '</option>').join('') + '</select></label></details>';
   // Retake: run the full diagnostic again (for example after the diagnostic was rebuilt, or to re-measure).
   // The newest result then sets the weak content categories; earlier results stay in the history.
-  const retake = (plan.status === 'study' || plan.status === 'diagnostic-done') ? '<div class="mastery-retake"><button class="micro-btn" data-click="startMasteryTest(\'diagnostic\')">Retake diagnostic</button> <span class="muted-note">' + MASTERY.diagSize + ' timed questions, a full section in the exam’s format. Your newest result sets the weak topics.</span></div>' : '';
+  const retake = (plan.status === 'study' || plan.status === 'diagnostic-done') ? '<div class="mastery-retake"><button class="' + (oldDiag(plan.latest) ? 'new-quiz-btn' : 'micro-btn') + '" data-click="startMasteryTest(\'diagnostic\')">Retake diagnostic</button> <span class="muted-note">' + MASTERY.diagSize + ' timed questions, a full section in the exam’s format. Your newest result sets the weak topics.</span></div>' : '';
   return head + latest + weak + mastered + body + retake + controls;
 }

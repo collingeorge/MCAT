@@ -1070,7 +1070,7 @@ function show(id, page) {
   const nav = $('app-nav');
   if (nav) nav.hidden = id === 'screen-home';
   // A Section Mastery test runs full-screen, laid out like the real exam: no site header, menus or study bars.
-  if (typeof document !== 'undefined' && document.body) document.body.classList.toggle('exam-mode', id === 'screen-passage' && !!(pq.mini && pq.mini.mastery && !pq.mini.completed));
+  if (typeof document !== 'undefined' && document.body) document.body.classList.toggle('exam-mode', id === 'screen-passage' && (!!(pq.mini && pq.mini.mastery && !pq.mini.completed) || !!pq.masteryPractice));
   window.scrollTo(0, 0);
   renderStudyTimer();
 }
@@ -2811,11 +2811,13 @@ function nextPassage() {
   selectedPassageId = next.id;
   startPassage();
 }
-function startPassage() {
-  
+// passage: a passage object to run instead of the selected one (Section Mastery passage practice);
+// opts.masteryPractice counts each answer toward today's passage step and offers the next passage at the end.
+function startPassage(passage, opts = {}) {
   stopQuizTimer();
   pq.mini = null; pq.completed = false; pq.errPending = null;
-  const p = PASSAGE_BY_ID.get(selectedPassageId);
+  pq.masteryPractice = !!opts.masteryPractice;
+  const p = passage && passage.questions ? passage : PASSAGE_BY_ID.get(selectedPassageId);
   if (!p) return;
   pq.firstExposure = beginPassageExposure(p);
   // AAMC pace: 95 min / 59 science questions ≈ 95 s; 90 min / 53 CARS questions ≈ 102 s
@@ -3041,6 +3043,7 @@ function finishPassageAnswer(chosen, other = null, answerMs = null) {
   recordEvidence('passage', disciplineOfPassage(pq.p, view.q), right);
   if (view.q.skill) recordEvidence('skill', view.q.skill, right);
   countAnswerToday();
+  if (pq.masteryPractice && typeof masteryNotePractice === 'function') masteryNotePractice();
   pq.errPending = right ? null : { id: `${pq.p.id}#${pq.idx}`, disc: disciplineOfPassage(pq.p, view.q), key: null, type: null,
     chosen: view.choices[chosen], answer: view.choices[view.ans], other: other == null ? null : view.choices[other], correctInFinalTwo: right || other === view.ans, src: 'passage' };
   view.choices.forEach((_, i) => {
@@ -3081,6 +3084,7 @@ function showPassageResults() {
   if (pq.completed) return;
   pq.completed = true;
   window.McatPages?.screen('screen-passage', 'results');
+  if (typeof document !== 'undefined' && document.body) document.body.classList.remove('exam-mode');
   flushPassageErr();
   const tot = pq.results.length, cor = pq.results.filter(r => r.right).length, p = pct(cor, tot);
   recordPassageEvidence(pq.p, pq.results, pq.firstExposure, 'tutor');
@@ -3112,10 +3116,12 @@ function showPassageResults() {
       ${missed.length ? missed.map(r => reviewItem({ stem: r.view.q.q, choices: r.view.choices, ans: r.view.ans, chosen: r.chosen, other: r.other, exp: r.view.q.exp })).join('')
         : '<div class="all-correct">✓ Perfect — no missed questions.</div>'}
     </div>
-    <div class="btn-row">
-      <button class="new-quiz-btn" data-click="startPassage()">Retry passage</button>
+    <div class="btn-row">${pq.masteryPractice
+      ? `<button class="new-quiz-btn" data-click="startMasteryPassages()">Next practice passage →</button>
+      <button class="new-quiz-btn secondary" data-click="goHome()">Back to TODAY</button>`
+      : `<button class="new-quiz-btn" data-click="startPassage()">Retry passage</button>
       <button class="new-quiz-btn secondary" data-click="nextPassage()">Next passage →</button>
-      <button class="new-quiz-btn secondary" data-click="goHome()">Home</button>
+      <button class="new-quiz-btn secondary" data-click="goHome()">Home</button>`}
     </div>
     ${studyPathCard(disciplineOfPassage(pq.p))}
     ${(snapshotEstimate(), scoreStrip())}`;
