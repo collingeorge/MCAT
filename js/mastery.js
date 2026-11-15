@@ -158,7 +158,7 @@ function masteryApplyTest(raw, test) {
 function masteryPlanNow(m = masteryLoad(), day = localDay()) {
   const subj = masterySubject(m, day);
   const pool = subj ? masteryPassagePool(subj) : [];
-  return masteryPlan(m, day, { guided: subj ? masteryPracticePool(subj).length : 0, passages: pool.reduce((n, p) => n + p.questions.length, 0), passagesPoolDone: masteryPoolDone(pool) });
+  return masteryPlan(m, day, { guided: subj ? masteryPracticeCount(subj) : 0, passages: pool.reduce((n, p) => n + p.questions.length, 0), passagesPoolDone: masteryPoolDone(pool) });
 }
 const masterySection = s => MCAT_SECTIONS.find(x => x.id === s);
 const masteryName = s => { const x = masterySection(s); return x ? x.abbrev + ' · ' + x.label : String(s || ''); };
@@ -169,7 +169,9 @@ function masteryFlashPool(s) { return masteryExamPool(s); }
 // Practice Exam cards: the C/P cards come from the AAMC practice exams' C/P sections.
 // Practice passages for the daily passage step (data/cp-practice.js), separate from the diagnostic and quizzes.
 const masteryPassagePool = s => (s === 'cp' && typeof CP_PRACTICE !== 'undefined' && Array.isArray(CP_PRACTICE) ? CP_PRACTICE : []);
-const masteryPracticePool = s => (s === 'cp' ? FLQ.filter(q => /^pe\d-cp:/.test(q.src)) : []);
+// Loaded on demand (BANKS.fl in app.js): until then the plan uses the known count.
+const masteryPracticePool = s => (s === 'cp' && bankReady('fl') ? FLQ.filter(q => /^pe\d-cp:/.test(q.src)) : []);
+const masteryPracticeCount = s => (s !== 'cp' ? 0 : bankReady('fl') ? masteryPracticePool(s).length : BANK_COUNTS.flCp);
 function masteryLoad() { return masteryNormalize(store.get(KEYS.subjectPath, {})); }
 // Keeps 60 days; the card-id lists (seen, guidedIds, lessonIds, pracUsed) matter only on their own day, so earlier
 // days drop them (they would otherwise make up most of the synced copy).
@@ -186,7 +188,7 @@ function masteryDayRow(m, subj, day = localDay()) {
   if (!Array.isArray(m.days[day].topics) || !m.days[day].topics.length) m.days[day].topics = masteryPlanNow(m, day).topics || [];
   return m.days[day];
 }
-function masteryCategory(q) { return (q && q.key && typeof aamcOfKey === 'function' && aamcOfKey(q.key)) || (q && q.aamc) || 'other'; }
+function masteryCategory(q) { return (q && q.aamc) || 'other'; }
 // Called for every answered recall card: counts guided cards and remembers today's misses.
 function masteryNoteAnswer(q, right) {
   const day = quiz.masteryDay || localDay(), m = masteryLoad(), subj = masterySubject(m, day);
@@ -213,6 +215,7 @@ function masteryNoteAnswer(q, right) {
 }
 // After the quiz: practice the topics the quiz showed were weak (Practice Exam cards or practice passages).
 function startMasteryFollowup(kind) {
+  if (kind !== 'passages' && !bankReady('fl')) { withBank('fl', () => startMasteryFollowup(kind)); return; }
   const plan = masteryPlanNow(), f = plan.steps.find(s => s.id === 'followup');
   if (!f) return;
   const cats = f.weak.length ? f.weak : plan.topics.slice(0, 3);
@@ -282,6 +285,7 @@ function masteryStartQuiz(list, label, mode) {
 // Practice Exam cards for today's sub-topics; each opens its step-by-step lesson. When every card is done but
 // some lessons are not, the step continues with today's cards whose lesson wasn't finished.
 function startMasteryGuided(more) {
+  if (!bankReady('fl')) { withBank('fl', () => startMasteryGuided(more)); return; }
   const plan = masteryPlanNow();
   const pool = masteryPracticePool(plan.subj);
   if (!pool.length) { startMasteryFlashcards(more); return; }
@@ -298,11 +302,6 @@ function startMasteryGuided(more) {
     return;
   }
   masteryBegin(plan, step, pool, q => q.aamc, 'Practice Exam cards', 'guided', more);
-}
-function startMasteryMisses() {
-  const plan = masteryPlanNow(), step = plan.steps.find(s => s.id === 'misses');
-  const qs = (step?.ids || []).map(id => lookupQ(id)).filter(Boolean);
-  if (qs.length) masteryStartQuiz(shuffled(qs), masterySection(plan.subj).abbrev + ' · yesterday’s misses', 'misses');
 }
 // Regular flashcards for today's sub-topics.
 function startMasteryFlashcards(more) {
@@ -368,6 +367,7 @@ function masteryNextPractice() {
 // questions spread over its disciplines in the exam's proportions, from the
 // question bank (not the guided cards, so the score is not a memory of today's cards), timed, feedback at the end.
 function startMasteryTest(kind) {
+  if (!bankReady('cp')) { withBank('cp', () => startMasteryTest(kind)); return; }
   const plan = masteryPlanNow();
   if (!plan.subj) return;
   const subj = plan.subj;

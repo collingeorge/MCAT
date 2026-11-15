@@ -95,6 +95,9 @@ assert.equal(new Set(qids).size, qids.length, 'unique question ids');
 const mastery = fs.readFileSync(root + '/js/mastery.js', 'utf8'), app = fs.readFileSync(root + '/js/app.js', 'utf8');
 assert(mastery.includes("kind === 'diagnostic' ? (typeof CP_DIAG !== 'undefined' ? CP_DIAG : null) : masteryNextSet(masteryLoad())"), 'mastery uses the diagnostic and the pool');
 assert(app.includes('function schemeHtml(row)') && app.includes('fillPassageBox(passage)'), 'passages draw their schemes');
-for (const page of ['index.html', 'recall-session.html', 'passages.html']) { const h = fs.readFileSync(root + '/' + page, 'utf8'); assert(h.includes('<script src="data/cp-diagnostic.js"></script>') && h.includes('<script src="data/cp-pool.js"></script>'), page + ' loads the sets'); }
+const BANKS = new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(app)[1])();
+assert.deepEqual(BANKS.cp, ['data/cp-diagnostic.js', 'data/cp-pool.js'], 'the sets load on demand when a mastery test starts');
+assert(mastery.includes("if (!bankReady('cp')) { withBank('cp', () => startMasteryTest(kind)); return; }"), 'a mastery test waits for the sets');
+for (const page of ['index.html', 'passages.html']) assert(!fs.readFileSync(root + '/' + page, 'utf8').includes('data/cp-pool.js'), page + ' does not load the quiz sets up front');
 const sw = fs.readFileSync(root + '/sw.js', 'utf8'); assert(sw.includes("'data/cp-diagnostic.js'") && sw.includes("'data/cp-pool.js'"), 'cached offline');
 console.log(`C/P diagnostic passed: 59 questions (10 passages + 15 stand-alones) in exam order, blueprint mix, ${d.structures} drawn structures; ${POOL.length} daily quiz sets of 30.`);

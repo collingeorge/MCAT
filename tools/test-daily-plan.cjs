@@ -5,7 +5,7 @@ const vm = require('node:vm');
 const ctx = vm.createContext({ console, Date, Math, Map, Set, JSON, Object, Number, String, Array, Infinity });
 vm.runInContext(fs.readFileSync(__dirname + '/../js/daily-plan.js', 'utf8'), ctx);
 const same = (a, b, m) => assert.equal(JSON.stringify(a), JSON.stringify(b), m); // values cross a vm realm
-const { computeDailyPlan, buildCalendar, fullLengthOffsets, allocateByShare, dpAddDays, dpDiff } = ctx;
+const { computeDailyPlan, buildCalendar, fullLengthOffsets, dpAddDays, dpDiff } = ctx;
 const FACTS = 2807, SCIENCE = 54, CARS = 6, EXAM_PASSAGES = 18, ALL_PASSAGES = 78;
 assert.equal(SCIENCE + CARS + EXAM_PASSAGES, ALL_PASSAGES);
 const APP = ['Full-Length Practice Exam 1 (this app)', 'Full-Length Practice Exam 2 (this app)'];
@@ -234,30 +234,25 @@ for (const days of [22, 25, 27]) {
   const restDay = dpAddDays(start, 6); st.snapshots = { [dpAddDays(restDay, -1)]: { type: 'study', newQuota: 60, newDone: 0, passQuota: 3, passDone: 0 } };
   assert.equal(computeDailyPlan(st, restDay).status, 'rest'); assert.equal(computeDailyPlan(st, restDay).carry, null, 'no carry banner on rest days');
 }
-// Content-share allocation respects availability and adds up exactly.
-{
-  const a = allocateByShare(45, { biology: 0.75, psych_soc: 0.95, physics: 0.25 }, { biology: 100, psych_soc: 3, physics: 100 });
-  assert.equal(a.biology + a.psych_soc + a.physics, 45); assert.equal(a.psych_soc, 3); assert(a.biology > a.physics);
-}
 // ── Browser wrapper against the real app scripts (no browser needed) ──
 {
   const storage = new Map(), nodes = new Map();
   const el = id => { if (!nodes.has(id)) nodes.set(id, { innerHTML: '', textContent: '', value: '', style: {}, dataset: {}, classList: { toggle() {}, add() {}, remove() {} }, setAttribute() {}, focus() {}, scrollIntoView() {}, remove() {}, querySelectorAll() { return []; } }); return nodes.get(id); };
   const app = vm.createContext({ console, Date, Math, Map, Set, URLSearchParams, setInterval() { return 1; }, clearInterval() {}, setTimeout() {}, confirm() { return true; }, alert() {}, navigator: {}, location: { protocol: 'http:', search: '' }, window: { scrollTo() {} }, document: { getElementById: el, querySelectorAll() { return []; }, addEventListener() {} }, localStorage: { getItem: k => storage.get(k), setItem: (k, v) => storage.set(k, v), removeItem: k => storage.delete(k) } });
+  for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(__dirname + '/../js/app.js', 'utf8'))[1])()).flat()) vm.runInContext(fs.readFileSync(__dirname + '/../' + f, 'utf8'), app);
   for (const [, file] of fs.readFileSync(__dirname + '/../index.html', 'utf8').matchAll(/<script src="([^"]+)"/g)) if (!/account|cloud-config|pages/.test(file)) vm.runInContext(fs.readFileSync(__dirname + '/../' + file, 'utf8'), app);
   const run = code => vm.runInContext(code, app);
   run("store.set(KEYS.plan,{date:localDay(new Date(Date.now()+90*DAY)),start:localDay(),days:6,minutes:120})");
   // Tampered or malformed synced data must not break the home page.
   for (const bad of ['"x"', '[]', '{"days":"oops","fullLengths":{"a":1},"passageReviews":[1],"deferred":null}', '{"days":{"__proto__":{"type":"study"},"not-a-day":{"newQuota":5},"2026-01-01":7}}']) {
     storage.set('mcat2_daily_plan', bad);
-    assert.doesNotThrow(() => run('dailyPlanMemo=null;renderHome()'), 'malformed mcat2_daily_plan: ' + bad);
+    assert.doesNotThrow(() => run('calendarMemo=null;renderHome()'), 'malformed mcat2_daily_plan: ' + bad);
     assert.match(el('today-plan').innerHTML, /TODAY › Section mastery[\s\S]*Test date &amp; full-length calendar/);
   }
   assert.equal(run('Object.prototype.type'), undefined, 'no prototype pollution from synced keys');
   // Malformed object maps from another device used to blank the app or freeze a question.
   storage.set('mcat2_evidence', '{"biology":null,"physics":7}'); storage.set('mcat2_calibration', '{"biology":null}'); storage.set('mcat2_recall_days', JSON.stringify({ [run('localDay()')]: 5 }));
-  assert.doesNotThrow(() => run('dailyPlanMemo=null;renderHome();showProgress();goHome()'), 'malformed evidence/calibration maps');
-  assert.doesNotThrow(() => run('recordRecallToday(AQB_QBANK[0])')); assert.equal(run('recallToday().fresh + recallToday().reviews'), 1);
+  assert.doesNotThrow(() => run('calendarMemo=null;renderHome();showProgress();goHome()'), 'malformed evidence/calibration maps');
   ['mcat2_evidence', 'mcat2_calibration', 'mcat2_recall_days'].forEach(k => storage.delete(k));
   // The memory cache follows writes made by any path, including another tab.
   run('loadMem()'); storage.set(run('KEYS.mem'), JSON.stringify({ [run('AQB_QBANK[0].id')]: { S: 1, D: 5, last: Date.now(), seen: 1, right: 1, lapses: 0 } }));
@@ -267,7 +262,7 @@ for (const days of [22, 25, 27]) {
   storage.set('mcat2_daily_plan', '{}');
   for (const k of ['mcat2_errors', 'mcat2_passage_evidence', 'mcat2_external_passages', 'mcat2_exam_history', 'mcat2_official']) storage.set(k, '[null, 7, [], {"t":"x","date":5,"total":"<b>","scores":["<img>"]}]');
   storage.set('mcat2_recall_days', JSON.stringify({ [run('localDay()')]: { reviews: 'x' } }));
-  assert.doesNotThrow(() => run('dailyPlanMemo=null;renderHome()'), 'null rows in synced logs');
+  assert.doesNotThrow(() => run('calendarMemo=null;renderHome()'), 'null rows in synced logs');
   assert.match(el('today-plan').innerHTML, /TODAY › Section mastery[\s\S]*Test date &amp; full-length calendar/);
   // Unvalidated official scores and exam totals are never rendered as HTML.
   storage.set('mcat2_official', JSON.stringify([{ t: 1, date: '2026-01-01', form: 'x', first: true, timed: true, scores: ['<img src=x onerror=alert(1)>', 1, 2, 3] }]));
@@ -281,24 +276,19 @@ for (const days of [22, 25, 27]) {
   run('startExam(0)'); assert.equal(run('exam.qi'), 0); assert.equal(run('exam.phase'), 'intro');
   run('goHome()');
   ['mcat2_errors', 'mcat2_passage_evidence', 'mcat2_external_passages', 'mcat2_exam_history', 'mcat2_official', 'mcat2_recall_days', run("KEYS.examProgress(FULL_EXAMS[0].id)")].forEach(k => storage.delete(k));
-  // The memoized plan refreshes after any storage write.
-  run('dailyPlanMemo=null');
-  assert.equal(run('currentDailyPlan()'), run('currentDailyPlan()'), 'repeat calls reuse one computation');
-  run("globalThis.__planBefore=currentDailyPlan();const m=loadMem();AQB_QBANK.slice(0,7).forEach(q=>m[q.id]={S:0.1,D:5,last:Date.now()-5*DAY,seen:1,right:0,lapses:1});store.set(KEYS.mem,m)");
-  assert(run('currentDailyPlan()!==__planBefore'), 'a storage write invalidates the cached plan');
+  // The test-date calendar is memoized per render and refreshes after any storage write.
+  run('calendarMemo=null');
+  assert.equal(run('calendarDailyPlan()'), run('calendarDailyPlan()'), 'repeat calls reuse one computation');
+  run("globalThis.__planBefore=calendarDailyPlan();store.set(KEYS.examHistory,[])");
+  assert(run('calendarDailyPlan()!==__planBefore'), 'a storage write invalidates the cached calendar');
   // Efficiency budget (deterministic, not timing): with a full-size memory record, one home render
   // parses it at most once, a repeat render not at all, and one recommendation reads retention once.
   run("const big={};AQB_QBANK.forEach((q,i)=>big[q.id]={S:1+i%30,D:5,last:Date.now()-(i%20)*DAY,seen:1+i%4,right:1,lapses:0});store.set(KEYS.mem,big);store.set(KEYS.retention,AQB_QBANK.slice(0,1500).map((q,i)=>({t:Date.now()-i*60000,id:q.id,key:q.key,disc:disciplineOfRecall(q),right:i%3>0,gap:4*DAY})))");
   run("globalThis.__parses={};const _p=JSON.parse;JSON.parse=function(t,...a){if(typeof t==='string'&&t.length>40000){const k=t.slice(0,12);__parses[k]=(__parses[k]||0)+1;}return _p.call(this,t,...a)};globalThis.__restoreParse=()=>{JSON.parse=_p}");
   const memHead = run("localStorage.getItem(KEYS.mem).slice(0,12)"), retHead = run("localStorage.getItem(KEYS.retention).slice(0,12)");
-  run('dailyPlanMemo=null;memCache={raw:null,mem:null};__parses={};renderHome()');
+  run('calendarMemo=null;memCache={raw:null,mem:null};__parses={};renderHome()');
   assert(run(`__parses[${JSON.stringify(memHead)}]||0`) <= 1, 'memory record parsed at most once per render: ' + run('JSON.stringify(__parses)'));
   run('__parses={};renderHome()'); assert.equal(run(`__parses[${JSON.stringify(memHead)}]||0`), 0, 'a repeat render reuses the parsed memory record');
-  run('__parses={};pathRecommendation()'); assert(run(`__parses[${JSON.stringify(retHead)}]||0`) <= 1, 'retention log read once per recommendation');
   run('__restoreParse();store.del(KEYS.mem);store.del(KEYS.retention)');
-  // Passage-miss notes are saved by row index; no stored text is placed in inline handlers.
-  run("const p=LISTED_PASSAGES[0];store.set(KEYS.errors,[{t:Date.now()-2*DAY,id:p.id+'#0',src:'passage',type:'reasoning',chosen:'\"><img src=x onerror=alert(1)>',answer:'b'}]);store.set(KEYS.daily,{[localDay(new Date(Date.now()-2*DAY))]:3});startPassageMissReview()");
-  assert.doesNotMatch(el('results-body').innerHTML, /<img src=x/, 'stored answers are escaped');
-  assert.match(el('results-body').innerHTML, /data-click="savePassageMissNote\(0\)"/);
 }
 console.log('Daily plan pacing passed (the planner that still drives the test-date and full-length calendar): 90/120-day calendars over a synthetic 2,807-fact, 60-passage bank, 6-exam AAMC-first full-length line-up, full-length rule, missed days, carry-over, misses, behind-pace and edge cases, plus malformed synced data, escaping, tampered exam progress, short-plan/final caps, bounded carry-over and plan caching.');

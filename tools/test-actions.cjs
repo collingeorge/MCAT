@@ -10,6 +10,8 @@ const ctx = vm.createContext({ console, Date, Math, Map, Set, URLSearchParams, s
 ctx.window = ctx; ctx.window.scrollTo = () => {};
 const run = code => vm.runInContext(code, ctx);
 const index = fs.readFileSync(root + '/index.html', 'utf8');
+// Banks the app loads on demand (BANKS in js/app.js), loaded first as the browser would have them.
+for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(root + '/js/app.js', 'utf8'))[1])()).flat()) run(fs.readFileSync(root + '/' + f, 'utf8'));
 for (const [, file] of index.matchAll(/<script src="([^"]+)"/g)) if (!/account|cloud-config|pages/.test(file)) run(fs.readFileSync(root + '/' + file, 'utf8'));
 const { ACTIONS, parse } = run('McatActions');
 
@@ -44,8 +46,8 @@ for (const [f, src] of sources) assert.doesNotMatch(src, /\sstyle=\\?["']|<style
   assert.deepEqual(set, [], 'data-css rejects every property or value outside the allowlist');
 }
 // Parser accepts the forms the app uses and nothing else.
-assert.equal(parse("startSubjectWork('cars',\"passage\")")[0].args.map(a => a.value).join(), 'cars,passage');
-assert.equal(parse('event.stopPropagation();setSubjectKeys(2,false,1)').length, 2);
+assert.equal(parse("startMasteryFollowup('cars',\"passage\")")[0].args.map(a => a.value).join(), 'cars,passage');
+assert.equal(parse('event.stopPropagation();setMasteryGoal(2,false,1)').length, 2);
 assert.equal(parse('setStudyTimerGoal(this.value)')[0].args[0].prop, 'value');
 assert.equal(parse('showAbout();return false')[1].prevent, true);
 for (const bad of ['alert(1)', 'goHome(document.cookie)', 'goHome();fetch("x")', 'eval("1")', 'window.goHome()', "goHome('x')+1", 'constructor.constructor("x")()', 'goHome(1);(', 'McatAccount.__proto__()']) assert.throws(() => parse(bad), bad);
@@ -69,7 +71,7 @@ const day = n => run('localDay(new Date(Date.now()+(' + n + ')*DAY))');
 run(`store.set(KEYS.plan,{date:'${day(83)}',start:'${day(-7)}',days:6,minutes:120});const ids=AQB_QBANK.slice(0,4).map(q=>q.id);const m={};ids.forEach(id=>m[id]={S:0.3,D:5,last:Date.now()-2*DAY,seen:1,right:0,lapses:1});store.set(KEYS.mem,m);
   const p=LISTED_PASSAGES[0];store.set(KEYS.errors,[...ids.map((id,i)=>({t:Date.now()-2*DAY+i,id,src:'recall',type:i?'knowledge':'confused',chosen:'a',answer:'b'})),{t:Date.now()-2*DAY+9,id:p.id+'#0',src:'passage',type:'reasoning',chosen:'a',answer:'b'}]);store.set(KEYS.daily,{['${day(-2)}']:5})`);
 run(`store.set(KEYS.subjectPath,{tests:[{subj:'cp',day:localDay(),t:1,kind:'diagnostic',correct:30,total:59,pct:51,scaled:122,version:'cp_diag',cats:{'5D':{c:2,t:14}}},{subj:'cp',day:localDay(),t:2,kind:'daily',correct:12,total:30,pct:40,scaled:120,version:'cp_half_1',cats:{'4C':{c:0,t:3}}}]})`);
-const screens = ['renderHome()', "setMode('passage')", "setMode('exam')", "setMode('aamc')", "setMode('flprep')", 'showPlan()', 'showProgress()', 'showOfficialScores()', 'showAbout()', 'startPassageMissReview()', 'showConfusionReview()',
+const screens = ['renderHome()', "setMode('passage')", "setMode('exam')", "setMode('aamc')", "setMode('flprep')", 'showPlan()', 'showProgress()', 'showOfficialScores()', 'showAbout()', 
   'startMasteryFlashcards();pick((quiz.items[0].ans+1)%4);renderNextArea()', 'endQuiz()', "selectedPassageId=LISTED_PASSAGES[0].id;startPassage();answerPassage((pq.views[0].ans+1)%4)", 'goHome();startMasteryPassages();for(let i=0;i<pq.views.length;i++){answerPassage(pq.views[pq.idx].ans);nextPassageQ()}', "goHome();startMasteryTest('daily')", 'goHome();startExam(0)', 'beginSection()', 'openSectionReview()', 'renderStudyTimer()'];
 for (const code of screens) { run(code); harvest(); }
 for (const name of seen) assert(ACTIONS.has(name), name + ' rendered but not allowlisted');

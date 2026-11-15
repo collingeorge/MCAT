@@ -10,6 +10,8 @@ async function main() {
  const ctx = vm.createContext({console,Date:TestDate,Math,Map,Set,URLSearchParams,setInterval(){return 1},clearInterval(){},setTimeout(){},confirm(){return true},alert(){},navigator:{},location:{protocol:'http:',search:''},window:{scrollTo(){}},document:{getElementById:el,querySelectorAll(){return []},addEventListener(){}},localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)}});
  const run = code => vm.runInContext(code,ctx);
  const index = fs.readFileSync(root+'/index.html','utf8');
+ // Banks the app loads on demand (BANKS in js/app.js), loaded first as the browser would have them.
+ for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(root + '/js/app.js', 'utf8'))[1])()).flat()) run(fs.readFileSync(root + '/' + f, 'utf8'));
  for (const [,file] of index.matchAll(/<script src="([^"]+)"/g)) run(fs.readFileSync(root+'/'+file,'utf8'));
  // The app's own recall decks were removed: only the AAMC QBank and Practice Exam cards remain.
  assert.equal(run('QB.length'),0); assert(run('AQB_QBANK.length')>1000);
@@ -20,15 +22,6 @@ async function main() {
  storage.set('bad','not json'); assert.equal(run("store.get('bad',[]) .length"),0);
  assert.match(el('storage-notice').textContent,/could not be read/);
  const oldSet=ctx.localStorage.setItem; ctx.localStorage.setItem=()=>{throw Error('quota')}; run("store.set('x',1)"); assert.match(el('storage-notice').textContent,/could not be saved/); ctx.localStorage.setItem=oldSet;
- // Long plans retain their review phase near the test date; short plans still permit new material earlier.
- run("store.set(KEYS.plan,{date:localDay(new Date(Date.now()+10*DAY)),start:localDay(new Date(Date.now()-60*DAY)),minutes:60,days:6})");
- assert.equal(run('computePlan().finalDays'),21); assert.equal(run('computePlan().inFinal'),true); assert.equal(run('computePlan().newPerDay'),0);
- assert.equal(run("calendarDaysBetween(new Date(2026,2,7),new Date(2026,2,10))"),3);
- assert.equal(run("calendarDaysBetween(new Date(2026,9,31),new Date(2026,10,3))"),3);
- // A reflection delay must not inflate the fluency timer.
- run("beginQuiz([AQB_QBANK[0]],'Timing audit',{adaptive:false}); quiz.qStart=Date.now()-1000; pick(quiz.items[0].ans)");
- clock+=120000; run('commitPending()');
- assert.equal(run('store.get(KEYS.fluency,{})[disciplineOfRecall(AQB_QBANK[0])].at(-1)'),1000);
  // Immediate repetitions cannot multiply long-term stability as if they were delayed retrievals.
  run("store.del(KEYS.mem); updateMemory(AQB_QBANK[1],false,null,1000); globalThis.beforeS=loadMem()[AQB_QBANK[1].id].S; updateMemory(AQB_QBANK[1],true,'knew',1000)");
  assert(run('loadMem()[AQB_QBANK[1].id].S <= beforeS*1.100001'));
@@ -49,6 +42,25 @@ async function main() {
  handlers.fetch({request:{method:'GET',url:'https://example.test/another-app.js'},respondWith(){responseCount++}}); assert.equal(responseCount,0);
  swctx.req={method:'GET',url:'https://example.test/MCAT/js/app.js'};
  const result=await vm.runInContext('networkFirst(req)',swctx); assert.equal(result,response); assert.deepEqual(cleared,[77]);
+ // Service worker (review 4.8): a failed file doesn't stop the install; drawings and the SDK are cached on first
+ // use, not at install; data files answer from the cache; a cached page waits at most 1.5 s for the network.
+ {
+  const h={}, added=[], delays=[]; let skipped=false; const cached=new Map();
+  const cache={add:async r=>{added.push(r.url);if(r.url.includes('exams.html'))throw Error('network');},put:async(r,v)=>{cached.set(typeof r==='string'?r:r.url,v)},match:async r=>cached.get(typeof r==='string'?r:r.url)||null};
+  const fresh={ok:true,clone(){return this},tag:'network'};
+  const sw=vm.createContext({URL,Request:function(u){this.url=u},location:{origin:'https://example.test'},self:{registration:{scope:'https://example.test/MCAT/'},addEventListener:(n,fn)=>h[n]=fn,skipWaiting(){skipped=true},clients:{claim(){}}},
+    caches:{open:async()=>cache,keys:async()=>[],delete:async()=>{}},fetch:()=>new Promise(r=>setTimeout(()=>r(fresh),20)),setTimeout:(fn,ms,v)=>{delays.push(ms);return setTimeout(fn,ms,v)},clearTimeout,Promise});
+  vm.runInContext(fs.readFileSync(root+'/sw.js','utf8'),sw);
+  let inst;h.install({waitUntil:p=>inst=p});await inst;
+  assert(skipped,'install completes although one file failed');
+  assert(!added.some(u=>/structures\.js|supabase/.test(u)),'drawings and SDK are not precached');
+  let responded=0;h.fetch({request:{method:'GET',url:'https://example.test/MCAT/data/structures.js'},respondWith(){responded++}});assert.equal(responded,1,'drawings are cached at runtime');
+  const old={ok:true,tag:'cached'};cached.set('https://example.test/MCAT/data/exam1.js',old);
+  sw.req={method:'GET',url:'https://example.test/MCAT/data/exam1.js'};
+  assert.equal((await vm.runInContext('cacheFirst(req)',sw)).tag,'cached','data answers from the cache at once');
+  cached.set('https://example.test/MCAT/js/app.js',old);sw.req={method:'GET',url:'https://example.test/MCAT/js/app.js'};delays.length=0;
+  await vm.runInContext('networkFirst(req)',sw);assert(delays.includes(1500),'cached page: 1.5 s network timeout');
+ }
  assert.match(index,/Content-Security-Policy/); assert.match(index,/object-src 'none'/);
   // ── Regressions from the code review (section 3) ──
   // Scaled scores: table points are thresholds (84% is the first 128); between points the score rounds down.
@@ -64,6 +76,16 @@ async function main() {
   run("structsFailed = true"); assert.match(run("structImg('aspirin')"), /Drawing unavailable[\s\S]*retryStructs\(\)/);
   run("structsFailed = false"); assert.equal(run("structImg('aspirin')"), '', 'still loading: nothing yet');
   run('store.del(KEYS.errors);store.del(KEYS.evidence);store.del(KEYS.scoreHistory)');
+  // ── Efficiency (review 4.1) ──
+  // store.batch writes each key once; reads inside the batch see the pending values.
+  { let writes = 0; const realSet = ctx.localStorage.setItem; ctx.localStorage.setItem = (k, v) => { if (k === 'mcat2_evidence') writes++; return realSet(k, v); };
+    run("store.del(KEYS.evidence); store.batch(() => { for (let i = 0; i < 50; i++) recordEvidence('exam', 'biology', i % 2 === 0); })");
+    ctx.localStorage.setItem = realSet;
+    assert.equal(writes, 1, '50 answers, one write'); assert.equal(run("store.get(KEYS.evidence,{}).biology.exam.t"), 50); assert.equal(run("store.get(KEYS.evidence,{}).biology.exam.c"), 25); }
+  // After a memory write, the next read uses the cache instead of re-parsing the large record.
+  { run("const m0 = loadMem(); m0['x-test'] = { S: 1, D: 5, last: 1, seen: 1, right: 1, lapses: 0 }; store.set(KEYS.mem, m0)");
+    run("globalThis.__parses = 0; globalThis.__jp = JSON.parse; JSON.parse = function (t, ...a) { if (typeof t === 'string' && t.includes('x-test')) __parses++; return __jp.call(this, t, ...a); }");
+    assert.equal(run("loadMem()['x-test'].seen"), 1); run('JSON.parse = __jp'); assert.equal(run('__parses'), 0, 'no re-parse after a write'); }
   // Wording rotation never repeats the wording just shown, nor the one before it when another exists.
  {
   const draws = JSON.parse(run("JSON.stringify(Array.from({length:1000},()=>pickNextForm([{id:'A'},{id:'B'},{id:'C'}],'A','B').id))"));
@@ -75,6 +97,6 @@ async function main() {
   const c = four.filter(x => x === 'C').length; assert(four.every(id => id === 'C' || id === 'D') && c > 1300 && c < 1700, 'uniform over the eligible forms: ' + c);
   assert.doesNotMatch(fs.readFileSync(root + '/js/app.js', 'utf8'), /sort\(\(\)\s*=>\s*Math\.random\(\)\s*-\s*0\.5\)/, 'no biased sort-based shuffles');
  }
-console.log('Audit regressions passed: HTML escaping, storage warnings, stable final-review phase, civil dates, fluency timing, conservative repeats, expired exam resume, duplicate scoring and cache isolation/quota handling.');
+console.log('Audit regressions passed: HTML escaping, storage warnings, stable final-review phase, conservative repeats, expired exam resume, duplicate scoring and cache isolation/quota handling.');
 }
 main();

@@ -53,6 +53,8 @@ function el(id){if(!nodes.has(id))nodes.set(id,{innerHTML:'',textContent:'',styl
 const ctx=vm.createContext({console,Date,Math,Map,Set,URLSearchParams,setInterval(){return 1},clearInterval(){},setTimeout(){},confirm(){return true},alert(){},navigator:{},location:{protocol:'http:',search:''},window:{scrollTo(){}},document:{getElementById:el,querySelectorAll(){return []},addEventListener(){}},localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)}});
 const run=code=>vm.runInContext(code,ctx);
 const index=fs.readFileSync(root+'/index.html','utf8');
+// Banks the app loads on demand (BANKS in js/app.js), loaded first as the browser would have them.
+for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(root + '/js/app.js', 'utf8'))[1])()).flat()) run(fs.readFileSync(root + '/' + f, 'utf8'));
 for(const [,file] of index.matchAll(/<script src="([^"]+)"/g))run(fs.readFileSync(root+'/'+file,'utf8'));
 // The recall decks were removed. Saved progress for their cards stays in storage (ignored, never wiped), so
 // nothing a student or the cloud backup holds is lost.

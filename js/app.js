@@ -100,7 +100,16 @@ function validExamAttempt(a) {
   return a.results.every(nums) && Array.isArray(a.answers) && Array.isArray(a.orders) ? a : null;
 }
 const store = {
+  // batch(fn): writes inside fn are kept in memory and written once per key at the end (a finished test or exam
+  // section records dozens of answers; each would otherwise rewrite the same large keys).
+  _batch: null,
+  batch(fn) {
+    if (store._batch) return fn();
+    store._batch = new Map();
+    try { return fn(); } finally { const b = store._batch; store._batch = null; b.forEach((v, k) => store.set(k, v)); }
+  },
   get(key, fallback) {
+    if (store._batch && store._batch.has(key)) return store._batch.get(key);
     try {
       const raw = localStorage.getItem(window.McatAccount?.storageKey(key) || key);
       if (!raw) return fallback;
@@ -114,8 +123,8 @@ const store = {
       return shape ? rows.map(shape).filter(Boolean) : rows;
     } catch (e) { storageWarning('Some saved progress could not be read. You can keep studying, but check your browser storage settings.'); return fallback; }
   },
-  set(key, value) { try { const storageKey=window.McatAccount?.storageKey(key) || key, raw=JSON.stringify(value); if(localStorage.getItem(storageKey)!==raw){localStorage.setItem(storageKey,raw);store.rev=(store.rev||0)+1;window.McatAccount?.changed(key);} } catch (e) { storageWarning('Progress could not be saved. Keep this tab open and check browser storage before leaving.'); } },
-  del(key) { try { const storageKey=window.McatAccount?.storageKey(key) || key;if(localStorage.getItem(storageKey)!=null){localStorage.removeItem(storageKey);store.rev=(store.rev||0)+1;window.McatAccount?.changed(key);} } catch (e) { storageWarning('Saved data could not be removed. Check browser storage settings.'); } },
+  set(key, value) { if (store._batch) { store._batch.set(key, value); return; } try { const storageKey=window.McatAccount?.storageKey(key) || key, raw=JSON.stringify(value); if(localStorage.getItem(storageKey)!==raw){localStorage.setItem(storageKey,raw);store.rev=(store.rev||0)+1;if(key===KEYS.mem)memCache={raw,mem:value};window.McatAccount?.changed(key);} } catch (e) { storageWarning('Progress could not be saved. Keep this tab open and check browser storage before leaving.'); } },
+  del(key) { if (store._batch) store._batch.delete(key); try { const storageKey=window.McatAccount?.storageKey(key) || key;if(localStorage.getItem(storageKey)!=null){localStorage.removeItem(storageKey);store.rev=(store.rev||0)+1;window.McatAccount?.changed(key);} } catch (e) { storageWarning('Saved data could not be removed. Check browser storage settings.'); } },
 };
 const KEYS = {
   retention:'mcat2_retention', exposures:'mcat2_exposures', passageEvidence:'mcat2_passage_evidence', official:'mcat2_official',
@@ -150,141 +159,8 @@ const KEYS = {
 // ════════════════════════════════════════════════════════════════
 //  QUESTION BANK ASSEMBLY & TAXONOMY
 // ════════════════════════════════════════════════════════════════
-const SUBJECTS = [
-  { id: 'biochemistry', label: 'Biochemistry', groups: [
-    { label: 'Amino Acids & Proteins', chips: [
-      { label: 'Amino Acids', tags: ['Amino Acids'] },
-      { label: 'Protein Structure & Function', tags: ['Proteins', 'General'] },
-    ]},
-    { label: 'Enzymes', chips: [
-      { label: 'Mechanism of Action', tags: ['Enzymes'] },
-      { label: 'Kinetics (Michaelis–Menten)', tags: ['Enzymes: Kinetics'] },
-      { label: 'Inhibition & Regulation', tags: ['Enzymes: Regulation'] },
-    ]},
-    { label: 'Metabolism', chips: [
-      { label: 'Glycolysis & Glucose Transport', tags: ['Metabolism: Glycolysis', 'Metabolism: Monosaccharides', 'Metabolism: Glucose Transport', 'Metabolism'] },
-      { label: 'Gluconeogenesis', tags: ['Metabolism: Gluconeogenesis'] },
-      { label: 'Glycogen', tags: ['Metabolism: Glycogen'] },
-      { label: 'Acetyl-CoA & PDH', tags: ['Metabolism: Acetyl-CoA'] },
-      { label: 'Citric Acid Cycle', tags: ['Metabolism: TCA Cycle'] },
-      { label: 'ETC & Oxidative Phosphorylation', tags: ['Metabolism: ETC'] },
-      { label: 'Fatty Acid Oxidation', tags: ['Metabolism: Fatty Acids'] },
-      { label: 'Pentose Phosphate Pathway', tags: ['Metabolism: PPP'] },
-      { label: 'Urea Cycle', tags: ['Metabolism: Urea Cycle'] },
-      { label: 'Lipid Metabolism', tags: ['Lipid Metabolism'] },
-    ]},
-    { label: 'Nucleic Acids & Gene Expression', chips: [
-      { label: 'DNA Structure & Chromosomes', tags: ['DNA & RNA: Structure', 'DNA & RNA: Nucleic Acids', 'DNA & RNA: Chromosomes'] },
-      { label: 'Replication', tags: ['DNA & RNA: Replication'] },
-      { label: 'Repair & Mutation', tags: ['DNA & RNA: Repair'] },
-      { label: 'Transcription & RNA Processing', tags: ['DNA & RNA: Transcription', 'DNA & RNA: RNA Processing'] },
-      { label: 'Translation', tags: ['DNA & RNA: Translation'] },
-      { label: 'Nucleic Acids — General', tags: ['DNA & RNA'] },
-      { label: 'Lab Techniques', tags: ['Lab Techniques'] },
-    ]},
-    { label: 'Membranes, Lipids & Carbohydrates', chips: [
-      { label: 'Membrane Structure & Transport', tags: ['Cell Membrane'] },
-      { label: 'Lipids', tags: ['Lipids'] },
-      { label: 'Carbohydrates', tags: ['Carbohydrates'] },
-      { label: 'Biosignaling', tags: ['Biosignaling'] },
-    ]},
-  ]},
-  { id: 'biology', label: 'Biology', groups: [
-    { label: 'Cell Biology & Genetics', chips: [
-      { label: 'Cell Structure & Tissues', tags: ['Parts of Cell', 'Cytoskeleton', 'Tissues'] },
-      { label: 'Cell Cycle, Mitosis & Meiosis', tags: ['Reproduction: Cell Cycle', 'Reproduction: Mitosis', 'Reproduction: Meiosis'] },
-      { label: 'Genetics & Inheritance', tags: ['Genetics', 'Biochemistry: DNA and RNA'] },
-      { label: 'Evolution', tags: ['Evolution'] },
-      { label: 'Viruses & Bacteria', tags: ['Viruses and Bacteria'] },
-    ]},
-    { label: 'Nervous System', chips: [
-      { label: 'Neurons & Glia', tags: ['Nervous System: Structure'] },
-      { label: 'Action Potential', tags: ['Nervous System: Action Potential'] },
-      { label: 'Synapses', tags: ['Nervous System: Synapses'] },
-      { label: 'Neurotransmitters', tags: ['Nervous System: Neurotransmitters'] },
-      { label: 'Sensory Systems', tags: ['Behavioral: Sensation and Perception', 'Behavioral: Biology and Behavior'] },
-    ]},
-    { label: 'Musculoskeletal System', chips: [
-      { label: 'Muscle Types & Control', tags: ['Muscular System'] },
-      { label: 'Muscle Contraction', tags: ['Muscular System: Contraction'] },
-      { label: 'Bone & Skeleton', tags: ['Muscular System: Bones'] },
-    ]},
-    { label: 'Cardiovascular & Respiratory', chips: [
-      { label: 'Heart, Blood & Circulation', tags: ['Cardiovascular System'] },
-      { label: 'Airway Anatomy', tags: ['Respiratory System: Pathway'] },
-      { label: 'Respiratory Physiology', tags: ['Respiratory System', 'Respiratory System: Bicarbonate Buffer'] },
-    ]},
-    { label: 'Endocrine, Reproduction & Development', chips: [
-      { label: 'Hormones & Signaling', tags: ['Endocrine', 'Biochemistry: Metabolism'] },
-      { label: 'Reproduction', tags: ['Reproduction', 'Reproduction: Organs', 'Reproduction: Hormones'] },
-      { label: 'Development', tags: ['Development'] },
-      { label: 'Thermoregulation', tags: ['Thermoregulation'] },
-    ]},
-    { label: 'Immune, Digestive, Renal & Skin', chips: [
-      { label: 'Innate Immunity', tags: ['Immune System: Innate', 'Immune System'] },
-      { label: 'Adaptive Immunity', tags: ['Immune System: Adaptive', 'Immune System: Lymphatic System'] },
-      { label: 'Digestion', tags: ['Digestion', 'Digestion: Stomach', 'Digestion: Small Intestine', 'Digestion: Large Intestine', 'Digestion: Other Organs'] },
-      { label: 'Kidney', tags: ['Kidney'] },
-      { label: 'Skin', tags: ['Skin'] },
-    ]},
-  ]},
-  { id: 'gen_chem', label: 'General Chemistry', groups: [
-    { label: 'Atomic Structure & Bonding', chips: [
-      { label: 'Atomic Structure', tags: ['Atomic Structure', 'General Chemistry', 'Constants', 'Compounds'] },
-      { label: 'Quantum Numbers', tags: ['Atomic Structure: Quantum Numbers'] },
-      { label: 'Periodic Trends', tags: ['Periodic Table', 'Periodic Table: Periodic Trends'] },
-      { label: 'Chemical Bonding', tags: ['Bonding'] },
-      { label: 'Intermolecular Forces', tags: ['Intermolecular Forces'] },
-    ]},
-    { label: 'Thermodynamics, Kinetics & Equilibrium', chips: [
-      { label: 'Thermochemistry', tags: ['Thermochemistry'] },
-      { label: 'Kinetics', tags: ['Chemical Kinetics'] },
-      { label: 'Equilibrium', tags: ['Equilibrium'] },
-    ]},
-    { label: 'Solutions, Acids & Electrochemistry', chips: [
-      { label: 'Solutions & Solubility', tags: ['Solutions', 'Solutions: Solubility'] },
-      { label: 'Acids & Bases', tags: ['Acids and Bases', 'Acids and Bases: pH and pKa'] },
-      { label: 'Buffers & Titrations', tags: ['Acids and Bases: Buffers and Titrations'] },
-      { label: 'Redox & Electrochemistry', tags: ['REDOX', 'Electrochemistry'] },
-    ]},
-  ]},
-  { id: 'organic_chem', label: 'Organic Chemistry', groups: [
-    { label: 'Organic Chemistry', chips: [
-      { label: 'Bonding & Structure', tags: ['Bonding & Structure'] },
-      { label: 'Reactions & Mechanisms', tags: ['Reactions & Mechanisms'] },
-      { label: 'Carbonyl Chemistry', tags: ['Carbonyl Chemistry'] },
-      { label: 'Spectroscopy', tags: ['Spectroscopy'] },
-      { label: 'Separations & Lab Techniques', tags: ['Separations & Lab Techniques'] },
-    ]},
-  ]},
-  { id: 'physics', label: 'Physics & Math', groups: [
-    { label: 'Physics & Research Methods', chips: [
-      { label: 'Motion, Forces & Energy', tags: ['Motion, Forces & Energy'] },
-      { label: 'Fluids', tags: ['Fluids'] },
-      { label: 'Electricity & Magnetism', tags: ['Electricity & Magnetism'] },
-      { label: 'Waves, Sound & Light', tags: ['Waves, Sound & Light'] },
-      { label: 'Nuclear & Atomic Physics', tags: ['Nuclear & Atomic Physics'] },
-      { label: 'Research Methods & Statistics', tags: ['Research Methods & Statistics'] },
-    ]},
-  ]},
-  { id: 'equations', label: 'Essential Equations', groups: [
-    { label: 'Equations, Constants & Units', chips: [
-      { label: 'Physics equations & units', tags: ['Physics Equations & Units'] },
-      { label: 'Chemistry equations & constants', tags: ['Chemistry Equations & Constants'] },
-    ]},
-  ]},
-  { id: 'behavioral', label: 'Psychology & Sociology', groups: [
-    { label: 'Behavioral Sciences', chips: [
-      { label: 'Biological Bases of Behavior', tags: ['Biological Bases of Behavior'] },
-      { label: 'Sensation & Perception', tags: ['Sensation & Perception'] },
-      { label: 'Cognition, Learning & Memory', tags: ['Cognition, Learning & Memory'] },
-      { label: 'Emotion, Motivation & Stress', tags: ['Emotion, Motivation & Stress'] },
-      { label: 'Personality, Development & Disorders', tags: ['Personality, Development & Disorders'] },
-      { label: 'Social Psychology & Society', tags: ['Social Psychology & Society'] },
-    ]},
-  ]},
-];
-const SUBJECT_LABEL = Object.fromEntries(SUBJECTS.map(s => [s.id, s.label]));
+// Section labels for the card banks (the recall-deck subject taxonomy was removed with the decks).
+const SUBJECT_LABEL = Object.create(null);
 // AAMC Question Bank Flashcards: a separate section. Its questions never enter QB or QB_BY_ID, so they
 // are never mixed into recall, Smart Session, mixes, reviews, drills, the TODAY plan or score estimates.
 const AAMC_SECTION = { id: 'aamc_qb', label: 'AAMC Question Bank Flashcards', groups: [
@@ -298,7 +174,6 @@ const AAMC_SECTION = { id: 'aamc_qb', label: 'AAMC Question Bank Flashcards', gr
 // Universal Rules Quiz cards live in the same AAMC pool (same IDs and saved answers) but are studied from
 // AAMC Prep → Rules & Passage Prep, not from the Question Bank packs.
 const AAMC_RULES_TAGS = ['Universal Rules: Reading Data', 'Universal Rules: Test Strategy', 'Universal Rules: Chemistry', 'Universal Rules: Biochemistry', 'Universal Rules: Physics'];
-const ORGO_TAGS = new Set(['Bonding & Structure', 'Reactions & Mechanisms', 'Carbonyl Chemistry', 'Spectroscopy', 'Separations & Lab Techniques']);
 
 // The app's own recall decks were removed: TODAY and every study tool use only the AAMC QBank cards,
 // the Practice Exam cards, the C/P diagnostic/quiz/practice passages and the full-length exams.
@@ -333,44 +208,70 @@ const AQB_QBANK = AQB.filter(q => !AAMC_RULES_KEYS.has(q.key));  // Question Ban
 const FL_SECTION = { id: 'fl_prep', label: 'Full-Length Prep' };
 const FLQ = [];
 const FLQ_BY_ID = new Map();
-(typeof QB_AAMC_FL === 'undefined' ? [] : QB_AAMC_FL).forEach(q => {
-  let id = 'fl-' + hashId(q.s + '|' + (q.idStem || q.q));
-  while (FLQ_BY_ID.has(id)) id += 'x';
-  Object.assign(q, { subj: FL_SECTION.id, key: FL_SECTION.id + '|' + q.s, id });
-  FLQ.push(q);
-  FLQ_BY_ID.set(id, q);
-});
+const FL_TESTS = [];
 SUBJECT_LABEL[FL_SECTION.id] = FL_SECTION.label;
-const FL_TESTS = [...new Set(FLQ.map(q => q.s))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+// Indexes the Practice Exam cards once data/qb-aamc-fl.js has loaded (it loads on demand: see BANKS).
+function buildFlq() {
+  if (FLQ.length || typeof QB_AAMC_FL === 'undefined') return;
+  QB_AAMC_FL.forEach(q => {
+    let id = 'fl-' + hashId(q.s + '|' + (q.idStem || q.q));
+    while (FLQ_BY_ID.has(id)) id += 'x';
+    Object.assign(q, { subj: FL_SECTION.id, key: FL_SECTION.id + '|' + q.s, id });
+    FLQ.push(q);
+    FLQ_BY_ID.set(id, q);
+  });
+  FL_TESTS.push(...[...new Set(FLQ.map(q => q.s))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true })));
+}
+// ── Data banks loaded on demand ──
+// Pages load only what every screen needs. The large banks below load the first time a screen uses them (and are
+// cached offline by the service worker). BANK_COUNTS gives the home screen its numbers before they load;
+// tools/test-pages.cjs checks them against the data.
+const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'] };
+const BANK_COUNTS = { fl: 266, flCp: 266, flTests: 5 };
+const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined' };
+const bankDone = Object.create(null), bankLoading = Object.create(null);
+function bankReady(name) {
+  if (bankDone[name]) return true;
+  if (!BANK_PRESENT[name] || !BANK_PRESENT[name]()) return false;
+  bankDone[name] = true;
+  if (name === 'fl') buildFlq();
+  return true;
+}
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const el = document.createElement('script');
+    el.src = src;
+    el.addEventListener('load', resolve);
+    el.addEventListener('error', () => { el.remove?.(); reject(new Error(src + ' failed to load')); });
+    document.head.appendChild(el);
+  });
+}
+function ensureBank(name) {
+  if (bankReady(name)) return Promise.resolve();
+  if (bankLoading[name]) return bankLoading[name];
+  bankLoading[name] = BANKS[name].reduce((p, src) => p.then(() => loadScript(src)), Promise.resolve())
+    .then(() => { bankLoading[name] = null; if (!bankReady(name)) throw new Error(name + ' did not load'); })
+    .catch(e => { bankLoading[name] = null; throw e; });
+  return bankLoading[name];
+}
+// Runs fn now if the bank is loaded, else after loading it (with a message if it cannot load, e.g. offline).
+function withBank(name, fn) {
+  if (bankReady(name)) return fn();
+  ensureBank(name).then(fn).catch(() => { const el = $('page-notice'); if (el) { el.textContent = 'This part of the app could not load. Check your connection and try again.'; el.hidden = false; window.scrollTo(0, 0); } });
+}
+const flCount = () => (bankReady('fl') ? FLQ.length : BANK_COUNTS.fl);
 const isFl = q => !!q && q.subj === FL_SECTION.id;
 const isAamc = q => !!q && (q.subj === AAMC_SECTION.id || q.subj === FL_SECTION.id);
 const bankOf = q => (isFl(q) ? FLQ : isAamc(q) ? AQB : QB);
 const lookupQ = id => QB_BY_ID.get(id) || AQB_BY_ID.get(id) || FLQ_BY_ID.get(id);
 const countAamcKeys = keys => keys.reduce((n, k) => n + (AQB_KEY_COUNTS[k] || 0), 0);
 
-// Resolve taxonomy chips to keys that actually exist; unmapped tags go to an "Other" chip
 // Lookup tables keyed by names that also appear in stored data are prototype-free, so a stored
-// key such as "constructor" or "__proto__" can never match an inherited property.
+// key such as "constructor" or "__proto__" can never match an inherited property. KEY_COUNTS stays empty (no
+// recall decks), so saved recall statistics are kept but never counted.
 const KEY_COUNTS = Object.create(null);
-QB.forEach(q => { KEY_COUNTS[q.key] = (KEY_COUNTS[q.key] || 0) + 1; });
 const KEY_LABEL = Object.create(null);
-SUBJECTS.forEach(subject => {
-  const mapped = new Set();
-  subject.groups.forEach(g => g.chips.forEach(chip => {
-    chip.keys = chip.tags.map(t => subject.id + '|' + t).filter(k => KEY_COUNTS[k] && !mapped.has(k));
-    chip.keys.forEach(k => { mapped.add(k); KEY_LABEL[k] = chip.label; });
-  }));
-  const other = Object.keys(KEY_COUNTS).filter(k => k.startsWith(subject.id + '|') && !mapped.has(k));
-  if (other.length) {
-    subject.groups[subject.groups.length - 1].chips.push({ label: 'Other', keys: other });
-    other.forEach(k => { KEY_LABEL[k] = 'Other'; });
-  }
-  subject.groups.forEach(g => { g.chips = g.chips.filter(c => c.keys.length); g.keys = g.chips.flatMap(c => c.keys); });
-  subject.keys = subject.groups.flatMap(g => g.keys);
-});
-const ALL_KEYS = SUBJECTS.flatMap(s => s.keys);
 AAMC_SECTION.groups.forEach(g => g.chips.forEach(c => c.keys.forEach(k => { KEY_LABEL[k] = c.label; })));
-const countKeys = keys => keys.reduce((n, k) => n + (KEY_COUNTS[k] || 0), 0);
 
 // ════════════════════════════════════════════════════════════════
 //  PASSAGES
@@ -502,7 +403,6 @@ function updateMemory(q, right, conf, ms) {
   const id = q.baseId || q.id;
   const now = Date.now();
   const m = mem[id] || { S: 0, D: 5 + itemPrior(q) * 2, last: now, seen: 0, right: 0, lapses: 0 };
-  recordDelayedRecall(q, right, m, now);
   const delayed = m.seen > 0 && now - m.last >= LEARNING_DELAY;
   if (!right) m.delayedCorrect = 0;
   else if (delayed && conf !== 'guess') m.delayedCorrect = (m.delayedCorrect || 0) + 1;
@@ -562,7 +462,6 @@ function countAnswerToday() {
   daily[day] = (daily[day] || 0) + 1;
   store.set(KEYS.daily, Object.fromEntries(Object.entries(daily).slice(-90)));
 }
-function answeredToday() { return store.get(KEYS.daily, {})[localDay()] || 0; }
 const ERROR_TYPES = [
   ['knowledge', 'Didn\'t know it'],
   ['confused', 'Mixed it up'],
@@ -607,18 +506,12 @@ function predictedSuccess(q, mem, mast) {
 function recordAnswer(q, right) {
   countAnswerToday();
   // AAMC section answers don't count toward the TODAY plan's recall targets
-  if (!isAamc(q)) recordRecallToday(q);
   const stats = store.get(KEYS.stats, {});
   const s = stats[q.key] || { c: 0, t: 0 };
   s.t++;
   if (right) s.c++;
   stats[q.key] = s;
   store.set(KEYS.stats, stats);
-}
-function dueQuestions() {
-  const mem = loadMem();
-  const now = Date.now();
-  return QB.filter(q => mem[q.id] && retrievability(mem[q.id], now) < TARGET_RETENTION);
 }
 function flaggedIds() { return store.get(KEYS.flags, {}); }
 function toggleFlag(id) {
@@ -647,16 +540,6 @@ function pickQuestions(pool, n) {
 // cumulative accuracy below WEAK_RULE.accuracy (the app's ~80% target success rate). Ranked by
 // distance below the target, weighted by MCAT content yield. A study heuristic, not a mastery test.
 const WEAK_RULE = { minAttempts: 5, accuracy: 0.8 };
-function weakTopics() {
-  const stats = store.get(KEYS.stats, {});
-  return Object.entries(stats).filter(([k, s]) => KEY_COUNTS[k] && Number.isFinite(s.t) && Number.isFinite(s.c) && s.t >= WEAK_RULE.minAttempts && s.c / s.t < WEAK_RULE.accuracy)
-    .map(([k, s]) => {
-      const subj = disciplineOfKey(k.split('|')[0], k.slice(k.indexOf('|') + 1)), accuracy = s.c / s.t;
-      return { k, c: s.c, t: s.t, accuracy, subj, need: (WEAK_RULE.accuracy - accuracy) * (0.4 + disciplineYield(subj)) };
-    })
-    .sort((a, b) => b.need - a.need || a.accuracy - b.accuracy || b.t - a.t);
-}
-function weakKeys() { return weakTopics().map(w => w.k); }
 
 // A card is always asked exactly as written: no reworded, reversed or one-blank forms are generated.
 function definitionParts(q) {
@@ -710,10 +593,6 @@ const REASONS = {
   exam: 'From your full-length exam mistakes',
   stretch: 'Keeping solid topics fresh',
 };
-function disciplineYield(d) {
-  const w = MCAT_SECTIONS.reduce((a, s) => a + (s.weights[d] || 0), 0);
-  return d === 'research' ? 0.3 : w;   // research methods appear in every science section
-}
 function recentAccuracy() {
   const r = store.get(KEYS.recent, []);
   return r.length >= 8 ? r.reduce((a, b) => a + b, 0) / r.length : null;
@@ -722,72 +601,6 @@ function recentAccuracy() {
 function targetSuccess() {
   const acc = recentAccuracy();
   return acc == null ? 0.8 : acc < 0.7 ? 0.86 : acc > 0.9 ? 0.72 : 0.8;
-}
-function buildSmartSession(n) {
-  const mem = loadMem();
-  const mast = store.get(KEYS.mastery, {});
-  const now = Date.now();
-  const target = targetSuccess();
-  const chosen = new Map();
-  const add = (q, reason) => { if (chosen.size < n && !chosen.has(q.id)) chosen.set(q.id, { q, reason }); };
-  const recentlySeen = q => mem[q.id] && now - mem[q.id].last < 20 * 60000;
-
-  // 1) Due reviews, most-forgotten first; confident misses jump the queue (up to ~45%)
-  QB.filter(q => mem[q.id] && retrievability(mem[q.id], now) < TARGET_RETENTION)
-    .map(q => ({ q, m: mem[q.id], R: retrievability(mem[q.id], now) }))
-    .sort((a, b) => (b.m.confidentMiss ? 1 : 0) - (a.m.confidentMiss ? 1 : 0) || a.R - b.R)
-    .slice(0, Math.ceil(n * 0.45))
-    .forEach(x => add(x.q,
-      x.m.confidentMiss ? 'confident-miss' : x.m.lapses ? 'missed-before' : 'due'));
-
-  // 2) Weakest high-yield topics: questions pitched closest to the target success rate (to ~60%)
-  const weak = weakTopics().slice(0, 6);
-  const byKey = {};
-  QB.forEach(q => { (byKey[q.key] = byKey[q.key] || []).push(q); });
-  let round = 0;
-  while (chosen.size < Math.ceil(n * 0.6) && weak.length && round < n) {
-    const t = weak[round % weak.length];
-    const cand = (byKey[t.k] || []).filter(q => !chosen.has(q.id) && !recentlySeen(q))
-      .map(q => ({ q, d: Math.abs(predictedSuccess(q, mem, mast) - target) }))
-      .sort((a, b) => a.d - b.d)[0];
-    if (cand) add(cand.q, 'weak');
-    round++;
-  }
-
-  // Preserve broad sampling: sparse subject evidence is not a demonstrated strength.
-  const sparse=learningNeeds().missing;
-  let sampleRound=0;
-  while(chosen.size<Math.ceil(n*0.8) && sparse.length && sampleRound<n*2){
-    const disc=sparse[sampleRound%sparse.length];
-    const q=QB.find(q=>disciplineOfRecall(q)===disc && !mem[q.id]?.seen && !chosen.has(q.id));
-    if(q)add(q,'new');sampleRound++;
-  }
-  // 3) New material: pick a discipline in proportion to its MCAT yield (boosted while it
-  //    has little data, so weaknesses are discovered early), then its least-covered topic
-  const discTopics = {};
-  ALL_KEYS.forEach(k => {
-    const d = disciplineOfKey(k.split('|')[0], k.slice(k.indexOf('|') + 1));
-    (discTopics[d] = discTopics[d] || []).push(k);
-  });
-  const answeredIn = d => discTopics[d].reduce((a, k) => a + (mast[k] ? mast[k].n : 0), 0);
-  const discWeights = Object.keys(discTopics).map(d => ({ d, w: Math.max(0.1, disciplineYield(d)) * (answeredIn(d) < 40 ? 2 : 1) }));
-  for (let i = 0; chosen.size < n && i < n * 4; i++) {
-    let r = Math.random() * discWeights.reduce((a, x) => a + x.w, 0);
-    const d = discWeights.find(x => (r -= x.w) <= 0)?.d || discWeights[0].d;
-    const topics = discTopics[d].map(k => {
-      const unseen = (byKey[k] || []).filter(q => !mem[q.id] && !chosen.has(q.id));
-      return { unseen, frac: unseen.length / (byKey[k] || [1]).length + Math.random() * 0.3 };
-    }).filter(x => x.unseen.length).sort((a, b) => b.frac - a.frac);
-    if (topics.length) add(topics[0].unseen[Math.floor(Math.random() * topics[0].unseen.length)], 'new');
-  }
-
-  // 4) Everything seen and nothing due: refresh the least-stable cards
-  if (chosen.size < n) {
-    QB.filter(q => mem[q.id] && !chosen.has(q.id) && !recentlySeen(q))
-      .sort((a, b) => retrievability(mem[a.id], now) - retrievability(mem[b.id], now))
-      .slice(0, n - chosen.size).forEach(q => add(q, 'stretch'));
-  }
-  return interleave([...chosen.values()]);
 }
 // Mix topics so the same topic never appears twice in a row when avoidable
 function interleave(items) {
@@ -979,11 +792,11 @@ const prefs = Object.assign({ mode: 'passage', count: 20, selected: null }, stor
 prefs.mode = ['passage', 'exam'].includes(prefs.mode) ? prefs.mode : 'passage';
 prefs.mix = ['custom', 'cp', 'bb', 'ps', 'all'].includes(prefs.mix) ? prefs.mix : 'custom';
 prefs.count = [0, 10, 20, 30, 50, 100].includes(prefs.count) ? prefs.count : 20;
-let selectedKeys = new Set((Array.isArray(prefs.selected) ? prefs.selected : ALL_KEYS).filter(k => KEY_COUNTS[k]));
-const openSubjects = new Set();
-function savePrefs() { prefs.selected = [...selectedKeys]; store.set(KEYS.prefs, prefs); }
+function savePrefs() { store.set(KEYS.prefs, prefs); }
 
 function goHome() {
+  // A walkthrough left playing must not keep stepping on a screen that is gone.
+  if (stepper && stepper.timer) clearTimeout(stepper.timer);
   if (pq.mini && !pq.mini.completed && !confirm('Exit this mini test? This unfinished attempt will not be saved.')) return false;
   if (activeScreen === 'screen-exam' && exam) saveExam();
   pq.mini = null;  stopPassageTimer();
@@ -998,11 +811,11 @@ function goHome() {
 
 function renderHome() {
   const passageQs = LISTED_PASSAGES.reduce((n, p) => n + p.questions.length, 0);
-  $('hero-badge').textContent = `${AQB_QBANK.length.toLocaleString()} QBank cards · ${FLQ.length} Practice Exam cards · ${LISTED_PASSAGES.length} C/P passages · ${FULL_EXAMS.length} full-length exams`;
+  $('hero-badge').textContent = `${AQB_QBANK.length.toLocaleString()} QBank cards · ${flCount()} Practice Exam cards · ${LISTED_PASSAGES.length} C/P passages · ${FULL_EXAMS.length} full-length exams`;
   $('mode-passage-sub').textContent = `${LISTED_PASSAGES.length} passages · ${passageQs} Qs`;
   $('mode-exam-sub').textContent = `${FULL_EXAMS.length} timed exams`;
-  if ($('mode-aamc-sub')) $('mode-aamc-sub').textContent = `${(AQB.length + FLQ.length).toLocaleString()} cards · 3 sections`;
-  if ($('mode-flprep-sub')) $('mode-flprep-sub').textContent = `${FLQ.length} cards · ${FL_TESTS.length} test${FL_TESTS.length === 1 ? '' : 's'}`;
+  if ($('mode-aamc-sub')) $('mode-aamc-sub').textContent = `${(AQB.length + flCount()).toLocaleString()} cards · 3 sections`;
+  if ($('mode-flprep-sub')) { const nt = bankReady('fl') ? FL_TESTS.length : BANK_COUNTS.flTests; $('mode-flprep-sub').textContent = `${flCount()} cards · ${nt} test${nt === 1 ? '' : 's'}`; }
 
   // TODAY is the study routine. The old recall tools (Smart Session, due reviews, flagged recall cards,
   // weak-topic drills, speed drill) drew on the removed recall decks and are gone.
@@ -1041,99 +854,8 @@ function setMode(mode, navigate = true) {
   if (navigate) window.McatPages?.mode(mode);
 }
 
-function renderCountRow() {
-  const opts = [10, 20, 30, 50, 100, 0];
-  $('count-row').innerHTML = opts.map(n => `<button class="count-btn${prefs.count === n ? ' active' : ''}" data-click="setCount(${n})">${n || 'All'}</button>`).join('');
-  const mix = prefs.mix || 'custom';
-  $('mix-row').innerHTML = [['custom', 'My subjects'], ...Object.entries(PRACTICE_MIXES).map(([id, m]) => [id, m.label])]
-    .map(([id, l]) => `<button class="count-btn small${mix === id ? ' active' : ''}" data-click="setMix('${id}')">${l}</button>`).join('');
-  $('mix-note').innerHTML = mix === 'custom'
-    ? 'Questions due for spaced review come first, then ones you haven\'t seen. Answer choices are shuffled every time.'
-    : `${esc(PRACTICE_MIXES[mix].note)} With "All", a mix session is 59 questions, the length of a real section.`;
-  $('subject-card').hidden = mix !== 'custom';
-  $('recall-first-toggle').checked = !!prefs.recallFirst;
-}
-function setCount(n) { prefs.count = n; savePrefs(); renderCountRow(); updateAvail(); }
-function setMix(id) { prefs.mix = id; savePrefs(); renderCountRow(); updateAvail(); }
 
-// Recall sessions drawn in the same subject proportions as a real MCAT section.
-// About 10% goes to research methods & statistics, which every science section tests.
-const PRACTICE_MIXES = {
-  cp: { label: 'C/P mix', section: 'cp', note: 'Mixed like the real C/P section: general chemistry, physics, biochemistry, organic chemistry and a little biology, plus research methods.' },
-  bb: { label: 'B/B mix', section: 'bb', note: 'Mixed like the real B/B section: mostly biology and biochemistry, a little general and organic chemistry, plus research methods.' },
-  ps: { label: 'P/S mix', section: 'ps', note: 'Mixed like the real P/S section: psychology and sociology with a little biology, plus research methods.' },
-  all: { label: 'All sciences', section: null, note: 'An even blend of the C/P, B/B and P/S mixes.' },
-};
-function mixWeights(id) {
-  const secs = PRACTICE_MIXES[id].section ? [PRACTICE_MIXES[id].section] : ['cp', 'bb', 'ps'];
-  const w = {};
-  secs.forEach(sid => Object.entries(MCAT_SECTIONS.find(s => s.id === sid).weights)
-    .forEach(([d, v]) => { w[d] = (w[d] || 0) + (v * 0.9) / secs.length; }));
-  w.research = 0.1;
-  return w;
-}
-function buildMix(id, n) {
-  const w = mixWeights(id);
-  const pools = {};
-  QB.forEach(q => { const d = disciplineOfRecall(q); (pools[d] = pools[d] || []).push(q); });
-  // Largest-remainder allocation so counts add up to n
-  const raw = Object.entries(w).map(([d, v]) => ({ d, exact: v * n }));
-  raw.forEach(r => { r.count = Math.floor(r.exact); });
-  let left = n - raw.reduce((a, r) => a + r.count, 0);
-  raw.slice().sort((a, b) => (b.exact - b.count) - (a.exact - a.count)).forEach(r => { if (left > 0) { r.count++; left--; } });
-  return shuffled(raw.flatMap(r => pickQuestions(pools[r.d] || [], r.count)));
-}
 
-// ── Subject selector ──
-function renderSubjectGrid() {
-  const allOn = keys => keys.length && keys.every(k => selectedKeys.has(k));
-  const someOn = keys => keys.some(k => selectedKeys.has(k));
-  $('subject-grid').innerHTML = SUBJECTS.map((s, si) => {
-    const open = openSubjects.has(si);
-    const on = allOn(s.keys);
-    const selCount = countKeys(s.keys.filter(k => selectedKeys.has(k)));
-    return `<div class="sg-outer">
-      <div class="sg-subject-row" role="button" tabindex="0" aria-expanded="${open}" data-click="toggleSubjectOpen(${si})" data-enter="toggleSubjectOpen(${si})">
-        <span class="sg-subject-name">${esc(s.label)}</span>
-        <span class="sg-subject-meta">
-          <span class="sg-subject-count">${selCount === countKeys(s.keys) ? '' : selCount + ' of '}${countKeys(s.keys)} Q</span>
-          <button class="sg-select-all" data-click="event.stopPropagation();setSubjectKeys(${si},${!on})">${on ? 'None' : 'All'}</button>
-          <span class="sg-chevron${open ? ' open' : ''}">▾</span>
-        </span>
-      </div>
-      <div class="sg-topics${open ? ' open' : ''}">
-        ${s.groups.map((g, gi) => `
-          ${s.groups.length > 1 ? `<div class="sg-topic-row">
-            <span class="sg-topic-name">${esc(g.label)}</span>
-            <span class="sg-topic-meta">
-              <span class="sg-topic-count">${countKeys(g.keys)} Q</span>
-              <button class="sg-topic-sel-all" data-click="setSubjectKeys(${si},${!allOn(g.keys)},${gi})">${allOn(g.keys) ? 'None' : 'All'}</button>
-            </span>
-          </div>` : ''}
-          <div class="sg-chips">${g.chips.map((c, ci) => `
-            <button class="sg-chip${allOn(c.keys) ? ' on' : someOn(c.keys) ? ' partial' : ''}" aria-pressed="${allOn(c.keys)}"
-              data-click="setSubjectKeys(${si},${!allOn(c.keys)},${gi},${ci})">${esc(c.label)}<span class="sg-chip-count">${countKeys(c.keys)}</span></button>`).join('')}
-          </div>`).join('')}
-      </div>
-    </div>`;
-  }).join('');
-  updateAvail();
-}
-function toggleSubjectOpen(si) { openSubjects.has(si) ? openSubjects.delete(si) : openSubjects.add(si); renderSubjectGrid(); }
-// Subject-picker buttons pass indexes, not expressions, so handlers stay plain calls.
-function setSubjectKeys(si, on, gi, ci) { const s = SUBJECTS[si], g = gi == null ? null : s?.groups[gi], c = ci == null ? null : g?.chips[ci]; const t = c || g || s; if (t) setKeys(t.keys, on); }
-function setKeys(keys, on) { keys.forEach(k => (on ? selectedKeys.add(k) : selectedKeys.delete(k))); savePrefs(); renderSubjectGrid(); }
-function sgSelectAll() { setKeys(ALL_KEYS, true); }
-function sgClearAll() { setKeys(ALL_KEYS, false); }
-function updateAvail() {
-  const n = countKeys([...selectedKeys]);
-  const size = prefs.count ? Math.min(prefs.count, n) : n;
-  $('avail-text').textContent = `${n.toLocaleString()} questions selected`;
-  $('avail-session').textContent = n ? `Session: ${size} question${size === 1 ? '' : 's'}` : '';
-  const mixing = (prefs.mix || 'custom') !== 'custom';
-  $('start-btn').disabled = prefs.mode === 'recall' && !mixing && n === 0;
-  $('start-btn').textContent = prefs.mode === 'recall' && mixing ? `Start ${PRACTICE_MIXES[prefs.mix].label} · ${prefs.count || 59} questions →` : 'Start →';
-}
 
 function startSession() {
   if (prefs.mode === 'passage') startPassage();
@@ -1169,10 +891,10 @@ function renderAamcMenu() {
   if (!on) return;
   const cur = prefs.mode === 'flprep' ? 'exam' : aamcView();
   const done = pool => { const s = aamcStatus(pool); return `${s.done} of ${s.total} done`; };
-  const guides = typeof AAMC_PREP === 'undefined' ? 0 : AAMC_PREP.reduce((n, s) => n + s.items.length, 0);
+  const guides = bankReady('prep') ? AAMC_PREP.reduce((n, s) => n + s.items.length, 0) : 'the';
   const tiles = [
     ['qbank', 1, 'Question Bank cards', 'Learn the content the AAMC tests, one question pack and topic at a time.', `${AQB_QBANK.length} cards · ${done(AQB_QBANK)}`],
-    ['exam', 2, 'Practice Exam cards', 'The concepts tested on each AAMC practice exam. Use them before or after you take that exam.', `${FLQ.length} cards · ${done(FLQ)}`],
+    ['exam', 2, 'Practice Exam cards', 'The concepts tested on each AAMC practice exam. Use them before or after you take that exam.', bankReady('fl') ? `${FLQ.length} cards · ${done(FLQ)}` : `${BANK_COUNTS.fl} cards`],
     ['rules', 3, 'Rules & Passage Prep', 'Quick rules for common question types, plus how-to-find-it guides for real AAMC questions.', `${AQB_RULES.length} rule cards · ${guides} guides`],
   ];
   box.innerHTML = `<p class="aamc-menu-intro">Three ways to study the AAMC material. New here? Work through them in order, 1 to 3. Your progress in each one is saved.</p>
@@ -1218,14 +940,14 @@ function renderAamcConfig() {
       <button class="sg-chip${allOn(c.keys) ? ' on' : someOn(c.keys) ? ' partial' : ''}" aria-pressed="${allOn(c.keys)}"
         data-click="setAamcChip(${gi},${ci},${!allOn(c.keys)})">${esc(c.label)}<span class="sg-chip-count">${countAamcKeys(c.keys)}</span></button>`).join('')}
     </div>` : '').join('');
-  const pool = AQB_QBANK.filter(q => sel.has(q.key));
-  const st = aamcStatus(pool);
+  const byKey = aamcKeyStatus(), selKeys = [...sel].filter(k => AQB_BY_KEY.has(k) && !AAMC_RULES_KEYS.has(k));
+  const st = aamcSumStatus(byKey, selKeys), pool = { length: st.total };
   const size = prefs.count ? Math.min(prefs.count, pool.length) : pool.length;
   $('aamc-avail-text').textContent = `${pool.length} questions selected · ${st.done} done · ${st.fresh} not yet seen${st.due ? ` · ${st.due} due for review` : ''}`;
   $('aamc-avail-session').textContent = pool.length ? `Session: ${size} question${size === 1 ? '' : 's'}` : '';
   $('start-btn').disabled = !pool.length;
   $('start-btn').textContent = 'Start →';
-  renderAamcProgress();
+  renderAamcProgress(byKey);
 }
 // ── AAMC Passage Prep: how-to-find-it guides for real AAMC questions (answers hidden until opened) ──
 function prepDone() { const d = prefs.prepDone; return d && typeof d === 'object' ? d : {}; }
@@ -1236,7 +958,8 @@ function togglePrepDone(id) {
 }
 function renderAamcPrep(openId) {
   const box = $('aamc-prep');
-  if (!box || typeof AAMC_PREP === 'undefined') return;
+  if (!box) return;
+  if (!bankReady('prep')) { box.innerHTML = '<p class="muted-note">Loading the passage guides…</p>'; withBank('prep', () => { if (prefs.mode === 'aamc' && aamcView() === 'rules') { renderAamcPrep(openId); renderAamcMenu(); } }); return; }
   const done = prepDone();
   const card = (set, it) => {
     const id = set.id + '-' + it.q, got = !!done[id];
@@ -1273,8 +996,21 @@ function renderAamcPrep(openId) {
     </details>` : ''}`;
 }
 // Progress comes from the same per-question memory and per-topic stats the rest of the app uses
-function aamcStatus(pool) {
-  const mem = loadMem(), now = Date.now();
+// The AAMC Prep tab reads the memory record once per render and tallies each topic key once; chips, packs and
+// the totals add those tallies up (it used to rescan the record and ~1,050 cards about 45 times a render).
+const AQB_BY_KEY = new Map();
+AQB.forEach(q => { if (!AQB_BY_KEY.has(q.key)) AQB_BY_KEY.set(q.key, []); AQB_BY_KEY.get(q.key).push(q); });
+function aamcKeyStatus(mem = loadMem()) {
+  const now = Date.now(), out = new Map();
+  AQB_BY_KEY.forEach((qs, k) => out.set(k, aamcStatus(qs, mem, now)));
+  return out;
+}
+function aamcSumStatus(byKey, keys) {
+  const out = { total: 0, done: 0, fresh: 0, due: 0, missed: 0, answers: 0, correct: 0 };
+  new Set(keys).forEach(k => { const s = byKey.get(k); if (s) for (const f in out) out[f] += s[f]; });
+  return out;
+}
+function aamcStatus(pool, mem = loadMem(), now = Date.now()) {
   const out = { total: pool.length, done: 0, fresh: 0, due: 0, missed: 0, answers: 0, correct: 0 };
   pool.forEach(q => {
     const m = mem[q.id];
@@ -1315,16 +1051,16 @@ function aamcScoreRow(label, s, st) {
     <div class="sr-bar-wrap"><div class="sr-bar-fill" data-css="width:${p}%;background:${col}"></div></div>
     <div class="sr-pct">${p}%</div><div class="sr-n">${s.c}/${s.t} right · ${done}</div></div>`;
 }
-function renderAamcProgress() {
+function renderAamcProgress(byKey = aamcKeyStatus()) {
   const box = $('aamc-progress');
   if (!box) return;
-  const all = aamcStatus(AQB_QBANK);
+  const qbankKeys = [...AQB_BY_KEY.keys()].filter(k => !AAMC_RULES_KEYS.has(k));
+  const all = aamcSumStatus(byKey, qbankKeys);
   const sel = aamcSel();
-  const pool = AQB_QBANK.filter(q => sel.has(q.key));
-  const st = aamcStatus(pool);
+  const st = aamcSumStatus(byKey, qbankKeys.filter(k => sel.has(k)));
   const resume = aamcSession();
   const weak = aamcWeakChips();
-  const weakQs = AQB_QBANK.filter(q => weak.some(c => c.keys.includes(q.key))).length;
+  const weakQs = aamcSumStatus(byKey, weak.flatMap(c => c.keys)).total;
   const stats = store.get(KEYS.stats, {});
   const sumStats = keys => keys.reduce((a, k) => { const r = stats[k]; if (r && Number.isFinite(r.t) && Number.isFinite(r.c)) { a.c += r.c; a.t += r.t; } return a; }, { c: 0, t: 0 });
   const btn = (label, n, action, title) => `<button class="action-btn" ${n ? '' : 'disabled'} data-click="${action}" title="${esc(title)}">${label} <b>${n}</b></button>`;
@@ -1342,10 +1078,9 @@ function renderAamcProgress() {
     </div>
     <details class="home-reference"${all.done ? ' open' : ''}><summary>Score report by topic</summary>
       ${AAMC_SECTION.groups.filter(g => g.chips.length).map(g => {
-        const gq = AQB.filter(q => g.chips.some(c => c.keys.includes(q.key)));
         return `<div class="disc-section"><div class="disc-section-head">${esc(g.label)}</div>
-          ${aamcScoreRow('All topics in this pack', sumStats(g.chips.flatMap(c => c.keys)), aamcStatus(gq))}
-          ${g.chips.map(c => aamcScoreRow(c.label, sumStats(c.keys), aamcStatus(AQB.filter(q => c.keys.includes(q.key))))).join('')}
+          ${aamcScoreRow('All topics in this pack', sumStats(g.chips.flatMap(c => c.keys)), aamcSumStatus(byKey, g.chips.flatMap(c => c.keys)))}
+          ${g.chips.map(c => aamcScoreRow(c.label, sumStats(c.keys), aamcSumStatus(byKey, c.keys))).join('')}
         </div>`;
       }).join('')}
       <p class="muted-note">Accuracy counts every answer, including repeats. Topics turn weak below ${Math.round(WEAK_RULE.accuracy * 100)}% after at least ${WEAK_RULE.minAttempts} answers.</p>
@@ -1406,6 +1141,7 @@ function setFlCount(n) { prefs.flCount = n; savePrefs(); renderFlConfig(); }
 function flPool() { const sel = flSel(); return FLQ.filter(q => sel.has(q.s)); }
 function renderFlConfig() {
   if (!$('fl-grid')) return;
+  if (!bankReady('fl')) { $('fl-grid').innerHTML = '<p class="muted-note">Loading the Practice Exam cards…</p>'; $('start-btn').disabled = true; withBank('fl', () => { if (prefs.mode === 'flprep') { renderFlConfig(); renderAamcMenu(); } }); return; }
   const sel = flSel(), count = prefs.flCount ?? 20;
   $('fl-count-row').innerHTML = [10, 20, 30, 59, 0].map(n => `<button class="count-btn${count === n ? ' active' : ''}" data-click="setFlCount(${n})">${n || 'All'}</button>`).join('');
   $('fl-grid').innerHTML = `<div class="sg-chips">${FL_TESTS.map((t, i) => {
@@ -1426,6 +1162,7 @@ function renderFlConfig() {
   $('start-btn').textContent = 'Start →';
 }
 function startFl() {
+  if (!bankReady('fl')) { withBank('fl', startFl); return; }
   const pool = flPool(); if (!pool.length) return;
   const n = prefs.flCount ?? 20;
   beginQuiz(pickQuestions(pool, n || pool.length), FL_SECTION.label);
@@ -1452,21 +1189,10 @@ function makeView(q, reason) {
   const order = shuffled(q.choices.map((_, i) => i));
   return { q, reason: reason || null, order, choices: order.map(i => q.choices[i]), ans: order.indexOf(q.ans), ...(Array.isArray(q.choiceFigs) ? { figs: order.map(i => q.choiceFigs[i]) } : {}) };
 }
-function startSmartSession() {
-  const n = smartSessionSize();
-  const items = buildSmartSession(n);
-  if (items.length) beginQuiz(items, 'Smart Session', { adaptive: true });
-}
 // ── Speed drill ──
 // Fluency: facts you already know, against the clock, so recall becomes automatic
 // and frees time for passage reasoning. A timeout counts as a miss ("ran out of time").
 const SPEED_N = 20, SPEED_SECONDS = 20;
-function startSpeedDrill() {
-  const mem = loadMem(), now = Date.now();
-  const known = QB.filter(q => mem[q.id] && mem[q.id].seen && retrievability(mem[q.id], now) >= 0.6);
-  const items = known.length >= SPEED_N ? shuffled(known).slice(0, SPEED_N) : buildSmartSession(SPEED_N);
-  if (items.length) beginQuiz(items, 'Speed drill', { adaptive: false, speed: SPEED_SECONDS * 1000 });
-}
 function startSpeedTimer() {
   stopSpeedTimer();
   if (!quiz.speed) return;
@@ -1478,29 +1204,7 @@ function startSpeedTimer() {
   }, 200);
 }
 function stopSpeedTimer() { if (quiz.speedTimer) clearInterval(quiz.speedTimer); quiz.speedTimer = null; }
-function recordFluency(q, ms) {
-  const d = disciplineOfRecall(q);
-  const fl = store.get(KEYS.fluency, {});
-  fl[d] = (fl[d] || []).concat(Math.round(ms)).slice(-60);
-  store.set(KEYS.fluency, fl);
-}
 const median = a => { const s = a.slice().sort((x, y) => x - y); return s.length ? s[Math.floor(s.length / 2)] : 0; };
-function fluencyCard() {
-  const rows = Object.entries(store.get(KEYS.fluency, {})).filter(([d, a]) => DISCIPLINES[d] && a.length >= 10)
-    .map(([d, a]) => ({ d, med: median(a), n: a.length })).sort((a, b) => b.med - a.med);
-  if (!rows.length) return '';
-  const max = Math.max(...rows.map(r => r.med), 20000);
-  return `<div class="results-card">
-    <div class="section-label">Recall speed <span class="muted">(median time on correct answers, last 60 per subject)</span></div>
-    ${rows.map(r => {
-      const col = r.med <= 12000 ? 'var(--green)' : r.med <= 20000 ? 'var(--amber)' : 'var(--red)';
-      return `<div class="subject-row"><div class="sr-name">${esc(DISCIPLINES[r.d])}</div>
-        <div class="sr-bar-wrap"><div class="sr-bar-fill" data-css="width:${(r.med / max) * 100}%;background:${col}"></div></div>
-        <div class="sr-pct">${(r.med / 1000).toFixed(1)}s</div><div class="sr-n">${r.n}</div></div>`;
-    }).join('')}
-    <p class="muted-note">A fact you know well should come back in about 10 seconds. Slow-but-right subjects cost time on test day: use the ⚡ Speed drill to make them automatic.</p>
-  </div>`;
-}
 
 // ── Study-habit nudges ──
 // Spaced practice beats marathon sessions: suggest a short break after ~45 minutes
@@ -1518,27 +1222,6 @@ const STUDY_TIPS = [
 ];
 function studyTip() { return `<div class="tip-card">💡 <b>Study tip:</b> ${STUDY_TIPS[Math.floor(Math.random() * STUDY_TIPS.length)]}</div>`; }
 
-function startRecall() {
-  const mix = prefs.mix || 'custom';
-  if (mix !== 'custom') { beginQuiz(buildMix(mix, prefs.count || 59), PRACTICE_MIXES[mix].label); return; }
-  const pool = QB.filter(q => selectedKeys.has(q.key));
-  if (!pool.length) return;
-  beginQuiz(pickQuestions(pool, prefs.count || pool.length), 'Recall');
-}
-function startDueReview() {
-  const due = dueQuestions();
-  if (due.length) beginQuiz(shuffled(due).slice(0, prefs.count || due.length), 'Due for review');
-}
-function startFlagged() {
-  const flags = flaggedIds();
-  const qs = QB.filter(q => flags[q.id]);
-  if (qs.length) beginQuiz(shuffled(qs), 'Flagged questions');
-}
-function drillWeak() {
-  const keys = new Set(weakKeys());
-  const pool = QB.filter(q => keys.has(q.key));
-  if (pool.length) beginQuiz(pickQuestions(pool, prefs.count || pool.length), 'Weak topics');
-}
 // Missed answers, one per fact (a fact drilled several times appears once)
 function missedResults() {
   const seen = new Set();
@@ -1602,11 +1285,6 @@ function recordFinalTwo(view,chosen,other,attemptKey=null) {
   if(other!=null)log.push({t:Date.now(),chosen:view.choices[chosen],other:view.choices[other],answer:view.choices[view.ans],right:false,included:other===view.ans,retrospective:true,attemptKey});
   store.set(KEYS.finalTwo,log.slice(-500));
 }
-function finalTwoProgress() {
-  const log=store.get(KEYS.finalTwo,[]).filter(x=>x.right===false && x.retrospective);
-  if(!log.length)return '';
-  return '<div class="results-card"><div class="section-label">Alternative answers after mistakes</div><p>'+log.length+' incorrect answers with an alternative recorded; the alternative was correct in '+log.filter(x=>x.included).length+'.</p><p class="muted-note">Retrospective reflections after feedback, not a validated measure of closeness or extra score credit.</p></div>';
-}
 function finalTwoFeedback(view,chosen,other) {
   if(other==null || chosen==null || chosen===view.ans)return '';
   const contrast=confusionCard(view.choices[other],view.q);
@@ -1616,7 +1294,7 @@ function pick(chosen) { finishPick(chosen); }
 function answerPassage(chosen) { finishPassageAnswer(chosen); }
 
 // ── Chemical structures: skeletal drawings from data/structures.js (RDKit), shown as images ──
-// The drawings (~1.5 MB) load only when Practice Exam cards are opened, not on every page; the service worker
+// The drawings (~1.7 MB, ~0.3 MB gzipped) load only when Practice Exam cards are opened, not on every page; the service worker
 // keeps them for offline use. A question drawn before they arrive is re-rendered once they load.
 let structsLoading = null;
 // structsFailed: the drawings file could not load (offline before it was cached, or a network error). Drawings
@@ -1637,7 +1315,7 @@ function ensureStructs() {
 // Redraws the current question or passage once the drawings are available (or have failed).
 function rerenderStructs() {
   if (activeScreen === 'screen-quiz' && quiz.items[quiz.idx] && !quiz.answered) renderQuizQuestion();
-  if (activeScreen === 'screen-passage' && pq.p) { if (!pq.mini && pq.p.passage) fillPassageBox(pq.p); if (pq.views[pq.idx] && !pq.answered) renderPassageQuestion(); }
+  if (activeScreen === 'screen-passage' && pq.p) { if (!pq.mini && pq.p.passage) fillPassageBox(pq.p, true); if (pq.views[pq.idx] && !pq.answered) renderPassageQuestion(); }
 }
 function retryStructs() { structsFailed = false; rerenderStructs(); return ensureStructs().then(rerenderStructs).catch(() => {}); }
 if (typeof window !== 'undefined' && window.addEventListener) window.addEventListener('online', () => { if (structsFailed) retryStructs(); });
@@ -1648,10 +1326,17 @@ function loadStructsFor(items) {
   if (typeof STRUCT_SVG !== 'undefined' || !items.some(v => needsStructs(v.q || v))) return;
   ensureStructs().then(() => { if (activeScreen === 'screen-quiz' && !quiz.answered && quiz.items[quiz.idx]) renderQuizQuestion(); }).catch(() => {});
 }
+// Each drawing's data URL is built once (encoding a large SVG on every render was a measurable cost).
+const structUrls = new Map();
+function structUrl(name) {
+  if (name == null || typeof STRUCT_SVG === 'undefined') return null;
+  if (!structUrls.has(name)) { const svg = STRUCT_SVG[name]; structUrls.set(name, svg ? 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg) : null); }
+  return structUrls.get(name);
+}
 function structImg(name, alt) {
   if (name != null && typeof STRUCT_SVG === 'undefined' && structsFailed) return `<span class="struct-missing muted-note">Drawing unavailable · <button class="text-btn" data-click="retryStructs()">Retry</button></span>`;
-  const svg = typeof STRUCT_SVG === 'undefined' || name == null ? null : STRUCT_SVG[name];
-  return svg ? `<img class="struct-img" src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}" alt="${esc(alt || 'Chemical structure')}">` : '';
+  const url = structUrl(name);
+  return url ? `<img class="struct-img" src="${url}" alt="${esc(alt || 'Chemical structure')}">` : '';
 }
 function stemFigs(q) {
   const names = q.fig == null ? [] : [].concat(q.fig);
@@ -1661,12 +1346,13 @@ function stemFigs(q) {
 // Structure choices show only the drawing until answered; then each is labeled with its name.
 function structChoice(view, i) { return view && view.figs ? structImg(view.figs[i], 'Structure ' + LETTERS[i]) : ''; }
 function choiceButtons(choices, onclick, opts = {}) {
-  return choices.map((c, i) => `
+  return choices.map((c, i) => { const fig = structChoice(opts.view, i); return `
     <button class="choice-btn${opts.selected === i ? ' selected' : ''}" id="${opts.prefix || 'cb'}-${i}" data-click="${onclick}(${i})">
-      <span class="choice-lbl">${LETTERS[i]}</span>${structChoice(opts.view, i) ? `<span class="choice-text">${structChoice(opts.view, i)}<span class="struct-name">${fmt(c)}</span></span>` : `<span class="choice-text">${fmt(c)}</span>`}
-    </button>`).join('');
+      <span class="choice-lbl">${LETTERS[i]}</span>${fig ? `<span class="choice-text">${fig}<span class="struct-name">${fmt(c)}</span></span>` : `<span class="choice-text">${fmt(c)}</span>`}
+    </button>`; }).join('');
 }
 function renderQuizQuestion() {
+  if (stepper && stepper.timer) clearTimeout(stepper.timer);
   stepper = null;
   quiz.answered = false;
   quiz.qStart = Date.now();
@@ -1904,7 +1590,6 @@ function revealChoices() {
   view.revealedAt = Date.now();
   $('choices-area').innerHTML = choiceButtons(view.choices, 'pick', { view });
 }
-function setRecallFirst(on) { prefs.recallFirst = !!on; savePrefs(); }
 function flagCurrent() {
   const q = quiz.items[quiz.idx].q;
   const on = toggleFlag(q.baseId || q.id);
@@ -1927,7 +1612,6 @@ function finishPick(chosen, other = null, answerMs = null) {
   recordAnswer(view.q, right);
   // Subject Mastery path: counts guided cards and remembers misses for tomorrow's review.
   if (typeof masteryNoteAnswer === 'function') { try { masteryNoteAnswer(view.q, right); } catch (e) { console.error('mastery', e); } }
-  if (right) recordFluency(view.q, Math.max(0, ms - ((view.revealedAt || quiz.qStart) - quiz.qStart)));
   // Memory and mastery are updated when you move on, so the confidence rating can count
   const confusion = right || timedOut ? null : confusionCard(view.choices[chosen], view.q);
   quiz.pending = { q: view.q, right, ms, conf: null, confusion, chosen: timedOut ? '(time ran out)' : view.choices[chosen], answer: view.choices[view.ans],
@@ -2094,9 +1778,8 @@ function showQuizResults() {
     <div class="results-card">
       <div class="section-label">This session by subject</div>
       ${Object.entries(bySubj).map(([s, v]) => barRow(SUBJECT_LABEL[s], v.c, v.t)).join('')}
-      <p class="muted-note">A single session is too small to score. Your answers feed the running MCAT estimate below, which uses all your recall, passage and full-length results.</p>
+      <p class="muted-note">A single session is too small to score. Your passage and full-length answers feed the running MCAT estimate below.</p>
     </div>
-    ${studyPathCard(Object.entries(res.reduce((n, r) => { const d = disciplineOfRecall(r.view.q); n[d] = (n[d] || 0) + 1; return n; }, {})).sort((a, b) => b[1] - a[1])[0]?.[0])}
     ${studyTip()}
     ${scoreStrip()}
     <div class="btn-row">
@@ -2112,8 +1795,7 @@ function showQuizResults() {
       ${missed.length ? `<button class="micro-btn mt-10" data-click="exportMissed()">Download missed questions (.txt)</button>` : ''}
     </div>
     ${flaggedHere.length ? `<div class="results-card"><div class="section-label">Flagged this session (${flaggedHere.length})</div>
-      <p class="muted-note">Flagged questions stay in your Flagged list on the home screen until you unflag them.</p></div>` : ''}
-    ${progressCards()}`;
+      <p class="muted-note">Flagged questions stay flagged until you unflag them.</p></div>` : ''}`;
 }
 function barRow(label, c, t) {
   const p = pct(c, t);
@@ -2148,41 +1830,6 @@ function exportMissed() {
   download(`MCAT_missed_${new Date().toISOString().slice(0, 10)}.txt`, lines.join('\n'));
 }
 
-// ── Cumulative progress ──
-function progressCards() {
-  const stats = store.get(KEYS.stats, {});
-  const valid = Object.entries(stats).filter(([k]) => KEY_COUNTS[k]);
-  if (!valid.length) return finalTwoProgress();
-  const bySubj = {};
-  valid.forEach(([k, s]) => { const subj = k.split('|')[0]; bySubj[subj] = bySubj[subj] || { c: 0, t: 0 }; bySubj[subj].c += s.c; bySubj[subj].t += s.t; });
-  const tot = valid.reduce((a, [, s]) => a + s.t, 0), cor = valid.reduce((a, [, s]) => a + s.c, 0);
-  const mem = loadMem();
-  const seenIds = Object.keys(mem).filter(id => QB_BY_ID.has(id) && mem[id].seen);
-  const mastered = seenIds.filter(id => retainedFact(mem[id])).length;
-  const topics = valid.filter(([, s]) => s.t >= 5).map(([k, s]) => ({ k, p: s.c / s.t, s }));
-  const weak = topics.filter(x => x.p < 0.7).sort((a, b) => a.p - b.p).slice(0, 8);
-  const strong = topics.filter(x => x.p >= 0.85).sort((a, b) => b.p - a.p).slice(0, 5);
-  const topicLabel = k => `${SUBJECT_LABEL[k.split('|')[0]]} · ${KEY_LABEL[k] || k.split('|')[1]}`;
-  return `${finalTwoProgress()}
-    <div class="results-card">
-      <div class="section-label">All-time progress</div>
-      <div class="stat-row">
-        <div class="stat"><b>${pct(cor, tot)}%</b><span>accuracy</span></div>
-        <div class="stat"><b>${tot.toLocaleString()}</b><span>answers</span></div>
-        <div class="stat"><b>${seenIds.length.toLocaleString()}</b><span>of ${QB.length.toLocaleString()} seen</span></div>
-        <div class="stat"><b>${mastered.toLocaleString()}</b><span>mastered*</span></div>
-      </div>
-      ${SUBJECTS.filter(s => bySubj[s.id]).map(s => barRow(s.label, bySubj[s.id].c, bySubj[s.id].t)).join('')}
-      <p class="muted-note">*Mastered = model stability of at least 21 days plus two consecutive successful checks, each at least 3 days after the previous exposure. This is a study heuristic, not a verified retention probability.</p>
-    </div>
-    <div class="results-card">
-      <div class="section-label">Strengths & weak topics <span class="muted">(topics with 5+ answers)</span></div>
-      ${weak.length ? `<div class="sw-head red">Needs work</div>${weak.map(x => barRow(topicLabel(x.k), x.s.c, x.s.t)).join('')}` : ''}
-      ${strong.length ? `<div class="sw-head green">Strong</div>${strong.map(x => barRow(topicLabel(x.k), x.s.c, x.s.t)).join('')}` : ''}
-      ${!weak.length && !strong.length ? '<p class="muted-note">Answer at least 5 questions in a topic to see it here.</p>' : ''}
-      ${weak.length ? '<button class="new-quiz-btn" data-click="drillWeak()">Drill weak topics</button>' : ''}
-    </div>`;
-}
 // ── MCAT score report ──
 // A 118–132 track with a marker; optional ± band shaded around it
 function scaleBar(scaled, band, color) {
@@ -2275,31 +1922,6 @@ function scoreReportCards() {
         <p class="muted-note">Research design and statistics are tested inside every science section rather than as a separate share, so this skill is shown on its own and isn't added into a section score.</p>
       </div>
     </div>`;
-}
-// Topic mastery map: each subtopic chip colored by its mastery level
-// Topic-model estimate levels (predicted success), deliberately not called "weak": weak topics are weakTopics().
-const LEVELS = { new: 'Not enough data', weak: 'Low estimate', building: 'Building', solid: 'Solid', mastered: 'High estimate' };
-function masteryMapCard() {
-  const mast = store.get(KEYS.mastery, {});
-  if (!Object.keys(mast).length) return '';
-  const chipInfo = chip => {
-    let n = 0, w = 0;
-    chip.keys.forEach(k => { const t = mast[k]; if (t) { n += t.n; w += sigmoid(t.r) * t.n; } });
-    if (n < 5) return { n, p: n ? w / n : null, level: 'new' };
-    const p = w / n;
-    return { n, p, level: p < 0.6 ? 'weak' : p < 0.75 ? 'building' : p < 0.9 ? 'solid' : 'mastered' };
-  };
-  const focus = weakTopics().slice(0, 3);
-  return `<div class="results-card">
-    <div class="section-label">Topic model <span class="muted">(practice estimate, not delayed-retention proof)</span></div>
-    <div class="legend">${Object.entries(LEVELS).map(([k, l]) => `<span class="m-chip lvl-${k}">${l}</span>`).join('')}</div>
-    ${focus.length ? `<div class="focus-box"><b>Next focus:</b> ${focus.map(f => `${esc(KEY_LABEL[f.k] || f.k)} (${f.c}/${f.t})`).join(' · ')}
-      <button class="micro-btn" data-click="startSmartSession()">Start Smart Session</button></div>` : ''}
-    ${SUBJECTS.map(s => `<div class="m-subject"><div class="m-subject-name">${esc(s.label)}</div><div class="m-chips">
-      ${s.groups.flatMap(g => g.chips).map(c => { const i = chipInfo(c); return `<span class="m-chip lvl-${i.level}" title="${i.n} answers${i.p != null ? ` · ${Math.round(i.p * 100)}% predicted` : ''}">${esc(c.label)}${i.p != null && i.n >= 5 ? ` <small>${Math.round(i.p * 100)}%</small>` : ''}</span>`; }).join('')}
-    </div></div>`).join('')}
-    <p class="muted-note">The topic model weighs harder questions more and recent answers most; guessed right answers count only partly. These estimates guide practice, while the separate recall mastery count requires delayed checks.</p>
-  </div>`;
 }
 // ── Mistake patterns ──
 const ERROR_ADVICE = {
@@ -2406,197 +2028,10 @@ const AAMC_CATEGORIES = [
   ['10A', 'Social inequality'],
   ['SIRS', 'Scientific inquiry and reasoning skills: research design, data and statistical reasoning'],
 ];
-const CHIP_AAMC = {
-  'Amino Acids': '1A', 'Protein Structure & Function': '1A', 'Mechanism of Action': '1A', 'Kinetics (Michaelis–Menten)': '1A', 'Inhibition & Regulation': '1A',
-  'Glycolysis & Glucose Transport': '1D', 'Gluconeogenesis': '1D', 'Glycogen': '1D', 'Acetyl-CoA & PDH': '1D', 'Citric Acid Cycle': '1D',
-  'ETC & Oxidative Phosphorylation': '1D', 'Fatty Acid Oxidation': '1D', 'Pentose Phosphate Pathway': '1D', 'Urea Cycle': '1D', 'Lipid Metabolism': '1D',
-  'DNA Structure & Chromosomes': '1B', 'Replication': '1B', 'Repair & Mutation': '1B', 'Transcription & RNA Processing': '1B', 'Translation': '1B',
-  'Nucleic Acids — General': '1B', 'Lab Techniques': '1B',
-  'Membrane Structure & Transport': '2A', 'Lipids': '5D', 'Carbohydrates': '5D', 'Biosignaling': '3A',
-  'Cell Structure & Tissues': '2A', 'Cell Cycle, Mitosis & Meiosis': '2C', 'Genetics & Inheritance': '1C', 'Evolution': '1C', 'Viruses & Bacteria': '2B',
-  'Neurons & Glia': '3A', 'Action Potential': '3A', 'Synapses': '3A', 'Neurotransmitters': '3A', 'Sensory Systems': '6A',
-  'Muscle Types & Control': '3B', 'Muscle Contraction': '3B', 'Bone & Skeleton': '3B',
-  'Heart, Blood & Circulation': '3B', 'Airway Anatomy': '3B', 'Respiratory Physiology': '3B',
-  'Hormones & Signaling': '3A', 'Reproduction': '3B', 'Development': '2C', 'Thermoregulation': '3B',
-  'Innate Immunity': '3B', 'Adaptive Immunity': '3B', 'Digestion': '3B', 'Kidney': '3B', 'Skin': '3B',
-  'Atomic Structure': '4E', 'Quantum Numbers': '4E', 'Periodic Trends': '4E', 'Chemical Bonding': '5B', 'Intermolecular Forces': '5B',
-  'Thermochemistry': '5E', 'Kinetics': '5E', 'Equilibrium': '5E',
-  'Solutions & Solubility': '5A', 'Acids & Bases': '5A', 'Buffers & Titrations': '5A', 'Redox & Electrochemistry': '4C',
-  'Bonding & Structure': '5B', 'Reactions & Mechanisms': '5D', 'Carbonyl Chemistry': '5D', 'Spectroscopy': '4D', 'Separations & Lab Techniques': '5C',
-  'Motion, Forces & Energy': '4A', 'Fluids': '4B', 'Electricity & Magnetism': '4C', 'Waves, Sound & Light': '4D', 'Nuclear & Atomic Physics': '4E',
-  'Research Methods & Statistics': 'SIRS', 'Physics equations & units': '4A', 'Chemistry equations & constants': '5E',
-  'Biological Bases of Behavior': '7A', 'Sensation & Perception': '6A', 'Cognition, Learning & Memory': '6B', 'Emotion, Motivation & Stress': '6C',
-  'Personality, Development & Disorders': '7A', 'Social Psychology & Society': '8B',
-};
-let keyAamc = null;
-function aamcOfKey(key) {
-  if (!keyAamc) {
-    keyAamc = {};
-    SUBJECTS.forEach(s => s.groups.forEach(g => g.chips.forEach(c => c.keys.forEach(k => { keyAamc[k] = CHIP_AAMC[c.label] || null; }))));
-  }
-  return keyAamc[key] || null;
-}
-// A question's own category tag wins over its topic's primary category
-function aamcOf(q) { return q.aamc || aamcOfKey(q.key); }
-function aamcCard() {
-  const mast = store.get(KEYS.mastery, {});
-  const mem = loadMem();
-  const agg = {};
-  QB.forEach(q => {
-    const c = aamcOf(q);
-    if (!c) return;
-    const a = agg[c] = agg[c] || { total: 0, seen: 0, keys: new Set(), tagged: 0, w: 0, n: 0 };
-    a.total++;
-    a.keys.add(q.key);
-    const m = mem[q.id];
-    if (m && m.seen) a.seen++;
-    // Per-question tags: estimate from each answered question's current recall chance
-    if (q.aamc) { a.tagged++; if (m && m.seen) { a.n++; a.w += retrievability(m) * (m.lapses ? 0.85 : 1); } }
-  });
-  const level = a => {
-    let n = 0, w = 0;
-    if (a.tagged > a.total / 2) { n = a.n; w = a.w; }
-    else a.keys.forEach(k => { const t = mast[k]; if (t) { n += t.n; w += sigmoid(t.r) * t.n; } });
-    if (n < 5) return { level: 'new', p: null };
-    const p = w / n;
-    return { p, level: p < 0.6 ? 'weak' : p < 0.75 ? 'building' : p < 0.9 ? 'solid' : 'mastered' };
-  };
-  const psTagged = QB.filter(q => q.subj === 'behavioral' && q.aamc).length;
-  const psTotal = QB.filter(q => q.subj === 'behavioral').length;
-  return `<div class="results-card">
-    <div class="section-label">AAMC content categories <span class="muted">(each topic mapped to its primary category)</span></div>
-    <table class="aamc">${AAMC_CATEGORIES.map(([code, name]) => {
-      const a = agg[code];
-      if (!a) return `<tr class="gap"><td><b>${code}</b></td><td>${esc(name)}</td><td colspan="2"><span class="muted">Not covered by recall questions (use passages and the full-length exams)</span></td></tr>`;
-      const lv = level(a);
-      return `<tr><td><b>${code}</b></td><td>${esc(name)}</td>
-        <td>${a.seen}/${a.total} seen</td>
-        <td><span class="m-chip lvl-${lv.level}">${lv.p != null ? Math.round(lv.p * 100) + '%' : 'No data'}</span>
-          <button class="micro-btn" data-click="drillCategory('${code}')">Drill</button></td></tr>`;
-    }).join('')}</table>
-    ${psTagged < psTotal ? '<p class="muted-note">Some psychology and sociology recall questions are tagged by topic only, so part of their 7B–10A content is counted under 7A and 8B.</p>' : '<p class="muted-note">Psychology and sociology questions are tagged one by one to their AAMC category; science questions use their topic\'s primary category.</p>'}
-  </div>`;
-}
 // ── Study plan to the test date ──
 // Spreads unseen material over the content phase, reserves the final weeks for
 // review and full-length practice, and sizes each day's Smart Session.
 const SECONDS_PER_RECALL = DAILY_RULES.secondsPerFact;   // answer + read the explanation (shared with the TODAY plan)
-function calendarDaysBetween(a, b) {
-  return Math.round((Date.UTC(b.getFullYear(), b.getMonth(), b.getDate()) - Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())) / DAY);
-}
-function computePlan() {
-  const plan = store.get(KEYS.plan, null);
-  if (!plan || !plan.date) return null;
-  const today = new Date(localDay() + 'T00:00:00');
-  const test = new Date(plan.date + 'T00:00:00');
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(plan.date) || !Number.isFinite(test.getTime())) return null;
-  const daysLeft = calendarDaysBetween(today, test);
-  const startDay = new Date((plan.start || localDay()) + 'T00:00:00');
-  const initialDays = Math.max(0, calendarDaysBetween(Number.isFinite(startDay.getTime()) ? startDay : today, test));
-  const mem = loadMem();
-  const seen = QB.filter(q => mem[q.id] && mem[q.id].seen).length;
-  const unseen = QB.length - seen;
-  const perWeek = Math.min(7, Math.max(1, plan.days || 6));
-  // Same final window as the TODAY checklist (DAILY_RULES.finalWindow), so the two never disagree.
-  const finalDays = initialDays > DAILY_RULES.finalWindow ? DAILY_RULES.finalWindow : Math.min(2, initialDays);
-  const studyDaysLeft = Math.max(1, Math.round((daysLeft * perWeek) / 7));
-  const contentStudyDays = Math.max(1, Math.round(((daysLeft - finalDays) * perWeek) / 7));
-  const inFinal = daysLeft <= finalDays;
-  const due = dueQuestions().length;
-  const activity = daysLeft > 2 ? plannedPassage(plan.minutes || 120) : null;
-  const studyHistory = store.get(KEYS.studyPath, []);
-  const todayWork = studyHistory.filter(x => x.day === localDay());
-  const activityDone = passageWorkDone(activity);
-  const passageMinutes = activity ? Math.min(plan.minutes || 120, activity.minutes) : 0;
-  const capacity = Math.max(0, Math.floor((((plan.minutes || 120) - passageMinutes) * 60) / SECONDS_PER_RECALL));
-  const newPerDay = inFinal || daysLeft <= 0 ? 0 : Math.ceil(unseen / contentStudyDays);
-  let newGoal=Math.min(newPerDay,Math.max(0,capacity-Math.min(due,Math.ceil(capacity/2))));
-  let reviewGoal=Math.min(due,capacity-newGoal);
-  const recall=recallToday();
-  // The TODAY checklist owns daily pacing; use its uncapped quota so the bank finishes on time.
-  let daily = null;
-  try { daily = typeof currentDailyPlan === 'function' ? currentDailyPlan() : null; } catch (e) { daily = null; }
-  if (daily && ['study', 'final', 'review', 'rest', 'light', 'fl', 'fl-done'].includes(daily.status)) {
-    const step = daily.steps.find(s => s.id === 'new-facts');
-    newGoal = step ? step.count : 0; reviewGoal = due;
-  }
-  const target=newGoal+reviewGoal;
-  const recallTargetMet=(newGoal===0 || recall.tracked && recall.fresh>=newGoal) && (reviewGoal===0 || recall.tracked && recall.reviews>=reviewGoal);
-  // Expected progress since the plan started (straight-line over the content phase)
-  const total = Math.max(1, initialDays - finalDays);
-  const elapsed = Math.min(total, Math.max(0, calendarDaysBetween(Number.isFinite(startDay.getTime()) ? startDay : today, today)));
-  const expectedSeen = Math.round((plan.seenAtStart || 0) + (QB.length - (plan.seenAtStart || 0)) * (elapsed / total));
-  const fl = [];
-  const addMilestone = (offset, label) => { if (daysLeft - offset >= 0) { const date = new Date(test); date.setDate(date.getDate() - offset); fl.push({ date, label }); } };
-  // This app's exams come first; AAMC's official exams (the best predictors) fill the final month, one a week
-  if (daysLeft >= 49) {
-    const done=store.get(KEYS.examHistory,[]).filter(x=>x.total!=null).map(x=>x.examId);
-    if(!done.includes(FULL_EXAMS[0].id))addMilestone(42,'Full-Length Practice Exam 1 (this app)');
-    if(!done.includes(FULL_EXAMS[1].id))addMilestone(35,'Full-Length Practice Exam 2 (this app)');
-  }
-  else if (daysLeft >= 33) {
-    // At least 3 days between full-lengths so each one can be reviewed
-    const first = daysLeft - 2, second = daysLeft - 9;
-    addMilestone(first, 'Full-Length Practice Exam 1 (this app)');
-    if (second >= 31) addMilestone(second, 'Full-Length Practice Exam 2 (this app)');
-  }
-  [28, 21, 14, 7].forEach((o, i) => addMilestone(o, `AAMC official full-length ${i + 1} (aamc.org)`));
-  if(!diagnosticRecorded() && daysLeft>3) {
-    const date=new Date(Number.isFinite(startDay.getTime())?startDay:today);
-    date.setDate(date.getDate()+Math.min(7,Math.max(0,initialDays-3)));
-    if(date<today)date.setTime(today.getTime());
-    fl.push({date,label:'Baseline diagnostic and review (this app or an official exam)'});
-  }
-  // The TODAY checklist owns the full-length calendar; show the same dates here.
-  if (daily?.fullLengths?.length) {
-    fl.length = 0;
-    daily.fullLengths.filter(f => !f.done && f.close >= localDay()).forEach(f => {
-      const day = f.day < localDay() ? localDay() : f.day;
-      fl.push({ date: new Date(day + 'T00:00:00'), label: 'Full-length ' + f.index + ': ' + f.label + ' (review the next day)' });
-    });
-  }
-  addMilestone(2, 'Light review only; rest and sleep before test day');
-  fl.sort((a, b) => a.date - b.date);
-  return { plan, daysLeft, studyDaysLeft, finalDays, inFinal, seen, unseen, due, capacity, newPerDay, target,
-    activity, activityDone, passageMinutes, newGoal, reviewGoal, recall, recallTargetMet, doneToday: recall.fresh+recall.reviews, expectedSeen, overCapacity: newPerDay + due > capacity, milestones: fl.filter(m => m.date >= today) };
-}
-function smartSessionSize() {
-  const p = computePlan();
-  if (!p || p.daysLeft <= 0) return prefs.count || 30;
-  const left = Math.max(0,p.newGoal-p.recall.fresh)+Math.max(0,p.reviewGoal-p.recall.reviews);
-  return left > 0 ? Math.min(60, Math.max(1, left)) : prefs.count || 20;
-}
-function planStrip() {
-  const p = computePlan();
-  if (!p) return `<button class="plan-strip empty" data-click="showPlan()">📅 Set your MCAT date to get a daily study plan →</button>`;
-  if (p.daysLeft < 0) return `<button class="plan-strip" data-click="showPlan()">📅 Your test date has passed. Update your study plan →</button>`;
-  if (p.daysLeft === 0) return `<button class="plan-strip" data-click="showPlan()">📅 Test day. Trust your preparation, and good luck!</button>`;
-  // Only the countdown: the daily work lives in the Section Mastery plan, so no separate fact quotas or pace here.
-  return `<button class="plan-strip" data-click="showPlan()">
-    <span>📅 <b>${p.daysLeft}</b> day${p.daysLeft === 1 ? '' : 's'} to the MCAT${p.inFinal ? ' · final review phase' : ''}</span>
-    <span>Edit test date →</span>
-  </button>`;
-}
-function planSummaryCard() {
-  const p = computePlan();
-  if (!p || p.daysLeft < 0) return '';
-  return `<div class="results-card"><div class="section-label">Study plan</div>${planDetails(p)}
-    <button class="micro-btn" data-click="showPlan()">Edit plan</button></div>`;
-}
-function planDetails(p) {
-  return `<div class="stat-row">
-      <div class="stat"><b>${p.daysLeft}</b><span>days to test</span></div>
-      <div class="stat"><b>${p.target}</b><span>new + due review targets</span></div>
-      <div class="stat"><b>${p.newPerDay}</b><span>new per day</span></div>
-      <div class="stat"><b>${p.seen.toLocaleString()}</b><span>of ${QB.length.toLocaleString()} seen</span></div>
-    </div>
-    <p class="muted-note">Today: new facts <b>${p.recall.tracked ? p.recall.fresh : 'not classified'}/${p.newGoal}</b> · review attempts <b>${p.recall.tracked ? p.recall.reviews : 'not classified'}/${p.reviewGoal}</b>. The new/review split covers answers since this tracking was introduced; earlier attempts are not retroactively classified. Content pace tracks bank coverage, not test readiness.</p>
-    ${p.activity ? `<div class="advice"><b>Today: ${esc(DISCIPLINES[p.activity.subj])} ${p.activity.kind === 'mini' ? 'mini test' : 'passage'} ${p.activityDone ? '✓ completed' : 'not completed'}</b> · ${p.passageMinutes} minutes reserved including review. Pair it with recall in the same subject.<button class="micro-btn" data-click="startSubjectWork('${p.activity.subj}','${p.activity.kind}')">${p.activityDone ? 'Optional extra practice' : 'Start planned passage work'}</button></div>` : ''}
-    ${p.overCapacity ? `<div class="advice">After reserving passage time, your daily time fits about <b>${p.capacity}</b> questions, but you have <b>${p.newPerDay}</b> new plus <b>${p.due}</b> due. Add time, or let the Smart Session prioritize: it puts high-yield and weak topics first.</div>` : ''}
-    ${p.inFinal ? '<div class="advice">You\'re in the final review phase: no new material. Focus on due reviews, weak topics, mistake patterns and full-length practice.</div>' : ''}
-    ${passageSchedule(p)}
-    ${p.milestones.length ? `<div class="sw-head">Upcoming milestones</div><ul class="milestones">${p.milestones.map(m => `<li><b>${m.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</b> · ${esc(m.label)}</li>`).join('')}</ul>` : ''}`;
-}
 function showPlan() {
   show('screen-results');
   const plan = store.get(KEYS.plan, {}) || {};
@@ -2628,10 +2063,6 @@ function savePlan() {
   showPlan();
 }
 function clearPlan() { store.del(KEYS.plan); showPlan(); }
-function drillCategory(code) {
-  const pool = QB.filter(q => aamcOf(q) === code);
-  if (pool.length) beginQuiz(pickQuestions(pool, prefs.count || 20), `AAMC ${code}`);
-}
 
 // Compact one-line version for the home screen and session results
 function scoreStrip() {
@@ -2766,11 +2197,16 @@ function schemeHtml(row) {
 }
 const passageNeedsStructs = p => !!p && Array.isArray(p.scheme) && p.scheme.length > 0;
 // Fills the passage box; a passage with drawn structures loads the drawings first, then redraws.
-function fillPassageBox(p) {
+// force: redraw even if this passage is already shown (drawings just loaded). Otherwise moving between questions on
+// the same passage keeps the passage pane, and the reader's scroll position, as it is.
+function fillPassageBox(p, force) {
   const box = $('pp-passage-box'); if (!box) return;
+  const state = p.id + '|' + (typeof STRUCT_SVG !== 'undefined');
+  if (!force && box.dataset && box.dataset.shown === state && box.innerHTML) return;
   const html = () => passageCard(p.topic || '', p.title, p.passage, p.figure, p.scheme);
   box.innerHTML = html();
-  if (passageNeedsStructs(p) && typeof STRUCT_SVG === 'undefined' && typeof ensureStructs === 'function') ensureStructs().then(() => { if ($('pp-passage-box') === box && box.isConnected !== false) box.innerHTML = html(); }).catch(() => {});
+  if (box.dataset) box.dataset.shown = state;
+  if (passageNeedsStructs(p) && typeof STRUCT_SVG === 'undefined' && typeof ensureStructs === 'function') ensureStructs().then(() => { if ($('pp-passage-box') === box && box.isConnected !== false) { box.innerHTML = html(); if (box.dataset) box.dataset.shown = p.id + '|true'; } }).catch(() => {});
 }
 // ── Graph figures: line and bar charts drawn as inline SVG (presentation only, no script) ──
 // ov (optional) is one solution step's overlay: {focus:[series], read:[{series,x}], xLine, yLine, bars:[[category, series]]}.
@@ -2918,7 +2354,7 @@ function renderPassageQuestion() {
   pq.qStart = Date.now();
   if (pq.mini) {
     const passage = pq.mini.items[pq.idx].passage;
-    if (passage) fillPassageBox(passage); else $('pp-passage-box').innerHTML = '<p class="muted-note">Discrete question · no passage</p>';
+    if (passage) fillPassageBox(passage); else { $('pp-passage-box').innerHTML = '<p class="muted-note">Discrete question · no passage</p>'; if ($('pp-passage-box').dataset) $('pp-passage-box').dataset.shown = ''; }
     $('pp-score').textContent = pq.results.length + '/' + tot + ' answered · feedback at end';
   }
   // Practice Exam questions can show a molecule, answer-choice drawings or a graph: load the drawings once.
@@ -3197,8 +2633,11 @@ function renderExamQuestion() {
       <button class="next-btn secondary" data-click="openSectionReview()">Review</button>
       <button class="next-btn" data-click="examNav(1)">${exam.qi + 1 === n ? 'Review & end →' : 'Next →'}</button>
     </div>`;
-  $('exam-body').innerHTML = q.passageTitle
-    ? `<div class="split"><div class="split-passage" id="ex-passage">${passageCard('', q.passageTitle, q.passageText)}</div><div class="split-question">${questionHtml}</div></div>`
+  // Moving between questions on the same passage replaces only the question, so the passage keeps its scroll.
+  const shown = $('ex-passage'), qBox = $('ex-question');
+  if (q.passageTitle && shown && qBox && shown.dataset && shown.dataset.pid === String(q.passageId) && shown.isConnected !== false) qBox.innerHTML = questionHtml;
+  else $('exam-body').innerHTML = q.passageTitle
+    ? `<div class="split"><div class="split-passage" id="ex-passage">${passageCard('', q.passageTitle, q.passageText)}</div><div class="split-question" id="ex-question">${questionHtml}</div></div>`
     : questionHtml;
   // Keep the passage scrolled to the top when moving to a new passage
   const pane = $('ex-passage');
@@ -3258,12 +2697,12 @@ function endSection() {
   const qs = curQuestions();
   const sectionId = curSection().id;
   let correct = 0;
-  qs.forEach((q, i) => {
+  store.batch(() => qs.forEach((q, i) => {
     const a = exam.answers[exam.si][i];
     const right = a != null && exam.orders[exam.si][i][a] === q.ans;
     if (right) correct++;
     recordEvidence('exam', disciplineOfExamQuestion(sectionId, q), right);
-  });
+  }));
   const p = pct(correct, qs.length);
   exam.results[exam.si] = { correct, total: qs.length, pct: p, scaled: rawToScaled(p), timeMs: exam.elapsed[exam.si] };
   if (exam.si + 1 < examDef().sections.length) {
@@ -3379,6 +2818,7 @@ function examMissSummary(attempt) {
 // A recall session built from an exam's misses: each discipline gets questions in
 // proportion to its misses, chosen from your weakest topics near the target success rate
 function studyExamMistakes() {
+  if (!bankReady('fl')) { withBank('fl', studyExamMistakes); return; }
   const { byDisc, total } = examMissSummary(examReviewState.attempt);
   if (!total) return;
   // Cards from the approved sets (AAMC QBank cards and Practice Exam cards), split over the disciplines of the

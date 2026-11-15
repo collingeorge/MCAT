@@ -92,6 +92,13 @@ async function main() {
   await evaluate('document.querySelector("#home-back-btn").click()');
   assert.equal(await evaluate('activeScreen'), 'screen-home');
   assert.equal(await evaluate('document.querySelector("#app-nav").hidden'),true);
+  // Review 4.9: moving between questions on one exam passage keeps the passage pane (and its scroll position).
+  await evaluate('startExam(0);beginSection();const qs=curQuestions();exam.qi=qs.findIndex((q,i)=>q.passageId&&qs[i+1]&&qs[i+1].passageId===q.passageId);renderExamQuestion();const p=document.querySelector("#ex-passage");p.style.maxHeight="200px";p.style.overflow="auto";p.scrollTop=120;window.__pane=p;true');
+  const before=await evaluate('document.querySelector("#ex-passage").scrollTop');
+  await evaluate('examNav(1)');
+  assert.equal(await evaluate('document.querySelector("#ex-passage")===window.__pane'),true,'same passage pane after Next');
+  assert.equal(await evaluate('document.querySelector("#ex-passage").scrollTop'),before,'scroll kept');
+  await evaluate('goHome()');
   await evaluate('startExam(0);beginSection();exam.elapsed[exam.si]=12345;document.querySelector("#home-back-btn").click()');
   assert.equal(await evaluate('store.get(KEYS.examProgress(FULL_EXAMS[0].id),null).elapsed[0]'),12345);
   await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
@@ -148,7 +155,9 @@ async function main() {
   await command('Network.emulateNetworkConditions',{offline:true,latency:0,downloadThroughput:-1,uploadThroughput:-1});
   await command('Page.reload',{ignoreCache:false});
   await until('document.querySelector("#today-plan .today-head")!==null && typeof AQB_QBANK!=="undefined" && AQB_QBANK.length>1000');
-  assert.equal(await evaluate('LISTED_PASSAGES.length+"/"+FLQ.length+"/"+EXAM_CARS.length+"/"+CP_POOL.length'),'36/266/18/6','approved content available offline');
+  // Banks that load on demand come from the offline cache too.
+  assert.equal(await evaluate('typeof CP_POOL'),'undefined','the quiz sets are not loaded at startup');
+  assert.equal(await evaluate('Promise.all(Object.keys(BANKS).map(ensureBank)).then(()=>LISTED_PASSAGES.length+"/"+FLQ.length+"/"+EXAM_CARS.length+"/"+CP_POOL.length+"/"+AAMC_PREP.length)'),'36/266/18/6/3','approved content, including the on-demand banks, available offline');
   assert.equal(await evaluate('fetch("/not-cached-"+Date.now()).then(()=>false,()=>true)'),true,'the network really is offline');
   await evaluate('beginQuiz(AQB_QBANK.slice(0,2),"Offline",{adaptive:false});document.querySelector("#cb-0").click()');
   assert.equal(await evaluate('quiz.results.length'),1,'studying works offline');

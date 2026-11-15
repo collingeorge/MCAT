@@ -1,20 +1,26 @@
-// Offline support, network-first: when online, always fetch the current file (revalidating
-// past the browser's HTTP cache) so new versions show on the first visit; the cached copy
-// is used only when the network fails or takes too long. Bump CACHE when deploying.
-const CACHE = 'mcat-v2.57-review-fixes-2026-11-15';
-const NETWORK_TIMEOUT_MS = 4000;
+// Offline support.
+// - Pages and code: network-first (revalidating past the browser's HTTP cache), so a new version shows on the
+//   first visit; the cached copy is used when the network fails or is slow (1.5 s when a cached copy exists).
+// - data/*.js: cache-first with a background refresh. CACHE changes on every deploy, so a cached data file is
+//   always from the current version.
+// - The drawings (data/structures.js) and the sign-in SDK are cached the first time they are used, not at install.
+// Bump CACHE when deploying.
+const CACHE = 'mcat-v2.58-review-efficiency-2026-11-15';
+const NETWORK_TIMEOUT_MS = 4000, CACHED_TIMEOUT_MS = 1500;
 const ASSETS = [
-  "recall.html", "passages.html", "exams.html", "aamc.html", "flprep.html","score-report.html", "about.html", "recall-session.html", "passage-session.html", "exam-session.html", "results.html", "exam-results.html", 'js/pages.js', './', 'css/portfolio-theme.css?v=20261030', 'index.html', 'css/styles.css', 'js/app.js', 'js/study-path.js', 'js/cloud-config.js', 'js/account.js', 'js/study-timer.js', 'js/learning-evidence.js', 'js/daily-plan.js', 'js/mastery.js', 'js/actions.js', 'js/data-css.js', 'vendor/supabase-js-2.118.0.umd.js', 'manifest.webmanifest', 'icon.svg', 'data/passages-cars.js', 'data/cp-diagnostic.js', 'data/cp-pool.js', 'data/cp-practice.js',
-  'data/qb-aamc-bio.js', 'data/qb-aamc-chem.js', 'data/qb-aamc-phys.js', 'data/qb-aamc-iqb.js', 'data/qb-aamc-cars.js', 'data/qb-aamc-rules.js', 'data/qb-aamc-fl.js', 'data/structures.js', 'data/aamc-prep.js',
+  "recall.html", "passages.html", "exams.html", "aamc.html", "flprep.html","score-report.html", "about.html", "recall-session.html", "passage-session.html", "exam-session.html", "results.html", "exam-results.html", 'js/pages.js', './', 'css/portfolio-theme.css?v=20261030', 'index.html', 'css/styles.css', 'js/app.js', 'js/study-path.js', 'js/cloud-config.js', 'js/account.js', 'js/study-timer.js', 'js/learning-evidence.js', 'js/daily-plan.js', 'js/mastery.js', 'js/actions.js', 'js/data-css.js', 'manifest.webmanifest', 'icon.svg', 'data/passages-cars.js', 'data/cp-diagnostic.js', 'data/cp-pool.js', 'data/cp-practice.js',
+  'data/qb-aamc-bio.js', 'data/qb-aamc-chem.js', 'data/qb-aamc-phys.js', 'data/qb-aamc-iqb.js', 'data/qb-aamc-cars.js', 'data/qb-aamc-rules.js', 'data/qb-aamc-fl.js', 'data/aamc-prep.js',
   'data/exam1.js', 'data/exam2-cp.js', 'data/exam2-bb.js', 'data/exam2-ps.js', 'data/exams.js',
 ];
+const RUNTIME = ['data/structures.js', 'vendor/supabase-js-2.118.0.umd.js'];
 
 self.addEventListener('install', event => {
   // cache: 'no-cache' revalidates every file with the server, so the precache never stores stale files,
   // but files the page just downloaded come back as 304s instead of a second full download.
   event.waitUntil(
     caches.open(CACHE)
-      .then(cache => cache.addAll(ASSETS.map(url => new Request(url, { cache: 'no-cache' }))))
+      // One file failing (a flaky connection) must not stop the install; it is fetched again when first used.
+      .then(cache => Promise.allSettled(ASSETS.map(url => cache.add(new Request(url, { cache: 'no-cache' })))))
       .then(() => self.skipWaiting())
   );
 });
@@ -30,12 +36,24 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const req = event.request;
   const url = new URL(req.url);
-  const allowed = new Set(ASSETS.map(path => new URL(path, self.registration.scope).pathname));
+  const allowed = new Set([...ASSETS, ...RUNTIME].map(path => new URL(path, self.registration.scope).pathname));
   // Auth callback codes belong to a single online exchange, never the offline cache.
   if (url.searchParams.has('code') || url.searchParams.has('token_hash') || url.searchParams.has('access_token')) return;
   if (req.method !== 'GET' || url.origin !== location.origin || !allowed.has(url.pathname)) return;
-  event.respondWith(networkFirst(req));
+  event.respondWith(/\/data\/[^/]+\.js$/.test(url.pathname) ? cacheFirst(req) : networkFirst(req));
 });
+
+// Versioned data: answer from the cache at once and refresh it in the background; fetch it if not cached yet.
+async function cacheFirst(req) {
+  const cache = await caches.open(CACHE);
+  const cached = await cache.match(req, { ignoreSearch: true });
+  const network = fetch(req, { cache: 'no-cache' }).then(async res => {
+    if (res.ok) { try { await cache.put(req, res.clone()); } catch (e) { /* quota: keep the response */ } }
+    return res;
+  });
+  if (cached) { network.catch(() => {}); return cached; }
+  return network;
+}
 
 async function networkFirst(req) {
   const cache = await caches.open(CACHE);
@@ -45,7 +63,8 @@ async function networkFirst(req) {
   });
   network.catch(() => {}); // a late failure after the timeout fallback is expected offline
   let timeoutId;
-  const timeout = new Promise(resolve => { timeoutId = setTimeout(resolve, NETWORK_TIMEOUT_MS, null); });
+  const hasCached = !!(await cache.match(req, { ignoreSearch: true }));
+  const timeout = new Promise(resolve => { timeoutId = setTimeout(resolve, hasCached ? CACHED_TIMEOUT_MS : NETWORK_TIMEOUT_MS, null); });
   try {
     const res = await Promise.race([network, timeout]);
     if (res) return res;

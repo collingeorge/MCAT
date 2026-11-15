@@ -72,22 +72,26 @@ function resumeStudyTimer() {
   if (!s.breakUntil) return;
   s.breakUntil = 0; s.block = 0; s.last = Date.now(); saveStudyTimer(); renderStudyTimer();
 }
+// Runs every second: it writes to the page only what changed, and nothing while the page is hidden.
+const setIfChanged = (el, prop, value) => { if (el && el[prop] !== value) el[prop] = value; };
 function renderStudyTimer(now = Date.now()) {
   const host = $('study-timer');
   if (!host) return;
+  if (typeof document !== 'undefined' && document.visibilityState === 'hidden' && $('study-total-time')) return;
   const s = studyTimerState(now), due = s.block >= s.goal * 60000;
   if (!$('study-total-time')) host.innerHTML = '<div class="wrap study-timer-inner"><div class="study-time-values"><b>Study timer</b> <span>Today <strong id="study-total-time"></strong></span><span id="study-subject-time"></span><span>Block <strong id="study-block-time"></strong></span><label>Study block <select id="study-block-goal" data-change="setStudyTimerGoal(this.value)"><option value="25">25 min</option><option value="45">45 min</option><option value="60">60 min</option></select></label><details><summary>Time by subject</summary><div id="study-subject-totals"></div></details></div><div id="study-break-message"></div><div id="study-break-actions"><button class="micro-btn" data-click="startStudyBreak(5)">5 min break</button> <button class="micro-btn" data-click="startStudyBreak(10)">10 min break</button></div><button class="micro-btn" id="study-resume" data-click="resumeStudyTimer()" hidden>Resume studying</button></div>';
-  $('study-total-time').textContent = fmtTime(s.total);
-  $('study-block-time').textContent = fmtTime(s.block);
-  $('study-subject-time').textContent = s.subject ? DISCIPLINES[s.subject] + ' ' + fmtTime(s.subjects[s.subject] || 0) : 'Choose a study activity';
-  $('study-block-goal').value = String(s.goal);
-  $('study-subject-totals').innerHTML = Object.entries(s.subjects).map(([k,v])=>'<div>'+esc(DISCIPLINES[k])+': '+fmtTime(v)+'</div>').join('') || 'No subject time recorded today.';
+  setIfChanged($('study-total-time'), 'textContent', fmtTime(s.total));
+  setIfChanged($('study-block-time'), 'textContent', fmtTime(s.block));
+  setIfChanged($('study-subject-time'), 'textContent', s.subject ? DISCIPLINES[s.subject] + ' ' + fmtTime(s.subjects[s.subject] || 0) : 'Choose a study activity');
+  setIfChanged($('study-block-goal'), 'value', String(s.goal));
+  const totals = Object.entries(s.subjects).map(([k,v])=>'<div>'+esc(DISCIPLINES[k])+': '+fmtTime(v)+'</div>').join('') || 'No subject time recorded today.';
+  if (host.dataset) { if (host.dataset.totals !== totals) { $('study-subject-totals').innerHTML = totals; host.dataset.totals = totals; } } else $('study-subject-totals').innerHTML = totals;
   const message = s.breakUntil ? (s.breakUntil > now ? '☕ Break: '+fmtTime(s.breakUntil-now)+' remaining. Study time is paused.' : '☕ Break complete. Resume when you are ready.') : due ? '☕ You’ve studied for '+Math.floor(s.block/60000)+' minutes this block. '+studyTimerBoundary() : fmtTime(s.goal*60000-s.block)+' until your suggested break · '+(studyTimerActive()?'counting visible study time':'paused outside study activities');
   const node = $('study-break-message');
   if (node.textContent !== message) node.textContent = message;
   host.classList.toggle('break-due',due && !s.breakUntil);
-  $('study-break-actions').hidden = !!s.breakUntil || !canStartStudyBreak();
-  $('study-resume').hidden = !s.breakUntil;
+  setIfChanged($('study-break-actions'), 'hidden', !!s.breakUntil || !canStartStudyBreak());
+  setIfChanged($('study-resume'), 'hidden', !s.breakUntil);
 }
 function initStudyTimer() {
   renderStudyTimer();
