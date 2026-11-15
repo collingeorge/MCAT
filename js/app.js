@@ -1439,7 +1439,7 @@ function hintArea(view) {
   const h = howOf(view.q), level = view.hint || 0;
   if (!h) return '';
   // A card with a graph in the question teaches how to read it, on the graph itself, before you answer.
-  if (teachOf(view.q)) return view.teachCur ? teachHtml(view) : `<button class="micro-btn how-btn teach-btn" id="hint-btn" data-click="teachStep(1)">👀 Teach me how to solve this, step by step</button>`;
+  if (teachOf(view.q)) return view.teachCur ? teachHtml(view) : `<button class="micro-btn how-btn teach-btn" id="hint-btn" data-click="teachStep(1)">${isLessonCard(view.q) ? '💡 Help me / Show me how' : '👀 Teach me how to solve this, step by step'}</button>`;
   const shown = (level >= 1 ? `<p><b>What it's asking:</b> ${fmt(h.ask)}</p>` : '') + (level >= 2 ? `<div><b>What you need to know:</b>${paragraphs(h.know)}</div>` : '');
   const label = level === 0 ? 'Show me how to start' : level === 1 ? 'Show what I need to know' : '';
   return `${shown ? `<div class="how-hint" role="status">${shown}</div>` : ''}${label ? `<button class="micro-btn how-btn" id="hint-btn" data-click="showHint()">💡 ${label}</button>` : ''}`;
@@ -1525,7 +1525,39 @@ function stepVisual(st, ctx) {
   if (Array.isArray(st.strike) && st.strike.length) out += `<div class="step-strike">${st.strike.map(c => `<div class="strike-line"><span aria-hidden="true">✗</span> <s>${fmt(c)}</s></div>`).join('')}</div>`;
   return out ? `<div class="step-visual">${out}</div>` : '';
 }
+// Flashcard lessons (the Practice Test flashcards, data/cp-test-cards.js): after a wrong answer the lesson opens by
+// itself under the verdict; after a right answer a button replays it. It works the card's own problem one step at a
+// time (the question's words light up, working lines animate in, wrong choices are crossed out) and ends with the
+// card's Rule to reuse. Back and Next move through it; it never plays on its own.
+const isLessonCard = q => typeof isCpt === 'function' && isCpt(q) && !!howOf(q) && !!teachOf(q);
+function lessonSteps(q) { const rule = teachOf(q).at(-1); return [...howSteps(howOf(q)), { text: rule.text, rule: true }]; }
+const stepperSteps = () => (stepper.lesson ? lessonSteps(stepper.q) : howSteps(howOf(stepper.q)));
+function lessonPlayerHtml() {
+  const { q, cur, ctx } = stepper, steps = lessonSteps(q), n = steps.length, st = steps[cur - 1], h = howOf(q);
+  return `<div class="lesson-title">Here's how to solve it — step ${cur} of ${n}</div>
+    <div class="how-step current${st.rule ? ' lesson-rule' : ''}"><p class="step-text">${fmt(st.text)}</p>${stepVisual(st, ctx)}</div>
+    ${cur >= n && h.trap ? `<p class="how-trap"><b>The trap:</b> ${fmt(h.trap)}</p>` : ''}
+    <div class="step-progress" aria-hidden="true"><div class="step-progress-fill" data-css="width:${Math.round(cur / n * 100)}%"></div></div>
+    <div class="step-controls">
+      <button class="micro-btn" data-click="howStep(-1)"${cur <= 1 ? ' disabled' : ''}>◀ Back</button>
+      ${cur < n ? `<button class="micro-btn step-next" id="how-next" data-click="howStep(1)">Next ▶</button>` : `<button class="micro-btn" data-click="howReplay()">↺ Start over</button>`}
+    </div>`;
+}
+function lessonBox(q, ctx) {
+  if (stepper && stepper.timer) clearTimeout(stepper.timer);
+  stepper = { q, cur: 1, ctx, playing: false, timer: null, lesson: true };
+  return `<div class="how-box lesson-box" id="how-box"><div id="how-player" class="how-player" aria-live="polite">${lessonPlayerHtml()}</div></div>`;
+}
+// "Show me how" after a right answer: opens the same lesson at step 1.
+function showLesson() {
+  const view = quiz.items[quiz.idx], slot = $('lesson-slot');
+  if (!view || !quiz.answered || !slot || !isLessonCard(view.q)) return;
+  slot.innerHTML = lessonBox(view.q, { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null });
+  applyStepContext();
+  const next = $('how-next'); if (next) next.focus({ preventScroll: true });
+}
 function howPlayerHtml() {
+  if (stepper.lesson) return lessonPlayerHtml();
   const { q, cur, ctx } = stepper, h = howOf(q), steps = howSteps(h), n = steps.length;
   const list = steps.slice(0, cur).map((st, i) => `<li class="how-step${i === cur - 1 ? ' current' : ''}"><span class="step-text">${fmt(st.text)}</span>${i === cur - 1 ? stepVisual(st, ctx) : ''}</li>`).join('');
   return `<ol class="how-steps">${list}</ol>
@@ -1541,12 +1573,12 @@ function howPlayerHtml() {
 // Highlights the live passage, question and figure for the current step.
 function applyStepContext() {
   if (!stepper || typeof document === 'undefined' || !document.querySelector) return;
-  const { q, cur, ctx } = stepper, st = howSteps(howOf(q))[cur - 1] || {};
+  const { q, cur, ctx } = stepper, st = stepperSteps()[cur - 1] || {};
   const qEl = document.querySelector(ctx.mode === 'passage' ? '#pp-question-box .question-text' : '#quiz-body .question-text');
   if (qEl) qEl.innerHTML = markText(q.q, st.hl && String(q.q).includes(st.hl) ? st.hl : null);
   // Choices ruled out so far stay crossed out on the answer buttons.
   if (ctx.view && ctx.prefix && typeof $ === 'function') {
-    const struck = new Set(howSteps(howOf(q)).slice(0, cur).flatMap(x => x.strike || []));
+    const struck = new Set(stepperSteps().slice(0, cur).flatMap(x => x.strike || []));
     ctx.view.choices.forEach((c, i) => { const b = $(ctx.prefix + '-' + i); if (b && b.classList) b.classList.toggle('struck', struck.has(c)); });
   }
   if (ctx.mode === 'passage') {
@@ -1576,17 +1608,17 @@ function howSchedule() {
   if (!stepper) return;
   if (stepper.timer) clearTimeout(stepper.timer);
   stepper.timer = null;
-  const steps = howSteps(howOf(stepper.q));
+  const steps = stepperSteps();
   if (!stepper.playing || stepper.cur >= steps.length || typeof setTimeout !== 'function') { stepper.playing = stepper.playing && stepper.cur < steps.length; return; }
   const me = stepper;
   stepper.timer = setTimeout(() => { if (stepper === me && me.playing) howStep(1, true); }, howStepMs(steps[stepper.cur - 1]));
 }
 function howToggle() { if (!stepper) return; stepper.playing = !stepper.playing; howStep(0, true); }
-function howReplay() { if (!stepper) return; stepper.cur = 1; stepper.playing = true; howStep(0, true); }
+function howReplay() { if (!stepper) return; stepper.cur = 1; stepper.playing = !stepper.lesson; howStep(0, true); }
 function howStep(delta, auto) {
   if (!stepper) return;
   if (!auto) stepper.playing = false;
-  const n = howSteps(howOf(stepper.q)).length;
+  const n = stepperSteps().length;
   stepper.cur = Math.max(1, Math.min(n, stepper.cur + delta));
   const el = typeof $ === 'function' ? $('how-player') : null;
   if (el) el.innerHTML = howPlayerHtml();
@@ -1656,7 +1688,10 @@ function finishPick(chosen, other = null, answerMs = null) {
   $('qm-score').textContent = `✓ ${quiz.results.filter(r => r.right).length}/${quiz.results.length}`;
   $('exp-area').innerHTML = finalTwoFeedback(view, chosen, other) + explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Recall · ${view.q.s}`, view.q.q),
     timedOut ? `Time ran out (${SPEED_SECONDS} seconds). A fact you know well should come back faster: this one is now due for review.`
-      : confusion ? `You chose <b>${fmt(view.choices[chosen])}</b>. ${fmt(meaningOf(confusion))}` : '') + howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null } });
+      : confusion ? `You chose <b>${fmt(view.choices[chosen])}</b>. ${fmt(meaningOf(confusion))}` : '') + (isLessonCard(view.q)
+      ? `<div id="lesson-slot">${right ? '<button class="micro-btn how-btn" id="show-how-btn" data-click="showLesson()">💡 Show me how</button>' : lessonBox(view.q, { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null })}</div>`
+      : howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null } }));
+  if (isLessonCard(view.q) && right) stepper = null;
   if ($('hint-area')) $('hint-area').innerHTML = '';
   // A hinted answer was not pure recall: it starts as Unsure so the card comes back (you can change it)
   if (view.hint) quiz.pending.conf = 'unsure';

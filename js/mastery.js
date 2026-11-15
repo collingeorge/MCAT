@@ -265,6 +265,26 @@ function masteryTierPick(cards, k, tierOf, pick) {
   }
   return got;
 }
+// Test order: Practice Exam 1, 3, 4, 5, 6, then the question number, then the item. A Practice Test flashcard is
+// placed by the earliest of its sources (`from`: 'pe1-cp:4#2' is question 4, item 2; without an item number, its id
+// letter orders it); a Practice Exam card by its own src. Cards with neither (QBank cards of other sections) keep their
+// picked order after them (the sort is stable).
+const MASTERY_EXAMS = ['pe1', 'pe3', 'pe4', 'pe5', 'pe6'];
+function masteryTestKey(q) {
+  let best = null;
+  for (const ref of [...(Array.isArray(q.from) ? q.from : []), q.src]) {
+    const m = /^(pe\d)-cp:(\d+)(?:#(\d+))?$/.exec(String(ref || ''));
+    if (!m || !MASTERY_EXAMS.includes(m[1])) continue;
+    const k = [MASTERY_EXAMS.indexOf(m[1]), Number(m[2]), m[3] ? Number(m[3]) : 0];
+    if (!best || (k[0] - best[0] || k[1] - best[1] || k[2] - best[2]) < 0) best = k;
+  }
+  return best ? [...best, String(q.id || '')] : null;
+}
+function masteryTestOrder(list) {
+  const keyed = list.map(q => [masteryTestKey(q), q]);
+  keyed.sort(([a], [b]) => (a && b ? a[0] - b[0] || a[1] - b[1] || a[2] - b[2] || (a[3] < b[3] ? -1 : a[3] > b[3] ? 1 : 0) : a ? -1 : b ? 1 : 0));
+  return keyed.map(([, q]) => q);
+}
 // A card is a front card when its own src is in the set (a Practice Exam card) or, for a Practice Test flashcard
 // (data/cp-test-cards.js, its subj 'cp_test'), when its `from` names one.
 function masteryIsFront(q, front) {
@@ -529,7 +549,8 @@ function masteryBegin(plan, step, pool, catOf, label, mode, more) {
   const { list: picked, topicOf } = masteryTopicSet(step, pool, catOf, pickQuestions, { seen: new Set(row.seen || []), discOf: disciplineOfRecall, discW, tierOf: masteryTierOf(m, plan, row) });
   // Missed questions' twin cards open the step (they already hold a slot in their own category): the Practice Exam
   // twin in the guided step, the Practice Test flashcards built from it in the flashcard step.
-  const front = masteryTwinFront(plan), list = [...picked.filter(q => masteryIsFront(q, front)), ...picked.filter(q => !masteryIsFront(q, front))];
+  // Then the day's set runs in test order (masteryTestOrder): the picking above decides which cards, never their order.
+  const front = masteryTwinFront(plan), list = [...masteryTestOrder(picked.filter(q => masteryIsFront(q, front))), ...masteryTestOrder(picked.filter(q => !masteryIsFront(q, front)))];
   if (!list.length) { masteryNotice('Nothing left to practice in this step today. Choose “Another set” for more.'); return; }
   masteryStartQuiz(list, masterySection(plan.subj).abbrev + ' · ' + label, mode);
   quiz.topicOf = topicOf;

@@ -1222,6 +1222,66 @@ def compact(svg):
 
 # Amino-acid side-chain highlights ('<aa>-sc'): every heavy atom outside the N–Cα–C(=O)OH backbone.
 BACKBONE = Chem.MolFromSmarts('[NX3][CX4][CX3](=O)[OX2H1]')
+# ── Practice Test flashcard lessons (data/cp-test-cards.js) ──
+# The carbocation of an E1 dehydration, with the neighboring C–H carbons marked (pe1-cp:4 cards).
+add('cpt-e1-cation', 'C[CH2:2][C+:1]([CH3:3])[CH2:4]C', formula='C6H13+', hl=[1, 2, 3, 4], notes={1: 'C⁺', 2: 'H here', 3: 'H here', 4: 'H here'})
+# A generic E1 cation: H⁺ leaves from a carbon bonded to C⁺ (pe1-cp:4 cards).
+add('cpt-e1-beta', 'C[CH2:2][C+:1](C)C', formula='C5H11+', hl=[1, 2], notes={1: 'C⁺', 2: 'β-C–H'})
+# A 1,2-hydride shift: the 2° cation and the 3° cation it becomes (pe1-cp:7 cards).
+add('cpt-shift-2', 'C[CH+:1][CH:2](C)C', formula='C5H11+', hl=[1, 2], notes={1: '2° C⁺', 2: 'H moves'})
+add('cpt-shift-3', 'C[CH2][C+:1](C)C', formula='C5H11+', hl=[1], notes={1: '3° C⁺'})
+
+# Hand-drawn lesson diagrams (not molecules): each is a small standalone SVG with a white background,
+# no scripts, links or comments (checked below and in tools/test-worked-methods.cjs).
+T = "font-family='sans-serif'"
+DIAGRAMS = {
+ # A TLC plate: baseline, spot and solvent front; both distances are measured up from the baseline.
+ 'cpt-tlc-plate': (
+  "<svg xmlns='http://www.w3.org/2000/svg' width='320' height='160' viewBox='0 0 320 160'>"
+  "<rect width='320' height='160' fill='#fff'/>"
+  "<rect x='14' y='6' width='70' height='148' rx='4' fill='#f1f5f9' stroke='#334155' stroke-width='2'/>"
+  "<line x1='14' y1='22' x2='84' y2='22' stroke='#2563eb' stroke-width='3'/>"
+  "<line x1='14' y1='134' x2='84' y2='134' stroke='#334155' stroke-width='2' stroke-dasharray='5 4'/>"
+  "<ellipse cx='49' cy='78' rx='11' ry='7' fill='#b45309'/>"
+  "<line x1='100' y1='134' x2='100' y2='25' stroke='#2563eb' stroke-width='3'/><path d='M94 33 L100 23 L106 33' fill='none' stroke='#2563eb' stroke-width='3'/>"
+  "<line x1='116' y1='134' x2='116' y2='81' stroke='#b45309' stroke-width='3'/><path d='M110 89 L116 79 L122 89' fill='none' stroke='#b45309' stroke-width='3'/>"
+  f"<text x='130' y='28' font-size='18' fill='#2563eb' {T}>solvent front</text>"
+  f"<text x='130' y='84' font-size='18' fill='#b45309' {T}>spot</text>"
+  f"<text x='130' y='140' font-size='18' fill='#334155' {T}>baseline (start)</text>"
+  "</svg>"),
+ # SN2: the nucleophile attacks the carbon from the side opposite the leaving group (inversion).
+ 'cpt-sn2-backside': (
+  "<svg xmlns='http://www.w3.org/2000/svg' width='320' height='150' viewBox='0 0 320 150'>"
+  "<rect width='320' height='150' fill='#fff'/>"
+  f"<text x='4' y='82' font-size='20' fill='#2563eb' {T}>Nu⁻</text>"
+  "<path d='M48 76 Q85 58 118 72' fill='none' stroke='#2563eb' stroke-width='3'/><path d='M108 64 L119 73 L106 78' fill='none' stroke='#2563eb' stroke-width='3'/>"
+  f"<text x='4' y='112' font-size='18' fill='#2563eb' {T}>from the back</text>"
+  f"<text x='130' y='82' font-size='22' fill='#000' {T}>C</text>"
+  "<line x1='138' y1='60' x2='128' y2='28' stroke='#000' stroke-width='2'/><line x1='146' y1='86' x2='166' y2='116' stroke='#000' stroke-width='2'/><line x1='132' y1='86' x2='112' y2='116' stroke='#000' stroke-width='2'/>"
+  "<line x1='152' y1='75' x2='212' y2='75' stroke='#dc2626' stroke-width='3'/>"
+  f"<text x='218' y='83' font-size='22' fill='#dc2626' {T}>X</text>"
+  f"<text x='196' y='112' font-size='18' fill='#dc2626' {T}>leaves</text>"
+  "</svg>"),
+ # SN2 blocked: a bulky group on the next carbon sits over the backside of the C–X carbon.
+ 'cpt-sn2-blocked': (
+  "<svg xmlns='http://www.w3.org/2000/svg' width='320' height='150' viewBox='0 0 320 150'>"
+  "<rect width='320' height='150' fill='#fff'/>"
+  f"<text x='4' y='100' font-size='20' fill='#2563eb' {T}>Nu⁻</text>"
+  "<path d='M48 94 Q68 90 84 92' fill='none' stroke='#2563eb' stroke-width='3' stroke-dasharray='5 4'/>"
+  "<line x1='82' y1='82' x2='98' y2='102' stroke='#dc2626' stroke-width='4'/><line x1='98' y1='82' x2='82' y2='102' stroke='#dc2626' stroke-width='4'/>"
+  f"<text x='62' y='134' font-size='18' fill='#dc2626' {T}>blocked</text>"
+  "<circle cx='140' cy='50' r='44' fill='#e2e8f0' stroke='#64748b' stroke-width='2'/>"
+  f"<text x='104' y='57' font-size='18' fill='#334155' {T}>C(CH₃)₃</text>"
+  "<line x1='160' y1='92' x2='168' y2='86' stroke='#000' stroke-width='2'/>"
+  f"<text x='158' y='112' font-size='22' fill='#000' {T}>CH₂</text>"
+  "<line x1='206' y1='105' x2='250' y2='105' stroke='#dc2626' stroke-width='3'/>"
+  f"<text x='256' y='113' font-size='22' fill='#dc2626' {T}>X</text>"
+  "</svg>"),
+}
+for name, svg in DIAGRAMS.items():
+    if not re.fullmatch(r'<svg [\s\S]*</svg>', svg) or re.search(r'<script|<foreignObject|\son\w+\s*=|javascript:|href=|<!--|<\?xml', svg, re.I):
+        raise SystemExit(f'{name}: diagram is not a plain, safe SVG')
+
 SIDECHAIN = {}
 for n in AA:
     if n == 'glycine': continue
@@ -1250,6 +1310,7 @@ for name, (smi, checks) in S.items():
 for name, (smi, sc) in SIDECHAIN.items():
     m = Chem.MolFromSmiles(smi)
     out[name] = draw(m, sc)
+out.update(DIAGRAMS)
 
 # Ship only the drawings the Practice Exam walkthroughs and the C/P passages show (every entry above is still built and checked).
 root = Path(__file__).resolve().parent.parent
@@ -1258,6 +1319,9 @@ used = set()
 for m in re.finditer(r'"?(?:fig|choiceFigs)"?:\s*("([^"]+)"|\[([^\]]*)\])', cards):
     used.update([m.group(2)] if m.group(2) else re.findall(r'"([^"]+)"', m.group(3)))
 # The Chem/Phys diagnostic and daily quiz passages draw structures in their schemes, questions and choices.
+# The Practice Test flashcards draw their lesson visuals in how steps (fig) like the Practice Exam cards.
+for m in re.finditer(r'"?(?:fig|choiceFigs)"?:\s*("([^"]+)"|\[([^\]]*)\])', (root / 'data/cp-test-cards.js').read_text(encoding='utf-8')):
+    used.update([m.group(2)] if m.group(2) else re.findall(r'"([^"]+)"', m.group(3)))
 for f in ['data/cp-diagnostic.js', 'data/cp-pool.js']:
     path = root / f
     if not path.exists(): continue

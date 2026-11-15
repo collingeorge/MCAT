@@ -11,7 +11,7 @@
 //   4 No QBank in TODAY: over 200 simulated days (each with missed-question twins on a Practice Exam, a Sample Test and
 //     a QBank card), the flashcard step holds only Practice Test flashcards and the guided step only Practice Exam
 //     1/3/4/5/6 cards; the missed Practice Exam twin and the flashcards built from it lead their steps, and the Sample
-//     Test and QBank twins are skipped. The QBank files (and qb-aamc-fl.js) are byte-identical to main.
+//     Test and QBank twins are skipped. The QBank files are byte-identical to main; in qb-aamc-fl.js only the 17 approved rewrites changed.
 // Run with --table to print the coverage table (each Practice Exam question → its flashcards) and the per-category
 // counts against the 50-card daily split.
 'use strict';
@@ -68,6 +68,8 @@ for (const c of CARDS) {
     }
     if (st.calc !== undefined) assert(Array.isArray(st.calc) && st.calc.every(x => typeof x === 'string' && x.trim()), id + ': step ' + (i + 1) + ' calc');
   }
+  // The lesson crosses out every wrong choice by the end (each strike names its reason in the step text).
+  assert.equal(JSON.stringify([...new Set(h.steps.flatMap(st => st.strike || []))].sort()), JSON.stringify(c.choices.filter((_, i) => i !== c.ans).sort()), id + ': the lesson crosses out each wrong choice');
   assert(Array.isArray(c.teach) && c.teach.length >= 2, id + ': teach');
   for (const [i, st] of c.teach.entries()) {
     assert(st && typeof st.text === 'string' && st.text.trim(), id + ': teach ' + (i + 1) + ' text');
@@ -108,27 +110,44 @@ for (const c of CARDS) for (const s of c.from) {
     assert(!src.choices.some(x => norm(x) === norm(ch)), c.id + ': choice "' + ch + '" is a choice of ' + s);
     const p = src.choices.find(x => paraphrase(ch, x)); assert(!p, c.id + ': choice "' + ch + '" paraphrases "' + p + '" of ' + s);
   }
-  const g = grams(src.q, 6), run6 = [...grams(c.q, 6)].find(x => g.has(x));
+  // Twin, never the test question: no 6-word run shared with the source card (its stem, choices or explanation), no key
+  // number equal to the source card's key number, no shared answer choice of 3 or more words.
+  const srcText = [src.q, ...src.choices, src.exp].join(' \n '), g = grams(srcText, 6);
+  const run6 = [...grams([c.q, ...c.choices, c.exp].join(' \n '), 6)].find(x => g.has(x));
   assert(!run6, c.id + ': shares the 6-word run "' + run6 + '" with ' + s);
+  // A numeric key ("0.50", "4.0 Hz"), not a locant in a name ("3-Methylpent-1-ene", "1,2-shift").
+  const SUP = { '⁻': '-', '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9' };
+  const keyNum = t => {
+    const m = /^([−-]?\d+(?:\.\d+)?)(?:\s*×\s*10([⁻⁰-⁹]+)|([⁻⁰-⁹]+))?(?![\d,.]*[\p{L}-])/u.exec(strip(t).trim());
+    if (!m) return null;
+    const e = m[2] || m[3], exp = e ? Number([...e].map(ch => SUP[ch] || '').join('')) : 0;
+    return m[3] ? Number(m[1]) ** exp : Number(m[1].replace('−', '-')) * 10 ** exp;
+  };
+  const kn = keyNum(c.choices[c.ans]), sn = keyNum(src.choices[src.ans]);
+  assert(kn === null || sn === null || kn !== sn, c.id + ': its key number equals ' + s + "'s key number (" + kn + ')');
+  for (const ch of c.choices) if (words(ch) >= 3) assert(!src.choices.some(x => norm(x) === norm(ch)), c.id + ': shares the answer choice "' + ch + '" with ' + s);
   const text = [c.q, ...c.choices, c.exp].join(' ');
   for (const [topic, re] of Object.entries(BLOCKLIST)) assert(!re.test(text), c.id + ': untaught topic ' + topic);
 }
 
 // ── 4. No QBank in TODAY ──
-// The QBank files and the Practice Exam / Sample Test file are byte-identical to main (line endings normalized for
-// Windows checkouts).
+// The QBank files are byte-identical to main (line endings normalized for Windows checkouts).
 const MAIN_SHA = {
   'qb-aamc-bio.js': '34e9175ade7145b498691dc34ce203fc1d7baa6b4a7e9c6e3bc89204bc3d00e8',
   'qb-aamc-biochem.js': 'a32898c2aa7b33a8a1779325a40af07f1892381845c1a7953446e00dfd339a79',
   'qb-aamc-cars.js': '916bae5e3773ad4a64fecf9337c1bd722b13a2cfe339213b0a0dcad6ad209fc8',
   'qb-aamc-chem.js': '868020ff47af93e92703e703893ec533e31e82407c68b321db1401e161fc80ff',
-  'qb-aamc-fl.js': '8e69787b75bd21121ce22dfa7b9b5782166011af21a0d23bbb36ad64b7184f86',
   'qb-aamc-iqb.js': '94998526c5647b26a32729ed241be11d013bcb7759573fe97aab74e819363e9e',
   'qb-aamc-phys.js': '85758bcf5d055ef42026a7401780001280a7b724c086ed2ae4954dec8f0f8d8a',
   'qb-aamc-rules.js': 'a920ff4112e9a9e62c19edddadc0d47b504ac108a65f24f86e40d8152db0a735',
 };
 for (const [f, sha] of Object.entries(MAIN_SHA)) assert.equal(crypto.createHash('sha256').update(fs.readFileSync(root + '/data/' + f, 'utf8').replace(/\r\n/g, '\n')).digest('hex'), sha, f + ' is byte-identical to main');
-assert.deepEqual(fs.readdirSync(root + '/data').filter(f => /^qb-/.test(f)).sort(), Object.keys(MAIN_SHA).sort(), 'no QBank file added, renamed or removed');
+assert.deepEqual(fs.readdirSync(root + '/data').filter(f => /^qb-/.test(f)).sort(), [...Object.keys(MAIN_SHA), 'qb-aamc-fl.js'].sort(), 'no QBank file added, renamed or removed');
+// qb-aamc-fl.js: only the 17 Practice Exam cards the user approved for rewriting (they reused the AAMC question's own
+// numbers) changed; every other card, the 59 Sample Test cards included, is exactly as on main.
+const REWRITTEN = new Set(['pe1-cp:3', 'pe1-cp:42', 'pe3-cp:7', 'pe3-cp:19', 'pe3-cp:34', 'pe3-cp:39', 'pe3-cp:45', 'pe4-cp:15', 'pe4-cp:22', 'pe4-cp:38', 'pe4-cp:53', 'pe4-cp:54', 'pe5-cp:15', 'pe5-cp:24', 'pe5-cp:49', 'pe5-cp:50', 'pe5-cp:56']);
+assert.equal(crypto.createHash('sha256').update(JSON.stringify(FL.filter(q => !REWRITTEN.has(q.src)))).digest('hex'), '723535cabc35911d6f679fbe0910a422e9c8f2708066bb47329721d7cce25eda', 'qb-aamc-fl.js: every card but the 17 approved rewrites is unchanged from main');
+assert.equal(FL.length, 354, 'qb-aamc-fl.js keeps its 354 cards');
 
 const storage = new Map(), node = () => ({ innerHTML: '', textContent: '', value: '', hidden: true, style: {}, dataset: {}, classList: { toggle() {}, add() {}, remove() {} }, setAttribute() {}, focus() {}, scrollIntoView() {}, remove() {}, querySelectorAll() { return []; } });
 const nodes = new Map(), el = id => { if (!nodes.has(id)) nodes.set(id, node()); return nodes.get(id); };
@@ -155,6 +174,10 @@ for (let day = 0; day < 200; day++) {
     { subj: 'cp', day: '${today}', t: 2, kind: 'daily', correct: 15, total: 30, pct: 50, scaled: 122, version: 'cp_half_${1 + (day % 6)}', cats: { '5C': { c: 0, t: 2 } }, missIds: [], twinMisses: ['${pe}', '${sampleSrc}', '${qbSrc}'] }] })`);
   const front = JSON.parse(run('JSON.stringify([...masteryTwinFront(masteryPlanNow())])'));
   assert.deepEqual(front, [pe], 'day ' + day + ': only the Practice Exam twin leads (the Sample Test and QBank twins are skipped)');
+  // Test order: each step's set runs PE1, PE3, PE4, PE5, PE6, then question number, then item; front cards first.
+  const inOrder = `(() => { const f = masteryTwinFront(masteryPlanNow()), it = quiz.items.map(v => v.q), k = it.findIndex(q => !masteryIsFront(q, f)), rest = k < 0 ? [] : it.slice(k);
+    const cmp = (a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2] || (a[3] < b[3] ? -1 : a[3] > b[3] ? 1 : 0);
+    return rest.every(q => !masteryIsFront(q, f)) && rest.every((q, i) => !i || cmp(masteryTestKey(rest[i - 1]), masteryTestKey(q)) <= 0); })()`;
   run('startMasteryFlashcards(true)');
   const flash = JSON.parse(run('JSON.stringify(quiz.items.map(v => ({ id: v.q.id, from: v.q.from || [] })))'));
   assert(flash.length > 0 && flash.every(x => ids.has(x.id)), 'day ' + day + ': flashcards are Practice Test flashcards only');
@@ -162,11 +185,13 @@ for (let day = 0; day < 200; day++) {
   const lead = flash.findIndex(x => !x.from.includes(pe));
   if (lead > 0) frontSeen++;
   assert(flash.slice(lead < 0 ? flash.length : lead).every(x => !x.from.includes(pe)), 'day ' + day + ': the flashcards built from the missed twin come first');
+  assert(run(inOrder), 'day ' + day + ': the flashcards run in test order after the front cards');
   run('goHome()');
   run('startMasteryGuided(true)');
   const guided = JSON.parse(run('JSON.stringify(quiz.items.map(v => v.q.src || ""))'));
   assert(guided.length > 0 && guided.every(s => /^pe\d-cp:\d+$/.test(s)), 'day ' + day + ': guided cards are Practice Exam 1/3/4/5/6 cards only');
   if (guided.includes(pe)) assert.equal(guided[0], pe, 'day ' + day + ': the missed Practice Exam twin leads the guided step');
+  assert(run(inOrder), 'day ' + day + ': the guided cards run in test order after the front card');
   run('goHome()');
 }
 assert(frontSeen > 0, 'the flashcards built from a missed twin led the flashcard step on some days');
@@ -183,5 +208,5 @@ if (TABLE) {
 }
 if (ALL_BUILT) assert.deepEqual(short, [], 'every category has its 50-card daily count');
 console.log(`Practice Test flashcards passed: ${CARDS.length} cards covering ${covered}/${PE.size} Practice Exam C/P questions` + (ALL_BUILT ? '' : ` (INTERIM: ${BUILT.length} written so far)`) +
-  `; stems median ${sm} words, choices median ${cm} / p90 ${c90}; how/teach valid; original against their sources; 200 simulated days with no QBank or Sample Test card in TODAY's flashcard or guided steps; QBank files identical to main.` +
+  `; stems median ${sm} words, choices median ${cm} / p90 ${c90}; how/teach valid; original against their sources; 200 simulated days with no QBank or Sample Test card in TODAY's flashcard or guided steps, each step in test order; QBank files identical to main.` +
   (short.length ? ` Short of the 50-card split: ${short.join(', ')}.` : ''));

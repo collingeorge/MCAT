@@ -182,6 +182,59 @@ async function main() {
    console.log('Study font sizes at '+width+'px:');
    console.table(rows.map(r=>({screen:r.screen,mode:r.examMode?'exam':'normal',question:r.question,choice:r.choice,passage:r.passage||'-',table:r.table||'-'})));
   }
+  // Text is 16 px or larger everywhere the student studies, at desktop and phone width: every visible text node and
+  // form control on the page (header, study status, TODAY card, flashcard, guided and quiz screens; SVG text at its
+  // drawn size), including after a wrong flashcard answer, when the lesson opens by itself under the verdict.
+  // The page never scrolls sideways.
+  const smallText='(()=>{const bad=[],seen=new Set();const add=(el,px,t)=>{const k=(el.className&&typeof el.className==="string"?el.className.split(" ")[0]:el.tagName)+" "+px;if(!seen.has(k)){seen.add(k);bad.push(k+"px \u201c"+t.slice(0,30)+"\u201d")}};'+
+   'const shown=el=>{const cs=getComputedStyle(el),r=el.getBoundingClientRect();return cs.visibility!=="hidden"&&cs.display!=="none"&&r.width>1&&r.height>1&&!el.closest("[hidden]")};'+
+   'const tw=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);for(let n;(n=tw.nextNode());){const t=n.textContent.trim();if(!t)continue;const el=n.parentElement;if(!el||!shown(el)||el.closest("script,style,noscript,option"))continue;'+
+   'let px=parseFloat(getComputedStyle(el).fontSize);const svg=el.closest("svg");if(svg&&svg.viewBox&&svg.viewBox.baseVal&&svg.viewBox.baseVal.width)px=px*svg.getBoundingClientRect().width/svg.viewBox.baseVal.width;if(px<15.95)add(el,Math.round(px*10)/10,t)}'+
+   'for(const el of document.querySelectorAll("select,input:not([type=checkbox]):not([type=radio]):not([type=range]),textarea,button"))if(shown(el)){const px=parseFloat(getComputedStyle(el).fontSize);if(px<15.95)add(el,px,el.value||el.textContent||el.tagName)}'+
+   'return {bad,hscroll:document.documentElement.scrollWidth>window.innerWidth+1}})()';
+  const wrongPick='(()=>{const v=quiz.items[quiz.idx];document.querySelector("#cb-"+((v.ans+1)%4)).click();return true})()';
+  const studyStates=[
+   ['TODAY','goHome();true','activeScreen==="screen-home" && !!document.querySelector("#today-plan .today-head")'],
+   ['flashcard','startMasteryFlashcards(true);true','quiz.mastery==="flashcards" && activeScreen==="screen-quiz" && !!document.querySelector("#quiz-body .choice-btn")'],
+   ['flashcard after a wrong answer','startMasteryFlashcards(true);true','quiz.mastery==="flashcards" && activeScreen==="screen-quiz" && !!document.querySelector("#cb-0")',wrongPick,'!!document.querySelector("#lesson-slot .lesson-box")'],
+   ['guided card',fontScreens[1][1],fontScreens[1][2]],
+   ['guided card answered',fontScreens[1][1],fontScreens[1][2],wrongPick,'!!document.querySelector("#exp-area .explanation-box")'],
+   ['daily quiz',fontScreens[3][1],fontScreens[3][2]],
+   ['diagnostic',fontScreens[4][1],fontScreens[4][2]]];
+  for(const width of [1280,375]){
+   await command('Emulation.setDeviceMetricsOverride',{width,height:width>500?900:812,deviceScaleFactor:1,mobile:width<=500});
+   for(const [name,start,ready,act,after] of studyStates){
+    await evaluate(leave+start);
+    await until(ready);
+    if(act){await evaluate(act);await until(after)}
+    // After a wrong flashcard answer the lesson opens by itself, under the verdict, at step 1, with Back and Next,
+    // the question's words highlighted; it is the card's own worked method ending with its Rule to reuse.
+    if(name==='flashcard after a wrong answer'){
+     assert.equal(await evaluate('(()=>{const s=document.querySelector("#lesson-slot"),v=document.querySelector("#exp-area .exp-verdict");return !!(v&&s&&(v.compareDocumentPosition(s)&Node.DOCUMENT_POSITION_FOLLOWING))})()'),true,'the lesson sits under the verdict');
+     assert.match(await evaluate('document.querySelector("#lesson-slot .lesson-title").textContent'),/^Here's how to solve it — step 1 of \d+$/,'opened by itself at step 1');
+     assert.equal(await evaluate('!!document.querySelector("#lesson-slot [data-click=\'howStep(-1)\']") && !!document.querySelector("#how-next")'),true,'Back and Next');
+     await evaluate('(()=>{const n=stepperSteps().length;for(let i=1;i<n;i++)howStep(1);return true})()');
+     assert.match(await evaluate('document.querySelector("#lesson-slot .lesson-rule").textContent'),/Rule to reuse:/,'the lesson ends with the Rule to reuse');
+     assert.equal(await evaluate('[...document.querySelectorAll("#choices-area .choice-btn")].filter(b=>b.classList.contains("struck")).length'),3,'every wrong choice is crossed out by the end');
+    }
+    const got=await evaluate(smallText);
+    assert.deepEqual(got.bad,[],width+'px '+name+': text below 16 px');
+    assert.equal(got.hscroll,false,width+'px '+name+': no horizontal scroll');
+   }
+   await evaluate(leave);
+   console.log('Text floor at '+width+'px: '+studyStates.map(x=>x[0]).join(', ')+': every visible text ≥ 16 px, no sideways scroll');
+  }
+  // A right answer on a flashcard shows "Show me how", which opens the same lesson at step 1.
+  await evaluate('startMasteryFlashcards(true)');
+  await until('quiz.mastery==="flashcards" && !!document.querySelector("#cb-0")');
+  await evaluate('document.querySelector("#cb-"+quiz.items[quiz.idx].ans).click()');
+  assert.equal(await evaluate('!!document.querySelector("#show-how-btn") && !document.querySelector("#lesson-slot .lesson-box")'),true,'right answer: the lesson waits behind "Show me how"');
+  await evaluate('document.querySelector("#show-how-btn").click()');
+  assert.match(await evaluate('document.querySelector("#lesson-slot .lesson-title").textContent'),/step 1 of/,'"Show me how" replays the lesson');
+  // Before answering, the flashcard's lesson button reads "Help me / Show me how".
+  await evaluate('nextQ()');
+  if(await evaluate('activeScreen==="screen-quiz" && !quiz.answered'))assert.match(await evaluate('document.querySelector("#hint-btn")?.textContent||""'),/Help me \/ Show me how/);
+  await evaluate(leave);
   await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
   // Offline resilience: once the service worker has cached the app, a reload with no network still works.
   // Local http skips registration by design (app.js); register as the deployed https site does.
@@ -226,7 +279,7 @@ async function main() {
   assert.deepEqual(await evaluate('window.__violations'),[],'no CSP violations or blocked actions');
   assert.equal(await evaluate('[...document.querySelectorAll("*")].some(e=>[...e.attributes].some(a=>/^on/.test(a.name)))'),false,'no inline handler attributes in the DOM');
   assert.equal(errors.length,0,JSON.stringify(errors));
-  console.log('Chrome smoke passed: actual script loading, strict-CSP clicks, offline reload, runner-up reflection, TODAY 3 steps with the quiz locked, delayed diagnostic feedback, timeout scoring, study calendar, HTML escaping, one study font size on all study screens at 1280 and 390 px, and no runtime exceptions.');
+  console.log('Chrome smoke passed: actual script loading, strict-CSP clicks, offline reload, runner-up reflection, TODAY 3 steps with the quiz locked, delayed diagnostic feedback, timeout scoring, study calendar, HTML escaping, one study font size on all study screens at 1280 and 390 px, a 16 px text floor at 1280 and 375 px, the flashcard lesson opening by itself after a wrong answer, and no runtime exceptions.');
  } finally {
   if(socket)socket.close();
   chrome.kill();
