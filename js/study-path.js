@@ -113,6 +113,7 @@ function finishSubjectMini() {
   if (!mini || mini.completed) return;
   mini.completed = true;
   stopPassageTimer(); 
+  if (typeof document !== 'undefined' && document.body) document.body.classList.remove('exam-mode');
   // A timed-out test includes all unattempted items as misses, once.
   for (let i = pq.results.length; i < pq.views.length; i++) pq.results.push({ view: pq.views[i], chosen: null, other: null, right: false, ms: 0 });
   const ps = store.get(KEYS.passages, {});

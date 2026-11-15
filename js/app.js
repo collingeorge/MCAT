@@ -1069,6 +1069,8 @@ function show(id, page) {
   window.McatPages?.screen(id, page);
   const nav = $('app-nav');
   if (nav) nav.hidden = id === 'screen-home';
+  // A Section Mastery test runs full-screen, laid out like the real exam: no site header, menus or study bars.
+  if (typeof document !== 'undefined' && document.body) document.body.classList.toggle('exam-mode', id === 'screen-passage' && !!(pq.mini && pq.mini.mastery && !pq.mini.completed));
   window.scrollTo(0, 0);
   renderStudyTimer();
 }

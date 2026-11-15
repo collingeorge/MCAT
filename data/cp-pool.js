@@ -753,19 +753,19 @@ const CP_POOL = [
     "id": "cp_half_1_sa6"
    },
    {
-    "q": "A PET scan uses a tracer labeled with fluorine-18, which has a half-life of 110 minutes. If a dose has an activity of 400 MBq when it is prepared, what is its activity 330 minutes later?",
+    "q": "The mass of a helium-4 nucleus is 0.030 u less than the total mass of its 2 protons and 2 neutrons. If 1 u of mass is equivalent to 931 MeV of energy, what is the binding energy per nucleon of helium-4?",
     "choices": [
-     "25 MBq",
-     "50 MBq",
-     "100 MBq",
-     "133 MBq"
+     "233 MeV",
+     "7.0 MeV",
+     "14 MeV",
+     "28 MeV"
     ],
     "ans": 1,
     "cat": "4E",
     "skill": "SIRS 2",
     "diff": "M",
     "subj": "physics",
-    "exp": "330 min ÷ 110 min = **3 half-lives**. Each half-life halves the activity: 400 → 200 → 100 → **50 MBq** (400 × (½)³ = 400 ÷ 8).\n\n**100 MBq** stops after two half-lives.\n**25 MBq** counts four half-lives.\n**133 MBq** divides by 3 (the number of half-lives) instead of by 2³ = 8; decay is exponential, not linear.",
+    "exp": "The missing mass is the **mass defect**; it was released as **binding energy** when the nucleons came together (E = Δmc²). Using 931 MeV per u:\nE = 0.030 u × 931 MeV/u ≈ **28 MeV** for the whole nucleus.\nHelium-4 has **4 nucleons** (2 protons + 2 neutrons), so the binding energy per nucleon is 28 MeV ÷ 4 ≈ **7.0 MeV**.\n\n**14 MeV** divides by the 2 protons only; neutrons are nucleons too.\n**28 MeV** is the total binding energy of the nucleus, not the energy per nucleon.\n**233 MeV** divides 931 MeV by 4 without multiplying by the mass defect, as if a whole 1 u of mass had been converted.",
     "id": "cp_half_1_sa7"
    },
    {
@@ -1634,19 +1634,19 @@ const CP_POOL = [
     "id": "cp_half_2_sa8"
    },
    {
-    "q": "The α-helix of a protein is stabilized mainly by hydrogen bonds between:",
+    "q": "Which of the following amino acids has two stereocenters?",
     "choices": [
-     "the backbone C=O of one residue and the backbone N–H of the residue four positions later in the same chain.",
-     "the side chains of residues that are four positions apart in the same chain.",
-     "the backbone C=O and N–H groups of segments that lie side by side in different strands.",
-     "the backbone N–H of one residue and the side chain of the next residue."
+     "Serine",
+     "Valine",
+     "Leucine",
+     "Threonine"
     ],
-    "ans": 0,
+    "ans": 3,
     "cat": "5B",
     "skill": "SIRS 1",
     "diff": "M",
     "subj": "biochemistry",
-    "exp": "Secondary structure is held together by hydrogen bonds within the **peptide backbone**, not between side chains. In an α-helix, the carbonyl O of residue i accepts a hydrogen bond from the amide **N–H of residue i + 4**, so every hydrogen bond runs roughly parallel to the helix axis and the side chains point outward.\n\nSide-chain interactions help determine tertiary structure.\nBackbone hydrogen bonds between strands lying side by side define a **β-sheet**.\nAdjacent residues are too close for their groups to form a hydrogen bond in the helix geometry.",
+    "exp": "A stereocenter is a carbon bonded to **four different groups**. Every standard amino acid except glycine has one at the α carbon (H, NH₃⁺, COO⁻ and the side chain). Threonine's side chain is –CH(OH)CH₃, and its β carbon carries **H, OH, CH₃ and the α carbon**, four different groups. So threonine has **two** stereocenters (natural L-threonine is 2S,3R). Isoleucine is the only other standard amino acid with two.\n\n**Serine** (–CH₂OH) has two H atoms on its β carbon.\n**Valine** (–CH(CH₃)₂) has two identical methyl groups on its β carbon.\n**Leucine** (–CH₂CH(CH₃)₂) has two H atoms on its β carbon and two identical methyl groups on its γ carbon.",
     "id": "cp_half_2_sa9"
    },
    {
@@ -2483,19 +2483,19 @@ const CP_POOL = [
   ],
   "standalones": [
    {
-    "q": "At a stenosis, the radius of an artery narrows to half its normal value. If blood is treated as an incompressible fluid, how does the average flow speed in the narrowed segment compare with the speed upstream?",
+    "q": "In a hydraulic lift used to raise a patient's bed, a small piston presses on enclosed oil, which in turn presses on a much larger piston. Compared with the pressure increase produced at the small piston, the pressure increase at the large piston is:",
     "choices": [
-     "It is 2 times greater.",
-     "It is 4 times greater.",
-     "It is 16 times greater.",
-     "It is 4 times smaller."
+     "larger, and the force on the large piston is larger.",
+     "the same, and the force on the large piston is the same.",
+     "smaller, and the force on the large piston is the same.",
+     "the same, and the force on the large piston is larger."
     ],
-    "ans": 1,
+    "ans": 3,
     "cat": "4B",
     "skill": "SIRS 1",
     "diff": "E",
     "subj": "physics",
-    "exp": "For an incompressible fluid, the volume flow rate is the same everywhere along the vessel: **A₁v₁ = A₂v₂** (the continuity equation). Area depends on radius squared (A = πr²), so halving r makes the area **1/4** as large, and the speed must be **4 times greater**.\n\n**2 times** treats the area as proportional to r instead of r².\n**16 times** uses r⁴, which belongs to Poiseuille's law for resistance, not to continuity.\n**4 times smaller** reverses the relationship; fluid speeds up in a narrower section.",
+    "exp": "**Pascal's principle**: a pressure change applied to an enclosed, incompressible fluid is transmitted **undiminished** to every part of the fluid. So the pressure increase is the same at both pistons. Because **F = PA**, the larger piston receives a larger force in proportion to its area: F₂ = F₁(A₂/A₁). Energy is still conserved, because the large piston moves a shorter distance.\n\n**Larger pressure** confuses pressure with force; the area ratio multiplies the force, not the pressure.\n**The same force** ignores F = PA: equal pressure on a bigger area gives a bigger force.\n**Smaller pressure, same force** treats force as what the fluid transmits, but the fluid transmits pressure.",
     "id": "cp_half_3_sa1"
    },
    {
@@ -2531,19 +2531,19 @@ const CP_POOL = [
     "id": "cp_half_3_sa3"
    },
    {
-    "q": "A patient stands on a scale in an elevator that is moving upward at a constant speed. Compared with her weight, the normal force exerted on her by the scale is:",
+    "q": "A nurse pushes horizontally with a force of 40 N on a hospital bed whose wheels are locked, and the bed does not move. What is the static friction force exerted on the bed by the floor?",
     "choices": [
-     "equal, because her acceleration is zero.",
-     "greater, because the elevator is moving upward.",
-     "smaller, because part of her weight is carried by the elevator's motion.",
-     "zero, because she and the scale move together."
+     "μs times the bed's weight, directed opposite the push",
+     "More than 40 N, directed opposite the push",
+     "40 N, directed opposite the push",
+     "0 N, because the bed is not moving"
     ],
-    "ans": 0,
+    "ans": 2,
     "cat": "4A",
     "skill": "SIRS 1",
     "diff": "E",
     "subj": "physics",
-    "exp": "**Constant velocity means zero acceleration**, so by Newton's second law the net force on her is zero: N − mg = 0, and **N = mg**. The scale reads her normal weight. The direction of motion does not matter; only acceleration does.\n\n**Greater** would require an upward acceleration (speeding up going up, or slowing down going down).\n**Smaller** would require a downward acceleration.\n**Zero** is free fall, when the elevator accelerates downward at g.",
+    "exp": "The bed stays at rest, so its acceleration is zero and the **net horizontal force is zero** (Newton's first law). The only horizontal forces are the push and static friction, so friction must be **40 N, opposite the push**. Static friction adjusts to whatever is needed to prevent sliding, up to a maximum of μsN.\n\n**0 N** would leave the 40 N push unbalanced, and the bed would accelerate.\n**μs × weight** (μsN on a level floor) is the **maximum** static friction, reached only when the bed is about to slide; the actual value can be smaller.\n**More than 40 N** would give a net force opposite the push, and the bed would accelerate toward the nurse.",
     "id": "cp_half_3_sa4"
    },
    {
@@ -2579,19 +2579,19 @@ const CP_POOL = [
     "id": "cp_half_3_sa6"
    },
    {
-    "q": "Which of the following ions is isoelectronic with argon and has the smallest radius?",
+    "q": "Zinc and the other first-row transition metals in metalloenzymes have valence electrons in 3d orbitals. Which set of quantum numbers (n, l, ml, ms) could describe an electron in a 3d orbital?",
     "choices": [
-     "S²⁻",
-     "Cl⁻",
-     "K⁺",
-     "Ca²⁺"
+     "n = 3, l = 2, ml = 3, ms = −½",
+     "n = 3, l = 2, ml = −2, ms = +½",
+     "n = 3, l = 1, ml = 0, ms = −½",
+     "n = 3, l = 3, ml = 1, ms = +½"
     ],
-    "ans": 3,
+    "ans": 1,
     "cat": "4E",
     "skill": "SIRS 1",
     "diff": "M",
     "subj": "gen_chem",
-    "exp": "All four ions have **18 electrons**, the same as Ar. With the same number of electrons, the ion with the **most protons** pulls them in most strongly. Ca²⁺ has 20 protons (the most), so it is the **smallest**. The order of size is S²⁻ (16 protons) > Cl⁻ (17) > K⁺ (19) > Ca²⁺ (20).\n\n**S²⁻** is the largest of the four: it has the fewest protons for 18 electrons.\n**Cl⁻** is smaller than S²⁻ but still has fewer protons than either cation.\n**K⁺** has one fewer proton than Ca²⁺, so it is slightly larger.",
+    "exp": "A 3d electron has **n = 3** (the shell) and **l = 2** (the d subshell; s = 0, p = 1, d = 2, f = 3). For l = 2, **ml** can be any whole number from −2 to +2, and **ms** is +½ or −½. So (3, 2, −2, +½) is allowed and describes a 3d electron.\n\n**l = 1** describes a p subshell, so (3, 1, 0, −½) is a 3p electron, not a 3d electron.\n**l = 3** is not allowed when n = 3, because l can only run from 0 to n − 1.\n**ml = 3** is not allowed when l = 2, because ml must lie between −l and +l.",
     "id": "cp_half_3_sa7"
    },
    {
@@ -3176,7 +3176,7 @@ const CP_POOL = [
        "a ketone.",
        "an ester.",
        "a primary alcohol.",
-       "a carbon–carbon double bond."
+       "an alkene (C=C)."
       ],
       "ans": 3,
       "skill": "SIRS 1",
@@ -3282,19 +3282,19 @@ const CP_POOL = [
     "id": "cp_half_4_sa1"
    },
    {
-    "q": "In an α-helix, the backbone carbonyl oxygen of residue n forms a hydrogen bond with:",
+    "q": "In a strand of DNA, each phosphodiester linkage in the backbone joins:",
     "choices": [
-     "the backbone N–H of residue n + 4.",
-     "the backbone N–H of a residue on an adjacent strand.",
-     "the side-chain hydroxyl of residue n + 1.",
-     "the backbone C=O of residue n + 4."
+     "the 3′ carbon of one deoxyribose to the 5′ carbon of the next, through a phosphate group.",
+     "the 2′ carbon of one deoxyribose to the 5′ carbon of the next, through a phosphate group.",
+     "the 1′ carbon of one deoxyribose to the 5′ carbon of the next, through a phosphate group.",
+     "the base of one nucleotide to the deoxyribose of the next, through a phosphate group."
     ],
     "ans": 0,
-    "skill": "SIRS 1",
     "cat": "5D",
+    "skill": "SIRS 1",
     "diff": "M",
     "subj": "biochemistry",
-    "exp": "An α-helix is held together by **backbone–backbone hydrogen bonds running along the helix axis**: the C=O of residue n accepts a hydrogen bond from the **N–H of residue n + 4**. With 3.6 residues per turn, this links each turn to the next. Side chains point outward and are not part of this pattern.\n\nHydrogen bonds between **adjacent strands** define a β-sheet.\nA **side-chain hydroxyl** is present only in Ser, Thr or Tyr, so it cannot be the general rule.\nTwo **C=O groups** are both acceptors; neither has an H to donate.",
+    "exp": "A phosphodiester is one phosphate esterified to **two** sugar hydroxyl groups: the **3′-OH** of one nucleotide and the **5′-OH** of the next. DNA polymerase adds each new nucleotide to the free 3′-OH, so strands grow 5′ → 3′ and have a 5′-phosphate end and a 3′-OH end.\n\nDeoxyribose has **no 2′-OH** (that is what \"deoxy\" means), so no 2′ linkage is possible in DNA.\nThe **1′ carbon** holds the base through an N-glycosidic bond, not a phosphate.\nThe **bases** are not part of the backbone; they hang off C1′ and pair with the bases of the other strand.",
     "id": "cp_half_4_sa2"
    },
    {
@@ -3314,19 +3314,19 @@ const CP_POOL = [
     "id": "cp_half_4_sa3"
    },
    {
-    "q": "A process has ΔH° = +40.0 kJ/mol and ΔS° = +125 J/(mol·K). Assuming these values do not change with temperature, under what conditions is the process spontaneous under standard conditions?",
+    "q": "Use the following thermochemical equations to find ΔH° for the formation of carbon monoxide, C(s) + ½O₂(g) → CO(g).\nC(s) + O₂(g) → CO₂(g)   ΔH° = −394 kJ\n2CO(g) + O₂(g) → 2CO₂(g)   ΔH° = −566 kJ",
     "choices": [
-     "Only above 320 K",
-     "Only below 320 K",
-     "Only above 0.32 K",
-     "At all temperatures"
+     "+172 kJ",
+     "−960 kJ",
+     "−111 kJ",
+     "−677 kJ"
     ],
-    "ans": 0,
-    "skill": "SIRS 2",
+    "ans": 2,
     "cat": "5E",
+    "skill": "SIRS 2",
     "diff": "X",
     "subj": "gen_chem",
-    "exp": "Spontaneous means **ΔG° = ΔH° − TΔS° < 0**. With both ΔH° and ΔS° positive, the −TΔS° term wins only at high T. The crossover is at ΔG° = 0:\nT = ΔH°/ΔS° = (40.0 × 10³ J/mol) ÷ (125 J/(mol·K)) = **320 K**. Above 320 K, TΔS° > ΔH° and ΔG° < 0.\n\n**Below 320 K** gets the direction backward; at low T the positive ΔH° dominates.\n**0.32 K** forgets to convert kJ to J.\n**All temperatures** would require ΔH° < 0 with ΔS° > 0.",
+    "exp": "Use **Hess's law**: arrange the given equations so they add up to the target, and treat their ΔH values the same way.\nKeep the first equation: C + O₂ → CO₂, ΔH° = −394 kJ.\nCO must be a product, so **reverse** the second (change the sign) and **halve** it (halve ΔH): CO₂ → CO + ½O₂, ΔH° = +566 ÷ 2 = **+283 kJ**.\nAdd: CO₂ cancels, and O₂ − ½O₂ leaves ½O₂ on the left, giving C + ½O₂ → CO.\nΔH° = −394 + 283 = **−111 kJ**.\n\n**−677 kJ** halves the second equation but forgets to change its sign when reversing it (−394 − 283).\n**+172 kJ** reverses the second equation but forgets to halve it (−394 + 566).\n**−960 kJ** simply adds the two equations as written (−394 − 566).",
     "id": "cp_half_4_sa4"
    },
    {
@@ -4439,19 +4439,19 @@ const CP_POOL = [
     "id": "cp_half_5_sa1"
    },
    {
-    "q": "Plaque narrows a short segment of an artery so that its inner radius is half the radius of the normal vessel. If the volume flow rate is unchanged, how does the average blood speed in the narrowed segment compare with the speed in the normal vessel?",
+    "q": "A diver releases a sealed, flexible bag holding 2.0 L of air at a depth of 20 m in the sea. Each 10 m of water adds about 1.0 atm of pressure, and the pressure at the surface is 1.0 atm. If the temperature stays constant, what is the volume of the bag when it reaches the surface?",
     "choices": [
-     "2 times as fast",
-     "4 times as fast",
-     "8 times as fast",
-     "16 times as fast"
+     "6.0 L",
+     "4.0 L",
+     "0.67 L",
+     "1.0 L"
     ],
-    "ans": 1,
+    "ans": 0,
     "cat": "4B",
     "skill": "SIRS 2",
     "diff": "D",
     "subj": "physics",
-    "exp": "Use the **continuity equation, Q = A₁v₁ = A₂v₂**. Cross-sectional area is A = πr², so halving the radius makes the area (1/2)² = **1/4** as large. To carry the same flow through 1/4 the area, the blood must move **4 times as fast**.\n\n**2 times** scales speed with radius rather than with area (r²).\n**16 times** uses r⁴ from Poiseuille's law, which relates flow to the pressure difference, not speed to area.\n**8 times** uses r³, which matches no relationship here.",
+    "exp": "At constant temperature, **Boyle's law** applies: P₁V₁ = P₂V₂. Use **absolute** pressures. At 20 m, P₁ = 1.0 atm (air above the water) + 2 × 1.0 atm (water) = **3.0 atm**. At the surface, P₂ = 1.0 atm.\nV₂ = P₁V₁ ÷ P₂ = (3.0 atm)(2.0 L) ÷ 1.0 atm = **6.0 L**.\nThe pressure falls by a factor of 3, so the volume triples. This is why a scuba diver must exhale while ascending.\n\n**4.0 L** uses only the water's contribution (2.0 atm, the gauge pressure) and forgets the atmosphere above the water.\n**0.67 L** inverts the ratio (2.0 L × 1/3), so the bag shrinks as the pressure falls.\n**1.0 L** makes both slips: gauge pressure and the inverted ratio (2.0 L × 1/2).",
     "id": "cp_half_5_sa2"
    },
    {
@@ -4471,19 +4471,19 @@ const CP_POOL = [
     "id": "cp_half_5_sa3"
    },
    {
-    "q": "Which of the following ions has the smallest radius?",
+    "q": "Chlorine, found in the body mainly as Cl⁻, has two stable isotopes, chlorine-35 and chlorine-37. The average atomic mass of chlorine is 35.5. Which statement about natural chlorine is correct?",
     "choices": [
-     "S²⁻",
-     "Cl⁻",
-     "K⁺",
-     "Ca²⁺"
+     "About 50% of its atoms are chlorine-35.",
+     "About 95% of its atoms are chlorine-35.",
+     "About 75% of its atoms are chlorine-35.",
+     "About 75% of its atoms are chlorine-37."
     ],
-    "ans": 3,
+    "ans": 2,
     "cat": "4E",
     "skill": "SIRS 1",
     "diff": "M",
     "subj": "gen_chem",
-    "exp": "All four ions are **isoelectronic**: each has 18 electrons, the configuration of argon. With the same number of electrons, the ion with the **most protons** pulls its electron cloud in most tightly. Ca²⁺ has 20 protons, the most of the four, so it is the smallest.\n\nK⁺ (19 protons) is next, then Cl⁻ (17) and S²⁻ (16).\nS²⁻ is actually the largest: 16 protons hold 18 electrons least tightly.",
+    "exp": "The average atomic mass is the **abundance-weighted average** of the isotope masses. Let x be the fraction of chlorine-35:\n35x + 37(1 − x) = 35.5\n37 − 2x = 35.5, so x = **0.75**.\nAbout 75% of the atoms are chlorine-35 and 25% are chlorine-37. Both isotopes have 17 protons; they differ only in neutrons (18 vs 20).\n\n**75% chlorine-37** reverses the isotopes: it would give 0.25(35) + 0.75(37) = 36.5.\n**50%** would put the average halfway between the masses, at 36.0.\n**95%** would give 0.95(35) + 0.05(37) = 35.1; an average of 35.5 is closer to 35 than to 37, but not that close.",
     "id": "cp_half_5_sa4"
    },
    {
@@ -4503,19 +4503,19 @@ const CP_POOL = [
     "id": "cp_half_5_sa5"
    },
    {
-    "q": "A reaction has ΔH° = +30 kJ/mol and ΔS° = +100 J/(mol·K). Assuming these values do not change with temperature, under which conditions is the reaction spontaneous under standard conditions?",
+    "q": "Use the average bond enthalpies H–H 436 kJ/mol, Cl–Cl 242 kJ/mol and H–Cl 431 kJ/mol to estimate ΔH for the reaction H₂(g) + Cl₂(g) → 2HCl(g).",
     "choices": [
-     "Only above 300 K",
-     "Only below 300 K",
-     "Only above 0.30 K",
-     "At all temperatures"
+     "−184 kJ",
+     "+184 kJ",
+     "+247 kJ",
+     "−1540 kJ"
     ],
     "ans": 0,
     "cat": "5E",
     "skill": "SIRS 2",
     "diff": "D",
     "subj": "gen_chem",
-    "exp": "The reaction is spontaneous when **ΔG° = ΔH° − TΔS° < 0**. Since both terms are positive, ΔG° turns negative only when T is large enough that TΔS° exceeds ΔH°. The crossover is T = ΔH°/ΔS° = 30,000 J/mol ÷ 100 J/(mol·K) = **300 K**, so the reaction is spontaneous **only above 300 K**.\n\n**Below 300 K** gets the direction backward: there the unfavorable ΔH° wins.\n**0.30 K** divides 30 kJ by 100 J without converting kJ to J.\n**At all temperatures** would require ΔH° < 0 and ΔS° > 0.",
+    "exp": "**ΔH ≈ (bonds broken) − (bonds formed)**, because breaking bonds absorbs energy and forming bonds releases it.\nBroken: one H–H + one Cl–Cl = 436 + 242 = **678 kJ**.\nFormed: two H–Cl = 2 × 431 = **862 kJ**.\nΔH ≈ 678 − 862 = **−184 kJ**. More energy is released forming the products' bonds than is spent breaking the reactants' bonds, so the reaction is exothermic.\n\n**+184 kJ** subtracts the wrong way (formed − broken).\n**+247 kJ** counts only one H–Cl bond (678 − 431), ignoring the coefficient 2.\n**−1540 kJ** adds the broken and formed bond energies and treats them all as released (−(678 + 862)).",
     "id": "cp_half_5_sa6"
    },
    {
@@ -5308,19 +5308,19 @@ const CP_POOL = [
     "id": "cp_half_6_sa4"
    },
    {
-    "q": "Adding a catalyst to a reversible reaction at equilibrium has which effect?",
+    "q": "On the phase diagram of water, the line separating the solid and liquid regions has a slightly negative slope, so ice melts at a lower temperature when the pressure is raised. Which statement best explains this feature?",
     "choices": [
-     "It lowers the activation energy of the forward and reverse reactions equally, and K is unchanged.",
-     "It lowers the activation energy of only the forward reaction, so K increases.",
-     "It makes ΔH for the reaction more negative, so K increases.",
-     "It lowers the activation energy and shifts the equilibrium toward products."
+     "Ice is denser than liquid water, so higher pressure favors the solid.",
+     "Melting is exothermic, so higher pressure favors the liquid.",
+     "Hydrogen bonds cannot form at high pressure, so higher pressure favors the liquid.",
+     "Ice is less dense than liquid water, so higher pressure favors the liquid."
     ],
-    "ans": 0,
+    "ans": 3,
     "cat": "5E",
     "skill": "SIRS 1",
     "diff": "M",
     "subj": "gen_chem",
-    "exp": "A catalyst provides a new pathway with a **lower-energy transition state**. Because the forward and reverse reactions pass through the same transition state, both activation energies drop by the same amount, and both rates increase by the same factor. The reactant and product energies are untouched, so **ΔH, ΔG° and K do not change**; equilibrium is just reached faster.\n\nLowering only the forward barrier would change K, which would violate thermodynamics.\nA catalyst does not change ΔH.\nA catalyst does not shift an equilibrium position in either direction.",
+    "exp": "Along the solid–liquid line, ice and water are in equilibrium. Raising the pressure shifts that equilibrium toward the phase that takes up **less volume** (the denser phase). Ice's open, hydrogen-bonded lattice makes it **less dense** than liquid water, so pressure favors the liquid and the melting point drops as pressure rises: the line tilts to the left. For most substances the solid is denser, and the line slopes the other way.\n\n**Ice denser than water** is the reverse of the real case; it would give a positive slope, as for most substances.\n**Melting is endothermic**, not exothermic: heat must be added to break hydrogen bonds. The direction of the slope here comes from the volume change.\n**Hydrogen bonds** still form at high pressure, in liquid water and in the dense high-pressure forms of ice.",
     "id": "cp_half_6_sa5"
    },
    {
@@ -5388,19 +5388,19 @@ const CP_POOL = [
     "id": "cp_half_6_sa9"
    },
    {
-    "q": "Which interaction is mainly responsible for stabilizing the α-helix in proteins?",
+    "q": "When a protein folds, nonpolar side chains such as those of valine and phenylalanine become buried in its core. This burial is favorable mainly because it:",
     "choices": [
-     "Hydrogen bonds between backbone C=O and N–H groups four residues apart in the same chain",
-     "Hydrogen bonds between backbone C=O and N–H groups on neighboring strands",
-     "Ionic bonds between oppositely charged side chains",
-     "Covalent disulfide bonds between cysteine side chains"
+     "releases ordered water molecules from around the side chains, increasing the entropy of the solvent.",
+     "allows the nonpolar side chains to form hydrogen bonds with one another in the core.",
+     "decreases the entropy of the polypeptide chain, which makes folding more favorable.",
+     "allows the nonpolar side chains to form ionic bonds with one another in the core."
     ],
     "ans": 0,
     "cat": "5B",
     "skill": "SIRS 1",
     "diff": "M",
     "subj": "biochemistry",
-    "exp": "The α-helix is **secondary structure**, held together by **backbone hydrogen bonds**: the C=O of residue n accepts a hydrogen bond from the N–H of residue n + 4 in the same chain. Every backbone group inside the helix takes part, regardless of the side chains.\n\nHydrogen bonds between neighboring strands describe a **β-sheet**.\nSalt bridges between side chains and disulfide bonds can stabilize helices or other folds, but they belong to tertiary structure and are not what defines the helix.",
+    "exp": "This is the **hydrophobic effect**. Water can't hydrogen-bond to a nonpolar surface, so the water molecules next to an exposed nonpolar side chain are held in an ordered, cage-like layer. Burying the side chains removes that surface and frees the ordered water, so the **entropy of the solvent rises**, which makes ΔG for folding more negative. Dispersion forces among the tightly packed side chains help, but the main driving force is this entropy gain.\n\nNonpolar side chains have no O–H or N–H groups, so they can't form **hydrogen bonds**.\nThe chain's own **entropy does decrease** on folding, but that opposes folding (−TΔS becomes positive); it doesn't drive it.\nNonpolar side chains carry **no charge**, so they can't form ionic bonds.",
     "id": "cp_half_6_sa10"
    }
   ]
