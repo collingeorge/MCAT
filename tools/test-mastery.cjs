@@ -17,16 +17,17 @@ const ids = p => p.steps.map(s => s.id);
 let m = {};
 let p = plan(m, '2026-11-15');
 assert.equal(p.subj, 'cp'); assert.equal(p.status, 'diagnostic'); assert.deepEqual(ids(p), ['diagnostic']); assert.equal(p.goal, 128);
-// After the diagnostic: nothing else that day; weak topics come from it (below 84%), weakest first.
+// After the diagnostic, study starts the same day: 1 diagnostic (done, with a retake), 2 flashcards, 3 guided
+// Practice Exam cards, 4 the 30-question quiz. Weak topics come from it (below 84%), weakest first.
 m = apply(m, test('cp', '2026-11-15', 'diagnostic', 122));
 p = plan(m, '2026-11-15');
-assert.equal(p.status, 'diagnostic-done'); assert.deepEqual(p.steps, []);
+assert.equal(p.status, 'study'); assert.deepEqual(ids(p), ['diagnostic', 'flashcards', 'guided', 'test']);
+assert(p.steps[0].done && p.steps[0].old, 'a diagnostic saved without a version is the old one');
 assert.deepEqual(p.weak.map(w => w.code), ['5A', '4E'], 'weak topics below 84%, weakest first; passage tally excluded');
-// Day 2: yesterday's misses, then 5 sub-topics: the 2 weak ones in the subject's list first (5A 22%, 4E 56%),
+// Day 2: the same steps, on 5 sub-topics: the 2 weak ones in the subject's list first (5A 22%, 4E 56%),
 // then the subject's others in order. 50 flashcards and 50 Practice Exam cards (each with its lesson), 10 a sub-topic.
 p = plan(m, '2026-11-16');
-assert.deepEqual(ids(p), ['misses', 'flashcards', 'guided', 'test']);
-assert.deepEqual(p.steps[0].ids, ['q1', 'q2']);
+assert.deepEqual(ids(p), ['diagnostic', 'flashcards', 'guided', 'test']);
 assert.deepEqual(p.topics, ['5A', '4E', '4A', '4B', '4C'], 'C/P content categories: the 2 weakest, then in the outline\'s order');
 assert.deepEqual(p.steps[1].topics.map(t => t.need), [10, 10, 10, 10, 10]); assert.equal(p.steps[1].count, 50);
 assert.equal(p.steps[2].count, 50); assert.equal(p.steps[2].lessonCount, 50);
@@ -47,19 +48,23 @@ assert(!p.steps.find(s => s.id === 'guided').done, 'extra cards in one sub-topic
 assert.equal(p.steps.find(s => s.id === 'guided').extra, 10, 'cards beyond the set show as extra');
 m.days['2026-11-16'].guidedT['4D'] = 10;
 p = plan(m, '2026-11-16');
-assert(p.steps.find(s => s.id === 'guided').done && p.steps.find(s => s.id === 'misses').done && !p.steps.find(s => s.id === 'test').done);
+assert(p.steps.find(s => s.id === 'guided').done && !p.steps.find(s => s.id === 'test').done);
 m.days['2026-11-16'].lessonsN = 49;
 assert(!plan(m, '2026-11-16').steps.find(s => s.id === 'guided').done, 'every card needs its lesson');
 m.days['2026-11-16'].lessonsN = 50;
-// End-of-day test at goal: one day isn't enough to move on.
+// Quiz at goal: step 5 says done for the day; one day isn't enough to move on.
 m = apply(m, test('cp', '2026-11-16', 'daily', 128, { missIds: ['q9'] }));
 p = plan(m, '2026-11-16');
-assert(p.steps.find(s => s.id === 'test').done); assert.equal(p.streak, 1); assert.equal(p.subj, 'cp'); assert(!m.passed.cp);
+assert(p.steps.find(s => s.id === 'test').done);
+assert.deepEqual(ids(p), ['diagnostic', 'flashcards', 'guided', 'test', 'followup']);
+assert(p.steps.at(-1).atGoal && p.steps.at(-1).done, 'at goal: done for the day');
+assert.deepEqual(p.steps.at(-1).weak, ['5A', '4E'], 'still lists the quiz\'s weak topics for optional practice');
+{ const below = plan(apply(m, test('cp', '2026-11-16', 'daily', 124)), '2026-11-16').steps.at(-1);
+  assert(!below.atGoal && !below.done, 'below goal: work on what you missed'); } assert.equal(p.streak, 1); assert.equal(p.subj, 'cp'); assert(!m.passed.cp);
 assert.equal(p.latest.scaled, 128); assert.equal(p.previous.scaled, 122, 'compared with the last test');
-// Day 3's misses are day 2's card misses plus test misses. The weak sub-topics stay; the other slots go first
+// Day 3: the weak sub-topics stay; the other slots go first
 // to the sub-topics not studied yet (5B, 5E), so every sub-topic of the subject comes around.
 p = plan(m, '2026-11-17');
-assert.deepEqual(p.steps[0].ids.slice().sort(), ['g7', 'q9']);
 assert.deepEqual(p.topics, ['5A', '4E', '4A', '5B', '5C']);
 assert.deepEqual(plan({ ...m, tests: m.tests.map(t => ({ ...t, cats: {} })) }, '2026-11-17').topics.slice(0, 2), ['4A', '5B'], 'no weak topics: the ones not studied yet come first');
 // A day below goal resets the streak.
@@ -104,7 +109,7 @@ const pc = JSON.parse(vm.runInContext('JSON.stringify(MASTERY.passageCats)', ctx
 assert(Object.values(pc).every(c => c === 'other' || JSON.parse(vm.runInContext('JSON.stringify(MASTERY.topics.cp)', ctx)).includes(c)), 'passage categories are C/P categories');
 // A section with no Practice Exam cards (B/B, P/S for now) has no Practice Exam step.
 { const mb = apply({ current: 'bb' }, test('bb', '2026-11-15', 'diagnostic', 122, { cats: { '1A': { c: 2, t: 9 } } }));
-  assert.deepEqual(ids(plan(mb, '2026-11-16', { guided: 0 })), ['misses', 'flashcards', 'test']); }
+  assert.deepEqual(ids(plan(mb, '2026-11-16', { guided: 0 })), ['diagnostic', 'flashcards', 'test']); }
 // The diagnostic is a full AAMC section (59 questions, 10 passages, 95 minutes); daily tests are half of one.
 assert.equal(vm.runInContext('MASTERY.diagSize', ctx), 59, 'the diagnostic is a full section'); assert.equal(vm.runInContext('MASTERY.diagPassages', ctx), 10);
 assert.equal(vm.runInContext('MASTERY.testSize', ctx), 30); assert.equal(vm.runInContext('MASTERY.secondsPerItem', ctx), 95);
@@ -118,18 +123,20 @@ assert(app.includes('masteryNoteLesson(view.q)') && app.includes("quiz.mastery =
 for (const a of ['startMasteryGuided', 'startMasteryMisses', 'startMasteryFlashcards', 'startMasteryTest', 'setMasteryGoal', 'setMasteryPerDay', 'setMasterySubject']) assert(actions.includes("'" + a + "'"), a + ' allowlisted');
 for (const page of ['index.html', 'recall.html']) assert(fs.readFileSync(root + '/' + page, 'utf8').includes('<script src="js/mastery.js"></script>'), page + ' loads the path');
 assert(fs.readFileSync(root + '/sw.js', 'utf8').includes("'js/mastery.js'"), 'cached for offline use');
-// Passage practice: a daily step before the test when the section has practice passages (C/P), counted from today's row.
-{ const mp = apply({}, test('cp', '2026-11-15', 'diagnostic', 122));
-  let pp = plan(mp, '2026-11-16', { guided: 266, passages: 144 });
-  assert.deepEqual(ids(pp), ['misses', 'flashcards', 'guided', 'passages', 'test']); assert.equal(pp.steps[3].count, 50);
-  mp.days['2026-11-16'] = { subj: 'cp', prac: 50 }; pp = plan(mp, '2026-11-16', { guided: 266, passages: 144 });
-  assert(pp.steps.find(s => s.id === 'passages').done, '50 practice passage questions complete the step');
-  assert.deepEqual(ids(plan(mp, '2026-11-16', { guided: 266, passages: 0 })), ['misses', 'flashcards', 'guided', 'test'], 'no practice passages: no step'); }
+// Practice passages are for after the quiz: below goal, step 5 offers passages on the quiz's weak topics.
+{ let mp = apply({}, test('cp', '2026-11-15', 'diagnostic', 122, { version: 'cp_diag' }));
+  assert(!plan(mp, '2026-11-15').steps[0].old, 'a versioned diagnostic is current');
+  mp = apply(mp, test('cp', '2026-11-16', 'daily', 120, { version: 'cp_half_1' }));
+  const f = plan(mp, '2026-11-16', { guided: 266, passages: 144 }).steps.at(-1);
+  assert.equal(f.id, 'followup'); assert(!f.atGoal && f.passages, 'below goal: practice passages offered');
+  assert.equal(plan(mp, '2026-11-16', { guided: 266, passages: 0 }).steps.at(-1).passages, false); }
 assert(src.includes("startPassage(next, { masteryPractice: true });") && fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'startMasteryPassages'"), 'passage practice wired and allowlisted');
 // Results saved before the Chem/Phys Diagnostic existed (no version) are labeled as the old diagnostic.
 assert(src.includes("version: mini.setId || 'cards'") && src.includes('old diagnostic version'), 'old diagnostic labeled');
 // A retake button runs the full diagnostic again once the first one is done.
-assert(src.includes('data-click="startMasteryTest(\\\'diagnostic\\\')">Retake diagnostic</button>'), 'retake diagnostic button');
+assert(src.includes("btn('Retake diagnostic', \"startMasteryTest('diagnostic')\", s.old)"), 'step 1 offers the retake (the main button while the old diagnostic is current)');
+assert(src.includes('function startMasteryFollowup(kind)') && fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'startMasteryFollowup'"), 'after-quiz practice wired and allowlisted');
+assert(src.includes('const qbank = masteryExamPool(plan.subj)'), 'flashcards take the question bank first');
 // Storage keys: the path has its own key (it once collided with the topic-mastery map), is reset with the rest,
 // and no two KEYS entries share a name or a storage key.
 const block = app.slice(app.indexOf('const KEYS = {'), app.indexOf('};', app.indexOf('const KEYS = {')));
@@ -137,4 +144,4 @@ const names = [...block.matchAll(/^\s*([A-Za-z]+)\s*:/gm)].map(x => x[1]), value
 assert.equal(new Set(names).size, names.length, 'no duplicate KEYS names: ' + names.filter((n, i) => names.indexOf(n) !== i));
 assert.equal(new Set(values).size, values.length, 'no two KEYS share a storage key: ' + values.filter((n, i) => values.indexOf(n) !== i));
 assert(app.includes("subjectPath: 'mcat2_subject_path'") && app.includes('KEYS.studyPath, KEYS.subjectPath,'), 'own key, included in reset');
-console.log('Section mastery passed: C/P → B/B → P/S, each with its AAMC outline; diagnostic-only first day with weak categories; then misses → 50 flashcards → 50 Practice Exam cards with lessons over 5 content categories → end-of-day test (another set when done early) compared with the last; goal 128/129 on 2 separate days moves to the next subject and its diagnostic; manual subject choice; corrupt data tolerated.');
+console.log('Section mastery passed: C/P → B/B → P/S, each with its AAMC outline; diagnostic first, then the same day: 50 flashcards (QBank first) → 50 guided Practice Exam cards → 30-question quiz → done at goal or practice the weak spots compared with the last; goal 128/129 on 2 separate days moves to the next subject and its diagnostic; manual subject choice; corrupt data tolerated.');
