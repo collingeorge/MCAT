@@ -261,7 +261,7 @@ if (STRICT) assert.equal(missing, 0, `STRICT_QUIZ_MIX: ${missing} of ${POOL.leng
   for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(root + '/js/app.js', 'utf8'))[1])()).flat()) run(fs.readFileSync(root + '/' + f, 'utf8'));
   for (const [, file] of fs.readFileSync(root + '/index.html', 'utf8').matchAll(/<script src="([^"]+)"/g)) run(fs.readFileSync(root + '/' + file, 'utf8'));
   const pools = JSON.parse(run(`JSON.stringify({ flashcards: masteryFlashPool('cp').map(q => [masteryCategory(q), disciplineOfRecall(q)]), guided: masteryPracticePool('cp').map(q => [q.aamc, disciplineOfRecall(q)]) })`));
-  assert(pools.flashcards.length > 0); assert.equal(pools.guided.length, 266);
+  assert(pools.flashcards.length > 0); assert.equal(pools.guided.length, 354);
   const dw = Object.fromEntries(discW);
   const dayLines = shortfalls.splice(0);
   for (const [step, list] of Object.entries(pools)) {

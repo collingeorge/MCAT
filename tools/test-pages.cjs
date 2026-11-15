@@ -51,5 +51,5 @@ for(const p of ['passages','aamc','flprep','exams','score-report','about','recal
   for (const f of g.run('Object.values(BANKS).flat()')) { assert(!index.includes('<script src="' + f + '"'), f + ' is not loaded at startup'); assert(fs.readFileSync(root + '/sw.js', 'utf8').includes("'" + f + "'"), f + ' is cached for offline use'); }
   assert(g.run("bankReady('fl')"));
   assert.equal(g.run('FLQ.length'), g.run('BANK_COUNTS.fl')); assert.equal(g.run('FL_TESTS.length'), g.run('BANK_COUNTS.flTests'));
-  assert.equal(g.run("FLQ.filter(q => /^pe\\d-cp:/.test(q.src)).length"), g.run('BANK_COUNTS.flCp')); }
+  assert.equal(g.run("FLQ.filter(q => /^(pe\\d|sample)-cp:/.test(q.src)).length"), g.run('BANK_COUNTS.flCp')); }
 console.log('PASS: static entry pages, direct links, passage IDs, transient-session guards, screen URLs, history and native new-tab links.');

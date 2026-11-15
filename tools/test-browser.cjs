@@ -157,7 +157,7 @@ async function main() {
   await until('document.querySelector("#today-plan .today-head")!==null && typeof AQB_QBANK!=="undefined" && AQB_QBANK.length>1000');
   // Banks that load on demand come from the offline cache too.
   assert.equal(await evaluate('typeof CP_POOL'),'undefined','the quiz sets are not loaded at startup');
-  assert.equal(await evaluate('Promise.all(Object.keys(BANKS).map(ensureBank)).then(()=>LISTED_PASSAGES.length+"/"+FLQ.length+"/"+EXAM_CARS.length+"/"+CP_POOL.length+"/"+AAMC_PREP.length)'),'36/266/18/6/3','approved content, including the on-demand banks, available offline');
+  assert.equal(await evaluate('Promise.all(Object.keys(BANKS).map(ensureBank)).then(()=>LISTED_PASSAGES.length+"/"+FLQ.length+"/"+EXAM_CARS.length+"/"+CP_POOL.length+"/"+AAMC_PREP.length)'),'36/354/18/6/3','approved content, including the on-demand banks, available offline');
   assert.equal(await evaluate('fetch("/not-cached-"+Date.now()).then(()=>false,()=>true)'),true,'the network really is offline');
   await evaluate('beginQuiz(AQB_QBANK.slice(0,2),"Offline",{adaptive:false});document.querySelector("#cb-0").click()');
   assert.equal(await evaluate('quiz.results.length'),1,'studying works offline');

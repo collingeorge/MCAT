@@ -18,6 +18,20 @@ function shuffled(arr) {
   }
   return a;
 }
+// The AAMC lists numeric answer choices in order. A choice set that is all numbers in one unit (e.g. "0.15 m",
+// "1.2 × 10²⁰ Hz", "−2") is shown from lowest to highest; any other set is shuffled.
+const SUP = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9', '⁻': '-', '⁺': '' };
+function choiceNumber(c) {
+  const m = /^([+−-]?\d+(?:\.\d+)?)(?:\s*×\s*10([⁻⁺]?[⁰¹²³⁴⁵⁶⁷⁸⁹]+))?(?:\s+(\S.*))?$/.exec(String(c).trim());
+  if (!m) return null;
+  const exp = m[2] ? Number([...m[2]].map(ch => SUP[ch]).join('')) : 0;
+  return { v: Number(m[1].replace('−', '-')) * 10 ** exp, unit: m[3] || '' };
+}
+function choiceOrder(choices) {
+  const idx = choices.map((_, i) => i), nums = choices.map(choiceNumber);
+  if (nums.length > 1 && nums.every(n => n && Number.isFinite(n.v) && n.unit === nums[0].unit)) return idx.sort((a, b) => nums[a].v - nums[b].v);
+  return shuffled(idx);
+}
 // Stable 53-bit string hash (cyrb53) used for question ids
 function hashId(str) {
   let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
@@ -228,7 +242,7 @@ function buildFlq() {
 // cached offline by the service worker). BANK_COUNTS gives the home screen its numbers before they load;
 // tools/test-pages.cjs checks them against the data.
 const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'] };
-const BANK_COUNTS = { fl: 266, flCp: 266, flTests: 5 };
+const BANK_COUNTS = { fl: 354, flCp: 354, flTests: 6 };
 const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined' };
 const bankDone = Object.create(null), bankLoading = Object.create(null);
 function bankReady(name) {
@@ -1187,7 +1201,7 @@ const quiz = { items: [], idx: 0, results: [], answered: false, startedAt: 0, qS
 const LOOP_TARGET = 2;   // correct answers in a row before a missed fact is cleared for the session
 
 function makeView(q, reason) {
-  const order = shuffled(q.choices.map((_, i) => i));
+  const order = choiceOrder(q.choices);
   return { q, reason: reason || null, order, choices: order.map(i => q.choices[i]), ans: order.indexOf(q.ans), ...(Array.isArray(q.choiceFigs) ? { figs: order.map(i => q.choiceFigs[i]) } : {}) };
 }
 // ── Speed drill ──
@@ -2550,7 +2564,7 @@ function startExam(ei) {
 }
 function ensureOrders() {
   if (!exam.orders[exam.si]) {
-    exam.orders[exam.si] = curQuestions().map(q => shuffled(q.choices.map((_, i) => i)));
+    exam.orders[exam.si] = curQuestions().map(q => choiceOrder(q.choices));
     saveExam();
   }
 }

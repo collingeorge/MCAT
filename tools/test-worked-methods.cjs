@@ -25,11 +25,21 @@ for (const q of FL.filter(q => q.how || /^pe6-/.test(q.src))) {
 
 // Exam form: every Full-Length Prep card asks like the exam. No choice labels why it is right, e.g. "¹H NMR (peak integrals)".
 // Rewritten cards keep their original identity (idStem), so progress, flags and review history carry over.
+// Cards added 2026-11-15 (the Sample Test and the Practice Exam gaps) are new, so they have no earlier identity to keep.
+const ADDED = new Set(['pe1-cp:2', 'pe1-cp:18', 'pe1-cp:27', 'pe1-cp:36', 'pe1-cp:38', 'pe1-cp:41', 'pe1-cp:43', 'pe1-cp:49', 'pe3-cp:1', 'pe3-cp:4', 'pe3-cp:30', 'pe3-cp:31', 'pe3-cp:35', 'pe3-cp:43',
+  'pe4-cp:7', 'pe4-cp:21', 'pe4-cp:23', 'pe4-cp:24', 'pe4-cp:31', 'pe4-cp:33', 'pe5-cp:30', 'pe5-cp:43', 'pe6-cp:3', 'pe6-cp:14', 'pe6-cp:21', 'pe6-cp:31', 'pe6-cp:33', 'pe6-cp:39', 'pe6-cp:40']);
+const isAdded = q => ADDED.has(q.src) || /^sample-cp:/.test(q.src);
+assert.equal(FL.filter(isAdded).length, 88, '59 Sample Test cards and 29 Practice Exam gap cards');
+// A parenthetical gloss in a choice (words inside parentheses) can label why it is right. Formula parentheses such as
+// ClO₃(OH), (S)-alcohol or J/(kg·°C) are not glosses. Two added cards keep their glosses as supplied: both lens choices
+// carry one (sample-cp:43), and "CO₂ (as carbonate)" names the form in base (pe4-cp:33).
+const GLOSS_OK = new Set(['sample-cp:43', 'pe4-cp:33']);
 for (const q of FL) {
   assert(q.how, q.src + ': has a worked method');
-  assert(q.choices.every(c => !/\(.+\)/.test(c)), q.src + ': no parenthetical hint in choices');
+  assert(GLOSS_OK.has(q.src) || q.choices.every(c => !/\([^()]*\s[^()]*\)/.test(c)), q.src + ': no parenthetical hint in choices');
   assert(!/\b(RATIO|MUST)\b/.test(q.q), q.src + ': no capitalized cue words beyond NOT/EXCEPT');
-  assert(typeof q.idStem === 'string' && q.idStem !== q.q, q.src + ': original stem kept as idStem');
+  if (isAdded(q)) assert.equal(q.idStem, undefined, q.src + ': a new card has no earlier stem');
+  else assert(typeof q.idStem === 'string' && q.idStem !== q.q, q.src + ': original stem kept as idStem');
 }
 assert(source.includes("let id = 'fl-' + hashId(q.s + '|' + (q.idStem || q.q));"), 'FL ids use idStem');
 
@@ -98,7 +108,8 @@ const sw = fs.readFileSync(root + '/sw.js', 'utf8');
 assert(sw.includes("'data/structures.js'"), 'structures are cached for offline use');
 // Only the Practice Exam cards: no extra card sets or passages ride along.
 assert(!fs.existsSync(root + '/data/qb-structures.js') && !fs.existsSync(root + '/data/passages-graphs.js'), 'no added card sets or passages');
-assert(new Set(FL.map(q => q.s)).size === 5 && FL.every(q => /^Practice Exam [13456]: Chem\/Phys$/.test(q.s)), 'Full-Length Prep holds the five Practice Exams only');
+assert(new Set(FL.map(q => q.s)).size === 6 && FL.every(q => /^(Practice Exam [13456]|Sample Test): Chem\/Phys$/.test(q.s)), 'Full-Length Prep holds the five Practice Exams and the Sample Test only');
+assert.equal(FL.length, 354, '266 Practice Exam cards + 29 gap cards + 59 Sample Test cards');
 
 
 // Rendering: run the real functions against a minimal DOM.

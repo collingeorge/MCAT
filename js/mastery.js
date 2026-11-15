@@ -392,7 +392,7 @@ function masteryFlashPool(s) { return masteryExamPool(s); }
 // Practice passages for the daily passage step (data/cp-practice.js), separate from the diagnostic and quizzes.
 const masteryPassagePool = s => (s === 'cp' && typeof CP_PRACTICE !== 'undefined' && Array.isArray(CP_PRACTICE) ? CP_PRACTICE : []);
 // Loaded on demand (BANKS.fl in app.js): until then the plan uses the known count.
-const masteryPracticePool = s => (s === 'cp' && bankReady('fl') ? FLQ.filter(q => /^pe\d-cp:/.test(q.src)) : []);
+const masteryPracticePool = s => (s === 'cp' && bankReady('fl') ? FLQ.filter(q => /^(pe\d|sample)-cp:/.test(q.src)) : []);
 const masteryPracticeCount = s => (s !== 'cp' ? 0 : bankReady('fl') ? masteryPracticePool(s).length : BANK_COUNTS.flCp);
 function masteryLoad() { return masteryNormalize(store.get(KEYS.subjectPath, {})); }
 // Keeps 60 days; the card-id lists (seen, guidedIds, lessonIds, pracUsed) matter only on their own day, so earlier
