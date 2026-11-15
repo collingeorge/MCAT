@@ -244,7 +244,8 @@ assert(fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'howStep'"));
 assert(source.includes("if (view.hint) quiz.pending.conf = 'unsure';"));
 assert(source.includes('how: howBox(r.view.q, { static: true })'));
 // AAMC lists numeric choices in order: a set of numbers in one unit is shown lowest to highest, never shuffled; others shuffle.
-{ const [, order] = new Function(source.slice(source.indexOf('function shuffled'), source.indexOf('\n}\n', source.indexOf('function choiceOrder')) + 3) + ';return [choiceNumber, choiceOrder]')();
+{ const src = source.replace(/\r\n/g, '\n'); // CRLF-safe (Windows checkouts)
+  const [, order] = new Function(src.slice(src.indexOf('function shuffled'), src.indexOf('\n}\n', src.indexOf('function choiceOrder')) + 3) + ';return [choiceNumber, choiceOrder]')();
   const show = c => order(c).map(i => c[i]);
   assert.deepEqual(show(["10,000 Cal", "1 Cal", "100 Cal", "10 Cal"]), ["1 Cal", "10 Cal", "100 Cal", "10,000 Cal"]);
   assert.deepEqual(show(["30 μM", "3.0 μM", "300 μM", "3.0 mM"]), ["3.0 μM", "30 μM", "300 μM", "3.0 mM"]);
