@@ -33,11 +33,19 @@ let plan = JSON.parse(run('JSON.stringify(masteryPlanNow())'));
 assert.deepEqual(plan.steps.map(s => s.id), ['diagnostic', 'flashcards', 'guided', 'passages', 'test']);
 assert.equal(plan.steps[3].count, 50); assert.equal(plan.steps[3].progress, 0);
 run('renderHome()'); assert.match(el('today-plan').innerHTML, /Passage questions/); assert.match(el('today-plan').innerHTML, /startMasteryPassages\(\)/);
+// Blueprint split: every step shows its per-category targets as chips, the two weak categories marked "+ extra".
+assert.equal(plan.split, 'blueprint'); assert.deepEqual(plan.weakT, ['5D', '4E']);
+assert.deepEqual(JSON.parse(run('JSON.stringify(masteryLoad().days[localDay()])')).split, 'blueprint', 'the day row carries the split marker');
+assert.match(el('today-plan').innerHTML, /5D 0\/15 <b>\+ extra<\/b>/); assert.match(el('today-plan').innerHTML, /Skill 2 0\/22/); assert.match(el('today-plan').innerHTML, /5D × 7/);
 assert.match(el('hero-badge').textContent, /QBank cards · 266 Practice Exam cards · 36 C\/P passages · \d full-length exams/);
 
-// Flashcards: QBank cards only.
+// Flashcards: QBank cards only, each category's target count, no card twice.
 run('startMasteryFlashcards()');
 assert(run('quiz.items.length') === 50 && run('quiz.items.every(v=>AQB_BY_ID.has(v.q.id))'), '50 QBank cards');
+assert.deepEqual(JSON.parse(run("JSON.stringify(quiz.items.reduce((o,v)=>{const c=quiz.topicOf[v.q.id]; o[c]=(o[c]||0)+1; return o;},{}))")),
+  Object.fromEntries(plan.steps[1].topics.filter(t => t.need).map(t => [t.code, t.need])), 'each category gets its target');
+assert(run('quiz.items.every(v=>masteryCategory(v.q)===quiz.topicOf[v.q.id])'), 'every card is from the category it counts for');
+assert.equal(run('new Set(quiz.items.map(v=>v.q.id)).size'), 50, 'no card twice');
 run('goHome()');
 
 // Passage step: the first passage is unseen and in the weakest category (5D).
@@ -80,7 +88,7 @@ assert.equal(run('masteryLoad().days[localDay()].fixQ'), 1);
 // ── Regressions from the code review ──
 // 1.1: every card done but lessons short → "Continue" opens today's cards whose lesson isn't finished.
 { const d = run('localDay()'), pool = JSON.parse(run('JSON.stringify(masteryPracticePool("cp").map(q=>q.id))'));
-  run(`(() => { const m = masteryLoad(); const row = masteryDayRow(m, 'cp'); const t = row.topics; row.guidedT = Object.fromEntries(t.map(c => [c, 10])); row.lessonsN = 40;
+  run(`(() => { const m = masteryLoad(); const row = masteryDayRow(m, 'cp'); const t = row.topics; row.guidedT = Object.fromEntries(masteryPlanNow().steps.find(s=>s.id==='guided').topics.map(x => [x.code, x.need])); row.lessonsN = 40;
     row.guidedIds = ${JSON.stringify(pool.slice(0, 50))}; row.lessonIds = ${JSON.stringify(pool.slice(0, 40))}; masterySave(m); })()`);
   let g = JSON.parse(run('JSON.stringify(masteryPlanNow().steps.find(s=>s.id==="guided"))'));
   assert(!g.done && g.progress === 50 && g.lessons === 40, 'stuck state: 50/50 cards, 40/50 lessons');
@@ -93,7 +101,7 @@ assert.equal(run('masteryLoad().days[localDay()].fixQ'), 1);
   run('teachStep(0)'); // replaying a lesson on the same card never counts twice
   run('goHome()');
   // A step with nothing to start shows a message instead of doing nothing.
-  run(`(() => { const m = masteryLoad(); const row = masteryDayRow(m, 'cp'); row.flashT = Object.fromEntries(row.topics.map(c => [c, 10])); masterySave(m); })()`);
+  run(`(() => { const m = masteryLoad(); const row = masteryDayRow(m, 'cp'); row.flashT = Object.fromEntries(masteryPlanNow().steps.find(s=>s.id==='flashcards').topics.map(x => [x.code, x.need])); masterySave(m); })()`);
   el('page-notice').hidden = true; run('startMasteryFlashcards()');
   assert.equal(el('page-notice').hidden, false); assert.match(el('page-notice').textContent, /done for today/); }
 // 2.2: only the first answer to a card in a session counts toward the step.
