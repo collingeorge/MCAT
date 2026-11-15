@@ -99,7 +99,7 @@ assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(masteryApportion(w, 
 // drawings and graphs), split by AAMC's discipline weights; the question bank is only a fallback.
 assert(src.includes('const pool = masteryPracticePool(subj), passages = [];') && src.includes("const items = shuffled(picked).map(q => ({ view: makeView(q), passage: null }));"), 'tests from Practice Exam cards');
 // Passage questions count toward their passage's content category, so weak topics use the whole test.
-assert(src.includes("tally(cats, p ? (MASTERY.passageCats[p.id] || 'other') : masteryCategory(r.view.q), r.right);"));
+assert(src.includes("tally(cats, r.view.q.cat || (p ? (MASTERY.passageCats[p.id] || 'other') : masteryCategory(r.view.q)), r.right);"));
 const pc = JSON.parse(vm.runInContext('JSON.stringify(MASTERY.passageCats)', ctx));
 assert(Object.values(pc).every(c => c === 'other' || JSON.parse(vm.runInContext('JSON.stringify(MASTERY.topics.cp)', ctx)).includes(c)), 'passage categories are C/P categories');
 // A section with no Practice Exam cards (B/B, P/S for now) has no Practice Exam step.
