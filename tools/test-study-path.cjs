@@ -1,6 +1,7 @@
 // TODAY's passage step and the Passages tab, run in the real app code: only the AAMC-style C/P practice passages
 // are listed and practiced; each answer counts toward the step and its AAMC category; unseen passages come first,
-// weakest categories first; after every passage was used once the step repeats the ones answered least well; the
+// in the AAMC category, discipline, skill and difficulty mix; flashcards split exactly by AAMC weight, weak
+// categories changing which cards (missed and due first, then weak sub-topics), never how many; after every passage was used once the step repeats the ones answered least well; the
 // post-quiz follow-up prefers passages not used today. (This file once tested the recall subject path, removed
 // with the recall decks.)
 const assert = require('node:assert/strict');
@@ -33,21 +34,38 @@ let plan = JSON.parse(run('JSON.stringify(masteryPlanNow())'));
 assert.deepEqual(plan.steps.map(s => s.id), ['diagnostic', 'flashcards', 'guided', 'passages', 'test']);
 assert.equal(plan.steps[3].count, 50); assert.equal(plan.steps[3].progress, 0);
 run('renderHome()'); assert.match(el('today-plan').innerHTML, /Passage questions/); assert.match(el('today-plan').innerHTML, /startMasteryPassages\(\)/);
-// Blueprint split: every step shows its per-category targets as chips, the two weak categories marked "+ extra".
-assert.equal(plan.split, 'blueprint'); assert.deepEqual(plan.weakT, ['5D', '4E']);
-assert.deepEqual(JSON.parse(run('JSON.stringify(masteryLoad().days[localDay()])')).split, 'blueprint', 'the day row carries the split marker');
-assert.match(el('today-plan').innerHTML, /5D 0\/15 <b>\+ extra<\/b>/); assert.match(el('today-plan').innerHTML, /Skill 2 0\/22/); assert.match(el('today-plan').innerHTML, /5D × 7/);
+// Exact split: every step shows its per-category targets as chips at the AAMC weight; the two weak categories are
+// marked "weak" with the same counts (5D 12 of 50, as with no weak category); no "+ extra".
+assert.equal(plan.split, 'exact'); assert.deepEqual(plan.weakT, ['5D', '4E']);
+assert.deepEqual(JSON.parse(run('JSON.stringify(masteryLoad().days[localDay()])')).split, 'exact', 'the day row carries the split marker');
+assert.match(el('today-plan').innerHTML, /5D 0\/12 <b>weak<\/b>/); assert.match(el('today-plan').innerHTML, /4E 0\/7 <b>weak<\/b>/); assert.doesNotMatch(el('today-plan').innerHTML, /\+ extra/);
+assert.match(el('today-plan').innerHTML, /Skill 2 0\/22/); assert.match(el('today-plan').innerHTML, /Gen chem 0\/16/); assert.match(el('today-plan').innerHTML, /Difficult 0\/20/); assert.match(el('today-plan').innerHTML, /5D × 7/);
+assert(plan.steps.filter(s => s.topics).every(s => s.topics.every(t => t.extra === 0) && s.topics.reduce((n, t) => n + t.need, 0) === s.count), 'every step sums to its count, 0 extra on every category');
 assert.match(el('hero-badge').textContent, /QBank cards · 266 Practice Exam cards · 36 C\/P passages · \d full-length exams/);
 
+// Weakness picks, never counts: within 5D (a weak category), a card missed today, one missed on the latest test
+// and one due for review come first, then the weakest sub-topic's cards (by saved accuracy), then the rest.
+const p5D = JSON.parse(run("JSON.stringify(masteryFlashPool('cp').filter(q => masteryCategory(q) === '5D' && disciplineOfRecall(q) === 'biochemistry').map(q => ({ id: q.id, key: q.key })))"));
+const keys5D = [...new Set(p5D.map(q => q.key))], weakKey = keys5D.find(k => p5D.filter(q => q.key === k).length >= 2 && p5D.filter(q => q.key === k).length <= 4);
+assert(weakKey, 'a small 5D biochemistry sub-topic to mark weak');
+const tier0 = p5D.filter(q => q.key !== weakKey).slice(-3).map(q => q.id), weakIds = p5D.filter(q => q.key === weakKey).map(q => q.id);
+run(`(() => { const m = masteryLoad(); masteryDayRow(m, 'cp').misses = ['${tier0[0]}']; m.tests[m.tests.length - 1].missIds = ['${tier0[1]}']; masterySave(m);
+  store.set(KEYS.mem, { '${tier0[2]}': { S: 1, D: 5, last: Date.now() - 10 * DAY, seen: 1, right: 0, lapses: 1 } });
+  store.set(KEYS.stats, { '${weakKey}': { c: 1, t: 5 }, ${JSON.stringify(keys5D.find(k => k !== weakKey))}: { c: 5, t: 5 } }); })()`);
+assert.equal(run(`retrievability(loadMem()['${tier0[2]}']) < TARGET_RETENTION`), true, 'the card is due');
 // Flashcards: QBank cards only, each category's target count, no card twice.
 run('startMasteryFlashcards()');
+{ const ids = JSON.parse(run('JSON.stringify(quiz.items.map(v => v.q.id))')), bio = ids.filter(id => p5D.some(q => q.id === id));
+  assert(tier0.every(id => ids.includes(id)), 'missed today, missed on the latest test and due: all picked first in 5D');
+  assert.equal(bio.filter(id => !tier0.includes(id)).filter(id => weakIds.includes(id)).length, Math.min(weakIds.length, bio.length - 3), 'then every card of the weakest sub-topic (20%)'); }
 assert(run('quiz.items.length') === 50 && run('quiz.items.every(v=>AQB_BY_ID.has(v.q.id))'), '50 QBank cards');
 assert.deepEqual(JSON.parse(run("JSON.stringify(quiz.items.reduce((o,v)=>{const c=quiz.topicOf[v.q.id]; o[c]=(o[c]||0)+1; return o;},{}))")),
-  Object.fromEntries(plan.steps[1].topics.filter(t => t.need).map(t => [t.code, t.need])), 'each category gets its target');
+  Object.fromEntries(plan.steps[1].topics.filter(t => t.need).map(t => [t.code, t.need])), 'each category gets its AAMC target, weak or not');
 assert(run('quiz.items.every(v=>masteryCategory(v.q)===quiz.topicOf[v.q.id])'), 'every card is from the category it counts for');
 assert.equal(run('new Set(quiz.items.map(v=>v.q.id)).size'), 50, 'no card twice');
 run('goHome()');
 
+run("store.set(KEYS.mem, {}); store.set(KEYS.stats, {})");
 // Passage step: the first passage is unseen and in the weakest category (5D).
 run('startMasteryPassages()');
 assert.equal(run('pq.masteryPractice'), 'step');
@@ -61,6 +79,8 @@ assert.equal(ps.progress, n1, 'each answer counts toward the step');
 assert.equal(ps.cats.reduce((n, c) => n + c.n, 0), n1, 'and toward its AAMC category');
 const day = JSON.parse(run('JSON.stringify(masteryLoad().days[localDay()])'));
 assert.deepEqual(day.pracUsed, [first]);
+assert.equal(Object.values(day.pracD || {}).reduce((a, b) => a + b, 0), n1, "each answer counts toward its discipline"); assert.equal(Object.values(day.pracX || {}).reduce((a, b) => a + b, 0), n1, "and its difficulty");
+assert.equal(ps.diffs.reduce((n, k) => n + k.progress, 0), n1); assert.equal(ps.discs.reduce((n, k) => n + k.progress, 0) <= n1, true);
 // The results page offers the next practice passage; repeating showPassageResults never double counts.
 assert.match(el('pp-question-box').innerHTML, /masteryNextPractice\(\)/);
 const attempts = run(`store.get(KEYS.passages,{})['${first}'].attempts`); run('showPassageResults()'); assert.equal(run(`store.get(KEYS.passages,{})['${first}'].attempts`), attempts);
