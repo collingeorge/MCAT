@@ -348,6 +348,7 @@ function masteryResultHtml(test, prev, m) {
   const passedNow = m.passed[test.subj] === test.day;
   const nextSubj = MASTERY.order.find(s => !m.passed[s]);
   const verdict = passedNow ? '<p class="today-alldone">✓ ' + esc(masteryName(test.subj)) + ' mastered: ' + goal + '+ on ' + MASTERY.passDays + ' days in a row. ' + (nextSubj ? 'Tomorrow starts ' + esc(masteryName(nextSubj)) + ' with its diagnostic.' : 'Every section in the path is mastered.') + '</p>'
+    : test.kind === 'diagnostic' && prev ? '<p>Diagnostic retaken. Your daily plan now aims at the weak topics below.</p>'
     : test.kind === 'diagnostic' ? '<p>Study starts tomorrow, aimed at the weak topics below. Today is just the diagnostic.</p>'
     : test.scaled >= goal ? '<p>At goal today. One more day at ' + goal + '+ moves you to the next section.</p>' : '<p>Tomorrow: yesterday’s misses, then flashcards and Practice Exam cards on 5 content categories (weakest first), then another test.</p>';
   const rows = weak.map(w => '<tr' + (w.pct < MASTERY.weakBelow ? ' class="mastery-weak"' : '') + '><td>' + esc(w.code) + '</td><td>' + esc(AAMC_CAT_LABEL(w.code)) + '</td><td>' + w.c + '/' + w.t + '</td><td>' + w.pct + '%</td></tr>').join('');
@@ -399,5 +400,8 @@ function masteryCard() {
   }
   const mastered = plan.masteredToday ? '<p class="today-alldone">✓ ' + name(plan.subj) + ' reached goal on ' + MASTERY.passDays + ' days in a row. The next section starts tomorrow.</p>' : '';
   const controls = '<details class="mastery-settings"><summary>Path settings</summary><label>Goal <select data-change="setMasteryGoal(this.value)">' + MASTERY.goals.map(g => '<option value="' + g + '"' + (g === plan.goal ? ' selected' : '') + '>' + g + '</option>').join('') + '</select></label> <label>Cards a day <select data-change="setMasteryPerDay(this.value)">' + MASTERY.perDay.map(n => '<option value="' + n + '"' + (n === plan.perDay ? ' selected' : '') + '>' + n + ' + ' + n + '</option>').join('') + '</select></label> <label>Study this section now <select data-change="setMasterySubject(this.value)"><option value="">Next in path</option>' + MASTERY.order.map(s => '<option value="' + s + '"' + (s === plan.subj && masteryLoad().current === s ? ' selected' : '') + '>' + name(s) + '</option>').join('') + '</select></label></details>';
-  return head + latest + weak + mastered + body + controls;
+  // Retake: run the full diagnostic again (for example after the diagnostic was rebuilt, or to re-measure).
+  // The newest result then sets the weak content categories; earlier results stay in the history.
+  const retake = (plan.status === 'study' || plan.status === 'diagnostic-done') ? '<div class="mastery-retake"><button class="micro-btn" data-click="startMasteryTest(\'diagnostic\')">Retake diagnostic</button> <span class="muted-note">' + MASTERY.diagSize + ' timed questions, a full section in the exam’s format. Your newest result sets the weak topics.</span></div>' : '';
+  return head + latest + weak + mastered + body + retake + controls;
 }

@@ -118,6 +118,8 @@ assert(app.includes('masteryNoteLesson(view.q)') && app.includes("quiz.mastery =
 for (const a of ['startMasteryGuided', 'startMasteryMisses', 'startMasteryFlashcards', 'startMasteryTest', 'setMasteryGoal', 'setMasteryPerDay', 'setMasterySubject']) assert(actions.includes("'" + a + "'"), a + ' allowlisted');
 for (const page of ['index.html', 'recall.html']) assert(fs.readFileSync(root + '/' + page, 'utf8').includes('<script src="js/mastery.js"></script>'), page + ' loads the path');
 assert(fs.readFileSync(root + '/sw.js', 'utf8').includes("'js/mastery.js'"), 'cached for offline use');
+// A retake button runs the full diagnostic again once the first one is done.
+assert(src.includes('data-click="startMasteryTest(\\\'diagnostic\\\')">Retake diagnostic</button>'), 'retake diagnostic button');
 // Storage keys: the path has its own key (it once collided with the topic-mastery map), is reset with the rest,
 // and no two KEYS entries share a name or a storage key.
 const block = app.slice(app.indexOf('const KEYS = {'), app.indexOf('};', app.indexOf('const KEYS = {')));
