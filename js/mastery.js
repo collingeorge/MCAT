@@ -218,9 +218,12 @@ function masteryTopicSet(step, pool, catOf, pick) {
     const need = t.need - t.progress;
     if (need <= 0) continue;
     const used = new Set(list.map(q => q.id));
-    let got = pick(pool.filter(q => catOf(q) === t.code && !used.has(q.id)), need);
-    if (got.length < need) got = got.concat(pick(pool.filter(q => catOf(q) !== t.code && !used.has(q.id) && !got.includes(q)), need - got.length));
-    while (got.length < need && pool.length) got.push(pool[(list.length + got.length) % pool.length]);
+    // pool may be [preferred, fallback]: the preferred pool's cards in this topic come first.
+    const pools = Array.isArray(pool[0]) ? pool : [pool], all = pools.flat();
+    let got = [];
+    for (const pl of pools) if (got.length < need) got = got.concat(pick(pl.filter(q => catOf(q) === t.code && !used.has(q.id) && !got.includes(q)), need - got.length));
+    for (const pl of pools) if (got.length < need) got = got.concat(pick(pl.filter(q => catOf(q) !== t.code && !used.has(q.id) && !got.includes(q)), need - got.length));
+    while (got.length < need && all.length) got.push(all[(list.length + got.length) % all.length]);
     got.forEach(q => { topicOf[q.id] = topicOf[q.id] || t.code; list.push(q); });
   }
   return { list, topicOf };
@@ -230,9 +233,10 @@ function masteryBegin(plan, step, pool, catOf, label, mode, more) {
   if (!plan.subj || !step || (step.done && !more)) return;
   const m = masteryLoad(), row = masteryDayRow(m, plan.subj); masterySave(m);
   if (more) {
-    const seen = new Set(row.seen || []), fresh = pool.filter(q => !seen.has(q.id));
+    const seen = new Set(row.seen || []), nested = Array.isArray(pool[0]);
+    const fresh = nested ? pool.map(pl => pl.filter(q => !seen.has(q.id))) : pool.filter(q => !seen.has(q.id));
     step = { ...step, topics: step.topics.map(t => ({ ...t, progress: 0 })) };
-    if (fresh.length >= step.count) pool = fresh;
+    if ((nested ? fresh.flat() : fresh).length >= step.count) pool = fresh;
     label += ' · another set';
   }
   const { list, topicOf } = masteryTopicSet(step, pool, catOf, pickQuestions);
@@ -257,7 +261,7 @@ function startMasteryFlashcards(more) {
   const plan = masteryPlanNow();
   // The question bank (exam-style questions) first; the subject flashcards fill any gap.
   const qbank = masteryExamPool(plan.subj), ids = new Set(qbank.map(q => q.id));
-  masteryBegin(plan, plan.steps.find(s => s.id === 'flashcards'), [...qbank, ...masteryFlashPool(plan.subj).filter(q => !ids.has(q.id))], masteryCategory, 'flashcards', 'flashcards', more);
+  masteryBegin(plan, plan.steps.find(s => s.id === 'flashcards'), [qbank, masteryFlashPool(plan.subj).filter(q => !ids.has(q.id))], masteryCategory, 'flashcards', 'flashcards', more);
 }
 // Passage practice: one passage at a time with feedback after each question; unseen passages first, then those
 // on today's content categories, then the ones practiced longest ago.
@@ -422,7 +426,7 @@ function masteryCard() {
   const topicList = ts => '<ul class="mastery-subtopics">' + ts.map(t => '<li' + (t.progress >= t.need ? ' class="done"' : '') + '>' + (t.progress >= t.need ? '✓ ' : '') + esc(t.code) + ' ' + esc(AAMC_CAT_LABEL(t.code)) + ' <span class="today-count">' + t.progress + ' / ' + t.need + '</span></li>').join('') + '</ul>';
   let body = '';
   if (plan.status === 'diagnostic') {
-    body = '<ol class="today-steps"><li class="today-step"><span class="today-num">1</span><div class="today-body"><div class="today-title"><b>' + name(plan.subj) + ' diagnostic</b>' + mins(Math.round(MASTERY.diagSize * MASTERY.secondsPerItem / 60)) + '</div><div class="today-detail">First day on this section: just the diagnostic, a full AAMC section in the exam’s format. ' + MASTERY.diagSize + ' timed questions (10 passages plus single questions) across all of the section’s subjects and content categories, at exam pace, so every weak and strong area shows up. It scores you on 118–132 and shows your weak content categories; then today's study starts right away.</div>' + btn('Start diagnostic', "startMasteryTest('diagnostic')") + '</div></li></ol>';
+    body = '<ol class="today-steps"><li class="today-step"><span class="today-num">1</span><div class="today-body"><div class="today-title"><b>' + name(plan.subj) + ' diagnostic</b>' + mins(Math.round(MASTERY.diagSize * MASTERY.secondsPerItem / 60)) + '</div><div class="today-detail">First day on this section: just the diagnostic, a full AAMC section in the exam’s format. ' + MASTERY.diagSize + ' timed questions (10 passages plus single questions) across all of the section’s subjects and content categories, at exam pace, so every weak and strong area shows up. It scores you on 118–132 and shows your weak content categories; then today’s study starts right away.</div>' + btn('Start diagnostic', "startMasteryTest('diagnostic')") + '</div></li></ol>';
   } else {
     let n = 0;
     body = '<ol class="today-steps">' + plan.steps.map(s => {
