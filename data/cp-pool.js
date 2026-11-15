@@ -785,19 +785,19 @@ const CP_POOL = [
     "id": "cp_half_1_sa8"
    },
    {
-    "q": "An ultrasound pulse travels from soft tissue into bone, where sound travels faster. Which property of the wave stays the same as it crosses the boundary?",
+    "q": "A dentist holds a flat mouth mirror behind a patient's upper front teeth to see their back surfaces. The image of the teeth seen in the mirror is:",
     "choices": [
-     "Frequency",
-     "Wavelength",
-     "Speed",
-     "Amplitude"
+     "virtual, upright and the same size as the teeth.",
+     "real, inverted and the same size as the teeth.",
+     "virtual, upright and smaller than the teeth.",
+     "virtual, upright and larger than the teeth."
     ],
     "ans": 0,
     "cat": "4D",
     "skill": "SIRS 1",
     "diff": "E",
     "subj": "physics",
-    "exp": "The **frequency is set by the source**: each wave crest arriving at the boundary produces one crest on the other side, so the number of crests per second can't change. The speed is set by the medium, so it increases in bone, and because **v = fλ** with f fixed, the wavelength increases too.\n\nWavelength and speed both change with the medium.\nAmplitude drops, because part of the energy is reflected at the boundary (bone and soft tissue have very different acoustic impedances).",
+    "exp": "Light from the teeth reflects off a **plane mirror** and spreads out as if it came from a point **behind** the mirror. No light actually reaches that point, so the image is **virtual**. A flat mirror has no focal point (f = ∞), so 1/do + 1/di = 0 gives di = −do: the image is as far behind the mirror as the teeth are in front of it, and the magnification is m = −di/do = **+1** (**upright, same size**).\n\n**Real, inverted and the same size** describes a concave mirror with the object at its center of curvature (2f).\n**Smaller** describes a convex mirror, such as a wide-angle security mirror.\n**Larger** describes a concave magnifying mirror with the object inside its focal point; some dental mirrors are made this way, but not a flat one.",
     "id": "cp_half_1_sa9"
    },
    {
@@ -946,7 +946,7 @@ const CP_POOL = [
       "skill": "SIRS 1",
       "diff": "M",
       "subj": "organic_chem",
-      "exp": "Oleic and elaidic acid have the same formula and the **same connectivity** (the double bond is between C9 and C10 in both), so they are stereoisomers. They differ only in cis/trans (Z/E) geometry, and neither molecule is the mirror image of the other (both are achiral). Cis–trans isomers are **diastereomers**.\n\nEnantiomers must be mirror images, which requires chirality; these molecules have no stereocenter.\nConstitutional isomers would differ in bonding order, such as a double bond at a different carbon.\nThe C9–C10 bond is a **π bond**, so the two forms can't interconvert by simple rotation; that's why trans fats form only through a chemical reaction such as partial hydrogenation.",
+      "exp": "Oleic and elaidic acid have the same formula and the **same connectivity** (the double bond is between C9 and C10 in both), so they are stereoisomers. They differ only in cis/trans (Z/E) geometry, and neither molecule is the mirror image of the other (both are achiral). Cis–trans isomers are **diastereomers**.\n\nEnantiomers must be mirror images, which requires chirality; these molecules have no stereocenter.\nConstitutional isomers would differ in bonding order, such as a double bond at a different carbon.\nThe C9–C10 bond is a **double bond**, and its **π component** prevents rotation, so the two forms can't interconvert by simple rotation; that's why trans fats form only through a chemical reaction such as partial hydrogenation.",
       "id": "p_cpp2_1_q3"
      },
      {
@@ -2087,7 +2087,7 @@ const CP_POOL = [
      "5C"
     ],
     "title": "Identifying a Degradation Product of Benzocaine",
-    "passage": "Benzocaine (Compound 1) is an ester local anesthetic used in topical gels for dental and throat pain. Because esters can be hydrolyzed, a pharmaceutical laboratory tested how a new water-based benzocaine gel changes during storage. The gel was buffered at pH 9.0 to improve its texture, and samples were held at 40°C, a standard accelerated-aging condition. Ester hydrolysis is catalyzed by both acid and base, and at pH 9.0 hydroxide ion is expected to be the main nucleophile.\n\nAfter 60 days, each sample was diluted with water and extracted with ethyl acetate. HPLC of the extract showed that the peak for Compound 1 had decreased and that a new, more polar compound, Unknown X, had appeared. The HPLC used a nonpolar C18 column with a water–acetonitrile mobile phase, on which Unknown X eluted at 3.1 min and Compound 1 at 7.8 min. Unknown X was isolated by preparative HPLC, and its molecular formula was found by high-resolution mass spectrometry. A volatile compound, Unknown Y, was collected by distilling a stored gel sample and was analyzed the same way. Selected IR and ¹H NMR data are listed in Table 1. Spectra of Compound 1 and Unknown X were recorded in DMSO-d₆, and the spectrum of Unknown Y was recorded in CDCl₃.\n\nSome patients who are allergic to ester local anesthetics react to a hydrolysis product rather than to the parent drug. The laboratory therefore set an upper limit of 0.5% for Unknown X in the finished product and began testing whether lowering the gel's pH to 6.0 would slow its formation.",
+    "passage": "Benzocaine (Compound 1) is an ester local anesthetic used in topical gels for dental and throat pain. Because esters can be hydrolyzed, a pharmaceutical laboratory tested how a new water-based benzocaine gel changes during storage. The gel was buffered at pH 9.0 to improve its texture, and samples were held at 40°C, a standard accelerated-aging condition. Ester hydrolysis is catalyzed by both acid and base, and at pH 9.0 hydroxide ion is expected to be the main nucleophile.\n\nAfter 60 days, each sample was diluted with water, acidified to pH 3 with dilute HCl, and extracted with ethyl acetate. HPLC of the extract showed that the peak for Compound 1 had decreased and that a new, more polar compound, Unknown X, had appeared. The HPLC used a nonpolar C18 column with a water–acetonitrile mobile phase, on which Unknown X eluted at 3.1 min and Compound 1 at 7.8 min. Unknown X was isolated by preparative HPLC, and its molecular formula was found by high-resolution mass spectrometry. A volatile compound, Unknown Y, was collected by distilling a stored gel sample and was analyzed the same way. Selected IR and ¹H NMR data are listed in Table 1. Spectra of Compound 1 and Unknown X were recorded in DMSO-d₆, and the spectrum of Unknown Y was recorded in CDCl₃.\n\nSome patients who are allergic to ester local anesthetics react to a hydrolysis product rather than to the parent drug. The laboratory therefore set an upper limit of 0.5% for Unknown X in the finished product and began testing whether lowering the gel's pH to 6.0 would slow its formation.",
     "scheme": [
      {
       "after": 0,
@@ -2191,7 +2191,7 @@ const CP_POOL = [
       "cat": "5C",
       "skill": "SIRS 3",
       "diff": "X",
-      "exp": "An extraction works when one compound can be made **ionic** while the other stays neutral. Unknown X is a **carboxylic acid** (pKa about 5); NaHCO₃ is basic enough to deprotonate it to the **carboxylate anion**, which moves into the water layer. Compound 1 is an ester with only a weakly basic aryl amine, so it stays neutral in the **ethyl acetate layer**.\n\n**1 M HCl** protonates the aryl NH₂ of both compounds (each is an aniline), so both would move into the aqueous layer and nothing would be separated.\n**Pure water** leaves X mostly un-ionized, and a neutral aromatic acid stays largely in the organic layer.\n**Hexane** mixes with ethyl acetate to form one layer, so no separation occurs.",
+      "exp": "An extraction works when one compound can be made **ionic** while the other stays neutral. Unknown X is a **carboxylic acid** (pKa about 5); NaHCO₃ is basic enough to deprotonate it to the **carboxylate anion**, which moves into the water layer. Compound 1 is an ester with only a weakly basic aryl amine, so it stays neutral in the **ethyl acetate layer**. (The same chemistry is why the laboratory acidified the diluted gel to pH 3 before extracting it: at the gel's pH of 9.0, Unknown X is a carboxylate and would have stayed in the water.)\n\n**1 M HCl** protonates the aryl NH₂ of both compounds (each is an aniline), so both would move into the aqueous layer and nothing would be separated.\n**Pure water** leaves X mostly un-ionized, and a neutral aromatic acid stays largely in the organic layer.\n**Hexane** mixes with ethyl acetate to form one layer, so no separation occurs.",
       "id": "p_cpp3_2_q4"
      }
     ]
@@ -2414,7 +2414,7 @@ const CP_POOL = [
      "5E"
     ],
     "title": "The Cell Membrane as a Capacitor",
-    "passage": "The lipid bilayer of a cell membrane is a thin insulating layer between two conducting salt solutions, the cytoplasm and the extracellular fluid. Electrically, the membrane therefore behaves like a parallel-plate capacitor, for which C = κε₀A/d. Here κ is the dielectric constant of the insulator, ε₀ = 8.85 × 10⁻¹² C²/(N·m²), A is the plate area and d is the plate separation. In a bilayer the insulator is the hydrocarbon core formed by the lipid acyl chains, which is about 3 nm thick and has κ ≈ 2. The polar head groups are hydrated and conduct almost as well as the surrounding solution.\n\nThe capacitance per unit area of nearly all biological membranes is close to 1.0 μF/cm². A membrane potential exists when a small excess of positive charge sits on one face of the membrane and an equal excess of negative charge sits on the other, according to Q = CV. These excess ions lie within about 1 nm of the membrane surface, and the bulk solutions on both sides remain electrically neutral.\n\nResearchers modeled a spherical cell with a membrane area of 2.0 × 10⁻⁵ cm² and a resting membrane potential of −80 mV (inside relative to outside). The cytoplasm contains 140 mM K⁺ and 10 mM Na⁺, and the extracellular fluid contains 5 mM K⁺ and 145 mM Na⁺. The membrane resistance is about 1 × 10⁸ Ω, so the membrane's RC time constant is about 2 ms.\n\nWhen an ion crosses the membrane, its free energy change has a concentration term and an electrical term. The electrical term, per mole of ion, is zFΔψ, where z is the ion's charge, F = 96,500 C/mol, and Δψ is the potential of the side the ion moves to minus the potential of the side it leaves. (Use e = 1.6 × 10⁻¹⁹ C.)",
+    "passage": "The lipid bilayer of a cell membrane is a thin insulating layer between two conducting salt solutions, the cytoplasm and the extracellular fluid. Electrically, the membrane therefore behaves like a parallel-plate capacitor, for which C = κε₀A/d. Here κ is the dielectric constant of the insulator, ε₀ = 8.85 × 10⁻¹² C²/(N·m²), A is the plate area and d is the plate separation. In a bilayer the insulator is the hydrocarbon core formed by the lipid acyl chains, which is about 3 nm thick and has κ ≈ 2. The polar head groups are hydrated and conduct almost as well as the surrounding solution.\n\nThe measured capacitance per unit area of nearly all biological membranes is close to 1.0 μF/cm², somewhat higher than the roughly 0.6 μF/cm² that this simple model predicts. A membrane potential exists when a small excess of positive charge sits on one face of the membrane and an equal excess of negative charge sits on the other, according to Q = CV. These excess ions lie within about 1 nm of the membrane surface, and the bulk solutions on both sides remain electrically neutral.\n\nResearchers modeled a spherical cell with a membrane area of 2.0 × 10⁻⁵ cm² and a resting membrane potential of −80 mV (inside relative to outside). The cytoplasm contains 140 mM K⁺ and 10 mM Na⁺, and the extracellular fluid contains 5 mM K⁺ and 145 mM Na⁺. The membrane resistance is about 1 × 10⁸ Ω, so the membrane's RC time constant is about 2 ms.\n\nWhen an ion crosses the membrane, its free energy change has a concentration term and an electrical term. The electrical term, per mole of ion, is zFΔψ, where z is the ion's charge, F = 96,500 C/mol, and Δψ is the potential of the side the ion moves to minus the potential of the side it leaves. (Use e = 1.6 × 10⁻¹⁹ C.)",
     "questions": [
      {
       "q": "In the model cell at rest, how many excess negative charges (counted as monovalent anions) line the inner face of the membrane?",
@@ -2547,19 +2547,19 @@ const CP_POOL = [
     "id": "cp_half_3_sa4"
    },
    {
-    "q": "When solid ammonium nitrate dissolves in water in an instant cold pack, the process occurs spontaneously at room temperature and the temperature of the water drops. Which combination of signs describes this process?",
+    "q": "A sample of gas in a cylinder is taken from the same initial state to the same final state (same pressure, volume and temperature at the start and at the end) by two different routes. In one route it is heated at constant volume and then allowed to expand; in the other it expands first and is then heated. Which quantity can differ between the two routes?",
     "choices": [
-     "ΔH > 0 and ΔS > 0",
-     "ΔH < 0 and ΔS > 0",
-     "ΔH > 0 and ΔS < 0",
-     "ΔH < 0 and ΔS < 0"
+     "The heat absorbed by the gas",
+     "The change in internal energy of the gas",
+     "The change in enthalpy of the gas",
+     "The change in entropy of the gas"
     ],
     "ans": 0,
     "cat": "5E",
     "skill": "SIRS 1",
     "diff": "M",
     "subj": "gen_chem",
-    "exp": "The water gets colder, so the process **absorbs heat: ΔH > 0** (endothermic). It is still spontaneous, so ΔG = ΔH − TΔS < 0. With a positive ΔH, that is possible only if **TΔS is positive and larger than ΔH, so ΔS > 0**. That makes sense: an ordered crystal breaks up into freely moving hydrated ions.\n\n**ΔH < 0** would release heat and warm the water.\n**ΔH > 0 with ΔS < 0** gives ΔG > 0 at every temperature, so the process could never be spontaneous.",
+    "exp": "Internal energy, enthalpy and entropy are **state functions**: their changes depend only on the starting and ending states, not on how the system got there. **Heat and work are path functions.** By the first law, ΔU = q + w (w = work done on the gas). ΔU is the same for both routes, but the work is not: in the route that heats first, the gas expands against a higher pressure and does more work on its surroundings, so it must absorb **more heat** to reach the same final internal energy.\n\n**ΔU** is fixed by the two states; only how it splits into q and w changes.\n**ΔH = ΔU + Δ(PV)**, and P and V are the same at the start and at the end for both routes, so ΔH is also the same.\n**ΔS** is a state function too; it is calculated along a reversible path, but its value doesn't depend on which path the gas actually took.",
     "id": "cp_half_3_sa5"
    },
    {
@@ -2760,7 +2760,7 @@ const CP_POOL = [
      "4A"
     ],
     "title": "Catheter Size and Gravity-Fed Infusion",
-    "passage": "In emergency care, intravenous (IV) saline is often given by gravity. The bag hangs above the patient, and the height of the fluid surface above the insertion site sets the driving pressure. Fluid flows through wide tubing and then through a short plastic catheter in the vein. Because the catheter is the narrowest part of the path, it usually limits the flow rate. Catheters are sized by gauge: the larger the gauge number, the narrower the catheter, so a 14-gauge catheter is wider than a 22-gauge one. For steady, laminar flow of a fluid with viscosity η through a tube of inner radius r and length L, the volume flow rate Q is given by the Poiseuille equation:\n\nQ = πr⁴ΔP/(8ηL)\nEquation 1\n\nOn a training unit, nurses measured the flow through four catheters attached in turn to the same tubing. The saline bag (density 1.0 × 10³ kg/m³) was hung so that the fluid surface was 1.0 m above the catheter tip, and the catheter drained into an open beaker at atmospheric pressure. Flow was timed with a graduated cylinder, and each value in Table 1 is the mean of three trials. Catheter 4 was then retested with donor blood (density 1.06 × 10³ kg/m³). The results are shown in Table 1.\n\nIn a patient, the catheter tip sits in a vein where the blood pressure is above atmospheric pressure, so the bag must be raised high enough to overcome this back-pressure before any fluid enters. A typical peripheral venous pressure is about 1.5 kPa (11 mmHg) above atmospheric pressure. Assume g = 10 m/s².",
+    "passage": "In emergency care, intravenous (IV) saline is often given by gravity. The bag hangs above the patient, and the height of the fluid surface above the insertion site sets the driving pressure. Fluid flows through wide tubing and then through a short plastic catheter in the vein. Because the catheter is the narrowest part of the path, it usually limits the flow rate. Catheters are sized by gauge: the larger the gauge number, the narrower the catheter, so a 14-gauge catheter is wider than a 22-gauge one. For steady, laminar flow of a fluid with viscosity η through a tube of inner radius r and length L, the volume flow rate Q is given by the Poiseuille equation:\n\nQ = πr⁴ΔP/(8ηL)\nEquation 1\n\nOn a training unit, nurses measured the flow through four catheters attached in turn to the same tubing. The saline bag (density 1.0 × 10³ kg/m³) was hung so that the fluid surface was 1.0 m above the catheter tip, and the catheter drained into an open beaker at atmospheric pressure. Flow was timed with a graduated cylinder, and each value in Table 1 is the mean of three trials. All of the measured flows were lower than Equation 1 predicts for ideal Poiseuille flow, because of resistance in the tubing and pressure losses where the fluid enters the narrow catheter. Catheter 4 was then retested with donor blood (density 1.06 × 10³ kg/m³). The results are shown in Table 1.\n\nIn a patient, the catheter tip sits in a vein where the blood pressure is above atmospheric pressure, so the bag must be raised high enough to overcome this back-pressure before any fluid enters. A typical peripheral venous pressure is about 1.5 kPa (11 mmHg) above atmospheric pressure. Assume g = 10 m/s².",
     "figure": {
      "caption": "Table 1 Flow through IV catheters with the fluid surface 1.0 m above the tip",
      "columns": [
@@ -3378,19 +3378,19 @@ const CP_POOL = [
     "id": "cp_half_4_sa7"
    },
    {
-    "q": "Light with a wavelength of 600 nm in air enters the cornea, which has an index of refraction of 1.5. What is its wavelength inside the cornea?",
+    "q": "The optical fibers in a flexible endoscope have a glass core (n = 1.50) surrounded by a cladding (n = 1.20). Light traveling along the core strikes the core–cladding boundary. What is the smallest angle of incidence, measured from the normal, at which the light is totally internally reflected? (sin 12° ≈ 0.21, sin 37° ≈ 0.60, sin 42° ≈ 0.67, sin 53° ≈ 0.80)",
     "choices": [
-     "267 nm",
-     "400 nm",
-     "600 nm",
-     "900 nm"
+     "12°",
+     "37°",
+     "42°",
+     "53°"
     ],
-    "ans": 1,
+    "ans": 3,
     "skill": "SIRS 2",
     "cat": "4D",
     "diff": "M",
     "subj": "physics",
-    "exp": "When light enters a new medium, its **frequency stays the same**, set by the source, but its speed drops to v = c/n. Since λ = v/f, the wavelength drops by the same factor: λ = λ₀/n = 600 nm ÷ 1.5 = **400 nm**. (The light's color is still set by its frequency.)\n\n**900 nm** multiplies by n instead of dividing.\n**600 nm** assumes the wavelength doesn't change, which is true of the frequency, not the wavelength.\n**267 nm** divides by n twice (600 ÷ 2.25).",
+    "exp": "Total internal reflection can happen only when light goes from a **higher** to a **lower** index of refraction, as here (core 1.50 → cladding 1.20). At the **critical angle** the refracted ray would just skim along the boundary (90°), so by Snell's law n₁ sin θc = n₂ sin 90°:\nsin θc = n₂/n₁ = 1.20 ÷ 1.50 = **0.80**, so **θc ≈ 53°**.\nAny ray that hits the boundary at more than 53° from the normal is reflected back into the core, which is how the fiber carries light around bends.\n\n**37°** is the complement of 53°: it measures the angle from the boundary surface instead of from the normal (cos 37° ≈ 0.80).\n**42°** ignores the cladding and uses a core–air boundary: sin θ = 1.00 ÷ 1.50 ≈ 0.67.\n**12°** uses the difference of the indices: (1.50 − 1.20) ÷ 1.50 = 0.20, about sin 12°.",
     "id": "cp_half_4_sa8"
    },
    {
@@ -3486,63 +3486,63 @@ const CP_POOL = [
        "points": [
         [
          40,
-         0.005
+         0.01
         ],
         [
          43,
-         0.013
+         0.024
         ],
         [
          46,
-         0.034
+         0.054
         ],
         [
          49,
-         0.088
+         0.119
         ],
         [
          52,
-         0.209
+         0.242
         ],
         [
          55,
-         0.417
+         0.429
         ],
         [
          58,
-         0.661
+         0.639
         ],
         [
          61,
-         0.841
+         0.807
         ],
         [
          64,
-         0.935
+         0.908
         ],
         [
          67,
-         0.975
+         0.959
         ],
         [
          70,
-         0.991
+         0.982
         ],
         [
          73,
-         0.997
+         0.992
         ],
         [
          76,
-         0.999
+         0.997
         ],
         [
          79,
-         1.0
+         0.999
         ],
         [
          82,
-         1.0
+         0.999
         ],
         [
          85,
@@ -3581,35 +3581,35 @@ const CP_POOL = [
         ],
         [
          43,
-         0.0
-        ],
-        [
-         46,
          0.001
         ],
         [
-         49,
+         46,
          0.002
         ],
         [
+         49,
+         0.006
+        ],
+        [
          52,
-         0.007
+         0.014
         ],
         [
          55,
-         0.018
+         0.031
         ],
         [
          58,
-         0.047
+         0.071
         ],
         [
          61,
-         0.119
+         0.153
         ],
         [
          64,
-         0.269
+         0.298
         ],
         [
          67,
@@ -3617,35 +3617,35 @@ const CP_POOL = [
         ],
         [
          70,
-         0.731
+         0.702
         ],
         [
          73,
-         0.881
+         0.847
         ],
         [
          76,
-         0.953
+         0.929
         ],
         [
          79,
-         0.982
+         0.969
         ],
         [
          82,
-         0.993
+         0.986
         ],
         [
          85,
-         0.998
+         0.994
         ],
         [
          88,
-         0.999
+         0.998
         ],
         [
          91,
-         1.0
+         0.999
         ],
         [
          94,
@@ -3684,71 +3684,71 @@ const CP_POOL = [
         ],
         [
          52,
-         0.0
-        ],
-        [
-         55,
-         0.0
-        ],
-        [
-         58,
          0.001
         ],
         [
-         61,
+         55,
+         0.001
+        ],
+        [
+         58,
          0.003
         ],
         [
+         61,
+         0.008
+        ],
+        [
          64,
-         0.009
+         0.018
         ],
         [
          67,
-         0.025
+         0.041
         ],
         [
          70,
-         0.065
+         0.092
         ],
         [
          73,
-         0.159
+         0.193
         ],
         [
          76,
-         0.339
+         0.361
         ],
         [
          79,
-         0.583
+         0.571
         ],
         [
          82,
-         0.791
+         0.758
         ],
         [
          85,
-         0.912
+         0.881
         ],
         [
          88,
-         0.966
+         0.946
         ],
         [
          91,
-         0.987
+         0.976
         ],
         [
          94,
-         0.995
+         0.99
         ],
         [
          97,
-         0.998
+         0.996
         ],
         [
          100,
-         0.999
+         0.998
         ]
        ]
       },
@@ -3759,27 +3759,27 @@ const CP_POOL = [
        "points": [
         [
          40,
-         0.002
+         0.006
         ],
         [
          43,
-         0.007
+         0.014
         ],
         [
          46,
-         0.018
+         0.031
         ],
         [
          49,
-         0.047
+         0.071
         ],
         [
          52,
-         0.119
+         0.153
         ],
         [
          55,
-         0.269
+         0.298
         ],
         [
          58,
@@ -3787,35 +3787,35 @@ const CP_POOL = [
         ],
         [
          61,
-         0.731
+         0.702
         ],
         [
          64,
-         0.881
+         0.847
         ],
         [
          67,
-         0.953
+         0.929
         ],
         [
          70,
-         0.982
+         0.969
         ],
         [
          73,
-         0.993
+         0.986
         ],
         [
          76,
-         0.998
+         0.994
         ],
         [
          79,
-         0.999
+         0.998
         ],
         [
          82,
-         1.0
+         0.999
         ],
         [
          85,
@@ -4614,7 +4614,7 @@ const CP_POOL = [
      "5A"
     ],
     "title": "Histidine as the Buffer in a Cardioplegia Solution",
-    "passage": "During heart surgery and organ transplantation, the heart is stopped and cooled with a cardioplegia solution. Without blood flow, heart muscle switches to anaerobic glycolysis, and the lactic acid it produces lowers intracellular pH. Some preservation solutions therefore contain a high concentration of the amino acid L-histidine (Compound 1, molar mass 155 g/mol), whose side chain can accept protons near physiological pH. Among the standard amino acids, histidine is the only one with a side-chain pKa near 6 to 7, and these solutions contain it at nearly 200 mM, far above its concentration in plasma.\n\nThe imidazole side chain of histidine is protonated and deprotonated as shown in Reaction 1.\n\nimidazolium (–C₃H₄N₂⁺) ⇌ imidazole (–C₃H₃N₂) + H⁺\nReaction 1\n\nTo characterize the buffer, a chemist dissolved histidine dihydrochloride in water to make 20.0 mL of a 0.10 M solution of the fully protonated form, H₃His²⁺, in which the carboxyl group, the α-amino group and the side chain all carry their acidic protons. The solution was titrated at 25°C with 0.10 M NaOH while the pH was recorded (Figure 1). Each of the three acidic groups loses its proton in a separate buffer region of the curve.\n\nThe chemist noted that the pKa of the imidazolium group rises by about 0.02 units for each 1°C decrease in temperature, so the solution buffers somewhat more strongly near pH 7 when the heart is cooled to 4°C. The solution also contains tryptophan and α-ketoglutarate, which were not present in the titration.",
+    "passage": "During heart surgery and organ transplantation, the heart is stopped and cooled with a cardioplegia solution. Without blood flow, heart muscle switches to anaerobic glycolysis, and the lactic acid it produces lowers intracellular pH. Some preservation solutions therefore contain a high concentration of the amino acid L-histidine (Compound 1, molar mass 155 g/mol), whose side chain can accept protons near physiological pH. Among the standard amino acids, histidine is the only one with a side-chain pKa near 6 to 7, and these solutions contain it at nearly 200 mM, far above its concentration in plasma.\n\nThe imidazole side chain of histidine is protonated and deprotonated as shown in Reaction 1.\n\nimidazolium (–C₃H₄N₂⁺) ⇌ imidazole (–C₃H₃N₂) + H⁺\nReaction 1\n\nTo characterize the buffer, a chemist dissolved histidine dihydrochloride in water to make 20.0 mL of a 0.10 M solution of the fully protonated form, H₃His²⁺, in which the carboxyl group, the α-amino group and the side chain all carry their acidic protons. The solution was titrated at 25°C with 0.10 M NaOH while the pH was recorded (Figure 2). Each of the three acidic groups loses its proton in a separate buffer region of the curve.\n\nThe chemist noted that the pKa of the imidazolium group rises by about 0.02 units for each 1°C decrease in temperature, so the solution buffers somewhat more strongly near pH 7 when the heart is cooled to 4°C. The solution also contains tryptophan and α-ketoglutarate, which were not present in the titration.",
     "scheme": [
      {
       "after": 0,
@@ -5062,12 +5062,12 @@ const CP_POOL = [
     },
     "questions": [
      {
-      "q": "The laboratory wants to add an internal standard that is well separated from all four methylxanthines and elutes after caffeine. Which compound is the best choice?",
+      "q": "The laboratory wants to add an internal standard that is well separated from all four methylxanthines and elutes after caffeine but within the 10-minute run. Which compound is the best choice?",
       "choices": [
        "Xanthine",
        "1-Methylxanthine",
        "7-(2-Hydroxyethyl)theophylline",
-       "1,3-Dipropyl-7-methylxanthine"
+       "7-Ethyl-1,3-dimethylxanthine"
       ],
       "ans": 3,
       "cat": "5C",
@@ -5077,9 +5077,9 @@ const CP_POOL = [
        "cpp6-xanthine",
        "cpp6-1-methylxanthine",
        "cpp6-etofylline",
-       "cpp6-dipropyl-methylxanthine"
+       "cpp6-7-ethyltheophylline"
       ],
-      "exp": "In **reversed-phase** HPLC the stationary phase (C₁₈ chains) is nonpolar and the mobile phase is polar, so **less polar compounds are retained longer**. Table 1 shows the trend: the compounds with one N–H elute at 3–5 min, and caffeine, with no N–H, elutes last at 8.2 min.\n\n**1,3-Dipropyl-7-methylxanthine** has no N–H (like caffeine) and two propyl groups that add nonpolar surface, so it binds the C₁₈ phase even more strongly and should elute **after** caffeine.\n\n**Xanthine** has three N–H donors and **1-methylxanthine** has two; both are more polar than any analyte and would elute early, near the theobromine peak.\n**7-(2-Hydroxyethyl)theophylline** has no N–H, but its new OH group adds polarity, so it would not be retained more strongly than caffeine.",
+      "exp": "In **reversed-phase** HPLC the stationary phase (C₁₈ chains) is nonpolar and the mobile phase is polar, so **less polar compounds are retained longer**. Table 1 shows the trend: the compounds with one N–H elute at 3–5 min, and caffeine, with no N–H, elutes last at 8.2 min.\n\n**7-Ethyl-1,3-dimethylxanthine** is caffeine with the N7 methyl group lengthened to an ethyl group. Like caffeine it has no N–H, and the extra CH₂ adds nonpolar surface, so it binds the C₁₈ phase a little more strongly and should elute shortly **after** caffeine (around 9–9.5 min): well separated from the 8.2-min caffeine peak but still inside the 10-minute run.\n\n**Xanthine** has three N–H donors and **1-methylxanthine** has two; both are more polar than any analyte and would elute early, near the theobromine peak.\n**7-(2-Hydroxyethyl)theophylline** has no N–H, but its new OH group adds polarity, so it would not be retained more strongly than caffeine.",
       "id": "p_cpp6_4_q1"
      },
      {

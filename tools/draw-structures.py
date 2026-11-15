@@ -922,6 +922,7 @@ add('cpp6-1-methylxanthine', "Cn1c(=O)c2[nH]cnc2[nH]c1=O", formula='C6H6N4O2', c
 add('cpp6-etofylline', "Cn1c(=O)c2n(CCO)cnc2n(C)c1=O", formula='C9H12N4O3', centers=0)
 add('cpp6-formaldehyde', "C=O", formula='CH2O', centers=0)
 add('cpp6-dipropyl-methylxanthine', "CCCn1c(=O)c2n(C)cnc2n(CCC)c1=O", formula='C12H18N4O2', centers=0)
+add('cpp6-7-ethyltheophylline', "CCn1cnc2c1c(=O)n(C)c(=O)n2C", formula='C9H12N4O2', centers=0)
 
 def stereo_count(m):
     return len(Chem.FindMolChiralCenters(m, includeUnassigned=True, useLegacyImplementation=False))

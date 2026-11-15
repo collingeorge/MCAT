@@ -329,25 +329,25 @@ const CP_DIAG = {
     "rows": [
      [
       "Pure Mg",
-      "−1.62",
+      "−1.38",
       "180",
       "2.0"
      ],
      [
       "AZ31",
-      "−1.57",
+      "−1.33",
       "50",
       "0.57"
      ],
      [
       "WE43",
-      "−1.52",
+      "−1.28",
       "25",
       "0.28"
      ],
      [
       "Mg–Zn–Ca",
-      "−1.55",
+      "−1.31",
       "60",
       "0.68"
      ],
@@ -417,7 +417,7 @@ const CP_DIAG = {
      "cat": "4C",
      "skill": "SIRS 4",
      "diff": "D",
-     "exp": "Two metals in electrical contact in an electrolyte form a **galvanic couple**. The metal with the more negative corrosion potential becomes the **anode**. WE43's Ecorr (**−1.52 V**) is far more negative than steel's (**−0.05 V**), so electrons flow from WE43 to the steel, where water is reduced. WE43 is oxidized faster than it would be alone.\n\nSteel is the cathode, so it is protected rather than corroded.\nElectrons flow from WE43 to steel, not the other way, so WE43 corrodes faster, not slower.\nA 1.5 V difference in Ecorr drives a current between the metals; contact between dissimilar metals is exactly what causes galvanic corrosion.",
+     "exp": "Two metals in electrical contact in an electrolyte form a **galvanic couple**. The metal with the more negative corrosion potential becomes the **anode**. WE43's Ecorr (**−1.28 V**) is far more negative than steel's (**−0.05 V**), so electrons flow from WE43 to the steel, where water is reduced. WE43 is oxidized faster than it would be alone.\n\nSteel is the cathode, so it is protected rather than corroded.\nElectrons flow from WE43 to steel, not the other way, so WE43 corrodes faster, not slower.\nA 1.2 V difference in Ecorr drives a current between the metals; contact between dissimilar metals is exactly what causes galvanic corrosion.",
      "id": "p_cpd_3_q4"
     }
    ]
@@ -642,7 +642,7 @@ const CP_DIAG = {
      "id": "p_cpd_5_q2"
     },
     {
-     "q": "During normal delivery, about how much work does the plunger do on the drug solution in 1 hour?",
+     "q": "During normal delivery, about how much work does the motor do pushing the plunger in 1 hour, based on the gauge pressure in the syringe?",
      "choices": [
       "4.0 × 10⁻⁵ J",
       "0.040 J",
@@ -653,7 +653,7 @@ const CP_DIAG = {
      "cat": "4A",
      "skill": "SIRS 2",
      "diff": "D",
-     "exp": "For a piston pushing fluid at constant pressure, **W = Fd = (PA)d = PΔV**. In 1 hour the syringe delivers 2.0 mL = 2.0 cm³ = **2.0 × 10⁻⁶ m³** (1 cm³ = 10⁻⁶ m³). The gauge pressure is 20 kPa = 2.0 × 10⁴ Pa.\nW = (2.0 × 10⁴ Pa)(2.0 × 10⁻⁶ m³) = **0.040 J**.\n\nCheck with force × distance: F = PA = (2.0 × 10⁴ Pa)(2.0 × 10⁻⁴ m²) = 4.0 N, and the plunger moves 2.0 cm³ ÷ 2.0 cm² = 1.0 cm = 0.010 m, so W = 4.0 N × 0.010 m = 0.040 J.\n\n**4.0 × 10⁻⁵ J** leaves the pressure in kPa (20 × 2.0 × 10⁻⁶).\n**4.0 J** multiplies 4.0 N by the distance in centimeters instead of meters.\n**40 J** treats 1 mL as 10⁻³ m³ (that is 1 L).",
+     "exp": "The back of the plunger is open to the air, so atmospheric pressure helps push it forward and the motor has to supply only the **gauge pressure**, 20 kPa = 2.0 × 10⁴ Pa. For a piston pushing fluid at constant pressure, **W = Fd = (PA)d = PΔV**. In 1 hour the syringe delivers 2.0 mL = 2.0 cm³ = **2.0 × 10⁻⁶ m³** (1 cm³ = 10⁻⁶ m³).\nW = (2.0 × 10⁴ Pa)(2.0 × 10⁻⁶ m³) = **0.040 J**.\n\nCheck with force × distance: F = PA = (2.0 × 10⁴ Pa)(2.0 × 10⁻⁴ m²) = 4.0 N, and the plunger moves 2.0 cm³ ÷ 2.0 cm² = 1.0 cm = 0.010 m, so W = 4.0 N × 0.010 m = 0.040 J.\nThis is the motor's **net** work. The total work done on the solution also includes the atmosphere's push on the plunger, (1.0 × 10⁵ Pa)(2.0 × 10⁻⁶ m³) = 0.20 J, which the motor does not supply.\n\n**4.0 × 10⁻⁵ J** leaves the pressure in kPa (20 × 2.0 × 10⁻⁶).\n**4.0 J** multiplies 4.0 N by the distance in centimeters instead of meters.\n**40 J** treats 1 mL as 10⁻³ m³ (that is 1 L).",
      "id": "p_cpd_5_q3"
     },
     {
@@ -1220,7 +1220,7 @@ const CP_DIAG = {
      "id": "p_cpd_9_q1"
     },
     {
-     "q": "Approximately what volume of vapor at 20°C and 1.0 atm is produced when 1.0 mL of liquid Compound 3 evaporates completely?",
+     "q": "If 1.0 mL of liquid Compound 3 evaporates completely, approximately what volume would the vapor occupy as an ideal gas at 20°C and 1.0 atm (for example, once mixed into the fresh gas flow)?",
      "choices": [
       "0.18 mL",
       "180 mL",
@@ -1231,7 +1231,7 @@ const CP_DIAG = {
      "cat": "4B",
      "skill": "SIRS 2",
      "diff": "D",
-     "exp": "First find moles, then use the **ideal gas law**.\nMass: 1.0 mL × 1.5 g/mL = 1.5 g.\nMoles: 1.5 g ÷ 200 g/mol = **7.5 × 10⁻³ mol**.\nAt 20°C (293 K) and 1.0 atm, one mole of gas occupies RT/P = 0.0821 × 293 ≈ **24 L**.\nV = 7.5 × 10⁻³ mol × 24 L/mol = 0.18 L = **180 mL**.\nSo each milliliter of liquid makes about 180 times its volume of vapor.\n\n**0.18 mL** reports the answer in liters but labels it milliliters.\n**1.8 L** slips a decimal place in 1.5 ÷ 200 (0.075 mol).\n**36 L** treats the 1.5 g as 1.5 mol, skipping the molar mass.",
+     "exp": "First find moles, then use the **ideal gas law**.\nMass: 1.0 mL × 1.5 g/mL = 1.5 g.\nMoles: 1.5 g ÷ 200 g/mol = **7.5 × 10⁻³ mol**.\nAt 20°C (293 K) and 1.0 atm, one mole of gas occupies RT/P = 0.0821 × 293 ≈ **24 L**.\nV = 7.5 × 10⁻³ mol × 24 L/mol = 0.18 L = **180 mL**.\n(Pure sevoflurane vapor can't actually exist at 1.0 atm and 20°C: its vapor pressure is only 160 mmHg (Table 1), so above that partial pressure it condenses. Once it is mixed into the fresh gas its partial pressure is far lower, and at a total pressure of 1.0 atm it still accounts for this 180 mL of the mixture's volume.)\nSo each milliliter of liquid makes about 180 times its volume of vapor.\n\n**0.18 mL** reports the answer in liters but labels it milliliters.\n**1.8 L** slips a decimal place in 1.5 ÷ 200 (0.075 mol).\n**36 L** treats the 1.5 g as 1.5 mol, skipping the molar mass.",
      "id": "p_cpd_9_q2"
     },
     {
