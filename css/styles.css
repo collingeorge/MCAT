@@ -930,3 +930,4 @@ mark.step-hl{background:#fde68a;color:inherit;padding:0 2px;border-radius:2px;an
 .scheme-arrowline{font-size:30px;line-height:1;color:var(--navy)}
 .pass-scheme figcaption{text-align:center;font-size:14px;margin-top:8px}
 @media(max-width:760px){.scheme-mol .struct-img{max-height:170px}.scheme-arrow{min-width:48px}}
+.mastery-retake{margin:10px 0 4px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
