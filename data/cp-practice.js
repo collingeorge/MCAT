@@ -153,7 +153,7 @@ const CP_PRACTICE = [
    "5D"
   ],
   "title": "Formulating Pilocarpine Eye Drops",
-  "passage": "Pilocarpine (Compound 1) is a plant alkaloid that activates muscarinic acetylcholine receptors in the eye. It contracts the iris sphincter and the ciliary muscle, which narrows the pupil and opens the drainage pathway for aqueous humor. Eye drops of pilocarpine hydrochloride (molar mass 245 g/mol) are used to lower eye pressure in glaucoma and, at low strength, to treat age-related loss of near focus.\n\nAn eye drop should have about the same osmolality as tear fluid, near 0.30 osmol/kg. Hypertonic drops draw water out of the corneal surface and sting, whereas strongly hypotonic drops make the corneal epithelium swell. Because osmolality is a colligative property, it is found from the freezing point depression of the solution, ΔTf = Kf·m, where m is the total concentration of dissolved particles in osmol per kilogram of water and Kf for water is 1.86 °C·kg/mol. Sodium chloride (58.5 g/mol), which dissociates completely, is the usual agent added to raise a hypotonic drop to the tear value.\n\nCompound 1 is a γ-lactone and is unstable in solution. Hydroxide ion catalyzes two reactions: hydrolysis of the lactone ring to inactive pilocarpic acid, and removal of the acidic C–H at C3, next to the carbonyl group, which leads to the much weaker drug isopilocarpine. To choose storage conditions, a manufacturer prepared four formulations, each containing a buffer and a preservative, measured their freezing points, and stored them for 12 months at 25°C before assaying the remaining Compound 1 by HPLC (Table 1). Formulation D was buffered near the pH of tear fluid, which is more comfortable on instillation. The imidazole nitrogen of Compound 1 has a pKa near 7, so at pH 5.0 almost all of the drug is present as the protonated cation.",
+  "passage": "Pilocarpine (Compound 1) is a plant alkaloid that activates muscarinic acetylcholine receptors in the eye. It contracts the iris sphincter and the ciliary muscle, which narrows the pupil and opens the drainage pathway for aqueous humor. Eye drops of pilocarpine hydrochloride (molar mass 245 g/mol) are used to lower eye pressure in glaucoma and, at low strength, to treat age-related loss of near focus.\n\nEye drops are also adjusted to be roughly isotonic with tear fluid. Hypertonic drops draw water out of the corneal surface and sting, whereas strongly hypotonic drops make the corneal epithelium swell. Strengths are stated as % w/v, the grams of solute in 100 mL of solution.\n\nCompound 1 is a γ-lactone and is unstable in solution. Hydroxide ion promotes two reactions: hydrolysis of the lactone ring to inactive pilocarpic acid, and removal of the acidic C–H at C3, next to the carbonyl group, which leads to the much weaker drug isopilocarpine. To choose storage conditions, a manufacturer prepared four formulations, each containing a buffer and a preservative, and stored them for 12 months at 25°C before assaying the remaining Compound 1 by HPLC (Table 1). Formulation D was buffered near the pH of tear fluid, which is more comfortable on instillation. The imidazole nitrogen of Compound 1 has a pKa near 7, so at pH 5.0 almost all of the drug is present as the protonated cation.",
   "scheme": [
    {
     "after": 0,
@@ -169,7 +169,6 @@ const CP_PRACTICE = [
     "Formulation",
     "Pilocarpine HCl (% w/v)",
     "pH",
-    "ΔTf (°C)",
     "Compound 1 remaining after 12 months (%)"
    ],
    "rows": [
@@ -177,61 +176,57 @@ const CP_PRACTICE = [
      "A",
      "1.0",
      "5.0",
-     "0.37",
      "98"
     ],
     [
      "B",
      "2.0",
      "5.0",
-     "0.52",
      "97"
     ],
     [
      "C",
      "4.0",
      "5.0",
-     "0.84",
      "97"
     ],
     [
      "D",
      "2.0",
-     "7.4",
-     "0.52",
+     "7.0",
      "71"
     ]
    ]
   },
   "questions": [
    {
-    "q": "What is the osmolality of Formulation C?",
+    "q": "What is the concentration of chloride ion contributed by pilocarpine hydrochloride in Formulation C?",
     "choices": [
-     "0.23 osmol/kg",
-     "0.45 osmol/kg",
-     "1.6 osmol/kg",
-     "2.2 osmol/kg"
+     "0.016 M",
+     "0.16 M",
+     "0.33 M",
+     "6.1 M"
     ],
     "ans": 1,
+    "exp": "A strength of **% w/v** is grams per 100 mL, so 4.0% w/v = 4.0 g per 100 mL = **40 g/L**.\nMoles per liter: 40 g/L ÷ 245 g/mol ≈ **0.16 mol/L** (check: 245 × 0.16 = 39.2 ≈ 40).\nEach formula unit of pilocarpine hydrochloride releases **one Cl⁻** (and one protonated drug cation), so [Cl⁻] = **0.16 M**.\n\n**0.016 M** reads 4.0% as 4.0 g per liter instead of per 100 mL.\n**0.33 M** counts both ions of the salt as chloride; only one of the two ions is Cl⁻.\n**6.1 M** inverts the ratio (245 ÷ 40).",
     "cat": "5A",
     "skill": "SIRS 2",
     "diff": "M",
-    "exp": "Rearrange **ΔTf = Kf·m** to m = ΔTf ÷ Kf. With ΔTf = 0.84°C from Table 1:\nm = 0.84 ÷ 1.86 ≈ **0.45 osmol/kg** (check: 1.86 × 0.45 = 0.84).\nThe passage defines m as the concentration of all dissolved particles, so the van 't Hoff factor is already included; no further correction is needed. This drop is clearly hypertonic to tears (0.30 osmol/kg).\n\n**0.23 osmol/kg** divides by i = 2 a second time.\n**1.6 osmol/kg** multiplies ΔTf by Kf (0.84 × 1.86 ≈ 1.6) instead of dividing.\n**2.2 osmol/kg** inverts the ratio (1.86 ÷ 0.84 ≈ 2.2).",
     "id": "p_cpx1_2_q1"
    },
    {
-    "q": "Approximately what mass of NaCl must be added per kilogram of water in Formulation A to make it isotonic with tear fluid?",
+    "q": "Take the pKa of the imidazole nitrogen of Compound 1 as 7.0. Compared with Formulation B, Formulation D has how many times the hydroxide ion concentration, and what fraction of Compound 1 in Formulation D is protonated?",
     "choices": [
-     "1.5 g",
-     "2.9 g",
-     "5.9 g",
-     "8.8 g"
+     "100 times; about half",
+     "100 times; nearly all",
+     "2 times; about half",
+     "2 times; nearly all"
     ],
-    "ans": 1,
+    "ans": 0,
+    "exp": "**Hydroxide:** at 25°C, pOH = 14 − pH. Formulation B (pH 5.0) has pOH 9.0, so [OH⁻] = 10⁻⁹ M; Formulation D (pH 7.0) has pOH 7.0, so [OH⁻] = 10⁻⁷ M.\n10⁻⁷ ÷ 10⁻⁹ = **100 times** more OH⁻. Each pH unit is a **factor of 10**, and the two formulations differ by 2 units. This fits the much faster loss of Compound 1 in Formulation D (71% left versus 97%).\n\n**Protonation:** when **pH = pKa**, the Henderson–Hasselbalch equation gives log([base]/[acid]) = 0, so [base] = [acid] and the drug is **about half protonated**.\n\n**2 times** treats the 2-unit pH difference as a factor of 2 instead of 10².\n**Nearly all** protonated is true at pH 5.0 (two units below the pKa, where the cation outnumbers the neutral form 100 to 1), not at pH 7.0.",
     "cat": "5A",
     "skill": "SIRS 2",
     "diff": "X",
-    "exp": "First find where Formulation A starts: m = 0.37 ÷ 1.86 ≈ **0.20 osmol/kg**. Tears are 0.30 osmol/kg, so 0.10 osmol/kg of particles must be added.\nEach NaCl gives **two particles** (Na⁺ and Cl⁻), so only 0.10 ÷ 2 = 0.050 mol NaCl per kg is needed.\nMass = 0.050 mol × 58.5 g/mol ≈ **2.9 g**.\n\n**5.9 g** forgets that NaCl dissociates (0.10 mol × 58.5).\n**8.8 g** supplies the whole 0.30 osmol/kg from NaCl (0.15 mol × 58.5), ignoring what is already dissolved.\n**1.5 g** halves the amount twice (0.025 mol × 58.5).",
     "id": "p_cpx1_2_q2"
    },
    {
@@ -252,10 +247,10 @@ const CP_PRACTICE = [
     "id": "p_cpx1_2_q3"
    },
    {
-    "q": "To find out which of the two hydroxide-catalyzed reactions caused most of the loss of Compound 1 in Formulation D, which measurement on the stored solution would be most useful?",
+    "q": "To find out which of the two hydroxide-promoted reactions caused most of the loss of Compound 1 in Formulation D, which measurement on the stored solution would be most useful?",
     "choices": [
      "Mass spectrometry of the main degradation product, to determine its molar mass",
-     "The freezing point of the solution, to determine its new osmolality",
+     "The density of the solution, to determine how much solute is still dissolved",
      "The UV absorbance of the imidazole ring, to determine how much ring remains",
      "The optical rotation of the solution, to determine whether it is still chiral"
     ],
@@ -264,7 +259,7 @@ const CP_PRACTICE = [
     "skill": "SIRS 3",
     "diff": "D",
     "subj": "organic_chem",
-    "exp": "The two possible products differ in **mass**. Lactone hydrolysis adds water across the ester bond, so pilocarpic acid is Compound 1 **+ H₂O (+18 g/mol)**: a carboxylic acid and a primary alcohol in one chain. Isopilocarpine is an **epimer** with exactly the same formula and molar mass. A mass spectrum of the product therefore tells the two pathways apart.\n\nFreezing point: opening the ring changes a neutral lactone to a carboxylate but does not change the number of drug particles much, and the drug is only a small part of the osmolality; the 0.52°C value is unchanged.\nUV of the imidazole: neither reaction touches the imidazole ring, so its absorbance is the same for both products.\nOptical rotation: both products are still chiral and both would change the rotation, so a change cannot say which product formed.",
+    "exp": "The two possible products differ in **mass**. Lactone hydrolysis adds water across the ester bond, so pilocarpic acid is Compound 1 **+ H₂O (+18 g/mol)**: a carboxylic acid and a primary alcohol in one chain. Isopilocarpine is an **epimer** with exactly the same formula and molar mass. A mass spectrum of the product therefore tells the two pathways apart.\n\nDensity: both products stay dissolved and have nearly the same mass as Compound 1, so the density of the solution cannot tell them apart.\nUV of the imidazole: neither reaction touches the imidazole ring, so its absorbance is the same for both products.\nOptical rotation: both products are still chiral and both would change the rotation, so a change cannot say which product formed.",
     "id": "p_cpx1_2_q4"
    }
   ]
@@ -470,7 +465,7 @@ const CP_PRACTICE = [
    "5D"
   ],
   "title": "Mass Spectrometry of a Chlorzoxazone Metabolite",
-  "passage": "Chlorzoxazone (Compound 1) is a muscle relaxant that is cleared almost entirely by one liver enzyme, cytochrome P450 2E1 (CYP2E1). CYP2E1 uses O₂ and electrons from NADPH to insert one oxygen atom into the C–H bond at C6 of the drug, giving 6-hydroxychlorzoxazone (Compound 2). Compound 2 is then conjugated to glucuronic acid and excreted in urine. Because CYP2E1 activity rises with chronic alcohol use and in obesity, the ratio of Compound 2 to Compound 1 in plasma 2 h after an oral dose is used as a measure of CYP2E1 activity.\n\nPlasma extracts were analyzed by electrospray ionization in negative-ion mode, in which each molecule loses H⁺ to give an [M − H]⁻ ion. In the time-of-flight (TOF) analyzer, ions starting essentially at rest are accelerated toward the detector by a potential difference of 2.0 kV applied between two parallel metal grids 5.0 mm apart. They then drift through a 0.92 m field-free tube to the detector. Because every ion of the same charge gains the same kinetic energy, lighter ions move faster and arrive first.\n\nNatural chlorine is about 76% ³⁵Cl and 24% ³⁷Cl, and natural carbon contains about 1.1% ¹³C. Before analysis, each plasma sample was acidified and extracted into ethyl acetate, which leaves proteins and salts behind. In healthy volunteers, the plasma ratio of Compound 2 to Compound 1 at 2 h is typically 0.3 to 0.5, and the ratio roughly doubles after several weeks of heavy drinking. The main peaks in the spectrum of one plasma extract are listed in Table 1.",
+  "passage": "Chlorzoxazone (Compound 1) is a muscle relaxant that is cleared almost entirely by one liver enzyme, cytochrome P450 2E1 (CYP2E1). CYP2E1 uses O₂ and electrons from NADPH to insert one oxygen atom into the C–H bond at C6 of the drug, giving 6-hydroxychlorzoxazone (Compound 2). Compound 2 is then conjugated to glucuronic acid and excreted in urine. Because CYP2E1 activity rises with chronic alcohol use and in obesity, the ratio of Compound 2 to Compound 1 in plasma 2 h after an oral dose is used as a measure of CYP2E1 activity.\n\nPlasma extracts were analyzed by electrospray ionization in negative-ion mode, in which each molecule loses H⁺ to give an [M − H]⁻ ion. In the mass analyzer, the ions start essentially at rest and are accelerated toward the detector by a potential difference of 2.0 kV applied between two parallel metal grids.\n\nNatural chlorine is about 76% ³⁵Cl and 24% ³⁷Cl, and natural carbon contains about 1.1% ¹³C. Before analysis, each plasma sample was acidified and extracted into ethyl acetate, which leaves proteins and salts behind. In healthy volunteers, the plasma ratio of Compound 2 to Compound 1 at 2 h is typically 0.3 to 0.5, and the ratio roughly doubles after several weeks of heavy drinking. The main peaks in the spectrum of one plasma extract are listed in Table 1.",
   "scheme": [
    {
     "after": 0,
@@ -536,7 +531,7 @@ const CP_PRACTICE = [
     "id": "p_cpx1_5_q1"
    },
    {
-    "q": "How much kinetic energy does a singly charged ion gain in the accelerating region of the TOF analyzer? (e = 1.6 × 10⁻¹⁹ C)",
+    "q": "How much kinetic energy does a singly charged ion gain as it crosses the gap between the accelerating grids? (e = 1.6 × 10⁻¹⁹ C)",
     "choices": [
      "8.0 × 10⁻²³ J",
      "3.2 × 10⁻¹⁹ J",
@@ -552,19 +547,19 @@ const CP_PRACTICE = [
     "id": "p_cpx1_5_q2"
    },
    {
-    "q": "What are the magnitude and direction of the electric field between the two accelerating grids?",
+    "q": "Which accelerating grid is at the higher electric potential, and how does the electric potential energy of an [M − H]⁻ ion change as it crosses the gap between the grids?",
     "choices": [
-     "4.0 × 10⁵ V/m, pointing from the drift tube back toward the ion source",
-     "4.0 × 10⁵ V/m, pointing from the ion source toward the drift tube",
-     "4.0 × 10² V/m, pointing from the drift tube back toward the ion source",
-     "4.0 × 10² V/m, pointing from the ion source toward the drift tube"
+     "The grid nearer the detector; it decreases",
+     "The grid nearer the detector; it increases",
+     "The grid nearer the ion source; it decreases",
+     "The grid nearer the ion source; it increases"
     ],
     "ans": 0,
+    "exp": "The ions are **negative** and are pushed toward the detector. The force on a negative charge points **opposite** to the field, so the field points from the detector-side grid back toward the source-side grid. Field lines run from **higher to lower potential**, so the **grid nearer the detector is at the higher potential**: negative ions are drawn toward higher potential.\nPotential energy is **U = qV**. With q negative and V rising along the path, U **falls** by |q|ΔV = 2.0 keV. Energy is conserved, so the ion gains 2.0 keV of kinetic energy; the field does positive work on it.\n\n**Nearer the ion source** is the answer for a positive ion, which is pushed from high to low potential; it forgets the ions' negative charge.\n**It increases** treats \"moving to higher potential\" as \"gaining potential energy\", which is true only for a positive charge. A charge released from rest always speeds up while losing potential energy.",
     "cat": "4C",
     "skill": "SIRS 2",
     "diff": "X",
     "subj": "physics",
-    "exp": "Between parallel grids the field is uniform, so **E = ΔV/d**. Convert the gap to meters first:\nE = 2.0 × 10³ V ÷ 5.0 × 10⁻³ m = **4.0 × 10⁵ V/m**.\nDirection: the ions are **negative** ([M − H]⁻), and the force on a negative charge, **F = qE**, points **opposite** to the field. The ions are pushed toward the drift tube, so the field points the other way, **from the drift tube back toward the ion source** (from the higher-potential grid to the lower one).\n\n**Pointing toward the drift tube** is the direction of the force on a positive ion; it forgets the negative charge.\n**4.0 × 10² V/m** leaves the 5.0 mm gap in millimeters (2000 ÷ 5.0).",
     "id": "p_cpx1_5_q3"
    },
    {
@@ -596,7 +591,7 @@ const CP_PRACTICE = [
    "4E"
   ],
   "title": "Tympanometry and the Acoustics of the Ear Canal",
-  "passage": "A pneumatic otoscope lets a clinician watch the eardrum while puffing air into the sealed ear canal; a healthy eardrum moves visibly, whereas one backed by fluid barely moves. Tympanometry measures the same property. A soft probe seals the ear canal and contains a small loudspeaker, a microphone and an air pump. The speaker plays a steady probe tone (226 Hz for adults, 1000 Hz for young infants), and the microphone measures how much sound is reflected from the eardrum. The less sound reflected, the more easily the eardrum and middle-ear bones vibrate, a property reported as admittance in equivalent milliliters of air.\n\nWhile the tone plays, the pump sweeps the air pressure in the canal from +200 to −400 daPa relative to atmospheric pressure (1 daPa = 10 Pa). The eardrum vibrates most freely, and admittance peaks, when the pressure in the canal equals the pressure in the air-filled middle ear behind it. The Eustachian tube normally keeps middle-ear pressure near atmospheric by opening briefly during swallowing. If the tube stays closed, gas in the middle ear is slowly absorbed into the blood and middle-ear pressure falls. If fluid fills the middle ear (otitis media with effusion), the eardrum cannot vibrate freely at any canal pressure.\n\nThe otoscope's light is a white LED: a chip that emits blue light (peak 450 nm), coated with a phosphor that converts part of it to yellow. Without the probe, the open adult ear canal, about 2.5 cm long, acts as a tube closed at the eardrum and open at the outer end; sound near its fundamental resonant frequency reaches the eardrum up to 15 dB louder. The speed of sound in air at body temperature is 350 m/s. Figure 1 shows tympanograms recorded with the 226 Hz tone from three adults.",
+  "passage": "A pneumatic otoscope lets a clinician watch the eardrum while puffing air into the sealed ear canal; a healthy eardrum moves visibly, whereas one backed by fluid barely moves. The clinician views the eardrum through a converging magnifying lens (focal length 6.0 cm) in the otoscope head; during the exam the eardrum is 4.0 cm from this lens. Tympanometry measures the same property. A soft probe seals the ear canal and contains a small loudspeaker, a microphone and an air pump. The speaker plays a steady probe tone (226 Hz for adults, 1000 Hz for young infants), and the microphone measures how much sound is reflected from the eardrum. The less sound reflected, the more easily the eardrum and middle-ear bones vibrate, a property reported as admittance in equivalent milliliters of air.\n\nWhile the tone plays, the pump sweeps the air pressure in the canal from +200 to −400 daPa relative to atmospheric pressure (1 daPa = 10 Pa). The eardrum vibrates most freely, and admittance peaks, when the pressure in the canal equals the pressure in the air-filled middle ear behind it. The Eustachian tube normally keeps middle-ear pressure near atmospheric by opening briefly during swallowing. If the tube stays closed, gas in the middle ear is slowly absorbed into the blood and middle-ear pressure falls. If fluid fills the middle ear (otitis media with effusion), the eardrum cannot vibrate freely at any canal pressure.\n\nThe otoscope's light is a white LED: a chip that emits blue light (peak 450 nm), coated with a phosphor that converts part of it to yellow. The speed of sound in air at body temperature is 350 m/s. Figure 1 shows tympanograms recorded with the 226 Hz tone from three adults.",
   "figure": {
    "type": "line",
    "caption": "Figure 1 Tympanograms of three adults (226 Hz probe tone)",
@@ -733,22 +728,22 @@ const CP_PRACTICE = [
     "cat": "4D",
     "skill": "SIRS 1",
     "diff": "E",
-    "exp": "Use **λ = v/f** with the infant tone of 1000 Hz:\nλ = 350 m/s ÷ 1000 Hz = 0.35 m = **35 cm**.\nThis wavelength is much longer than the ear canal, so the 1000 Hz tone is far below the canal's resonance.\n\n**3.5 cm** and **0.35 cm** are slips in converting meters to centimeters.\n**2.9 m** inverts the ratio (f/v = 1000 ÷ 350 ≈ 2.9) and attaches meters to it.",
+    "exp": "Use **λ = v/f** with the infant tone of 1000 Hz:\nλ = 350 m/s ÷ 1000 Hz = 0.35 m = **35 cm**.\n\n**3.5 cm** and **0.35 cm** are slips in converting meters to centimeters.\n**2.9 m** inverts the ratio (f/v = 1000 ÷ 350 ≈ 2.9) and attaches meters to it.",
     "id": "p_cpx1_6_q1"
    },
    {
-    "q": "In an infant with otitis media with effusion, part of the 1000 Hz probe tone crosses the eardrum into the fluid that fills the middle ear, where sound travels at about 1500 m/s. What are the frequency and the wavelength of this sound in the fluid?",
+    "q": "Where is the image of the eardrum formed by the otoscope's magnifying lens, and is it upright or inverted? (1/f = 1/o + 1/i)",
     "choices": [
-     "1000 Hz; 0.35 m",
-     "1000 Hz; 1.5 m",
-     "1000 Hz; 0.67 m",
-     "4300 Hz; 0.35 m"
+     "12 cm from the lens, on the eardrum's side; upright",
+     "12 cm from the lens, on the viewer's side; inverted",
+     "2.4 cm from the lens, on the viewer's side; inverted",
+     "6.0 cm from the lens, at its focal point; upright"
     ],
-    "ans": 1,
+    "ans": 0,
+    "exp": "Solve the thin-lens equation for i with f = +6.0 cm (converging) and o = 4.0 cm:\n1/i = 1/f − 1/o = 1/6.0 − 1/4.0 = 2/12 − 3/12 = **−1/12**, so i = **−12 cm** (check: 1/4 + (−1/12) = 3/12 − 1/12 = 2/12 = 1/6 ✓).\nA **negative image distance** means a **virtual image** on the same side of the lens as the object, the eardrum's side. The magnification m = −i/o = −(−12)/4.0 = **+3**, so the image is **upright** and three times larger. This is how any magnifier works: the object sits **inside the focal length**.\n\n**12 cm on the viewer's side, inverted** drops the minus sign and treats the image as real.\n**2.4 cm, inverted** adds the reciprocals (1/6.0 + 1/4.0 = 5/12) instead of subtracting.\n**6.0 cm, at the focal point** confuses the focal length with the image distance; only an object very far away is imaged at the focal point.",
     "cat": "4D",
     "skill": "SIRS 2",
     "diff": "D",
-    "exp": "**Frequency is set by the source** (the probe speaker) and does not change when a wave crosses into a new medium: the eardrum vibrates 1000 times per second and drives the fluid at that same rate. The **speed** changes, so the **wavelength** changes with it, by **λ = v/f**:\nλ(fluid) = 1500 m/s ÷ 1000 Hz = **1.5 m** (versus 350 ÷ 1000 = 0.35 m in the air of the canal).\n\n**1000 Hz; 0.35 m** keeps the wavelength from air; with the faster speed, v = fλ would no longer hold.\n**4300 Hz; 0.35 m** keeps the wavelength and lets the frequency change instead (1500 ÷ 0.35 ≈ 4300 Hz); wavelength, not frequency, adjusts at a boundary.\n**1000 Hz; 0.67 m** inverts the ratio (f/v = 1000 ÷ 1500 ≈ 0.67) and attaches meters to it.",
     "id": "p_cpx1_6_q2"
    },
    {
@@ -934,7 +929,7 @@ const CP_PRACTICE = [
    "5D"
   ],
   "title": "An Enzyme Electrode for Continuous Glucose Monitoring",
-  "passage": "Continuous glucose monitors measure glucose in the interstitial fluid under the skin every few minutes. The sensor is a thin wire electrode inserted through the skin. Its tip is coated with glucose oxidase (GOx), an FAD-containing enzyme that oxidizes β-D-glucose (Compound 1) to D-glucono-1,5-lactone (Compound 2), as shown in Figure 1. The reduced enzyme is reoxidized by O₂, which is converted to hydrogen peroxide, so the overall enzyme reaction is Reaction 1. Compound 2 is then hydrolyzed by water to gluconic acid.\n\nβ-D-glucose + O₂ → D-glucono-1,5-lactone + H₂O₂\nReaction 1\n\nUnder the enzyme layer is a platinum working electrode held at +0.60 V relative to an Ag/AgCl reference electrode. At this potential, H₂O₂ that diffuses to the platinum reacts as shown in Reaction 2, and the resulting current is measured.\n\nH₂O₂ → O₂ + 2 H⁺ + 2 e⁻\nReaction 2\n\nEach glucose oxidized by GOx yields one H₂O₂, so the current reports the rate of the enzyme reaction. In people with diabetes, glucose can range from about 2 mM to more than 20 mM, and a useful sensor must give a current proportional to glucose over that whole range.\n\nEngineers compared two sensors in stirred, air-saturated phosphate buffer (pH 7.4, 37°C), so that O₂ was never limiting. Sensor A had only the GOx layer. Sensor B was identical except for an outer polyurethane membrane that lets O₂ pass easily but slows the diffusion of glucose about 10-fold. The steady-state current of each sensor at several glucose concentrations is shown in Figure 2.",
+  "passage": "Continuous glucose monitors measure glucose in the interstitial fluid under the skin every few minutes. The sensor is a thin wire electrode inserted through the skin. Its tip is coated with glucose oxidase (GOx), an FAD-containing enzyme that oxidizes β-D-glucose (Compound 1) to D-glucono-1,5-lactone (Compound 2), as shown in Figure 1. The reduced enzyme is reoxidized by O₂, which is converted to hydrogen peroxide, so the overall enzyme reaction is Reaction 1. Compound 2 is then hydrolyzed by water to gluconic acid.\n\nβ-D-glucose + O₂ → D-glucono-1,5-lactone + H₂O₂\nReaction 1\n\nUnder the enzyme layer is a platinum working electrode held at +0.60 V relative to an Ag/AgCl reference electrode. At this potential, H₂O₂ that diffuses to the platinum reacts as shown in Reaction 2, and the resulting current is measured.\n\nH₂O₂ → O₂ + 2 H⁺ + 2 e⁻\nReaction 2\n\nEach glucose oxidized by GOx yields one H₂O₂, so the current reports the rate of the enzyme reaction. In people with diabetes, glucose can range from about 2 mM to more than 20 mM, and a useful sensor must give a current proportional to glucose over that whole range.\n\nEngineers compared two sensors in stirred, O₂-saturated phosphate buffer (pH 7.4, 37°C); control runs confirmed that O₂ was not limiting at any glucose concentration tested. Sensor A had only the GOx layer. Sensor B was identical except for an outer polyurethane membrane that lets O₂ pass easily but slows the diffusion of glucose about 10-fold. The steady-state current of each sensor at several glucose concentrations is shown in Figure 2.",
   "scheme": [
    {
     "after": 0,
@@ -1038,18 +1033,18 @@ const CP_PRACTICE = [
   },
   "questions": [
    {
-    "q": "In a patient whose interstitial glucose holds steady at 8.0 mM, Sensor B gives the current shown in Figure 2. About how many H₂O₂ molecules are oxidized at its platinum electrode during one 1.0-minute reading? (e = 1.6 × 10⁻¹⁹ C)",
+    "q": "In a patient whose interstitial glucose holds steady at 8.0 mM, Sensor B gives the current shown in Figure 2. How much charge passes through its platinum electrode during one 5.0-minute reading interval?",
     "choices": [
-     "5.0 × 10¹⁰",
-     "3.0 × 10¹²",
-     "6.0 × 10¹²",
-     "1.2 × 10¹³"
+     "0.080 μC",
+     "2.4 μC",
+     "4.8 μC",
+     "18 μC"
     ],
-    "ans": 1,
+    "ans": 2,
+    "exp": "Read Sensor B (squares) at 8.0 mM: its line rises 2 nA per mM (10 nA at 5 mM, 20 nA at 10 mM), so I ≈ **16 nA**.\nCurrent is charge per unit time, so **Q = It**, with t in seconds: 5.0 min × 60 s/min = 300 s.\nQ = 16 × 10⁻⁹ C/s × 300 s = 4800 × 10⁻⁹ C = **4.8 × 10⁻⁶ C = 4.8 μC**.\n\n**0.080 μC** uses 5.0 s instead of 300 s (16 nA × 5 s = 80 nC).\n**2.4 μC** divides by 2 for the 2 e⁻ per H₂O₂; that would count H₂O₂ molecules, but the charge counts every electron.\n**18 μC** reads Sensor A (circles, about 60 nA at 8 mM) instead of Sensor B.",
     "cat": "4C",
     "skill": "SIRS 2",
     "diff": "D",
-    "exp": "Read Sensor B (squares) at 8.0 mM: its line rises 2 nA per mM (10 nA at 5 mM, 20 nA at 10 mM), so I ≈ **16 nA**.\nCharge in one minute: **Q = It** = 16 × 10⁻⁹ C/s × 60 s = 9.6 × 10⁻⁷ C.\nElectrons: 9.6 × 10⁻⁷ C ÷ 1.6 × 10⁻¹⁹ C = 6.0 × 10¹² e⁻.\nReaction 2 releases **2 e⁻ per H₂O₂**, so 6.0 × 10¹² ÷ 2 = **3.0 × 10¹²** molecules.\n\n**6.0 × 10¹²** is the number of electrons; it forgets the 2 e⁻ per H₂O₂.\n**1.2 × 10¹³** multiplies by 2 instead of dividing.\n**5.0 × 10¹⁰** is the number per second; it leaves out the 60 s of the reading.",
     "id": "p_cpx2_2_q1"
    },
    {
@@ -1118,49 +1113,39 @@ const CP_PRACTICE = [
    "4E"
   ],
   "title": "Choosing Glass Fibers for an Endoscope Light Guide",
-  "passage": "Flexible endoscopes carry light into the body, and an image back out, through bundles of thin glass fibers. Each fiber has a glass core surrounded by a thin cladding with a lower index of refraction. Light in the core that strikes the core–cladding boundary at an angle of incidence (measured from the normal) greater than the critical angle is totally internally reflected, so it zigzags along the fiber even when the fiber is bent. The cladding also keeps neighboring fibers from touching, which would let light leak from one fiber into the next.\n\nLight entering the end of a fiber from air is guided only if it arrives within a cone around the fiber's axis. The half-angle θ of this acceptance cone is given by sin θ = NA, where the numerical aperture NA = √(n₁² − n₂²), n₁ is the index of the core and n₂ is the index of the cladding. A fiber with a larger NA collects light from a wider cone.\n\nGlass also absorbs and scatters some light as it travels. This loss is expressed in decibels: loss (dB) = 10 log(P(in)/P(out)), where P is the light power entering and leaving the fiber.\n\nSome endoscopes use narrow-band imaging, in which tissue is lit with only blue light near 415 nm and green light near 540 nm. Hemoglobin absorbs both wavelengths strongly, so blood vessels look dark against the surrounding mucosa and are easier to see. A team designing a 2.0 m light guide for narrow-band imaging tested the four fibers in Table 1.",
+  "passage": "Flexible endoscopes carry light into the body, and an image back out, through bundles of thin glass fibers. Each fiber has a glass core surrounded by a thin cladding with a lower index of refraction. Light in the core that strikes the core–cladding boundary at an angle of incidence (measured from the normal) greater than the critical angle is totally internally reflected, so it zigzags along the fiber even when the fiber is bent. The cladding also keeps neighboring fibers from touching, which would let light leak from one fiber into the next.\n\nThe critical angle θc at the core–cladding boundary is given by sin θc = n₂/n₁, where n₁ is the index of the core and n₂ is the index of the cladding. A typical light guide bundles several thousand fibers, each with a core about 30 μm across.\n\nSome endoscopes use narrow-band imaging, in which tissue is lit with only blue light near 415 nm and green light near 540 nm. Hemoglobin absorbs both wavelengths strongly, so blood vessels look dark against the surrounding mucosa and are easier to see. A team designing a 2.0 m light guide for narrow-band imaging tested the four fibers in Table 1.",
   "figure": {
    "caption": "Table 1 Optical properties of four glass fibers",
    "columns": [
     "Fiber",
     "Core index n₁",
     "Cladding index n₂",
-    "Critical angle",
-    "NA",
-    "Loss at 540 nm (dB/m)"
+    "Critical angle"
    ],
    "rows": [
     [
      "1",
      "1.50",
      "1.20 (fluoropolymer)",
-     "53°",
-     "0.90",
-     "3.0"
+     "53°"
     ],
     [
      "2",
      "1.50",
      "1.35",
-     "64°",
-     "0.65",
-     "1.5"
+     "64°"
     ],
     [
      "3",
      "1.60",
      "1.50",
-     "70°",
-     "0.56",
-     "0.50"
+     "70°"
     ],
     [
      "4",
      "1.56",
      "1.52",
-     "77°",
-     "0.35",
-     "0.20"
+     "77°"
     ]
    ]
   },
@@ -1211,18 +1196,18 @@ const CP_PRACTICE = [
     "id": "p_cpx2_3_q3"
    },
    {
-    "q": "Green light with a wavelength of 540 nm in air is sent into each fiber in Table 1. In which fiber's core is the wavelength of this light shortest, and about what is that wavelength?",
+    "q": "For the 2.0 m light guide, the team wants the fiber that traps light over the widest range of angles of incidence at the core–cladding boundary. Which fiber in Table 1 is best, and how does the speed of light in its core compare with the speed in the core of Fiber 3?",
     "choices": [
-     "Fiber 3; 340 nm",
-     "Fiber 3; 860 nm",
-     "Fiber 4; 350 nm",
-     "Fiber 1; 450 nm"
+     "Fiber 1; light travels faster than in Fiber 3",
+     "Fiber 1; light travels slower than in Fiber 3",
+     "Fiber 4; light travels faster than in Fiber 3",
+     "Fiber 4; light travels slower than in Fiber 3"
     ],
     "ans": 0,
+    "exp": "A ray is totally reflected when its angle of incidence is **greater than θc**, so a fiber traps every ray between θc and 90°. The **smallest critical angle** gives the widest range. In Table 1 that is **Fiber 1** (53°, rays from 53° to 90° are trapped), which also has the smallest ratio n₂/n₁ (1.20 ÷ 1.50 = 0.80).\n\nSpeed in the core is **v = c/n**. Fiber 1's core (n = 1.50): v = 3.0 × 10⁸ ÷ 1.50 = **2.0 × 10⁸ m/s**. Fiber 3's core (n = 1.60): v = 3.0 × 10⁸ ÷ 1.60 ≈ **1.9 × 10⁸ m/s**. The lower index means **faster** light in Fiber 1.\n\n**Fiber 4** has the **largest** critical angle (77°), so it traps only rays between 77° and 90°, the narrowest range; it reads a large critical angle as better.\n**Slower** inverts n = c/v: a higher index means a slower speed, and Fiber 3 has the higher core index.",
     "cat": "4D",
     "skill": "SIRS 4",
     "diff": "X",
-    "exp": "Light slows in glass to **v = c/n**, but its **frequency does not change** at the boundary (f = c/λ = 3.0 × 10⁸ ÷ 5.4 × 10⁻⁷ ≈ 5.6 × 10¹⁴ Hz in every fiber). Since v = fλ, the wavelength shrinks by the same factor as the speed: **λ(core) = λ(air)/n**.\nThe shortest wavelength is in the core with the **largest index**: Fiber 3, n₁ = 1.60.\nλ = 540 nm ÷ 1.60 ≈ **340 nm** (337.5 nm).\n\n**Fiber 3; 860 nm** multiplies by n (540 × 1.60), as if light sped up or stretched in glass.\n**Fiber 4; 350 nm** picks the fiber with the largest critical angle and smallest NA; its core index (1.56) gives 540 ÷ 1.56 ≈ 350 nm, a little longer than in Fiber 3.\n**Fiber 1; 450 nm** divides by the cladding index 1.20 (the lowest index in the table); the light is guided in the core, and a lower index gives a longer wavelength, not a shorter one.",
     "id": "p_cpx2_3_q4"
    }
   ]
@@ -1405,7 +1390,7 @@ const CP_PRACTICE = [
    "5D"
   ],
   "title": "Isoamyl Acetate for Respirator Fit Testing",
-  "passage": "Health care workers who wear N95 respirators must pass a fit test. In one qualitative test, the wearer sits under a hood into which isoamyl acetate (Compound 3), a volatile ester with a strong banana odor, is released. If the wearer smells bananas, air is leaking around the respirator's seal.\n\nA hospital lab prepared Compound 3 by Fischer esterification of acetic acid (Compound 1) with isoamyl alcohol (3-methyl-1-butanol, Compound 2), using a few drops of concentrated H₂SO₄ as a catalyst (Figure 1). Without acid the reaction is extremely slow; with acid it reaches equilibrium after about an hour of heating under reflux. The equilibrium constant, K = [ester][H₂O]/([acid][alcohol]), is 2.25 and changes little with temperature.\n\nIn Trial 1, 1.0 mol of Compound 1 and 1.0 mol of Compound 2 were heated under reflux for 90 minutes. In Trial 2, the same mixture, with some cyclohexane added, was heated at the same temperature in an apparatus fitted with a Dean–Stark trap, which collects the water that distills out with the cyclohexane and keeps it from returning to the flask. In Trial 3, the procedure of Trial 1 was repeated with Compound 1 labeled with ¹⁸O in both of its oxygen atoms, and the products were analyzed by mass spectrometry.\n\nAfter each trial, the cooled mixture was washed with aqueous NaHCO₃, which converts unreacted acetic acid to water-soluble sodium acetate with release of CO₂ gas. The ester (bp 142°C) was then dried and purified by distillation. Trial 2 gave a much higher yield of Compound 3 than Trial 1.",
+  "passage": "Health care workers who wear N95 respirators must pass a fit test. In one qualitative test, the wearer sits under a hood into which isoamyl acetate (Compound 3), a volatile ester with a strong banana odor, is released. If the wearer smells bananas, air is leaking around the respirator's seal.\n\nA hospital lab prepared Compound 3 by Fischer esterification of acetic acid (Compound 1) with isoamyl alcohol (3-methyl-1-butanol, Compound 2), using a few drops of concentrated H₂SO₄ as a catalyst (Figure 1). Without acid the reaction is extremely slow; with acid it reaches equilibrium after about an hour of heating under reflux. The equilibrium constant, K = [ester][H₂O]/([acid][alcohol]), is 2.25 and changes little with temperature.\n\nIn Trial 1, 1.0 mol of Compound 1 and 1.0 mol of Compound 2 were heated under reflux for 90 minutes. In Trial 2, the same mixture, with some cyclohexane added, was heated under reflux in an apparatus fitted with a Dean–Stark trap, which collects the water that distills out with the cyclohexane and keeps it from returning to the flask.\n\nAfter each trial, the cooled mixture was washed with aqueous NaHCO₃, which released bubbles of CO₂ gas, and the aqueous layer was discarded. The ester (bp 142°C) was then dried and purified by distillation. Trial 2 gave a much higher yield of Compound 3 than Trial 1.",
   "scheme": [
    {
     "after": 1,
@@ -1441,33 +1426,33 @@ const CP_PRACTICE = [
     "id": "p_cpx2_6_q1"
    },
    {
-    "q": "In Trial 3, where is the ¹⁸O label found after the reaction?",
+    "q": "The NaHCO₃ wash removes unreacted acetic acid into the aqueous layer, while Compound 3 stays in the organic layer. Which statement best explains this difference? (pKa values: acetic acid, 4.8; H₂CO₃, 6.4)",
     "choices": [
-     "In the ester's C=O oxygen and in the water",
-     "In both oxygen atoms of the ester, with none in the water",
-     "In the ester's –O–CH₂ oxygen and in the water",
-     "In the water only, with none in the ester"
+     "Acetic acid is deprotonated to an ion, but the ester has no acidic O–H proton.",
+     "Acetic acid is oxidized to CO₂ gas, but the ester has no oxidizable carbon atom.",
+     "Acetic acid is denser than water, but the ester is less dense than water.",
+     "Acetic acid donates hydrogen bonds, but the ester cannot accept hydrogen bonds."
     ],
     "ans": 0,
+    "exp": "Bicarbonate is a base: CH₃COOH + HCO₃⁻ → CH₃COO⁻ + H₂CO₃, and H₂CO₃ then breaks down to **CO₂ + H₂O** (the bubbles). The equilibrium lies to the right because acid–base reactions favor the **weaker acid**: H₂CO₃ (pKa 6.4) is weaker than acetic acid (pKa 4.8). The product, **acetate, is an ion**, strongly solvated by water and insoluble in the nonpolar organic layer. The ester has **no O–H proton** to lose, so it stays neutral and stays in the organic layer.\n\n**Oxidized to CO₂** misreads the bubbles: the CO₂ comes from the bicarbonate (via H₂CO₃), and no redox occurs; acetic acid keeps both its carbons as acetate.\n**Density** decides which layer is on top, not which compound dissolves in which layer.\n**Hydrogen bonds:** the ester's oxygens do accept hydrogen bonds, and a neutral acid that can hydrogen-bond still dissolves well in the organic layer; only conversion to an ion moves it into water.",
     "cat": "5D",
     "skill": "SIRS 1",
     "diff": "D",
-    "exp": "Follow the two labeled oxygens of acetic acid through the **nucleophilic acyl substitution**. Acid protonates the C=O, and the **alcohol's (unlabeled) oxygen attacks the carbonyl carbon**, giving a tetrahedral intermediate that carries both ¹⁸O atoms as OH groups plus the new –O–CH₂ group. One ¹⁸OH is protonated and **leaves as H₂¹⁸O**; the other ¹⁸O re-forms the **C=O**. So the ester carries ¹⁸O only in its carbonyl (its mass is 2 units higher than normal, 132 instead of 130), and the water is labeled too.\n\nBoth ester oxygens labeled would require the acid to keep both its oxygens, but one of them must leave as water.\nThe –O–CH₂ oxygen comes from the alcohol, which was unlabeled.\nWater only would mean the acid lost both oxygens, but the ester's C=O oxygen comes from the acid.",
     "id": "p_cpx2_6_q2"
    },
    {
-    "q": "Compared with Trial 1, Trial 2 gave a higher yield of Compound 3 because removing water:",
+    "q": "Partway through Trial 2, the flask contains 0.50 mol of Compound 3, 0.50 mol of Compound 1, 0.50 mol of Compound 2 and 0.10 mol of water; the other 0.40 mol of water formed is in the trap. What is the reaction quotient Q for the mixture in the flask, and in which direction does the reaction proceed?",
     "choices": [
-     "keeps Q smaller than K, so the reaction continues in the forward direction; K is unchanged.",
-     "makes Q larger than K, so the reaction shifts toward the ester; K is unchanged.",
-     "lowers the activation energy of the forward reaction but not the reverse reaction.",
-     "converts acetic acid into a stronger electrophile, so the reaction becomes irreversible."
+     "Q = 0.20; toward the ester and water",
+     "Q = 0.20; toward the acid and alcohol",
+     "Q = 5.0; toward the acid and alcohol",
+     "Q = 2.25; neither, it is at equilibrium"
     ],
     "ans": 0,
+    "exp": "Q has the same form as K, using the amounts actually present in the flask (the volume cancels, since two moles appear on each side):\nQ = [ester][H₂O] ÷ ([acid][alcohol]) = (0.50 × 0.10) ÷ (0.50 × 0.50) = 0.050 ÷ 0.25 = **0.20**.\nQ < K (0.20 < 2.25), so the reaction proceeds **forward, toward the ester and water**. Because the trap keeps removing water, Q never catches up to K, which is why Trial 2 gives a much higher yield (**Le Châtelier's principle**). K itself is unchanged: **K depends only on temperature, which is unchanged**.\n\n**Q = 0.20; toward the acid and alcohol** reverses the rule: when Q < K, products are too low, so more products form.\n**Q = 5.0** inverts the expression (reactants over products).\n**Q = 2.25** assumes the mixture is always at equilibrium; water removal holds it away from equilibrium.",
     "cat": "5E",
     "skill": "SIRS 2",
     "diff": "D",
-    "exp": "Q = [ester][H₂O]/([acid][alcohol]). Every time the trap pulls water out, **Q drops below K**, and the system responds by making more ester and water (**Le Châtelier's principle**). Since water keeps being removed, the reaction keeps going forward until nearly all the limiting reagent is used.\n\n**K depends only on temperature, which is unchanged**, so removing a product cannot change it; only Q changes.\nRemoving a product makes Q **smaller**, not larger; and a Q larger than K would drive the reaction backward, toward acid and alcohol.\nActivation energy is set by the catalyst and mechanism; removing a product doesn't change it, and anything that lowers the forward barrier lowers the reverse barrier equally.\nWater removal does nothing to acetic acid's electrophilicity; protonation by H₂SO₄ is what activates the carbonyl, and the reaction stays reversible.",
     "id": "p_cpx2_6_q3"
    },
    {
@@ -1482,7 +1467,7 @@ const CP_PRACTICE = [
     "cat": "5D",
     "skill": "SIRS 1",
     "diff": "M",
-    "exp": "A carboxylic acid carbonyl is a weak electrophile, and an alcohol is a weak nucleophile, so the uncatalyzed reaction is very slow. **Protonating the carbonyl oxygen** puts a positive charge on the carbonyl group, making the carbon much **more electrophilic** so the alcohol can attack. Acid also helps later by protonating an OH of the tetrahedral intermediate so it can leave as water. As a catalyst, H₂SO₄ is regenerated; it speeds the approach to equilibrium but does not change K.\n\nA strong acid cannot deprotonate an alcohol; that would take a strong base.\nMaking the alcohol the leaving group would break the alcohol's C–O bond, with a primary alkyl carbon as the electrophile. In Fischer esterification the alcohol's C–O bond stays intact; the water comes from the acid's OH (as the Trial 3 labeling shows).\nOxidizing the alcohol would give an aldehyde, which would not form an ester with acetic acid; the product would no longer be Compound 3.",
+    "exp": "A carboxylic acid carbonyl is a weak electrophile, and an alcohol is a weak nucleophile, so the uncatalyzed reaction is very slow. **Protonating the carbonyl oxygen** puts a positive charge on the carbonyl group, making the carbon much **more electrophilic** so the alcohol can attack. Acid also helps later by protonating an OH of the tetrahedral intermediate so it can leave as water. As a catalyst, H₂SO₄ is regenerated; it speeds the approach to equilibrium but does not change K.\n\nA strong acid cannot deprotonate an alcohol; that would take a strong base.\nMaking the alcohol the leaving group would break the alcohol's C–O bond, with a primary alkyl carbon as the electrophile. In Fischer esterification the alcohol's C–O bond stays intact; the water comes from the acid's OH.\nOxidizing the alcohol would give an aldehyde, which would not form an ester with acetic acid; the product would no longer be Compound 3.",
     "id": "p_cpx2_6_q4"
    }
   ]
@@ -2016,10 +2001,10 @@ const CP_PRACTICE = [
    {
     "q": "Before a unit is used, a technician wants to confirm that its heater actually delivers about 600 W of heat to the circulating water. Which test would best do this?",
     "choices": [
-     "With the refrigeration circuit off, circulate a known mass of water through an insulated loop, run the heater for a measured time, and calculate mcΔT ÷ t from the rise in water temperature.",
-     "With the pads attached to a patient, run the heater for a measured time, and calculate mcΔT ÷ t from the patient's mass and the rise in core temperature.",
-     "With the refrigeration circuit on, run the heater for a measured time, and calculate mcΔT ÷ t from the rise in water temperature.",
-     "With the refrigeration circuit off, run the heater for a measured time, and record the final temperature of the heating element."
+     "With refrigeration off, heat a known mass of water in an insulated loop for a measured time; calculate mcΔT ÷ t.",
+     "With the pads on a patient, run the heater for a measured time; calculate mcΔT ÷ t from the patient's mass and core-temperature rise.",
+     "With refrigeration on, heat a known mass of water in the loop for a measured time; calculate mcΔT ÷ t.",
+     "With refrigeration off, run the heater for a measured time; record the final temperature of the heating element."
     ],
     "ans": 0,
     "cat": "5E",
@@ -2071,7 +2056,7 @@ const CP_PRACTICE = [
    "5A"
   ],
   "title": "Fluorine-18 Fluoride PET Imaging of Bone",
-  "passage": "Bone metastases from breast and prostate cancer cause local increases in bone turnover. One way to image them is positron emission tomography (PET) with fluorine-18 sodium fluoride (Na¹⁸F). Fluorine-18 is made in a cyclotron by bombarding water enriched in a heavy oxygen isotope with protons. It has a half-life of 110 min and decays about 97% of the time by positron (β⁺) emission, with the rest by electron capture.\n\nAfter intravenous injection, fluoride ions leave the capillaries and reach the surface of bone mineral. Bone mineral is mostly hydroxyapatite, Ca₅(PO₄)₃OH. Fluoride exchanges with hydroxide ions in the crystal to form fluorapatite:\n\nCa₅(PO₄)₃OH(s) + F⁻(aq) → Ca₅(PO₄)₃F(s) + OH⁻(aq)\nReaction 1\n\nUptake is greatest where blood flow is high and new mineral is being laid down, such as at fractures, growth plates and metastases. About half of the injected fluoride is taken up by bone in the first hour; most of the rest is excreted by the kidneys.\n\nA positron emitted in tissue travels less than 1 mm before it meets an electron. The two particles annihilate, and their rest-mass energy is converted to gamma photons. A ring of detectors around the patient records only events in which two detectors on opposite sides are struck at nearly the same moment. A typical adult dose is 250 MBq, and imaging begins about 60 min after injection.\n\nBecause Na¹⁸F is prepared without added nonradioactive fluoride, the concentration of fluoride in blood remains far below the level at which CaF₂ (Ksp ≈ 4.0 × 10⁻¹¹) could precipitate. In a simple model, the plasma concentration of free Ca²⁺ is 1.0 mM.",
+  "passage": "Bone metastases from breast and prostate cancer cause local increases in bone turnover. One way to image them is positron emission tomography (PET) with fluorine-18 sodium fluoride (Na¹⁸F). Fluorine-18 is made in a cyclotron by bombarding water enriched in a heavy oxygen isotope with protons. It has a half-life of 110 min and decays about 97% of the time by positron (β⁺) emission, with the rest by electron capture. An older bone-scan agent, technetium-99m methylene diphosphonate (⁹⁹ᵐTc-MDP), is still widely used; ⁹⁹ᵐTc has a half-life of 6.0 h, and its bone images are usually taken 3.0 h after injection.\n\nAfter intravenous injection, fluoride ions leave the capillaries and reach the surface of bone mineral. Bone mineral is mostly hydroxyapatite, Ca₅(PO₄)₃OH. Fluoride exchanges with hydroxide ions in the crystal to form fluorapatite:\n\nCa₅(PO₄)₃OH(s) + F⁻(aq) → Ca₅(PO₄)₃F(s) + OH⁻(aq)\nReaction 1\n\nUptake is greatest where blood flow is high and new mineral is being laid down, such as at fractures, growth plates and metastases. About half of the injected fluoride is taken up by bone in the first hour; most of the rest is excreted by the kidneys.\n\nA positron emitted in tissue travels less than 1 mm before it meets an electron. The two particles annihilate, and their rest-mass energy is converted to gamma photons. A ring of detectors around the patient records only events in which two detectors on opposite sides are struck at nearly the same moment. A typical adult dose is 250 MBq, and imaging begins about 60 min after injection.\n\nBecause Na¹⁸F is prepared without added nonradioactive fluoride, the concentration of fluoride in blood remains far below the level at which CaF₂ (Ksp ≈ 4.0 × 10⁻¹¹) could precipitate. In a simple model, the plasma concentration of free Ca²⁺ is 1.0 mM.",
   "questions": [
    {
     "q": "Fluorine-18 is produced when an oxygen-18 nucleus absorbs a proton. Which other particle is released in this reaction?",
@@ -2089,18 +2074,18 @@ const CP_PRACTICE = [
     "id": "p_cpx3_6_q1"
    },
    {
-    "q": "A vial holds 2000 MBq of Na¹⁸F at 7:00 a.m. What activity remains in the vial at 12:30 p.m. the same day?",
+    "q": "Considering radioactive decay only, approximately what percentage of the injected ⁹⁹ᵐTc activity remains when a ⁹⁹ᵐTc-MDP bone scan begins?",
     "choices": [
-     "125 MBq",
-     "250 MBq",
-     "500 MBq",
-     "667 MBq"
+     "25%",
+     "50%",
+     "71%",
+     "75%"
     ],
-    "ans": 1,
+    "ans": 2,
     "cat": "4E",
     "skill": "SIRS 2",
     "diff": "D",
-    "exp": "From 7:00 a.m. to 12:30 p.m. is 5.5 h = 330 min. With a half-life of 110 min, that is 330 ÷ 110 = **3 half-lives**, so (½)³ = **1/8** of the activity remains:\n2000 → 1000 → 500 → **250 MBq**.\n\n**667 MBq** divides by the number of half-lives (2000 ÷ 3) instead of by 2³.\n**500 MBq** stops after two half-lives.\n**125 MBq** counts four half-lives.",
+    "exp": "The scan begins 3.0 h after injection, and the half-life is 6.0 h, so only 3.0 ÷ 6.0 = **one-half of a half-life** has passed. The fraction remaining is (½)^(t/t½) = (½)^0.5 = **1/√2 ≈ 1/1.41 ≈ 0.71**, or about **71%**. Check: 0.71 × 0.71 ≈ 0.50, so a second 3.0 h interval brings the activity to 50%, as one full half-life should.\n\nThe answer must lie between 100% and 50%. Decay is **exponential**: the rate is proportional to the activity present, so more activity is lost in the first 3 h (100% → 71%, a loss of 29%) than in the next 3 h (71% → 50%, a loss of 21%). That puts the value below the midpoint.\n\n**75%** assumes the activity falls linearly, losing half of the 50% in half the time.\n**50%** counts a full half-life for a 3.0 h wait.\n**25%** divides the half-life by the time (6.0 ÷ 3.0 = 2) and counts two half-lives.",
     "id": "p_cpx3_6_q2"
    },
    {
@@ -2294,10 +2279,10 @@ const CP_PRACTICE = [
    {
     "q": "The first three ionization energies of potassium are 419, 3052 and 4420 kJ/mol. Which statement best explains why the potassium in the electrode gel is present only as K⁺?",
     "choices": [
-     "The second electron would have to come from the 3p subshell of the argon-like core, which is held much more tightly, so the second ionization energy is about 7 times the first.",
-     "The second electron would have to come from the 4s subshell, which holds its remaining electron more tightly once the first one is gone.",
+     "The second electron would come from the filled 3p core, which is held far more tightly.",
+     "The second electron would come from the 4s subshell, which holds it more tightly once K⁺ forms.",
      "K⁺ has a half-filled outer subshell, which makes it especially stable toward further ionization.",
-     "The first ionization energy is larger than the second, so only the first electron can be removed in solution."
+     "The first ionization energy exceeds the second, so only one electron can be removed in solution."
     ],
     "ans": 0,
     "cat": "4E",
@@ -2498,21 +2483,17 @@ const CP_PRACTICE = [
    "4D"
   ],
   "title": "Classical Carbonyl Tests for Ketone Bodies",
-  "passage": "When insulin is lacking, as in untreated type 1 diabetes, the liver converts fatty acids into ketone bodies faster than other tissues can use them. The main ketone bodies are acetoacetic acid (Compound 1) and (R)-3-hydroxybutanoic acid (Compound 2), which the liver interconverts with the NAD⁺-dependent enzyme 3-hydroxybutyrate dehydrogenase. Compound 1 also slowly loses CO₂ without any enzyme, giving acetone (Compound 3), which is exhaled and gives the breath a fruity odor. These relationships are shown in Figure 1. In diabetic ketoacidosis, the blood concentration of Compound 2 is typically 3 to 4 times that of Compound 1.\n\nUrine dipsticks for ketones contain sodium nitroprusside, which forms a purple product with Compound 1 in alkaline solution, reacts only weakly with Compound 3 and does not react with Compound 2. A teaching laboratory compared the dipstick with three classical tests, using 10 mM solutions of each pure compound:\n1. 2,4-dinitrophenylhydrazine (2,4-DNP) in acid forms a yellow-to-orange hydrazone precipitate with aldehydes and ketones.\n2. Tollens' reagent, Ag(NH₃)₂⁺, oxidizes aldehydes and deposits a silver mirror on the glass.\n3. The iodoform test (I₂ in NaOH) gives a yellow precipitate of CHI₃ with compounds containing a CH₃C(=O)– group, or a CH₃CH(OH)– group that the reagent first oxidizes to one.\n\nCompounds 1 and 3 each gave a precipitate with 2,4-DNP and a positive iodoform test, whereas Compound 2 gave no precipitate with 2,4-DNP. None of the three compounds produced a silver mirror. The students also recorded an infrared spectrum of each compound.\n\nFinally, the students tested urine from a patient in ketoacidosis. The dipstick showed only a weak reaction, although the patient's blood ketone level was high.",
+  "passage": "When insulin is lacking, as in untreated type 1 diabetes, the liver converts fatty acids into ketone bodies faster than other tissues can use them. The main ketone bodies are acetoacetic acid (Compound 1) and (R)-3-hydroxybutanoic acid (Compound 2), which the liver interconverts with the NAD⁺-dependent enzyme 3-hydroxybutyrate dehydrogenase. The third ketone body, acetone (Compound 3), is present at a lower concentration; it is volatile, so it is exhaled and gives the breath a fruity odor. The interconversion of Compounds 1 and 2 is shown in Figure 1. In diabetic ketoacidosis, the blood concentration of Compound 2 is typically 3 to 4 times that of Compound 1.\n\nUrine dipsticks for ketones contain sodium nitroprusside, which forms a purple product with Compound 1 in alkaline solution, reacts only weakly with Compound 3 and does not react with Compound 2. A teaching laboratory compared the dipstick with three classical tests, using 10 mM solutions of each pure compound:\n1. 2,4-dinitrophenylhydrazine (2,4-DNP) in acid forms a yellow-to-orange hydrazone precipitate with aldehydes and ketones.\n2. Tollens' reagent, Ag(NH₃)₂⁺, oxidizes aldehydes and deposits a silver mirror on the glass.\n3. The iodoform test (I₂ in NaOH) gives a yellow precipitate of CHI₃ with compounds containing a CH₃C(=O)– group, or a CH₃CH(OH)– group that the reagent first oxidizes to one.\n\nCompounds 1 and 3 each gave a precipitate with 2,4-DNP and a positive iodoform test, whereas Compound 2 gave no precipitate with 2,4-DNP. None of the three compounds produced a silver mirror. The students also recorded an infrared spectrum of each compound.\n\nFinally, the students tested urine from a patient in ketoacidosis. The dipstick showed only a weak reaction, although the patient's blood ketone level was high.",
   "scheme": [
    {
     "after": 0,
-    "caption": "Figure 1 Formation of Compounds 1 and 3 from Compound 2",
+    "caption": "Figure 1 Oxidation of Compound 2 to Compound 1",
     "parts": [
      "cpx4-r-3-hydroxybutanoic-acid",
      {
       "arrow": "NAD⁺ → NADH"
      },
-     "cpx4-acetoacetic-acid",
-     {
-      "arrow": "−CO₂ (no enzyme)"
-     },
-     "acetone"
+     "cpx4-acetoacetic-acid"
     ]
    }
   ],
@@ -2941,106 +2922,109 @@ const CP_PRACTICE = [
   "topic": "C/P",
   "cats": [
    "4E",
+   "4B",
    "4D"
   ],
-  "title": "Measuring Bone Mineral Density by Dual-Energy X-ray Absorptiometry",
-  "passage": "Dual-energy X-ray absorptiometry (DEXA) is the standard test for osteoporosis. A narrow X-ray beam is passed through the hip or lumbar spine, and a detector on the far side records the transmitted intensity. For a beam of one photon energy passing through a thickness x of a single material, the transmitted intensity I is related to the incident intensity I₀ by Equation 1, where μ is the linear attenuation coefficient of the material. The thickness that reduces the intensity by half is the half-value layer (HVL), equal to 0.693/μ.\n\nI = I₀e^(−μx)\nEquation 1\n\nAt diagnostic energies, X-rays are removed from the beam mainly by two processes. In photoelectric absorption, the photon is absorbed by an atom and ejects a tightly bound inner-shell electron. This process becomes much more likely as atomic number Z increases (roughly as Z³) and much less likely as photon energy increases. In Compton scattering, the photon transfers part of its energy to a loosely bound outer electron and is deflected; this process depends mainly on electron density and changes little across diagnostic energies. Bone mineral, hydroxyapatite (Ca₁₀(PO₄)₆(OH)₂), contains calcium (Z = 20) and phosphorus (Z = 15), whereas soft tissue consists mostly of H, C, N and O (Z ≤ 8).\n\nA DEXA scanner alternates rapidly between beams of 40 keV and 70 keV photons. Along each path through the body, the beam crosses an unknown thickness of bone and an unknown thickness of soft tissue. The scanner records the attenuation at both energies and uses coefficients like those in Table 1 to calculate the bone mineral content, which is reported as an areal density in g/cm². The effective dose from a hip scan is about 1 μSv, less than a single day of natural background radiation (about 8 μSv).",
+  "title": "Monitoring Serum Lithium by Flame Atomic Emission",
+  "passage": "Lithium carbonate is a mood stabilizer used to treat bipolar disorder, but its therapeutic window is narrow: a serum Li⁺ concentration of 0.6–1.2 mM is effective, and toxicity becomes likely above about 1.5 mM. Many hospital laboratories therefore measure serum lithium by flame atomic emission. A diluted serum sample is sprayed as a fine mist into an air–acetylene flame at about 2100°C. In the flame, the water evaporates, the salts break apart into free atoms, and collisions with hot gas molecules promote some of the atoms' valence electrons to higher energy levels.\n\nWhen an excited electron drops back to a lower level, the atom emits a photon whose energy equals the difference between the two levels. Each element therefore emits light at a few characteristic wavelengths; the strongest line of each element found in serum is listed in Table 1. Photon energy E and wavelength λ are related by E = hc/λ, where hc ≈ 1240 eV·nm. An optical filter placed in front of a photodetector passes the lithium emission, and the detector signal is proportional to the number of photons per second that reach it. Because the fraction of atoms that are excited is constant at a fixed flame temperature, the signal is proportional to the lithium concentration and is calibrated with lithium standards.\n\nThe flame temperature must be held steady. A hotter flame excites more atoms, but it also ionizes more of them, and an ion does not emit at the lines of the neutral atom. Potassium, which has the lowest ionization energy in Table 1, is the element most affected. Sodium poses a different problem: its emission is very bright, and serum contains more than 100 times as much sodium as lithium, so even a small fraction of the sodium light reaching the detector would distort the lithium result.",
   "figure": {
-   "caption": "Table 1 Attenuation data for tissues",
+   "caption": "Table 1 Emission and ionization data for elements in serum",
    "columns": [
-    "Material",
-    "Density (g/cm³)",
-    "μ at 40 keV (cm⁻¹)",
-    "μ at 70 keV (cm⁻¹)",
-    "HVL at 40 keV (cm)"
+    "Element",
+    "Strongest emission line (nm)",
+    "First ionization energy (eV)",
+    "Typical serum concentration (mM)"
    ],
    "rows": [
     [
-     "Soft tissue",
-     "1.06",
-     "0.23",
-     "0.19",
-     "3.0"
+     "Lithium",
+     "671",
+     "5.39",
+     "0.6–1.2 (on therapy)"
     ],
     [
-     "Fat",
-     "0.92",
-     "0.21",
-     "0.17",
-     "3.3"
+     "Sodium",
+     "589",
+     "5.14",
+     "135–145"
     ],
     [
-     "Cortical bone",
-     "1.92",
-     "1.39",
-     "0.46",
-     "0.50"
+     "Potassium",
+     "766",
+     "4.34",
+     "3.5–5.0"
+    ],
+    [
+     "Calcium",
+     "423",
+     "6.11",
+     "2.2–2.6"
     ]
    ]
   },
   "questions": [
    {
-    "q": "What is the wavelength of a photon in the lower-energy DEXA beam? (Use h = 4.14 × 10⁻¹⁵ eV·s and c = 3.0 × 10⁸ m/s.)",
+    "q": "A lithium atom in the flame has an electron in the excited level whose decay to the ground state produces the 671 nm line. Approximately how much more energy must this atom absorb to lose that electron?",
     "choices": [
-     "3.1 × 10⁻¹¹ m",
-     "3.1 × 10⁻⁸ m",
-     "3.2 × 10¹⁰ m",
-     "9.7 × 10¹⁸ m"
+     "1.8 eV",
+     "3.5 eV",
+     "5.4 eV",
+     "7.2 eV"
     ],
-    "ans": 0,
+    "ans": 1,
     "cat": "4E",
     "skill": "SIRS 2",
     "diff": "M",
     "subj": "physics",
-    "exp": "From E = hf and c = λf, **λ = hc/E**. The lower-energy beam is 40 keV = 4.0 × 10⁴ eV. hc = (4.14 × 10⁻¹⁵ eV·s)(3.0 × 10⁸ m/s) ≈ 1.24 × 10⁻⁶ eV·m. λ = 1.24 × 10⁻⁶ ÷ 4.0 × 10⁴ = **3.1 × 10⁻¹¹ m** (0.031 nm), in the X-ray range as expected.\n\n**3.1 × 10⁻⁸ m** treats 40 keV as 40 eV (drops the kilo prefix, a factor of 10³).\n**3.2 × 10¹⁰ m** inverts the formula (E/hc).\n**9.7 × 10¹⁸** is the frequency E/h in Hz, not a wavelength.",
+    "exp": "The 671 nm photon carries the energy difference between the excited level and the ground state: **E = hc/λ** = 1240 eV·nm ÷ 671 nm ≈ **1.85 eV**. So the excited electron already sits 1.85 eV above the ground state. The first ionization energy, **5.39 eV** (Table 1), is measured from the **ground state**, so the extra energy needed from the excited level is 5.39 − 1.85 ≈ **3.5 eV**.\n\n**1.8 eV** is the photon energy itself, the energy already absorbed, not the energy still needed.\n**5.4 eV** is the ground-state ionization energy; it ignores that the electron has already been raised 1.85 eV.\n**7.2 eV** adds the two energies (5.39 + 1.85) instead of subtracting.",
     "id": "p_cpx5_2_q1"
    },
    {
-    "q": "A 40 keV beam passes through 9.0 cm of soft tissue that contains no bone. Approximately what fraction of the incident intensity reaches the detector?",
+    "q": "Nitrogen in the air drawn into the burner, which does not react, is heated from 27°C to about 2127°C at constant atmospheric pressure. Treating the nitrogen as an ideal gas, by what factor does the volume of a given amount of it increase?",
     "choices": [
-     "6.3%",
-     "12.5%",
-     "25%",
-     "33%"
+     "0.13",
+     "2.8",
+     "8.0",
+     "79"
     ],
-    "ans": 1,
-    "cat": "4D",
+    "ans": 2,
+    "cat": "4B",
     "skill": "SIRS 2",
     "diff": "D",
     "subj": "physics",
-    "exp": "Table 1 gives an HVL of **3.0 cm** for soft tissue at 40 keV, so 9.0 cm is **3 half-value layers**. Each HVL halves the intensity: 1 → 1/2 → 1/4 → **1/8 = 12.5%**. Check with Equation 1: μx = 0.23 cm⁻¹ × 9.0 cm ≈ 2.1, and e^(−2.1) ≈ 0.12.\n\n**33%** divides linearly (3.0 cm/9.0 cm), but attenuation is exponential, not proportional.\n**25%** stops after 2 halvings.\n**6.3%** uses 4 halvings, as if the thickness were 12 cm.",
+    "exp": "For a fixed amount of ideal gas at constant pressure, PV = nRT gives **V ∝ T**, with T in **kelvins**. T₁ = 27 + 273 = 300 K and T₂ = 2127 + 273 = 2400 K, so V₂/V₁ = 2400 ÷ 300 = **8.0**.\n\n**79** divides the Celsius temperatures (2127 ÷ 27); gas laws need absolute temperature.\n**0.13** inverts the ratio (300 ÷ 2400 = 1/8): heating a gas at constant pressure makes it expand, not shrink.\n**2.8** is √8, the factor by which the molecules' rms speed rises, not the volume.",
     "id": "p_cpx5_2_q2"
    },
    {
-    "q": "To lower the dose for a pediatric scan, researchers want to cut the intensity of each beam in half while keeping the attenuation coefficients in Table 1 valid, so that the same calibration can be used. Which change accomplishes this?",
+    "q": "A laboratory will measure lithium in patients whose serum sodium, potassium and calcium are normal. Which filter placed in front of the detector would best isolate the lithium signal?",
     "choices": [
-     "Halve the number of photons emitted per second, and keep the photon energies at 40 keV and 70 keV.",
-     "Halve the photon energies, to 20 keV and 35 keV, and keep the number of photons emitted per second.",
-     "Double the photon energies, to 80 keV and 140 keV, and halve the number of photons emitted per second.",
-     "Halve both the photon energies and the number of photons emitted per second."
+     "One that transmits only photons with energies of 1.80 to 1.90 eV",
+     "One that transmits only photons with energies of 2.00 to 2.20 eV",
+     "One that transmits only light with wavelengths longer than 650 nm",
+     "One that transmits only light with wavelengths shorter than 700 nm"
     ],
     "ans": 0,
     "cat": "4D",
     "skill": "SIRS 3",
     "diff": "X",
     "subj": "physics",
-    "exp": "Beam intensity is the energy delivered per second per area: **intensity = (photons per second) × (energy per photon) ÷ area**. Halving either factor halves the intensity. But the attenuation coefficients in Table 1 depend on **photon energy** (bone μ is 1.39 cm⁻¹ at 40 keV but 0.46 cm⁻¹ at 70 keV), not on how many photons there are. Each photon is absorbed or scattered independently, so halving the photon count at the **same energies** halves the intensity and leaves every μ, and the calibration, unchanged.\n\nHalving the photon energies also halves the intensity, but at 20 and 35 keV every μ changes (photoelectric absorption rises steeply at lower energy), so Table 1 no longer applies.\nDoubling the energies while halving the photon count leaves the intensity unchanged (2 × ½ = 1) and changes every μ.\nHalving both cuts the intensity to **one-fourth**, not one-half, and also changes every μ.",
+    "exp": "The filter must pass the **671 nm lithium line** and block the sodium (589 nm), potassium (766 nm) and calcium (423 nm) lines. Convert with **λ = hc/E**: a 1.80–1.90 eV window is 1240/1.90 ≈ 653 nm to 1240/1.80 ≈ 689 nm, which contains 671 nm and none of the others (sodium photons carry 1240/589 ≈ 2.1 eV, potassium photons 1240/766 ≈ 1.6 eV). This matters most for sodium, which is over 100 times as concentrated as lithium.\n\nThe **2.00–2.20 eV** window is about 564–620 nm: it passes the sodium line and blocks lithium, the opposite of what is needed.\nPassing **everything longer than 650 nm** also lets the 766 nm potassium line through, and potassium is several times as concentrated as lithium.\nPassing **everything shorter than 700 nm** lets the bright 589 nm sodium line and the 423 nm calcium line through.",
     "id": "p_cpx5_2_q3"
    },
    {
-    "q": "After a 40 keV photon ejects a K-shell electron from a calcium atom in bone mineral, which event is most likely to follow in that atom?",
+    "q": "Why does each element in the flame emit light only at a few sharp, characteristic wavelengths rather than over a continuous range?",
     "choices": [
-     "A higher-shell electron fills the vacancy, releasing the energy as a characteristic X-ray or an Auger electron.",
-     "The excited nucleus relaxes to its ground state, and the energy is released as a gamma ray.",
-     "The ejected electron is captured by the nucleus, and a proton in the nucleus becomes a neutron.",
-     "A proton in the nucleus becomes a neutron, and the atom emits a positron and a neutrino."
+     "Its electrons can occupy only certain energy levels, so only certain gaps exist.",
+     "Its nucleus emits the light, and each kind of nucleus has one fixed energy level.",
+     "The flame gives every atom the same energy, and each atom emits that energy.",
+     "Its atoms absorb all other wavelengths, so only the characteristic ones escape."
     ],
     "ans": 0,
     "cat": "4E",
     "skill": "SIRS 1",
     "diff": "M",
     "subj": "gen_chem",
-    "exp": "Photoelectric absorption leaves a **vacancy in an inner (K) shell**. An electron from a higher-energy shell (L or M) drops into it, and the energy difference is released either as a **characteristic X-ray** or by ejecting another outer electron (an **Auger electron**). For a light atom like calcium, Auger emission is actually the more common of the two (fluorescence yield ≈ 0.16), but both begin with the same shell-filling step. This is an electronic event; the nucleus is not involved.\n\nGamma emission comes from an excited **nucleus**, which a 40 keV photon interacting with electrons does not create.\nElectron capture is a nuclear decay mode of proton-rich nuclei; it uses an orbital electron, not one that has already been ejected, and stable ⁴⁰Ca does not undergo it.\nPositron emission is also a radioactive decay of proton-rich nuclei, not a response to an electron vacancy.",
+    "exp": "Electron energies in an atom are **quantized**: electrons can occupy only certain energy levels, whose spacing depends on the element's nuclear charge and electron arrangement. An emitted photon carries exactly the energy difference between two levels, and **E = hc/λ** turns each allowed difference into one wavelength. So each element shows a set of sharp lines (a line spectrum) that serves as its fingerprint, such as 671 nm for lithium and 589 nm for sodium.\n\nThe nucleus is not involved; these lines come from **electron** transitions, and nuclear transitions give gamma rays, not visible light.\nIf the flame set a single photon energy, every element would emit the same wavelength, but the lines in Table 1 differ.\nThe flame gas is not absorbing the other wavelengths; the atoms simply have no transitions at those energies, so they never emit them.",
     "id": "p_cpx5_2_q4"
    }
   ]
@@ -3151,93 +3135,172 @@ const CP_PRACTICE = [
   "topic": "C/P",
   "cats": [
    "5E",
-   "5D"
+   "5D",
+   "5B"
   ],
-  "title": "Furan–Maleimide Diels–Alder Crosslinks in Injectable Hydrogels",
-  "passage": "Hydrogels that carry living cells into damaged tissue must form under mild conditions, without toxic initiators. One approach links furan groups attached to hyaluronic acid to maleimide groups at the ends of poly(ethylene glycol) chains by a Diels–Alder reaction. The reaction needs no catalyst, gives no by-products and proceeds in water at 37°C. Because it is reversible, the gel also slowly loosens over days as some crosslinks undergo the retro-Diels–Alder reaction.\n\nTo model one crosslink, researchers reacted furan (Compound 1) with N-methylmaleimide (Compound 2), which gives two bicyclic adducts (Figure 1). In the endo adduct (Compound 3), the imide ring points away from the oxygen bridge, toward the new C=C double bond. In the exo adduct (Compound 4), the imide ring points toward the oxygen bridge.\n\nA solution that was 0.10 M in each of Compounds 1 and 2 in D₂O was kept at 37°C and analyzed by ¹H NMR spectroscopy. After 1 h, 20% of Compound 2 had reacted, and the product was 80% Compound 3 and 20% Compound 4. After 24 h, conversion was 55% and the ratio of Compound 3 to Compound 4 was 55:45. After 7 days, conversion was 65% and the ratio was 10:90. When purified Compound 3 was dissolved in D₂O at 37°C, it slowly turned into Compound 4, and signals for free Compounds 1 and 2 appeared within minutes.\n\nFor formation of Compound 4 from Compounds 1 and 2, ΔH° = −72 kJ/mol and ΔS° = −200 J/mol·K. The forward reaction was about 100 times faster in water than in toluene, which was attributed to hydrophobic association of the two reactants.",
+  "title": "Kinetic and Thermodynamic Enolates in a Crossed Aldol Reaction",
+  "passage": "Many steroid and terpene drugs contain a quaternary carbon, a carbon bonded to four other carbons. One way to build such a center is a crossed aldol reaction between an unsymmetrical ketone and an aldehyde that has no α-hydrogens. A strong base removes an α-hydrogen from the ketone to give an enolate, which then adds to the aldehyde's carbonyl carbon. When the ketone has two different α-carbons, two enolates are possible, and the product depends on which enolate is present when the aldehyde is added.\n\nResearchers treated 2-methylcyclohexanone (Compound 1) with lithium diisopropylamide (LDA), a strong, bulky base, in tetrahydrofuran at −78°C. Removing a hydrogen from C-6 gives enolate 2; removing the hydrogen on C-2, the carbon that bears the methyl group, gives enolate 3 (Figure 1). Each enolate solution was held as listed in Table 1, cooled to −78°C, where the enolates no longer interconvert, and treated with 1.0 equivalent of benzaldehyde, which converts enolates 2 and 3 into Compounds 4 and 5, respectively (Figures 2 and 3). The reaction was quenched with aqueous NH₄Cl after 1 min. Under these conditions each enolate adds to benzaldehyde within seconds and the aldol products do not interconvert, so the ratio of Compound 4 to Compound 5, measured by ¹H NMR spectroscopy, equals the ratio of enolate 2 to enolate 3 at the moment benzaldehyde was added.\n\nIn some trials slightly less than 1 equivalent of LDA was used, so that a little Compound 1 remained. A ketone molecule can pass an α-hydrogen to an enolate, so traces of ketone allow one enolate to be converted into the other by way of Compound 1.",
   "scheme": [
    {
     "after": 1,
-    "caption": "Figure 1 Diels–Alder reaction of furan with N-methylmaleimide",
+    "caption": "Figure 1 Formation of enolates 2 and 3 from Compound 1",
     "parts": [
-     "furan",
-     "+",
-     "cpx5-n-methylmaleimide",
+     "cpx5-2-methylcyclohexanone",
      {
-      "arrow": "D₂O, 37°C"
+      "arrow": "LDA, THF, −78°C"
      },
-     "cpx5-endo-adduct",
+     "cpx5-enolate-less-sub",
      "+",
-     "cpx5-exo-adduct"
+     "cpx5-enolate-more-sub"
+    ]
+   },
+   {
+    "after": 1,
+    "caption": "Figure 2 Aldol addition of enolate 2 to benzaldehyde, giving Compound 4",
+    "parts": [
+     "cpx5-enolate-less-sub",
+     "+",
+     "cpx5-benzaldehyde",
+     {
+      "arrow": "1. −78°C, 1 min  2. NH₄Cl, H₂O"
+     },
+     "cpx5-aldol-c6"
+    ]
+   },
+   {
+    "after": 1,
+    "caption": "Figure 3 Aldol addition of enolate 3 to benzaldehyde, giving Compound 5",
+    "parts": [
+     "cpx5-enolate-more-sub",
+     "+",
+     "cpx5-benzaldehyde",
+     {
+      "arrow": "1. −78°C, 1 min  2. NH₄Cl, H₂O"
+     },
+     "cpx5-aldol-c2"
     ]
    }
   ],
   "questions": [
    {
-    "q": "Assuming ΔH° and ΔS° do not change with temperature, what is ΔG° for formation of Compound 4 from Compounds 1 and 2 at 37°C, and is the formation favorable under standard conditions?",
+    "q": "Assume the enolates reached equilibrium at 0°C in the trials whose product ratio had stopped changing. What is the equilibrium constant at 0°C for the conversion of enolate 3 into enolate 2, and what is the sign of ΔG° for this conversion?",
     "choices": [
-     "−10 kJ/mol; favorable",
-     "−65 kJ/mol; favorable",
-     "−134 kJ/mol; favorable",
-     "+6.2 × 10⁴ kJ/mol; unfavorable"
+     "0.11; positive",
+     "0.10; positive",
+     "0.11; negative",
+     "9.0; negative"
     ],
     "ans": 0,
     "cat": "5E",
     "skill": "SIRS 2",
     "diff": "D",
     "subj": "gen_chem",
-    "exp": "Use **ΔG° = ΔH° − TΔS°** with T in kelvins and both terms in the same energy unit.\nT = 37 + 273 = 310 K; ΔS° = −200 J/mol·K = −0.200 kJ/mol·K.\nTΔS° = 310 × (−0.200) = −62 kJ/mol\nΔG° = −72 − (−62) = **−10 kJ/mol**, so formation is **favorable** under standard conditions, though only modestly. The unfavorable entropy term (two molecules becoming one) nearly cancels the favorable enthalpy, which is why the reaction stops at partial conversion and is reversible at body temperature.\n\n**−65 kJ/mol** uses T = 37 instead of 310 K (−72 + 7.4).\n**−134 kJ/mol** drops the minus sign of ΔS°, subtracting +62 instead of −62.\n**+6.2 × 10⁴ kJ/mol** leaves ΔS° in J while ΔH° is in kJ (−72 + 310 × 200).",
+    "exp": "The ratio stops changing between Trials 5 and 6 (24 h and 48 h at 0°C), so those trials show the **equilibrium** mixture: 4 : 5 = 10 : 90, which equals enolate 2 : enolate 3. For **3 ⇌ 2**, K = [2]/[3] = 10/90 = **0.11**. Because K < 1, ln K < 0, and **ΔG° = −RT ln K is positive** (about +5 kJ/mol: RT ln 9 ≈ 2.27 kJ/mol × 2.2). The conversion of 3 into 2 is uphill; enolate 3 is the more stable enolate.\n\n**0.10; positive** divides by the total (10/100), a mole fraction, instead of dividing product by reactant (10/90).\n**0.11; negative** gets K right but the sign wrong: K < 1 always means ΔG° > 0.\n**9.0; negative** is K for the reverse direction, 2 ⇌ 3 (90/10), not for the conversion asked about.",
     "id": "p_cpx5_4_q1"
    },
    {
-    "q": "Neither a pure sample of Compound 3 nor a pure sample of Compound 4 rotates plane-polarized light. Which statement best explains this observation?",
+    "q": "How many chirality centers are in Compound 4 and in Compound 5?",
     "choices": [
-     "Each compound has stereocenters but also an internal mirror plane, so each is an achiral meso compound.",
-     "Each compound lacks stereocenters, so neither can be chiral.",
-     "Each compound is formed as a racemic mixture, so the rotations of the two enantiomers cancel.",
-     "Each compound is the mirror image of the other, so their rotations cancel."
+     "Compound 4: three; Compound 5: two",
+     "Compound 4: two; Compound 5: one",
+     "Compound 4: three; Compound 5: one",
+     "Compound 4: two; Compound 5: two"
     ],
     "ans": 0,
     "cat": "5D",
     "skill": "SIRS 1",
     "diff": "M",
     "subj": "organic_chem",
-    "exp": "Each adduct has **four stereocenters**: the two bridgehead carbons that carry the oxygen bridge and the two ring-fusion carbons that carry the imide. Because furan and N-methylmaleimide are both symmetric, the product has an **internal mirror plane** that passes through the oxygen bridge, the imide N and the midpoints of the C=C and the ring-fusion bond. A molecule with stereocenters and an internal mirror plane is **meso**: it is superimposable on its mirror image, so it is achiral and optically inactive.\n\nThe adducts do have stereocenters (four each), as the four sp³ ring carbons each carry four different groups.\nA racemic mixture needs a chiral compound with an enantiomer; a meso compound is its own mirror image, so there is nothing to racemize.\nCompounds 3 and 4 are not mirror images of each other (they are diastereomers), and the question concerns each pure compound on its own.",
+    "exp": "A chirality center is an sp³ carbon bonded to **four different groups**; it does not need to carry a hydrogen.\n**Compound 4** has three: ring C-2 (H, CH₃, the C=O carbon, ring CH₂), ring C-6 (H, the CH(OH)Ph group, the C=O carbon, ring CH₂) and the new **carbinol carbon** (H, OH, phenyl, ring C-6).\n**Compound 5** has two: the **quaternary** ring C-2 (CH₃, CH(OH)Ph, the C=O carbon, ring CH₂) and the carbinol carbon (H, OH, phenyl, ring C-2).\n\n**Two and one** misses the carbinol carbon that the aldol step creates in both products.\n**Three and one** skips the quaternary C-2 of Compound 5 because it has no hydrogen, but its four carbon groups are all different.\n**Two and two** misses one ring carbon of Compound 4: C-2 and C-6 each carry a different substituent, so the ring has no internal symmetry.",
     "id": "p_cpx5_4_q2"
    },
    {
-    "q": "Which conclusion is best supported by the NMR results described in the passage?",
+    "q": "Which trials give a ratio of Compound 4 to Compound 5 that reflects the relative stabilities of enolates 2 and 3?",
     "choices": [
-     "Compound 3 forms faster, and Compound 3 is more stable.",
-     "Compound 3 forms faster, but Compound 4 is more stable.",
-     "Compound 4 forms faster, but Compound 3 is more stable.",
-     "Compound 3 converts to Compound 4 directly, without first dissociating."
+     "Trials 1 and 2",
+     "Trials 3 and 4",
+     "Trials 5 and 6",
+     "Trials 4, 5 and 6"
     ],
-    "ans": 1,
-    "cat": "5E",
+    "ans": 2,
+    "cat": "5B",
     "skill": "SIRS 4",
     "diff": "X",
-    "subj": "gen_chem",
-    "exp": "Early product ratios show which product forms **faster** (kinetic control); late ratios, after the system has had time to equilibrate, show which is **more stable** (thermodynamic control). At 1 h the products were 80% Compound 3, so the **endo adduct forms faster**. By 7 days the ratio had moved to 10:90, so the **exo adduct is more stable** and accumulates as the reversible reactions equilibrate. This is the classic endo kinetic/exo thermodynamic pattern of reversible furan Diels–Alder reactions.\n\nIf Compound 3 were also more stable, it would stay the major product over time, not fall from 80% to 10%.\nCompound 4 is the minor product early, so it is not the faster-forming one.\nThe free Compounds 1 and 2 that appeared within minutes when pure Compound 3 was dissolved show that it converts by a **retro-Diels–Alder then re-addition**, not directly.",
+    "subj": "organic_chem",
+    "exp": "A ratio reflects relative **stability** only under **thermodynamic control**, when the enolates can interconvert and have reached **equilibrium**. Two conditions must hold: some Compound 1 must be present to shuttle protons (0.90 equiv LDA), and the ratio must have **stopped changing**. Trials 5 and 6 (24 h and 48 h at 0°C) both give **10 : 90**, so equilibrium has been reached and the more substituted enolate 3, with the more substituted C=C, is the more stable one.\n\n**Trials 1 and 2** used excess LDA, so no ketone was left to interconvert the enolates; even 4 h at 0°C left the ratio at 97 : 3. This is **kinetic control**: the bulky base removes the less hindered C-6 hydrogen faster, so the ratio shows which enolate **forms faster**.\n**Trials 3 and 4** are mostly kinetic (Trial 3) or still changing (Trial 4, 30 : 70).\n**Trials 4, 5 and 6** include Trial 4, whose ratio kept shifting afterward, so it had not reached equilibrium.",
     "id": "p_cpx5_4_q3"
    },
    {
-    "q": "What is the relationship between Compound 3 and Compound 4?",
+    "q": "What is the relationship between Compound 4 and Compound 5?",
     "choices": [
-     "They are enantiomers, because they are nonsuperimposable mirror images.",
-     "They are diastereomers, because they are stereoisomers that are not mirror images.",
-     "They are constitutional isomers, because their atoms are connected in different orders.",
+     "They are constitutional isomers, because the new C–C bond is to a different ring carbon.",
+     "They are diastereomers, because they differ in configuration at only some stereocenters.",
+     "They are enantiomers, because they are nonsuperimposable mirror images of each other.",
      "They are conformers, because they interconvert by rotation about single bonds."
     ],
-    "ans": 1,
+    "ans": 0,
     "cat": "5D",
     "skill": "SIRS 1",
     "diff": "M",
     "subj": "organic_chem",
-    "exp": "Compounds 3 and 4 have the **same molecular formula and the same connectivity**; they differ only in which face of the bicyclic ring the imide ring sits on. That makes them stereoisomers, and since neither is the mirror image of the other, they are **diastereomers**. The endo/exo difference is like cis/trans: it changes the relative arrangement at the ring-fusion carbons without inverting every stereocenter.\n\nEnantiomers must be nonsuperimposable mirror images; reflecting Compound 3 gives Compound 3 again, not Compound 4.\nConstitutional isomers differ in bonding; both adducts have the same bonds.\nConverting one into the other requires breaking C–C σ bonds (through the retro reaction), not just rotation, and rotation is impossible within these rigid rings anyway.",
+    "exp": "Both products have the formula **C₁₄H₁₈O₂** (C₇H₁₂O from Compound 1 plus C₇H₆O from benzaldehyde, with no atoms lost). In Compound 4 the CH(OH)Ph group is bonded to ring C-6, which also carries an H; in Compound 5 it is bonded to C-2, the carbon that also carries the methyl group. Same formula, **different connectivity**: they are **constitutional isomers**.\n\nDiastereomers and enantiomers are stereoisomers, which must have the **same connectivity**; these two do not.\nConformers differ only by rotation about single bonds; turning one of these products into the other would require breaking and re-forming C–C bonds.",
     "id": "p_cpx5_4_q4"
    }
-  ]
+  ],
+  "figure": {
+   "caption": "Table 1 Aldol products from Compound 1 under different enolate conditions",
+   "columns": [
+    "Trial",
+    "LDA (equiv)",
+    "Enolate solution held at",
+    "Combined yield of 4 + 5 (%)",
+    "Ratio 4 : 5"
+   ],
+   "rows": [
+    [
+     "1",
+     "1.05",
+     "−78°C, 15 min",
+     "84",
+     "97 : 3"
+    ],
+    [
+     "2",
+     "1.05",
+     "−78°C, 15 min, then 0°C, 4 h",
+     "81",
+     "97 : 3"
+    ],
+    [
+     "3",
+     "0.90",
+     "−78°C, 15 min",
+     "76",
+     "94 : 6"
+    ],
+    [
+     "4",
+     "0.90",
+     "−78°C, 15 min, then 0°C, 4 h",
+     "73",
+     "30 : 70"
+    ],
+    [
+     "5",
+     "0.90",
+     "−78°C, 15 min, then 0°C, 24 h",
+     "72",
+     "10 : 90"
+    ],
+    [
+     "6",
+     "0.90",
+     "−78°C, 15 min, then 0°C, 48 h",
+     "71",
+     "10 : 90"
+    ]
+   ]
+  }
  },
  {
   "id": "p_cpx5_5",
@@ -3286,19 +3349,19 @@ const CP_PRACTICE = [
     "id": "p_cpx5_5_q2"
    },
    {
-    "q": "Blood in a large hepatic vein next to the tumor flows past the heated zone at a mass flow rate Φ (in g/s) and is warmed from 37°C to a temperature T before it leaves. If c is the specific heat of blood, which expression gives the power that the flowing blood carries away from the tumor?",
+    "q": "In a heating model with no heat losses and no phase change, equal masses of liver and of fat each absorb the same amount of heat. How do their temperature rises compare?",
     "choices": [
-     "Φc(T − 37°C)",
-     "ΦcT",
-     "Φ(T − 37°C)/c",
-     "c(T − 37°C)/Φ"
+     "Fat warms about 1.6 times as much as liver.",
+     "Liver warms about 1.6 times as much as fat.",
+     "Fat warms about 1.8 times as much as liver.",
+     "Both warm by the same number of degrees."
     ],
     "ans": 0,
-    "cat": "4B",
+    "cat": "5E",
     "skill": "SIRS 1",
     "diff": "M",
     "subj": "physics",
-    "exp": "Heat absorbed by a mass of blood is **q = mcΔT**, and **power is energy per unit time**. Dividing by time turns the mass m into the mass flow rate Φ = m/t, so P = q/t = (m/t)cΔT = **Φc(T − 37°C)**. Units check: (g/s)(J/g·°C)(°C) = J/s = W. For example, 3.0 g/s of blood (c = 3.6 J/g·°C) warmed by 5°C removes 3.0 × 3.6 × 5 = 54 W, a large fraction of the generator's output, which is why tumor tissue next to large vessels can stay below 60°C.\n\n**ΦcT** uses the final temperature instead of the temperature change; blood that enters and leaves at 37°C carries away no heat, but this expression would not be zero.\n**Φ(T − 37°C)/c** divides by the specific heat, which gives units of g²·°C²/(J·s), not watts.\n**c(T − 37°C)/Φ** divides by the flow rate, so it would predict that faster flow removes less heat, the opposite of the heat-sink effect.",
+    "exp": "From **q = mcΔT**, ΔT = q/(mc). With the same q and the same m, **ΔT is inversely proportional to the specific heat c**. So ΔT(fat)/ΔT(liver) = c(liver)/c(fat) = 3.6 ÷ 2.3 ≈ **1.6**: fat, with the lower specific heat, warms more. With the 36 W for 30 s (1080 J) and 20 g used in the first question, liver rises 1080 ÷ (20 × 3.6) = 15°C and fat rises 1080 ÷ (20 × 2.3) ≈ 23°C, a ratio of about 1.6.\n\n**Liver warms 1.6 times as much** inverts the relationship: a higher specific heat means a **smaller** rise for the same heat.\n**1.8 times** uses the specific heat of water (4.2 ÷ 2.3) instead of liver's.\n**The same rise** ignores the specific heat; equal heat gives equal ΔT only when mc is the same.",
     "id": "p_cpx5_5_q3"
    },
    {
@@ -4044,12 +4107,12 @@ const CP_PRACTICE = [
     "id": "p_cpx6_5_q2"
    },
    {
-    "q": "In Figure 1, iodine is added to the ring carbon next to the –OH group (C-3 of the side chain's ring) rather than to any other ring position. Which statement best explains this regiochemistry?",
+    "q": "In Figure 1, iodine is added to the ring carbon next to the –OH group (C-3 of the phenol ring) rather than to any other ring position. Which statement best explains this regiochemistry?",
     "choices": [
-     "Resonance donation from the –OH oxygen raises the electron density at the carbons ortho and para to it, and the para carbon already carries the side chain.",
-     "Resonance donation from the –OH oxygen raises the electron density at the carbons meta to it, and C-3 is meta to the –OH group.",
-     "Inductive withdrawal by the –OH oxygen lowers the electron density at the carbons ortho to it, so iodide attacks them as a nucleophile.",
-     "The alkyl side chain is the stronger activating group, and C-3 is ortho to the side chain."
+     "Resonance donation from the –OH raises electron density ortho and para to it, and the para position is taken.",
+     "Resonance donation from the –OH raises electron density meta to it, and C-3 is meta to the –OH group.",
+     "Inductive withdrawal by the –OH lowers electron density ortho to it, so iodide attacks there as a nucleophile.",
+     "The alkyl side chain is a stronger ring activator than the –OH group, and C-3 is ortho to the side chain."
     ],
     "ans": 0,
     "cat": "5D",
@@ -4087,7 +4150,7 @@ const CP_PRACTICE = [
    "4E"
   ],
   "title": "Inside a 3-Tesla MRI Scanner",
-  "passage": "A clinical MRI scanner produces its main magnetic field, B₀ = 3.0 T, with a large solenoid of niobium–titanium wire. This field is about 60,000 times stronger than Earth's. The wire becomes superconducting only below about 9 K, so the coil sits in a bath of liquid helium (boiling point 4.2 K, density 0.125 g/mL, molar mass 4.0 g/mol). Once the current is established, it circulates with no power supply attached.\n\nHydrogen nuclei (protons) in tissue have a nuclear spin and act like tiny magnets. In the field B₀ they precess at the Larmor frequency f = γB₀, where γ = 42.6 MHz/T for ¹H, so f ≈ 128 MHz at 3.0 T. Pulses of radio-frequency (RF) waves at this frequency tip the spins. As the spins relax, they emit RF signals that are picked up by receiver coils. Tissue is mostly water, and RF waves travel through it at about one-ninth of their speed in a vacuum (3.0 × 10⁸ m/s).\n\nTo tell where each signal comes from, gradient coils add small magnetic fields that vary with position. These coils carry rapidly switched currents inside the strong field, so magnetic forces make them vibrate. The resulting sound can reach 110 dB in the bore, and patients are given earplugs rated to reduce the sound level by 30 dB.\n\nIf part of the main coil warms above its critical temperature, the wire becomes resistive and the magnet \"quenches.\" The several megajoules of energy stored in the magnetic field are converted to heat, and liquid helium boils off rapidly. The helium is vented through a pipe to the outside, because the cold gas expands enormously and could displace the oxygen in the scan room.",
+  "passage": "A clinical MRI scanner produces its main magnetic field, B₀ = 3.0 T, with a large solenoid of niobium–titanium wire. This field is about 60,000 times stronger than Earth's. The wire becomes superconducting only below about 9 K, so the coil sits in a bath of liquid helium (boiling point 4.2 K, density 0.125 g/mL, molar mass 4.0 g/mol). Once the current is established, it circulates with no power supply attached.\n\nHydrogen nuclei (protons) in tissue have a nuclear spin and act like tiny magnets. In the field B₀ they precess at the Larmor frequency f = γB₀, where γ = 42.6 MHz/T for ¹H, so f ≈ 128 MHz at 3.0 T. Pulses of radio-frequency (RF) waves at this frequency tip the spins; a pulse of higher power tips them through a larger angle. As the spins relax, they emit RF signals that are picked up by receiver coils. Tissue is mostly water, and RF waves travel through it at about one-ninth of their speed in a vacuum (3.0 × 10⁸ m/s).\n\nTo tell where each signal comes from, gradient coils add small magnetic fields that vary with position. These coils carry rapidly switched currents inside the strong field, so magnetic forces make them vibrate. The resulting knocking noise is loud enough that patients are given earplugs or headphones.\n\nIf part of the main coil warms above its critical temperature, the wire becomes resistive and the magnet \"quenches.\" The several megajoules of energy stored in the magnetic field are converted to heat, and liquid helium boils off rapidly. The helium is vented through a pipe to the outside, because the cold gas expands enormously and could displace the oxygen in the scan room.",
   "questions": [
    {
     "q": "What is the approximate wavelength, inside tissue, of the RF waves used to excite protons in this scanner?",
@@ -4105,19 +4168,19 @@ const CP_PRACTICE = [
     "id": "p_cpx6_6_q1"
    },
    {
-    "q": "How does the energy of each RF photon used to excite protons in this 3.0 T scanner compare with that used in a 1.5 T scanner?",
+    "q": "To tip the spins through a larger angle, the scanner doubles the power of an RF pulse while B₀ stays at 3.0 T. Compared with the original pulse, the stronger pulse delivers:",
     "choices": [
-     "Twice as large, because E = hf and the Larmor frequency is proportional to B₀",
-     "Four times as large, because E is proportional to f² and f is proportional to B₀",
-     "Half as large, because E is proportional to wavelength and the wavelength is halved",
-     "The same, because the photon energy depends only on γ for ¹H, not on B₀"
+     "the same energy per photon and twice as many photons per second",
+     "twice the energy per photon and the same number of photons per second",
+     "twice the energy per photon and twice as many photons per second",
+     "the same energy per photon and the same number of photons per second"
     ],
     "ans": 0,
     "cat": "4D",
     "skill": "SIRS 1",
     "diff": "M",
     "subj": "physics",
-    "exp": "The RF photons must match the Larmor frequency, **f = γB₀**, so doubling B₀ from 1.5 T to 3.0 T doubles f (64 MHz → 128 MHz). Photon energy is **E = hf**, directly proportional to frequency, so each photon carries **twice** the energy.\n\nE = hf is linear in f, not quadratic; f² does not appear.\nE = hc/λ, so energy is **inversely** proportional to wavelength: the wavelength is halved, which doubles the energy rather than halving it.\nγ is a property of ¹H, but f = γB₀ also depends on the field, so the photon energy changes with B₀.",
+    "exp": "The RF must stay at the **Larmor frequency, f = γB₀**, to tip the spins. B₀ is unchanged, so f is still 128 MHz, and each photon's energy, **E = hf**, is unchanged.\nPower is energy per second: **P = (photons per second) × hf**. With hf fixed, doubling P requires **twice as many photons per second**. A stronger beam of one frequency means more photons, not more energetic ones.\n\nTwice the energy per photon would need twice the frequency, which would no longer match the Larmor frequency at 3.0 T.\nDoubling both the photon energy and the photon rate would quadruple the power, not double it.\nKeeping both the same would leave the power unchanged.",
     "id": "p_cpx6_6_q2"
    },
    {

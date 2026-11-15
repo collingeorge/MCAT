@@ -989,6 +989,12 @@ add('cpx6-diaminopurine', "Nc1nc(N)c2nc[nH]c2n1", formula='C5H6N6')
 add('cpx6-hypoxanthine', "O=c1[nH]cnc2[nH]cnc12", formula='C5H4N4O')
 add('cpx6-xanthine', "O=c1[nH]c(=O)c2[nH]cnc2[nH]1", formula='C5H4N4O2')
 add('cpx6-iodotyrosine', "N[C@@H:1](Cc1ccc(O)c(I)c1)C(=O)O", formula='C9H10INO3', centers=1, cip={1: "S"})
+add('cpx5-2-methylcyclohexanone', "CC1CCCCC1=O", formula='C7H12O')
+add('cpx5-enolate-less-sub', "CC1CCCC=C1O[Li]", formula='C7H11LiO')
+add('cpx5-enolate-more-sub', "CC1=C(O[Li])CCCC1", formula='C7H11LiO')
+add('cpx5-benzaldehyde', "O=Cc1ccccc1", formula='C7H6O')
+add('cpx5-aldol-c6', "CC1CCCC(C(O)c2ccccc2)C1=O", formula='C14H18O2')
+add('cpx5-aldol-c2', "CC1(C(O)c2ccccc2)CCCCC1=O", formula='C14H18O2')
 
 def stereo_count(m):
     return len(Chem.FindMolChiralCenters(m, includeUnassigned=True, useLegacyImplementation=False))

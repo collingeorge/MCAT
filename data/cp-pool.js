@@ -5231,19 +5231,19 @@ const CP_POOL = [
    },
    {
     "id": "cp_half_6_sa7b",
-    "q": "Fluorine-18, used in PET scans, has a half-life of 110 min. What percentage of a sample remains 330 min after it is made?",
+    "q": "Iodine-123, used in thyroid imaging, has a half-life of 13 h. What percentage of a sample remains 52 h after it is made?",
     "choices": [
-     "33%",
      "25%",
      "12.5%",
-     "6.25%"
+     "6.25%",
+     "3.1%"
     ],
     "ans": 2,
     "cat": "4E",
     "skill": "SIRS 1",
     "diff": "E",
     "subj": "physics",
-    "exp": "330 min ÷ 110 min = **3 half-lives**, and (½)³ = 1/8 = **12.5%** remains.\n**33%** divides 100% by 3, as if decay were linear.\n**25%** stops after 2 half-lives.\n**6.25%** counts 4 half-lives."
+    "exp": "52 h ÷ 13 h = 4 half-lives, and (½)⁴ = 1/16 = 6.25% remains.\n25% stops after 2 half-lives.\n12.5% stops after 3 half-lives.\n3.1% counts 5 half-lives."
    },
    {
     "q": "What is the pH of a 0.010 M solution of a weak acid HA with Ka = 1.0 × 10⁻⁶?",
