@@ -51,6 +51,8 @@ jobs:
         run: node tools/test-cp-diagnostic.cjs
       - name: AAMC C/P blueprint mix for TODAY
         run: node tools/test-blueprint-mix.cjs
+      - name: C/P flashcard scope
+        run: node tools/test-flashcard-scope.cjs
       - name: Worked methods (How to work it out)
         run: node tools/test-worked-methods.cjs
       - name: Cloud account isolation and sync regression

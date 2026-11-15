@@ -168,6 +168,7 @@ const AAMC_SECTION = { id: 'aamc_qb', label: 'AAMC Question Bank Flashcards', gr
   { label: 'Chemistry Question Pack', tags: ['Atoms, Periodic Trends & Bonding', 'Molecular Structure & Intermolecular Forces', 'Stoichiometry, Solutions & Gases', 'Acids, Bases & Solubility', 'Thermodynamics, Kinetics & Equilibrium', 'Electrochemistry & Redox', 'Organic Chemistry & Lab Techniques', 'AAMC Test Concepts'] },
   { label: 'Physics Question Pack', tags: ['Kinematics, Forces & Energy', 'Fluids', 'Electricity & Magnetism', 'Waves & Sound', 'Light & Optics', 'Atomic & Nuclear Physics'] },
   { label: 'Independent Question Bank: Psychology & Sociology', tags: ['Sensation, Perception & Cognition', 'Learning, Memory & Development', 'Motivation, Emotion & Personality', 'Social Psychology', 'Sociology & Social Structure', 'Health, Inequality & Research Methods'] },
+  { label: 'Chem/Phys Biochemistry', tags: ['Amino Acids & Proteins', 'Enzymes & Kinetics', 'Carbohydrates, Lipids & Nucleic Acids', 'Bioenergetics'] },
   { label: 'Independent Question Bank: Biochemistry', tags: ['Proteins & Enzymes', 'Metabolism & Bioenergetics', 'Nucleic Acids, Membranes & Lab Techniques'] },
   { label: 'CARS Question Pack, Vol. 1', tags: ['CARS: Foundations of Comprehension', 'CARS: Reasoning Within the Text', 'CARS: Reasoning Beyond the Text'] },
 ].map(g => ({ label: g.label, chips: g.tags.map(t => ({ label: t, tags: [t] })) })) };
@@ -187,7 +188,7 @@ const AQB = [];
 const AQB_BY_ID = new Map();
 const AQB_KEY_COUNTS = Object.create(null);
 [typeof QB_AAMC_BIO === 'undefined' ? [] : QB_AAMC_BIO, typeof QB_AAMC_CHEM === 'undefined' ? [] : QB_AAMC_CHEM,
-  typeof QB_AAMC_PHYS === 'undefined' ? [] : QB_AAMC_PHYS, typeof QB_AAMC_IQB === 'undefined' ? [] : QB_AAMC_IQB,
+  typeof QB_AAMC_PHYS === 'undefined' ? [] : QB_AAMC_PHYS, typeof QB_AAMC_BIOCHEM === 'undefined' ? [] : QB_AAMC_BIOCHEM, typeof QB_AAMC_IQB === 'undefined' ? [] : QB_AAMC_IQB,
   typeof QB_AAMC_CARS === 'undefined' ? [] : QB_AAMC_CARS, typeof QB_AAMC_RULES === 'undefined' ? [] : QB_AAMC_RULES].flat().forEach(q => {
   let id = 'aamc-' + hashId(q.s + '|' + q.q);
   while (AQB_BY_ID.has(id)) id += 'x';

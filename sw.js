@@ -5,11 +5,11 @@
 //   always from the current version.
 // - The drawings (data/structures.js) and the sign-in SDK are cached the first time they are used, not at install.
 // Bump CACHE when deploying.
-const CACHE = 'mcat-v2.59-blueprint-mix-2026-11-15';
+const CACHE = 'mcat-v2.60-cp-flashcards-blueprint-2026-11-15';
 const NETWORK_TIMEOUT_MS = 4000, CACHED_TIMEOUT_MS = 1500;
 const ASSETS = [
   "recall.html", "passages.html", "exams.html", "aamc.html", "flprep.html","score-report.html", "about.html", "recall-session.html", "passage-session.html", "exam-session.html", "results.html", "exam-results.html", 'js/pages.js', './', 'css/portfolio-theme.css?v=20261030', 'index.html', 'css/styles.css', 'js/app.js', 'js/study-path.js', 'js/cloud-config.js', 'js/account.js', 'js/study-timer.js', 'js/learning-evidence.js', 'js/daily-plan.js', 'js/mastery.js', 'js/actions.js', 'js/data-css.js', 'manifest.webmanifest', 'icon.svg', 'data/passages-cars.js', 'data/cp-diagnostic.js', 'data/cp-pool.js', 'data/cp-practice.js',
-  'data/qb-aamc-bio.js', 'data/qb-aamc-chem.js', 'data/qb-aamc-phys.js', 'data/qb-aamc-iqb.js', 'data/qb-aamc-cars.js', 'data/qb-aamc-rules.js', 'data/qb-aamc-fl.js', 'data/aamc-prep.js',
+  'data/qb-aamc-bio.js', 'data/qb-aamc-chem.js', 'data/qb-aamc-phys.js', 'data/qb-aamc-biochem.js', 'data/qb-aamc-iqb.js', 'data/qb-aamc-cars.js', 'data/qb-aamc-rules.js', 'data/qb-aamc-fl.js', 'data/aamc-prep.js',
   'data/exam1.js', 'data/exam2-cp.js', 'data/exam2-bb.js', 'data/exam2-ps.js', 'data/exams.js',
 ];
 const RUNTIME = ['data/structures.js', 'vendor/supabase-js-2.118.0.umd.js'];
