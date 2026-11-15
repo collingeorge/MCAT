@@ -472,7 +472,7 @@ const CP_POOL = [
       ]
      }
     ],
-    "passage": "Aspirin (acetylsalicylic acid, Compound 1, molar mass 180 g/mol) is a weak carboxylic acid with a pKa of 3.5. Only the neutral form crosses cell membranes readily, so the ionization state of aspirin affects both how much of a dose dissolves and how quickly it is absorbed along the digestive tract, where the pH ranges from about 1.5 in the stomach to about 6.5 in the small intestine.\n\nIn moist air, aspirin slowly hydrolyzes at its ester group, and an old tablet that smells of vinegar has partly decomposed. Pharmaceutical chemists therefore test tablet stability as well as solubility.\n\nTo study solubility, researchers stirred excess powdered Compound 1 in a series of buffers at 25°C until equilibrium was reached, filtered each mixture, and measured the dissolved aspirin by UV absorbance. The results are shown in Figure 2. The total solubility S at each pH follows S = S₀(1 + 10^(pH − pKa)), where S₀ is the solubility of the neutral form.",
+    "passage": "Aspirin (acetylsalicylic acid, Compound 1, molar mass 180 g/mol) is a weak carboxylic acid with a pKa of 3.5. Only the neutral form crosses cell membranes readily, so the ionization state of aspirin affects both how much of a dose dissolves and how quickly it is absorbed along the digestive tract, where the pH ranges from about 1.5 in the stomach to about 6.5 in the small intestine.\n\nIn moist air, aspirin slowly hydrolyzes at its ester group, and an old tablet that smells of vinegar has partly decomposed. Pharmaceutical chemists therefore test tablet stability as well as solubility.\n\nTo study solubility, researchers stirred excess powdered Compound 1 in a series of buffers at 25°C until equilibrium was reached, filtered each mixture, and measured the dissolved aspirin by UV absorbance. Buffers below pH 2 were made from dilute HCl and KCl, and those from pH 2.5 to 5.0 from citrate; all had the same ionic strength. Each measurement was made in triplicate, and the averages are shown in Figure 2. The total solubility S at each pH follows S = S₀(1 + 10^(pH − pKa)), where S₀ is the solubility of the neutral form.",
     "figure": {
      "type": "line",
      "caption": "Figure 2 Equilibrium solubility of Compound 1 at 25°C",
@@ -2826,10 +2826,10 @@ const CP_POOL = [
      "5D"
     ],
     "title": "Lactate Dehydrogenase and the Pyruvate Analog Oxamate",
-    "passage": "Lactate dehydrogenase (LDH) catalyzes the last step of anaerobic glycolysis: the reduction of pyruvate (CH₃COCOO⁻) to lactate (CH₃CH(OH)COO⁻) by NADH. Regenerating NAD⁺ in this step lets glycolysis continue when oxygen is limited, and tumor cells that rely heavily on glycolysis often overexpress LDH. Oxamate (H₂NCOCOO⁻), a small analog of pyruvate, is studied as an LDH inhibitor.\n\nResearchers measured LDH activity in 1.0 cm cuvettes containing 0.20 mM NADH, buffer at pH 7.4 and 25°C, a fixed amount of purified enzyme, and pyruvate at concentrations from 0.10 to 3.2 mM. The rate of each reaction was taken from the decrease in absorbance at 340 nm (NADH absorbs there; NAD⁺ does not) during the first 30 s. The experiment was then repeated with 0.40 mM oxamate in every cuvette. The initial rates are plotted in Figure 1.",
+    "passage": "Lactate dehydrogenase (LDH) catalyzes the last step of anaerobic glycolysis: the reduction of pyruvate (CH₃COCOO⁻) to lactate (CH₃CH(OH)COO⁻) by NADH. Regenerating NAD⁺ in this step lets glycolysis continue when oxygen is limited, and tumor cells that rely heavily on glycolysis often overexpress LDH. Oxamate, a small analog of pyruvate in which the methyl group is replaced by an amino group (–NH₂), is studied as an LDH inhibitor.\n\nIn the active site, a positively charged arginine side chain binds the carboxylate group of pyruvate, and a histidine side chain donates a proton to the carbonyl oxygen while NADH transfers a hydride ion (H⁻) to the carbonyl carbon (Figure 1). Oxamate keeps the carboxylate and the carbonyl group, so it fits the same site, but its carbonyl carbon is bonded to nitrogen and is not reduced.\n\nResearchers measured LDH activity in 1.0 cm cuvettes containing 0.20 mM NADH, buffer at pH 7.4 and 25°C, a fixed amount of purified enzyme, and pyruvate at concentrations from 0.10 to 3.2 mM. The rate of each reaction was taken from the decrease in absorbance at 340 nm (NADH absorbs there; NAD⁺ does not) during the first 30 s. The experiment was then repeated with 0.40 mM oxamate in every cuvette. The initial rates are plotted in Figure 2.",
     "figure": {
      "type": "line",
-     "caption": "Figure 1 Initial rate of LDH versus pyruvate concentration",
+     "caption": "Figure 2 Initial rate of LDH versus pyruvate concentration",
      "x": {
       "label": "Pyruvate (mM)",
       "min": 0,
@@ -2918,7 +2918,7 @@ const CP_POOL = [
     "questions": [
      {
       "id": "p_cpp4_6_q1",
-      "q": "Without inhibitor, the fitted Vmax was 120 μM/min. Based on Figure 1, what is the KM of LDH for pyruvate?",
+      "q": "Without inhibitor, the fitted Vmax was 120 μM/min. Based on Figure 2, what is the KM of LDH for pyruvate?",
       "choices": [
        "0.10 mM",
        "0.20 mM",
@@ -2933,7 +2933,7 @@ const CP_POOL = [
      },
      {
       "id": "p_cpp4_6_q2",
-      "q": "Which type of inhibition by oxamate is most consistent with Figure 1?",
+      "q": "Which type of inhibition by oxamate is most consistent with Figure 2?",
       "choices": [
        "Competitive, because the curve rises toward the same plateau",
        "Noncompetitive, because the rate is lower at every [pyruvate]",
@@ -2959,22 +2959,42 @@ const CP_POOL = [
       "cat": "5E",
       "skill": "SIRS 3",
       "diff": "D",
-      "exp": "Michaelis–Menten analysis uses **initial rates**: early on, [pyruvate] and [NADH] are still close to their starting values and almost no lactate or NAD⁺ has formed, so the rate matches the stated substrate concentration.\nAn enzyme doesn't need time to speed up; its rate is highest at the start and falls as substrate is used.\nThe size of the absorbance doesn't depend on measuring early.\nNothing suggests oxamate binds irreversibly, and Figure 1 shows the inhibition is overcome by more substrate."
+      "exp": "Michaelis–Menten analysis uses **initial rates**: early on, [pyruvate] and [NADH] are still close to their starting values and almost no lactate or NAD⁺ has formed, so the rate matches the stated substrate concentration.\nAn enzyme doesn't need time to speed up; its rate is highest at the start and falls as substrate is used.\nThe size of the absorbance doesn't depend on measuring early.\nNothing suggests oxamate binds irreversibly, and Figure 2 shows the inhibition is overcome by more substrate."
      },
      {
       "id": "p_cpp4_6_q4",
-      "q": "Oxamate differs from pyruvate by replacing pyruvate's CH₃–C(=O)– ketone unit with which functional group?",
+      "q": "Which structure is oxamate?",
       "choices": [
-       "An amide",
-       "An amine",
-       "An ester",
-       "An aldehyde"
+       "Oxamate (H₂N–CO–COO⁻)",
+       "Glycinate (H₂N–CH₂–COO⁻)",
+       "3-Aminopyruvate (H₂N–CH₂–CO–COO⁻)",
+       "N-Methyloxamate (CH₃NH–CO–COO⁻)"
       ],
       "ans": 0,
       "cat": "5D",
       "skill": "SIRS 1",
       "diff": "M",
-      "exp": "Oxamate is H₂N–C(=O)–COO⁻: a nitrogen bonded to a **carbonyl carbon** is an **amide**. In pyruvate that carbonyl carbon carries a CH₃ (a ketone), so the swap keeps the C=O but replaces CH₃ with NH₂.\nAn **amine** has N bonded only to carbon or hydrogen, not to a C=O.\nAn **ester** needs C(=O)–O–C.\nAn **aldehyde** needs C(=O)–H."
+      "exp": "Start from pyruvate, CH₃–C(=O)–COO⁻, and **replace the methyl group with –NH₂**: the result is H₂N–C(=O)–COO⁻. The nitrogen is now bonded to a carbonyl carbon, so the ketone unit has become an **amide**, while the carboxylate is unchanged.\n\n**Glycinate** has lost the C=O next to the nitrogen: it is an amine, not an amide, and it no longer has pyruvate's carbonyl.\n**3-Aminopyruvate** keeps the CH₃ carbon and adds –NH₂ to it, so a carbon was substituted rather than replaced.\n**N-Methyloxamate** puts the CH₃ on the nitrogen: the methyl was kept and an N–H inserted, rather than the methyl being replaced.",
+      "choiceFigs": [
+       "cpp4-oxamate",
+       "cpp4-glycinate",
+       "cpp4-3-aminopyruvate",
+       "cpp4-n-methyloxamate"
+      ],
+      "subj": "organic_chem"
+     }
+    ],
+    "scheme": [
+     {
+      "after": 1,
+      "caption": "Figure 1 Reduction of pyruvate to L-lactate by LDH",
+      "parts": [
+       "cpp4-pyruvate",
+       {
+        "arrow": "NADH + H⁺ → NAD⁺ (LDH)"
+       },
+       "cpp4-l-lactate"
+      ]
      }
     ]
    },
@@ -3831,7 +3851,7 @@ const CP_POOL = [
      "4C"
     ],
     "title": "How a Pulse Oximeter Measures Oxygen Saturation",
-    "passage": "A pulse oximeter clipped to a fingertip estimates the fraction of hemoglobin that is carrying oxygen. Two light-emitting diodes (LEDs), one red (660 nm) and one infrared (940 nm), shine through the finger in turn, and a photodiode on the other side measures how much light gets through. Oxyhemoglobin (HbO₂) and deoxyhemoglobin (Hb) absorb the two wavelengths differently, as shown in Table 1, so the ratio of the absorbances at 660 nm and 940 nm reveals the proportion of HbO₂.\n\nOnly the part of the absorbance that rises and falls with each heartbeat is used, because it comes from arterial blood. The pressure pulse travels along the arteries much faster than the blood itself flows. In one adult, the pulse reached the fingertip 0.15 s after the heartbeat, along an arterial path about 0.75 m long.\n\nA portable unit is powered by a 3.0 V lithium coin cell rated at 220 mAh. While measuring, the LEDs and electronics together draw an average current of 30 mA.",
+    "passage": "A pulse oximeter clipped to a fingertip estimates the fraction of hemoglobin that is carrying oxygen. Two light-emitting diodes (LEDs), one red (660 nm) and one infrared (940 nm), shine through the finger in turn, and a photodiode on the other side measures how much light gets through. Oxyhemoglobin (HbO₂) and deoxyhemoglobin (Hb) absorb the two wavelengths differently, as shown in Table 1, so the ratio of the absorbances at 660 nm and 940 nm reveals the proportion of HbO₂.\n\nOnly the part of the absorbance that rises and falls with each heartbeat is used, because it comes from arterial blood. Skin, bone and venous blood also absorb light, but their absorbance stays nearly constant from beat to beat. The pressure pulse travels along the arteries much faster than the blood itself flows. In one adult, the pulse reached the fingertip 0.15 s after the heartbeat, along an arterial path about 0.75 m long.\n\nHealthy adults at rest usually read 95–100%. A portable unit is powered by a 3.0 V lithium coin cell rated at 220 mAh. While measuring, the LEDs and electronics together draw an average current of 30 mA.",
     "figure": {
      "caption": "Table 1 Molar absorptivity of hemoglobin (cm⁻¹·M⁻¹)",
      "columns": [

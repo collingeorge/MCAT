@@ -995,6 +995,12 @@ add('cpx5-enolate-more-sub', "CC1=C(O[Li])CCCC1", formula='C7H11LiO')
 add('cpx5-benzaldehyde', "O=Cc1ccccc1", formula='C7H6O')
 add('cpx5-aldol-c6', "CC1CCCC(C(O)c2ccccc2)C1=O", formula='C14H18O2')
 add('cpx5-aldol-c2', "CC1(C(O)c2ccccc2)CCCCC1=O", formula='C14H18O2')
+add('cpp4-pyruvate', "CC(=O)C(=O)[O-]", formula='C3H3O3-')
+add('cpp4-l-lactate', "C[C@H:1](O)C(=O)[O-]", formula='C3H5O3-', centers=1, cip={1: "S"})
+add('cpp4-oxamate', "NC(=O)C(=O)[O-]", formula='C2H2NO3-')
+add('cpp4-glycinate', "NCC(=O)[O-]", formula='C2H4NO2-')
+add('cpp4-3-aminopyruvate', "NCC(=O)C(=O)[O-]", formula='C3H4NO3-')
+add('cpp4-n-methyloxamate', "CNC(=O)C(=O)[O-]", formula='C3H4NO3-')
 
 def stereo_count(m):
     return len(Chem.FindMolChiralCenters(m, includeUnassigned=True, useLegacyImplementation=False))
