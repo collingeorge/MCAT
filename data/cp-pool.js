@@ -3108,7 +3108,7 @@ const CP_POOL = [
      "4D"
     ],
     "title": "Radioiodine Uptake Testing of the Thyroid",
-    "passage": "The thyroid gland concentrates iodide (I⁻) from the blood using the sodium–iodide symporter and builds it into thyroid hormones. A radioactive isotope of iodine is handled by the gland exactly like stable iodine-127. So the fraction of an oral dose that the gland takes up is a measure of how active it is. An overactive gland, as in Graves disease, takes up more than normal, and an underactive gland takes up less.\n\nTwo iodine isotopes are used. Iodine-123 (half-life 13 h) decays by electron capture: the nucleus absorbs an inner-shell electron, which converts a proton into a neutron. The daughter nucleus then emits a 159 keV gamma ray, which is well suited to gamma cameras. Iodine-131 (half-life 8.0 days) decays by beta-minus emission followed by a 364 keV gamma ray. Its beta particles deposit their energy within a few millimeters of tissue. Large doses of iodine-131 are therefore used to destroy overactive thyroid tissue, while small doses of iodine-123 are preferred for diagnosis.\n\nIn an uptake test, the patient swallows a capsule of Na¹²³I. At set times afterward, a shielded detector held a fixed distance from the neck counts gamma rays from the thyroid. Background counts are subtracted, and the result is compared with the counts from an identical capsule (the standard) counted in a plastic neck model in the same geometry. Normal uptake is about 10–30% at 24 h.\n\nGamma rays are absorbed exponentially, so shielding is described by the half-value layer (HVL): the thickness of a material that cuts the beam intensity in half. In lead, the HVL is about 0.4 mm for 159 keV gamma rays and 3.0 mm for 364 keV gamma rays. Technetium-99m (half-life 6.0 h; 140 keV gamma rays; HVL in lead 0.3 mm) is trapped by the thyroid as pertechnetate (TcO₄⁻) and is sometimes used instead for imaging.",
+    "passage": "The thyroid gland concentrates iodide (I⁻) from the blood using the sodium–iodide symporter and builds it into thyroid hormones. A radioactive isotope of iodine is handled by the gland exactly like stable iodine-127. So the fraction of an oral dose that the gland takes up is a measure of how active it is. An overactive gland, as in Graves disease, takes up more than normal, and an underactive gland takes up less.\n\nTwo iodine isotopes are used. Iodine-123 (half-life 13 h) decays by electron capture: the nucleus absorbs an inner-shell electron, which converts a proton into a neutron. The daughter nucleus then emits a 159 keV gamma ray, which is well suited to gamma cameras. Iodine-131 (half-life 8.0 days) decays by beta-minus emission followed by a 364 keV gamma ray. Its beta particles deposit their energy within a few millimeters of tissue. Large doses of iodine-131 are therefore used to destroy overactive thyroid tissue, while small doses of iodine-123 are preferred for diagnosis.\n\nIn an uptake test, the patient swallows a capsule of Na¹²³I. At set times afterward, a shielded detector held a fixed distance from the neck counts gamma rays from the thyroid. Background counts are subtracted, and the result is compared with the counts from an identical capsule (the standard) counted in a plastic neck model in the same geometry. Normal uptake is about 10–30% at 24 h.\n\nTechnetium-99m (half-life 6.0 h; 140 keV gamma rays) is trapped by the thyroid as pertechnetate (TcO₄⁻) and is sometimes used instead for imaging.",
     "questions": [
      {
       "q": "A vial of Na¹³¹I solution had an activity of 80 mCi when it was delivered to a hospital. What is its activity 24 days later?",
@@ -3142,18 +3142,19 @@ const CP_POOL = [
       "id": "p_cpp4_5_q2"
      },
      {
-      "q": "A technologist stores an iodine-131 source in a lead container. What wall thickness is needed to reduce the intensity of its gamma rays to 12.5% of the unshielded value?",
-      "choices": [
-       "1.2 mm",
-       "6.0 mm",
-       "9.0 mm",
-       "24 mm"
-      ],
-      "ans": 2,
       "skill": "SIRS 2",
       "cat": "4D",
       "diff": "D",
-      "exp": "12.5% = 1/8 = (1/2)³, so **3 half-value layers** are needed. Iodine-131 emits 364 keV gamma rays, with an HVL in lead of 3.0 mm: 3 × 3.0 mm = **9.0 mm**.\n\n**1.2 mm** uses the 0.4 mm HVL for the 159 keV gamma rays of iodine-123.\n**6.0 mm** is only two HVLs, which leaves 25%.\n**24 mm** multiplies by 8, treating absorption as linear instead of exponential.",
+      "q": "The gamma ray emitted after iodine-123 decays has an energy of 159 keV. Approximately what is its frequency? (h ≈ 4.0 × 10⁻¹⁵ eV·s)",
+      "choices": [
+       "4.0 × 10¹⁹ Hz",
+       "4.0 × 10¹⁶ Hz",
+       "6.4 × 10⁻¹⁰ Hz",
+       "2.5 × 10⁻²⁰ Hz"
+      ],
+      "ans": 0,
+      "exp": "A photon's energy and frequency are related by **E = hf**, so **f = E/h**. Convert the energy to electron-volts first: 159 keV = 1.59 × 10⁵ eV ≈ 1.6 × 10⁵ eV.\nf = (1.6 × 10⁵ eV) ÷ (4.0 × 10⁻¹⁵ eV·s) = **4.0 × 10¹⁹ Hz**. Gamma rays have the highest frequencies in the electromagnetic spectrum, far above visible light (about 10¹⁴–10¹⁵ Hz).\n\n**4.0 × 10¹⁶ Hz** leaves the energy in keV (159 instead of 159,000 eV), a factor of 1000 too small.\n**6.4 × 10⁻¹⁰ Hz** multiplies E by h instead of dividing (1.6 × 10⁵ × 4.0 × 10⁻¹⁵).\n**2.5 × 10⁻²⁰ Hz** divides h by E, inverting the relation.",
+      "subj": "physics",
       "id": "p_cpp4_5_q3"
      },
      {
@@ -5231,7 +5232,7 @@ const CP_POOL = [
    },
    {
     "id": "cp_half_6_sa7b",
-    "q": "Iodine-123, used in thyroid imaging, has a half-life of 13 h. What percentage of a sample remains 52 h after it is made?",
+    "q": "Strontium-89, used to relieve bone pain from cancer, has a half-life of 50 days. What percentage of a dose remains 200 days after it is given?",
     "choices": [
      "25%",
      "12.5%",
@@ -5243,7 +5244,7 @@ const CP_POOL = [
     "skill": "SIRS 1",
     "diff": "E",
     "subj": "physics",
-    "exp": "52 h ÷ 13 h = 4 half-lives, and (½)⁴ = 1/16 = 6.25% remains.\n25% stops after 2 half-lives.\n12.5% stops after 3 half-lives.\n3.1% counts 5 half-lives."
+    "exp": "200 days ÷ 50 days = 4 half-lives, and (½)⁴ = 1/16 = 6.25% remains.\n25% stops after 2 half-lives.\n12.5% stops after 3 half-lives.\n3.1% counts 5 half-lives."
    },
    {
     "q": "What is the pH of a 0.010 M solution of a weak acid HA with Ka = 1.0 × 10⁻⁶?",
