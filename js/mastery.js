@@ -49,7 +49,9 @@ function masteryNormalize(raw) {
   const passed = m.passed && typeof m.passed === 'object' && !Array.isArray(m.passed) ? m.passed : {};
   const current = MASTERY.order.includes(m.current) ? m.current : null;
   const perDay = MASTERY.perDay.includes(m.perDay) ? m.perDay : MASTERY.perDay[0];
-  return { goal, tests, days, passed, current, perDay };
+  // Daily quiz sets already taken, most recent last ({id, day}), so the next quiz picks one not seen yet.
+  const usedSets = (Array.isArray(m.usedSets) ? m.usedSets : []).filter(u => u && typeof u.id === 'string' && typeof u.day === 'string').slice(-60);
+  return { goal, tests, days, passed, current, perDay, usedSets };
 }
 // Current section: the one the student picked, else the first not yet mastered (in path order).
 function masterySubject(m, today) {
@@ -245,7 +247,11 @@ function startMasteryTest(kind) {
   const plan = masteryPlanNow();
   if (!plan.subj) return;
   const subj = plan.subj;
-  // The test is built from the Practice Exam cards: questions modeled one-for-one on the AAMC practice exams,
+  // C/P: the Chem/Phys Diagnostic (data/cp-diagnostic.js) and the daily half-section pool (data/cp-pool.js):
+  // original passages written to the AAMC C/P blueprint, in the exam's order of passages and stand-alones.
+  const set = subj === 'cp' ? (kind === 'diagnostic' ? (typeof CP_DIAG !== 'undefined' ? CP_DIAG : null) : masteryNextSet(masteryLoad())) : null;
+  if (set) { masteryRunSet(subj, kind, set); return; }
+  // Other sections, for now: the Practice Exam cards: questions modeled one-for-one on the AAMC practice exams,
   // with their structures, answer-choice drawings and graphs, split over the section's disciplines by AAMC's
   // weights, cards not yet seen first. (Sections without such cards fall back to the question bank.)
   const full = kind === 'diagnostic', size = full ? MASTERY.diagSize : MASTERY.testSize, discs = masteryDiscs(subj);
@@ -272,6 +278,38 @@ function startMasteryTest(kind) {
   pq.timer = setInterval(updatePassageTimer, 1000);
   updatePassageTimer();
 }
+// The next daily quiz: a half-section not taken yet, else the one taken longest ago.
+function masteryNextSet(m) {
+  const pool = typeof CP_POOL !== 'undefined' ? CP_POOL : [];
+  if (!pool.length) return null;
+  const last = {}; (m.usedSets || []).forEach(u => { last[u.id] = u.day; });
+  return pool.slice().sort((a, b) => (last[a.id] || '').localeCompare(last[b.id] || '') || pool.indexOf(a) - pool.indexOf(b))[0];
+}
+// Lays out a passage set in its exam order: a passage id brings all its questions, a number brings that many
+// stand-alones.
+function masterySetItems(set) {
+  const byId = new Map(set.passages.map(p => [p.id, p])), items = [];
+  let sa = 0;
+  for (const step of set.order) {
+    if (typeof step === 'number') { set.standalones.slice(sa, sa += step).forEach(q => items.push({ view: makeView(q), passage: null })); continue; }
+    const p = byId.get(step); if (p) p.questions.forEach(q => items.push({ view: makeView(q), passage: p }));
+  }
+  return items;
+}
+function masteryRunSet(subj, kind, set) {
+  const items = masterySetItems(set);
+  if (!items.length) return;
+  const passages = set.passages;
+  stopQuizTimer(); stopPassageTimer();
+  Object.assign(pq, { mini: { subj, items, passages, firstExposures: Object.fromEntries(passages.map(p => [p.id, beginPassageExposure(p)])), completed: false, mastery: kind === 'diagnostic' ? 'diagnostic' : 'daily', setId: set.id },
+    p: { id: 'mastery_' + subj, title: set.title },
+    idx: 0, views: items.map(x => x.view), results: [], answered: false, completed: false, startedAt: Date.now(), qStart: Date.now(),
+    targetMs: (set.timeMin ? set.timeMin * 60 : items.length * MASTERY.secondsPerItem) * 1000, errPending: null });
+  show('screen-passage');
+  renderPassageQuestion();
+  pq.timer = setInterval(updatePassageTimer, 1000);
+  updatePassageTimer();
+}
 // Exam-style discrete questions in the section: the AAMC-style question bank, by discipline and content category.
 function masteryExamPool(s) {
   const discs = new Set(masteryDiscs(s).map(([d]) => d)), cats = new Set(MASTERY.topics[s] || []);
@@ -283,20 +321,22 @@ function masteryFinishTest(mini, results) {
   const cats = {};
   const parts = { passage: { c: 0, t: 0 }, single: { c: 0, t: 0 } }, skills = {};
   const tally = (o, k, right) => { o[k] = o[k] || { c: 0, t: 0 }; o[k].t++; if (right) o[k].c++; };
-  // Every question counts toward its content category: a passage question by its passage's category, so the
-  // weak topics come from the whole test (passages are most of it), not just the single questions.
+  // Every question counts toward its content category (its own cat, else its passage's), so the weak topics
+  // come from the whole test (passages are most of it), not just the single questions.
   results.forEach((r, i) => {
     const p = mini.items[i].passage;
-    tally(cats, p ? (MASTERY.passageCats[p.id] || 'other') : masteryCategory(r.view.q), r.right);
+    tally(cats, r.view.q.cat || (p ? (MASTERY.passageCats[p.id] || 'other') : masteryCategory(r.view.q)), r.right);
     tally(parts, p ? 'passage' : 'single', r.right);
     if (r.view.q.skill) tally(skills, r.view.q.skill, r.right);
   });
-  const missIds = results.filter((r, i) => !r.right && !mini.items[i].passage).map(r => r.view.q.baseId || r.view.q.id);
+  // Tomorrow's "misses" step reviews missed bank questions; test-only questions are reviewed on the results page.
+  const missIds = results.filter((r, i) => !r.right && !mini.items[i].passage).map(r => r.view.q.baseId || r.view.q.id).filter(id => id && typeof lookupQ === 'function' && lookupQ(id));
   const pctRight = total ? 100 * correct / total : 0;
   const test = { subj: mini.subj, day: localDay(), t: Date.now(), kind: mini.mastery, correct, total, pct: Math.round(pctRight), scaled: rawToScaled(pctRight), cats, parts, skills, missIds };
   const before = masteryLoad();
   const prevTest = before.tests.filter(t => t.subj === test.subj).at(-1) || null;
   const after = masteryApplyTest(before, test);
+  if (mini.setId && mini.mastery === 'daily') after.usedSets = [...(after.usedSets || []), { id: mini.setId, day: test.day }].slice(-60);
   masterySave(after);
   return masteryResultHtml(test, prevTest, after);
 }

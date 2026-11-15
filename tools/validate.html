@@ -29,6 +29,8 @@
 <script src="../data/passages-science.js"></script>
 <script src="../data/passages-cars.js"></script>
 <script src="../data/passages-data.js"></script>
+<script src="../data/cp-diagnostic.js"></script>
+<script src="../data/cp-pool.js"></script>
 <script src="../data/qb-variants-1.js"></script>
 <script src="../data/qb-variants-2.js"></script>
 <script src="../data/qb-aamc-bio.js"></script>
@@ -210,6 +212,30 @@
     }
     p.questions.forEach((q, i) => checkQuestion(`${p.id} Q${i + 1}`, q));
     passageRows.push([p.id, p.questions.length, words]);
+  });
+
+  // Chem/Phys Diagnostic and daily quiz sets (data/cp-diagnostic.js, data/cp-pool.js): original passages in the
+  // exam's layout. Each set's order must name every passage once and use every stand-alone exactly once.
+  const cpSets = [...(typeof CP_DIAG === 'undefined' || !CP_DIAG ? (warn('CP_DIAG', 'not loaded'), []) : [CP_DIAG]), ...(typeof CP_POOL === 'undefined' ? (warn('CP_POOL', 'not loaded'), []) : CP_POOL)];
+  const CP_CATS = new Set(['4A', '4B', '4C', '4D', '4E', '5A', '5B', '5C', '5D', '5E']);
+  cpSets.forEach(set => {
+    const named = set.order.filter(x => typeof x === 'string'), saN = set.order.filter(x => typeof x === 'number').reduce((a, b) => a + b, 0);
+    if (new Set(named).size !== set.passages.length || set.passages.some(p => !named.includes(p.id))) err(set.id, 'order must list each passage once');
+    if (saN !== set.standalones.length) err(set.id, `order places ${saN} stand-alones but the set has ${set.standalones.length}`);
+    set.passages.forEach(p => {
+      if (ids.has(p.id)) err(p.id, 'duplicate passage id'); ids.add(p.id);
+      if (!p.passage || p.passage.length < 200) err(p.id, 'missing/short passage text');
+      if (!DISCS.has(p.subj)) err(p.id, `unknown discipline "${p.subj}"`);
+      (p.scheme || []).forEach(r => { if (!r || !Array.isArray(r.parts) || !r.parts.length) err(p.id, 'scheme row needs parts'); });
+      if (p.figure && Array.isArray(p.figure.columns)) p.figure.rows.forEach((r, ri) => { if (!Array.isArray(r) || r.length !== p.figure.columns.length) err(p.id, `figure row ${ri + 1} has ${r && r.length} cells for ${p.figure.columns.length} columns`); });
+    });
+    [...set.passages.flatMap(p => p.questions.map((q, i) => [`${p.id} Q${i + 1}`, q, p.subj])), ...set.standalones.map((q, i) => [`${set.id} SA${i + 1}`, q, q.subj])].forEach(([where, q, subj]) => {
+      if (!SKILLS.has(q.skill)) err(where, `skill must be SIRS 1–4 (got "${q.skill}")`);
+      if (!CP_CATS.has(q.cat)) err(where, `C/P category must be 4A–5E (got "${q.cat}")`);
+      if (!DISCS.has(q.subj || subj)) err(where, `unknown discipline "${q.subj || subj}"`);
+      checkQuestion(where, q);
+    });
+    passageRows.push([set.id, set.passages.reduce((n, p) => n + p.questions.length, 0) + set.standalones.length, '—']);
   });
 
   // Exams

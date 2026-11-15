@@ -1016,14 +1016,29 @@ for name, (smi, sc) in SIDECHAIN.items():
     m = Chem.MolFromSmiles(smi)
     out[name] = draw(m, sc)
 
-# Ship only the drawings the Practice Exam walkthroughs show (every entry above is still built and checked).
+# Ship only the drawings the Practice Exam walkthroughs and the C/P passages show (every entry above is still built and checked).
 root = Path(__file__).resolve().parent.parent
 cards = (root / 'data/qb-aamc-fl.js').read_text(encoding='utf-8')
 used = set()
 for m in re.finditer(r'"?(?:fig|choiceFigs)"?:\s*("([^"]+)"|\[([^\]]*)\])', cards):
     used.update([m.group(2)] if m.group(2) else re.findall(r'"([^"]+)"', m.group(3)))
+# The Chem/Phys diagnostic and daily quiz passages draw structures in their schemes, questions and choices.
+for f in ['data/cp-diagnostic.js', 'data/cp-pool.js']:
+    path = root / f
+    if not path.exists(): continue
+    text = path.read_text(encoding='utf-8')
+    data = json.loads(text[text.index('=') + 1:text.rindex(';')])
+    def walk(node):
+        if isinstance(node, dict):
+            for k, v in node.items():
+                if k in ('fig', 'choiceFigs'): used.update([v] if isinstance(v, str) else [x for x in v if isinstance(x, str)])
+                elif k == 'parts': used.update(x for x in v if isinstance(x, str) and x != '+')
+                else: walk(v)
+        elif isinstance(node, list):
+            for x in node: walk(x)
+    walk(data)
 missing = used - set(out)
-if missing: raise SystemExit('cards use undrawn structures: ' + ', '.join(sorted(missing)))
+if missing: raise SystemExit('cards or C/P passages use undrawn structures: ' + ', '.join(sorted(missing)))
 out = {k: v for k, v in out.items() if k in used}
 
 src = hashlib.sha256(Path(__file__).read_bytes().replace(b'\r\n', b'\n')).hexdigest()[:16]  # line-ending independent (CI runs on Windows too)
