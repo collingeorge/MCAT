@@ -2699,6 +2699,8 @@ function startPassage(passage, opts = {}) {
   pq.masteryCats = Array.isArray(opts.cats) ? opts.cats : null;
   const p = passage && passage.questions ? passage : PASSAGE_BY_ID.get(selectedPassageId);
   if (!p) return;
+  // The address bar (and a reload) follow the passage actually shown, also when TODAY picked it.
+  if (PASSAGE_BY_ID.has(p.id)) selectedPassageId = p.id;
   pq.firstExposure = beginPassageExposure(p);
   // AAMC pace: 95 min / 59 science questions ≈ 95 s; 90 min / 53 CARS questions ≈ 102 s
   const perQ = /^p_(cars|e2cars)/.test(p.id) ? 102 : 95;

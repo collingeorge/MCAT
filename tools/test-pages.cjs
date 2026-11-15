@@ -33,5 +33,14 @@ f=fixture();f.run('startAamc()');assert.match(f.location.pathname,/recall-sessio
 f.update('about.html');f.events.popstate();assert.equal(f.run('activeScreen'),'screen-about');f.update('exams.html');f.events.popstate();assert.equal(f.run('prefs.mode'),'exam');
 const before=f.entries.length;f.events.click({button:0,ctrlKey:true,target:{closest:()=>f.node('nav-passages')}});assert.equal(f.entries.length,before,'Modified clicks use native link behavior');
 f.events.click({button:0,preventDefault(){},target:{closest:()=>f.node('nav-passages')}});assert.match(f.location.pathname,/passages.html$/);
+// TODAY's passage step: the URL names the passage actually shown, and a reload selects that passage.
+{ let g=fixture('/study/mcat/index.html');
+  g.run(`store.set(KEYS.subjectPath,{tests:[{subj:'cp',day:localDay(),t:1,kind:'diagnostic',correct:30,total:59,pct:51,scaled:122,version:'cp_diag',cats:{'5D':{c:2,t:14}}}]})`);
+  g.run("selectPassage(LISTED_PASSAGES[35].id)");
+  g.run('startMasteryPassages()');const shown=g.run('pq.p.id');
+  assert.notEqual(shown,g.run("LISTED_PASSAGES[35].id"),'TODAY opened a different passage than the one selected in the list');
+  assert.match(g.location.pathname,/passage-session.html$/);assert.equal(new URLSearchParams(g.location.search).get('passage'),shown,'URL follows the passage shown');
+  g=fixture('/study/mcat/passage-session.html','?passage='+shown);assert.equal(g.run('selectedPassageId'),shown,'reload selects the passage that was shown');
+  g=fixture('/study/mcat/index.html');g.run("startMasteryTest('diagnostic')");assert.match(g.location.pathname,/passage-session.html$/);assert.equal(new URLSearchParams(g.location.search).get('passage'),null,'a timed test URL names no passage'); }
 for(const p of ['passages','aamc','flprep','exams','score-report','about','recall-session','passage-session','exam-session','results','exam-results'])assert.match(fs.readFileSync(root+'/'+p+'.html','utf8'),/js\/pages.js/);
 console.log('PASS: static entry pages, direct links, passage IDs, transient-session guards, screen URLs, history and native new-tab links.');

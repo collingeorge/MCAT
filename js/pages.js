@@ -9,7 +9,9 @@
   const pageFromURL = () => location.pathname.split('/').pop().replace(/\.html$/, '') || 'index';
   function context(page) {
     const params = new URLSearchParams();
-    if (['passages','passage-session'].includes(page) && PASSAGE_BY_ID.has(selectedPassageId)) params.set('passage', selectedPassageId);
+    // A timed test (diagnostic or quiz) has no single passage: its URL names none.
+    const testRunning = page === 'passage-session' && typeof pq !== 'undefined' && !!pq.mini;
+    if (['passages','passage-session'].includes(page) && !testRunning && PASSAGE_BY_ID.has(selectedPassageId)) params.set('passage', selectedPassageId);
     if (['exam-session','exam-results'].includes(page) && exam) params.set('exam', FULL_EXAMS[exam.ei].id);
     return params.size ? '?' + params.toString() : '';
   }
