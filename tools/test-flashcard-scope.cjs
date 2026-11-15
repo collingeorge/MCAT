@@ -21,7 +21,7 @@ const gap = pool.filter(q => /^cp-gap-/.test(q.src));
 assert(gap.length >= 150, 'gap-filling cards present: ' + gap.length);
 for (const q of pool) if (/^cp-gap-/.test(q.src) || q.from) assert(FL.has(q.from), q.src + ': from "' + q.from + '" is not a Practice Exam card');
 // 3. Removed off-test and duplicate cards stay removed.
-const REMOVED = ["aamc-chem-qpack:Q6", "aamc-chem-qpack:Q6b", "aamc-chem-qpack:Q7b", "aamc-chem-qpack:Q14", "aamc-chem-qpack:Q27", "aamc-chem-qpack:Q32b", "aamc-chem-qpack:Q66", "aamc-chem-qpack:Q95", "aamc-chem-qpack:Q120b", "aamc-chem-qpack:Q116b", "aamc-phys-qpack:Q10", "aamc-phys-qpack:Q12", "aamc-phys-qpack:Q13", "aamc-phys-qpack:Q14b", "aamc-phys-qpack:Q52", "aamc-phys-qpack:Q98", "aamc-phys-qpack:Q99", "aamc-phys-qpack:Q107b", "aamc-phys-qpack:Q115b", "aamc-phys-qpack:Q15b", "aamc-phys-qpack:Q16b", "aamc-phys-qpack:Q18", "aamc-phys-qpack:Q23b", "aamc-phys-qpack:Q35", "aamc-phys-qpack:Q61b", "aamc-phys-qpack:Q65b", "aamc-phys-qpack:Q67b", "aamc-phys-qpack:Q72b", "aamc-phys-qpack:Q92b", "aamc-phys-qpack:Q98b", "aamc-phys-qpack:Q106b", "aamc-phys-qpack:Q120", "aamc-phys-qpack:Q120b"];
+const REMOVED = ["aamc-chem-qpack:Q6", "aamc-chem-qpack:Q6b", "aamc-chem-qpack:Q7b", "aamc-chem-qpack:Q14", "aamc-chem-qpack:Q27", "aamc-chem-qpack:Q32b", "aamc-chem-qpack:Q66", "aamc-chem-qpack:Q95", "aamc-chem-qpack:Q120b", "aamc-chem-qpack:Q116b", "aamc-phys-qpack:Q10", "aamc-phys-qpack:Q12", "aamc-phys-qpack:Q13", "aamc-phys-qpack:Q14b", "aamc-phys-qpack:Q52", "aamc-phys-qpack:Q98", "aamc-phys-qpack:Q99", "aamc-phys-qpack:Q107b", "aamc-phys-qpack:Q115b", "aamc-phys-qpack:Q15b", "aamc-phys-qpack:Q16b", "aamc-phys-qpack:Q18", "aamc-phys-qpack:Q23b", "aamc-phys-qpack:Q35", "aamc-phys-qpack:Q61b", "aamc-phys-qpack:Q65b", "aamc-phys-qpack:Q67b", "aamc-phys-qpack:Q72b", "aamc-phys-qpack:Q92b", "aamc-phys-qpack:Q98b", "aamc-phys-qpack:Q106b", "aamc-phys-qpack:Q120", "aamc-phys-qpack:Q120b", "aamc-chem-qpack:Q70b", "aamc-phys-qpack:Q103"];
 const srcs = new Set(pool.map(q => q.src));
 for (const s of REMOVED) assert(!srcs.has(s), s + ' was removed (off-test or duplicate)');
 assert.equal(srcs.size, pool.length, 'unique src per card');
@@ -39,9 +39,7 @@ const ALLOWED = new Map([
   ["aamc-chem-qpack:Q56 aamc-chem-qpack:Q56b", "different questions on one shared stem (both iodine-clock reactions)"],
   ["aamc-chem-qpack:Q86 aamc-chem-qpack:Q86b", "single vs double replacement"],
   ["aamc-phys-qpack:Q33 aamc-phys-qpack:Q33b", "series vs parallel capacitors"],
-  ["aamc-phys-qpack:Q42 aamc-phys-qpack:Q42b", "dB level to intensity and the reverse"],
-  ["aamc-chem-qpack:Q20b aamc-chem-qpack:Q70b", "same concept, different numbers (dilution): flagged for review"],
-  ["aamc-phys-qpack:Q103 aamc-phys-qpack:Q44b", "same concept, different factor (inverse square): flagged for review"]
+  ["aamc-phys-qpack:Q42 aamc-phys-qpack:Q42b", "dB level to intensity and the reverse"]
 ]);
 const gramsOf = pool.map(q => [grams(q.q), grams(cardText(q))]);
 for (let i = 0; i < pool.length; i++) for (let j = i + 1; j < pool.length; j++) {
