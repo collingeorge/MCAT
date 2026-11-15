@@ -249,6 +249,9 @@ function buildFlq() {
 // Pages load only what every screen needs. The large banks below load the first time a screen uses them (and are
 // cached offline by the service worker). BANK_COUNTS gives the home screen its numbers before they load;
 // tools/test-pages.cjs checks them against the data.
+// ASSET_V: the deploy's version (sw.js CACHE), added to every script the app loads on demand so the browser's HTTP
+// cache never serves one from an earlier deploy. Written by tools/generate-pages.cjs; do not edit by hand.
+const ASSET_V = '?v=mcat-v2.63-day-discipline-mix-versioned-scripts-2026-11-15';
 const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'] };
 const BANK_COUNTS = { fl: 354, flCp: 354, flTests: 6 };
 const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined' };
@@ -263,7 +266,7 @@ function bankReady(name) {
 function loadScript(src) {
   return new Promise((resolve, reject) => {
     const el = document.createElement('script');
-    el.src = src;
+    el.src = src + ASSET_V;
     el.addEventListener('load', resolve);
     el.addEventListener('error', () => { el.remove?.(); reject(new Error(src + ' failed to load')); });
     document.head.appendChild(el);
@@ -1328,7 +1331,7 @@ function ensureStructs() {
   if (structsLoading) return structsLoading;
   structsLoading = new Promise((resolve, reject) => {
     const el = document.createElement('script');
-    el.src = 'data/structures.js';
+    el.src = 'data/structures.js' + ASSET_V;
     el.addEventListener('load', () => { structsFailed = false; resolve(); });
     el.addEventListener('error', () => { structsLoading = null; structsFailed = true; el.remove?.(); rerenderStructs(); reject(new Error('structures failed to load')); });
     document.head.appendChild(el);

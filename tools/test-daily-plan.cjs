@@ -240,7 +240,7 @@ for (const days of [22, 25, 27]) {
   const el = id => { if (!nodes.has(id)) nodes.set(id, { innerHTML: '', textContent: '', value: '', style: {}, dataset: {}, classList: { toggle() {}, add() {}, remove() {} }, setAttribute() {}, focus() {}, scrollIntoView() {}, remove() {}, querySelectorAll() { return []; } }); return nodes.get(id); };
   const app = vm.createContext({ console, Date, Math, Map, Set, URLSearchParams, setInterval() { return 1; }, clearInterval() {}, setTimeout() {}, confirm() { return true; }, alert() {}, navigator: {}, location: { protocol: 'http:', search: '' }, window: { scrollTo() {} }, document: { getElementById: el, querySelectorAll() { return []; }, addEventListener() {} }, localStorage: { getItem: k => storage.get(k), setItem: (k, v) => storage.set(k, v), removeItem: k => storage.delete(k) } });
   for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(__dirname + '/../js/app.js', 'utf8'))[1])()).flat()) vm.runInContext(fs.readFileSync(__dirname + '/../' + f, 'utf8'), app);
-  for (const [, file] of fs.readFileSync(__dirname + '/../index.html', 'utf8').matchAll(/<script src="([^"]+)"/g)) if (!/account|cloud-config|pages/.test(file)) vm.runInContext(fs.readFileSync(__dirname + '/../' + file, 'utf8'), app);
+  for (const [, file] of fs.readFileSync(__dirname + '/../index.html', 'utf8').matchAll(/<script src="([^"?]+)/g)) if (!/account|cloud-config|pages/.test(file)) vm.runInContext(fs.readFileSync(__dirname + '/../' + file, 'utf8'), app);
   const run = code => vm.runInContext(code, app);
   run("store.set(KEYS.plan,{date:localDay(new Date(Date.now()+90*DAY)),start:localDay(),days:6,minutes:120})");
   // Tampered or malformed synced data must not break the home page.

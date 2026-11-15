@@ -5,7 +5,7 @@
 //   exam order → done for the day at goal, otherwise work on what the quiz showed was weak.
 //   C/P follows the AAMC blueprint (MASTERY.blueprint) exactly: each step's count is split 100% over all 10 content
 //   categories by how often AAMC tests each one (masteryBlueprintSplit: largest remainder, ties to the heavier
-//   category), cards in the AAMC discipline mix within each category, passage questions also in the AAMC skill
+//   category), cards in the AAMC discipline mix over the whole day (masteryDiscQuota), passage questions also in the AAMC skill
 //   and difficulty mix. Weakness never changes a count: it changes which cards are picked within a category
 //   (missed and due cards, then the weakest sub-topics, then the rest; masteryTierPick) and is marked on TODAY.
 //   Days saved before this (5 content categories a day; or split 'blueprint' with +20% on the two weakest) keep
@@ -180,6 +180,70 @@ function masteryDiscPick(cards, k, discOf, discW, pick) {
   if (got.length < k) got = got.concat(pick(cards.filter(q => !got.includes(q)), k - got.length));
   return got;
 }
+// The day's discipline counts per category, chosen for the whole step so the day's total follows the AAMC
+// discipline mix (discW) as closely as the categories allow. Category counts never change. rows [{code, k, avail:
+// {disc: cards in that category}}] → {code: {disc: count}}. Each category starts at its own AAMC mix over the
+// disciplines it has (capped by its cards); then, while a discipline is over its day target and another is under,
+// slots move from over to under inside a category that has both (or along a chain of categories: A gives d → f in one
+// category and f → e in another), so 5A's all-general-chemistry slots are offset by physics in 4E, 4C or 4B. Each move
+// lowers the total distance from the day targets by 2, so it ends; it stops when no move is left.
+function masteryDiscQuota(rows, discW) {
+  const order = discW.map(([d]) => d), quota = {};
+  for (const r of rows) {
+    const present = discW.filter(([d]) => (r.avail[d] || 0) > 0), total = present.reduce((n, [d]) => n + r.avail[d], 0);
+    const q = Object.fromEntries(present.map(([d]) => [d, 0]));
+    let left = Math.min(r.k, total);
+    masteryApportion(present, left).forEach((n, i) => { const d = present[i][0]; q[d] = Math.min(n, r.avail[d]); left -= q[d]; });
+    for (const [d] of present) { const add = Math.min(left, r.avail[d] - q[d]); q[d] += add; left -= add; }
+    quota[r.code] = q;
+  }
+  const discs = order.filter(d => rows.some(r => (r.avail[d] || 0) > 0));
+  const n = rows.reduce((t, r) => t + Object.values(quota[r.code]).reduce((a, b) => a + b, 0), 0);
+  const T = Object.fromEntries(masteryApportion(discW.filter(([d]) => discs.includes(d)), n).map((x, i) => [discs[i], x]));
+  const count = d => rows.reduce((t, r) => t + (quota[r.code][d] || 0), 0);
+  // The category to move one slot from x to y in: the one with the most x over y, then the heavier (listed first).
+  const via = (x, y) => {
+    let best = null;
+    for (const r of rows) {
+      const q = quota[r.code];
+      if (!(q[x] > 0) || !((r.avail[y] || 0) > (q[y] || 0))) continue;
+      if (!best || q[x] - (q[y] || 0) > quota[best][x] - (quota[best][y] || 0)) best = r.code;
+    }
+    return best;
+  };
+  for (let guard = 0; guard < 1000; guard++) {
+    const c = Object.fromEntries(discs.map(d => [d, count(d)]));
+    const over = discs.filter(d => c[d] > T[d]).sort((a, b) => (c[b] - T[b]) - (c[a] - T[a]) || order.indexOf(a) - order.indexOf(b));
+    let path = null;
+    for (const from of over) {
+      // Breadth-first over disciplines: an edge x → y when some category can trade an x slot for a y card.
+      const prev = { [from]: null }, queue = [from];
+      let to = null;
+      while (queue.length) {
+        const x = queue.shift();
+        for (const y of discs) {
+          if (y in prev) continue;
+          const cat = via(x, y);
+          if (!cat) continue;
+          prev[y] = [x, cat]; queue.push(y);
+          if (c[y] < T[y] && (!to || T[y] - c[y] > T[to] - c[to])) to = y;
+        }
+      }
+      if (to) { path = []; for (let y = to; prev[y]; y = prev[y][0]) path.unshift([prev[y][0], y, prev[y][1]]); break; }
+    }
+    if (!path) break;
+    for (const [x, y, cat] of path) { quota[cat][x]--; quota[cat][y] = (quota[cat][y] || 0) + 1; }
+  }
+  return quota;
+}
+// Picks k of cards by a discipline quota {disc: n}; the rest, if a discipline runs short, from any of them.
+function masteryQuotaPick(cards, k, quota, discOf, pick) {
+  if (k <= 0 || !cards.length) return [];
+  let got = [];
+  for (const [d, n] of Object.entries(quota)) if (n > 0 && got.length < k) got = got.concat(pick(cards.filter(q => discOf(q) === d), Math.min(n, k - got.length)));
+  if (got.length < k) got = got.concat(pick(cards.filter(q => !got.includes(q)), k - got.length));
+  return got;
+}
 // Which cards to pick, never how many: tierOf(q) gives each card a rank (lower first) and the cards are taken a
 // whole rank at a time; pick (the app's due-first picker) chooses within the last rank that only partly fits.
 function masteryTierPick(cards, k, tierOf, pick) {
@@ -208,8 +272,9 @@ function masteryTierRank(o = {}) {
   };
 }
 // Builds today's set for one step: for each category, the cards it still needs. Cards not seen today come first,
-// from the category itself (in the discipline mix when o.discW is given, and within each discipline in the
-// o.tierOf order: missed and due, weak sub-topics, the rest), then from the next categories in the step's order
+// from the category itself (when o.discW is given, in the discipline counts masteryDiscQuota chose for the whole
+// step, so the day's total follows the AAMC discipline mix; within each discipline in the o.tierOf order: missed
+// and due, weak sub-topics, the rest), then from the next categories in the step's order
 // (by weight), then any other; cards seen today only when no other card is left, and repeats only when the pool
 // itself runs out. pool may be [preferred, fallback]: the preferred pool's cards come first.
 function masteryTopicSet(step, pool, catOf, pick, o = {}) {
@@ -217,14 +282,26 @@ function masteryTopicSet(step, pool, catOf, pick, o = {}) {
   const take = (cards, k) => (o.discOf && o.discW ? masteryDiscPick(cards, k, o.discOf, o.discW, pk) : pk(cards, k));
   const list = [], topicOf = {}, used = new Set();
   const pools = Array.isArray(pool[0]) ? pool : [pool], all = pools.flat(), order = step.topics.map(t => t.code);
+  let quota = null;
+  if (o.discOf && o.discW) {
+    const rows = step.topics.filter(t => t.need - t.progress > 0).map(t => {
+      const avail = {};
+      new Set(all.filter(q => catOf(q) === t.code)).forEach(q => { const d = o.discOf(q); avail[d] = (avail[d] || 0) + 1; });
+      return { code: t.code, k: t.need - t.progress, avail };
+    });
+    quota = masteryDiscQuota(rows, o.discW);
+  }
   for (const t of step.topics) {
     const need = t.need - t.progress;
     if (need <= 0) continue;
     const i = order.indexOf(t.code), cats = [...order.slice(i), ...order.slice(0, i), null];   // null: any other
     let got = [];
+    // The category's own cards follow the day's quota (what is left of it); other categories' cards, the mix.
+    const left = () => Object.fromEntries(Object.entries(quota[t.code]).map(([d, n]) => [d, n - got.filter(q => o.discOf(q) === d).length]));
     for (const fresh of [true, false]) for (const c of cats) for (const pl of pools) {
       if (got.length >= need) break;
-      got = got.concat(take(pl.filter(q => !used.has(q.id) && !got.includes(q) && seen.has(q.id) !== fresh && (c === null ? !order.includes(catOf(q)) : catOf(q) === c)), need - got.length));
+      const cards = pl.filter(q => !used.has(q.id) && !got.includes(q) && seen.has(q.id) !== fresh && (c === null ? !order.includes(catOf(q)) : catOf(q) === c));
+      got = got.concat(quota && c === t.code ? masteryQuotaPick(cards, need - got.length, left(), o.discOf, pk) : take(cards, need - got.length));
     }
     while (got.length < need && all.length) got.push(all[(list.length + got.length) % all.length]);
     got.forEach(q => { used.add(q.id); topicOf[q.id] = topicOf[q.id] || t.code; list.push(q); });
@@ -484,7 +561,7 @@ function masteryBegin(plan, step, pool, catOf, label, mode, more) {
     if ((nested ? fresh.flat() : fresh).length >= step.count) pool = fresh;
     label += ' · another set';
   }
-  // Cards not seen today first; within a category, the AAMC discipline mix (blueprint days) and, within each
+  // Cards not seen today first; the AAMC discipline mix over the day's whole set (blueprint days) and, within each
   // discipline, missed and due cards, then the weakest sub-topics, then the rest (counts never change).
   const discW = plan.split !== 'topics' ? masteryWeights(plan.subj, 'discs') : null;
   const { list, topicOf } = masteryTopicSet(step, pool, catOf, pickQuestions, { seen: new Set(row.seen || []), discOf: disciplineOfRecall, discW, tierOf: masteryTierOf(m, plan, row) });
@@ -757,7 +834,7 @@ function masteryCard() {
       n++;
       let title = '', detail = '', button = '', count = '', time = '';
       if (s.id === 'diagnostic') { title = 'Diagnostic'; count = '<b>' + s.result.scaled + '</b> (' + s.result.correct + '/' + s.result.total + ') · ' + shortDay(s.result.day); detail = (s.old ? '<b>Old diagnostic version.</b> Retake the new ' + MASTERY.diagSize + '-question diagnostic for a fresh start. ' : 'Done. ') + 'Retaking it runs the full section again; your newest result sets the weak topics.'; button = btn('Retake diagnostic', "startMasteryTest('diagnostic')", s.old); }
-      if (s.id === 'flashcards') { title = 'Flashcards'; count = s.progress + ' / ' + s.count; detail = bp ? 'AAMC QBank cards only, in the AAMC mix of disciplines within each category. ' + bpNote + targets(s.topics, 'cards') : 'AAMC QBank cards only, weakest topics first, spread over today’s content categories.' + topicList(s.topics); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 0.6)); button = s.done ? more('startMasteryFlashcards(true)', s) : btn(s.progress ? 'Continue' : 'Start', 'startMasteryFlashcards()'); }
+      if (s.id === 'flashcards') { title = 'Flashcards'; count = s.progress + ' / ' + s.count; detail = bp ? 'AAMC QBank cards only, in the AAMC mix of disciplines across the day. ' + bpNote + targets(s.topics, 'cards') : 'AAMC QBank cards only, weakest topics first, spread over today’s content categories.' + topicList(s.topics); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 0.6)); button = s.done ? more('startMasteryFlashcards(true)', s) : btn(s.progress ? 'Continue' : 'Start', 'startMasteryFlashcards()'); }
       if (s.id === 'guided') { title = 'Guided Practice Exam cards with walkthroughs'; count = s.progress + ' / ' + s.count + ' cards · ' + s.lessons + ' / ' + s.lessonCount + ' lessons'; detail = bp ? 'Each card opens its step-by-step lesson: step through it, answer, then watch the walkthrough. ' + bpNote + targets(s.topics, 'cards') : 'Weakest topics first. Each card opens its step-by-step lesson: step through it, answer, then watch the walkthrough.' + topicList(s.topics); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 1.2 + (s.lessonCount - s.lessons) * 2)); button = s.done ? more('startMasteryGuided(true)', s) : btn(s.progress || s.lessons ? 'Continue' : 'Start', 'startMasteryGuided()'); }
       if (s.id === 'passages') {
         title = 'Passage questions'; count = s.progress + ' / ' + s.count;

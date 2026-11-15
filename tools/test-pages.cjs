@@ -14,7 +14,7 @@ function fixture(pathname = '/study/mcat/aamc.html', search = '') {
  const run=code=>vm.runInContext(code,ctx);
  // Banks the app loads on demand (BANKS in js/app.js), loaded first as the browser would have them.
  for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(root + '/js/app.js', 'utf8'))[1])()).flat()) run(fs.readFileSync(root + '/' + f, 'utf8'));
- for(const [,file] of fs.readFileSync(root+'/index.html','utf8').matchAll(/<script src="([^"]+)"/g))run(fs.readFileSync(root+'/'+file,'utf8'));
+ for(const [,file] of fs.readFileSync(root+'/index.html','utf8').matchAll(/<script src="([^"?]+)/g))run(fs.readFileSync(root+'/'+file,'utf8'));
  return {run,node,nav,location,entries,events,storage,update};
 }
 let f=fixture();
@@ -48,7 +48,7 @@ f.events.click({button:0,preventDefault(){},target:{closest:()=>f.node('nav-pass
 for(const p of ['passages','aamc','flprep','exams','score-report','about','recall-session','passage-session','exam-session','results','exam-results'])assert.match(fs.readFileSync(root+'/'+p+'.html','utf8'),/js\/pages.js/);
 // Review 4.6: the large banks load on demand; the home screen's counts for them match the data.
 { const g = fixture('/study/mcat/index.html'), index = fs.readFileSync(root + '/index.html', 'utf8');
-  for (const f of g.run('Object.values(BANKS).flat()')) { assert(!index.includes('<script src="' + f + '"'), f + ' is not loaded at startup'); assert(fs.readFileSync(root + '/sw.js', 'utf8').includes("'" + f + "'"), f + ' is cached for offline use'); }
+  for (const f of g.run('Object.values(BANKS).flat()')) { assert(!index.includes('<script src="' + f), f + ' is not loaded at startup'); assert(fs.readFileSync(root + '/sw.js', 'utf8').includes("'" + f + "'"), f + ' is cached for offline use'); }
   assert(g.run("bankReady('fl')"));
   assert.equal(g.run('FLQ.length'), g.run('BANK_COUNTS.fl')); assert.equal(g.run('FL_TESTS.length'), g.run('BANK_COUNTS.flTests'));
   assert.equal(g.run("FLQ.filter(q => /^(pe\\d|sample)-cp:/.test(q.src)).length"), g.run('BANK_COUNTS.flCp')); }

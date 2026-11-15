@@ -44,6 +44,38 @@ async function main() {
   // 3. The app itself is origin-relative, so it runs unchanged at the subdomain root.
   assert.equal(JSON.parse(fs.readFileSync(root + '/manifest.webmanifest', 'utf8')).scope, './');
   assert.doesNotMatch(fs.readFileSync(root + '/sw.js', 'utf8'), /study\/mcat|github\.io/);
+  // 4. Versioned scripts: after a deploy the browser must not take a script from its HTTP cache. Every js/ and data/
+  // script URL (each page's script tags, the app's on-demand loads in BANKS and the drawings) carries ?v=<sw.js
+  // CACHE>, the service worker precaches the same URLs, and its network fetches revalidate (cache: 'no-cache').
+  { const sw = fs.readFileSync(root + '/sw.js', 'utf8'), CACHE = /const CACHE = '([^']+)';/.exec(sw)[1], V = '?v=' + CACHE;
+    const swCtx = vm.createContext({ URL, self: { addEventListener() {}, registration: { scope: 'https://x.test/' } }, location: { origin: 'https://x.test' } });
+    vm.runInContext(sw + '\n;globalThis.__sw = { ASSETS, RUNTIME, SCRIPTS };', swCtx);
+    const { ASSETS, RUNTIME, SCRIPTS } = swCtx.__sw;
+    const app = fs.readFileSync(root + '/js/app.js', 'utf8');
+    assert.equal(/^const ASSET_V = '([^']*)';$/m.exec(app)[1], V, 'js/app.js ASSET_V is the current CACHE version (run node tools/generate-pages.cjs)');
+    assert(app.includes('el.src = src + ASSET_V;') && app.includes("el.src = 'data/structures.js' + ASSET_V;"), 'on-demand loads (BANKS, drawings) add the version');
+    const banks = Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(app)[1])()).flat();
+    const pages = fs.readdirSync(root).filter(f => f.endsWith('.html'));
+    assert(pages.length >= 13);
+    let tags = 0;
+    for (const page of pages) {
+      const html = fs.readFileSync(root + '/' + page, 'utf8');
+      for (const [, src] of html.matchAll(/<script\b[^>]*\bsrc="([^"]+)"/g)) {
+        if (!/^(js|data)\//.test(src)) continue;
+        tags++;
+        assert(src.endsWith('.js' + V), `${page}: ${src} carries ${V}`);
+        assert(SCRIPTS.includes(src.slice(0, -V.length)), `${page}: ${src} is precached by sw.js`);
+      }
+      assert.doesNotMatch(html, /<script\b[^>]*\bsrc="(js|data)\/[^"?]+"/, page + ': no unversioned script');
+    }
+    for (const a of [...ASSETS, ...RUNTIME].filter(a => /^(js|data)\//.test(a))) assert(a.endsWith(V), 'sw.js asset ' + a + ' carries the version');
+    for (const f of banks) assert(SCRIPTS.includes(f), f + ' (BANKS) is precached at its versioned URL');
+    assert(RUNTIME.includes('data/structures.js' + V), 'the drawings are cached at their versioned URL');
+    const fetches = [...sw.matchAll(/fetch\(req(?:, (\{[^}]*\}))?\)/g)].map(m => m[1] || '');
+    assert(fetches.length >= 2 && fetches.every(o => o.includes("cache: 'no-cache'")), 'every service-worker network fetch revalidates (cache: no-cache)');
+    assert(/async function networkFirst[\s\S]*?fetch\(req, \{ cache: 'no-cache' \}\)/.test(sw), 'network-first uses cache: no-cache');
+    assert(/async function cacheFirst[\s\S]*?cache\.match\(req\);/.test(sw), 'cached data matches only its exact versioned URL');
+    console.log(`Versioned scripts: ${tags} script tags in ${pages.length} pages, ${banks.length} on-demand banks and the drawings at ${V}.`); }
   // Regression (review 3): developer tools (validate.html runs an inline script without the CSP) and internal notes are
 // excluded from the published site.
 { const cfg = fs.readFileSync(root + '/_config.yml', 'utf8'); for (const dir of ['tools', 'docs']) assert.match(cfg, new RegExp('^\\s*-\\s*' + dir + '\\s*$', 'm'), dir + '/ is not published'); }

@@ -9,7 +9,7 @@ const root = __dirname + '/..';
 const ctx = vm.createContext({ console, Date, Math, Map, Set, URLSearchParams, setInterval() { return 1; }, clearInterval() {}, setTimeout() {}, confirm() { return true; }, alert() {}, navigator: {}, location: { protocol: 'http:', search: '' }, window: { scrollTo() {} }, document: { getElementById: () => ({ innerHTML: '', textContent: '', style: {}, dataset: {}, classList: { toggle() {}, add() {}, remove() {} }, setAttribute() {}, focus() {}, scrollIntoView() {}, remove() {} }), querySelectorAll() { return []; }, addEventListener() {} }, localStorage: { getItem: () => null, setItem() {}, removeItem() {} } });
 const run = code => vm.runInContext(code, ctx);
 for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(root + '/js/app.js', 'utf8'))[1])()).flat()) run(fs.readFileSync(root + '/' + f, 'utf8'));
-for (const [, file] of fs.readFileSync(root + '/index.html', 'utf8').matchAll(/<script src="([^"]+)"/g)) if (!/account|cloud-config|pages/.test(file)) run(fs.readFileSync(root + '/' + file, 'utf8'));
+for (const [, file] of fs.readFileSync(root + '/index.html', 'utf8').matchAll(/<script src="([^"?]+)/g)) if (!/account|cloud-config|pages/.test(file)) run(fs.readFileSync(root + '/' + file, 'utf8'));
 const pool = JSON.parse(run("JSON.stringify(masteryExamPool('cp').map(q => ({ q: q.q, choices: q.choices, aamc: q.aamc, disc: q.disc, src: q.src, from: q.from || null })))"));
 const FL = new Set(JSON.parse(run('JSON.stringify(QB_AAMC_FL.map(q => q.src))')));
 const banks = JSON.parse(run('JSON.stringify([...QB_AAMC_CHEM, ...QB_AAMC_PHYS, ...QB_AAMC_BIOCHEM].map(q => ({ src: q.src, aamc: q.aamc })))'));

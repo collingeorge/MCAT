@@ -2,8 +2,8 @@
 // questions are split 100% over all 10 C/P content categories by AAMC weight (largest remainder, a tie to the
 // heavier category); weak categories are marked but keep their AAMC count: weakness only changes which cards are
 // picked within a category (missed and due first, then the weakest sub-topics, then the rest). A small pool passes
-// its shortfall to the next category by weight; cards follow the AAMC discipline mix within a category and never
-// repeat on a day while others are left; passages are picked greedily to close the day's category, discipline,
+// its shortfall to the next category by weight; cards follow the AAMC discipline mix over the whole day (the
+// discipline counts are chosen across categories, not inside each one) and never repeat on a day while others are left; passages are picked greedily to close the day's category, discipline,
 // skill and difficulty gap; each 30-question quiz is checked against its fixed mix (misses are reported; with
 // STRICT_QUIZ_MIX=1 they fail); every pool shortfall per step is listed; days saved before the exact split still
 // load.
@@ -93,7 +93,7 @@ const STEPS = ['flashcards', 'guided', 'passages'];
   assert.equal(f.topics.find(t => t.code === '5D').need, L50['5D'] + L50['5C'] - 1); assert.equal(g.topics.find(t => t.code === '4A').short, L50['4A'] - 1);
   assert(src.includes("'<p class=\"muted-note\">Shortfall: '") && src.includes("targets(s.topics, 'cards')") && src.includes("targets(s.topics, 'questions')"), 'the step detail shows the shortfall'); }
 
-// 4. Building the set: each category gets its count from its own cards, in the AAMC discipline mix where the pool
+// 4. Building the set: each category gets its count from its own cards, in the day's AAMC discipline mix where the pool
 // allows; no card twice in a day while others are left; cards seen today only after the unseen ones. Weakness
 // (tierOf) changes which cards are picked within a category, never how many.
 vm.runInContext('pickT = (c, k) => c.slice(0, Math.max(0, k)); catT = q => q.cat; discT = q => q.disc', ctx);
@@ -117,6 +117,19 @@ const discW = call('masteryWeights', 'cp', 'discs');
   assert.equal(new Set(r.list.map(q => q.id)).size, r.list.length);
   r = setOf({ st: { topics: [{ code: '5C', need: 5, progress: 0 }] }, pl: cards.filter(q => q.cat === '5C'), dw: discW, sn: [] });
   assert.equal(r.list.length, 5, 'repeats only when the whole pool is used'); assert.equal(new Set(r.list.map(q => q.id)).size, 2);
+
+  // The day's disciplines are chosen over the whole step (masteryDiscQuota): category counts stay exact, and a
+  // category with one discipline (5A: general chemistry only) is offset in a category that has both, directly or
+  // along a chain (here 4E trades general chemistry for physics, 5D trades organic for biochemistry).
+  const Q = rows => call('masteryDiscQuota', rows, discW);
+  let q = Q([{ code: '5A', k: 10, avail: { gen_chem: 40 } }, { code: '4E', k: 10, avail: { gen_chem: 40, physics: 40 } }]);
+  assert.deepEqual(q, { '5A': { gen_chem: 10 }, '4E': { gen_chem: 1, physics: 9 } }, 'physics in 4E offsets 5A: the day is 11 : 9, the AAMC 32 : 25 of 20');
+  q = Q([{ code: '5A', k: 8, avail: { gen_chem: 9 } }, { code: '4E', k: 8, avail: { gen_chem: 9, organic_chem: 9 } }, { code: '4A', k: 8, avail: { organic_chem: 9, physics: 9 } }]);
+  assert.deepEqual(Object.fromEntries(Object.entries(q).map(([c, x]) => [c, Object.values(x).reduce((a, b) => a + b, 0)])), { '5A': 8, '4E': 8, '4A': 8 }, 'category counts unchanged');
+  const dayOf = q => Object.values(q).reduce((o, x) => { for (const [d, n] of Object.entries(x)) o[d] = (o[d] || 0) + n; return o; }, {});
+  assert.deepEqual(dayOf(q), { gen_chem: 11, organic_chem: 5, physics: 8 }, 'a chain: 4E gives general chemistry to organic, 4A organic to physics');
+  q = Q([{ code: '5C', k: 4, avail: { organic_chem: 2 } }]);
+  assert.deepEqual(q, { '5C': { organic_chem: 2 } }, 'never more than a category has');
 
   // The picking order (masteryTierRank): missed or due first, then weak sub-topics (weakest first), then the rest.
   const missed = ['5Dbiochemistry17', '5Dbiochemistry18', '5Dorganic_chem19'], due = ['5Dbiochemistry16', '5Egen_chem29'];
@@ -252,14 +265,14 @@ if (STRICT) assert.equal(missing, 0, `STRICT_QUIZ_MIX: ${missing} of ${POOL.leng
   assert(mixed.includes("Object.assign(row, { split: 'exact', weakT: p.weakT || [] })"), 'a new day row is stored with the exact split marker');
   assert(!src.includes('+ extra'), 'no "+ extra" wording on TODAY'); }
 
-// 8. Pool shortfalls per step, from the real app's pools: each category's pool against the day's AAMC count (50),
-// and within each category each discipline's cards against its AAMC share; for passages, the pool's questions by
+// 8. Pool shortfalls per step, from the real app's pools: each category's pool against the day's AAMC count (50);
+// the day's discipline shares over 200 simulated days; for passages, the pool's questions by
 // category, discipline, skill and difficulty against the day's targets, and each greedy day's gaps (section 5).
 { const storage = new Map(), node = () => ({ innerHTML: '', textContent: '', value: '', style: {}, dataset: {}, classList: { toggle() {}, add() {}, remove() {} }, setAttribute() {}, focus() {}, scrollIntoView() {}, remove() {}, querySelectorAll() { return []; } });
   const app = vm.createContext({ console: { log() {}, warn() {}, error() {} }, Date, Math, Map, Set, URLSearchParams, setInterval() { return 1; }, clearInterval() {}, setTimeout() {}, confirm() { return true; }, alert() {}, navigator: {}, location: { protocol: 'http:', search: '' }, window: { scrollTo() {} }, document: { getElementById: node, querySelectorAll() { return []; }, addEventListener() {} }, localStorage: { getItem: k => storage.get(k), setItem: (k, v) => storage.set(k, v), removeItem: k => storage.delete(k) } });
   const run = code => vm.runInContext(code, app);
   for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(root + '/js/app.js', 'utf8'))[1])()).flat()) run(fs.readFileSync(root + '/' + f, 'utf8'));
-  for (const [, file] of fs.readFileSync(root + '/index.html', 'utf8').matchAll(/<script src="([^"]+)"/g)) run(fs.readFileSync(root + '/' + file, 'utf8'));
+  for (const [, file] of fs.readFileSync(root + '/index.html', 'utf8').matchAll(/<script src="([^"?]+)/g)) run(fs.readFileSync(root + '/' + file, 'utf8'));
   const pools = JSON.parse(run(`JSON.stringify({ flashcards: masteryFlashPool('cp').map(q => [masteryCategory(q), disciplineOfRecall(q)]), guided: masteryPracticePool('cp').map(q => [q.aamc, disciplineOfRecall(q)]) })`));
   assert(pools.flashcards.length > 0); assert.equal(pools.guided.length, 354);
   const dw = Object.fromEntries(discW);
@@ -268,8 +281,6 @@ if (STRICT) assert.equal(missing, 0, `STRICT_QUIZ_MIX: ${missing} of ${POOL.leng
     for (const c of CATS) {
       const have = list.filter(([x]) => x === c), need = L50[c];
       if (have.length < need) shortfalls.push(`${step}: category ${c} ${have.length}/${need} cards (-${need - have.length})`);
-      const share = lr(Math.min(need, have.length), dw);
-      for (const [d, k] of Object.entries(share)) { const n = have.filter(([, x]) => x === d).length; if (n < k) shortfalls.push(`${step}: ${c} discipline ${d} ${n}/${k} (-${k - n}; filled from the category's other disciplines)`); }
     } }
   // A day's set as the app builds it: each step's 50 by category, and its disciplines over the whole step.
   const D50 = lr(50, dw);
@@ -280,6 +291,37 @@ if (STRICT) assert.equal(missing, 0, `STRICT_QUIZ_MIX: ${missing} of ${POOL.leng
     assert.deepEqual(got.cats, Object.fromEntries(CATS.filter(c => L50[c]).map(c => [c, L50[c]])), step + ': a built set has exactly the AAMC category counts');
     for (const [d, v] of Object.entries(D50)) if ((got.discs[d] || 0) !== v) shortfalls.push(`${step}: day's set discipline ${d} ${got.discs[d] || 0}/${v} (${(got.discs[d] || 0) > v ? '+' : ''}${(got.discs[d] || 0) - v})`);
   }
+  // The day's disciplines, over 200 simulated days of each step (the app's own picker, a fresh student): each
+  // discipline's share of the day is within ±3 points of its AAMC weight wherever the pool allows. Where the
+  // categories cannot reach the weight (the bounds below: every category gives the discipline as many, or as few,
+  // of its cards as it can), the day must sit at that bound.
+  const DAYS = 200, dayShares = {};
+  for (const [step, pool, catOf] of [['flashcards', "masteryFlashPool('cp')", 'masteryCategory'], ['guided', "masteryPracticePool('cp')", 'q => q.aamc']]) {
+    const sim = JSON.parse(run(`(() => { const pool = ${pool}, catOf = ${catOf}, days = [], bounds = {};
+      const st = () => ({ topics: ${JSON.stringify(CATS.map(c => ({ code: c, need: L50[c], progress: 0 })))} });
+      for (const [d] of masteryWeights('cp', 'discs')) { let lo = 0, hi = 0;
+        for (const t of st().topics) { const cards = pool.filter(q => catOf(q) === t.code), n = cards.filter(q => disciplineOfRecall(q) === d).length;
+          hi += Math.min(t.need, n); lo += Math.max(0, t.need - (cards.length - n)); }
+        bounds[d] = [lo, hi]; }
+      for (let i = 0; i < ${DAYS}; i++) { const r = masteryTopicSet(st(), pool, catOf, pickQuestions, { discOf: disciplineOfRecall, discW: masteryWeights('cp', 'discs') });
+        const o = { n: r.list.length }; r.list.forEach(q => { const d = disciplineOfRecall(q); o[d] = (o[d] || 0) + 1; }); days.push(o); }
+      return JSON.stringify({ days, bounds }); })()`));
+    const range = {};
+    for (const [d, w] of discW) {
+      const [lo, hi] = sim.bounds[d], want = 50 * w / 100, reach = Math.min(hi, Math.max(lo, want));
+      for (const [i, o] of sim.days.entries()) {
+        const got = o[d] || 0, pts = 100 * got / o.n;
+        assert.equal(o.n, 50, `${step} day ${i}: 50 cards`);
+        if (reach === want) assert(Math.abs(pts - w) <= 3, `${step} day ${i}: ${d} ${pts}% vs AAMC ${w}% (±3 points)`);
+        else assert(Math.abs(got - reach) <= 1, `${step} day ${i}: ${d} ${got} cards; the pool allows at most ${hi}, at least ${lo}`);
+      }
+      const v = sim.days.map(o => 100 * (o[d] || 0) / o.n);
+      range[d] = Math.min(...v) === Math.max(...v) ? Math.min(...v).toFixed(0) + '%' : Math.min(...v).toFixed(0) + '–' + Math.max(...v).toFixed(0) + '%';
+    }
+    dayShares[step] = range;
+  }
+  console.log(`Day's discipline shares over ${DAYS} simulated days (AAMC ${discW.map(([d, w]) => d.replace('_chem', ' chem') + ' ' + w + '%').join(', ')}):`);
+  for (const [step, r] of Object.entries(dayShares)) console.log('  ' + step + ': ' + Object.entries(r).map(([d, v]) => d.replace('_chem', ' chem') + ' ' + v).join(', '));
   const qs = PRAC.flatMap(p => p.questions.map(q => [p, q]));
   for (const [k, , val, name] of MEAS) {
     const tgt = k === 'cats' ? L50 : lr(50, Object.fromEntries(call('masteryWeights', 'cp', k)));

@@ -54,10 +54,9 @@
     return new RegExp('(?:^|[^\\p{L}\\p{N}_-])' + escaped + '(?=$|[^\\p{L}\\p{N}_-])', 'iu').test(String(stem));
   }
 
-  // Cards added 2026-11-15 with their stems and choices fixed as supplied. In four, the stem's data names every
-  // choice (pe4-cp:23 lines A–D, pe6-cp:31 treatments, pe6-cp:40 charge values, sample-cp:32 sites A and B). In six,
-  // the key is the longest choice (pe3-cp:1, sample-cp:14, 16, 29, 30, 31), listed for the student to review.
-  const AS_SUPPLIED = new Set(['pe4-cp:23', 'pe6-cp:31', 'pe6-cp:40', 'sample-cp:32', 'pe3-cp:1', 'sample-cp:14', 'sample-cp:16', 'sample-cp:29', 'sample-cp:30', 'sample-cp:31']);
+  // Cards added 2026-11-15 with their stems and choices fixed as supplied: the stem's data names every choice
+  // (pe4-cp:23 lines A–D, pe6-cp:31 treatments, pe6-cp:40 charge values, sample-cp:32 sites A and B).
+  const AS_SUPPLIED = new Set(['pe4-cp:23', 'pe6-cp:31', 'pe6-cp:40', 'sample-cp:32']);
   function checkQuestion(where, q, opts = {}) {
     if (!q || typeof q.q !== 'string' || !q.q.trim()) return err(where, 'missing stem');
     if (!Array.isArray(q.choices) || q.choices.length !== 4) return err(where, `needs 4 choices (has ${q.choices && q.choices.length})`);

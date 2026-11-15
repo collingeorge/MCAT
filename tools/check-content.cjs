@@ -4,7 +4,7 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const context = vm.createContext({ window: {}, document: { getElementById() { return {innerHTML: ''}; } } });
-for (const [, file] of index.matchAll(/<script src="(data\/[^"]+)"/g)) vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), context, {filename:file});
+for (const [, file] of index.matchAll(/<script src="(data\/[^"?]+)/g)) vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), context, {filename:file});
 // Banks the app loads on demand (BANKS in js/app.js) are checked too.
 const banks = new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(path.join(root, 'js/app.js'), 'utf8'))[1])();
 for (const file of Object.values(banks).flat()) vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), context, {filename:file});

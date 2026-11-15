@@ -12,7 +12,7 @@ const run = code => vm.runInContext(code, ctx);
 const index = fs.readFileSync(root + '/index.html', 'utf8');
 // Banks the app loads on demand (BANKS in js/app.js), loaded first as the browser would have them.
 for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(root + '/js/app.js', 'utf8'))[1])()).flat()) run(fs.readFileSync(root + '/' + f, 'utf8'));
-for (const [, file] of index.matchAll(/<script src="([^"]+)"/g)) if (!/account|cloud-config|pages/.test(file)) run(fs.readFileSync(root + '/' + file, 'utf8'));
+for (const [, file] of index.matchAll(/<script src="([^"?]+)/g)) if (!/account|cloud-config|pages/.test(file)) run(fs.readFileSync(root + '/' + file, 'utf8'));
 const { ACTIONS, parse } = run('McatActions');
 
 // CSP: no inline script anywhere and no third-party script origin.

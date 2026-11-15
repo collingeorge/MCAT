@@ -28,6 +28,7 @@ for (const q of FL.filter(q => q.how || /^pe6-/.test(q.src))) {
 // Cards added 2026-11-15 (the Sample Test and the Practice Exam gaps) are new, so they have no earlier identity to keep.
 const ADDED = new Set(['pe1-cp:2', 'pe1-cp:18', 'pe1-cp:27', 'pe1-cp:36', 'pe1-cp:38', 'pe1-cp:41', 'pe1-cp:43', 'pe1-cp:49', 'pe3-cp:1', 'pe3-cp:4', 'pe3-cp:30', 'pe3-cp:31', 'pe3-cp:35', 'pe3-cp:43',
   'pe4-cp:7', 'pe4-cp:21', 'pe4-cp:23', 'pe4-cp:24', 'pe4-cp:31', 'pe4-cp:33', 'pe5-cp:30', 'pe5-cp:43', 'pe6-cp:3', 'pe6-cp:14', 'pe6-cp:21', 'pe6-cp:31', 'pe6-cp:33', 'pe6-cp:39', 'pe6-cp:40']);
+const REWORDED_ADDED = new Set(['sample-cp:47', 'pe4-cp:7']);
 const isAdded = q => ADDED.has(q.src) || /^sample-cp:/.test(q.src);
 assert.equal(FL.filter(isAdded).length, 88, '59 Sample Test cards and 29 Practice Exam gap cards');
 // A parenthetical gloss in a choice (words inside parentheses) can label why it is right. Formula parentheses such as
@@ -38,7 +39,8 @@ for (const q of FL) {
   assert(q.how, q.src + ': has a worked method');
   assert(GLOSS_OK.has(q.src) || q.choices.every(c => !/\([^()]*\s[^()]*\)/.test(c)), q.src + ': no parenthetical hint in choices');
   assert(!/\b(RATIO|MUST)\b/.test(q.q), q.src + ': no capitalized cue words beyond NOT/EXCEPT');
-  if (isAdded(q)) assert.equal(q.idStem, undefined, q.src + ': a new card has no earlier stem');
+  // Two added cards were reworded after they shipped (2026-11-15: pH 7 → pH 8, 1:20 → 20-fold); they keep the stem they shipped with.
+  if (isAdded(q) && !REWORDED_ADDED.has(q.src)) assert.equal(q.idStem, undefined, q.src + ': a new card has no earlier stem');
   else assert(typeof q.idStem === 'string' && q.idStem !== q.q, q.src + ': original stem kept as idStem');
 }
 assert(source.includes("let id = 'fl-' + hashId(q.s + '|' + (q.idStem || q.q));"), 'FL ids use idStem');
@@ -103,7 +105,7 @@ for (const [name, svg] of Object.entries(STRUCT)) {
 assert(fs.statSync(root + '/data/structures.js').size < 2.5 * 1024 * 1024, 'data/structures.js stays under its 2.5 MB budget');
 // The drawings load on demand (Practice Exam sessions), not as a script tag on every page; they stay precached.
 for (const page of ['index.html', 'flprep.html', 'aamc.html', 'recall-session.html']) assert(!fs.readFileSync(root + '/' + page, 'utf8').includes('data/structures.js'), page + ' does not load the drawings up front');
-assert(source.includes("el.src = 'data/structures.js';") && source.includes('loadStructsFor(items);') && source.includes("if (view === 'exam') { ensureStructs()"), 'drawings load when Practice Exam cards are used');
+assert(source.includes("el.src = 'data/structures.js' + ASSET_V;") && source.includes('loadStructsFor(items);') && source.includes("if (view === 'exam') { ensureStructs()"), 'drawings load when Practice Exam cards are used');
 const sw = fs.readFileSync(root + '/sw.js', 'utf8');
 assert(sw.includes("'data/structures.js'"), 'structures are cached for offline use');
 // Only the Practice Exam cards: no extra card sets or passages ride along.

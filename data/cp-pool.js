@@ -3886,7 +3886,7 @@ const CP_POOL = [
       "cat": "4D",
       "skill": "SIRS 4",
       "diff": "X",
-      "exp": "At 660 nm: Hb 3230 vs HbO₂ 320, so Hb absorbs about **10 times** more strongly. That is why deoxygenated blood looks darker in red light.\nThe second choice reverses the 660 nm row.\nAt 940 nm the order flips: HbO₂ (1210) absorbs about 2 times more than Hb (690), so the third choice reverses that row.\nThe two forms clearly differ at both wavelengths, which is why two wavelengths are used."
+      "exp": "At 660 nm: Hb 3230 vs HbO₂ 320, so Hb absorbs about **10 times** more strongly. That is why deoxygenated blood looks darker in red light.\n\"At 660 nm, HbO₂ absorbs about 10 times more strongly than Hb\" reverses the 660 nm row.\nAt 940 nm the order flips: HbO₂ (1210) absorbs about 2 times more than Hb (690), so \"At 940 nm, Hb absorbs about 2 times more strongly than HbO₂\" reverses that row.\nThe two forms clearly differ at both wavelengths, which is why two wavelengths are used."
      },
      {
       "id": "p_cpp5_6_q2",

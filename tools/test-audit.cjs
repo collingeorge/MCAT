@@ -12,7 +12,7 @@ async function main() {
  const index = fs.readFileSync(root+'/index.html','utf8');
  // Banks the app loads on demand (BANKS in js/app.js), loaded first as the browser would have them.
  for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(root + '/js/app.js', 'utf8'))[1])()).flat()) run(fs.readFileSync(root + '/' + f, 'utf8'));
- for (const [,file] of index.matchAll(/<script src="([^"]+)"/g)) run(fs.readFileSync(root+'/'+file,'utf8'));
+ for (const [,file] of index.matchAll(/<script src="([^"?]+)/g)) run(fs.readFileSync(root+'/'+file,'utf8'));
  // The app's own recall decks were removed: only the AAMC QBank and Practice Exam cards remain.
  assert.equal(run('QB.length'),0); assert(run('AQB_QBANK.length')>1000);
  assert.match(run('fmt('+JSON.stringify('<img src=x onerror=alert(1)> **safe** _____')+')'),/&lt;img/);

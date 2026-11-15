@@ -32,6 +32,9 @@
 //     clause such as ", because …" is part of the answer, not a frame);
 //   7 no meta wording ("this card", "flashcard", "this question card");
 //   8 explanations never name answer letters ("choice B", "(C)").
+// Part C, every bank in data/ (all sections, not only C/P): no exp, how or teach text points at a choice by
+//   position ("the second choice", "the last option") or letter ("choice B", "option D"). The app sorts numeric
+//   choices and shuffles all others, so a position names the wrong choice; name the choice by its text instead.
 // Run with --list to print every finding, --json=<file> to save the numbers, --data=<dir> to measure another copy
 // of data/.
 const fs = require('node:fs');
@@ -216,6 +219,42 @@ for (const f of files) {
   }
   if (median(s.choice) > 4) { fail('choiceMedian'); add(f, { id: '(file)' }, 'choiceMedian', 'median ' + median(s.choice) + ' (≤ 4)'); }
   if (pct(s.choice, 0.9) > 12) { fail('choiceP90'); add(f, { id: '(file)' }, 'choiceP90', 'p90 ' + pct(s.choice, 0.9) + ' (≤ 12)'); }
+}
+
+// ── Part C: positional and letter references in every bank ──
+const POSITION_REF = /\b(first|second|third|fourth|last|final) (choice|option|answer)s?\b/i;
+const LETTER_CHOICE = /\b(choice|option)s?\s*\(?[A-D]\)?(?![\w-])/i;
+const positionFindings = [];
+{
+  const ctx = vm.createContext({}), names = [];
+  const order = fs.readdirSync(DATA).filter(f => f.endsWith('.js')).sort((a, b) => (a === 'exams.js') - (b === 'exams.js') || a.localeCompare(b));
+  for (const f of order) {
+    const t = read(f);
+    vm.runInContext(t, ctx, { filename: f });
+    for (const m of t.matchAll(/^const ([A-Za-z_$][\w$]*)\s*=/gm)) names.push([f, m[1]]);
+  }
+  const seen = new Set();
+  const texts = (v, out) => {
+    if (typeof v === 'string') out.push(v);
+    else if (v && typeof v === 'object') for (const x of Object.values(v)) texts(x, out);
+    return out;
+  };
+  const walk = (v, file, where) => {
+    if (!v || typeof v !== 'object' || seen.has(v)) return;
+    seen.add(v);
+    const id = v.id || v.src || where;
+    for (const k of ['exp', 'how', 'teach']) if (k in v) for (const t of texts(v[k], [])) {
+      const m = POSITION_REF.exec(strip(t)) || LETTER_CHOICE.exec(strip(t));
+      if (m) positionFindings.push(`${file} ${id} [${k}] "${m[0]}"`);
+    }
+    for (const [k, x] of Object.entries(v)) if (!['how', 'teach'].includes(k)) walk(x, file, where + '.' + k);
+  };
+  for (const [f, n] of names) walk(vm.runInContext('typeof ' + n + ' === "undefined" ? null : ' + n, ctx), f, n);
+}
+if (positionFindings.length) {
+  for (const x of positionFindings) console.error('position reference: ' + x);
+  console.error(`Choice position references: ${positionFindings.length} (choices are sorted or shuffled; quote the choice instead)`);
+  process.exit(1);
 }
 
 // ── Report ──
