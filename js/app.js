@@ -245,22 +245,39 @@ function buildFlq() {
   });
   FL_TESTS.push(...[...new Set(FLQ.map(q => q.s))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true })));
 }
+// C/P Practice Test flashcards (data/cp-test-cards.js): original cards that teach what the C/P questions of AAMC
+// Practice Exams 1, 3, 4, 5 and 6 need; each names its Practice Exam card(s) in `from`. TODAY's C/P flashcard step
+// uses only these (masteryFlashPool in js/mastery.js). Their own pool, kept out of QB, the QBank section and
+// Full-Length Prep. Loaded on demand (BANKS.cpt).
+const CPT_SECTION = { id: 'cp_test', label: 'C/P Practice Test Flashcards' };
+const CPTQ = [];
+const CPTQ_BY_ID = new Map();
+SUBJECT_LABEL[CPT_SECTION.id] = CPT_SECTION.label;
+function buildCpt() {
+  if (CPTQ.length || typeof CP_TEST_CARDS === 'undefined') return;
+  CP_TEST_CARDS.forEach(q => {
+    Object.assign(q, { subj: CPT_SECTION.id, key: CPT_SECTION.id + '|' + q.s });
+    CPTQ.push(q);
+    CPTQ_BY_ID.set(q.id, q);
+  });
+}
 // ── Data banks loaded on demand ──
 // Pages load only what every screen needs. The large banks below load the first time a screen uses them (and are
 // cached offline by the service worker). BANK_COUNTS gives the home screen its numbers before they load;
 // tools/test-pages.cjs checks them against the data.
 // ASSET_V: the deploy's version (sw.js CACHE), added to every script the app loads on demand so the browser's HTTP
 // cache never serves one from an earlier deploy. Written by tools/generate-pages.cjs; do not edit by hand.
-const ASSET_V = '?v=mcat-v2.66-cp-twins-2026-11-15';
-const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'] };
-const BANK_COUNTS = { fl: 354, flCp: 354, flTests: 6 };
-const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined' };
+const ASSET_V = '?v=mcat-v2.67-cp-test-cards-2026-11-15';
+const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'], cpt: ['data/cp-test-cards.js'] };
+const BANK_COUNTS = { fl: 354, flCp: 295, flTests: 6 };
+const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined', cpt: () => typeof CP_TEST_CARDS !== 'undefined' };
 const bankDone = Object.create(null), bankLoading = Object.create(null);
 function bankReady(name) {
   if (bankDone[name]) return true;
   if (!BANK_PRESENT[name] || !BANK_PRESENT[name]()) return false;
   bankDone[name] = true;
   if (name === 'fl') buildFlq();
+  if (name === 'cpt') buildCpt();
   return true;
 }
 function loadScript(src) {
@@ -288,8 +305,9 @@ function withBank(name, fn) {
 const flCount = () => (bankReady('fl') ? FLQ.length : BANK_COUNTS.fl);
 const isFl = q => !!q && q.subj === FL_SECTION.id;
 const isAamc = q => !!q && (q.subj === AAMC_SECTION.id || q.subj === FL_SECTION.id);
-const bankOf = q => (isFl(q) ? FLQ : isAamc(q) ? AQB : QB);
-const lookupQ = id => QB_BY_ID.get(id) || AQB_BY_ID.get(id) || FLQ_BY_ID.get(id);
+const isCpt = q => !!q && q.subj === CPT_SECTION.id;
+const bankOf = q => (isCpt(q) ? CPTQ : isFl(q) ? FLQ : isAamc(q) ? AQB : QB);
+const lookupQ = id => QB_BY_ID.get(id) || AQB_BY_ID.get(id) || FLQ_BY_ID.get(id) || CPTQ_BY_ID.get(id);
 const countAamcKeys = keys => keys.reduce((n, k) => n + (AQB_KEY_COUNTS[k] || 0), 0);
 
 // Lookup tables keyed by names that also appear in stored data are prototype-free, so a stored

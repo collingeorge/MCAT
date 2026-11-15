@@ -1,6 +1,7 @@
 // Section Mastery path: one MCAT section at a time, as the exam tests it: C/P first, then B/B, then P/S.
 //   First: a diagnostic (a full section, scored 118–132, weak AAMC content categories shown; it can be retaken).
-//   Then every day, exactly 3 steps: 1 50 QBank flashcards → 2 50 guided Practice Exam cards with step-by-step
+//   Then every day, exactly 3 steps: 1 50 flashcards (C/P: the Practice Test flashcards of data/cp-test-cards.js, built
+//   from the C/P questions of Practice Exams 1, 3, 4, 5 and 6; no QBank card) → 2 50 guided Practice Exam cards with step-by-step
 //   lessons → 3 a 30-question quiz from data/cp-pool.js (half an AAMC section in exam order), unlocked once steps 1
 //   and 2 are done → done for the day at goal, otherwise a follow-up on the quiz's misses and weak categories with
 //   flashcards and guided cards.
@@ -15,8 +16,9 @@
 //   pracX, pracUsed) are ignored.
 //   Reaching the goal (128 by default) on the quiz on MASTERY.passDays separate days in a row moves the path to the
 //   next section, which starts with its own diagnostic.
-// Only approved content is used: the AAMC QBank cards, the Practice Exam cards, the C/P diagnostic and quiz
-// passages (data/cp-diagnostic.js, data/cp-pool.js) and, for other sections until they have their own sets, the QBank cards.
+// Only approved content is used. C/P: the Practice Test flashcards (data/cp-test-cards.js), the Practice Exam cards
+// of Practice Exams 1, 3, 4, 5 and 6 (no Sample Test card) and the C/P diagnostic and quiz passages (data/cp-diagnostic.js,
+// data/cp-pool.js). Other sections, until they have their own sets: the QBank cards.
 // The scaled scores use the app's raw-to-scaled table (rawToScaled in app.js): an estimate, not an AAMC score.
 // masteryPlan() is pure (no storage, DOM or clock) so tools/test-mastery.cjs can test it with node.
 const MASTERY = {
@@ -263,17 +265,24 @@ function masteryTierPick(cards, k, tierOf, pick) {
   }
   return got;
 }
+// A card is a front card when its own src is in the set (a Practice Exam card) or, for a Practice Test flashcard
+// (data/cp-test-cards.js, its subj 'cp_test'), when its `from` names one.
+function masteryIsFront(q, front) {
+  if (!q || !front || !front.size) return false;
+  if (q.src && front.has(q.src)) return true;
+  return q.subj === 'cp_test' && Array.isArray(q.from) && q.from.some(s => front.has(s));
+}
 // The picking order within a category (pure; the app passes its saved data): 0 missed cards (o.missed, a Set of
 // ids: today's and the latest test's misses) and cards due for review (o.due(q): memory below the target
 // retention); 1 + accuracy for cards whose sub-topic (o.acc(q): the card's s tag, for Practice Exam cards its
 // source exam; saved % right as 0–1, null when never answered) is weak (below MASTERY.weakBelow), weakest first;
 // 3 the rest.
-// A card whose src is in o.front (the twin of a question missed on the latest diagnostic or quiz) comes before all
-// of them (-1): it takes one of its own category's slots, so the day's counts don't change.
+// A front card (masteryIsFront: the twin of a question missed on the latest diagnostic or quiz, or a Practice Test
+// flashcard built from that twin) comes before all of them (-1): it takes one of its own category's slots, so the day's counts don't change.
 function masteryTierRank(o = {}) {
   const missed = o.missed || new Set(), due = o.due || (() => false), acc = o.acc || (() => null), front = o.front || new Set();
   return q => {
-    if (q.src && front.has(q.src)) return -1;
+    if (masteryIsFront(q, front)) return -1;
     if (missed.has(q.baseId || q.id) || missed.has(q.id) || due(q)) return 0;
     const a = acc(q);
     return Number.isFinite(a) && a < MASTERY.weakBelow / 100 ? 1 + a : 3;
@@ -338,7 +347,7 @@ function masteryPlan(raw, today, sizes = {}) {
   out.masteredToday = m.passed[subj] === today;
   if (!diag) { out.status = 'diagnostic'; out.steps.push({ id: 'diagnostic', done: false }); return out; }
   // The daily plan, in the student's order: the diagnostic (done, with a retake), then the 3 daily steps:
-  // 1 flashcards (QBank), 2 guided Practice Exam cards with walkthroughs, 3 the 30-question quiz; after the quiz:
+  // 1 flashcards (C/P: Practice Test flashcards), 2 guided Practice Exam cards with walkthroughs, 3 the 30-question quiz; after the quiz:
   // done for the day at goal, otherwise work on the quiz's misses and weak categories with flashcards and guided
   // cards. Study starts the day of the diagnostic.
   const row = m.days[today]?.subj === subj ? m.days[today] : {};
@@ -396,8 +405,8 @@ function masteryApplyTest(raw, test) {
 function masteryPlanNow(m = masteryLoad(), day = localDay()) {
   const subj = masterySubject(m, day);
   const sizes = { guided: subj ? masteryPracticeCount(subj) : 0 };
-  // Each category's pool, so a small one gives its shortfall to the next (Practice Exam cards: once loaded).
-  if (subj && MASTERY.blueprint[subj]) Object.assign(sizes, { flashCats: masteryCatCounts(masteryFlashPool(subj), masteryCategory),
+  // Each category's pool, so a small one gives its shortfall to the next (the on-demand banks: once loaded).
+  if (subj && MASTERY.blueprint[subj]) Object.assign(sizes, { flashCats: masteryFlashReady(subj) ? masteryCatCounts(masteryFlashPool(subj), masteryCategory) : null,
     guidedCats: bankReady('fl') ? masteryCatCounts(masteryPracticePool(subj), q => q.aamc) : null });
   return masteryPlan(m, day, sizes);
 }
@@ -406,11 +415,20 @@ const masterySection = s => MCAT_SECTIONS.find(x => x.id === s);
 const masteryName = s => { const x = masterySection(s); return x ? x.abbrev + ' · ' + x.label : String(s || ''); };
 // The section's disciplines, most heavily tested first (AAMC: C/P is 30% general chemistry, 25% physics, …).
 const masteryDiscs = s => Object.entries(masterySection(s)?.weights || {}).filter(([d]) => d !== 'cars').sort((a, b) => b[1] - a[1]);
-// Flashcards for the section: the AAMC QBank cards only (no other deck fills a gap).
-function masteryFlashPool(s) { return masteryExamPool(s); }
-// Practice Exam cards: the C/P cards come from the AAMC practice exams' C/P sections.
+// Flashcards for the section. C/P: only the Practice Test flashcards (data/cp-test-cards.js, BANKS.cpt in app.js),
+// in a C/P content category; no QBank card and no other deck fills a gap (a short category is reported by
+// tools/test-cp-test-cards.cjs). Other sections: the AAMC QBank cards.
+const MASTERY_PE = /^pe\d-cp:/;   // the Practice Exam C/P cards (Practice Exams 1, 3, 4, 5, 6; no Sample Test)
+function masteryFlashPool(s) {
+  if (s !== 'cp') return masteryExamPool(s);
+  if (!bankReady('cpt')) return [];
+  const cats = new Set(MASTERY.topics.cp);
+  return CPTQ.filter(q => cats.has(masteryCategory(q)));
+}
+const masteryFlashReady = s => s !== 'cp' || bankReady('cpt');
+// Practice Exam cards: the C/P cards of Practice Exams 1, 3, 4, 5 and 6 (the Sample Test cards stay out of TODAY).
 // Loaded on demand (BANKS.fl in app.js): until then the plan uses the known count.
-const masteryPracticePool = s => (s === 'cp' && bankReady('fl') ? FLQ.filter(q => /^(pe\d|sample)-cp:/.test(q.src)) : []);
+const masteryPracticePool = s => (s === 'cp' && bankReady('fl') ? FLQ.filter(q => MASTERY_PE.test(q.src)) : []);
 const masteryPracticeCount = s => (s !== 'cp' ? 0 : bankReady('fl') ? masteryPracticePool(s).length : BANK_COUNTS.flCp);
 function masteryLoad() { return masteryNormalize(store.get(KEYS.subjectPath, {})); }
 // Keeps 60 days; the card-id lists (seen, guidedIds, lessonIds; pracUsed from the removed passage step) matter
@@ -466,6 +484,7 @@ function masteryNoteAnswer(q, right) {
 function startMasteryFollowup(kind) {
   const guided = kind !== 'flashcards';
   if (guided && !bankReady('fl')) { withBank('fl', () => startMasteryFollowup(kind)); return; }
+  if (!guided && !masteryFlashReady(masteryPlanNow().subj)) { withBank('cpt', () => startMasteryFollowup(kind)); return; }
   const plan = masteryPlanNow(), f = plan.steps.find(s => s.id === 'followup');
   if (!f) return;
   const cats = f.weak.length ? f.weak : plan.topics.slice(0, 3);
@@ -508,8 +527,9 @@ function masteryBegin(plan, step, pool, catOf, label, mode, more) {
   // discipline, missed and due cards, then the weakest sub-topics, then the rest (counts never change).
   const discW = plan.split !== 'topics' ? masteryWeights(plan.subj, 'discs') : null;
   const { list: picked, topicOf } = masteryTopicSet(step, pool, catOf, pickQuestions, { seen: new Set(row.seen || []), discOf: disciplineOfRecall, discW, tierOf: masteryTierOf(m, plan, row) });
-  // Missed questions' twin cards open the step (they already hold a slot in their own category).
-  const front = masteryTwinFront(plan), list = [...picked.filter(q => q.src && front.has(q.src)), ...picked.filter(q => !(q.src && front.has(q.src)))];
+  // Missed questions' twin cards open the step (they already hold a slot in their own category): the Practice Exam
+  // twin in the guided step, the Practice Test flashcards built from it in the flashcard step.
+  const front = masteryTwinFront(plan), list = [...picked.filter(q => masteryIsFront(q, front)), ...picked.filter(q => !masteryIsFront(q, front))];
   if (!list.length) { masteryNotice('Nothing left to practice in this step today. Choose “Another set” for more.'); return; }
   masteryStartQuiz(list, masterySection(plan.subj).abbrev + ' · ' + label, mode);
   quiz.topicOf = topicOf;
@@ -526,11 +546,12 @@ function masteryTierOf(m, plan, row) {
   const acc = q => { const r = stats[q.key || q.s]; return r && Number.isFinite(r.c) && Number.isFinite(r.t) && r.t > 0 ? r.c / r.t : null; };
   return masteryTierRank({ missed, due, acc, front: masteryTwinFront(plan) });
 }
-// The twin cards (by src) of the questions missed on the latest diagnostic or quiz. A Practice Exam twin (it has a
-// walkthrough) leads the guided step; a QBank twin leads the flashcards: each card lives in only one of the pools.
+// The twin cards (by src) of the questions missed on the latest diagnostic or quiz, Practice Exam 1/3/4/5/6 twins
+// only (a twin on a Sample Test or QBank card is skipped: TODAY no longer teaches those). The Practice Exam card
+// leads the guided step; the Practice Test flashcards whose `from` names it lead the flashcard step.
 function masteryTwinFront(plan) {
   const latest = plan && plan.latest;
-  return new Set(((latest && latest.twinMisses) || []).filter(x => typeof x === 'string'));
+  return new Set(((latest && latest.twinMisses) || []).filter(x => typeof x === 'string' && MASTERY_PE.test(x)));
 }
 function masteryStartQuiz(list, label, mode) {
   beginQuiz(list, label, { mastery: mode });
@@ -559,8 +580,9 @@ function startMasteryGuided(more) {
 }
 // Regular flashcards for today's sub-topics.
 function startMasteryFlashcards(more) {
+  if (!masteryFlashReady(masteryPlanNow().subj)) { withBank('cpt', () => startMasteryFlashcards(more)); return; }
   const plan = masteryPlanNow();
-  // QBank cards only, in today's content categories (weakest first).
+  // C/P: Practice Test flashcards only (other sections: QBank cards), in today's content categories.
   masteryBegin(plan, plan.steps.find(s => s.id === 'flashcards'), masteryFlashPool(plan.subj), masteryCategory, 'flashcards', 'flashcards', more);
 }
 // Step 3, the daily quiz, unlocks once steps 1 and 2 (flashcards, guided cards with their lessons) are done.

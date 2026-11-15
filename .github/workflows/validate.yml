@@ -59,6 +59,8 @@ jobs:
         run: node tools/test-worked-methods.cjs
       - name: Twins of studied cards (C/P tests)
         run: node tools/test-twins.cjs
+      - name: C/P Practice Test flashcards and TODAY without the QBank
+        run: node tools/test-cp-test-cards.cjs
       - name: Cloud account isolation and sync regression
         run: node tools/test-account.cjs
       - name: Content validation

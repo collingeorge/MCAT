@@ -175,7 +175,9 @@ assert(src.includes("version: mini.setId || 'cards'") && src.includes('<b>earlie
 // A retake button runs the full diagnostic again once the first one is done.
 assert(src.includes("btn('Retake diagnostic', \"startMasteryTest('diagnostic')\", s.old)"), 'step 1 offers the retake (the main button while the old diagnostic is current)');
 assert(src.includes('function startMasteryFollowup(kind)') && fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'startMasteryFollowup'"), 'after-quiz practice wired and allowlisted');
-assert(src.includes('function masteryFlashPool(s) { return masteryExamPool(s); }') && !/QB\.filter/.test(src), 'flashcards are QBank cards only');
+// C/P flashcards are the Practice Test flashcards only (data/cp-test-cards.js); other sections keep the QBank cards.
+assert(src.includes("if (s !== 'cp') return masteryExamPool(s);") && src.includes('return CPTQ.filter(q => cats.has(masteryCategory(q)));') && !/QB\.filter|AQB/.test(src.slice(src.indexOf('function masteryFlashPool'), src.indexOf('const masteryFlashReady'))), 'C/P flashcards are Practice Test flashcards only; no QBank card');
+assert(src.includes("FLQ.filter(q => MASTERY_PE.test(q.src))") && src.includes('const MASTERY_PE = /^pe\\d-cp:/;'), 'guided cards are Practice Exam 1/3/4/5/6 cards only (no Sample Test)');
 // Regression (review 2.3): the streak counts daily quizzes on consecutive calendar days only.
 { const d = (day, kind, scaled) => test('cp', day, kind, scaled);
   const gap = [d('2026-11-01', 'diagnostic', 120), d('2026-11-01', 'daily', 128), d('2026-11-09', 'daily', 128)];
@@ -199,4 +201,4 @@ const names = [...block.matchAll(/^\s*([A-Za-z]+)\s*:/gm)].map(x => x[1]), value
 assert.equal(new Set(names).size, names.length, 'no duplicate KEYS names: ' + names.filter((n, i) => names.indexOf(n) !== i));
 assert.equal(new Set(values).size, values.length, 'no two KEYS share a storage key: ' + values.filter((n, i) => values.indexOf(n) !== i));
 assert(app.includes("subjectPath: 'mcat2_subject_path'") && app.includes('KEYS.studyPath, KEYS.subjectPath,'), 'own key, included in reset');
-console.log('Section mastery passed: C/P → B/B → P/S, each with its AAMC outline; diagnostic first, then the same day: 50 QBank flashcards → 50 guided Practice Exam cards → 30-question quiz (unlocked by the first two) → done at goal or practice the weak spots compared with the last; goal 128/129 on 2 separate days moves to the next subject and its diagnostic; manual subject choice; corrupt data tolerated.');
+console.log('Section mastery passed: C/P → B/B → P/S, each with its AAMC outline; diagnostic first, then the same day: 50 Practice Test flashcards → 50 guided Practice Exam cards → 30-question quiz (unlocked by the first two) → done at goal or practice the weak spots compared with the last; goal 128/129 on 2 separate days moves to the next subject and its diagnostic; manual subject choice; corrupt data tolerated.');
