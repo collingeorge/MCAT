@@ -243,4 +243,16 @@ assert(source.includes("+ howBox(view.q, { ctx: { mode: 'recall', view, prefix: 
 assert(fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'howStep'"));
 assert(source.includes("if (view.hint) quiz.pending.conf = 'unsure';"));
 assert(source.includes('how: howBox(r.view.q, { static: true })'));
+// AAMC lists numeric choices in order: a set of numbers in one unit is shown lowest to highest, never shuffled; others shuffle.
+{ const [, order] = new Function(source.slice(source.indexOf('function shuffled'), source.indexOf('\n}\n', source.indexOf('function choiceOrder')) + 3) + ';return [choiceNumber, choiceOrder]')();
+  const show = c => order(c).map(i => c[i]);
+  assert.deepEqual(show(["10,000 Cal", "1 Cal", "100 Cal", "10 Cal"]), ["1 Cal", "10 Cal", "100 Cal", "10,000 Cal"]);
+  assert.deepEqual(show(["30 μM", "3.0 μM", "300 μM", "3.0 mM"]), ["3.0 μM", "30 μM", "300 μM", "3.0 mM"]);
+  assert.deepEqual(show(["1/8", "3/8", "7/8", "2/3"]), ["1/8", "3/8", "2/3", "7/8"]);
+  assert.deepEqual(show(["10⁻⁸ W/m²", "10⁸ W/m²", "10⁻⁴ W/m²", "10⁻¹⁰ W/m²"]), ["10⁻¹⁰ W/m²", "10⁻⁸ W/m²", "10⁻⁴ W/m²", "10⁸ W/m²"]);
+  assert.deepEqual(show(['1.2 × 10²⁰ Hz', '1.2 × 10¹⁷ Hz', '8.1 × 10⁻²¹ Hz', '5.4 × 10⁻⁴⁷ Hz']), ['5.4 × 10⁻⁴⁷ Hz', '8.1 × 10⁻²¹ Hz', '1.2 × 10¹⁷ Hz', '1.2 × 10²⁰ Hz']);
+  assert.deepEqual(show(['−2', '−1', '0', '+1']), ['−2', '−1', '0', '+1']);
+  assert.deepEqual(show(['2.80 mg', '3.50 mg', '4.00 mg', '1.40 mg']), ['1.40 mg', '2.80 mg', '3.50 mg', '4.00 mg']);
+  assert.equal(order(['Line A', 'Line B', 'Line C', 'Line D']).length, 4, 'labels are shuffled, not sorted');
+  assert(source.includes('const order = choiceOrder(q.choices);') && source.includes('curQuestions().map(q => choiceOrder(q.choices))'), 'cards and exams use the ordered choices'); }
 console.log(`Worked methods passed: all ${FL.length} Full-Length Prep cards are in exam form with stable ids; walkthroughs use ${Object.keys(STRUCT).length} script-free RDKit drawings (generator in sync); all have what-it's-asking, what-to-know, steps and trap; two-stage hints hide steps and trap before answering; full method after answering and in the missed list; escaped; never on reworded forms.`);

@@ -293,10 +293,10 @@ const CP_DIAG = {
     {
      "q": "Which method would allow the researchers to find the percentage of cellular serine made from glucose, as reported in Table 1?",
      "choices": [
-      "Grow cells with glucose in which all six carbons are ¹³C, and use mass spectrometry to find the fraction of serine that is 3 mass units heavier than normal",
-      "Grow cells with glucose in which all six carbons are ¹³C, and use mass spectrometry to find the fraction of serine that is 6 mass units heavier than normal",
-      "Grow cells with ¹³C-labeled serine, and use mass spectrometry to find the fraction of Compound 1 that carries the label",
-      "Grow cells with ¹⁴C-labeled glucose, and measure the total radioactivity of the cells"
+      "Feed fully ¹³C-labeled glucose; find the serine fraction 3 mass units heavier.",
+      "Feed fully ¹³C-labeled glucose; find the serine fraction 6 mass units heavier.",
+      "Feed ¹³C-labeled serine; find the fraction of Compound 1 that is labeled.",
+      "Feed ¹⁴C-labeled glucose; measure the total radioactivity of the cells."
      ],
      "ans": 0,
      "cat": "5D",
@@ -363,9 +363,9 @@ const CP_DIAG = {
     {
      "q": "The Mg²⁺ ion has a much smaller radius than a neutral Mg atom because Mg²⁺:",
      "choices": [
-      "has lost both of its 3s electrons, so its outermost electrons are in the n = 2 shell.",
-      "has gained two protons, which pull the electron cloud closer to the nucleus.",
-      "has two more electrons than Mg, which increases the attraction to the nucleus.",
+      "has lost its 3s electrons, leaving its outermost electrons in n = 2.",
+      "has gained two protons, which pull the electrons closer to the nucleus.",
+      "has two more electrons than Mg, increasing their attraction to the nucleus.",
       "has a more massive nucleus, which holds the electrons more tightly."
      ],
      "ans": 0,
@@ -408,10 +408,10 @@ const CP_DIAG = {
     {
      "q": "A WE43 stent is placed so that it overlaps and touches a 316L stainless steel stent from an earlier procedure. Based on Table 1, what is the most likely result?",
      "choices": [
-      "The WE43 stent acts as the anode and corrodes faster than it would alone.",
-      "The steel stent acts as the anode and corrodes faster than it would alone.",
-      "The WE43 stent corrodes more slowly, because the steel supplies it with electrons.",
-      "Neither corrosion rate changes, because both stents are metals in the same fluid."
+      "WE43 acts as the anode and corrodes faster than it would alone.",
+      "Steel acts as the anode and corrodes faster than it would alone.",
+      "WE43 corrodes more slowly, because the steel supplies it with electrons.",
+      "Neither corrosion rate changes, because both are metals in the same fluid."
      ],
      "ans": 0,
      "cat": "4C",
@@ -584,10 +584,10 @@ const CP_DIAG = {
     {
      "q": "The researchers hypothesized that ionization of Compound 1 in water is endothermic. Which experiment would best test this hypothesis?",
      "choices": [
-      "Repeat the titration at several temperatures and compare the pH at the half-equivalence point.",
-      "Repeat the titration with several concentrations of Compound 1 and compare the pH at the half-equivalence point.",
-      "Repeat the titration at several temperatures and compare the volume of NaOH needed to reach the equivalence point.",
-      "Repeat the titration with 0.20 M NaOH and compare the pH at the equivalence point."
+      "Titrate at several temperatures; compare the pH at half-equivalence.",
+      "Titrate several concentrations of Compound 1; compare the pH at half-equivalence.",
+      "Titrate at several temperatures; compare the NaOH volume needed for equivalence.",
+      "Titrate with 0.20 M NaOH; compare the pH at equivalence."
      ],
      "ans": 0,
      "cat": "5E",
@@ -659,10 +659,10 @@ const CP_DIAG = {
     {
      "q": "If the catheter were replaced by one of the same length but half the inner radius, how would the pressure difference needed to keep delivering 2.0 mL/h change?",
      "choices": [
-      "It would increase by a factor of 4.",
-      "It would increase by a factor of 16.",
-      "It would decrease by a factor of 4.",
-      "It would decrease by a factor of 16."
+      "It increases 4-fold.",
+      "It increases 16-fold.",
+      "It decreases 4-fold.",
+      "It decreases 16-fold."
      ],
      "ans": 1,
      "cat": "4B",
@@ -861,9 +861,9 @@ const CP_DIAG = {
     {
      "q": "Tumor tissue shows emission peaks at both 635 nm and 705 nm, although only one excitation wavelength was used. The second peak most likely arises because the excited PpIX molecule:",
      "choices": [
-      "can return to more than one vibrational level of the ground electronic state.",
-      "can be raised to two different excited electronic states by the same photon.",
-      "loses part of each 635 nm photon's energy when that photon refracts in tissue.",
+      "can return to more than one vibrational level of the ground state.",
+      "can be raised to two excited electronic states by the same photon.",
+      "loses part of each 635 nm photon's energy by refraction in tissue.",
       "ejects an electron that carries away part of the absorbed energy."
      ],
      "ans": 0,
@@ -959,8 +959,8 @@ const CP_DIAG = {
      "choices": [
       "Replacing bromoethane with iodoethane",
       "Replacing bromoethane with chloroethane",
-      "Replacing acetone with ethanol as the solvent",
-      "Running the reaction at 25°C instead of at reflux"
+      "Using ethanol as solvent",
+      "Cooling to 25°C from reflux"
      ],
      "ans": 0,
      "cat": "5D",
@@ -972,10 +972,10 @@ const CP_DIAG = {
     {
      "q": "The ethyl acetate solution in Step 2 was washed with 1 M NaOH rather than with saturated NaHCO₃. What is the best reason for this choice?",
      "choices": [
-      "NaOH is a strong enough base to convert unreacted Compound 2 into a water-soluble ion, and NaHCO₃ is not.",
-      "NaOH is a strong enough base to convert Compound 3 into a water-soluble ion, and NaHCO₃ is not.",
-      "NaHCO₃ would convert unreacted Compound 2 into a water-soluble ion, but it would also hydrolyze Compound 3.",
-      "NaHCO₃ would react with leftover bromoethane, but NaOH removes K₂CO₃ that remains in the organic layer."
+      "NaOH, unlike NaHCO₃, converts unreacted Compound 2 to a water-soluble ion.",
+      "NaOH, unlike NaHCO₃, converts Compound 3 to a water-soluble ion.",
+      "NaHCO₃ would ionize unreacted Compound 2 but also hydrolyze Compound 3.",
+      "NaHCO₃ would react with bromoethane, and NaOH removes leftover K₂CO₃."
      ],
      "ans": 0,
      "cat": "5C",
@@ -1207,10 +1207,10 @@ const CP_DIAG = {
     {
      "q": "Compound 1 differs from Compound 2 only in having F in place of Cl, yet it boils 25°C lower. What is the best explanation?",
      "choices": [
-      "Fluorine is less polarizable than chlorine, so Compound 1 has weaker London dispersion forces.",
-      "Fluorine is less electronegative than chlorine, so Compound 1 forms weaker hydrogen bonds.",
-      "The C–F bond is stronger than the C–Cl bond, so Compound 1 molecules separate more easily.",
-      "Fluorine is more electronegative than chlorine, so Compound 1 has stronger dipole–dipole forces."
+      "F is less polarizable than Cl, so London dispersion forces are weaker.",
+      "F is less electronegative than Cl, so hydrogen bonds are weaker.",
+      "The C–F bond is stronger, so the molecules separate more easily.",
+      "F is more electronegative than Cl, so dipole–dipole forces are stronger."
      ],
      "ans": 0,
      "cat": "5B",
@@ -1252,10 +1252,10 @@ const CP_DIAG = {
     {
      "q": "Which change to the design of the early vaporizers would best keep their output steady during long operations?",
      "choices": [
-      "Surrounding the vaporizing chamber with a thick block of metal with a high specific heat and thermal conductivity",
-      "Surrounding the vaporizing chamber with thermal insulation to block heat exchange with the room",
-      "Sealing the vaporizing chamber so that it stays at a higher total pressure",
-      "Increasing the fraction of the fresh gas flow that passes through the vaporizing chamber"
+      "Encasing the chamber in thick metal of high specific heat and conductivity",
+      "Surrounding the chamber with insulation to block heat exchange with the room",
+      "Sealing the chamber so that it stays at a higher total pressure",
+      "Passing a larger fraction of the fresh gas flow through the chamber"
      ],
      "ans": 0,
      "cat": "5E",
@@ -1392,15 +1392,15 @@ const CP_DIAG = {
     {
      "q": "The results in Table 1 best explain why ethanol was effective as an antidote for methanol poisoning because ethanol:",
      "choices": [
-      "binds ADH much more tightly, so it outcompetes methanol for the active site.",
+      "binds ADH more tightly, so it outcompetes methanol for the active site.",
       "raises the kcat of ADH for methanol, so methanol is cleared faster.",
-      "is converted to product more slowly than methanol, so it occupies ADH longer.",
-      "lowers the KM of ADH for methanol, so less formic acid is produced."
+      "is turned over more slowly than methanol, so it occupies ADH longer.",
+      "lowers the KM of ADH for methanol, so less formic acid forms."
      ],
      "ans": 0,
      "cat": "5E",
      "skill": "SIRS 2",
-     "exp": "Ethanol and methanol compete for the same active site. Ethanol's **KM is 40 times lower** (0.50 vs 20 mM), so at similar concentrations ADH is mostly occupied by ethanol. Methanol is oxidized only slowly, giving the body time to excrete it unchanged.\n\nEthanol's kcat (3.0 s⁻¹) is actually *higher* than methanol's (0.60 s⁻¹), so \"converted more slowly\" contradicts the table.\nNothing in the data shows ethanol changing methanol's own constants.\nMaking methanol clear faster through ADH would make the poisoning worse, not better.",
+     "exp": "Ethanol and methanol compete for the same active site. Ethanol's **KM is 40 times lower** (0.50 vs 20 mM), so at similar concentrations ADH is mostly occupied by ethanol. Methanol is oxidized only slowly, giving the body time to excrete it unchanged.\n\nEthanol's kcat (3.0 s⁻¹) is actually *higher* than methanol's (0.60 s⁻¹), so \"turned over more slowly\" contradicts the table.\nNothing in the data shows ethanol changing methanol's own constants.\nMaking methanol clear faster through ADH would make the poisoning worse, not better.",
      "diff": "M",
      "id": "p_cpd_s1_q6"
     }
@@ -1443,10 +1443,10 @@ const CP_DIAG = {
   {
    "q": "A sealed, rigid container of oxygen gas is heated until its absolute temperature doubles. Which quantity also doubles?",
    "choices": [
-    "The average kinetic energy of the molecules",
-    "The root-mean-square speed of the molecules",
-    "The number of moles of gas in the container",
-    "The density of the gas in the container"
+    "Average molecular kinetic energy",
+    "Root-mean-square molecular speed",
+    "Moles of gas",
+    "Gas density"
    ],
    "ans": 0,
    "cat": "4B",
@@ -1459,10 +1459,10 @@ const CP_DIAG = {
   {
    "q": "In an eye-examination device, a converging lens with a focal length of 0.50 m forms an image of an object placed 0.75 m from the lens. Where is the image, and what type is it?",
    "choices": [
-    "1.5 m from the lens, on the side opposite the object; real and inverted",
-    "0.30 m from the lens, on the side opposite the object; real and inverted",
-    "1.5 m from the lens, on the same side as the object; virtual and upright",
-    "0.25 m from the lens, on the side opposite the object; real and inverted"
+    "1.5 m, on the side opposite the object; real and inverted",
+    "0.30 m, on the side opposite the object; real and inverted",
+    "1.5 m, on the same side as the object; virtual and upright",
+    "0.25 m, on the side opposite the object; real and inverted"
    ],
    "ans": 0,
    "cat": "4D",
@@ -1616,10 +1616,10 @@ const CP_DIAG = {
    "q": "In acidic solution, the compound shown cyclizes by intramolecular esterification. The ring in the product contains:",
    "fig": "cpd-4-hydroxybutanoic-acid",
    "choices": [
-    "five atoms, one of which is oxygen.",
-    "four atoms, one of which is oxygen.",
-    "six atoms, two of which are oxygen.",
-    "five atoms, two of which are oxygen."
+    "five atoms, one oxygen.",
+    "four atoms, one oxygen.",
+    "six atoms, two oxygens.",
+    "five atoms, two oxygens."
    ],
    "ans": 0,
    "cat": "5D",
@@ -1648,9 +1648,9 @@ const CP_DIAG = {
   {
    "q": "A freshly prepared aqueous solution of pure α-D-glucopyranose shows an optical rotation that changes over about an hour before leveling off. Which statement best explains this observation?",
    "choices": [
-    "The ring opens to the open-chain aldehyde and recloses, forming some β-D-glucopyranose, a diastereomer with a different specific rotation.",
-    "The glucose slowly racemizes to L-glucose, its enantiomer, which rotates light in the opposite direction.",
-    "Water hydrolyzes the glycosidic bond, releasing free glucose with a different specific rotation.",
+    "Ring opening and closing forms β-D-glucopyranose, which has a different specific rotation.",
+    "Glucose slowly racemizes to L-glucose, which rotates light the opposite way.",
+    "Water hydrolyzes a glycosidic bond, releasing glucose with a different specific rotation.",
     "Glucose epimerizes at C2 to mannose, which has a different specific rotation."
    ],
    "ans": 0,

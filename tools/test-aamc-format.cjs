@@ -24,14 +24,16 @@
 //   4 choices are parallel: the same terminal punctuation, the same initial case (proper nouns, symbols, acronyms
 //     and numbers count as either case), and all numeric or none numeric;
 //   5 numeric choices carry units (dimensionless quantities excepted, see UNITLESS) and are listed in increasing or
-//     decreasing order. Units that differ by an SI prefix are compared in one unit. The order is REPORTED, not
-//     enforced: the app shuffles every question's choices when it shows them (makeView in js/app.js), so the order
-//     in the data is never what a student sees, and ordering it would move the key (ans) in most items;
+//     decreasing order. Units that differ by an SI prefix are compared in one unit. The order in the data is
+//     REPORTED, not enforced: the app shows every set of plain numbers in one unit from lowest to highest
+//     (choiceOrder in js/app.js, checked in test-worked-methods.cjs), so what a student sees is in order, and
+//     reordering the data would move the key (ans) in most items;
 //   6 two-part choices ("X; Y", "X / Y", "Yes; …" or "Yes, …") use one frame across all four choices (a reason
 //     clause such as ", because …" is part of the answer, not a frame);
 //   7 no meta wording ("this card", "flashcard", "this question card");
 //   8 explanations never name answer letters ("choice B", "(C)").
-// Run with --list to print every finding, --json=<file> to save the numbers.
+// Run with --list to print every finding, --json=<file> to save the numbers, --data=<dir> to measure another copy
+// of data/.
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
@@ -40,8 +42,9 @@ const root = path.join(__dirname, '..');
 const args = process.argv.slice(2);
 const LIST = args.includes('--list');
 const JSON_OUT = (args.find(a => a.startsWith('--json=')) || '').slice(7);
+const DATA = (args.find(a => a.startsWith('--data=')) || '').slice(7) || path.join(root, 'data'); // another copy of data/
 
-const read = f => fs.readFileSync(path.join(root, 'data', f), 'utf8').replace(/\r\n?/g, '\n');
+const read = f => fs.readFileSync(path.join(DATA, f), 'utf8').replace(/\r\n?/g, '\n');
 function load(file, name) {
   const ctx = vm.createContext({});
   vm.runInContext(read(file) + '\n;globalThis.__v = ' + name + ';', ctx, { filename: file });

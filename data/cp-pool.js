@@ -100,10 +100,10 @@ const CP_POOL = [
      {
       "q": "Which statement about Compound 3 is best supported by the data in Table 1?",
       "choices": [
-       "It binds equally well to the free enzyme and to the enzyme–substrate complex.",
-       "It binds only to the free enzyme, at the site where xanthine binds.",
-       "It binds only to the enzyme–substrate complex, after xanthine has bound.",
-       "It is a substrate that is oxidized by XO faster than xanthine is."
+       "It binds the free enzyme and the enzyme–substrate complex equally well.",
+       "It binds only the free enzyme, at the xanthine site.",
+       "It binds only the enzyme–substrate complex, after xanthine binds.",
+       "It is a substrate that XO oxidizes faster than xanthine."
       ],
       "ans": 0,
       "cat": "5E",
@@ -385,7 +385,7 @@ const CP_POOL = [
     ],
     "questions": [
      {
-      "q": "Which structure is Compound 2?",
+      "q": "Which of the following structures is Compound 2?",
       "choices": [
        "(R)-naproxen",
        "(S)-naproxen",
@@ -1252,7 +1252,7 @@ const CP_POOL = [
     ],
     "questions": [
      {
-      "q": "Which structure is Compound 3?",
+      "q": "Which of the following structures is Compound 3?",
       "choiceFigs": [
        "cpp2-prilocaine-s",
        "cpp2-prilocaine-r",
@@ -1517,10 +1517,10 @@ const CP_POOL = [
    {
     "q": "A researcher needs 200 mL of 50 mM HEPES buffer and has a 1.0 M HEPES stock solution. Which procedure gives the correct solution?",
     "choices": [
-     "Pipet 10 mL of stock into a 200-mL volumetric flask and add water to the mark.",
-     "Pipet 10 mL of stock into a beaker containing 200 mL of water.",
-     "Pipet 100 mL of stock into a 200-mL volumetric flask and add water to the mark.",
-     "Pipet 1.0 mL of stock into a 200-mL volumetric flask and add water to the mark."
+     "Dilute 10 mL of stock to 200 mL in a volumetric flask.",
+     "Add 10 mL of stock to a beaker with 200 mL of water.",
+     "Dilute 100 mL of stock to 200 mL in a volumetric flask.",
+     "Dilute 1.0 mL of stock to 200 mL in a volumetric flask."
     ],
     "ans": 0,
     "cat": "5A",
@@ -2216,10 +2216,10 @@ const CP_POOL = [
      {
       "q": "If a patient's urine pH fell from 6.0 to 4.0 with no change in total calcium or total oxalate, how would the solubility of calcium oxalate change?",
       "choices": [
-       "It would increase, because C₂O₄²⁻ would be protonated, lowering the free C₂O₄²⁻ concentration.",
-       "It would increase, because H⁺ would form a complex with Ca²⁺, lowering the free Ca²⁺ concentration.",
-       "It would decrease, because H⁺ would act as a common ion with the dissolved salt.",
-       "It would decrease, because HC₂O₄⁻ would bind Ca²⁺ more tightly than C₂O₄²⁻ does."
+       "It would increase, because protonation lowers the free C₂O₄²⁻ concentration.",
+       "It would increase, because H⁺ complexes Ca²⁺, lowering free Ca²⁺.",
+       "It would decrease, because H⁺ acts as a common ion.",
+       "It would decrease, because HC₂O₄⁻ binds Ca²⁺ more tightly than C₂O₄²⁻."
       ],
       "ans": 0,
       "cat": "5A",
@@ -2480,19 +2480,19 @@ const CP_POOL = [
     "choices": [
      "μs times the bed's weight, directed opposite the push",
      "More than 40 N, directed opposite the push",
-     "40 N, directed opposite the push",
-     "0 N, because the bed is not moving"
+     "Exactly 40 N, directed opposite the push",
+     "Zero, because the bed is not moving"
     ],
     "ans": 2,
     "cat": "4A",
     "skill": "SIRS 1",
     "diff": "E",
     "subj": "physics",
-    "exp": "The bed stays at rest, so its acceleration is zero and the **net horizontal force is zero** (Newton's first law). The only horizontal forces are the push and static friction, so friction must be **40 N, opposite the push**. Static friction adjusts to whatever is needed to prevent sliding, up to a maximum of μsN.\n\n**0 N** would leave the 40 N push unbalanced, and the bed would accelerate.\n**μs × weight** (μsN on a level floor) is the **maximum** static friction, reached only when the bed is about to slide; the actual value can be smaller.\n**More than 40 N** would give a net force opposite the push, and the bed would accelerate toward the nurse.",
+    "exp": "The bed stays at rest, so its acceleration is zero and the **net horizontal force is zero** (Newton's first law). The only horizontal forces are the push and static friction, so friction must be **40 N, opposite the push**. Static friction adjusts to whatever is needed to prevent sliding, up to a maximum of μsN.\n\n**Zero** would leave the 40 N push unbalanced, and the bed would accelerate.\n**μs × weight** (μsN on a level floor) is the **maximum** static friction, reached only when the bed is about to slide; the actual value can be smaller.\n**More than 40 N** would give a net force opposite the push, and the bed would accelerate toward the nurse.",
     "id": "cp_half_3_sa4"
    },
    {
-    "q": "A sample of gas in a cylinder is taken from the same initial state to the same final state (same pressure, volume and temperature at the start and at the end) by two different routes. In one route it is heated at constant volume and then allowed to expand; in the other it expands first and is then heated. Which quantity can differ between the two routes?",
+    "q": "A gas in a cylinder goes from the same initial state to the same final state (same P, V and T at start and end) by two routes. In one, it is heated at constant volume, then expands; in the other, it expands, then is heated. Which quantity can differ between the routes?",
     "choices": [
      "The heat absorbed by the gas",
      "The change in internal energy of the gas",
@@ -2508,7 +2508,7 @@ const CP_POOL = [
     "id": "cp_half_3_sa5"
    },
    {
-    "q": "For the reaction A + 2B → C, the following initial rates were measured.\nTrial 1: [A] = 0.10 M, [B] = 0.10 M, rate = 2.0 × 10⁻⁴ M/s\nTrial 2: [A] = 0.20 M, [B] = 0.10 M, rate = 8.0 × 10⁻⁴ M/s\nTrial 3: [A] = 0.10 M, [B] = 0.30 M, rate = 6.0 × 10⁻⁴ M/s\nWhich rate law fits these data?",
+    "q": "For the reaction A + 2B → C, the following initial rates were measured.\nTrial 1: 0.10 M A, 0.10 M B, 2.0 × 10⁻⁴ M/s\nTrial 2: 0.20 M A, 0.10 M B, 8.0 × 10⁻⁴ M/s\nTrial 3: 0.10 M A, 0.30 M B, 6.0 × 10⁻⁴ M/s\nWhich rate law fits these data?",
     "choices": [
      "rate = k[A]²[B]",
      "rate = k[A][B]²",
@@ -2564,10 +2564,10 @@ const CP_POOL = [
    {
     "q": "Which statement best describes the C–N bond between the carbonyl carbon and the nitrogen of an amide such as N-methylpropanamide?",
     "choices": [
-     "It is shorter than a typical C–N single bond, and rotation about it is restricted.",
-     "It is a typical C–N single bond, and the nitrogen is sp³ hybridized.",
-     "It is a full C=N double bond, and the carbonyl oxygen carries no negative charge.",
-     "It is longer than a typical C–N single bond, because the nitrogen lone pair repels the carbonyl oxygen."
+     "It is shorter than a C–N single bond, with restricted rotation.",
+     "It is a typical C–N single bond, with an sp³ nitrogen.",
+     "It is a full C=N double bond, with an uncharged oxygen.",
+     "It is longer than a C–N single bond, from lone pair–oxygen repulsion."
     ],
     "ans": 0,
     "cat": "5D",
@@ -2580,10 +2580,10 @@ const CP_POOL = [
    {
     "q": "Two cysteine residues in a protein form a disulfide bond. Which statement correctly describes this reaction?",
     "choices": [
-     "It is an oxidation, because each sulfur loses a hydrogen and the sulfurs bond to each other.",
-     "It is a reduction, because each sulfur gains an electron from the other.",
-     "It is a hydrolysis, because water is added across the two thiol groups.",
-     "It is a dehydration, because water is removed from the two thiol groups."
+     "An oxidation, because each sulfur loses H and the sulfurs bond.",
+     "A reduction, because each sulfur gains an electron from the other.",
+     "A hydrolysis, because water is added across the two thiols.",
+     "A dehydration, because water is removed from the two thiols."
     ],
     "ans": 0,
     "cat": "5D",
@@ -2650,10 +2650,10 @@ const CP_POOL = [
      {
       "q": "Which structural difference best explains why only the formulation containing Compound 2 formed lysine adducts?",
       "choices": [
-       "Compound 2 has a hemiacetal carbon that can open to an aldehyde, which condenses with lysine amino groups.",
-       "Compound 2 has more hydroxyl groups than Compound 1, so it hydrogen-bonds more tightly to lysine side chains.",
-       "Compound 2 contains a β-glycosidic bond, which lysine side chains hydrolyze during storage.",
-       "Compound 2 is a ketose, and its ketone carbonyl reacts with amines faster than an aldehyde does."
+       "Compound 2's hemiacetal opens to an aldehyde that condenses with lysine.",
+       "Compound 2 has more OH groups, so it hydrogen-bonds lysine more tightly.",
+       "Compound 2's β-glycosidic bond is hydrolyzed by lysine side chains in storage.",
+       "Compound 2's ketone reacts with amines faster than an aldehyde would."
       ],
       "ans": 0,
       "skill": "SIRS 2",
@@ -2963,7 +2963,7 @@ const CP_POOL = [
      },
      {
       "id": "p_cpp4_6_q4",
-      "q": "Which structure is oxamate?",
+      "q": "Which of the following structures is oxamate?",
       "choices": [
        "Oxamate (H₂N–CO–COO⁻)",
        "Glycinate (H₂N–CH₂–COO⁻)",
@@ -3072,10 +3072,10 @@ const CP_POOL = [
      {
       "q": "Based on Table 1, does the Fe²⁺ in the tablet interfere with the titration by consuming I₂?",
       "choices": [
-       "No; E°cell for oxidation of Fe²⁺ by I₂ is −0.23 V, so the reaction is not spontaneous.",
-       "Yes; E°cell for oxidation of Fe²⁺ by I₂ is +0.23 V, so Fe²⁺ also consumes I₂.",
-       "Yes; E°cell for oxidation of Fe²⁺ by I₂ is +1.31 V, so Fe²⁺ also consumes I₂.",
-       "No; Fe²⁺ cannot be oxidized because iron is already in its highest common oxidation state."
+       "No; E°cell for I₂ oxidizing Fe²⁺ is −0.23 V (nonspontaneous).",
+       "Yes; E°cell for I₂ oxidizing Fe²⁺ is +0.23 V (spontaneous).",
+       "Yes; E°cell for I₂ oxidizing Fe²⁺ is +1.31 V (spontaneous).",
+       "No; Fe²⁺ is already in iron's highest common oxidation state."
       ],
       "ans": 0,
       "skill": "SIRS 2",
@@ -3215,10 +3215,10 @@ const CP_POOL = [
    {
     "q": "In a strand of DNA, each phosphodiester linkage in the backbone joins:",
     "choices": [
-     "the 3′ carbon of one deoxyribose to the 5′ carbon of the next, through a phosphate group.",
-     "the 2′ carbon of one deoxyribose to the 5′ carbon of the next, through a phosphate group.",
-     "the 1′ carbon of one deoxyribose to the 5′ carbon of the next, through a phosphate group.",
-     "the base of one nucleotide to the deoxyribose of the next, through a phosphate group."
+     "the 3′ carbon of one deoxyribose to the 5′ carbon of the next.",
+     "the 2′ carbon of one deoxyribose to the 5′ carbon of the next.",
+     "the 1′ carbon of one deoxyribose to the 5′ carbon of the next.",
+     "the base of one nucleotide to the deoxyribose of the next."
     ],
     "ans": 0,
     "cat": "5D",
@@ -3245,7 +3245,7 @@ const CP_POOL = [
     "id": "cp_half_4_sa3"
    },
    {
-    "q": "Use the following thermochemical equations to find ΔH° for the formation of carbon monoxide, C(s) + ½O₂(g) → CO(g).\nC(s) + O₂(g) → CO₂(g)   ΔH° = −394 kJ\n2CO(g) + O₂(g) → 2CO₂(g)   ΔH° = −566 kJ",
+    "q": "What is ΔH° for the formation of carbon monoxide, C(s) + ½O₂(g) → CO(g), from the following thermochemical equations?\nC(s) + O₂(g) → CO₂(g)   ΔH° = −394 kJ\n2CO(g) + O₂(g) → 2CO₂(g)   ΔH° = −566 kJ",
     "choices": [
      "+172 kJ",
      "−960 kJ",
@@ -3309,7 +3309,7 @@ const CP_POOL = [
     "id": "cp_half_4_sa7"
    },
    {
-    "q": "The optical fibers in a flexible endoscope have a glass core (n = 1.50) surrounded by a cladding (n = 1.20). Light traveling along the core strikes the core–cladding boundary. What is the smallest angle of incidence, measured from the normal, at which the light is totally internally reflected? (sin 12° ≈ 0.21, sin 37° ≈ 0.60, sin 42° ≈ 0.67, sin 53° ≈ 0.80)",
+    "q": "Endoscope optical fibers have a glass core (n = 1.50) surrounded by cladding (n = 1.20). Light in the core strikes the core–cladding boundary. What is the smallest angle of incidence, from the normal, that gives total internal reflection? (sin 12° ≈ 0.21, sin 37° ≈ 0.60, sin 42° ≈ 0.67, sin 53° ≈ 0.80)",
     "choices": [
      "12°",
      "37°",
@@ -3826,10 +3826,10 @@ const CP_POOL = [
      {
       "q": "H2 melted at a lower temperature in 0.010 M NaCl than in 0.10 M NaCl. Which explanation best accounts for this result?",
       "choices": [
-       "Fewer Na⁺ ions are present to shield the negatively charged phosphate groups, so repulsion across the stem is greater.",
-       "Fewer Na⁺ ions are present to hydrogen bond to the bases, so the base pairs are weaker.",
-       "More water molecules are free to hydrate the bases, so base stacking becomes stronger.",
-       "The solution has a lower boiling point, so the stem reaches its melting point sooner."
+       "Fewer Na⁺ ions shield the negative phosphates, increasing repulsion across the stem.",
+       "Fewer Na⁺ ions hydrogen-bond to the bases, so base pairs are weaker.",
+       "More free water hydrates the bases, so base stacking becomes stronger.",
+       "The solution boils at a lower temperature, so the stem melts sooner."
       ],
       "ans": 0,
       "cat": "5A",
@@ -4317,10 +4317,10 @@ const CP_POOL = [
      {
       "q": "Which conclusion is best supported by the data in Table 1?",
       "choices": [
-       "Current efficiency decreases as current increases, because more of the charge reduces water.",
-       "Current efficiency decreases as current increases, because less charge is passed in the shorter runs.",
-       "Current efficiency is the same in every run, because the same charge is passed in every run.",
-       "Current efficiency increases as current increases, because more Ag⁺ is reduced each second."
+       "Current efficiency falls as current rises, because more charge reduces water.",
+       "Current efficiency falls as current rises, because shorter runs pass less charge.",
+       "Current efficiency is constant, because every run passes the same charge.",
+       "Current efficiency rises with current, because more Ag⁺ is reduced each second."
       ],
       "ans": 0,
       "cat": "4C",
@@ -4350,7 +4350,7 @@ const CP_POOL = [
     "id": "cp_half_5_sa1"
    },
    {
-    "q": "A diver releases a sealed, flexible bag holding 2.0 L of air at a depth of 20 m in the sea. Each 10 m of water adds about 1.0 atm of pressure, and the pressure at the surface is 1.0 atm. If the temperature stays constant, what is the volume of the bag when it reaches the surface?",
+    "q": "A diver releases a sealed, flexible bag holding 2.0 L of air at a depth of 20 m. Each 10 m of water adds about 1.0 atm, and the pressure at the surface is 1.0 atm. At constant temperature, what is the bag's volume at the surface?",
     "choices": [
      "6.0 L",
      "4.0 L",
@@ -4414,7 +4414,7 @@ const CP_POOL = [
     "id": "cp_half_5_sa5"
    },
    {
-    "q": "Use the average bond enthalpies H–H 436 kJ/mol, Cl–Cl 242 kJ/mol and H–Cl 431 kJ/mol to estimate ΔH for the reaction H₂(g) + Cl₂(g) → 2HCl(g).",
+    "q": "Based on the average bond enthalpies H–H 436 kJ/mol, Cl–Cl 242 kJ/mol and H–Cl 431 kJ/mol, what is the estimated ΔH for the reaction H₂(g) + Cl₂(g) → 2HCl(g)?",
     "choices": [
      "−184 kJ",
      "+184 kJ",
@@ -4432,10 +4432,10 @@ const CP_POOL = [
    {
     "q": "A researcher suspects that a new drug is a competitive inhibitor of an enzyme. Which experiment would best test this hypothesis?",
     "choices": [
-     "Measure initial rates over a range of substrate concentrations with and without the drug, then compare KM and Vmax.",
-     "Measure the initial rate at one low substrate concentration with and without the drug, then compare the rates.",
-     "Measure initial rates at several enzyme concentrations with the drug, then compare the rates.",
-     "Measure the equilibrium constant of the reaction with and without the drug, then compare the constants."
+     "Vary [S] with and without the drug, then compare KM and Vmax.",
+     "Use one low [S] with and without the drug, then compare rates.",
+     "Vary enzyme concentration with the drug, then compare the rates.",
+     "Measure Keq with and without the drug, then compare the constants."
     ],
     "ans": 0,
     "cat": "5E",
@@ -4446,7 +4446,7 @@ const CP_POOL = [
     "id": "cp_half_5_sa7"
    },
    {
-    "q": "Sucrose is a non-reducing sugar because:",
+    "q": "Sucrose is classified as a non-reducing sugar because:",
     "choices": [
      "its glycosidic bond joins the anomeric carbons of both glucose and fructose.",
      "its glycosidic bond joins the anomeric carbon of glucose to C-4 of fructose.",
@@ -4486,10 +4486,10 @@ const CP_POOL = [
    {
     "q": "Ethylene glycol (HOCH₂CH₂OH, 62 g/mol) boils at 197°C, whereas 1-propanol (CH₃CH₂CH₂OH, 60 g/mol) boils at 97°C. Which statement best explains the difference?",
     "choices": [
-     "Each ethylene glycol molecule has two OH groups, so it forms more hydrogen bonds with its neighbors.",
-     "Ethylene glycol has a larger molar mass, so its London dispersion forces are much stronger.",
-     "Ethylene glycol has more C–H bonds, so it forms more hydrogen bonds with its neighbors.",
-     "Ethylene glycol is ionic in the liquid state, so its molecules are held together by ion–ion forces."
+     "Ethylene glycol has two OH groups, so it forms more hydrogen bonds.",
+     "Ethylene glycol is heavier, so its London dispersion forces are much stronger.",
+     "Ethylene glycol has more C–H bonds, so it forms more hydrogen bonds.",
+     "Ethylene glycol is ionic as a liquid, held together by ion–ion forces."
     ],
     "ans": 0,
     "cat": "5B",
@@ -4855,10 +4855,10 @@ const CP_POOL = [
       "id": "p_cpp6_3_q2b",
       "q": "The team wants to confirm that the rise from 10.5 μA to 20.0 μA reflects a higher FiO₂ and not only the higher pressure in the patient circuit. Which check is most appropriate?",
       "choices": [
-       "Read room air at the circuit's pressure, since the current tracks P(O₂) = FiO₂ × total pressure",
-       "Read room air at 27°C, since the current tracks only the temperature of the gas",
-       "Replace the lead electrode, since the current tracks only how much lead remains",
-       "Raise the tidal volume, since the current tracks the gas volume delivered per breath"
+       "Read room air at circuit pressure, since current tracks O₂ partial pressure",
+       "Read room air at 27°C, since current tracks only gas temperature",
+       "Replace the lead electrode, since current tracks only remaining lead",
+       "Raise the tidal volume, since current tracks gas volume per breath"
       ],
       "ans": 0,
       "cat": "4B",
@@ -5173,9 +5173,9 @@ const CP_POOL = [
    {
     "q": "2-Butanone is reduced with NaBH₄ in methanol. The 2-butanol produced is best described as:",
     "choices": [
-     "a racemic mixture, because hydride adds equally to both faces of the planar carbonyl carbon.",
-     "only the (R) enantiomer, because hydride adds to the less hindered face of the carbonyl.",
-     "only the (S) enantiomer, because the ethyl group directs hydride to one face.",
+     "a racemic mixture, because hydride attacks both planar faces equally.",
+     "only the (R) enantiomer, because hydride adds to the less hindered face.",
+     "only the (S) enantiomer, because the ethyl group directs the hydride.",
      "a meso compound, because the product has an internal mirror plane."
     ],
     "ans": 0,

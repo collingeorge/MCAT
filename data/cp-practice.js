@@ -98,10 +98,10 @@ const CP_PRACTICE = [
    {
     "q": "Hydrolysis of the dimethylcarbamoyl-enzyme is much slower than hydrolysis of the acetyl-enzyme. Which statement best explains this difference?",
     "choices": [
-     "Donation of the nitrogen lone pair into the C=O group makes the carbonyl carbon less electrophilic.",
-     "Withdrawal of electron density by the nitrogen atom makes the carbonyl carbon more electrophilic.",
-     "The carbonyl carbon of the carbamoyl group is sp³ hybridized, so water cannot attack it.",
-     "The dimethylcarbamoyl group carries a positive charge that repels the attacking water molecule."
+     "Nitrogen lone-pair donation into C=O makes the carbonyl carbon less electrophilic.",
+     "Electron withdrawal by nitrogen makes the carbonyl carbon more electrophilic.",
+     "The carbamoyl carbonyl carbon is sp³ hybridized, so water cannot attack it.",
+     "The dimethylcarbamoyl group is positively charged and repels the attacking water."
     ],
     "ans": 0,
     "cat": "5E",
@@ -250,9 +250,9 @@ const CP_PRACTICE = [
     "q": "To find out which of the two hydroxide-promoted reactions caused most of the loss of Compound 1 in Formulation D, which measurement on the stored solution would be most useful?",
     "choices": [
      "Mass spectrometry of the main degradation product, to determine its molar mass",
-     "The density of the solution, to determine how much solute is still dissolved",
-     "The UV absorbance of the imidazole ring, to determine how much ring remains",
-     "The optical rotation of the solution, to determine whether it is still chiral"
+     "Solution density, to determine how much solute remains dissolved",
+     "UV absorbance of the imidazole ring, to determine how much remains",
+     "Optical rotation of the solution, to determine whether it is still chiral"
     ],
     "ans": 0,
     "cat": "5D",
@@ -425,10 +425,10 @@ const CP_PRACTICE = [
    {
     "q": "Which TLC result would best show that the reduction in Route B had gone to completion?",
     "choices": [
-     "The spot of Compound 5 is gone, and one new spot appears at a lower Rf.",
-     "The spot of Compound 5 is gone, and one new spot appears at a higher Rf.",
-     "The spot of Compound 5 remains, and one new spot appears at a lower Rf.",
-     "The spot of Compound 5 remains, and one new spot appears with the Rf of biphenyl."
+     "Compound 5 is gone; one new spot appears at lower Rf.",
+     "Compound 5 is gone; one new spot appears at higher Rf.",
+     "Compound 5 remains; one new spot appears at lower Rf.",
+     "Compound 5 remains; one new spot appears at the Rf of biphenyl."
     ],
     "ans": 0,
     "cat": "5C",
@@ -903,10 +903,10 @@ const CP_PRACTICE = [
    {
     "q": "After Compound 2 forms on an HDL particle, it moves from the surface layer into the core. Which statement best explains this?",
     "choices": [
-     "Esterification replaces the O–H group with an ester, so Compound 2 has no hydrogen-bond donor and is too nonpolar to stay at the water interface.",
-     "Esterification gives Compound 2 a negative charge, so it is repelled by the phosphate groups at the surface.",
-     "Esterification removes the C5=C6 double bond, so the ring system becomes flexible enough to pack in the core.",
-     "Esterification makes Compound 2 smaller than Compound 1, so it fits between the triacylglycerols of the core."
+     "Esterification removes the O–H, leaving Compound 2 too nonpolar for the surface.",
+     "Esterification gives Compound 2 a negative charge, repelled by the surface phosphates.",
+     "Esterification removes the C5=C6 double bond, making the rings flexible.",
+     "Esterification makes Compound 2 smaller, so it fits between core triacylglycerols."
     ],
     "ans": 0,
     "cat": "5B",
@@ -1168,10 +1168,10 @@ const CP_PRACTICE = [
    {
     "q": "A ray in Fiber 1 strikes the core–cladding boundary at an angle of incidence of 60°. At one spot, the cladding has worn away and the core touches tissue fluid (n = 1.35). At that spot, the ray:",
     "choices": [
-     "is totally reflected, because 60° is greater than the critical angle of 53°.",
-     "is totally reflected, because 60° is greater than the critical angle of 42°.",
-     "is totally reflected, because 60° is greater than the critical angle of 26°.",
-     "is partly transmitted into the fluid, because 60° is less than the critical angle of 64°."
+     "is totally reflected, because 60° exceeds the critical angle of 53°.",
+     "is totally reflected, because 60° exceeds the critical angle of 42°.",
+     "is totally reflected, because 60° exceeds the critical angle of 26°.",
+     "is partly transmitted, because 60° is below the critical angle of 64°."
     ],
     "ans": 3,
     "cat": "4D",
@@ -1196,7 +1196,7 @@ const CP_PRACTICE = [
     "id": "p_cpx2_3_q3"
    },
    {
-    "q": "For the 2.0 m light guide, the team wants the fiber that traps light over the widest range of angles of incidence at the core–cladding boundary. Which fiber in Table 1 is best, and how does the speed of light in its core compare with the speed in the core of Fiber 3?",
+    "q": "For the 2.0 m light guide, which fiber in Table 1 traps light over the widest range of angles of incidence at the core–cladding boundary, and how does the speed of light in its core compare with that in Fiber 3?",
     "choices": [
      "Fiber 1; light travels faster than in Fiber 3",
      "Fiber 1; light travels slower than in Fiber 3",
@@ -1441,7 +1441,7 @@ const CP_PRACTICE = [
     "id": "p_cpx2_6_q2"
    },
    {
-    "q": "Partway through Trial 2, the flask contains 0.50 mol of Compound 3, 0.50 mol of Compound 1, 0.50 mol of Compound 2 and 0.10 mol of water; the other 0.40 mol of water formed is in the trap. What is the reaction quotient Q for the mixture in the flask, and in which direction does the reaction proceed?",
+    "q": "Partway through Trial 2, the flask holds 0.50 mol each of Compounds 3, 1 and 2 and 0.10 mol of water; the other 0.40 mol of water is in the trap. What is the reaction quotient Q for the flask, and which way does the reaction proceed?",
     "choices": [
      "Q = 0.20; toward the ester and water",
      "Q = 0.20; toward the acid and alcohol",
@@ -1914,10 +1914,10 @@ const CP_PRACTICE = [
    {
     "q": "Which conclusion about the racemization of Compound 1 is best supported by the results?",
     "choices": [
-     "Cleavage of the C3–H bond occurs in the rate-determining step, and the reaction is catalyzed by base.",
-     "Cleavage of the C3–H bond occurs in the rate-determining step, and the reaction is catalyzed by acid.",
-     "Cleavage of the C3–H bond occurs after the rate-determining step, and the reaction is catalyzed by base.",
-     "Cleavage of the C3–H bond occurs after the rate-determining step, and the reaction is catalyzed by acid."
+     "C3–H cleavage is in the rate-determining step; the reaction is base-catalyzed.",
+     "C3–H cleavage is in the rate-determining step; the reaction is acid-catalyzed.",
+     "C3–H cleavage follows the rate-determining step; the reaction is base-catalyzed.",
+     "C3–H cleavage follows the rate-determining step; the reaction is acid-catalyzed."
     ],
     "ans": 0,
     "cat": "5E",
@@ -2091,10 +2091,10 @@ const CP_PRACTICE = [
    {
     "q": "Why does the scanner look for two photons striking detectors on opposite sides of the ring at the same time?",
     "choices": [
-     "Annihilation gives two 511 keV photons that travel in opposite directions, conserving momentum.",
-     "Annihilation gives two 1022 keV photons that travel in opposite directions, conserving momentum.",
-     "Annihilation gives two 511 keV photons that travel in the same direction, conserving charge.",
-     "Annihilation gives one 1022 keV photon that is scattered into two opposite beams by tissue."
+     "Annihilation gives two 511 keV photons in opposite directions, conserving momentum.",
+     "Annihilation gives two 1022 keV photons in opposite directions, conserving momentum.",
+     "Annihilation gives two 511 keV photons in the same direction, conserving charge.",
+     "Annihilation gives one 1022 keV photon that tissue splits into opposite beams."
     ],
     "ans": 0,
     "cat": "4E",
@@ -2205,16 +2205,16 @@ const CP_PRACTICE = [
    {
     "q": "Which conclusion about the T790M mutation is best supported by the data in Table 1?",
     "choices": [
-     "It causes resistance mainly by raising the kinase's affinity for ATP, because KM for ATP fell 20-fold while Ki rose only 2-fold.",
-     "It causes resistance mainly by preventing Compound 1 from binding, because Ki rose more than KM for ATP fell.",
-     "It causes resistance mainly by speeding up catalysis, because kcat doubled while Ki was unchanged.",
-     "It does not cause resistance, because Ki for Compound 1 remains in the low nanomolar range."
+     "It raises ATP affinity: KM fell 20-fold while Ki rose only 2-fold.",
+     "It blocks Compound 1 binding: Ki rose more than KM fell.",
+     "It speeds catalysis: kcat doubled while Ki was unchanged.",
+     "It causes no resistance: Ki remains in the low nanomolar range."
     ],
     "ans": 0,
     "cat": "5E",
     "skill": "SIRS 4",
     "diff": "D",
-    "exp": "Compare the L858R row with the L858R/T790M row. **KM for ATP fell from 100 to 5.0 μM (20-fold)**, so the double mutant binds ATP much more tightly. **Ki rose only from 2.0 to 4.0 nM (2-fold)**, so Compound 1 still binds well. Because Compound 1 is competitive with ATP, a lower KM means the ~1 mM ATP in cells outcompetes the drug far more effectively (Equation 1: the IC50 rises from about 22 nM to 800 nM). Restored ATP affinity is the main cause of resistance.\n\nKi changed less than KM, not more, so \"preventing binding\" contradicts the table.\nkcat did double (0.60 → 1.2 s⁻¹), but Ki was not unchanged, and for a competitive inhibitor the IC50 doesn't depend on kcat at all.\nA low-nanomolar Ki ignores ATP competition; the cellular IC50 is what matters.",
+    "exp": "Compare the L858R row with the L858R/T790M row. **KM for ATP fell from 100 to 5.0 μM (20-fold)**, so the double mutant binds ATP much more tightly. **Ki rose only from 2.0 to 4.0 nM (2-fold)**, so Compound 1 still binds well. Because Compound 1 is competitive with ATP, a lower KM means the ~1 mM ATP in cells outcompetes the drug far more effectively (Equation 1: the IC50 rises from about 22 nM to 800 nM). Restored ATP affinity is the main cause of resistance.\n\nKi changed less than KM, not more, so \"blocks Compound 1 binding\" contradicts the table.\nkcat did double (0.60 → 1.2 s⁻¹), but Ki was not unchanged, and for a competitive inhibitor the IC50 doesn't depend on kcat at all.\nA low-nanomolar Ki ignores ATP competition; the cellular IC50 is what matters.",
     "id": "p_cpx4_1_q3"
    },
    {
@@ -2279,10 +2279,10 @@ const CP_PRACTICE = [
    {
     "q": "The first three ionization energies of potassium are 419, 3052 and 4420 kJ/mol. Which statement best explains why the potassium in the electrode gel is present only as K⁺?",
     "choices": [
-     "The second electron would come from the filled 3p core, which is held far more tightly.",
-     "The second electron would come from the 4s subshell, which holds it more tightly once K⁺ forms.",
-     "K⁺ has a half-filled outer subshell, which makes it especially stable toward further ionization.",
-     "The first ionization energy exceeds the second, so only one electron can be removed in solution."
+     "A second electron would come from the tightly held, filled 3p core.",
+     "A second 4s electron would be held more tightly once K⁺ forms.",
+     "K⁺ has a half-filled outer subshell, making it especially stable toward ionization.",
+     "IE₁ exceeds IE₂, so only one electron can be removed in solution."
     ],
     "ans": 0,
     "cat": "4E",
@@ -2501,10 +2501,10 @@ const CP_PRACTICE = [
    {
     "q": "Compound 2 contains a C=O group but gave no precipitate with 2,4-DNP. Which statement best explains this result?",
     "choices": [
-     "Its only C=O group is part of a carboxylic acid, whose carbonyl carbon is made less electrophilic by resonance with the adjacent OH oxygen.",
-     "Its secondary alcohol is oxidized by 2,4-DNP, which consumes the reagent before a precipitate can form.",
-     "Its C=O group is too sterically hindered by the neighboring methyl group for 2,4-DNP to attack.",
-     "It has no hydrogen atoms on the carbon next to its C=O group, so it cannot form a hydrazone."
+     "Its only C=O, in a carboxylic acid, is less electrophilic by resonance.",
+     "Its secondary alcohol is oxidized by 2,4-DNP, consuming the reagent.",
+     "Its C=O is too hindered by the neighboring methyl group for attack.",
+     "It has no α-hydrogens, so it cannot form a hydrazone."
     ],
     "ans": 0,
     "cat": "5D",
@@ -2537,10 +2537,10 @@ const CP_PRACTICE = [
    {
     "q": "Which feature of the infrared spectra would distinguish Compound 3 from Compound 2?",
     "choices": [
-     "Compound 3 lacks the broad absorption between 2500 and 3300 cm⁻¹ that Compound 2 shows.",
-     "Compound 3 lacks the strong absorption near 1715 cm⁻¹ that Compound 2 shows.",
-     "Compound 3 shows a sharp absorption near 2250 cm⁻¹ that Compound 2 lacks.",
-     "Compound 3 shows a strong absorption near 1650 cm⁻¹ for its C=C bond."
+     "Compound 3 lacks Compound 2's broad absorption at 2500–3300 cm⁻¹.",
+     "Compound 3 lacks Compound 2's strong absorption near 1715 cm⁻¹.",
+     "Compound 3 has a sharp absorption near 2250 cm⁻¹, unlike Compound 2.",
+     "Compound 3 has a strong C=C absorption near 1650 cm⁻¹."
     ],
     "ans": 0,
     "cat": "4D",
@@ -2750,10 +2750,10 @@ const CP_PRACTICE = [
    {
     "q": "Which experiment would best show that warfarin inhibits VKOR rather than γ-glutamyl carboxylase?",
     "choices": [
-     "Supply the hydroquinone form of vitamin K directly to warfarin-treated liver microsomes and measure whether Gla formation continues.",
-     "Supply vitamin K 2,3-epoxide to warfarin-treated liver microsomes and measure whether Gla formation continues.",
-     "Measure the clotting time of blood from patients before and after they begin taking warfarin.",
-     "Add a larger amount of Glu-containing peptide substrate to warfarin-treated liver microsomes and measure Gla formation."
+     "Give warfarin-treated microsomes vitamin K hydroquinone and test whether Gla formation continues.",
+     "Give warfarin-treated microsomes vitamin K 2,3-epoxide and test whether Gla formation continues.",
+     "Compare patients' clotting times before and after they start warfarin.",
+     "Give warfarin-treated microsomes more Glu peptide substrate and measure Gla formation."
     ],
     "ans": 0,
     "cat": "5D",
@@ -2884,10 +2884,10 @@ const CP_PRACTICE = [
    {
     "q": "In Figure 1, at [K⁺]out of 2 mM and 4 mM, the measured resting potential is less negative than the Nernst prediction for K⁺. Which explanation is best supported?",
     "choices": [
-     "The membrane is slightly permeable to Na⁺, and the inward Na⁺ leak pulls the potential toward the positive Na⁺ equilibrium potential.",
-     "The membrane is slightly permeable to Cl⁻, and the Cl⁻ leak pulls the potential below the K⁺ equilibrium potential.",
-     "The K⁺ equilibrium potential becomes less negative as [K⁺]out decreases, so the cell follows it.",
-     "The membrane is impermeable to K⁺ at every concentration tested, so the potential does not depend on [K⁺]out."
+     "A slight Na⁺ leak pulls the potential toward the Na⁺ equilibrium potential.",
+     "A slight Cl⁻ leak pulls the potential below the K⁺ equilibrium potential.",
+     "The K⁺ equilibrium potential becomes less negative as [K⁺]out falls.",
+     "The membrane is K⁺-impermeable, so the potential does not depend on [K⁺]out."
     ],
     "ans": 0,
     "cat": "4C",
@@ -3014,9 +3014,9 @@ const CP_PRACTICE = [
    {
     "q": "Why does each element in the flame emit light only at a few sharp, characteristic wavelengths rather than over a continuous range?",
     "choices": [
-     "Its electrons can occupy only certain energy levels, so only certain gaps exist.",
-     "Its nucleus emits the light, and each kind of nucleus has one fixed energy level.",
-     "The flame gives every atom the same energy, and each atom emits that energy.",
+     "Its electrons occupy only certain energy levels, so only certain gaps exist.",
+     "Its nucleus emits the light from one fixed energy level.",
+     "The flame gives every atom the same energy, which each atom emits.",
      "Its atoms absorb all other wavelengths, so only the characteristic ones escape."
     ],
     "ans": 0,
@@ -3097,10 +3097,10 @@ const CP_PRACTICE = [
    {
     "q": "To extract the largest amount of nicotine from saliva samples into dichloromethane, to what pH should the researchers adjust each sample before extraction?",
     "choices": [
-     "pH 2, so that nicotine is fully protonated and partitions into the organic layer",
-     "pH 6, so that nicotine is mostly protonated and partitions into the organic layer",
-     "pH 8, so that nicotine is half protonated and partitions equally between the layers",
-     "pH 11, so that nicotine is mostly neutral and partitions into the organic layer"
+     "pH 2, so nicotine is fully protonated and enters the organic layer",
+     "pH 6, so nicotine is mostly protonated and enters the organic layer",
+     "pH 8, so nicotine is half protonated and splits equally between layers",
+     "pH 11, so nicotine is mostly neutral and enters the organic layer"
     ],
     "ans": 3,
     "cat": "5C",
@@ -3113,10 +3113,10 @@ const CP_PRACTICE = [
    {
     "q": "What is the hybridization of the pyridine nitrogen in Compound 1, and where is its lone pair?",
     "choices": [
-     "sp², with the lone pair in an sp² orbital in the plane of the ring, not part of the aromatic π system",
-     "sp², with the lone pair in a p orbital that is part of the aromatic π system",
-     "sp³, with the lone pair in an sp³ orbital, like the pyrrolidine nitrogen",
-     "sp, with the lone pair in an sp orbital pointing away from the ring"
+     "sp², lone pair in an in-plane sp² orbital, outside the π system",
+     "sp², lone pair in a p orbital, part of the aromatic π system",
+     "sp³, lone pair in an sp³ orbital, like the pyrrolidine nitrogen",
+     "sp, lone pair in an sp orbital pointing away from the ring"
     ],
     "ans": 0,
     "cat": "5B",
@@ -3367,10 +3367,10 @@ const CP_PRACTICE = [
    {
     "q": "When tissue water next to an uncooled electrode reaches 100°C, its temperature stays near 100°C for a time even though power is still being delivered. Why?",
     "choices": [
-     "The energy is used to overcome hydrogen bonds as liquid water becomes vapor, rather than to raise the temperature.",
-     "Boiling is exothermic, so the heat it releases balances the energy delivered by the current.",
-     "Steam has a much higher specific heat than liquid water, so more energy is needed per degree.",
-     "Water's heat of vaporization is smaller than its specific heat, so all of the energy is lost as steam escapes."
+     "The energy breaks hydrogen bonds as water vaporizes instead of raising temperature.",
+     "Boiling is exothermic, and its heat balances the energy delivered.",
+     "Steam has a much higher specific heat than liquid water.",
+     "Heat of vaporization is less than specific heat, so energy escapes as steam."
     ],
     "ans": 0,
     "cat": "5E",
@@ -3460,14 +3460,14 @@ const CP_PRACTICE = [
      "25%",
      "33%",
      "75%",
-     "Nearly 100%, because the free concentration of Compound 3 exceeds its Kd"
+     "≈100%"
     ],
     "ans": 2,
     "cat": "5D",
     "skill": "SIRS 2",
     "diff": "D",
     "subj": "biochemistry",
-    "exp": "First find Kd for Compound 3: koff/kon = 0.036 ÷ (3.0 × 10⁶) = 1.2 × 10⁻⁸ M = **12 nM**. For simple one-site binding, the **fraction bound = [L]/(Kd + [L])** = 36/(12 + 36) = 36/48 = **75%**. A free ligand concentration of 3 × Kd always gives 75% occupancy.\n\n**25%** is Kd/(Kd + [L]), the fraction that is **unoccupied**.\n**33%** is Kd/[L] (12/36), which is not a fraction bound.\n**Nearly 100%** would need [L] far above Kd (about 100 × Kd gives 99%); at [L] = Kd, occupancy is only 50%.",
+    "exp": "First find Kd for Compound 3: koff/kon = 0.036 ÷ (3.0 × 10⁶) = 1.2 × 10⁻⁸ M = **12 nM**. For simple one-site binding, the **fraction bound = [L]/(Kd + [L])** = 36/(12 + 36) = 36/48 = **75%**. A free ligand concentration of 3 × Kd always gives 75% occupancy.\n\n**25%** is Kd/(Kd + [L]), the fraction that is **unoccupied**.\n**33%** is Kd/[L] (12/36), which is not a fraction bound.\n**≈100%** would need [L] far above Kd (about 100 × Kd gives 99%); at [L] = Kd, occupancy is only 50%.",
     "id": "p_cpx5_6_q2"
    },
    {
@@ -4109,10 +4109,10 @@ const CP_PRACTICE = [
    {
     "q": "In Figure 1, iodine is added to the ring carbon next to the –OH group (C-3 of the phenol ring) rather than to any other ring position. Which statement best explains this regiochemistry?",
     "choices": [
-     "Resonance donation from the –OH raises electron density ortho and para to it, and the para position is taken.",
-     "Resonance donation from the –OH raises electron density meta to it, and C-3 is meta to the –OH group.",
-     "Inductive withdrawal by the –OH lowers electron density ortho to it, so iodide attacks there as a nucleophile.",
-     "The alkyl side chain is a stronger ring activator than the –OH group, and C-3 is ortho to the side chain."
+     "–OH resonance enriches the ortho and para positions, and para is taken.",
+     "–OH resonance enriches the meta positions, and C-3 is meta to –OH.",
+     "–OH induction depletes ortho carbons, so nucleophilic iodide attacks there.",
+     "The side chain is the stronger activator, and C-3 is ortho to it."
     ],
     "ans": 0,
     "cat": "5D",
@@ -4202,10 +4202,10 @@ const CP_PRACTICE = [
    {
     "q": "The RF pulses used in MRI are not ionizing radiation. Which statement best explains why?",
     "choices": [
-     "Each RF photon carries far less energy than is needed to remove an electron from a molecule.",
-     "Each RF photon carries far more energy than is needed to remove an electron, so it passes through without interacting.",
-     "RF waves are longitudinal pressure waves, so they do not consist of photons.",
-     "The total energy delivered by the RF pulses is too small to warm tissue."
+     "Each RF photon has far too little energy to remove an electron.",
+     "Each RF photon has far more than ionizing energy, so it passes through.",
+     "RF waves are longitudinal pressure waves, not photons.",
+     "The total RF energy delivered is too small to warm tissue."
     ],
     "ans": 0,
     "cat": "4E",

@@ -19,13 +19,21 @@ function shuffled(arr) {
   return a;
 }
 // The AAMC lists numeric answer choices in order. A choice set that is all numbers in one unit (e.g. "0.15 m",
-// "1.2 × 10²⁰ Hz", "−2") is shown from lowest to highest; any other set is shuffled.
+// "1.2 × 10²⁰ Hz", "−2", "10,000 Cal", "25%", "1/8", or "50 μM" next to "3.0 mM") is shown from lowest to highest;
+// any other set is shuffled.
 const SUP = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9', '⁻': '-', '⁺': '' };
+const SI = { p: 1e-12, n: 1e-9, μ: 1e-6, m: 1e-3, k: 1e3 };
 function choiceNumber(c) {
-  const m = /^([+−-]?\d+(?:\.\d+)?)(?:\s*×\s*10([⁻⁺]?[⁰¹²³⁴⁵⁶⁷⁸⁹]+))?(?:\s+(\S.*))?$/.exec(String(c).trim());
+  const s = String(c).trim().replace(/(\d),(?=\d{3}\b)/g, '$1');
+  const m = /^([+−-]?)(?:(\d+(?:\.\d+)?)(?:\/(\d+(?:\.\d+)?))?(?:\s*×\s*10([⁻⁺]?[⁰¹²³⁴⁵⁶⁷⁸⁹]+))?|10([⁻⁺]?[⁰¹²³⁴⁵⁶⁷⁸⁹]+))(?:\s*([%°])|\s+(\S.*))?$/.exec(s);
   if (!m) return null;
-  const exp = m[2] ? Number([...m[2]].map(ch => SUP[ch]).join('')) : 0;
-  return { v: Number(m[1].replace('−', '-')) * 10 ** exp, unit: m[3] || '' };
+  const pow = e => (e ? 10 ** Number([...e].map(ch => SUP[ch]).join('')) : 1);
+  let v = m[2] != null ? Number(m[2]) / (m[3] ? Number(m[3]) : 1) * pow(m[4]) : pow(m[5]);
+  if (m[1] && m[1] !== '+') v = -v;
+  let unit = m[6] || m[7] || '';
+  const pre = /^([pnμmk])((?:g|L|M|J|W|V|A|Pa|Hz|s|m|mol|Ω|C|N|eV)(?:\/.+)?)$/.exec(unit);
+  if (pre) { v *= SI[pre[1]]; unit = pre[2]; }
+  return { v, unit };
 }
 function choiceOrder(choices) {
   const idx = choices.map((_, i) => i), nums = choices.map(choiceNumber);
@@ -204,7 +212,7 @@ const AQB_KEY_COUNTS = Object.create(null);
 [typeof QB_AAMC_BIO === 'undefined' ? [] : QB_AAMC_BIO, typeof QB_AAMC_CHEM === 'undefined' ? [] : QB_AAMC_CHEM,
   typeof QB_AAMC_PHYS === 'undefined' ? [] : QB_AAMC_PHYS, typeof QB_AAMC_BIOCHEM === 'undefined' ? [] : QB_AAMC_BIOCHEM, typeof QB_AAMC_IQB === 'undefined' ? [] : QB_AAMC_IQB,
   typeof QB_AAMC_CARS === 'undefined' ? [] : QB_AAMC_CARS, typeof QB_AAMC_RULES === 'undefined' ? [] : QB_AAMC_RULES].flat().forEach(q => {
-  let id = 'aamc-' + hashId(q.s + '|' + q.q);
+  let id = 'aamc-' + hashId(q.s + '|' + (q.idStem || q.q));
   while (AQB_BY_ID.has(id)) id += 'x';
   Object.assign(q, { subj: AAMC_SECTION.id, key: AAMC_SECTION.id + '|' + q.s, id });
   AQB.push(q);
