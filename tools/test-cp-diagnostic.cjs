@@ -5,9 +5,10 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const root = __dirname + '/..';
 const ctx = vm.createContext({});
-for (const f of ['data/cp-diagnostic.js', 'data/cp-pool.js', 'data/structures.js']) vm.runInContext(fs.readFileSync(root + '/' + f, 'utf8'), ctx, { filename: f });
+for (const f of ['data/cp-diagnostic.js', 'data/cp-pool.js', 'data/cp-practice.js', 'data/structures.js']) vm.runInContext(fs.readFileSync(root + '/' + f, 'utf8'), ctx, { filename: f });
 const D = JSON.parse(vm.runInContext('JSON.stringify(CP_DIAG)', ctx));
 const POOL = JSON.parse(vm.runInContext('JSON.stringify(CP_POOL)', ctx));
+const PRAC = JSON.parse(vm.runInContext('JSON.stringify(CP_PRACTICE)', ctx));
 const STRUCTS = new Set(JSON.parse(vm.runInContext('JSON.stringify(Object.keys(STRUCT_SVG))', ctx)));
 const CATS = ['4A', '4B', '4C', '4D', '4E', '5A', '5B', '5C', '5D', '5E'];
 const SKILLS = ['SIRS 1', 'SIRS 2', 'SIRS 3', 'SIRS 4'];
@@ -74,8 +75,13 @@ for (const set of POOL) {
   within(count(r.items, x => x.q.cat), { '5D': 7, '5E': 5, '4E': 4, '5A': 3, '4D': 2, '4C': 2, '4B': 2, '5B': 2, '4A': 2, '5C': 1 }, 2, set.id + ' category');
   for (const p of set.passages) { assert(!allIds.has(p.id), 'passage ids are unique across sets: ' + p.id); allIds.add(p.id); }
 }
+// Practice passages (after the quiz, for weak topics): their own passages, never in the diagnostic or a quiz.
+assert(PRAC.length >= 36, 'at least 36 practice passages');
+{ const r = checkSet({ id: 'cp_practice', passages: PRAC, standalones: [], order: PRAC.map(p => p.id) });
+  for (const p of PRAC) { assert(!allIds.has(p.id), 'practice passages are separate from the tests: ' + p.id); allIds.add(p.id); }
+  assert(new Set(r.items.map(x => x.q.cat)).size === 10, 'practice passages cover all 10 C/P categories'); }
 // Question ids are unique (results and reviews key on them).
-const qids = [D, ...POOL].flatMap(s => [...s.passages.flatMap(p => p.questions), ...s.standalones]).map(q => q.id);
+const qids = [D, ...POOL, { passages: PRAC, standalones: [] }].flatMap(s => [...s.passages.flatMap(p => p.questions), ...s.standalones]).map(q => q.id);
 assert.equal(new Set(qids).size, qids.length, 'unique question ids');
 
 // Wiring: Section Mastery runs the diagnostic and the pool for C/P; pages and the offline cache load them.
