@@ -89,7 +89,7 @@ for (const [name, svg] of Object.entries(STRUCT)) {
   assert(!/<script|<foreignObject|\son\w+\s*=|javascript:|href=/i.test(svg), name + ': no script, handlers or links in the drawing');
 }
 // The drawings load on demand (Practice Exam sessions), not as a script tag on every page; they stay precached.
-for (const page of ['index.html', 'flprep.html', 'aamc.html', 'recall.html']) assert(!fs.readFileSync(root + '/' + page, 'utf8').includes('data/structures.js'), page + ' does not load the drawings up front');
+for (const page of ['index.html', 'flprep.html', 'aamc.html', 'recall-session.html']) assert(!fs.readFileSync(root + '/' + page, 'utf8').includes('data/structures.js'), page + ' does not load the drawings up front');
 assert(source.includes("el.src = 'data/structures.js';") && source.includes('loadStructsFor(items);') && source.includes("if (view === 'exam') { ensureStructs()"), 'drawings load when Practice Exam cards are used');
 const sw = fs.readFileSync(root + '/sw.js', 'utf8');
 assert(sw.includes("'data/structures.js'"), 'structures are cached for offline use');

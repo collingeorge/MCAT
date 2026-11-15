@@ -104,9 +104,7 @@ assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(masteryApportion(w, 
 // drawings and graphs), split by AAMC's discipline weights; the question bank is only a fallback.
 assert(src.includes('const pool = masteryPracticePool(subj), passages = [];') && src.includes("const items = shuffled(picked).map(q => ({ view: makeView(q), passage: null }));"), 'tests from Practice Exam cards');
 // Passage questions count toward their passage's content category, so weak topics use the whole test.
-assert(src.includes("tally(cats, r.view.q.cat || (p ? (MASTERY.passageCats[p.id] || 'other') : masteryCategory(r.view.q)), r.right);"));
-const pc = JSON.parse(vm.runInContext('JSON.stringify(MASTERY.passageCats)', ctx));
-assert(Object.values(pc).every(c => c === 'other' || JSON.parse(vm.runInContext('JSON.stringify(MASTERY.topics.cp)', ctx)).includes(c)), 'passage categories are C/P categories');
+assert(src.includes("tally(cats, r.view.q.cat || (p ? ((p.cats && p.cats[0]) || 'other') : masteryCategory(r.view.q)), r.right);"));
 // A section with no Practice Exam cards (B/B, P/S for now) has no Practice Exam step.
 { const mb = apply({ current: 'bb' }, test('bb', '2026-11-15', 'diagnostic', 122, { cats: { '1A': { c: 2, t: 9 } } }));
   assert.deepEqual(ids(plan(mb, '2026-11-16', { guided: 0 })), ['diagnostic', 'flashcards', 'test']); }
@@ -121,7 +119,7 @@ assert(sp.includes('if (mini.mastery) {') && src.includes('rawToScaled(pctRight)
 const actions = fs.readFileSync(root + '/js/actions.js', 'utf8');
 assert(app.includes('masteryNoteLesson(view.q)') && app.includes("quiz.mastery === 'guided' && teachOf(q)) teachStep(1)"), 'finished lessons count; each Practice Exam card in the plan opens its lesson');
 for (const a of ['startMasteryGuided', 'startMasteryMisses', 'startMasteryFlashcards', 'startMasteryTest', 'setMasteryGoal', 'setMasteryPerDay', 'setMasterySubject']) assert(actions.includes("'" + a + "'"), a + ' allowlisted');
-for (const page of ['index.html', 'recall.html']) assert(fs.readFileSync(root + '/' + page, 'utf8').includes('<script src="js/mastery.js"></script>'), page + ' loads the path');
+for (const page of ['index.html', 'recall-session.html']) assert(fs.readFileSync(root + '/' + page, 'utf8').includes('<script src="js/mastery.js"></script>'), page + ' loads the path');
 assert(fs.readFileSync(root + '/sw.js', 'utf8').includes("'js/mastery.js'"), 'cached for offline use');
 // Practice passages are for after the quiz: below goal, step 5 offers passages on the quiz's weak topics.
 { let mp = apply({}, test('cp', '2026-11-15', 'diagnostic', 122, { version: 'cp_diag' }));
@@ -130,13 +128,29 @@ assert(fs.readFileSync(root + '/sw.js', 'utf8').includes("'js/mastery.js'"), 'ca
   const f = plan(mp, '2026-11-16', { guided: 266, passages: 144 }).steps.at(-1);
   assert.equal(f.id, 'followup'); assert(!f.atGoal && f.passages, 'below goal: practice passages offered');
   assert.equal(plan(mp, '2026-11-16', { guided: 266, passages: 0 }).steps.at(-1).passages, false); }
-assert(src.includes("startPassage(next, { masteryPractice: true });") && fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'startMasteryPassages'"), 'passage practice wired and allowlisted');
+assert(src.includes("startPassage(next, { masteryPractice: followup ? 'followup' : 'step', cats: followup ? cats : null });") && actions.includes("'startMasteryPassages'") && actions.includes("'masteryNextPractice'"), 'passage practice wired and allowlisted');
+// Step 4: 50 passage questions from the C/P practice passages, between the guided cards and the quiz.
+{ const day = '2026-11-16';
+  let mp = apply({}, test('cp', '2026-11-15', 'diagnostic', 122, { version: 'cp_diag' }));
+  let pp = plan(mp, day, { guided: 266, passages: 144 });
+  assert.deepEqual(ids(pp), ['diagnostic', 'flashcards', 'guided', 'passages', 'test'], 'TODAY order: diagnostic, flashcards, guided, passages, quiz');
+  const ps = pp.steps.find(s => s.id === 'passages');
+  assert.equal(ps.count, 50); assert.equal(ps.progress, 0); assert(!ps.done && !ps.poolDone);
+  assert.equal(plan(mp, day, { guided: 266, passages: 20 }).steps.find(s => s.id === 'passages').count, 20, 'a small pool caps the step');
+  mp.days[day] = { subj: 'cp', topics: ['5A', '4E', '4A', '4B', '4C'], prac: 49, pracT: { '5D': 30, '4E': 19 } };
+  pp = plan(mp, day, { guided: 266, passages: 144 });
+  const p49 = pp.steps.find(s => s.id === 'passages');
+  assert.equal(p49.progress, 49); assert(!p49.done); assert.deepEqual(p49.cats.map(c => c.code + ':' + c.n), ['5D:30', '4E:19'], 'answers counted per category');
+  mp.days[day].prac = 53;
+  const p53 = plan(mp, day, { guided: 266, passages: 144, passagesPoolDone: true }).steps.find(s => s.id === 'passages');
+  assert(p53.done && p53.extra === 3 && p53.poolDone, 'done at 50, extra shown, pool-completed note flagged'); }
+assert(src.includes('function masteryPassageOrder(pool, rank, usedToday, followup)') && src.includes('You have completed every practice passage once'), 'unseen first, then the weakest; note after the pool is used up');
 // Results saved before the Chem/Phys Diagnostic existed (no version) are labeled as the old diagnostic.
 assert(src.includes("version: mini.setId || 'cards'") && src.includes('old diagnostic version'), 'old diagnostic labeled');
 // A retake button runs the full diagnostic again once the first one is done.
 assert(src.includes("btn('Retake diagnostic', \"startMasteryTest('diagnostic')\", s.old)"), 'step 1 offers the retake (the main button while the old diagnostic is current)');
 assert(src.includes('function startMasteryFollowup(kind)') && fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'startMasteryFollowup'"), 'after-quiz practice wired and allowlisted');
-assert(src.includes('const qbank = masteryExamPool(plan.subj)'), 'flashcards take the question bank first');
+assert(src.includes('function masteryFlashPool(s) { return masteryExamPool(s); }') && !/QB\.filter/.test(src), 'flashcards are QBank cards only');
 // Storage keys: the path has its own key (it once collided with the topic-mastery map), is reset with the rest,
 // and no two KEYS entries share a name or a storage key.
 const block = app.slice(app.indexOf('const KEYS = {'), app.indexOf('};', app.indexOf('const KEYS = {')));
@@ -144,4 +158,4 @@ const names = [...block.matchAll(/^\s*([A-Za-z]+)\s*:/gm)].map(x => x[1]), value
 assert.equal(new Set(names).size, names.length, 'no duplicate KEYS names: ' + names.filter((n, i) => names.indexOf(n) !== i));
 assert.equal(new Set(values).size, values.length, 'no two KEYS share a storage key: ' + values.filter((n, i) => values.indexOf(n) !== i));
 assert(app.includes("subjectPath: 'mcat2_subject_path'") && app.includes('KEYS.studyPath, KEYS.subjectPath,'), 'own key, included in reset');
-console.log('Section mastery passed: C/P → B/B → P/S, each with its AAMC outline; diagnostic first, then the same day: 50 flashcards (QBank first) → 50 guided Practice Exam cards → 30-question quiz → done at goal or practice the weak spots compared with the last; goal 128/129 on 2 separate days moves to the next subject and its diagnostic; manual subject choice; corrupt data tolerated.');
+console.log('Section mastery passed: C/P → B/B → P/S, each with its AAMC outline; diagnostic first, then the same day: 50 QBank flashcards → 50 guided Practice Exam cards → 50 passage questions → 30-question quiz → done at goal or practice the weak spots compared with the last; goal 128/129 on 2 separate days moves to the next subject and its diagnostic; manual subject choice; corrupt data tolerated.');

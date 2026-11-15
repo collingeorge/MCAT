@@ -45,16 +45,18 @@ async function main() {
   await command('Page.navigate',{url:origin});
   const evaluate=async expression=>{const result=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(result.exceptionDetails)throw Error(JSON.stringify(result.exceptionDetails));return result.result.value};
   const until=async expression=>{for(let i=0;i<300;i++){if(await evaluate(expression))return;await sleep(100)}throw Error('Browser condition failed: '+expression)};
-  await until('document.querySelector("#home-actions")?.textContent.includes("Smart Session")');
+  await until('document.querySelector("#today-plan .today-head")!==null && document.querySelector("#home-actions")?.textContent.includes("Score report")');
+  // Home is TODAY plus the score report: no Recall tab, Smart Session or other recall-deck tools.
+  assert.equal(await evaluate('document.querySelector("#btn-recall")===null && !document.querySelector("#home-actions").textContent.includes("Smart Session")'),true);
   // Guests do not download the cloud SDK until they choose to sign in.
   assert.equal(await evaluate('performance.getEntriesByType("resource").some(r=>r.name.includes("vendor/supabase"))'),false,'guest boot skips the SDK');
   // The second click of a double-click/tap never answers the next question.
-  await evaluate('beginQuiz(QB.slice(0,3),"Double tap",{adaptive:false});document.querySelector("#cb-0").click()');
+  await evaluate('beginQuiz(AQB_QBANK.slice(0,3),"Double tap",{adaptive:false});document.querySelector("#cb-0").click()');
   await evaluate('const b=document.querySelector("#next-btn");b.dispatchEvent(new MouseEvent("click",{bubbles:true,detail:1}));document.querySelector("#cb-1").dispatchEvent(new MouseEvent("click",{bubbles:true,detail:2}))');
   assert.equal(await evaluate('quiz.idx'),1);assert.equal(await evaluate('quiz.results.length'),1,'double-tap did not answer question 2');
   await evaluate('goHome()');
-  assert(await evaluate('document.body.textContent.includes("Recall → passage → subject mini test")'));
-  await evaluate('document.querySelector(".action-btn.smart").click()');
+  // A wrong answer on a QBank card asks which other answer was considered.
+  await evaluate('beginQuiz(AQB_QBANK.slice(0,3),"Runner-up",{adaptive:false})');
   await until('document.querySelector("#cb-0")!==null');
   await evaluate('document.querySelector("#cb-"+((quiz.items[quiz.idx].ans+1)%4)).click()');
   assert(await evaluate('document.querySelector("#runner-up")!==null'));
@@ -62,19 +64,27 @@ async function main() {
   await evaluate('const select=document.querySelector("#runner-up");select.value=select.options[1].value;select.dispatchEvent(new Event("change",{bubbles:true}))');
   await until('document.querySelector("#exp-area").textContent.includes("Answer:")');
   assert(await evaluate('document.querySelector("#alternative-feedback-recall").textContent.includes("Other answer considered:")'));
-  await evaluate('endQuiz();beginQuiz([QB[0]],"Correct answer check",{adaptive:false});document.querySelector("#cb-"+quiz.items[0].ans).click()');
+  await evaluate('endQuiz();beginQuiz([AQB_QBANK[0]],"Correct answer check",{adaptive:false});document.querySelector("#cb-"+quiz.items[0].ans).click()');
   assert.equal(await evaluate('document.querySelector("#runner-up")===null'),true);
-  await evaluate('endQuiz();startSubjectWork("biology","mini")');
+  // The C/P diagnostic gives feedback only at the end; running out of time scores it.
+  await evaluate('endQuiz();goHome();startMasteryTest("diagnostic")');
   await until('document.querySelector("#pc-0")!==null');
+  assert.equal(await evaluate('document.body.classList.contains("exam-mode")'),true,'the test runs in exam layout');
   await evaluate('document.querySelector("#pc-0").click()');
   assert.equal(await evaluate('document.querySelector("#pp-exp").textContent'), '');
   assert(await evaluate('document.querySelector("#pp-next").textContent.includes("Feedback follows")'));
   await evaluate('pq.startedAt=Date.now()-pq.targetMs-1;updatePassageTimer()');
-  await until('document.querySelector("#pp-question-box").textContent.includes("Subject mini test complete")');
-  assert(await evaluate('document.querySelector("#pp-question-box").textContent.includes("Review passage:")'));
-  await evaluate('goHome();document.querySelector(".plan-strip").click()');
+  await until('document.querySelector("#pp-question-box").textContent.includes("diagnostic")');
+  assert(await evaluate('document.querySelector("#pp-question-box").textContent.includes("Topics, weakest first")'));
+  // TODAY after the diagnostic, in order: diagnostic (retake), 50 flashcards, 50 Practice Exam cards, 50 passage questions, the quiz.
+  await evaluate('goHome()');
+  assert.deepEqual(await evaluate('[...document.querySelectorAll("#today-plan .today-step .today-title > b")].map(b=>b.textContent)'),['Diagnostic','Flashcards','Guided Practice Exam cards with walkthroughs','Passage questions','30-question quiz']);
+  await evaluate('document.querySelector("#today-plan [data-click=\'startMasteryPassages()\']").click()');
+  await until('document.querySelector("#pc-0")!==null && pq.masteryPractice==="step"');
+  await evaluate('document.querySelector("#pc-"+pq.views[0].ans).click()');
+  assert.equal(await evaluate('masteryPlanNow().steps.find(s=>s.id==="passages").progress'),1,'a passage answer counts toward the step');
+  await evaluate('goHome();showPlan()');
   await evaluate('document.querySelector("#plan-date").value=localDay(new Date(Date.now()+60*DAY));savePlan()');
-  assert(await evaluate('document.querySelector("#results-body").textContent.includes("Passage practice: next 7 days")'));
   assert(await evaluate('const probe=document.createElement("div");probe.innerHTML=fmt("<img src=x onerror=alert(1)>");probe.querySelector("img")===null'));
   assert.equal(await evaluate('document.querySelector("#app-nav").hidden'),false);
   await evaluate('window.scrollTo(0,document.body.scrollHeight)');
@@ -90,16 +100,16 @@ async function main() {
   await evaluate('document.querySelector("#home-back-btn").click()');
   assert.equal(await evaluate('activeScreen'), 'screen-home');
   await evaluate('goHome()');
-  assert(await evaluate('document.querySelector("#home-score").textContent.includes("Weekly readiness")'));
+  assert(await evaluate('document.querySelector("#today-plan").textContent.includes("Test date")'));
   await evaluate('showOfficialScores()');
   await evaluate('document.querySelector("#official-form").value="Scored Practice Exam 1";[125,126,127,128].forEach((n,i)=>document.querySelector("#official-"+i).value=n);document.querySelector("#official-first").checked=true;document.querySelector("#official-timed").checked=true;document.querySelector("form button[type=submit]").click()');
   assert(await evaluate('officialEligible().length===1 && document.querySelector("#results-body").textContent.includes("506")'));
   await evaluate('goHome();showProgress()');
   assert(await evaluate('document.querySelector("#results-body").textContent.includes("Official practice benchmark")'));
-  await evaluate('goHome();beginQuiz([QB[0]],"Visible timer",{adaptive:false});studyTimerState().last=Date.now()-2000;tickStudyTimer()');
+  await evaluate('goHome();beginQuiz([AQB_QBANK[0]],"Visible timer",{adaptive:false});studyTimerState().last=Date.now()-2000;tickStudyTimer()');
   assert(await evaluate('document.querySelector("#study-total-time").textContent!=="0:00"'));
   await evaluate('studyTimerState().block=48*60000;renderStudyTimer()');
-  assert(await evaluate('document.querySelector("#study-break-message").textContent.includes("Finish this recall set")'));
+  assert(await evaluate('document.querySelector("#study-break-message").textContent.includes("Finish this card set")'));
   await evaluate('window.scrollTo(0,document.body.scrollHeight)');
   assert(await evaluate('document.querySelector("#study-timer").getBoundingClientRect().top>=0 && document.querySelector("#study-timer").getBoundingClientRect().right<=innerWidth'));
   await evaluate('goHome();document.querySelector("#study-break-actions button").click()');
@@ -118,18 +128,14 @@ async function main() {
   // Real clicks through delegated actions under script-src 'self' (no inline handlers).
   await evaluate('goHome();document.querySelector("#btn-passage").click()');
   assert.equal(await evaluate('prefs.mode'),'passage');
-  await evaluate('document.querySelector("#btn-recall").click()');
-  await evaluate('document.querySelector(".sg-subject-row").click()');
-  assert(await evaluate('document.querySelector(".sg-topics.open")!==null'),'row click opens the subject');
-  const before=await evaluate('selectedKeys.size');
-  await evaluate('document.querySelector(".sg-select-all").click()');
-  assert(await evaluate('selectedKeys.size')!==before,'All/None toggles keys');
-  assert(await evaluate('document.querySelector(".sg-topics.open")!==null'),'stopPropagation keeps the row open');
-  await evaluate('document.querySelector(".sg-subject-row").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}))');
-  assert(await evaluate('document.querySelector(".sg-topics.open")===null'),'Enter toggles the row');
-  await evaluate('document.querySelector("#recall-first-toggle").click()');
-  assert.equal(await evaluate('!!prefs.recallFirst'),true,'change action reads this.checked');
-  await evaluate('document.querySelector("#recall-first-toggle").click()');
+  await evaluate('document.querySelector("#btn-aamc").click()');
+  assert.equal(await evaluate('["aamc","flprep"].includes(prefs.mode)'),true);
+  await evaluate('goHome();document.querySelector("#btn-passage").click()');
+  assert(await evaluate('document.querySelector("#passage-selector").textContent.includes("Chem/Phys")'));
+  // A change action reads this.value: the path's goal select.
+  await evaluate('goHome();const g=document.querySelector("[data-change^=\\"setMasteryGoal\\"]");g.value="129";g.dispatchEvent(new Event("change",{bubbles:true}))');
+  assert.equal(await evaluate('masteryLoad().goal'),129,'change action reads this.value');
+  await evaluate('setMasteryGoal(128)');
   await evaluate('document.querySelector("[data-click^=\\"showPlan\\"]")?.click()||showPlan()');
   assert.equal(await evaluate('activeScreen'),'screen-results');
   await evaluate('goHome()');
@@ -141,20 +147,20 @@ async function main() {
   await command('Network.enable');
   await command('Network.emulateNetworkConditions',{offline:true,latency:0,downloadThroughput:-1,uploadThroughput:-1});
   await command('Page.reload',{ignoreCache:false});
-  await until('document.querySelector("#today-plan .today-head")!==null && typeof QB!=="undefined" && QB.length===2807');
-  assert.equal(await evaluate('ALL_PASSAGES.length'),78,'full bank available offline');
+  await until('document.querySelector("#today-plan .today-head")!==null && typeof AQB_QBANK!=="undefined" && AQB_QBANK.length>1000');
+  assert.equal(await evaluate('LISTED_PASSAGES.length+"/"+FLQ.length+"/"+EXAM_CARS.length+"/"+CP_POOL.length'),'36/266/18/6','approved content available offline');
   assert.equal(await evaluate('fetch("/not-cached-"+Date.now()).then(()=>false,()=>true)'),true,'the network really is offline');
-  await evaluate('beginQuiz(QB.slice(0,2),"Offline",{adaptive:false});document.querySelector("#cb-0").click()');
+  await evaluate('beginQuiz(AQB_QBANK.slice(0,2),"Offline",{adaptive:false});document.querySelector("#cb-0").click()');
   assert.equal(await evaluate('quiz.results.length'),1,'studying works offline');
   await evaluate('goHome()');
   await command('Network.emulateNetworkConditions',{offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1});
   // Every static page, with an empty profile and with a seeded profile: no exceptions, no console errors.
   await command('Network.emulateNetworkConditions',{offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1});
-  const pages=['index','recall','passages','exams','score-report','about','recall-session','passage-session','exam-session','results','exam-results'];
-  const seed='(()=>{const D=n=>localDay(new Date(Date.now()+n*DAY));store.set(KEYS.plan,{date:D(83),start:D(-7),days:6,minutes:120});const m={};QB.slice(0,300).forEach((q,i)=>m[q.id]={S:i<40?0.3:9,D:5,last:Date.now()-2*DAY,seen:1,right:1,lapses:0});store.set(KEYS.mem,m);store.set(KEYS.daily,{[D(-2)]:40});store.set(KEYS.errors,QB.slice(0,6).map((q,i)=>({t:Date.now()-2*DAY+i,id:q.id,src:"recall",type:i?"knowledge":"confused",chosen:"a",answer:"b"})));store.set(KEYS.examHistory,[{examId:FULL_EXAMS[0].id,date:Date.now()-DAY,total:503,sections:[]}]);return true})()';
+  const pages=['index','passages','aamc','flprep','exams','score-report','about','recall-session','passage-session','exam-session','results','exam-results'];
+  const seed='(()=>{const D=n=>localDay(new Date(Date.now()+n*DAY));store.set(KEYS.plan,{date:D(83),start:D(-7),days:6,minutes:120});const m={};AQB_QBANK.slice(0,300).forEach((q,i)=>m[q.id]={S:i<40?0.3:9,D:5,last:Date.now()-2*DAY,seen:1,right:1,lapses:0});store.set(KEYS.mem,m);store.set(KEYS.daily,{[D(-2)]:40});store.set(KEYS.subjectPath,{tests:[{subj:"cp",day:D(-1),t:1,kind:"diagnostic",correct:30,total:59,pct:51,scaled:122,version:"cp_diag",cats:{"5D":{c:2,t:14}}}]});store.set(KEYS.errors,AQB_QBANK.slice(0,6).map((q,i)=>({t:Date.now()-2*DAY+i,id:q.id,src:"recall",type:i?"knowledge":"confused",chosen:"a",answer:"b"})));store.set(KEYS.examHistory,[{examId:FULL_EXAMS[0].id,date:Date.now()-DAY,total:503,sections:[]}]);return true})()';
   for(const profile of ['empty','seeded']){
     // Seed before the loop so every page, the home page included, is loaded with the seeded profile.
-    if(profile==='seeded'){await command('Page.navigate',{url:origin+'/index.html'});await until('typeof store!=="undefined" && typeof QB!=="undefined"');await evaluate(seed);}
+    if(profile==='seeded'){await command('Page.navigate',{url:origin+'/index.html'});await until('typeof store!=="undefined" && typeof AQB_QBANK!=="undefined"');await evaluate(seed);}
     for(const page of pages){
       if(profile==='empty')await evaluate('localStorage.clear();sessionStorage.clear();true');
       const before=errors.length, beforeConsole=consoleErrors.length;
@@ -174,7 +180,7 @@ async function main() {
   assert.deepEqual(await evaluate('window.__violations'),[],'no CSP violations or blocked actions');
   assert.equal(await evaluate('[...document.querySelectorAll("*")].some(e=>[...e.attributes].some(a=>/^on/.test(a.name)))'),false,'no inline handler attributes in the DOM');
   assert.equal(errors.length,0,JSON.stringify(errors));
-  console.log('Chrome smoke passed: actual script loading, strict-CSP clicks, offline reload, runner-up reflection, delayed mini feedback, timeout review, study calendar, HTML escaping, and no runtime exceptions.');
+  console.log('Chrome smoke passed: actual script loading, strict-CSP clicks, offline reload, runner-up reflection, TODAY order and passage step, delayed diagnostic feedback, timeout scoring, study calendar, HTML escaping, and no runtime exceptions.');
  } finally {
   if(socket)socket.close();
   chrome.kill();

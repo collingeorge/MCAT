@@ -19,21 +19,10 @@
 <p>Open this page from a local server (e.g. <code>pwsh -File tools/serve.ps1</code>, then <code>http://localhost:8080/tools/validate.html</code>). <b>Errors</b> break the app or mark a right answer wrong; <b>warnings</b> are quality issues to review.</p>
 <div id="out">Running…</div>
 
-<script src="../data/qb-biochemistry.js"></script>
-<script src="../data/qb-biology.js"></script>
-<script src="../data/qb-chemistry.js"></script>
-<script src="../data/qb-physics.js"></script>
-<script src="../data/qb-equations.js"></script>
-<script src="../data/qb-behavioral-1.js"></script>
-<script src="../data/qb-behavioral-2.js"></script>
-<script src="../data/passages-science.js"></script>
 <script src="../data/passages-cars.js"></script>
-<script src="../data/passages-data.js"></script>
 <script src="../data/cp-diagnostic.js"></script>
 <script src="../data/cp-pool.js"></script>
 <script src="../data/cp-practice.js"></script>
-<script src="../data/qb-variants-1.js"></script>
-<script src="../data/qb-variants-2.js"></script>
 <script src="../data/qb-aamc-bio.js"></script>
 <script src="../data/qb-aamc-chem.js"></script>
 <script src="../data/qb-aamc-phys.js"></script>
@@ -96,15 +85,8 @@
     }
   }
 
-  // Recall bank
-  const banks = { QB_BIOCHEMISTRY, QB_BIOLOGY, QB_CHEMISTRY, QB_PHYSICS, QB_BEHAVIORAL_1, QB_BEHAVIORAL_2 };
-  if (typeof QB_EQUATIONS !== 'undefined') {
-    banks.QB_EQUATIONS = QB_EQUATIONS;
-    QB_EQUATIONS.forEach((q, i) => {
-      if (!['Physics Equations & Units', 'Chemistry Equations & Constants'].includes(q.s)) err(`QB_EQUATIONS[${i}]`, `unexpected tag "${q.s}"`);
-      if (!['physics', 'gen_chem'].includes(q.disc)) err(`QB_EQUATIONS[${i}]`, `disc must be physics or gen_chem (got "${q.disc}")`);
-    });
-  } else warn('QB_EQUATIONS', 'data/qb-equations.js not loaded');
+  // The app's own recall decks and their variants were removed; only the AAMC QBank and Practice Exam cards remain.
+  const banks = {};
   // AAMC Question Bank Flashcards section: tag, discipline and category checks per pack
   [
     ['QB_AAMC_BIO', ['Cells, Membranes & Transport', 'Genetics, DNA & Gene Expression', 'Evolution & Microbiology', 'Organ Systems & Physiology', 'Metabolism & Enzymes', 'Passage & Data Skills'], ['biology', 'biochemistry'], /^[1-3][A-E]$/],
@@ -150,33 +132,10 @@
   Object.entries(banks).forEach(([name, arr]) => arr.forEach((q, i) => {
     if (q.aamc !== undefined && !AAMC_CODES.has(q.aamc)) err(`${name}[${i}]`, `unknown aamc code "${q.aamc}"`);
   }));
-  ['QB_BEHAVIORAL_1', 'QB_BEHAVIORAL_2'].forEach(n => {
-    const missing = banks[n].filter(q => !q.aamc).length;
-    if (missing) warn(n, `${missing} questions without an aamc tag`);
-  });
-
-  // Authored variants: each must link to an existing base question by exact tag + stem
-  const byStem = new Map();
-  Object.values(banks).forEach(arr => arr.forEach(q => { byStem.set(q.s + '|' + q.q, q); if (q.idStem) byStem.set(q.s + '|' + q.idStem, q); }));
-  const variantRows = [];
-  [['QB_VARIANTS_1', typeof QB_VARIANTS_1 === 'undefined' ? null : QB_VARIANTS_1], ['QB_VARIANTS_2', typeof QB_VARIANTS_2 === 'undefined' ? null : QB_VARIANTS_2]].forEach(([name, arr]) => {
-    if (!arr) return warn(name, 'not loaded');
-    const kinds = {};
-    arr.forEach((v, i) => {
-      const where = `${name}[${i}]`;
-      if (!byStem.has(v.ofTag + '|' + v.of)) err(where, `base not found: [${v.ofTag}] ${short(v.of)}`);
-      if (!['application', 'prediction', 'scenario', 'except'].includes(v.kind)) warn(where, `unknown kind "${v.kind}"`);
-      kinds[v.kind] = (kinds[v.kind] || 0) + 1;
-      checkQuestion(where, v);
-      const base = byStem.get(v.ofTag + '|' + v.of);
-      if (base && v.q.trim().toLowerCase() === base.q.trim().toLowerCase()) err(where, 'variant stem identical to base');
-    });
-    variantRows.push([name, arr.length, Object.entries(kinds).map(([k, n]) => `${k} ${n}`).join(', ')]);
-  });
 
   // Passages
-  const dataSets = typeof DATA_PASSAGES === 'undefined' ? (warn('DATA_PASSAGES', 'not loaded'), []) : DATA_PASSAGES;
-  const passages = [...PASSAGES, ...BIO_PASSAGES, ...GCHEM_PASSAGES, ...OCHEM_PASSAGES, ...PHYSICS_PASSAGES, ...BEHAVIORAL_PASSAGES, ...dataSets, ...CARS_PASSAGES, ...CARS_EXTRA, ...EXAM2_CARS_PASSAGES];
+  // The full-length exams' CARS passages (the C/P passages are checked with their sets below).
+  const passages = [...CARS_PASSAGES, ...EXAM2_CARS_PASSAGES];
   const SKILLS = new Set(['SIRS 1', 'SIRS 2', 'SIRS 3', 'SIRS 4']);
   const DISCS = new Set(['biochemistry', 'biology', 'gen_chem', 'organic_chem', 'physics', 'psych_soc', 'research']);
   const ids = new Set();
@@ -260,8 +219,7 @@
   const list = (items, cls) => `<ul>${items.map(x => `<li class="${cls}">${x.replace(/</g, '&lt;')}</li>`).join('')}</ul>`;
   document.getElementById('out').innerHTML = `
     <h2 class="${errors.length ? 'err' : 'ok'}">${errors.length} errors · <span class="warn">${warnings.length} warnings</span></h2>
-    ${table(['Recall file', 'Questions', 'Key position A/B/C/D'], rows)}
-    ${table(['Variant file', 'Variants', 'Kinds'], variantRows)}
+    ${table(['Card file', 'Questions', 'Key position A/B/C/D'], rows)}
     ${table(['Exam section', 'Questions', 'Minutes', 'Key position A/B/C/D'], examRows)}
     <details><summary>Passages (${passages.length})</summary>${table(['id', 'Questions', 'Words'], passageRows)}</details>
     <details ${errors.length ? 'open' : ''}><summary>Errors (${errors.length})</summary>${list(errors, 'err')}</details>

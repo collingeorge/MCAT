@@ -24,8 +24,8 @@ function studyTimerActive() {
   return ['screen-results','screen-exam-results'].includes(activeScreen) && !!studyTimerState().subject;
 }
 function studyTimerBoundary() {
-  if (activeScreen === 'screen-quiz') return 'Finish this recall set, then take a 5–10 minute break.';
-  if (activeScreen === 'screen-passage' && !pq.completed && !pq.mini?.completed) return pq.mini ? 'Finish this mini test, then take a 5–10 minute break.' : 'Finish this passage, then take a 5–10 minute break.';
+  if (activeScreen === 'screen-quiz') return 'Finish this card set, then take a 5–10 minute break.';
+  if (activeScreen === 'screen-passage' && !pq.completed && !pq.mini?.completed) return pq.mini ? 'Finish this test, then take a 5–10 minute break.' : 'Finish this passage, then take a 5–10 minute break.';
   if (activeScreen === 'screen-exam' && exam && ['question','review'].includes(exam.phase)) return 'Use the scheduled break after this section. The exam clock continues normally.';
   return 'This is a good stopping point. Take a 5–10 minute break: stand up and look away from the screen.';
 }

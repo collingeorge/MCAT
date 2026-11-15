@@ -11,7 +11,8 @@ async function main() {
  const run = code => vm.runInContext(code,ctx);
  const index = fs.readFileSync(root+'/index.html','utf8');
  for (const [,file] of index.matchAll(/<script src="([^"]+)"/g)) run(fs.readFileSync(root+'/'+file,'utf8'));
- assert.equal(run('QB.length'),2807);
+ // The app's own recall decks were removed: only the AAMC QBank and Practice Exam cards remain.
+ assert.equal(run('QB.length'),0); assert(run('AQB_QBANK.length')>1000);
  assert.match(run('fmt('+JSON.stringify('<img src=x onerror=alert(1)> **safe** _____')+')'),/&lt;img/);
  assert.doesNotMatch(run('fmt('+JSON.stringify('<script>alert(1)</script>')+')'),/<script>/);
  assert.match(run("fmt('**safe** _____')"),/<strong>safe<\/strong>/);
@@ -25,22 +26,18 @@ async function main() {
  assert.equal(run("calendarDaysBetween(new Date(2026,2,7),new Date(2026,2,10))"),3);
  assert.equal(run("calendarDaysBetween(new Date(2026,9,31),new Date(2026,10,3))"),3);
  // A reflection delay must not inflate the fluency timer.
- run("beginQuiz([QB[0]],'Timing audit',{adaptive:false}); quiz.qStart=Date.now()-1000; pick(quiz.items[0].ans)");
+ run("beginQuiz([AQB_QBANK[0]],'Timing audit',{adaptive:false}); quiz.qStart=Date.now()-1000; pick(quiz.items[0].ans)");
  clock+=120000; run('commitPending()');
- assert.equal(run('store.get(KEYS.fluency,{})[disciplineOfRecall(QB[0])].at(-1)'),1000);
+ assert.equal(run('store.get(KEYS.fluency,{})[disciplineOfRecall(AQB_QBANK[0])].at(-1)'),1000);
  // Immediate repetitions cannot multiply long-term stability as if they were delayed retrievals.
- run("store.del(KEYS.mem); updateMemory(QB[1],false,null,1000); globalThis.beforeS=loadMem()[QB[1].id].S; updateMemory(QB[1],true,'knew',1000)");
- assert(run('loadMem()[QB[1].id].S <= beforeS*1.100001'));
+ run("store.del(KEYS.mem); updateMemory(AQB_QBANK[1],false,null,1000); globalThis.beforeS=loadMem()[AQB_QBANK[1].id].S; updateMemory(AQB_QBANK[1],true,'knew',1000)");
+ assert(run('loadMem()[AQB_QBANK[1].id].S <= beforeS*1.100001'));
  // Resuming an expired section must render its break/results, never the expired question.
  run("startExam(0); exam.phase='question'; ensureOrders(); exam.elapsed[0]=curSection().timeMin*60000; renderExam()");
  assert.equal(run('exam.phase'),'break'); assert.doesNotMatch(el('exam-body').innerHTML,/id="ec-0"/);
  const evidence=storage.get('mcat2_evidence'); run('endSection()'); assert.equal(storage.get('mcat2_evidence'),evidence);
  run("exam.si=examDef().sections.length-1; exam.phase='question'; ensureOrders(); exam.elapsed[exam.si]=curSection().timeMin*60000; renderExam()");
  assert.equal(run('exam.phase'),'complete'); assert.equal(run('activeScreen'),'screen-exam-results'); assert.doesNotMatch(el('exam-body').innerHTML,/id="ec-0"/);
- // Missed mini-test discretes lead the reinforcement session, with passage text available for review.
- run("startSubjectWork('biology','mini'); globalThis.missedId=pq.mini.items.find(x=>!x.passage).view.q.id; pq.startedAt=Date.now()-pq.targetMs-1; updatePassageTimer()");
- assert.match(el('pp-question-box').innerHTML,/Review passage:/);
- run('leaveMiniForRecall()'); assert.equal(run('quiz.items[0].q.id'),run('missedId'));
  run("commitPending(); resetProgress()"); assert.equal(storage.has('mcat2_fluency'),false);
  // Same-origin cache operations must not delete another app's cache or intercept out-of-scope assets.
  const handlers={}, deleted=[], cleared=[]; let responseCount=0;
@@ -64,6 +61,6 @@ async function main() {
   const c = four.filter(x => x === 'C').length; assert(four.every(id => id === 'C' || id === 'D') && c > 1300 && c < 1700, 'uniform over the eligible forms: ' + c);
   assert.doesNotMatch(fs.readFileSync(root + '/js/app.js', 'utf8'), /sort\(\(\)\s*=>\s*Math\.random\(\)\s*-\s*0\.5\)/, 'no biased sort-based shuffles');
  }
-console.log('Audit regressions passed: HTML escaping, storage warnings, stable final-review phase, civil dates, fluency timing, conservative repeats, expired exam resume, duplicate scoring, targeted reinforcement, and cache isolation/quota handling.');
+console.log('Audit regressions passed: HTML escaping, storage warnings, stable final-review phase, civil dates, fluency timing, conservative repeats, expired exam resume, duplicate scoring and cache isolation/quota handling.');
 }
 main();

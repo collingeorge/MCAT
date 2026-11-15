@@ -27,7 +27,7 @@ ctx.window = ctx; ctx.scrollTo = () => {};
 const run = code => vm.runInContext(code, ctx);
 for (const [, file] of fs.readFileSync(root + '/index.html', 'utf8').matchAll(/<script src="([^"]+)"/g)) if (!/account|cloud-config|pages/.test(file)) run(fs.readFileSync(root + '/' + file, 'utf8'));
 const keys = run("Object.values(KEYS).filter(k=>typeof k==='string').concat(FULL_EXAMS.flatMap(e=>[KEYS.examProgress(e.id),KEYS.examLast(e.id)]),STUDY_TIMER_KEY)");
-const screens = ['dailyPlanMemo=null;renderHome()', 'showProgress()', 'showPlan()', 'showOfficialScores()', "setMode('passage')", "setMode('exam')", "setMode('recall')", 'startPassageMissReview()', 'showConfusionReview()', 'startSmartSession();goHome()', 'startDueReview();goHome()', 'startDailyNewFacts();goHome()', 'startYesterdayMisses();goHome()', 'startExam(0);goHome()', 'openLastExamReview(0);goHome()', 'renderStudyTimer()'];
+const screens = ['dailyPlanMemo=null;renderHome()', 'showProgress()', 'showPlan()', 'showOfficialScores()', "setMode('passage')", "setMode('exam')", "setMode('recall')", 'startPassageMissReview()', 'showConfusionReview()', 'startMasteryFlashcards();goHome()', 'startMasteryGuided();goHome()', 'startMasteryPassages();goHome()', "startMasteryFollowup('passages');goHome()", "startMasteryTest('daily');goHome()", 'startExam(0);goHome()', 'openLastExamReview(0);goHome()', 'renderStudyTimer()'];
 const plan = () => JSON.stringify({ date: run('localDay(new Date(Date.now()+' + Math.floor(rnd() * 140 - 5) + '*DAY))'), start: run('localDay(new Date(Date.now()-' + Math.floor(rnd() * 60) + '*DAY))'), days: pick([3, 6, 7, 0, 'x']), minutes: pick([30, 120, 240, -5, null]) });
 let screensRun = 0;
 for (let round = 0; round < rounds; round++) {

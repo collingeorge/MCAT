@@ -54,12 +54,14 @@ const ctx=vm.createContext({console,Date,Math,Map,Set,URLSearchParams,setInterva
 const run=code=>vm.runInContext(code,ctx);
 const index=fs.readFileSync(root+'/index.html','utf8');
 for(const [,file] of index.matchAll(/<script src="([^"]+)"/g))run(fs.readFileSync(root+'/'+file,'utf8'));
-assert.equal(run('QB.length'),2807);
-for(const fixture of fixtures){ctx.fixture=fixture;assert(run('QB_BY_ID.has(fixture.id)'));assert.equal(run('QB_BY_ID.get(fixture.id).q'),fixture.newStem);assert.equal(run('loadMem()[fixture.id].seen'),3);assert.equal(run('flaggedIds()[fixture.id]'),true);}
-assert.equal(run('[...AUTHORED.values()].reduce((n,a)=>n+a.length,0)'),run('QB_VARIANTS_1.length+QB_VARIANTS_2.length'),'All authored variants must still link');
+// The recall decks were removed. Saved progress for their cards stays in storage (ignored, never wiped), so
+// nothing a student or the cloud backup holds is lost.
+assert.equal(run('QB.length'),0);
+for(const fixture of fixtures){ctx.fixture=fixture;assert(!run('QB_BY_ID.has(fixture.id)'));assert.equal(run('loadMem()[fixture.id].seen'),3,'orphaned memory kept');assert.equal(run('flaggedIds()[fixture.id]'),true,'orphaned flag kept');}
+run("renderHome()");
 const html=fs.readFileSync(root+'/tools/validate.html','utf8');
 for(const [,script] of html.matchAll(/<script>([\s\S]*?)<\/script>/g)){
- run(script.replace('  // Recall bank','  globalThis.editorialRules={keyAppearsInStem,checkQuestion,warnings};\n  // Recall bank'));
+ run(script.replace('  const banks = {};','  globalThis.editorialRules={keyAppearsInStem,checkQuestion,warnings};\n  const banks = {};'));
 }
 assert.equal(ctx.window.__validation.errors.length,0);assert.equal(ctx.window.__validation.warnings.length,0);
 for(const [stem,key] of [['galactose','lactose'],['proto-oncogenes','Oncogenes'],['euchromatin or heterochromatin','Chromatin'],['type of orbital','f orbital'],['isovolumetric','volume']]){ctx.stem=stem;ctx.key=key;assert.equal(run('editorialRules.keyAppearsInStem(stem,key)'),false);}
@@ -72,4 +74,4 @@ assert.equal(check({...base,choices:['FSH','LH','GH','Prolactin'],ans:3}).length
 assert.equal(check({...base,choices:['Keq','1','0','1/Keq']}).length,0,'Numeric distractors have no letter case');
 assert(check({...base,choices:['A substantially longer explanatory answer than the others','short','brief','tiny']}).some(w=>w.includes('longer')),'Length detector must remain active');
 assert(check({...base,q:'Serine proteases contain _____',choices:['Serine','Threonine','Tyrosine','Cysteine']}).some(w=>w.includes('appears in stem')),'True answer repetition must still warn');
-console.log('Editorial checks passed: zero content warnings, genuine cue detection retained, six legacy IDs/memory/flags preserved, and all authored variants linked.');
+console.log('Editorial checks passed: zero content warnings, genuine cue detection retained, and saved memory/flags for removed cards kept (ignored, not wiped).');

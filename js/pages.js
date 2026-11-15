@@ -2,8 +2,8 @@
 (() => {
   'use strict';
   if (typeof history === 'undefined' || !location.pathname) return;
-  const titles = {index:'Overview',recall:'Recall',passages:'Passages',exams:'Full-length exams',aamc:'AAMC Prep',flprep:'AAMC Prep · Practice Exam cards','score-report':'Score report',about:'About & sources','recall-session':'Recall session','passage-session':'Passage session','exam-session':'Exam session',results:'Session results','exam-results':'Exam results'};
-  const modes = {recall:'recall',passages:'passage',exams:'exam',aamc:'aamc',flprep:'flprep'};
+  const titles = {index:'Overview',passages:'Passages',exams:'Full-length exams',aamc:'AAMC Prep',flprep:'AAMC Prep · Practice Exam cards','score-report':'Score report',about:'About & sources','recall-session':'Flashcard session','passage-session':'Passage session','exam-session':'Exam session',results:'Session results','exam-results':'Exam results'};
+  const modes = {passages:'passage',exams:'exam',aamc:'aamc',flprep:'flprep'};
   let applying = false;
   let current = 'index';
   const pageFromURL = () => location.pathname.split('/').pop().replace(/\.html$/, '') || 'index';
@@ -15,14 +15,14 @@
   }
   function paint(page) {
     current = page;
-    const focused = ['recall','passages','exams','aamc','flprep'].includes(page);
+    const focused = ['passages','exams','aamc','flprep'].includes(page);
     $('home-score').hidden = focused;
     $('home-actions').hidden = focused;
     if ($('today-plan')) $('today-plan').hidden = focused;
     const heading = document.querySelector('.hero-title');
-    heading.textContent = focused ? {recall:'Recall practice',passages:'Passage practice',exams:'Full-length exams',aamc:'AAMC Prep',flprep:'AAMC Prep'}[page] : 'MCAT Study App';
+    heading.textContent = focused ? {passages:'Passage practice',exams:'Full-length exams',aamc:'AAMC Prep',flprep:'AAMC Prep'}[page] : 'MCAT Study App';
     document.title = titles[page] + ' | MCAT Study App';
-    const parent = {'recall-session':'recall','passage-session':'passages','exam-session':'exams',results:'score-report','exam-results':'exams',flprep:'aamc'}[page] || page;
+    const parent = {'recall-session':'aamc','passage-session':'passages','exam-session':'exams',results:'score-report','exam-results':'exams',flprep:'aamc'}[page] || page;
     document.querySelectorAll('[data-study-page]').forEach(a => {
       if (a.dataset.studyPage === parent) a.setAttribute('aria-current','page');
       else a.removeAttribute('aria-current');
@@ -63,7 +63,7 @@
         if (saved) { openLastExamReview(ei); actual = 'exam-results'; }
         else { actual = 'exams'; notice = 'No completed exam for this link is saved in this browser. Choose an exam below.'; }
       } else {
-        const fallback = {'recall-session':'recall','passage-session':'passages','exam-session':'exams',results:'score-report'};
+        const fallback = {'recall-session':'aamc','passage-session':'passages','exam-session':'exams',results:'score-report'};
         actual = fallback[actual];
         notice = 'Session links do not contain answers or a live attempt. Choose or resume practice below; saved progress stays in this browser.';
       }
@@ -82,7 +82,7 @@
     main.setAttribute('tabindex','-1');
     main.focus({preventScroll:true});
   }
-  window.McatPages = {screen, mode:(mode, replace = false) => write({recall:'recall',passage:'passages',exam:'exams',aamc:'aamc',flprep:'flprep'}[mode],replace)};
+  window.McatPages = {screen, mode:(mode, replace = false) => write({passage:'passages',exam:'exams',aamc:'aamc',flprep:'flprep'}[mode],replace)};
   document.addEventListener('click', e => {
     const link = e.target.closest('a[data-study-page]');
     if (!link || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
