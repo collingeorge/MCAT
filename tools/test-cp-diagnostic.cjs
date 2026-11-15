@@ -57,20 +57,22 @@ const d = checkSet(D);
 assert.equal(d.items.length, 59); assert.equal(D.passages.length, 10); assert.equal(D.standalones.length, 15);
 assert.equal(d.shape, 'P P 4 P P P 4 P P P 4 P P 3', 'P1 P2 [4] P3 P4 P5 [4] P6 P7 P8 [4] P9 P10 [3]');
 assert.deepEqual(D.passages.map(p => p.questions.length).sort(), [4, 4, 4, 4, 4, 4, 4, 5, 5, 6]);
-assert(D.passages.some(p => p.id === 'p_cpd_s1' && p.title === 'Alcohol Dehydrogenase and Toxic Alcohol Poisoning'), 'the approved sample passage is included');
+assert(D.passages.some(p => p.id === 'p_cpd2_1' && p.title === 'β-Lactoglobulin as a Carrier for a Cationic Drug'), 'the approved twin sample passage is included');
+assert.equal(D.id, 'cp_diag2', 'the rebuilt diagnostic has its own version id');
 within(count(d.items, x => x.q.cat), { '5D': 14, '5E': 9, '4E': 8, '5A': 6, '4D': 5, '4C': 5, '4B': 4, '5B': 3, '4A': 3, '5C': 2 }, 2, 'diagnostic category');
 within(count(d.items, x => x.subj), { gen_chem: 19, biochemistry: 15, physics: 15, organic_chem: 9 }, 4, 'diagnostic discipline');
 within(count(d.items, x => x.q.skill), { 'SIRS 2': 26, 'SIRS 1': 22, 'SIRS 3': 6, 'SIRS 4': 5 }, 2, 'diagnostic skill');
 assert(D.passages.filter(p => (p.scheme || []).length).length >= 4, 'several diagnostic passages draw structures or a reaction scheme');
 
-// Daily quizzes: at least six half-sections of 30 (5 passages + 10 stand-alones), each in exam order.
+// Daily quizzes: at least six half-sections of 30 (5 passages with 22 questions + 8 stand-alones), each in exam order.
 assert(POOL.length >= 6, 'a week of different quizzes');
 assert.equal(new Set(POOL.map(s => s.id)).size, POOL.length);
 const allIds = new Set(D.passages.map(p => p.id));
 for (const set of POOL) {
   const r = checkSet(set);
-  assert.equal(r.items.length, 30, set.id + ': 30 questions'); assert.equal(set.passages.length, 5); assert.equal(set.standalones.length, 10);
-  assert.equal(r.shape, 'P P 4 P P 3 P 3', set.id + ': exam-style order');
+  assert.equal(r.items.length, 30, set.id + ': 30 questions'); assert.equal(set.passages.length, 5); assert.equal(set.standalones.length, 8);
+  assert.equal(r.shape, 'P P 4 P P P 4', set.id + ': AAMC half-section order P P [4] P P P [4]');
+  assert.equal(set.passages.reduce((n, p) => n + p.questions.length, 0), 22, set.id + ': 22 passage questions');
   within(count(r.items, x => x.q.cat), { '5D': 7, '5E': 5, '4E': 4, '5A': 3, '4D': 2, '4C': 2, '4B': 2, '5B': 2, '4A': 2, '5C': 1 }, 2, set.id + ' category');
   for (const p of set.passages) { assert(!allIds.has(p.id), 'passage ids are unique across sets: ' + p.id); allIds.add(p.id); }
 }

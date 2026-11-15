@@ -12,7 +12,9 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const { spawnSync } = require('node:child_process');
 const root = __dirname + '/..';
-const STRICT = !!process.env.STRICT_QUIZ_MIX && process.env.STRICT_QUIZ_MIX !== '0';
+// STRICT_QUIZ_MIX is on: the rebuilt quizzes (data/cp-pool.js, twins of studied cards) are each exactly on the mix.
+// STRICT_QUIZ_MIX=0 reports misses without failing.
+const STRICT = process.env.STRICT_QUIZ_MIX !== '0';
 const src = fs.readFileSync(root + '/js/mastery.js', 'utf8');
 const ctx = vm.createContext({});
 vm.runInContext(src.slice(0, src.indexOf('// ── Browser side')), ctx);
@@ -278,12 +280,7 @@ if (STRICT) assert.equal(missing, 0, `STRICT_QUIZ_MIX: ${missing} of ${POOL.leng
   for (const [step, r] of Object.entries(dayShares)) console.log('  ' + step + ': ' + Object.entries(r).map(([d, v]) => d.replace('_chem', ' chem') + ' ' + v).join(', '));
   console.log('Shortfalls per step (for the twins rebuild): ' + (shortfalls.length ? '\n  ' + shortfalls.join('\n  ') : 'none')); }
 
-// 8. STRICT_QUIZ_MIX=1 fails on the current data (run once, from the default run).
-if (!STRICT) {
-  const r = spawnSync(process.execPath, [__filename], { env: { ...process.env, STRICT_QUIZ_MIX: '1' }, encoding: 'utf8' });
-  assert.notEqual(r.status, 0, 'STRICT_QUIZ_MIX=1 fails while quiz sets miss the mix');
-  assert.match(r.stderr, /STRICT_QUIZ_MIX: \d+ of \d+ quiz sets miss the AAMC mix/);
-  console.log('STRICT_QUIZ_MIX=1: fails on the current data, as expected (exit ' + r.status + ').');
-}
+// 8. Every quiz set is on the mix (checked strictly above).
+assert.equal(missing, 0, 'every quiz set is exactly on the AAMC mix');
 
-console.log('Blueprint mix passed: every step 100% by AAMC weight (re-derived largest remainder, ties to the heavier), 0 extra on every category, weak categories change picking order not counts, small-pool spillover, discipline mix, no same-day repeats, exactly 3 daily steps (no passage step), quiz mix checked (strict flag), shortfalls listed, old day rows load as the exact split the same day.');
+console.log('Blueprint mix passed: every step 100% by AAMC weight (re-derived largest remainder, ties to the heavier), 0 extra on every category, weak categories change picking order not counts, small-pool spillover, discipline mix, no same-day repeats, exactly 3 daily steps (no passage step), every quiz exactly on the mix (STRICT_QUIZ_MIX on), shortfalls listed, old day rows load as the exact split the same day.');

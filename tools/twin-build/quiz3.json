@@ -1,0 +1,747 @@
+{
+ "order": [
+  "p_cpq3_1",
+  "p_cpq3_2",
+  4,
+  "p_cpq3_3",
+  "p_cpq3_4",
+  "p_cpq3_5",
+  4
+ ],
+ "passages": [
+  {
+   "id": "p_cpq3_1",
+   "subj": "biochemistry",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "5A",
+    "5E",
+    "5D"
+   ],
+   "title": "Acetyl-CoA Synthetase and a Bisphosphate Inhibitor",
+   "passage": "Acetyl-CoA synthetase (ACS) allows many bacteria to grow on acetate. The enzyme works in two half-reactions. First, acetate attacks ATP, forming acetyl-AMP and releasing pyrophosphate; then the acetyl group is transferred from acetyl-AMP to coenzyme A (CoA), releasing AMP. The product, acetyl-CoA, is a high-energy thioester that feeds both the citric acid cycle and fatty acid synthesis. In a crystal structure of ACS from a soil bacterium, five side chains lie within 4 Å of the triphosphate of bound ATP: Arg217, Thr221, Lys228, Asp230 and Gln262.\n\nTo measure ACS activity, researchers used a coupled assay. Adenylate kinase converted the AMP made by ACS to ADP, pyruvate kinase used that ADP to convert phosphoenolpyruvate to pyruvate, and lactate dehydrogenase then converted the pyruvate to lactate with NADH as the cofactor. Of the assay components, only NADH absorbs light at 340 nm, so each reaction was followed by recording the absorbance at 340 nm (A₃₄₀) every 15 s. All three coupling enzymes were present in large excess, so the rate at which A₃₄₀ changed reported the rate of the ACS reaction.\n\nThe team also tested Inhibitor B, a designed analog of acetyl-AMP that carries two carboxylic acid groups and two phosphate monoester groups. In assays run at pH 7.0 and 30°C without inhibitor, A₃₄₀ fell at a steady rate for the first 6 min. With 20 µM Inhibitor B present, the rate of change of A₃₄₀ was 85% lower.",
+   "questions": [
+    {
+     "q": "What is the approximate net charge of Inhibitor B under the conditions of the assays?",
+     "choices": [
+      "−4",
+      "−5",
+      "−6",
+      "−7"
+     ],
+     "ans": 2,
+     "cat": "5A",
+     "skill": "SIRS 2",
+     "diff": "M",
+     "subj": "gen_chem",
+     "twin": "sample-cp:47",
+     "exp": "1. Two kinds of acidic group are named: two carboxylic acids and two phosphate monoesters.\n2. Charge each group at pH 7.0, then add: each –COOH → –COO⁻: −1, so 2 × (−1) = −2; each –OPO₃H₂ → –OPO₃²⁻: −2, so 2 × (−2) = −4; net = −2 + (−4) = **−6**.\n3. −4 counts only the two phosphates (or gives each phosphate only one charge: −1 −1 −1 −1); −5 lets one phosphate lose only one proton; −7 gives one phosphate monoester a third negative charge, but it has only two acidic protons.\n4. Answer: about −6.\n\n**Rule to reuse:** at pH 7 count −1 for each carboxylate and −2 for each phosphate monoester, then sum.",
+     "id": "p_cpq3_1_q1"
+    },
+    {
+     "q": "In the acetyl-CoA formed by ACS, the acetyl carbonyl carbon is bonded to which part of CoA?",
+     "choices": [
+      "An adenine nitrogen",
+      "A phosphate oxygen",
+      "A ribose oxygen",
+      "The cysteamine sulfur"
+     ],
+     "ans": 3,
+     "cat": "5E",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "sample-cp:48",
+     "exp": "1. Acetyl-CoA is a thioester, so sulfur must be involved.\n2. Find the atom that bonds to the acetyl carbon: thioester = CH₃–C(=O)–**S**–CoA; the only sulfur-containing part of CoA is the terminal –SH of its cysteamine (β-mercaptoethylamine) unit; CH₃–C(=O)– + HS–CoA → CH₃–C(=O)–S–CoA.\n3. An adenine nitrogen would give an amide, and a phosphate oxygen or a ribose oxygen would give an ordinary (oxygen) ester; none of them contains sulfur.\n4. Answer: the cysteamine sulfur.\n\n**Rule to reuse:** thioesters form through a thiol (–SH); in CoA that is the terminal β-mercaptoethylamine –SH.",
+     "id": "p_cpq3_1_q2"
+    },
+    {
+     "q": "Which pair of residues near the ATP triphosphate could hold it most strongly by ionic attraction?",
+     "choices": [
+      "Thr221 and Gln262",
+      "Arg217 and Lys228",
+      "Asp230 and Arg217",
+      "Thr221 and Asp230"
+     ],
+     "ans": 1,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "sample-cp:50",
+     "exp": "1. The question asks for ionic interactions with a triphosphate, which carries several negative charges.\n2. Charge each listed residue at pH 7.0: Arg217: + ✓; Thr221: 0 (–OH); Lys228: + ✓; Asp230: − (repels); Gln262: 0 (amide).\n3. Thr and Gln can only hydrogen-bond, and Asp would repel the phosphates, so any pair containing Thr221, Gln262 or Asp230 fails.\n4. Answer: Arg217 and Lys228.\n\n**Rule to reuse:** phosphates are held by salt bridges to Lys and Arg; Thr and Gln only hydrogen-bond, and Asp/Glu repel.",
+     "id": "p_cpq3_1_q3"
+    },
+    {
+     "q": "In the assays without inhibitor, what process does the steady fall in A₃₄₀ report?",
+     "choices": [
+      "Reduction of NAD⁺",
+      "Oxidation of NADH",
+      "Conversion of NADH to NADPH",
+      "Binding of NADH to ACS"
+     ],
+     "ans": 1,
+     "cat": "5E",
+     "skill": "SIRS 1",
+     "diff": "E",
+     "twin": "sample-cp:51",
+     "exp": "1. Among the assay components, A₃₄₀ tracks NADH only.\n2. Reason from the signal: A₃₄₀ ↓ → [NADH] ↓; lactate dehydrogenase passes a hydride from NADH to pyruvate: NADH → NAD⁺; NADH loses electrons, so it is **oxidized**.\n3. Reducing NAD⁺ would make NADH and raise A₃₄₀. NADPH also absorbs at 340 nm, so converting NADH to it would not lower the signal, and nothing in the assay indicates NADH binding to ACS.\n4. Answer: oxidation of NADH.\n\n**Rule to reuse:** a falling A₃₄₀ means NADH is being oxidized to NAD⁺; a rising A₃₄₀ means NAD⁺ is being reduced to NADH.",
+     "id": "p_cpq3_1_q4"
+    }
+   ]
+  },
+  {
+   "id": "p_cpq3_2",
+   "subj": "gen_chem",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "4E",
+    "5E"
+   ],
+   "title": "Catalysts for Neutralizing Lens Disinfectant",
+   "passage": "Contact lenses can be disinfected by soaking them for several hours in 3% aqueous hydrogen peroxide, but the peroxide must be destroyed before the lens is placed on the eye: 2H₂O₂(aq) → 2H₂O(l) + O₂(g). On its own this reaction is slow, so lens cases contain a catalyst. Most cases hold a small disc coated with solid platinum. Bubbles of O₂ escape as the peroxide is consumed, leaving a saline solution in which the lens is stored and from which it is later placed directly on the eye.\n\nChemists compared the platinum disc with two other catalysts. The first was potassium iodide, which dissolves completely in the saline and is thought to act in two steps:\n\nStep 1: H₂O₂ + I⁻ → H₂O + IO⁻\nStep 2: H₂O₂ + IO⁻ → H₂O + O₂ + I⁻\n\nFigure 1 shows the concentrations of I⁻ and IO⁻, and the amount of O₂ released per liter, during a model run started with 6.0 mM H₂O₂ and 1.5 mM KI.\n\nThe second catalyst was manganese dioxide, MnO₂, an insoluble black solid. In one trial, a single MnO₂ cube, 0.80 cm on each side, was dropped into a peroxide solution. In a second trial, an identical cube was first ground, with no loss of mass, into identical cubic particles 0.0020 cm on each side. For this solid catalyst, the O₂ formation rate scales directly with the MnO₂ surface area in contact with the solution.",
+   "figure": {
+    "type": "line",
+    "caption": "Figure 1 Species in the iodide-catalyzed run",
+    "x": {
+     "label": "Time (min)",
+     "min": 0,
+     "max": 10,
+     "step": 2
+    },
+    "y": {
+     "label": "Concentration (mM)",
+     "min": 0,
+     "max": 3.5,
+     "step": 0.5
+    },
+    "series": [
+     {
+      "name": "I⁻",
+      "marker": "circle",
+      "line": "smooth",
+      "points": [
+       [
+        0,
+        1.5
+       ],
+       [
+        1,
+        1.0
+       ],
+       [
+        2,
+        0.9
+       ],
+       [
+        4,
+        1.0
+       ],
+       [
+        6,
+        1.2
+       ],
+       [
+        8,
+        1.4
+       ],
+       [
+        10,
+        1.5
+       ]
+      ]
+     },
+     {
+      "name": "IO⁻",
+      "marker": "square-open",
+      "line": "smooth",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0.5
+       ],
+       [
+        2,
+        0.6
+       ],
+       [
+        4,
+        0.5
+       ],
+       [
+        6,
+        0.3
+       ],
+       [
+        8,
+        0.1
+       ],
+       [
+        10,
+        0
+       ]
+      ]
+     },
+     {
+      "name": "O₂ released",
+      "marker": "triangle",
+      "line": "smooth",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0.6
+       ],
+       [
+        2,
+        1.2
+       ],
+       [
+        4,
+        2.0
+       ],
+       [
+        6,
+        2.5
+       ],
+       [
+        8,
+        2.8
+       ],
+       [
+        10,
+        3.0
+       ]
+      ]
+     }
+    ]
+   },
+   "questions": [
+    {
+     "q": "Based on the two steps and Figure 1, what are the roles of I⁻ and IO⁻, respectively?",
+     "choices": [
+      "Intermediate and catalyst",
+      "Both intermediates",
+      "Catalyst and intermediate",
+      "Reactant and product"
+     ],
+     "ans": 2,
+     "cat": "4E",
+     "skill": "SIRS 3",
+     "diff": "X",
+     "twin": "pe1-cp:48",
+     "exp": "1. Add the steps; each runs once, and the shared species cancel: H₂O₂ + I⁻ → H₂O + IO⁻; H₂O₂ + IO⁻ → H₂O + O₂ + I⁻; sum: **2H₂O₂ → 2H₂O + O₂** (I⁻ and IO⁻ cancel).\n2. Trace I⁻ in Figure 1: present at the start (1.5 mM), dips to 0.9 mM, and returns to the same 1.5 mM. Used, then given back → catalyst.\n3. Trace IO⁻: zero at the start, peaks at 0.6 mM, back to zero at the end. Made, then used → intermediate. Check: I⁻ + IO⁻ = 1.5 mM at every time (1.0 + 0.5, 0.9 + 0.6, 1.2 + 0.3): the iodine just cycles.\n4. O₂ is the true product: it rises and levels off at 3.0 mM. IO⁻ is not a final product and I⁻ is not used up, so I⁻ cannot be a reactant or an intermediate, and IO⁻ cannot be the catalyst.\n5. Answer: catalyst and intermediate.\n\n**Rule to reuse:** same amount at start and end = catalyst; zero at both ends = intermediate. Now find the choice that says this about I⁻ and IO⁻.",
+     "id": "p_cpq3_2_q1"
+    },
+    {
+     "q": "The platinum on the disc in a lens case is best classified as which type of catalyst?",
+     "choices": [
+      "Homogeneous; not consumed",
+      "Heterogeneous; consumed",
+      "Heterogeneous; not consumed",
+      "Homogeneous; consumed"
+     ],
+     "ans": 2,
+     "cat": "5E",
+     "skill": "SIRS 1",
+     "diff": "E",
+     "twin": "pe1-cp:49",
+     "exp": "1. Read the phases: catalyst: Pt **(s)**; reactant: H₂O₂ **(aq)**; different phases → **heterogeneous**.\n2. \"Homogeneous\" means the same phase as the reactants, which a solid in a solution is not, so both homogeneous labels fail.\n3. Catalysts are not used up, so \"consumed\" is false even with the right label.\n4. Answer: heterogeneous; not consumed.\n\n**Rule to reuse:** a catalyst in a different phase from the reactants is heterogeneous, in the same phase homogeneous, and in either case it is not consumed.",
+     "id": "p_cpq3_2_q2"
+    },
+    {
+     "q": "If dissolved KI replaced the platinum disc in a lens case, which outcome would be most likely?",
+     "choices": [
+      "Iodide would remain in the saline",
+      "Less H₂O₂ would decompose",
+      "The saline would be iodide-free",
+      "The reaction would run in reverse"
+     ],
+     "ans": 0,
+     "cat": "5E",
+     "skill": "SIRS 1",
+     "diff": "E",
+     "twin": "pe1-cp:50",
+     "exp": "1. Classify the catalyst by phase: KI is dissolved in the same saline as the peroxide and water → catalyst phase = solution; product phase = solution; same phase → **homogeneous**.\n2. Catalysts speed both directions equally; they do not shift the equilibrium (so no less H₂O₂ decomposes) or make the reaction run backward, so those outcomes fail.\n3. Not being consumed does not make the catalyst leave the solution. A dissolved catalyst cannot be filtered off the way a disc is lifted out, so the iodide remains dissolved in the saline, and the saline is not iodide-free.\n4. Answer: iodide would remain in the saline that touches the lens.\n\n**Rule to reuse:** homogeneous catalyst (same phase) → hard to separate, may contaminate product. Heterogeneous (solid in liquid/gas) → filter it off. No catalyst changes K or yield.",
+     "id": "p_cpq3_2_q3"
+    },
+    {
+     "q": "In the MnO₂ trials, by what factor does grinding the cube change the rate of O₂ formation?",
+     "choices": [
+      "0.0025",
+      "400",
+      "160,000",
+      "64,000,000"
+     ],
+     "ans": 1,
+     "cat": "5E",
+     "skill": "SIRS 2",
+     "diff": "X",
+     "twin": "pe1-cp:51",
+     "exp": "1. The rate tracks exposed surface area, so compare the areas before and after grinding.\n2. Area of the single cube: A = 6 × (0.80 cm)² = 6 × 0.64 = **3.84 cm²**.\n3. Number of small cubes (same total volume): edge ratio = 0.80 ÷ 0.0020 = **400**; number = 400³ = **6.4 × 10⁷** cubes.\n4. Total area of the small cubes: one cube: 6 × (0.0020 cm)² = 2.4 × 10⁻⁵ cm²; all: 6.4 × 10⁷ × 2.4 × 10⁻⁵ = **1536 cm²**; 1536 ÷ 3.84 = **400**.\n5. Eliminate: 0.0025 inverts the factor (1 ÷ 400), as if grinding shrank the area; 160,000 squares the edge ratio (400²) and 64,000,000 cubes it (400³) instead of using it once.\n6. Answer: the rate increases 400-fold, equal to the edge-length ratio.\n\n**Rule to reuse:** cutting a cube into cubes k times smaller in edge multiplies the total surface area (and a surface-limited rate) by k.",
+     "id": "p_cpq3_2_q4"
+    }
+   ]
+  },
+  {
+   "id": "p_cpq3_3",
+   "subj": "physics",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "4B",
+    "4A",
+    "4D",
+    "4C"
+   ],
+   "title": "A Pulsed Ultraviolet Room Disinfection Unit",
+   "passage": "Hospitals use portable ultraviolet (UV) units to disinfect patient rooms between admissions. UV photons are absorbed by the nucleic acids of bacteria and viruses, and the more energetic the photons, the more efficiently they damage these molecules.\n\nIn one design, a sealed gas-filled lamp gives off light at every wavelength between 250 nm and 400 nm. To protect the lamp's quartz envelope, the gas inside must stay at or below 104 °F during operation, and engineers apply PV = nRT, the ideal gas equation, to predict the pressure in the envelope at this temperature. The lamp is powered by a driver that delivers square voltage pulses: the voltage is held at 300 V for 30 µs, then drops to 0 V for 20 µs, and this pattern repeats as long as the unit is switched on.\n\nBecause airborne dust scatters UV light and shields microbes, a fan draws room air through the unit, where it passes between two large parallel metal plates 3.0 mm apart. One plate is held at +900 V and the other is grounded (0 V). Except close to the plate edges, the field has one constant magnitude, 3.0 × 10⁵ V/m, throughout the gap. Dust particles that pick up a charge as they enter are pulled out of the airstream onto the plates, and the cleaned air leaves through a vent at the top of the unit.",
+   "questions": [
+    {
+     "q": "To predict the envelope pressure with PV = nRT at the maximum allowed gas temperature, what T must be entered?",
+     "choices": [
+      "377 K",
+      "345 K",
+      "313 K",
+      "40 K"
+     ],
+     "ans": 2,
+     "cat": "4B",
+     "skill": "SIRS 2",
+     "diff": "X",
+     "subj": "gen_chem",
+     "twin": "pe3-cp:17",
+     "exp": "1. The given value is in Fahrenheit, and the gas law needs kelvin. Two conversions are needed, in order.\n2. Fahrenheit → Celsius: subtract 32, then scale by 5/9: °C = (104 − 32) × 5/9 = 72 × 5/9 = **40 °C**. Skipping × 5/9 gives 72 + 273 = 345 K ✗.\n3. Celsius → kelvin: add 273: K = 40 + 273 = **313 K**. Stopping at 40 K leaves the value in Celsius, and 104 + 273 = 377 K adds the Celsius offset to a Fahrenheit number ✗.\n4. Check on the conversion line: 104 °F sits between freezing (32 °F, 273 K) and boiling (212 °F, 373 K), just above body temperature (98.6 °F, 310 K).\n5. Answer: 313 K.\n\n**Rule to reuse:** °F → °C: (°F − 32) × 5/9; °C → K: + 273. Gas-law temperatures are ALWAYS in kelvin.",
+     "id": "p_cpq3_3_q1"
+    },
+    {
+     "q": "What period and frequency describe the voltage pulses that power the lamp?",
+     "choices": [
+      "30 µs; 33 kHz",
+      "50 µs; 20 kHz",
+      "50 µs; 20 MHz",
+      "100 µs; 10 kHz"
+     ],
+     "ans": 1,
+     "cat": "4A",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe3-cp:18",
+     "exp": "1. Picture the waveform: 300 V for 30 µs, then 0 V for 20 µs.\n2. One period is one full on + off cycle, not just the pulse width: T = 30 µs + 20 µs = **50 µs**. 30 µs is the on-time only, and 100 µs spans two cycles.\n3. Convert to seconds, then invert: T = 50 × 10⁻⁶ s = **5.0 × 10⁻⁵ s**; f = 1/T = 1/(5.0 × 10⁻⁵ s) = **2.0 × 10⁴ Hz = 20 kHz**. 20 MHz treats microseconds as nanoseconds when inverting.\n4. Answer: 50 µs and 20 kHz. The 300 V height is extra data.\n\n**Rule to reuse:** period = one full repeat (on + off); f = 1/T with T in seconds. Prefixes: n = 10⁻⁹, μ = 10⁻⁶, k = 10³, M = 10⁶.",
+     "id": "p_cpq3_3_q2"
+    },
+    {
+     "q": "Using hc ≈ 1.24 × 10⁻⁶ eV·m, what is the highest energy carried by a single lamp photon, and at which wavelength?",
+     "choices": [
+      "0.20 eV, at 250 nm",
+      "0.50 eV, at 250 nm",
+      "3.1 eV, at 400 nm",
+      "5.0 eV, at 250 nm"
+     ],
+     "ans": 3,
+     "cat": "4D",
+     "skill": "SIRS 2",
+     "diff": "X",
+     "twin": "pe3-cp:19",
+     "exp": "1. E = hc/λ: energy is inversely proportional to wavelength, so the MAXIMUM energy is at the SHORTEST wavelength, 250 nm. 3.1 eV is the correct value for the wrong end (1.24 × 10⁻⁶ ÷ 4.0 × 10⁻⁷ = 3.1 eV).\n2. Convert nanometers to meters before dividing: 250 nm = 250 × 10⁻⁹ m = **2.5 × 10⁻⁷ m**.\n3. Divide hc by λ: E = 1.24 × 10⁻⁶ eV·m ÷ 2.5 × 10⁻⁷ m = 4.96 eV ≈ **5.0 eV**.\n4. The other 250 nm answers come from a power-of-ten slip in the conversion or from dividing the wrong way: 1.24 × 10⁻⁶ ÷ 2.5 × 10⁻⁶ ≈ 0.50 ✗; 2.5 × 10⁻⁷ ÷ 1.24 × 10⁻⁶ ≈ 0.20 ✗.\n5. Answer: 5.0 eV, at 250 nm.\n\n**Rule to reuse:** E = hc/λ, so photon energy goes UP as wavelength goes DOWN. Convert nm to m (× 10⁻⁹) before dividing.",
+     "id": "p_cpq3_3_q3"
+    },
+    {
+     "q": "In the gap between the dust-collecting plates, how are the electric field lines arranged?",
+     "choices": [
+      "Uniform, directed at the grounded plate",
+      "Uniform, directed at the +900 V plate",
+      "Denser near the +900 V plate",
+      "Denser near the grounded plate"
+     ],
+     "ans": 0,
+     "cat": "4C",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe3-cp:20",
+     "exp": "1. Check that the numbers fit a uniform field: E = ΔV/d = 900 V ÷ 0.0030 m = **3.0 × 10⁵ V/m** ✓.\n2. Same magnitude everywhere → uniform field → field lines evenly spaced and parallel. Lines denser near either plate would mean a stronger field there.\n3. Direction: E points 'downhill' in potential, from high V to low V, so the lines leave the +900 V plate and end on the grounded plate, not the reverse.\n4. Answer: uniform, directed at the grounded plate.\n\n**Rule to reuse:** field lines point from high V to low V; equal spacing = uniform field; between parallel plates E = ΔV/d.",
+     "id": "p_cpq3_3_q4"
+    }
+   ]
+  },
+  {
+   "id": "p_cpq3_4",
+   "subj": "organic_chem",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "5A",
+    "5D"
+   ],
+   "title": "Assembling a Drug Candidate from Three Fragments",
+   "passage": "Compound 7, a candidate drug for chronic pain, contains four nitrogen atoms, labeled N1 through N4. Table 1 lists the atoms bonded to each of them, together with approximate pKa values used in planning the synthesis. Compound 7 was assembled from three fragments.\n\nFragment A was made from methyl 4-oxo-4-phenylbutanoate. Sodium borohydride (NaBH₄) converted the ketone into a secondary alcohol but left the ester untouched, and the new hydroxyl group then attacked the ester carbonyl carbon of the same molecule, releasing methanol and closing a lactone ring. Later in the route, an intermediate that carried both this lactone ring and an ethyl ester was heated with 3 equivalents of aqueous NaOH in an attempt to remove only the ethyl group.\n\nFragment B, tetrahydroisoquinoline (THIQ), is a cyclic secondary amine that is sold as its hydrochloride salt, THIQ·HCl. The salt was first stirred with triethylamine (Et₃N) in acetonitrile, and an alkyl bromide fragment was then added; an SN2 reaction joined the two pieces and formed N4 of Compound 7.\n\nThe third fragment carries N1, which is protected as a methyl carbamate, R₂N–C(=O)–OCH₃, and remains so in Compound 7. In a related analog, the chemists removed this group at the end of the route by complete hydrolysis in hot aqueous base.",
+   "figure": {
+    "caption": "Table 1 Bonding at the nitrogens of Compound 7, and approximate pKa values",
+    "columns": [
+     "Item",
+     "Data"
+    ],
+    "rows": [
+     [
+      "N1",
+      "bonded to C=O carbon of –C(=O)OCH₃, CH₂, CH₂"
+     ],
+     [
+      "N2",
+      "bonded to CH₂, CH₂, H"
+     ],
+     [
+      "N3",
+      "double bond to =CH–; single bond to CH₃"
+     ],
+     [
+      "N4",
+      "bonded to ring CH₂, ring CH₂, chain CH₂"
+     ],
+     [
+      "pKa of THIQ–H⁺ (R₂NH₂⁺ → R₂NH)",
+      "9.4"
+     ],
+     [
+      "pKa of Et₃NH⁺",
+      "10.7"
+     ],
+     [
+      "pKa of THIQ N–H (R₂NH → R₂N⁻)",
+      "36"
+     ],
+     [
+      "pKa of C–H on the carbon bearing Br",
+      "> 45"
+     ]
+    ]
+   },
+   "questions": [
+    {
+     "q": "According to Table 1, which labeled nitrogen of Compound 7 belongs to a tertiary amine?",
+     "choices": [
+      "N1",
+      "N2",
+      "N3",
+      "N4"
+     ],
+     "ans": 3,
+     "cat": "5A",
+     "skill": "SIRS 4",
+     "diff": "D",
+     "twin": "pe4-cp:29",
+     "exp": "1. You need an N with three carbons and no carbonyl next door.\n2. Read each labeled N in Table 1: N1: C=O carbon + CH₂ + CH₂ → **3 C, one is C=O**; N2: CH₂ + CH₂ + H → **2 C**; N3: C=N double bond → **imine**; N4: CH₂ + CH₂ + CH₂ → **3 C, no C=O**.\n3. N1 sits on a carbonyl carbon, so it is part of a carbamate (an amide-type N), and N3 has a double bond to C, so it is an imine.\n4. N2 carries an H and only two carbons: a secondary amine.\n5. N4 has three plain carbon neighbors and no H. Answer: N4.\n\n**Rule to reuse:** for each N, check for C=N (imine), then a C=O neighbor (amide), then count carbons. Ask of each labeled N: three plain carbons, no H?",
+     "id": "p_cpq3_4_q1"
+    },
+    {
+     "q": "Which product forms when Fragment A is made from methyl 4-oxo-4-phenylbutanoate?",
+     "choices": [
+      "Four-atom cyclic ester",
+      "Five-atom cyclic ester",
+      "Six-atom cyclic ester",
+      "Open-chain diol"
+     ],
+     "ans": 1,
+     "cat": "5D",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "twin": "pe4-cp:30",
+     "exp": "1. Only the ketone is reduced; the ester stays to be attacked.\n2. So the ester is not reduced, and both carbonyls cannot become alcohols: no diol forms.\n3. After reduction, trace the ring that forms: from the ester carbon (C1) along the chain to the new OH oxygen on C4.\n4. Count ring atoms: carbons C1, C2, C3, C4 = **4**; ring oxygen = **1**; ring size = 4 + 1 = **5**. Four atoms forgets the ring O, and six atoms counts one atom too many.\n5. Answer: the five-atom cyclic ester (a γ-lactone), with the phenyl on the carbon beside the ring O.\n6. Rule: ring size = carbonyl carbon through OH carbon, plus one for the ring O.\n\n**Rule to reuse:** ring size = carbonyl carbon through the OH carbon, **plus 1 for the ring O**. For each choice, count ring atoms, find the CH₃, and ask: is the ester C=O still there?",
+     "id": "p_cpq3_4_q2"
+    },
+    {
+     "q": "When the intermediate bearing the lactone ring and the ethyl ester is heated with the aqueous NaOH, what happens?",
+     "choices": [
+      "Only the ethyl ester is cleaved",
+      "Both esters are cleaved",
+      "Only the lactone ring opens",
+      "Neither ester reacts"
+     ],
+     "ans": 1,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe4-cp:31",
+     "exp": "1. Both groups are esters: ethyl ester → carboxylate + CH₃CH₂OH; lactone (cyclic ester) → opens to a hydroxy carboxylate.\n2. There is enough base for both: 2 ester groups, 3 equivalents of OH⁻ → enough for **both**.\n3. A lactone is just a cyclic ester, so hydroxide does not spare either one, and hydroxide is a good nucleophile toward esters; the attempt to cleave only the ethyl group fails.\n4. Answer: both esters are cleaved to carboxylates.\n\n**Rule to reuse:** a lactone reacts like any ester; excess hydroxide saponifies every ester group to a carboxylate, and a lactone opens to a hydroxy carboxylate.",
+     "id": "p_cpq3_4_q3"
+    },
+    {
+     "q": "Based on Table 1, after THIQ·HCl is stirred with Et₃N, which species attacks the alkyl bromide?",
+     "choices": [
+      "Protonated THIQ",
+      "Neutral THIQ",
+      "THIQ amide anion",
+      "Alkyl bromide carbanion"
+     ],
+     "ans": 1,
+     "cat": "5D",
+     "skill": "SIRS 4",
+     "diff": "D",
+     "twin": "pe4-cp:32",
+     "exp": "1. The comparison number is in Table 1: the base's conjugate acid, Et₃NH⁺, has pKa 10.7.\n2. Compare every proton Et₃N might try to remove: THIQ–H⁺ N–H: pKa ≈ **9.4** < 10.7 → removed; THIQ N–H: pKa ≈ **36** > 10.7 → not removed; C–H on the carbon bearing Br: pKa > **45** → not removed.\n3. So Et₃N stops after one proton: no amide anion and no carbanion.\n4. The salt itself has four bonds on N and no lone pair, so protonated THIQ cannot attack.\n5. Neutral THIQ has its lone pair back on N, ready to attack the carbon bearing Br.\n6. Answer: neutral THIQ.\n\n**Rule to reuse:** N attacks only with a **free lone pair**; a base removes only an H⁺ with lower pKa. For each choice ask: does Et₃N make it, and is its N lone pair free?",
+     "id": "p_cpq3_4_q4"
+    },
+    {
+     "q": "Complete hydrolysis of the methyl carbamate on N1 in hot aqueous base gives:",
+     "choices": [
+      "a carbamic acid and methane.",
+      "an amide and methanol.",
+      "the free amine, carbonate and methanol.",
+      "the free amine and methyl acetate."
+     ],
+     "ans": 2,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe4-cp:33",
+     "exp": "1. The carbonyl carbon has two bonds to break: ester side: C–OCH₃ → **CH₃OH**; left: R₂N–COOH (carbamic acid); R₂N–COOH → **R₂NH + CO₂** (→ carbonate in base).\n2. \"Complete hydrolysis\" cleaves both bonds, so a remaining amide or carbamic acid is not the end, and hydrolysis gives methanol, not methane.\n3. Methyl acetate would need an acetyl (CH₃C=O) group, which the carbamate does not have.\n4. Answer: the free amine, carbonate and methanol.\n\n**Rule to reuse:** complete hydrolysis of a carbamate cleaves both bonds to its carbonyl, giving the amine, the alcohol and CO₂ (carbonate in base).",
+     "id": "p_cpq3_4_q5"
+    }
+   ]
+  },
+  {
+   "id": "p_cpq3_5",
+   "subj": "biochemistry",
+   "type": "passage",
+   "topic": "C/P",
+   "cats": [
+    "5D",
+    "5A",
+    "4D",
+    "4C"
+   ],
+   "title": "A Cellulose-Binding Module Studied by ¹⁹F NMR",
+   "passage": "Fungal cellulases attach to insoluble cellulose through a small cellulose-binding module (CBM) of about 40 residues. Three aromatic side chains, Trp24, Tyr31 and Tyr32, lie in a row on one flat face of the module. Each ring stacks against a glucose ring of a cellulose chain through CH–π contacts, and the indole N–H of Trp24 also donates a hydrogen bond to the O6 hydroxyl of one glucose unit. Most of the remaining surface of the module is covered with asparagine and glutamine side chains.\n\nTo follow binding, researchers replaced Tyr31 with 3-fluorotyrosine by genetic code expansion, a method that can place either a natural or an unnatural amino acid at any chosen position in a protein. The labeled CBM was purified by precipitation with a white salt whose solution contains NH₄⁺ and SO₄²⁻ ions in a 2:1 ratio, and it was then redissolved in a pH 7.0 phosphate buffer.\n\nSpectra were recorded on a spectrometer with a 9.40 T magnet, in which ¹⁹F nuclei absorb radio-frequency photons at 376 MHz. Adding short cellulose fragments shifted the ¹⁹F signal, and the size of the shift at each fragment concentration was used to calculate a binding constant. For any nucleus, γ = 2πf/B relates its gyromagnetic ratio γ to its resonance frequency f in a field of strength B. Because γ is fixed for each isotope, researchers often report γ/2π.",
+   "questions": [
+    {
+     "q": "Which replacement for Trp24 would most likely keep both its stacking and its hydrogen bond to cellulose?",
+     "choices": [
+      "Isoleucine",
+      "O-Methyltyrosine",
+      "Threonine",
+      "Tyrosine"
+     ],
+     "ans": 3,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe6-cp:48",
+     "exp": "1. List what Trp24 does: it stacks (needs a ring) and donates a hydrogen bond (needs an H on N or O): feature 1: flat **aromatic ring**; feature 2: **X–H** donor, X = N or O.\n2. O-Methyltyrosine keeps the ring, but its O is capped with CH₃, so it has no X–H; threonine has an O–H but no ring.\n3. Isoleucine is a plain branched hydrocarbon with neither feature.\n4. Tyrosine's phenol ring is flat and aromatic, and its O–H is a donor.\n5. Answer: tyrosine. Rule: list the features the residue uses, then keep every one; Tyr = ring + O–H donor.\n\n**Rule to reuse:** **Stacking (CH–π) with sugars** needs a flat aromatic ring: Phe, Tyr, Trp, His.",
+     "id": "p_cpq3_5_q1"
+    },
+    {
+     "q": "The many asparagine and glutamine residues on the module's surface most likely contribute to its:",
+     "choices": [
+      "binding of cellulose.",
+      "rate of aggregation.",
+      "overall anionic charge.",
+      "solubility in water."
+     ],
+     "ans": 3,
+     "cat": "5D",
+     "skill": "SIRS 1",
+     "diff": "M",
+     "twin": "pe6-cp:49",
+     "exp": "1. Look at the side chains: Asn –CH₂C(=O)NH₂ and Gln –CH₂CH₂C(=O)NH₂ are polar amides.\n2. Amides are neither acidic nor basic in water (amide N–H pKa ≈ 17), so they are uncharged at pH 7.0 and add no negative charge: fraction ionized = 10^(7.0 − 17) ≈ **1 × 10⁻¹⁰** → essentially **neutral**.\n3. Polar amide groups hydrogen bond with water, which opposes aggregation; cellulose binding depends on the aromatic face, not the whole surface.\n4. Answer: solubility in water, because surface amides hydrogen bond with water.\n\n**Rule to reuse:** polar, uncharged surface residues (Ser, Thr, Asn, Gln) hydrogen bond with water and raise solubility.",
+     "id": "p_cpq3_5_q2"
+    },
+    {
+     "q": "A 0.20 M solution of the precipitating salt has a pH of about 4.8. What is the salt's name, and which ion makes the solution acidic?",
+     "choices": [
+      "Ammonium sulfate; the cation",
+      "Ammonium sulfate; the anion",
+      "Ammonium sulfide; the cation",
+      "Nitrogen tetrahydride sulfate; the cation"
+     ],
+     "ans": 0,
+     "cat": "5A",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "subj": "gen_chem",
+     "twin": "pe6-cp:50",
+     "exp": "1. Name the ions: NH₄⁺ is the polyatomic cation ammonium; SO₄²⁻ is sulfate (sulfide is S²⁻). Ionic names are cation then anion, with no Greek prefixes, so \"ammonium sulfide\" and \"nitrogen tetrahydride sulfate\" fail.\n2. Find the acid: SO₄²⁻ is the conjugate base of HSO₄⁻ (Ka ≈ 10⁻²), so its Kb ≈ 10⁻¹², negligible next to NH₄⁺; NH₄⁺ is the conjugate acid of the weak base NH₃: NH₄⁺ + H₂O ⇌ NH₃ + H₃O⁺; Ka = Kw/Kb = 1.0 × 10⁻¹⁴ ÷ 1.8 × 10⁻⁵ = **5.6 × 10⁻¹⁰**.\n3. Check the pH in the stem: [NH₄⁺] = 2 × 0.20 = 0.40 M; [H⁺] = √(Ka·C) = √(5.6 × 10⁻¹⁰ × 0.40) = √(2.2 × 10⁻¹⁰) = **1.5 × 10⁻⁵ M**; pH = **4.8**.\n4. Sulfate has no proton to donate, and if it accepted a proton from water it would make OH⁻ and a basic solution, the opposite of what is seen, so the anion is not the cause.\n5. Answer: ammonium sulfate; the cation (NH₄⁺) donates a proton to water.\n\n**Rule to reuse:** ionic name = cation + anion (SO₄²⁻ = sulfate, not sulfide). The conjugate acid of a weak base (NH₄⁺) lowers pH; the anion of a strong acid (SO₄²⁻) has almost no effect.",
+     "id": "p_cpq3_5_q3"
+    },
+    {
+     "q": "Taking h = 4.14 × 10⁻¹⁵ eV·s, how much energy does a single photon absorbed by the ¹⁹F nuclei carry?",
+     "choices": [
+      "1.6 neV",
+      "16 neV",
+      "1.6 µeV",
+      "1.6 meV"
+     ],
+     "ans": 2,
+     "cat": "4D",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "subj": "physics",
+     "twin": "pe6-cp:51",
+     "exp": "1. Translate: the frequency is given (376 MHz); photon energy uses E = hf.\n2. Convert MHz to Hz: 376 MHz = 376 × 10⁶ Hz = **3.76 × 10⁸ Hz**.\n3. Multiply: E = 4.14 × 10⁻¹⁵ eV·s × 3.76 × 10⁸ s⁻¹ = 15.6 × 10⁻⁷ eV ≈ **1.6 × 10⁻⁶ eV = 1.6 µeV**.\n4. Check the exponent: 10⁻¹⁵ × 10⁸ = 10⁻⁷, and 15.6 × 10⁻⁷ = 1.56 × 10⁻⁶. Wrong powers of ten give the other choices: MHz read as kHz gives 1.6 neV, 376 MHz written as 3.76 × 10⁶ Hz gives 16 neV, and MHz read as GHz gives 1.6 meV.\n5. Answer: 1.6 µeV, a radio photon about a million times weaker than a visible photon (about 2 eV).\n\n**Rule to reuse:** E = hf. Convert MHz → Hz (× 10⁶) first, multiply the front numbers, add the exponents.",
+     "id": "p_cpq3_5_q4"
+    },
+    {
+     "q": "Using the spectrometer data, what is γ/2π for ¹⁹F?",
+     "choices": [
+      "0.025 MHz/T",
+      "40 MHz/T",
+      "251 MHz/T",
+      "3530 MHz/T"
+     ],
+     "ans": 1,
+     "cat": "4C",
+     "skill": "SIRS 2",
+     "diff": "D",
+     "subj": "physics",
+     "twin": "pe6-cp:52",
+     "exp": "1. Use the equation given: γ = 2πf/B, so γ/2π = f/B; the 2π is already divided out of the quantity asked for.\n2. Plug in f and B: γ/2π = 376 MHz ÷ 9.40 T = **40.0 MHz/T**.\n3. 251 multiplies by 2π again (2π × 40 ≈ 251), counting it twice; 3530 multiplies f × B (376 × 9.40 ≈ 3530); 0.025 divides B by f (9.40 ÷ 376). Check: 40.0 × 9.40 = **376** ✓.\n4. Answer: 40 MHz/T, the known value for fluorine-19.\n\n**Rule to reuse:** when the MCAT hands you an unfamiliar formula, match each symbol to a number, keep any factor the choices keep (like 2π), and do the algebra.",
+     "id": "p_cpq3_5_q5"
+    }
+   ]
+  }
+ ],
+ "standalones": [
+  {
+   "q": "An electron in a hydrogen atom is excited from a 3s orbital to a 5s orbital. Which property of the orbital it occupies changes the most?",
+   "choices": [
+    "Its shape",
+    "Its size and energy",
+    "Its electron capacity",
+    "Its orientation"
+   ],
+   "ans": 1,
+   "cat": "4E",
+   "skill": "SIRS 1",
+   "diff": "M",
+   "subj": "gen_chem",
+   "twin": "sample-cp:29",
+   "exp": "1. Read the change: 3s → 5s.\n2. Split each label into quantum numbers: 3s: n = 3, l = 0; 5s: n = 5, l = 0; only **n** changes → size and energy (average distance from the nucleus).\n3. Shape is set by l (both are s), orientation by mₗ (an s orbital has only one), and each orbital still holds 2 electrons.\n4. Answer: its size and energy.\n\n**Rule to reuse:** the number in an orbital label (n) sets size and energy; the letter (l) sets shape; mₗ sets orientation; each orbital holds 2 electrons.",
+   "id": "cp_q3_sa1"
+  },
+  {
+   "q": "Bacteria reduce diacetyl to 2,3-butanediol in two NADH-dependent steps; overall: CH₃COCOCH₃ + 2 NADH + __H⁺ → CH₃CH(OH)CH(OH)CH₃ + 2 NAD⁺. What coefficient on H⁺ balances this equation?",
+   "choices": [
+    "One",
+    "Two",
+    "Three",
+    "Four"
+   ],
+   "ans": 1,
+   "cat": "4E",
+   "skill": "SIRS 2",
+   "diff": "D",
+   "subj": "biochemistry",
+   "twin": "sample-cp:59",
+   "exp": "1. The coefficient on H⁺ is the unknown.\n2. Count hydrogens that end up in the diol: CH₃COCOCH₃: 6 H; CH₃CH(OH)CH(OH)CH₃: 10 H; need 10 − 6 = 4 H; 2 NADH → 2 H⁻: 2 H; from solution: **2 H⁺**.\n3. Check the charge: left: 2 NADH (0) + 2 H⁺ (+2) = +2; right: 2 NAD⁺ = +2 ✓.\n4. One leaves the diol one H short and the charges unequal; three or four would put extra positive charge on the left. Four assumes all the new hydrogens come from solution.\n5. Answer: two H⁺.\n\n**Rule to reuse:** NAD(P)H reductions add H⁻ from the cofactor plus one H⁺ from solution; balance both atoms and charge.",
+   "id": "cp_q3_sa2"
+  },
+  {
+   "q": "A size-exclusion resin is made of dextran, chains of glucose rings joined by glycosidic bonds and cross-linked by short –CH₂–CH(OH)–CH₂– bridges. Some small peptides leave the column later than expected for their size. Which weak interaction with the resin is most likely responsible?",
+   "choices": [
+    "Ionic pairing with sulfonates",
+    "H-bonding with sugar –OH",
+    "Stacking on phenyl groups",
+    "Nonpolar contact with octyl tails"
+   ],
+   "ans": 1,
+   "cat": "5C",
+   "skill": "SIRS 3",
+   "diff": "D",
+   "subj": "biochemistry",
+   "twin": "pe3-cp:46",
+   "exp": "1. The resin attracts the peptides weakly: look for a weak, noncovalent interaction the polymer can make.\n2. Inventory the structure: charges: **none**; aromatic rings: **none** (glucose rings are saturated); chains: short C–C units, **no long alkyl chain**; groups: **many –OH**, ring and ether O atoms.\n3. No charges means no ionic pairing (there are no sulfonate groups), and no aromatic rings means no stacking on phenyl groups.\n4. Each short carbon stretch carries –OH groups, so there is no extended nonpolar surface such as an octyl tail.\n5. The hydroxyls offer O–H donors and O acceptors to the peptides' polar groups. Answer: H-bonding with sugar –OH.\n6. Rule: on a structure question about interactions, only count groups that are present: N–H/O–H and C=O → H-bonds; charges → ionic; rings → π; long C–H chains → hydrophobic.\n\n**Rule to reuse:** To predict what a surface can do, list its functional groups from its description.",
+   "id": "cp_q3_sa3"
+  },
+  {
+   "q": "A 15 N force and a 9 N force pull on the same small object, and the angle between their directions may take any value up to 180°. Which resultant magnitude is NOT possible?",
+   "choices": [
+    "4 N",
+    "6 N",
+    "17.5 N",
+    "24 N"
+   ],
+   "ans": 0,
+   "cat": "4A",
+   "skill": "SIRS 2",
+   "diff": "D",
+   "subj": "physics",
+   "twin": "pe4-cp:12",
+   "exp": "1. Translate: the angle can vary, so find the full range of possible resultants; anything outside it is impossible.\n2. Extremes: parallel forces add, opposite forces subtract: max (θ = 0°): 15 + 9 = **24 N**; min (θ = 180°): 15 − 9 = **6 N**. Both are possible.\n3. Check a middle case: perpendicular forces combine by Pythagoras: R = √(15² + 9²) = √(225 + 81) = √306 ≈ **17.5 N**, also possible.\n4. The resultant shrinks smoothly from 24 N to 6 N as the angle opens; it never goes below 6 N.\n5. Answer: 4 N is below the 6 N minimum, so it is NOT possible.\n\n**Rule to reuse:** two forces A and B combine to anything between |A − B| (opposite) and A + B (same way); at 90° use √(A² + B²).",
+   "id": "cp_q3_sa4"
+  },
+  {
+   "q": "A runner's blood pressure is 118/76 mmHg and her pulse is 72 beats/min. Using MAP ≈ (P_s + 2P_d)/3, with P_s the systolic and P_d the diastolic pressure, what is her mean arterial pressure?",
+   "choices": [
+    "104 mmHg",
+    "97 mmHg",
+    "90 mmHg",
+    "76 mmHg"
+   ],
+   "ans": 2,
+   "cat": "4B",
+   "skill": "SIRS 2",
+   "diff": "D",
+   "subj": "biology",
+   "twin": "pe4-cp:57",
+   "exp": "1. Translate: read systolic (top) and diastolic (bottom) pressures; the pulse is extra data.\n2. Plug into the given formula, weighting diastolic twice: P_s = **118**, P_d = **76** mmHg; MAP = (118 + 2 × 76) ÷ 3 = (118 + 152) ÷ 3 = 270 ÷ 3 = **90 mmHg**.\n3. The MAP sits closer to diastolic because the heart spends about two-thirds of each cycle in diastole.\n4. Swapping P_d and P_s gives (2 × 118 + 76) ÷ 3 = 104; 76 is diastolic alone; 97 is the simple average, (118 + 76) ÷ 2.\n5. Answer: 90 mmHg.\n\n**Rule to reuse:** BP = systolic/diastolic. MAP = (2 × diastolic + systolic) ÷ 3, closer to diastolic. Use only the numbers the formula needs.",
+   "id": "cp_q3_sa5"
+  },
+  {
+   "q": "Every nucleus in a gas sample has 40 nucleons, 22 of them neutrons. A student labels the gas calcium, since ⁴⁰Ca is calcium's most common isotope. How should the student's label be judged?",
+   "choices": [
+    "Correct; A = 40 matches calcium",
+    "Incorrect; Z = 22, titanium",
+    "Incorrect; Z = 18, argon",
+    "Incorrect; Z = 40, zirconium"
+   ],
+   "ans": 2,
+   "cat": "4E",
+   "skill": "SIRS 3",
+   "diff": "D",
+   "subj": "physics",
+   "twin": "pe5-cp:10",
+   "exp": "1. Mass number A counts nucleons: protons plus neutrons. The stem gives A and N, not Z.\n2. Solve for the proton count: A = Z + N; Z = A − N = 40 − 22 = **18**.\n3. The proton count Z, not A, names the element. Z = 18 is argon, so the student's label fails.\n4. Titanium has 22 protons and zirconium has 40; each of those uses the neutron count or the nucleon count as Z.\n5. Compare with the nucleus the student had in mind: ⁴⁰Ar: Z = 18, N = 22; ⁴⁰Ca: Z = **20**, N = **20**; same A, different Z → **different elements**. Answer: incorrect; Z = 18, argon.\n\n**Rule to reuse:** the element is set by protons (Z) only. Z = A − N. Equal mass numbers do not mean the same element.",
+   "id": "cp_q3_sa6"
+  },
+  {
+   "q": "Consider Lewis structures of CCl₄, CO₂, BF₃ and NF₃ written with bonds only, with every lone pair omitted. Which of the four molecules has a net dipole moment?",
+   "choices": [
+    "Nitrogen trifluoride",
+    "Carbon tetrachloride",
+    "Boron trifluoride",
+    "Carbon dioxide"
+   ],
+   "ans": 0,
+   "cat": "5B",
+   "skill": "SIRS 4",
+   "diff": "X",
+   "subj": "gen_chem",
+   "twin": "pe5-cp:11",
+   "exp": "1. A net dipole needs polar bonds that do not cancel. All four have polar bonds, so the shape decides.\n2. The structures show bonds only, so count the central atom's lone pairs from its valence electrons: C in CCl₄: 4 e⁻, 4 bonds → **0** lone pairs; C in CO₂: 4 e⁻, two double bonds → **0**; B: 3 e⁻, 3 bonds → **0**; N: 5 e⁻, 3 bonds → 2 left = **1** lone pair.\n3. Turn domains into shapes: CCl₄: 4 domains, 0 lone → tetrahedral, cancels; CO₂: 2 domains → linear, cancels; BF₃: 3 domains → trigonal planar, cancels; NF₃: 4 domains, 1 lone → **pyramidal**, does not cancel.\n4. Symmetric shapes with no lone pair on the center cancel their bond dipoles, which rules out carbon tetrachloride, carbon dioxide and boron trifluoride.\n5. Answer: NF₃. A lone pair that makes the shape asymmetric (pyramidal or bent) leaves the bond dipoles uncancelled.\n\n**Rule to reuse:** **Dipole moment:** a molecule has one when its bond dipoles (arrows from δ+ to δ−) do not add to zero.",
+   "id": "cp_q3_sa7"
+  },
+  {
+   "q": "Cyanide ion, CN⁻, is drawn so that both atoms have octets. Which choice gives the carbon–nitrogen bond and carbon's formal charge?",
+   "choices": [
+    "Double; carbon is neutral",
+    "Double; carbon is negative",
+    "Triple; carbon is neutral",
+    "Triple; carbon is negative"
+   ],
+   "ans": 3,
+   "cat": "5B",
+   "skill": "SIRS 2",
+   "diff": "X",
+   "subj": "gen_chem",
+   "twin": "pe6-cp:59",
+   "exp": "1. Count valence electrons: C 4 + N 5 + 1 (ion charge) = **10** e⁻.\n2. Give both atoms octets with 10 electrons: a triple bond plus one lone pair on each atom: triple bond = **6** e⁻, lone pairs 2 + 2 = **4** e⁻; total 10 ✓; bond order = **3**, so neither double-bond choice fits.\n3. Formal charge = valence − nonbonding − ½ bonding: FC on C = 4 − 2 − 6/2 = **−1**; FC on N = 5 − 2 − 6/2 = **0**; sum = −1 = ion charge ✓. Carbon is not neutral here.\n4. Answer: a triple bond, with the negative formal charge on carbon, even though N is more electronegative.\n\n**Rule to reuse:** count valence e⁻, add bonds until every atom has an octet, then FC = valence − nonbonding − ½ bonding for each atom.",
+   "id": "cp_q3_sa8"
+  }
+ ]
+}

@@ -32,6 +32,9 @@ const MASTERY = {
   // Diagnostic: a full AAMC section (59 questions: 10 passages + single questions), enough data to rank every
   // content category. End-of-day test: half a section (30: 5 passages + ~10 single). Both at exam pace.
   diagSize: 59, diagPassages: 10,
+  // The current diagnostic's id per section (CP_DIAG.id): a diagnostic saved with another id, or none, is an earlier
+  // version (the 2026-11 rebuild made every question a twin of a studied card).
+  diagVersion: { cp: 'cp_diag2' },
   testSize: 30, testPassages: 5,
   goals: [128, 129],
   defaultGoal: 128,
@@ -265,9 +268,12 @@ function masteryTierPick(cards, k, tierOf, pick) {
 // retention); 1 + accuracy for cards whose sub-topic (o.acc(q): the card's s tag, for Practice Exam cards its
 // source exam; saved % right as 0–1, null when never answered) is weak (below MASTERY.weakBelow), weakest first;
 // 3 the rest.
+// A card whose src is in o.front (the twin of a question missed on the latest diagnostic or quiz) comes before all
+// of them (-1): it takes one of its own category's slots, so the day's counts don't change.
 function masteryTierRank(o = {}) {
-  const missed = o.missed || new Set(), due = o.due || (() => false), acc = o.acc || (() => null);
+  const missed = o.missed || new Set(), due = o.due || (() => false), acc = o.acc || (() => null), front = o.front || new Set();
   return q => {
+    if (q.src && front.has(q.src)) return -1;
     if (missed.has(q.baseId || q.id) || missed.has(q.id) || due(q)) return 0;
     const a = acc(q);
     return Number.isFinite(a) && a < MASTERY.weakBelow / 100 ? 1 + a : 3;
@@ -313,6 +319,13 @@ function masteryTopicSet(step, pool, catOf, pick, o = {}) {
 // sizes.guided: how many Practice Exam cards the section has (a small pool caps the day's count; none: no step).
 // sizes.flashCats / guidedCats {code: n}: each category's pool (flashcards, Practice Exam cards), so a small one
 // gives its shortfall to the next category (not given: no cap).
+// A diagnostic result from an earlier version: saved without a version, or with another id than the section's
+// current diagnostic.
+function masteryOldDiag(t) {
+  if (!t || t.kind !== 'diagnostic') return false;
+  const cur = MASTERY.diagVersion[t.subj];
+  return !t.version || (!!cur && t.version !== cur);
+}
 function masteryPlan(raw, today, sizes = {}) {
   const m = masteryNormalize(raw), goal = m.goal;
   const subj = masterySubject(m, today);
@@ -352,7 +365,7 @@ function masteryPlan(raw, today, sizes = {}) {
   const flashT = tally('flashT', flashN, sizes.flashCats), guidedT = tally('guidedT', guidedN, sizes.guidedCats);
   const guidedCount = sum(guidedT, 'need'), lessons = Math.min(guidedCount, Number(row.lessonsN) || 0);
   Object.assign(out, { topics, perDay: m.perDay, split, weakT });
-  out.steps.push({ id: 'diagnostic', done: true, result: lastDiag, old: !lastDiag.version });
+  out.steps.push({ id: 'diagnostic', done: true, result: lastDiag, old: masteryOldDiag(lastDiag) });
   out.steps.push({ id: 'flashcards', topics: flashT, count: sum(flashT, 'need'), progress: sum(flashT), extra: sum(flashT, 'raw') - sum(flashT), done: flashT.every(t => t.progress >= t.need) });
   if (guidedN > 0) out.steps.push({ id: 'guided', topics: guidedT, count: guidedCount, progress: sum(guidedT), extra: sum(guidedT, 'raw') - sum(guidedT), lessons, lessonCount: guidedCount,
     done: guidedT.every(t => t.progress >= t.need) && lessons >= guidedCount });
@@ -494,7 +507,9 @@ function masteryBegin(plan, step, pool, catOf, label, mode, more) {
   // Cards not seen today first; the AAMC discipline mix over the day's whole set (blueprint days) and, within each
   // discipline, missed and due cards, then the weakest sub-topics, then the rest (counts never change).
   const discW = plan.split !== 'topics' ? masteryWeights(plan.subj, 'discs') : null;
-  const { list, topicOf } = masteryTopicSet(step, pool, catOf, pickQuestions, { seen: new Set(row.seen || []), discOf: disciplineOfRecall, discW, tierOf: masteryTierOf(m, plan, row) });
+  const { list: picked, topicOf } = masteryTopicSet(step, pool, catOf, pickQuestions, { seen: new Set(row.seen || []), discOf: disciplineOfRecall, discW, tierOf: masteryTierOf(m, plan, row) });
+  // Missed questions' twin cards open the step (they already hold a slot in their own category).
+  const front = masteryTwinFront(plan), list = [...picked.filter(q => q.src && front.has(q.src)), ...picked.filter(q => !(q.src && front.has(q.src)))];
   if (!list.length) { masteryNotice('Nothing left to practice in this step today. Choose “Another set” for more.'); return; }
   masteryStartQuiz(list, masterySection(plan.subj).abbrev + ' · ' + label, mode);
   quiz.topicOf = topicOf;
@@ -509,7 +524,13 @@ function masteryTierOf(m, plan, row) {
   const mem = typeof loadMem === 'function' ? loadMem() : {}, now = Date.now(), stats = store.get(KEYS.stats, {});
   const due = q => { const R = retrievability(mem[q.baseId || q.id] || mem[q.id], now); return R != null && R < TARGET_RETENTION; };
   const acc = q => { const r = stats[q.key || q.s]; return r && Number.isFinite(r.c) && Number.isFinite(r.t) && r.t > 0 ? r.c / r.t : null; };
-  return masteryTierRank({ missed, due, acc });
+  return masteryTierRank({ missed, due, acc, front: masteryTwinFront(plan) });
+}
+// The twin cards (by src) of the questions missed on the latest diagnostic or quiz. A Practice Exam twin (it has a
+// walkthrough) leads the guided step; a QBank twin leads the flashcards: each card lives in only one of the pools.
+function masteryTwinFront(plan) {
+  const latest = plan && plan.latest;
+  return new Set(((latest && latest.twinMisses) || []).filter(x => typeof x === 'string'));
 }
 function masteryStartQuiz(list, label, mode) {
   beginQuiz(list, label, { mastery: mode });
@@ -551,6 +572,8 @@ function masteryQuizUnlocked(plan) {
 // question bank (not the guided cards, so the score is not a memory of today's cards), timed, feedback at the end.
 function startMasteryTest(kind) {
   if (!bankReady('cp')) { withBank('cp', () => startMasteryTest(kind)); return; }
+  // The review links each question to the Practice Exam card it twins, so that bank loads first.
+  if (!bankReady('fl')) { withBank('fl', () => startMasteryTest(kind)); return; }
   const plan = masteryPlanNow();
   if (!plan.subj) return;
   // The daily quiz (step 3) unlocks once today's flashcards and guided cards (steps 1 and 2) are done.
@@ -646,9 +669,12 @@ function masteryFinishTest(mini, results) {
   });
   // Tomorrow's "misses" step reviews missed bank questions; test-only questions are reviewed on the results page.
   const missIds = results.filter((r, i) => !r.right && !mini.items[i].passage).map(r => r.view.q.baseId || r.view.q.id).filter(id => id && typeof lookupQ === 'function' && lookupQ(id));
+  // The studied card each missed question twins: tomorrow it leads the guided step (Practice Exam card) or the
+  // flashcards (QBank card).
+  const twinMisses = [...new Set(results.filter(r => !r.right && typeof r.view.q.twin === 'string').map(r => r.view.q.twin))];
   const pctRight = total ? 100 * correct / total : 0;
   // The day the test started: a quiz finished after midnight belongs to the day it was taken.
-  const test = { subj: mini.subj, day: mini.day || localDay(), t: Date.now(), kind: mini.mastery, correct, total, pct: Math.round(pctRight), scaled: rawToScaled(pctRight), cats, parts, skills, missIds, version: mini.setId || 'cards' };
+  const test = { subj: mini.subj, day: mini.day || localDay(), t: Date.now(), kind: mini.mastery, correct, total, pct: Math.round(pctRight), scaled: rawToScaled(pctRight), cats, parts, skills, missIds, twinMisses, version: mini.setId || 'cards' };
   const before = masteryLoad();
   const prevTest = before.tests.filter(t => t.subj === test.subj).at(-1) || null;
   const after = masteryApplyTest(before, test);
@@ -691,9 +717,9 @@ function masteryCard() {
   const head = '<div class="today-head"><div><div class="section-label">TODAY › Section mastery</div><div class="today-date">' + (plan.subj ? '<b>' + name(plan.subj) + '</b> · goal ' + plan.goal + ' on ' + MASTERY.passDays + ' days in a row' : 'All sections mastered') + '</div></div></div>' +
     '<div class="mastery-path">' + path + '</div>';
   if (plan.status === 'complete') return head + '<p class="today-alldone">✓ Every section in the path is at goal. Keep your scores up with due reviews and full-length practice.</p>';
-  // Results saved before the Chem/Phys Diagnostic existed carry no version: label them as the old diagnostic.
-  const oldDiag = t => t && t.kind === 'diagnostic' && !t.version;
-  const latest = plan.latest ? '<p class="mastery-latest">Last test: <b>' + plan.latest.scaled + '</b> (' + plan.latest.correct + '/' + plan.latest.total + ')' + (oldDiag(plan.latest) ? ' · <b>old diagnostic version</b>: retake the new one below for a fresh start' : '') + (plan.previous ? ' · ' + (plan.latest.scaled > plan.previous.scaled ? '<b class="mastery-up">▲ up ' + (plan.latest.scaled - plan.previous.scaled) + '</b>' : plan.latest.scaled < plan.previous.scaled ? '<b class="mastery-down">▼ down ' + (plan.previous.scaled - plan.latest.scaled) + '</b>' : 'no change') : '') + ' · days at goal in a row: ' + plan.streak + '/' + MASTERY.passDays + '</p>' : '';
+  // Results from an earlier diagnostic (no version, or an earlier id): labeled as the earlier version.
+  const oldDiag = masteryOldDiag;
+  const latest = plan.latest ? '<p class="mastery-latest">Last test: <b>' + plan.latest.scaled + '</b> (' + plan.latest.correct + '/' + plan.latest.total + ')' + (oldDiag(plan.latest) ? ' · <b>earlier version</b> of the diagnostic: retake the new one below for a fresh start' : '') + (plan.previous ? ' · ' + (plan.latest.scaled > plan.previous.scaled ? '<b class="mastery-up">▲ up ' + (plan.latest.scaled - plan.previous.scaled) + '</b>' : plan.latest.scaled < plan.previous.scaled ? '<b class="mastery-down">▼ down ' + (plan.previous.scaled - plan.latest.scaled) + '</b>' : 'no change') : '') + ' · days at goal in a row: ' + plan.streak + '/' + MASTERY.passDays + '</p>' : '';
   const weak = plan.weak.length ? '<p class="muted-note">Weak content categories: ' + plan.weak.slice(0, 4).map(w => esc(w.code) + ' ' + esc(AAMC_CAT_LABEL(w.code)) + ' (' + w.pct + '%)').join(' · ') + '</p>' : '';
   const btn = (label, fn, primary = true) => '<button class="' + (primary ? 'new-quiz-btn' : 'micro-btn') + ' today-start" data-click="' + fn + '">' + label + '</button>';
   const mins = n => '<span class="today-min">~' + n + ' min</span>';
@@ -716,7 +742,7 @@ function masteryCard() {
     body = '<ol class="today-steps">' + plan.steps.map(s => {
       const num = ['flashcards', 'guided', 'test'].includes(s.id) ? String(++n) : '•';
       let title = '', detail = '', button = '', count = '', time = '';
-      if (s.id === 'diagnostic') { title = 'Diagnostic'; count = '<b>' + s.result.scaled + '</b> (' + s.result.correct + '/' + s.result.total + ') · ' + shortDay(s.result.day); detail = (s.old ? '<b>Old diagnostic version.</b> Retake the new ' + MASTERY.diagSize + '-question diagnostic for a fresh start. ' : 'Done. ') + 'Retaking it runs the full section again; your newest result sets the weak topics.'; button = btn('Retake diagnostic', "startMasteryTest('diagnostic')", s.old); }
+      if (s.id === 'diagnostic') { title = 'Diagnostic'; count = '<b>' + s.result.scaled + '</b> (' + s.result.correct + '/' + s.result.total + ') · ' + shortDay(s.result.day); detail = (s.old ? '<b>Earlier version</b> of the diagnostic. Retake the new ' + MASTERY.diagSize + '-question diagnostic for a fresh start. ' : 'Done. ') + 'Retaking it runs the full section again; your newest result sets the weak topics.'; button = btn('Retake diagnostic', "startMasteryTest('diagnostic')", s.old); }
       if (s.id === 'flashcards') { title = 'Flashcards'; count = s.progress + ' / ' + s.count; detail = bp ? 'AAMC QBank cards only, in the AAMC mix of disciplines across the day. ' + bpNote + targets(s.topics, 'cards') : 'AAMC QBank cards only, weakest topics first, spread over today’s content categories.' + topicList(s.topics); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 0.6)); button = s.done ? more('startMasteryFlashcards(true)', s) : btn(s.progress ? 'Continue' : 'Start', 'startMasteryFlashcards()'); }
       if (s.id === 'guided') { title = 'Guided Practice Exam cards with walkthroughs'; count = s.progress + ' / ' + s.count + ' cards · ' + s.lessons + ' / ' + s.lessonCount + ' lessons'; detail = bp ? 'Each card opens its step-by-step lesson: step through it, answer, then watch the walkthrough. ' + bpNote + targets(s.topics, 'cards') : 'Weakest topics first. Each card opens its step-by-step lesson: step through it, answer, then watch the walkthrough.' + topicList(s.topics); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 1.2 + (s.lessonCount - s.lessons) * 2)); button = s.done ? more('startMasteryGuided(true)', s) : btn(s.progress || s.lessons ? 'Continue' : 'Start', 'startMasteryGuided()'); }
       if (s.id === 'followup') {
