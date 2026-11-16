@@ -1330,7 +1330,6 @@ add('cpt-pe5-hexadecane', 'CCCCCCCCCCCCCCCC', formula='C16H34')
 # ── PE5 writer 4 structures (add(...) lines here only) ──
 # cpt-pe5-31a: phenylalanine with an added ring –CH2COOH (highlighted); cpt-pe5-36a: C4 carbonyl compounds (also uses butanal and writer 3's cpt-pe5-butanoic-acid).
 add('cpt-pe5-carboxymethyl-phe', "N[C@@H](Cc1ccc([CH2:1][C:2](=[O:3])[OH:4])cc1)C(=O)O", formula='C11H13NO4', hl=[1, 2, 3, 4])
-add('cpt-pe5-butan-2-one', "CCC(C)=O", formula='C4H8O', centers=0)
 add('cpt-pe5-methyl-propanoate', "CCC(=O)OC", formula='C4H8O2', centers=0)
 # end PE5 writer 4
 
