@@ -48,7 +48,9 @@ const DECK_TARGET = { '5D': 60, '5E': 38, '4E': 32, '5A': 23, '4D': 20, '4C': 20
 assert.equal(Object.values(DECK_TARGET).reduce((a, b) => a + b, 0), DECK_MAX, 'the category targets add up to the 250-card budget');
 assert(CARDS.length <= DECK_MAX, `the deck is ${CARDS.length} cards; the budget is ${DECK_MAX}`);
 const EXAMS_WRITTEN = [...new Set(CARDS.flatMap(c => (Array.isArray(c.from) ? c.from : []).map(r => String(r).split('-')[0])))];
-const BUILT = [...PE.keys()].filter(s => EXAMS_WRITTEN.includes(s.split('-')[0]));
+// A writer's batch (CPT_FILE) covers some of an exam's questions: only those are checked for coverage.
+const BUILT = process.env.CPT_FILE ? [...new Set(CARDS.flatMap(c => (c.from || []).map(r => String(r).split('#')[0])))].filter(s => PE.has(s))
+  : [...PE.keys()].filter(s => EXAMS_WRITTEN.includes(s.split('-')[0]));
 const ALL_BUILT = BUILT.length === PE.size;
 
 // ── 1. Coverage and worked methods ──
