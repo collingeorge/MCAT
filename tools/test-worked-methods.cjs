@@ -110,7 +110,7 @@ for (const q of FL.filter(q => q.teach)) {
     for (const lb of (st.graph && st.graph.labels) || []) if (lb.series) assert((st.chart || q.chart).series.some(s => s.name === lb.series && s.points.some(([x]) => x === lb.x)), q.src + ': lesson label points at a plotted point');
   }
 }
-assert(source.includes("if (teachOf(view.q)) return view.teachCur ? teachHtml(view)") && fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'teachStep'"), 'graph lessons wired and allowlisted');
+assert(source.includes("if (teachOf(view.q)) return helpButton('teachStep(0)') + (view.teachCur ? teachHtml(view) : '');") && ['teachStep', 'showLesson'].every(f => fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'" + f + "'")), 'graph lessons wired (the help button at any time) and allowlisted');
 for (const q of FL) {
   // Exam-form pictures: a structure in the question and/or one per answer choice must exist.
   for (const n of [].concat(q.fig ?? [], q.choiceFigs ?? [])) assert(STRUCT_NAMES.has(n), q.src + ': drawing ' + n + ' exists');

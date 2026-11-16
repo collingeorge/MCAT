@@ -87,7 +87,11 @@ assert.equal(run('masteryLoad().days[localDay()].prac'), undefined, 'passage ans
   assert.match(html, /startMasteryFollowup\('flashcards'\)/); assert.match(html, /startMasteryFollowup\('guided'\)/); assert.doesNotMatch(html, /startMasteryFollowup\('passages'\)|Practice passages/);
   run("startMasteryFollowup('flashcards')");
   assert.equal(run('quiz.mastery'), 'followup'); assert.equal(run('activeScreen'), 'screen-quiz');
-  assert(run("quiz.items.every(v => CPTQ_BY_ID.has(v.q.id) && masteryCategory(v.q) === '4C')"), 'Practice Test flashcards from the quiz weak category');
+  // The weak category's cards first (all of them when it has fewer than the follow-up's 5), every card a Practice Test
+  // flashcard.
+  { const n4C = run("masteryFlashPool('cp').filter(q => masteryCategory(q) === '4C').length"), k = Math.min(5, n4C);
+    assert(run("quiz.items.every(v => CPTQ_BY_ID.has(v.q.id))"), 'Practice Test flashcards only');
+    assert.equal(run(`quiz.items.filter(v => masteryCategory(v.q) === '4C').length`), k, 'the quiz weak category\'s cards (' + k + ')'); }
   assert(run(`quiz.items.some(v => v.q.id === '${miss}')`), 'the quiz\'s missed card comes first');
   const flash0 = run('masteryPlanNow().steps.find(s=>s.id==="flashcards").progress');
   run('pick(quiz.items[0].ans)');
