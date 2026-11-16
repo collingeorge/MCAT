@@ -200,7 +200,12 @@ async function main() {
    ['guided card',fontScreens[1][1],fontScreens[1][2]],
    ['guided card answered',fontScreens[1][1],fontScreens[1][2],wrongPick,'!!document.querySelector("#exp-area .explanation-box")'],
    ['daily quiz',fontScreens[3][1],fontScreens[3][2]],
-   ['diagnostic',fontScreens[4][1],fontScreens[4][2]]];
+   ['diagnostic',fontScreens[4][1],fontScreens[4][2]],
+   ['single passage',fontScreens[2][1],fontScreens[2][2]],
+   ['full-length exam',fontScreens[5][1],fontScreens[5][2]],
+   ['full-length exam review',fontScreens[5][1],fontScreens[5][2],'finishExam();true','activeScreen==="screen-exam-results"'],
+   ['quiz results and review',fontScreens[0][1],fontScreens[0][2],'(()=>{const v=quiz.items[quiz.idx];document.querySelector("#cb-"+((v.ans+1)%4)).click();endQuiz();return true})()','activeScreen==="screen-results"'],
+   ['score report','showProgress();true','activeScreen==="screen-results" && !!document.querySelector("#results-body").textContent.trim()']];
   for(const width of [1280,375]){
    await command('Emulation.setDeviceMetricsOverride',{width,height:width>500?900:812,deviceScaleFactor:1,mobile:width<=500});
    for(const [name,start,ready,act,after] of studyStates){
@@ -220,6 +225,9 @@ async function main() {
     const got=await evaluate(smallText);
     assert.deepEqual(got.bad,[],width+'px '+name+': text below 16 px');
     assert.equal(got.hscroll,false,width+'px '+name+': no horizontal scroll');
+    // Explanation and step-by-step (teach) text reads at the question's size, 17 px, at both widths.
+    const readSizes=await evaluate('[...document.querySelectorAll(".exp-text p,.exp-text,.teach-box p,.how-box .step-text")].filter(e=>e.getBoundingClientRect().height>1&&e.textContent.trim()).map(e=>e.className+" "+getComputedStyle(e).fontSize)');
+    for(const s of readSizes)assert.match(s,/ 17px$/,width+'px '+name+': explanation/lesson text is 17 px ('+s+')');
    }
    await evaluate(leave);
    console.log('Text floor at '+width+'px: '+studyStates.map(x=>x[0]).join(', ')+': every visible text ≥ 16 px, no sideways scroll');

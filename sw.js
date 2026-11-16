@@ -8,7 +8,7 @@
 //   matches the exact versioned URL.
 // - The drawings (data/structures.js) and the sign-in SDK are cached the first time they are used, not at install.
 // Bump CACHE when deploying, then run node tools/generate-pages.cjs.
-const CACHE = 'mcat-v2.67-cp-test-cards-2026-11-15';
+const CACHE = 'mcat-v2.68-cp-test-cards-2026-11-16';
 const V = '?v=' + CACHE;
 const NETWORK_TIMEOUT_MS = 4000, CACHED_TIMEOUT_MS = 1500;
 const SCRIPTS = [
@@ -18,7 +18,7 @@ const SCRIPTS = [
   'data/exam1.js', 'data/exam2-cp.js', 'data/exam2-bb.js', 'data/exam2-ps.js', 'data/exams.js',
 ];
 const ASSETS = [
-  "recall.html", "passages.html", "exams.html", "aamc.html", "flprep.html","score-report.html", "about.html", "recall-session.html", "passage-session.html", "exam-session.html", "results.html", "exam-results.html", './', 'css/portfolio-theme.css?v=20261115b', 'index.html', 'css/styles.css', 'manifest.webmanifest', 'icon.svg',
+  "recall.html", "passages.html", "exams.html", "aamc.html", "flprep.html","score-report.html", "about.html", "recall-session.html", "passage-session.html", "exam-session.html", "results.html", "exam-results.html", './', 'css/portfolio-theme.css?v=20261116', 'index.html', 'css/styles.css', 'manifest.webmanifest', 'icon.svg',
   ...SCRIPTS.map(path => path + V),
 ];
 const RUNTIME = ['data/structures.js' + V, 'vendor/supabase-js-2.118.0.umd.js'];
