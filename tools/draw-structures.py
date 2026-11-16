@@ -1292,6 +1292,18 @@ add('cpt-bromide', '[Br-:1]', formula='Br-', hl=[1])
 # Hand-drawn lesson diagrams (not molecules): each is a small standalone SVG with a white background,
 # no scripts, links or comments (checked below and in tools/test-worked-methods.cjs).
 T = "font-family='sans-serif'"
+# ── PE5 writer 1 structures (add(...) lines here only) ──
+# end PE5 writer 1
+
+# ── PE5 writer 2 structures (add(...) lines here only) ──
+# end PE5 writer 2
+
+# ── PE5 writer 3 structures (add(...) lines here only) ──
+# end PE5 writer 3
+
+# ── PE5 writer 4 structures (add(...) lines here only) ──
+# end PE5 writer 4
+
 DIAGRAMS = {
  # A TLC plate: baseline, spot and solvent front; both distances are measured up from the baseline.
  'cpt-tlc-plate': (
