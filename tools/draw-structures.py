@@ -1296,12 +1296,43 @@ T = "font-family='sans-serif'"
 # end PE5 writer 1
 
 # ── PE5 writer 2 structures (add(...) lines here only) ──
+add('cpt-pe5-glu-sites', "[NH3+:1][C@@H](CCC(=O)[OH:2])C(=O)[OH:3]", formula='C5H10NO4+', notes={1: 'A', 2: 'B', 3: 'C'})
+add('cpt-pe5-becl2', "Cl[Be]Cl", formula='BeCl2')
+add('cpt-pe5-so3', "O=S(=O)=O", formula='O3S')
+add('cpt-pe5-cf4', "FC(F)(F)F", formula='CF4')
+add('cpt-pe5-ncl3', "ClN(Cl)Cl", formula='Cl3N')
+add('cpt-pe5-r-carvone', 'CC1=CC[C@H:1](CC1=O)C(C)=C', formula='C10H14O', centers=1, cip={1: 'R'})
+add('cpt-pe5-s-carvone', 'CC1=CC[C@@H:1](CC1=O)C(C)=C', formula='C10H14O', centers=1, cip={1: 'S'})
 # end PE5 writer 2
 
 # ── PE5 writer 3 structures (add(...) lines here only) ──
+# cpt-pe5-05a: 2-butanone and the four candidate products.
+add('cpt-pe5-2-butanone', 'CCC(C)=O', formula='C4H8O')
+add('cpt-pe5-2-butanol', 'CCC(C)O', formula='C4H10O')
+add('cpt-pe5-butane', 'CCCC', formula='C4H10')
+add('cpt-pe5-butanoic-acid', 'CCCC(=O)O', formula='C4H8O2')
+# cpt-pe5-06a: FAD with W (isoalloxazine N5), X (adenine N7), Y (ribose ring O), Z (first phosphorus).
+add('cpt-pe5-fad-parts', 'Cc1cc2[n:1]c3c(=O)[nH]c(=O)nc-3n(C[C@H](O)[C@H](O)[C@H](O)CO[P:4](=O)(O)OP(=O)(O)OC[C@H]4[O:3][C@@H](n5c[n:2]c6c(N)ncnc65)[C@H](O)[C@@H]4O)c2cc1C', formula='C27H33N9O15P2', notes={1: 'W', 2: 'X', 3: 'Y', 4: 'Z'})
+add('cpt-pe5-fad-flavin', 'Cc1cc2[n:1]c3c(=O)[nH]c(=O)nc-3n(C[C@H](O)[C@H](O)[C@H](O)CO[P:4](=O)(O)OP(=O)(O)OC[C@H]4[O:3][C@@H](n5c[n:2]c6c(N)ncnc65)[C@H](O)[C@@H]4O)c2cc1C', formula='C27H33N9O15P2', notes={1: 'W', 2: 'X', 3: 'Y', 4: 'Z'}, hl=[1])
+# cpt-pe5-06b: four cofactor fragments (ubiquinone drawn with a 3-unit tail; CoQ10 has 10 units).
+add('cpt-pe5-ubiquinone', 'COC1=C(OC)C(=O)C(C/C=C(\\C)CC/C=C(\\C)CCC=C(C)C)=C(C)C1=O', formula='C24H34O4')
+add('cpt-pe5-lumiflavin', 'Cc1cc2nc3c(=O)[nH]c(=O)nc-3n(C)c2cc1C', formula='C13H12N4O2')
+add('cpt-pe5-nicotinamide-ring', 'C[n+]1cccc(C(N)=O)c1', formula='C7H9N2O+')
+# cpt-pe5-17a: L-alanine with W (N), X (carboxyl C), Y (alpha C), Z (methyl C).
+add('cpt-pe5-alanine-sites', '[NH2:1][C@@H:3]([CH3:4])[C:2](=O)O', formula='C3H7NO2', cip={3: 'S'}, notes={1: 'W', 2: 'X', 3: 'Y', 4: 'Z'})
+add('cpt-pe5-alanine-alpha', '[NH2:1][C@@H:3]([CH3:4])[C:2](=O)O', formula='C3H7NO2', cip={3: 'S'}, notes={1: 'W', 2: 'X', 3: 'Y', 4: 'Z'}, hl=[3])
+# cpt-pe5-23a: a mild detergent and three non-detergents.
+add('cpt-pe5-dodecyl-maltoside', 'CCCCCCCCCCCCO[C@@H]1O[C@H](CO)[C@@H](O[C@H]2O[C@H](CO)[C@@H](O)[C@H](O)[C@H]2O)[C@H](O)[C@H]1O', formula='C24H46O11')
+add('cpt-pe5-dmso', 'CS(C)=O', formula='C2H6OS')
+add('cpt-pe5-hexadecane', 'CCCCCCCCCCCCCCCC', formula='C16H34')
 # end PE5 writer 3
 
 # ── PE5 writer 4 structures (add(...) lines here only) ──
+# cpt-pe5-31a: phenylalanine with an added ring –CH2COOH (highlighted); cpt-pe5-36a: four C4 carbonyl compounds.
+add('cpt-pe5-carboxymethyl-phe', "N[C@@H](Cc1ccc([CH2:1][C:2](=[O:3])[OH:4])cc1)C(=O)O", formula='C11H13NO4', hl=[1, 2, 3, 4])
+add('cpt-pe5-butan-2-one', "CCC(C)=O", formula='C4H8O', centers=0)
+add('cpt-pe5-butanoic-acid', "CCCC(=O)O", formula='C4H8O2', centers=0)
+add('cpt-pe5-methyl-propanoate', "CCC(=O)OC", formula='C4H8O2', centers=0)
 # end PE5 writer 4
 
 DIAGRAMS = {
