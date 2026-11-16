@@ -251,7 +251,7 @@ function buildFlq() {
 // tools/test-pages.cjs checks them against the data.
 // ASSET_V: the deploy's version (sw.js CACHE), added to every script the app loads on demand so the browser's HTTP
 // cache never serves one from an earlier deploy. Written by tools/generate-pages.cjs; do not edit by hand.
-const ASSET_V = '?v=mcat-v2.66-cp-twins-2026-11-15';
+const ASSET_V = '?v=mcat-v2.67-text-floor-16px-2026-11-16';
 const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'] };
 const BANK_COUNTS = { fl: 354, flCp: 354, flTests: 6 };
 const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined' };
