@@ -245,22 +245,39 @@ function buildFlq() {
   });
   FL_TESTS.push(...[...new Set(FLQ.map(q => q.s))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true })));
 }
+// C/P Practice Test flashcards (data/cp-test-cards.js): original cards that teach what the C/P questions of AAMC
+// Practice Exams 1, 3, 4, 5 and 6 need; each names its Practice Exam card(s) in `from`. TODAY's C/P flashcard step
+// uses only these (masteryFlashPool in js/mastery.js). Their own pool, kept out of QB, the QBank section and
+// Full-Length Prep. Loaded on demand (BANKS.cpt).
+const CPT_SECTION = { id: 'cp_test', label: 'C/P Practice Test Flashcards' };
+const CPTQ = [];
+const CPTQ_BY_ID = new Map();
+SUBJECT_LABEL[CPT_SECTION.id] = CPT_SECTION.label;
+function buildCpt() {
+  if (CPTQ.length || typeof CP_TEST_CARDS === 'undefined') return;
+  CP_TEST_CARDS.forEach(q => {
+    Object.assign(q, { subj: CPT_SECTION.id, key: CPT_SECTION.id + '|' + q.s });
+    CPTQ.push(q);
+    CPTQ_BY_ID.set(q.id, q);
+  });
+}
 // ── Data banks loaded on demand ──
 // Pages load only what every screen needs. The large banks below load the first time a screen uses them (and are
 // cached offline by the service worker). BANK_COUNTS gives the home screen its numbers before they load;
 // tools/test-pages.cjs checks them against the data.
 // ASSET_V: the deploy's version (sw.js CACHE), added to every script the app loads on demand so the browser's HTTP
 // cache never serves one from an earlier deploy. Written by tools/generate-pages.cjs; do not edit by hand.
-const ASSET_V = '?v=mcat-v2.67-text-floor-16px-2026-11-16';
-const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'] };
-const BANK_COUNTS = { fl: 354, flCp: 354, flTests: 6 };
-const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined' };
+const ASSET_V = '?v=mcat-v2.68-cp-test-cards-2026-11-16';
+const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'], cpt: ['data/cp-test-cards.js'] };
+const BANK_COUNTS = { fl: 354, flCp: 295, flTests: 6 };
+const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined', cpt: () => typeof CP_TEST_CARDS !== 'undefined' };
 const bankDone = Object.create(null), bankLoading = Object.create(null);
 function bankReady(name) {
   if (bankDone[name]) return true;
   if (!BANK_PRESENT[name] || !BANK_PRESENT[name]()) return false;
   bankDone[name] = true;
   if (name === 'fl') buildFlq();
+  if (name === 'cpt') buildCpt();
   return true;
 }
 function loadScript(src) {
@@ -288,8 +305,9 @@ function withBank(name, fn) {
 const flCount = () => (bankReady('fl') ? FLQ.length : BANK_COUNTS.fl);
 const isFl = q => !!q && q.subj === FL_SECTION.id;
 const isAamc = q => !!q && (q.subj === AAMC_SECTION.id || q.subj === FL_SECTION.id);
-const bankOf = q => (isFl(q) ? FLQ : isAamc(q) ? AQB : QB);
-const lookupQ = id => QB_BY_ID.get(id) || AQB_BY_ID.get(id) || FLQ_BY_ID.get(id);
+const isCpt = q => !!q && q.subj === CPT_SECTION.id;
+const bankOf = q => (isCpt(q) ? CPTQ : isFl(q) ? FLQ : isAamc(q) ? AQB : QB);
+const lookupQ = id => QB_BY_ID.get(id) || AQB_BY_ID.get(id) || FLQ_BY_ID.get(id) || CPTQ_BY_ID.get(id);
 const countAamcKeys = keys => keys.reduce((n, k) => n + (AQB_KEY_COUNTS[k] || 0), 0);
 
 // Lookup tables keyed by names that also appear in stored data are prototype-free, so a stored
@@ -1421,11 +1439,16 @@ function hintArea(view) {
   const h = howOf(view.q), level = view.hint || 0;
   if (!h) return '';
   // A card with a graph in the question teaches how to read it, on the graph itself, before you answer.
-  if (teachOf(view.q)) return view.teachCur ? teachHtml(view) : `<button class="micro-btn how-btn teach-btn" id="hint-btn" data-click="teachStep(1)">👀 Teach me how to solve this, step by step</button>`;
+  // The walkthrough can be opened at any time: the button stays above the lesson and restarts it at step 1.
+  if (teachOf(view.q)) return helpButton('teachStep(0)') + (view.teachCur ? teachHtml(view) : '');
   const shown = (level >= 1 ? `<p><b>What it's asking:</b> ${fmt(h.ask)}</p>` : '') + (level >= 2 ? `<div><b>What you need to know:</b>${paragraphs(h.know)}</div>` : '');
   const label = level === 0 ? 'Show me how to start' : level === 1 ? 'Show what I need to know' : '';
   return `${shown ? `<div class="how-hint" role="status">${shown}</div>` : ''}${label ? `<button class="micro-btn how-btn" id="hint-btn" data-click="showHint()">💡 ${label}</button>` : ''}`;
 }
+// "💡 Help me / Show me how": on every card with a lesson, before answering, while thinking and after answering (right
+// or wrong). Before answering it opens the lesson on the question (teachStep); afterwards it opens the worked solution
+// (showLesson). Opening it never blocks answering.
+function helpButton(action) { return `<button class="micro-btn how-btn teach-btn" id="hint-btn" data-click="${action}">💡 Help me / Show me how</button>`; }
 // ── "Teach me this graph": steps that label and measure the question's own graph before answering ──
 function teachOf(q) { return q && !q.variant && !q.baseId && Array.isArray(q.teach) && q.teach.length ? q.teach : null; }
 function teachHtml(view) {
@@ -1507,7 +1530,45 @@ function stepVisual(st, ctx) {
   if (Array.isArray(st.strike) && st.strike.length) out += `<div class="step-strike">${st.strike.map(c => `<div class="strike-line"><span aria-hidden="true">✗</span> <s>${fmt(c)}</s></div>`).join('')}</div>`;
   return out ? `<div class="step-visual">${out}</div>` : '';
 }
+// Flashcard lessons (the Practice Test flashcards, data/cp-test-cards.js): after a wrong answer the lesson opens by
+// itself under the verdict; after a right answer a button replays it. It works the card's own problem one step at a
+// time (the question's words light up, working lines animate in, wrong choices are crossed out) and ends with the
+// card's Rule to reuse. Back and Next move through it; it never plays on its own.
+function isLessonCard(q) { return typeof isCpt === 'function' && isCpt(q) && !!howOf(q) && !!teachOf(q); }
+function lessonSteps(q) { const rule = teachOf(q).at(-1); return [...howSteps(howOf(q)), { text: rule.text, rule: true }]; }
+function stepperSteps() { return stepper.lesson ? lessonSteps(stepper.q) : howSteps(howOf(stepper.q)); }
+function lessonPlayerHtml() {
+  const { q, cur, ctx } = stepper, steps = lessonSteps(q), n = steps.length, st = steps[cur - 1], h = howOf(q);
+  return `<div class="lesson-title">Here's how to solve it — step ${cur} of ${n}</div>
+    <div class="how-step current${st.rule ? ' lesson-rule' : ''}"><p class="step-text">${fmt(st.text)}</p>${stepVisual(st, ctx)}</div>
+    ${cur >= n && h.trap ? `<p class="how-trap"><b>The trap:</b> ${fmt(h.trap)}</p>` : ''}
+    <div class="step-progress" aria-hidden="true"><div class="step-progress-fill" data-css="width:${Math.round(cur / n * 100)}%"></div></div>
+    <div class="step-controls">
+      <button class="micro-btn" data-click="howStep(-1)"${cur <= 1 ? ' disabled' : ''}>◀ Back</button>
+      ${cur < n ? `<button class="micro-btn step-next" id="how-next" data-click="howStep(1)">Next ▶</button>` : `<button class="micro-btn" data-click="howReplay()">↺ Start over</button>`}
+    </div>`;
+}
+function lessonBox(q, ctx) {
+  if (stepper && stepper.timer) clearTimeout(stepper.timer);
+  stepper = { q, cur: 1, ctx, playing: false, timer: null, lesson: true };
+  return `<div class="how-box lesson-box" id="how-box"><div id="how-player" class="how-player" aria-live="polite">${lessonPlayerHtml()}</div></div>`;
+}
+// After an answer, "Help me / Show me how" (and "Show me how" after a right answer) opens the worked solution at step 1:
+// a flashcard's lesson in its slot, or a guided card's walkthrough, replayed from the start.
+function showLesson() {
+  const view = quiz.items[quiz.idx];
+  if (!view || !quiz.answered || !howOf(view.q)) return;
+  const ctx = { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null }, slot = $('lesson-slot');
+  if (isLessonCard(view.q) && slot) slot.innerHTML = lessonBox(view.q, ctx);
+  else if ($('how-box') && stepper && stepper.q === view.q) howReplay();
+  else if ($('exp-area')) $('exp-area').insertAdjacentHTML('beforeend', howBox(view.q, { ctx }));
+  applyStepContext();
+  howSchedule();
+  const box = $('how-box'); if (box && box.scrollIntoView) box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const next = $('how-next'); if (next) next.focus({ preventScroll: true });
+}
 function howPlayerHtml() {
+  if (stepper.lesson) return lessonPlayerHtml();
   const { q, cur, ctx } = stepper, h = howOf(q), steps = howSteps(h), n = steps.length;
   const list = steps.slice(0, cur).map((st, i) => `<li class="how-step${i === cur - 1 ? ' current' : ''}"><span class="step-text">${fmt(st.text)}</span>${i === cur - 1 ? stepVisual(st, ctx) : ''}</li>`).join('');
   return `<ol class="how-steps">${list}</ol>
@@ -1523,12 +1584,12 @@ function howPlayerHtml() {
 // Highlights the live passage, question and figure for the current step.
 function applyStepContext() {
   if (!stepper || typeof document === 'undefined' || !document.querySelector) return;
-  const { q, cur, ctx } = stepper, st = howSteps(howOf(q))[cur - 1] || {};
+  const { q, cur, ctx } = stepper, st = stepperSteps()[cur - 1] || {};
   const qEl = document.querySelector(ctx.mode === 'passage' ? '#pp-question-box .question-text' : '#quiz-body .question-text');
   if (qEl) qEl.innerHTML = markText(q.q, st.hl && String(q.q).includes(st.hl) ? st.hl : null);
   // Choices ruled out so far stay crossed out on the answer buttons.
   if (ctx.view && ctx.prefix && typeof $ === 'function') {
-    const struck = new Set(howSteps(howOf(q)).slice(0, cur).flatMap(x => x.strike || []));
+    const struck = new Set(stepperSteps().slice(0, cur).flatMap(x => x.strike || []));
     ctx.view.choices.forEach((c, i) => { const b = $(ctx.prefix + '-' + i); if (b && b.classList) b.classList.toggle('struck', struck.has(c)); });
   }
   if (ctx.mode === 'passage') {
@@ -1558,17 +1619,17 @@ function howSchedule() {
   if (!stepper) return;
   if (stepper.timer) clearTimeout(stepper.timer);
   stepper.timer = null;
-  const steps = howSteps(howOf(stepper.q));
+  const steps = stepperSteps();
   if (!stepper.playing || stepper.cur >= steps.length || typeof setTimeout !== 'function') { stepper.playing = stepper.playing && stepper.cur < steps.length; return; }
   const me = stepper;
   stepper.timer = setTimeout(() => { if (stepper === me && me.playing) howStep(1, true); }, howStepMs(steps[stepper.cur - 1]));
 }
 function howToggle() { if (!stepper) return; stepper.playing = !stepper.playing; howStep(0, true); }
-function howReplay() { if (!stepper) return; stepper.cur = 1; stepper.playing = true; howStep(0, true); }
+function howReplay() { if (!stepper) return; stepper.cur = 1; stepper.playing = !stepper.lesson; howStep(0, true); }
 function howStep(delta, auto) {
   if (!stepper) return;
   if (!auto) stepper.playing = false;
-  const n = howSteps(howOf(stepper.q)).length;
+  const n = stepperSteps().length;
   stepper.cur = Math.max(1, Math.min(n, stepper.cur + delta));
   const el = typeof $ === 'function' ? $('how-player') : null;
   if (el) el.innerHTML = howPlayerHtml();
@@ -1638,8 +1699,12 @@ function finishPick(chosen, other = null, answerMs = null) {
   $('qm-score').textContent = `✓ ${quiz.results.filter(r => r.right).length}/${quiz.results.length}`;
   $('exp-area').innerHTML = finalTwoFeedback(view, chosen, other) + explanationBox(right, view.choices[view.ans], view.q.exp, issueUrl(`Recall · ${view.q.s}`, view.q.q),
     timedOut ? `Time ran out (${SPEED_SECONDS} seconds). A fact you know well should come back faster: this one is now due for review.`
-      : confusion ? `You chose <b>${fmt(view.choices[chosen])}</b>. ${fmt(meaningOf(confusion))}` : '') + howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null } });
-  if ($('hint-area')) $('hint-area').innerHTML = '';
+      : confusion ? `You chose <b>${fmt(view.choices[chosen])}</b>. ${fmt(meaningOf(confusion))}` : '') + (isLessonCard(view.q)
+      ? `<div id="lesson-slot">${right ? '<button class="micro-btn how-btn" id="show-how-btn" data-click="showLesson()">💡 Show me how</button>' : lessonBox(view.q, { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null })}</div>`
+      : howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null } }));
+  if (isLessonCard(view.q) && right) stepper = null;
+  // The help button stays after the answer: it opens the worked solution from step 1.
+  if ($('hint-area')) $('hint-area').innerHTML = howOf(view.q) ? helpButton('showLesson()') : '';
   // A hinted answer was not pure recall: it starts as Unsure so the card comes back (you can change it)
   if (view.hint) quiz.pending.conf = 'unsure';
   if (howOf(view.q)) applyStepContext();

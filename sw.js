@@ -8,17 +8,17 @@
 //   matches the exact versioned URL.
 // - The drawings (data/structures.js) and the sign-in SDK are cached the first time they are used, not at install.
 // Bump CACHE when deploying, then run node tools/generate-pages.cjs.
-const CACHE = 'mcat-v2.67-text-floor-16px-2026-11-16';
+const CACHE = 'mcat-v2.68-cp-test-cards-2026-11-16';
 const V = '?v=' + CACHE;
 const NETWORK_TIMEOUT_MS = 4000, CACHED_TIMEOUT_MS = 1500;
 const SCRIPTS = [
   'js/pages.js', 'js/app.js', 'js/study-path.js', 'js/cloud-config.js', 'js/account.js', 'js/study-timer.js', 'js/learning-evidence.js', 'js/daily-plan.js', 'js/mastery.js', 'js/actions.js', 'js/data-css.js',
   'data/passages-cars.js', 'data/cp-diagnostic.js', 'data/cp-pool.js',
-  'data/qb-aamc-bio.js', 'data/qb-aamc-chem.js', 'data/qb-aamc-phys.js', 'data/qb-aamc-biochem.js', 'data/qb-aamc-iqb.js', 'data/qb-aamc-cars.js', 'data/qb-aamc-rules.js', 'data/qb-aamc-fl.js', 'data/aamc-prep.js',
+  'data/qb-aamc-bio.js', 'data/qb-aamc-chem.js', 'data/qb-aamc-phys.js', 'data/qb-aamc-biochem.js', 'data/qb-aamc-iqb.js', 'data/qb-aamc-cars.js', 'data/qb-aamc-rules.js', 'data/qb-aamc-fl.js', 'data/cp-test-cards.js', 'data/aamc-prep.js',
   'data/exam1.js', 'data/exam2-cp.js', 'data/exam2-bb.js', 'data/exam2-ps.js', 'data/exams.js',
 ];
 const ASSETS = [
-  "recall.html", "passages.html", "exams.html", "aamc.html", "flprep.html","score-report.html", "about.html", "recall-session.html", "passage-session.html", "exam-session.html", "results.html", "exam-results.html", './', 'css/portfolio-theme.css?v=20261115', 'index.html', 'css/styles.css', 'manifest.webmanifest', 'icon.svg',
+  "recall.html", "passages.html", "exams.html", "aamc.html", "flprep.html","score-report.html", "about.html", "recall-session.html", "passage-session.html", "exam-session.html", "results.html", "exam-results.html", './', 'css/portfolio-theme.css?v=20261116', 'index.html', 'css/styles.css', 'manifest.webmanifest', 'icon.svg',
   ...SCRIPTS.map(path => path + V),
 ];
 const RUNTIME = ['data/structures.js' + V, 'vendor/supabase-js-2.118.0.umd.js'];

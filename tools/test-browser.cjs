@@ -184,7 +184,7 @@ async function main() {
   }
   // Text is 16 px or larger everywhere the student studies, at desktop and phone width: every visible text node and
   // form control on the page (header, study status, TODAY card, flashcard, guided and quiz screens; SVG text at its
-  // drawn size), including after a wrong flashcard answer, with the verdict and explanation shown.
+  // drawn size), including after a wrong flashcard answer, when the lesson opens by itself under the verdict.
   // The page never scrolls sideways.
   const smallText='(()=>{const bad=[],seen=new Set();const add=(el,px,t)=>{const k=(el.className&&typeof el.className==="string"?el.className.split(" ")[0]:el.tagName)+" "+px;if(!seen.has(k)){seen.add(k);bad.push(k+"px \u201c"+t.slice(0,30)+"\u201d")}};'+
    'const shown=el=>{const cs=getComputedStyle(el),r=el.getBoundingClientRect();return cs.visibility!=="hidden"&&cs.display!=="none"&&r.width>1&&r.height>1&&!el.closest("[hidden]")};'+
@@ -196,7 +196,7 @@ async function main() {
   const studyStates=[
    ['TODAY','goHome();true','activeScreen==="screen-home" && !!document.querySelector("#today-plan .today-head")'],
    ['flashcard','startMasteryFlashcards(true);true','quiz.mastery==="flashcards" && activeScreen==="screen-quiz" && !!document.querySelector("#quiz-body .choice-btn")'],
-   ['flashcard after a wrong answer','startMasteryFlashcards(true);true','quiz.mastery==="flashcards" && activeScreen==="screen-quiz" && !!document.querySelector("#cb-0")',wrongPick,'!!document.querySelector("#exp-area .explanation-box")'],
+   ['flashcard after a wrong answer','startMasteryFlashcards(true);true','quiz.mastery==="flashcards" && activeScreen==="screen-quiz" && !!document.querySelector("#cb-0")',wrongPick,'!!document.querySelector("#lesson-slot .lesson-box")'],
    ['guided card',fontScreens[1][1],fontScreens[1][2]],
    ['guided card answered',fontScreens[1][1],fontScreens[1][2],wrongPick,'!!document.querySelector("#exp-area .explanation-box")'],
    ['daily quiz',fontScreens[3][1],fontScreens[3][2]],
@@ -212,6 +212,16 @@ async function main() {
     await evaluate(leave+start);
     await until(ready);
     if(act){await evaluate(act);await until(after)}
+    // After a wrong flashcard answer the lesson opens by itself, under the verdict, at step 1, with Back and Next,
+    // the question's words highlighted; it is the card's own worked method ending with its Rule to reuse.
+    if(name==='flashcard after a wrong answer'){
+     assert.equal(await evaluate('(()=>{const s=document.querySelector("#lesson-slot"),v=document.querySelector("#exp-area .exp-verdict");return !!(v&&s&&(v.compareDocumentPosition(s)&Node.DOCUMENT_POSITION_FOLLOWING))})()'),true,'the lesson sits under the verdict');
+     assert.match(await evaluate('document.querySelector("#lesson-slot .lesson-title").textContent'),/^Here's how to solve it — step 1 of \d+$/,'opened by itself at step 1');
+     assert.equal(await evaluate('!!document.querySelector("#lesson-slot [data-click=\'howStep(-1)\']") && !!document.querySelector("#how-next")'),true,'Back and Next');
+     await evaluate('(()=>{const n=stepperSteps().length;for(let i=1;i<n;i++)howStep(1);return true})()');
+     assert.match(await evaluate('document.querySelector("#lesson-slot .lesson-rule").textContent'),/Rule to reuse:/,'the lesson ends with the Rule to reuse');
+     assert.equal(await evaluate('[...document.querySelectorAll("#choices-area .choice-btn")].filter(b=>b.classList.contains("struck")).length'),3,'every wrong choice is crossed out by the end');
+    }
     const got=await evaluate(smallText);
     assert.deepEqual(got.bad,[],width+'px '+name+': text below 16 px');
     assert.equal(got.hscroll,false,width+'px '+name+': no horizontal scroll');
@@ -222,6 +232,33 @@ async function main() {
    await evaluate(leave);
    console.log('Text floor at '+width+'px: '+studyStates.map(x=>x[0]).join(', ')+': every visible text ≥ 16 px, no sideways scroll');
   }
+  // A right answer on a flashcard shows "Show me how", which opens the same lesson at step 1.
+  await evaluate('startMasteryFlashcards(true)');
+  await until('quiz.mastery==="flashcards" && !!document.querySelector("#cb-0")');
+  await evaluate('document.querySelector("#cb-"+quiz.items[quiz.idx].ans).click()');
+  assert.equal(await evaluate('!!document.querySelector("#show-how-btn") && !document.querySelector("#lesson-slot .lesson-box")'),true,'right answer: the lesson waits behind "Show me how"');
+  await evaluate('document.querySelector("#show-how-btn").click()');
+  assert.match(await evaluate('document.querySelector("#lesson-slot .lesson-title").textContent'),/step 1 of/,'"Show me how" replays the lesson');
+  // "💡 Help me / Show me how" is there at any time, on every flashcard and every guided card: before answering (it
+  // opens the lesson and answering still works), after a right answer and after a wrong one (it opens the solution).
+  const helpBtn='(document.querySelector("#hint-btn")?.textContent||"")';
+  for(const [label,start,ready,opened] of [
+   ['flashcard','startMasteryFlashcards(true);true','quiz.mastery==="flashcards" && !!document.querySelector("#cb-0")','!!document.querySelector("#lesson-slot .lesson-box")'],
+   ['guided card','startMasteryGuided(true);true','quiz.mastery==="guided" && !!document.querySelector("#cb-0")','!!document.querySelector("#how-box")']]){
+   for(const right of [true,false]){
+    await evaluate(leave+start); await until(ready);
+    assert.match(await evaluate(helpBtn),/Help me \/ Show me how/,label+': the button is there before answering');
+    await evaluate('document.querySelector("#hint-btn").click()');
+    assert.equal(await evaluate('!!document.querySelector("#hint-area .teach-box")'),true,label+': before answering it opens the lesson');
+    assert.match(await evaluate(helpBtn),/Help me \/ Show me how/,label+': the button stays while the lesson is open');
+    await evaluate('document.querySelector("#cb-"+(('+(right?'0':'1')+'+quiz.items[quiz.idx].ans)%4)).click()');
+    assert.equal(await evaluate('quiz.answered && quiz.results.length===1'),true,label+': answering still works after opening the lesson');
+    assert.match(await evaluate(helpBtn),/Help me \/ Show me how/,label+': the button is there after a '+(right?'right':'wrong')+' answer');
+    await evaluate('document.querySelector("#lesson-slot")&&(document.querySelector("#lesson-slot").innerHTML="");document.querySelector("#how-box")?.remove();document.querySelector("#hint-btn").click()');
+    assert.equal(await evaluate(opened),true,label+': after a '+(right?'right':'wrong')+' answer it opens the worked solution');
+   }
+  }
+  await evaluate(leave);
   await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
   // Offline resilience: once the service worker has cached the app, a reload with no network still works.
   // Local http skips registration by design (app.js); register as the deployed https site does.
@@ -266,7 +303,7 @@ async function main() {
   assert.deepEqual(await evaluate('window.__violations'),[],'no CSP violations or blocked actions');
   assert.equal(await evaluate('[...document.querySelectorAll("*")].some(e=>[...e.attributes].some(a=>/^on/.test(a.name)))'),false,'no inline handler attributes in the DOM');
   assert.equal(errors.length,0,JSON.stringify(errors));
-  console.log('Chrome smoke passed: actual script loading, strict-CSP clicks, offline reload, runner-up reflection, TODAY 3 steps with the quiz locked, delayed diagnostic feedback, timeout scoring, study calendar, HTML escaping, one study font size on all study screens at 1280 and 390 px, a 16 px text floor at 1280 and 375 px (TODAY, flashcards before and after an answer, guided cards, the quiz and the diagnostic), and no runtime exceptions.');
+  console.log('Chrome smoke passed: actual script loading, strict-CSP clicks, offline reload, runner-up reflection, TODAY 3 steps with the quiz locked, delayed diagnostic feedback, timeout scoring, study calendar, HTML escaping, one study font size on all study screens at 1280 and 390 px, a 16 px text floor at 1280 and 375 px, the flashcard lesson opening by itself after a wrong answer, and no runtime exceptions.');
  } finally {
   if(socket)socket.close();
   chrome.kill();

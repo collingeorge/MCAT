@@ -934,8 +934,13 @@ mark.step-hl{background:#fde68a;color:inherit;padding:0 2px;border-radius:2px;an
 .mastery-retake{margin:10px 0 4px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 
 /* Study text: 16 px is the floor everywhere (only SVG chart labels, which scale with their drawing, are drawn
-   smaller). Explanations, hints and worked steps match the question at var(--study-text) (17 px). */
-.exp-text,.how-box,.how-hint,.how-box .step-text,.teach-box p{font-size:var(--study-text)}
+   smaller). Explanations, hints and lessons match the question at var(--study-text) (17 px). */
+.exp-text,.how-box,.how-hint,.how-box .step-text,.teach-box p,.lesson-box .step-text{font-size:var(--study-text)}
+/* The flashcard lesson after an answer (lessonPlayerHtml in js/app.js): one step at a time. */
+.lesson-title{font-weight:700;color:var(--navy);margin:0 0 8px}
+.lesson-box .how-step{list-style:none;margin:0}
+.lesson-box .step-text{margin:0 0 8px}
+.lesson-box .lesson-rule .step-text{border-left:4px solid #b45309;padding-left:10px}
 /* Phones: a graph keeps its drawn size (labels at 16 px or more) and scrolls sideways inside its own box; the page
    itself never scrolls sideways. */
 @media(max-width:660px){.chart-figure{overflow-x:auto;-webkit-overflow-scrolling:touch}.chart-figure .chart{width:560px;max-width:none}}
