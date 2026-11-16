@@ -1,7 +1,10 @@
 // C/P Practice Test flashcards (data/cp-test-cards.js) and TODAY's C/P steps without the QBank.
 //   1 Coverage: every card's `from` resolves to a Practice Exam 1/3/4/5/6 C/P card (pe1-cp … pe6-cp in
-//     data/qb-aamc-fl.js) and carries that card's `aamc` and `disc`; every Practice Exam question written so far
-//     (BUILT; all 295 once the deck is complete) has at least one card; each card has a valid `how` (ask, know,
+//     data/qb-aamc-fl.js) and carries a source's spec labels. The deck is a study budget: at most 250 cards, one card
+//     per method, a card listing in `from` every spec item (and question) it prepares for, across the exams. Every
+//     question of each exam that has cards maps to at least one card, and every item of a Partial question (a fact
+//     its Practice Exam card doesn't teach) has a card; once all five exams are in, each category is within ±2 of its
+//     share of the 250 (DECK_TARGET). Each card has a valid `how` (ask, know,
 //     steps, trap; every `hl` and `strike` is an exact substring of the card's own stem or choices, and no step
 //     strikes the key) and `teach` (every mark is in the stem; the last step starts "Rule to reuse:").
 //   2 Style, AAMC stand-alone: stems median 15–25 words (each 7–45); choices median ≤ 3 words and 90% ≤ 9; the key is
@@ -39,7 +42,13 @@ for (const q of SPEC.questions) { assert(PE.has(q.src), q.src + ': spec question
 const ITEMS = new Map(SPEC.items.map(it => [it.ref, it]));
 // The questions written so far: every question any card comes from. Each of them must have a card for every one of
 // its "Needs" items; once all 295 are written, every spec item must have a card.
-const BUILT = [...new Set(CARDS.flatMap(c => (Array.isArray(c.from) ? c.from : []).map(r => String(r).split('#')[0])))].filter(s => PE.has(s));
+// The exams written so far: every exam any card comes from; all 59 of each one's questions must map to a card.
+const DECK_MAX = 250;
+const DECK_TARGET = { '5D': 60, '5E': 38, '4E': 32, '5A': 23, '4D': 20, '4C': 20, '4B': 17, '5B': 15, '4A': 13, '5C': 12 };
+assert.equal(Object.values(DECK_TARGET).reduce((a, b) => a + b, 0), DECK_MAX, 'the category targets add up to the 250-card budget');
+assert(CARDS.length <= DECK_MAX, `the deck is ${CARDS.length} cards; the budget is ${DECK_MAX}`);
+const EXAMS_WRITTEN = [...new Set(CARDS.flatMap(c => (Array.isArray(c.from) ? c.from : []).map(r => String(r).split('-')[0])))];
+const BUILT = [...PE.keys()].filter(s => EXAMS_WRITTEN.includes(s.split('-')[0]));
 const ALL_BUILT = BUILT.length === PE.size;
 
 // ── 1. Coverage and worked methods ──
@@ -96,10 +105,9 @@ const uncovered = BUILT.filter(s => !bySrc.get(s).length);
 assert.deepEqual(uncovered, [], 'every Practice Exam question written so far has at least one flashcard');
 // Every "Needs" item of the questions written so far has a card; the items of the questions not yet written are
 // reported, not failed, until the deck is complete.
-const missingBuilt = SPEC.items.filter(it => BUILT.includes(it.src) && !byItem.get(it.ref).length).map(it => it.ref);
-assert.deepEqual(missingBuilt, [], 'every spec item of the questions written so far has a flashcard');
+const partialMissing = SPEC.items.filter(it => BUILT.includes(it.src) && SPEC.bySrc.get(it.src).match === 'partial' && !byItem.get(it.ref).length).map(it => it.ref);
+assert.deepEqual(partialMissing, [], 'every item of a Partial question (a fact its Practice Exam card does not teach) has a flashcard');
 const missingItems = SPEC.items.filter(it => !byItem.get(it.ref).length);
-if (ALL_BUILT) assert.deepEqual(missingItems.map(it => it.ref), [], 'every spec item has a flashcard');
 const covered = [...bySrc.values()].filter(a => a.length).length;
 
 // ── 2. Style ──
@@ -122,7 +130,8 @@ assert(cm <= 3, 'choice median ' + cm + ' words (≤ 3)'); assert(c90 <= 9, 'cho
 
 // ── 3. Originality against each source card ──
 const LOCANT = /\b\d+(?:,\d+)*-(?=[\p{L}(])|(?<=[\p{L})])-\d+(?:,\d+)*\b/gu;   // 2-bromo, 1,2-shift, pent-2-ene
-const dataNums = t => numsOf(strip(t).replace(LOCANT, ' '));
+// The base of a power of ten ("× 10⁻⁴", "10³") is notation, not a data number.
+const dataNums = t => numsOf(strip(t).replace(LOCANT, ' ').replace(/(×\s*)?\b10(?=[⁻⁰¹²³⁴⁵⁶⁷⁸⁹])/g, ' '));
 for (const c of CARDS) for (const s of new Set(c.from.map(r => r.split('#')[0]))) {
   const src = PE.get(s), srcNums = dataNums(src.q + ' ' + src.choices.join(' '));
   const shared = [...dataNums(c.q + ' ' + c.choices.join(' '))].filter(n => srcNums.has(n));
@@ -239,12 +248,13 @@ const split = JSON.parse(run("JSON.stringify(masteryBlueprintSplit(50, masteryWe
 const perCat = CARDS.reduce((o, c) => (o[c.aamc] = (o[c.aamc] || 0) + 1, o), {});
 const short = split.filter(([c, n]) => (perCat[c] || 0) < n).map(([c, n]) => `${c} ${perCat[c] || 0}/${n}`);
 if (TABLE) {
-  console.log('Category  cards  daily need');
-  for (const [c, n] of split) console.log(`  ${c}      ${String(perCat[c] || 0).padStart(4)}  ${n}`);
-  console.log('Coverage (spec item → flashcards):');
-  for (const it of SPEC.items.filter(it => BUILT.includes(it.src))) console.log(`  ${it.ref} → ${byItem.get(it.ref).join(', ')}   (${it.text.split('\n')[0].slice(0, 70)})`);
+  console.log('Category  cards  daily need  deck target (250)');
+  for (const [c, n] of split) console.log(`  ${c}      ${String(perCat[c] || 0).padStart(4)}  ${String(n).padStart(10)}  ${String(DECK_TARGET[c]).padStart(17)}`);
+  console.log('Coverage (question → flashcards; items without their own card are taught inside a card\'s lesson):');
+  for (const s of BUILT) console.log(`  ${s}${SPEC.bySrc.get(s).match === 'partial' ? ' (Partial)' : ''} → ${bySrc.get(s).join(', ')}`);
 }
 assert.deepEqual(short, [], 'every category has its 50-card daily count');
-console.log(`Practice Test flashcards passed: ${CARDS.length} cards covering ${covered}/${PE.size} Practice Exam C/P questions and ${SPEC.items.length - missingItems.length}/${SPEC.items.length} spec items` +
+if (ALL_BUILT) for (const [c, n] of Object.entries(DECK_TARGET)) assert(Math.abs((perCat[c] || 0) - n) <= 2, `category ${c}: ${perCat[c] || 0} cards, target ${n} ± 2`);
+console.log(`Practice Test flashcards passed: ${CARDS.length}/${DECK_MAX} cards covering ${covered}/${PE.size} Practice Exam C/P questions and ${SPEC.items.length - missingItems.length}/${SPEC.items.length} spec items` +
   `; stems median ${sm} words, choices median ${cm} / p90 ${c90}; how/teach valid; original against their sources; 200 simulated days with no QBank or Sample Test card in TODAY's flashcard or guided steps, each step in test order; QBank files identical to main.` +
   (short.length ? ` Short of the 50-card split: ${short.join(', ')}.` : ''));
