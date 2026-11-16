@@ -122,7 +122,8 @@ assert(cm <= 3, 'choice median ' + cm + ' words (≤ 3)'); assert(c90 <= 9, 'cho
 
 // ── 3. Originality against each source card ──
 const LOCANT = /\b\d+(?:,\d+)*-(?=[\p{L}(])|(?<=[\p{L})])-\d+(?:,\d+)*\b/gu;   // 2-bromo, 1,2-shift, pent-2-ene
-const dataNums = t => numsOf(strip(t).replace(LOCANT, ' '));
+// The base of a power of ten ("× 10⁻⁴", "10³") is notation, not a data number.
+const dataNums = t => numsOf(strip(t).replace(LOCANT, ' ').replace(/(×\s*)?\b10(?=[⁻⁰¹²³⁴⁵⁶⁷⁸⁹])/g, ' '));
 for (const c of CARDS) for (const s of new Set(c.from.map(r => r.split('#')[0]))) {
   const src = PE.get(s), srcNums = dataNums(src.q + ' ' + src.choices.join(' '));
   const shared = [...dataNums(c.q + ' ' + c.choices.join(' '))].filter(n => srcNums.has(n));
