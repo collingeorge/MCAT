@@ -1262,20 +1262,19 @@ DIAGRAMS = {
   f"<text x='218' y='83' font-size='22' fill='#dc2626' {T}>X</text>"
   f"<text x='196' y='112' font-size='18' fill='#dc2626' {T}>leaves</text>"
   "</svg>"),
- # SN2 blocked: a bulky group on the next carbon sits over the backside of the C–X carbon.
- 'cpt-sn2-blocked': (
+ # SN2 at a secondary carbon: its two alkyl groups crowd the back side, where the nucleophile must enter.
+ 'cpt-sn2-crowded': (
   "<svg xmlns='http://www.w3.org/2000/svg' width='320' height='150' viewBox='0 0 320 150'>"
   "<rect width='320' height='150' fill='#fff'/>"
-  f"<text x='4' y='100' font-size='20' fill='#2563eb' {T}>Nu⁻</text>"
-  "<path d='M48 94 Q68 90 84 92' fill='none' stroke='#2563eb' stroke-width='3' stroke-dasharray='5 4'/>"
-  "<line x1='82' y1='82' x2='98' y2='102' stroke='#dc2626' stroke-width='4'/><line x1='98' y1='82' x2='82' y2='102' stroke='#dc2626' stroke-width='4'/>"
-  f"<text x='62' y='134' font-size='18' fill='#dc2626' {T}>blocked</text>"
-  "<circle cx='140' cy='50' r='44' fill='#e2e8f0' stroke='#64748b' stroke-width='2'/>"
-  f"<text x='104' y='57' font-size='18' fill='#334155' {T}>C(CH₃)₃</text>"
-  "<line x1='160' y1='92' x2='168' y2='86' stroke='#000' stroke-width='2'/>"
-  f"<text x='158' y='112' font-size='22' fill='#000' {T}>CH₂</text>"
-  "<line x1='206' y1='105' x2='250' y2='105' stroke='#dc2626' stroke-width='3'/>"
-  f"<text x='256' y='113' font-size='22' fill='#dc2626' {T}>X</text>"
+  f"<text x='4' y='84' font-size='20' fill='#2563eb' {T}>Br⁻</text>"
+  "<path d='M40 78 Q62 72 78 76' fill='none' stroke='#2563eb' stroke-width='3' stroke-dasharray='5 4'/>"
+  "<circle cx='112' cy='36' r='24' fill='#e2e8f0' stroke='#64748b' stroke-width='2'/><circle cx='112' cy='118' r='24' fill='#e2e8f0' stroke='#64748b' stroke-width='2'/>"
+  f"<text x='104' y='42' font-size='18' fill='#334155' {T}>R</text><text x='104' y='124' font-size='18' fill='#334155' {T}>R</text>"
+  "<line x1='128' y1='52' x2='142' y2='66' stroke='#000' stroke-width='2'/><line x1='128' y1='102' x2='142' y2='88' stroke='#000' stroke-width='2'/>"
+  f"<text x='140' y='85' font-size='22' fill='#000' {T}>C</text>"
+  "<line x1='160' y1='77' x2='200' y2='77' stroke='#dc2626' stroke-width='3'/>"
+  f"<text x='204' y='84' font-size='20' fill='#dc2626' {T}>OH₂⁺</text>"
+  f"<text x='196' y='118' font-size='18' fill='#334155' {T}>2°: two R</text><text x='196' y='140' font-size='18' fill='#334155' {T}>block the back</text>"
   "</svg>"),
 }
 for name, svg in DIAGRAMS.items():

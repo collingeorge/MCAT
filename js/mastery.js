@@ -286,11 +286,11 @@ function masteryTestOrder(list) {
   return keyed.map(([, q]) => q);
 }
 // A card is a front card when its own src is in the set (a Practice Exam card) or, for a Practice Test flashcard
-// (data/cp-test-cards.js, its subj 'cp_test'), when its `from` names one.
+// (data/cp-test-cards.js, its subj 'cp_test'), when its `from` names one (an item of it: 'pe1-cp:4#2' names pe1-cp:4).
 function masteryIsFront(q, front) {
   if (!q || !front || !front.size) return false;
   if (q.src && front.has(q.src)) return true;
-  return q.subj === 'cp_test' && Array.isArray(q.from) && q.from.some(s => front.has(s));
+  return q.subj === 'cp_test' && Array.isArray(q.from) && q.from.some(s => front.has(String(s).split('#')[0]));
 }
 // The picking order within a category (pure; the app passes its saved data): 0 missed cards (o.missed, a Set of
 // ids: today's and the latest test's misses) and cards due for review (o.due(q): memory below the target
