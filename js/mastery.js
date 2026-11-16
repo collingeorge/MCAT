@@ -285,6 +285,25 @@ function masteryTestOrder(list) {
   keyed.sort(([a], [b]) => (a && b ? a[0] - b[0] || a[1] - b[1] || a[2] - b[2] || (a[3] < b[3] ? -1 : a[3] > b[3] ? 1 : 0) : a ? -1 : b ? 1 : 0));
   return keyed.map(([, q]) => q);
 }
+// Weakest first: the order of a day's content categories. Categories with data on the latest test (masteryWeak, the
+// list TODAY shows under "Weak content categories") that are weak (below MASTERY.weakBelow) come first, lowest % right
+// first; then categories with no data on that test, in AAMC weight order; then the other tested categories, lowest %
+// right first. Returns {code: rank}; codes not in the blueprint rank after all of them.
+function masteryCatRank(plan) {
+  const weights = (plan && masteryWeights(plan.subj, 'cats')) || [], tested = masteryWeak(plan && plan.latest);
+  const seen = new Set(tested.map(w => w.code));
+  const order = [...tested.filter(w => w.pct < MASTERY.weakBelow).map(w => w.code), ...weights.map(([c]) => c).filter(c => !seen.has(c)), ...tested.filter(w => w.pct >= MASTERY.weakBelow).map(w => w.code)];
+  const rank = {};
+  order.forEach(c => { if (!(c in rank)) rank[c] = Object.keys(rank).length; });
+  return rank;
+}
+// The day's order (pure): by category, weakest first (rank from masteryCatRank); within a category the twins of
+// missed questions (tierOf -1), then missed and due cards (0), then the rest; each group in test order.
+function masteryDayOrder(list, catOf, rank, tierOf) {
+  const big = Object.keys(rank).length, cr = q => { const c = catOf(q); return c in rank ? rank[c] : big; };
+  const tb = q => { const t = tierOf ? tierOf(q) : 1; return t < 0 ? 0 : t === 0 ? 1 : 2; };
+  return masteryTestOrder(list).map((q, i) => [cr(q), tb(q), i, q]).sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]).map(x => x[3]);
+}
 // A card is a front card when its own src is in the set (a Practice Exam card) or, for a Practice Test flashcard
 // (data/cp-test-cards.js, its subj 'cp_test'), when its `from` names one (an item of it: 'pe1-cp:4#2' names pe1-cp:4).
 function masteryIsFront(q, front) {
@@ -547,10 +566,11 @@ function masteryBegin(plan, step, pool, catOf, label, mode, more) {
   // discipline, missed and due cards, then the weakest sub-topics, then the rest (counts never change).
   const discW = plan.split !== 'topics' ? masteryWeights(plan.subj, 'discs') : null;
   const { list: picked, topicOf } = masteryTopicSet(step, pool, catOf, pickQuestions, { seen: new Set(row.seen || []), discOf: disciplineOfRecall, discW, tierOf: masteryTierOf(m, plan, row) });
-  // Missed questions' twin cards open the step (they already hold a slot in their own category): the Practice Exam
-  // twin in the guided step, the Practice Test flashcards built from it in the flashcard step.
-  // Then the day's set runs in test order (masteryTestOrder): the picking above decides which cards, never their order.
-  const front = masteryTwinFront(plan), list = [...masteryTestOrder(picked.filter(q => masteryIsFront(q, front))), ...masteryTestOrder(picked.filter(q => !masteryIsFront(q, front)))];
+  // Then the day runs weakest category first (masteryCatRank: % right on the latest test); within each category the
+  // missed questions' twin cards (the Practice Exam twin in the guided step, the Practice Test flashcards built from
+  // it in the flashcard step), then missed and due cards, then test order. The picking above decides which cards,
+  // never their order.
+  const list = masteryDayOrder(picked, catOf, masteryCatRank(plan), masteryTierOf(m, plan, row));
   if (!list.length) { masteryNotice('Nothing left to practice in this step today. Choose “Another set” for more.'); return; }
   masteryStartQuiz(list, masterySection(plan.subj).abbrev + ' · ' + label, mode);
   quiz.topicOf = topicOf;
@@ -771,9 +791,11 @@ function masteryCard() {
   // their counts still the AAMC weight), and any category whose pool was too small, with where its shortfall went.
   const bp = plan.split !== 'topics';
   const chip = (code, text, on, title, weak) => '<span class="mastery-chip' + (on ? ' done' : '') + '" title="' + esc(title) + '">' + (on ? '✓ ' : '') + esc(code) + ' ' + text + (weak ? ' <b>weak</b>' : '') + '</span>';
-  const chips = ts => '<div class="mastery-path mastery-mix">' + ts.filter(t => t.need > 0 || t.raw > 0).map(t => chip(t.code, t.progress + '/' + t.need, t.progress >= t.need, AAMC_CAT_LABEL(t.code), t.weak)).join('') + '</div>';
+  const rank = masteryCatRank(plan), byRank = ts => [...ts].sort((a, b) => (a.code in rank ? rank[a.code] : 99) - (b.code in rank ? rank[b.code] : 99));
+  const chips = ts => '<div class="mastery-path mastery-mix">' + byRank(ts).filter(t => t.need > 0 || t.raw > 0).map(t => chip(t.code, t.progress + '/' + t.need, t.progress >= t.need, AAMC_CAT_LABEL(t.code), t.weak)).join('') + '</div>';
   const shortNote = (ts, unit) => { const sh = ts.filter(t => t.short); return sh.length ? '<p class="muted-note">Shortfall: ' + sh.map(t => esc(t.code) + ' has too few ' + unit + ', so ' + t.short + (t.to.length ? ' moved to ' + t.to.map(esc).join(', ') : ' could not be placed')).join('; ') + '.</p>' : ''; };
-  const bpNote = 'Split exactly like the exam: every content category by how often AAMC tests it. Your weak categories (<b>weak</b>) keep their AAMC count; within each category, missed and due cards come first, then your weakest sub-topics.';
+  const bpNote = 'Split exactly like the exam: every content category by how often AAMC tests it. Weakest categories first (from your latest test, marked <b>weak</b>; each keeps its AAMC count); within each category, twins of questions you missed, then missed and due cards, then the rest in test order.';
+  const cp = plan.subj === 'cp', fromPE = 'the C/P questions of AAMC Practice Exams 1, 3, 4, 5 and 6';
   const targets = (ts, unit) => chips(ts) + shortNote(ts, unit);
   const topicList = ts => '<ul class="mastery-subtopics">' + ts.map(t => '<li' + (t.progress >= t.need ? ' class="done"' : '') + '>' + (t.progress >= t.need ? '✓ ' : '') + esc(t.code) + ' ' + esc(AAMC_CAT_LABEL(t.code)) + ' <span class="today-count">' + t.progress + ' / ' + t.need + '</span></li>').join('') + '</ul>';
   let body = '';
@@ -786,14 +808,14 @@ function masteryCard() {
       const num = ['flashcards', 'guided', 'test'].includes(s.id) ? String(++n) : '•';
       let title = '', detail = '', button = '', count = '', time = '';
       if (s.id === 'diagnostic') { title = 'Diagnostic'; count = '<b>' + s.result.scaled + '</b> (' + s.result.correct + '/' + s.result.total + ') · ' + shortDay(s.result.day); detail = (s.old ? '<b>Earlier version</b> of the diagnostic. Retake the new ' + MASTERY.diagSize + '-question diagnostic for a fresh start. ' : 'Done. ') + 'Retaking it runs the full section again; your newest result sets the weak topics.'; button = btn('Retake diagnostic', "startMasteryTest('diagnostic')", s.old); }
-      if (s.id === 'flashcards') { title = 'Flashcards'; count = s.progress + ' / ' + s.count; detail = bp ? 'AAMC QBank cards only, in the AAMC mix of disciplines across the day. ' + bpNote + targets(s.topics, 'cards') : 'AAMC QBank cards only, weakest topics first, spread over today’s content categories.' + topicList(s.topics); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 0.6)); button = s.done ? more('startMasteryFlashcards(true)', s) : btn(s.progress ? 'Continue' : 'Start', 'startMasteryFlashcards()'); }
-      if (s.id === 'guided') { title = 'Guided Practice Exam cards with walkthroughs'; count = s.progress + ' / ' + s.count + ' cards · ' + s.lessons + ' / ' + s.lessonCount + ' lessons'; detail = bp ? 'Each card opens its step-by-step lesson: step through it, answer, then watch the walkthrough. ' + bpNote + targets(s.topics, 'cards') : 'Weakest topics first. Each card opens its step-by-step lesson: step through it, answer, then watch the walkthrough.' + topicList(s.topics); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 1.2 + (s.lessonCount - s.lessons) * 2)); button = s.done ? more('startMasteryGuided(true)', s) : btn(s.progress || s.lessons ? 'Continue' : 'Start', 'startMasteryGuided()'); }
+      if (s.id === 'flashcards') { title = 'Flashcards'; count = s.progress + ' / ' + s.count; detail = cp ? '<b>' + s.count + ' flashcards built from ' + fromPE + '.</b> Each card teaches the method behind those questions, with “💡 Help me / Show me how”. ' + bpNote + (bp ? targets(s.topics, 'cards') : topicList(byRank(s.topics))) : bp ? 'AAMC QBank cards only, in the AAMC mix of disciplines across the day. ' + bpNote + targets(s.topics, 'cards') : 'AAMC QBank cards only, weakest topics first, spread over today’s content categories.' + topicList(s.topics); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 0.6)); button = s.done ? more('startMasteryFlashcards(true)', s) : btn(s.progress ? 'Continue' : 'Start', 'startMasteryFlashcards()'); }
+      if (s.id === 'guided') { title = 'Guided Practice Exam cards with walkthroughs'; count = s.progress + ' / ' + s.count + ' cards · ' + s.lessons + ' / ' + s.lessonCount + ' lessons'; detail = (cp ? s.count + ' Practice Exam cards: ' + fromPE + ', as the test asks them. ' : '') + (bp ? 'Each card opens its step-by-step lesson: step through it, answer, then watch the walkthrough. ' + bpNote + targets(s.topics, 'cards') : 'Weakest topics first. Each card opens its step-by-step lesson: step through it, answer, then watch the walkthrough.' + topicList(byRank(s.topics))); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 1.2 + (s.lessonCount - s.lessons) * 2)); button = s.done ? more('startMasteryGuided(true)', s) : btn(s.progress || s.lessons ? 'Continue' : 'Start', 'startMasteryGuided()'); }
       if (s.id === 'followup') {
         const ws = s.weak.map(c => esc(c) + ' ' + esc(AAMC_CAT_LABEL(c))).join(' · ');
         if (s.atGoal) { title = 'Done for today'; detail = 'You reached ' + plan.goal + ' on today’s quiz. Anything more is optional.' + (ws ? ' Weakest on the quiz: ' + ws + '.' : ''); button = ws ? btn('Optional: flashcards on the weak spots', 'startMasteryFollowup(\'flashcards\')', false) + ' ' + btn('Optional: guided cards on the weak spots', 'startMasteryFollowup(\'guided\')', false) : ''; }
         else { title = 'Work on what you missed'; count = s.practiced ? s.practiced + ' done' : ''; detail = 'Today’s quiz was below ' + plan.goal + '. Review the missed questions on the quiz results, then practice the weakest topics' + (ws ? ': ' + ws : '') + ' with flashcards and guided cards (the quiz’s missed and due cards first).'; button = btn('Flashcards on these topics', 'startMasteryFollowup(\'flashcards\')') + ' ' + btn('Guided cards on these topics', 'startMasteryFollowup(\'guided\')', false); }
       }
-      if (s.id === 'test') { title = '30-question quiz'; detail = s.done ? 'Today: <b>' + s.result.scaled + '</b> (' + s.result.correct + '/' + s.result.total + '). Tomorrow’s weak topics are updated.' : MASTERY.testSize + ' exam-style questions (passages and single questions) at exam pace, to see your progress toward ' + plan.goal + '.';
+      if (s.id === 'test') { title = '30-question quiz'; detail = s.done ? 'Today: <b>' + s.result.scaled + '</b> (' + s.result.correct + '/' + s.result.total + '). Tomorrow’s weak topics are updated.' : MASTERY.testSize + ' exam-style questions (passages and single questions' + (cp ? ', original, written to the AAMC C/P blueprint' : '') + ') at exam pace, to see your progress toward ' + plan.goal + '.';
         // The quiz's fixed AAMC mix by category; once taken, right / asked in each.
         if (s.mix) { const r = s.done && s.result.cats ? s.result.cats : null; detail += (r ? ' Right by content category:' : ' The AAMC mix by content category:') + '<div class="mastery-path mastery-mix">' + Object.entries(s.mix.cats).map(([c, n]) => chip(c, r ? (r[c] ? r[c].c + '/' + r[c].t + ' right' : '–') : '× ' + n, false, AAMC_CAT_LABEL(c), false)).join('') + '</div>'; } time = s.done ? '' : mins(Math.round(MASTERY.testSize * MASTERY.secondsPerItem / 60)); if (!s.done) button = masteryQuizUnlocked(plan) ? btn('Start quiz', "startMasteryTest('daily')") : '<p class="muted-note">Unlocks when steps 1 and 2 are done.</p>'; }
       return '<li class="today-step' + (s.done ? ' done' : '') + '"><span class="today-num" aria-hidden="true">' + (s.done ? '✓' : num) + '</span><div class="today-body"><div class="today-title"><b>' + title + '</b>' + (count ? ' <span class="today-count">' + count + '</span>' : '') + time + '</div><div class="today-detail">' + detail + '</div>' + button + '</div></li>';

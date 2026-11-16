@@ -1230,6 +1230,64 @@ add('cpt-e1-beta', 'C[CH2:2][C+:1](C)C', formula='C5H11+', hl=[1, 2], notes={1: 
 # A 1,2-hydride shift: the 2° cation and the 3° cation it becomes (pe1-cp:7 cards).
 add('cpt-shift-2', 'C[CH+:1][CH:2](C)C', formula='C5H11+', hl=[1, 2], notes={1: '2° C⁺', 2: 'H moves'})
 add('cpt-shift-3', 'C[CH2][C+:1](C)C', formula='C5H11+', hl=[1], notes={1: '3° C⁺'})
+# Card figures for the Practice Test flashcards, each drawn for the card's own compounds (not the source's).
+# cpt-pe1-04e: the alcohol being dehydrated.
+add('cpt-1-methylcyclopentanol', 'CC1(O)CCCC1', formula='C6H12O')
+# cpt-pe1-05a: glycine joined to a valine-shaped partner through each linkage named in the choices.
+add('cpt-glyval-amide', 'NCC(=O)[NH:1][C@@H](C(C)C)C(=O)O', formula='C7H14N2O3', centers=1, hl=[1])
+add('cpt-glyval-ester', 'NCC(=O)[O:1][C@@H](C(C)C)C(=O)O', formula='C7H13NO4', centers=1, hl=[1])
+add('cpt-glyval-anhydride', 'NCC(=O)[O:1]C(=O)[C@@H](N)C(C)C', formula='C7H14N2O3', centers=1, hl=[1])
+add('cpt-glyval-ether', 'NCC[O:1][C@@H](C(C)C)C(=O)O', formula='C7H15NO3', centers=1, hl=[1])
+# cpt-pe1-07b: 3,3-dimethylbutan-2-ol and its HBr products.
+add('cpt-33-dimethylbutan-2-ol', 'CC(O)C(C)(C)C', formula='C6H14O', centers=1)
+add('cpt-2-bromo-33-dimethylbutane', 'CC(Br)C(C)(C)C', formula='C6H13Br', centers=1)
+add('cpt-2-bromo-23-dimethylbutane', 'CC(C)C(C)(C)Br', formula='C6H13Br', centers=0)
+add('cpt-23-dimethylbut-2-ene', 'CC(C)=C(C)C', formula='C6H12')
+add('cpt-23-dimethylbut-1-ene', 'C=C(C)C(C)C', formula='C6H12')
+# cpt-pe1-08d: the three compounds of the GC mixture.
+add('cpt-pent-1-ene', 'C=CCCC', formula='C5H10')
+add('cpt-1-chloropentane', 'ClCCCCC', formula='C5H11Cl')
+add('cpt-pentan-1-ol', 'OCCCCC', formula='C5H12O')
+# cpt-pe1-10a: ethyl acetate with the bridging O marked, and the species named in the choices.
+add('cpt-ethyl-acetate-bridge-o', 'CC(=O)[O:1]CC', formula='C4H8O2', hl=[1])
+add('cpt-ethanol', 'CCO', formula='C2H6O')
+add('cpt-acetic-acid', 'CC(=O)O', formula='C2H4O2')
+add('cpt-sulfuric-acid', 'OS(=O)(=O)O', formula='H2O4S')
+add('cpt-water', 'O', formula='H2O')
+# cpt-pe1-33a: 1,2-dichloroethene with its two alkene carbons marked.
+add('cpt-12-dichloroethene-hl', 'Cl[CH:1]=[CH:2]Cl', formula='C2H2Cl2', hl=[1, 2])
+# cpt-pe3-03a: the propanal aldol choices.
+add('cpt-3-hydroxy-2-methylpentanal', 'CCC(O)C(C)C=O', formula='C6H12O2', centers=2)
+add('cpt-2-methylpent-2-enal', 'CCC=C(C)C=O', formula='C6H10O')
+add('cpt-2-hydroxy-3-methylpentanal', 'CCC(C)C(O)C=O', formula='C6H12O2', centers=2)
+add('cpt-3-hydroxyhexanal', 'CCCC(O)CC=O', formula='C6H12O2', centers=1)
+# cpt-pe3-22a: cholesterol and the ketone cholesterol oxidase makes from it (cholest-5-en-3-one).
+add('cpt-cholestenone', 'C[C@H](CCCC(C)C)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3[C@H]2CC=C4[C@@]3(CCC(=O)C4)C)C', formula='C27H44O', centers=7)
+# cpt-pe3-27a: glycylleucine with the peptide bond's C and N marked.
+add('cpt-gly-leu-sites', 'NC[C:1](=O)[NH:2][C@@H](CC(C)C)C(=O)O', formula='C8H16N2O3', centers=1, hl=[1, 2], notes={2: 'peptide bond'})
+# cpt-pe4-10a: the four alcohols warmed with chromic acid.
+add('cpt-pentan-2-ol', 'CCCC(C)O', formula='C5H12O', centers=1)
+add('cpt-3-methylbutan-2-ol', 'CC(C)C(C)O', formula='C5H12O', centers=1)
+add('cpt-2-methylbutan-2-ol', 'CCC(C)(C)O', formula='C5H12O', centers=0)
+# cpt-pe4-11a: (Z)-3-bromopent-2-ene (Br and the C1 methyl cis).
+add('cpt-z-3-bromopent-2-ene', 'C/C=C(\\Br)CC', formula='C5H9Br', ez='Z')
+# cpt-pe4-17a: methanol.
+add('cpt-methanol', 'CO', formula='CH4O')
+# cpt-pe4-25a: a ketone with a ring, an outside C=C and two nitriles (9 π bonds).
+add('cpt-benzoyl-methylene-malononitrile', 'O=C(C=C(C#N)C#N)c1ccccc1', formula='C11H6N2O')
+# cpt-pe4-29a: the amino ester with its nitrogen highlighted.
+add('cpt-amino-ester-n-hl', 'CC[NH:1]CCC(=O)OC', formula='C6H13NO2', hl=[1])
+# cpt-pe4-30a: methyl 4-oxopentanoate and the four product choices.
+add('cpt-methyl-4-oxopentanoate', 'CC(=O)CCC(=O)OC', formula='C6H10O3')
+add('cpt-gamma-valerolactone', 'CC1CCC(=O)O1', formula='C5H8O2', centers=1)
+add('cpt-delta-valerolactone', 'O=C1CCCCO1', formula='C5H8O2')
+add('cpt-pentane-14-diol', 'CC(O)CCCO', formula='C5H12O2', centers=1)
+add('cpt-methyl-4-hydroxypentanoate', 'CC(O)CCC(=O)OC', formula='C6H12O3', centers=1)
+# cpt-pe4-32a: the species each choice says the base produces or acts on.
+add('cpt-piperidine', 'C1CC[NH:1]CC1', formula='C5H11N', hl=[1])
+add('cpt-benzyl-bromide', 'Br[CH2:1]c1ccccc1', formula='C7H7Br', hl=[1])
+add('cpt-piperidide', 'C1CC[N-:1]CC1', formula='C5H10N-', hl=[1])
+add('cpt-bromide', '[Br-:1]', formula='Br-', hl=[1])
 
 # Hand-drawn lesson diagrams (not molecules): each is a small standalone SVG with a white background,
 # no scripts, links or comments (checked below and in tools/test-worked-methods.cjs).
@@ -1275,6 +1333,40 @@ DIAGRAMS = {
   "<line x1='160' y1='77' x2='200' y2='77' stroke='#dc2626' stroke-width='3'/>"
   f"<text x='204' y='84' font-size='20' fill='#dc2626' {T}>OH₂⁺</text>"
   f"<text x='196' y='118' font-size='18' fill='#334155' {T}>2°: two R</text><text x='196' y='140' font-size='18' fill='#334155' {T}>block the back</text>"
+  "</svg>"),
+ # cpt-pe3-57a: the four halides, each central atom with its bonds only (lone pairs not drawn, as on exam figures).
+ 'cpt-halide-centers': (
+  "<svg xmlns='http://www.w3.org/2000/svg' width='480' height='160' viewBox='0 0 480 160'>"
+  "<rect width='480' height='160' fill='#fff'/>"
+  "<g stroke='#000' stroke-width='2'><line x1='76' y1='70' x2='92' y2='70'/><line x1='44' y1='70' x2='28' y2='70'/><line x1='60' y1='56' x2='60' y2='38'/><line x1='60' y1='84' x2='60' y2='102'/><line x1='50' y1='60' x2='37' y2='47'/><line x1='70' y1='80' x2='83' y2='93'/><line x1='190' y1='70' x2='212' y2='70'/><line x1='170' y1='70' x2='148' y2='70'/><line x1='180' y1='56' x2='180' y2='38'/><line x1='180' y1='84' x2='180' y2='102'/><line x1='316' y1='70' x2='332' y2='70'/><line x1='284' y1='70' x2='268' y2='70'/><line x1='300' y1='84' x2='300' y2='102'/><line x1='436' y1='70' x2='452' y2='70'/><line x1='404' y1='70' x2='388' y2='70'/><line x1='420' y1='56' x2='420' y2='38'/><line x1='420' y1='84' x2='420' y2='102'/></g>"
+  f"<g font-size='18' fill='#000' {T} text-anchor='middle'><text x='60' y='76'>Te</text><text x='106' y='76'>F</text><text x='14' y='76'>F</text><text x='60' y='30'>F</text><text x='60' y='122'>F</text><text x='27' y='43'>F</text><text x='93' y='109'>F</text><text x='180' y='76'>I</text><text x='226' y='76'>Cl</text><text x='134' y='76'>Cl</text><text x='180' y='30'>Cl</text><text x='180' y='122'>Cl</text><text x='220' y='40'>−</text><text x='300' y='76'>Cl</text><text x='346' y='76'>F</text><text x='254' y='76'>F</text><text x='300' y='122'>F</text><text x='420' y='76'>Si</text><text x='466' y='76'>Cl</text><text x='374' y='76'>Cl</text><text x='420' y='30'>Cl</text><text x='420' y='122'>Cl</text></g>"
+  f"<g font-size='16' fill='#334155' {T} text-anchor='middle'><text x='60' y='152'>TeF₆</text><text x='180' y='152'>ICl₄⁻</text><text x='300' y='152'>ClF₃</text><text x='420' y='152'>SiCl₄</text></g>"
+  "</svg>"),
+ # cpt-pe1-48a: the chlorine cycle. Cl goes in and comes back out (catalyst); ClO is made, then used (intermediate).
+ 'cpt-cl-cycle': (
+  "<svg xmlns='http://www.w3.org/2000/svg' width='360' height='170' viewBox='0 0 360 170'>"
+  "<rect width='360' height='170' fill='#fff'/>"
+  f"<text x='30' y='92' font-size='22' fill='#2563eb' {T}>Cl</text>"
+  f"<text x='290' y='92' font-size='22' fill='#b45309' {T}>ClO</text>"
+  "<path d='M62 70 Q170 18 282 70' fill='none' stroke='#334155' stroke-width='3'/><path d='M270 60 L284 71 L267 74' fill='none' stroke='#334155' stroke-width='3'/>"
+  "<path d='M282 102 Q170 154 62 102' fill='none' stroke='#334155' stroke-width='3'/><path d='M75 113 L60 102 L76 98' fill='none' stroke='#334155' stroke-width='3'/>"
+  f"<text x='180' y='26' font-size='18' fill='#000' {T} text-anchor='middle'>step 1: + O₃, − O₂</text>"
+  f"<text x='180' y='160' font-size='18' fill='#000' {T} text-anchor='middle'>step 2: + O, − O₂</text>"
+  f"<text x='180' y='84' font-size='16' fill='#334155' {T} text-anchor='middle'>net: O₃ + O → 2O₂</text>"
+  f"<text x='180' y='104' font-size='16' fill='#334155' {T} text-anchor='middle'>Cl and ClO cancel</text>"
+  "</svg>"),
+ # cpt-pe1-48c: the iron cycle. Fe²⁺ is used in step 1 and given back in step 2 (catalyst); Fe³⁺ is the intermediate.
+ 'cpt-fe-cycle': (
+  "<svg xmlns='http://www.w3.org/2000/svg' width='360' height='170' viewBox='0 0 360 170'>"
+  "<rect width='360' height='170' fill='#fff'/>"
+  f"<text x='18' y='92' font-size='22' fill='#2563eb' {T}>2Fe²⁺</text>"
+  f"<text x='282' y='92' font-size='22' fill='#b45309' {T}>2Fe³⁺</text>"
+  "<path d='M70 70 Q170 18 276 70' fill='none' stroke='#334155' stroke-width='3'/><path d='M264 60 L278 71 L261 74' fill='none' stroke='#334155' stroke-width='3'/>"
+  "<path d='M276 102 Q170 154 70 102' fill='none' stroke='#334155' stroke-width='3'/><path d='M83 113 L68 102 L84 98' fill='none' stroke='#334155' stroke-width='3'/>"
+  f"<text x='180' y='26' font-size='18' fill='#000' {T} text-anchor='middle'>step 1: + S₂O₈²⁻, − 2SO₄²⁻</text>"
+  f"<text x='180' y='160' font-size='18' fill='#000' {T} text-anchor='middle'>step 2: + 2I⁻, − I₂</text>"
+  f"<text x='176' y='84' font-size='16' fill='#2563eb' {T} text-anchor='middle'>Fe²⁺: in, then back out</text>"
+  f"<text x='176' y='104' font-size='16' fill='#b45309' {T} text-anchor='middle'>Fe³⁺: made, then used</text>"
   "</svg>"),
 }
 for name, svg in DIAGRAMS.items():
