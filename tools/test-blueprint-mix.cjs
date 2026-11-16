@@ -232,11 +232,7 @@ if (STRICT) assert.equal(missing, 0, `STRICT_QUIZ_MIX: ${missing} of ${POOL.leng
   for (const [, file] of fs.readFileSync(root + '/index.html', 'utf8').matchAll(/<script src="([^"?]+)/g)) run(fs.readFileSync(root + '/' + file, 'utf8'));
   const pools = JSON.parse(run(`JSON.stringify({ flashcards: masteryFlashPool('cp').map(q => [masteryCategory(q), disciplineOfRecall(q)]), guided: masteryPracticePool('cp').map(q => [q.aamc, disciplineOfRecall(q)]) })`));
   assert(pools.flashcards.length > 0); assert.equal(pools.guided.length, 295, 'guided: the 295 Practice Exam 1/3/4/5/6 C/P cards (no Sample Test)');
-  // INTERIM (review commit): the Practice Test flashcards cover Practice Exam 1 Q1–10 only; the flashcard day checks run
-  // once every category has its 50-card count. Remove this gate when the deck is complete.
-  const flashFull = CATS.every(c => pools.flashcards.filter(([x]) => x === c).length >= L50[c]);
-  const steps = [['flashcards', "masteryFlashPool('cp')", 'masteryCategory'], ['guided', "masteryPracticePool('cp')", 'q => q.aamc']].filter(([st]) => st !== 'flashcards' || flashFull);
-  if (!flashFull) console.log('SKIPPED (Practice Test deck incomplete): flashcard day sets and 200-day discipline shares');
+  const steps = [['flashcards', "masteryFlashPool('cp')", 'masteryCategory'], ['guided', "masteryPracticePool('cp')", 'q => q.aamc']];
   const dw = Object.fromEntries(discW);
   for (const [step, list] of Object.entries(pools)) {
     for (const c of CATS) {

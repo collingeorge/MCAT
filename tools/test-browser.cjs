@@ -231,9 +231,25 @@ async function main() {
   assert.equal(await evaluate('!!document.querySelector("#show-how-btn") && !document.querySelector("#lesson-slot .lesson-box")'),true,'right answer: the lesson waits behind "Show me how"');
   await evaluate('document.querySelector("#show-how-btn").click()');
   assert.match(await evaluate('document.querySelector("#lesson-slot .lesson-title").textContent'),/step 1 of/,'"Show me how" replays the lesson');
-  // Before answering, the flashcard's lesson button reads "Help me / Show me how".
-  await evaluate('nextQ()');
-  if(await evaluate('activeScreen==="screen-quiz" && !quiz.answered'))assert.match(await evaluate('document.querySelector("#hint-btn")?.textContent||""'),/Help me \/ Show me how/);
+  // "💡 Help me / Show me how" is there at any time, on every flashcard and every guided card: before answering (it
+  // opens the lesson and answering still works), after a right answer and after a wrong one (it opens the solution).
+  const helpBtn='(document.querySelector("#hint-btn")?.textContent||"")';
+  for(const [label,start,ready,opened] of [
+   ['flashcard','startMasteryFlashcards(true);true','quiz.mastery==="flashcards" && !!document.querySelector("#cb-0")','!!document.querySelector("#lesson-slot .lesson-box")'],
+   ['guided card','startMasteryGuided(true);true','quiz.mastery==="guided" && !!document.querySelector("#cb-0")','!!document.querySelector("#how-box")']]){
+   for(const right of [true,false]){
+    await evaluate(leave+start); await until(ready);
+    assert.match(await evaluate(helpBtn),/Help me \/ Show me how/,label+': the button is there before answering');
+    await evaluate('document.querySelector("#hint-btn").click()');
+    assert.equal(await evaluate('!!document.querySelector("#hint-area .teach-box")'),true,label+': before answering it opens the lesson');
+    assert.match(await evaluate(helpBtn),/Help me \/ Show me how/,label+': the button stays while the lesson is open');
+    await evaluate('document.querySelector("#cb-"+(('+(right?'0':'1')+'+quiz.items[quiz.idx].ans)%4)).click()');
+    assert.equal(await evaluate('quiz.answered && quiz.results.length===1'),true,label+': answering still works after opening the lesson');
+    assert.match(await evaluate(helpBtn),/Help me \/ Show me how/,label+': the button is there after a '+(right?'right':'wrong')+' answer');
+    await evaluate('document.querySelector("#lesson-slot")&&(document.querySelector("#lesson-slot").innerHTML="");document.querySelector("#how-box")?.remove();document.querySelector("#hint-btn").click()');
+    assert.equal(await evaluate(opened),true,label+': after a '+(right?'right':'wrong')+' answer it opens the worked solution');
+   }
+  }
   await evaluate(leave);
   await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
   // Offline resilience: once the service worker has cached the app, a reload with no network still works.

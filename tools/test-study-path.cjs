@@ -43,18 +43,8 @@ assert.match(el('today-plan').innerHTML, /5D × 7/, 'the quiz shows its AAMC mix
 assert(plan.steps.filter(s => s.topics).every(s => s.topics.every(t => t.extra === 0) && s.topics.reduce((n, t) => n + t.need, 0) === s.count), 'every step sums to its count, 0 extra on every category');
 assert.match(el('hero-badge').textContent, /QBank cards · 354 Practice Exam cards · \d full-length exams/);
 
-// INTERIM (review commit): the Practice Test flashcards (data/cp-test-cards.js) cover Practice Exam 1 Q1–10 only, so the
-// full 50-card flashcard checks below run once every category has its count. Remove this gate when the deck is complete.
-const deckFull = run("(() => { const c = masteryCatCounts(masteryFlashPool('cp'), masteryCategory); return masteryBlueprintSplit(50, masteryWeights('cp')).every(t => (c[t.code] || 0) >= t.need); })()");
-if (!deckFull) {
-  console.log('SKIPPED (Practice Test deck incomplete): the 50-card flashcard set, its weakness order and the flashcard follow-up');
-  run('startMasteryFlashcards()');
-  assert(run('quiz.items.length') > 0 && run('quiz.items.every(v => CPTQ_BY_ID.has(v.q.id) && !AQB_BY_ID.has(v.q.id))'), 'flashcards: Practice Test flashcards only, no QBank card');
-  run('goHome()');
-}
 // Weakness picks, never counts: within 5D (a weak category), a card missed today, one missed on the latest test
 // and one due for review come first, then the weakest sub-topic's cards (by saved accuracy), then the rest.
-if (deckFull) {
 const p5D = JSON.parse(run("JSON.stringify(masteryFlashPool('cp').filter(q => masteryCategory(q) === '5D' && disciplineOfRecall(q) === 'biochemistry').map(q => ({ id: q.id, key: q.key })))"));
 const keys5D = [...new Set(p5D.map(q => q.key))], weakKey = keys5D.find(k => p5D.filter(q => q.key === k).length >= 2 && p5D.filter(q => q.key === k).length <= 4);
 assert(weakKey, 'a small 5D biochemistry sub-topic to mark weak');
@@ -74,7 +64,6 @@ assert.deepEqual(JSON.parse(run("JSON.stringify(quiz.items.reduce((o,v)=>{const 
 assert(run('quiz.items.every(v=>masteryCategory(v.q)===quiz.topicOf[v.q.id])'), 'every card is from the category it counts for');
 assert.equal(run('new Set(quiz.items.map(v=>v.q.id)).size'), 50, 'no card twice');
 run('goHome()');
-}
 
 run("store.set(KEYS.mem, {}); store.set(KEYS.stats, {})");
 // The quiz unlocks only once flashcards and guided cards are done: starting it early shows a message instead.
@@ -92,7 +81,7 @@ assert.equal(run('masteryLoad().days[localDay()].prac'), undefined, 'passage ans
 
 // After the quiz (below goal): the follow-up reviews the quiz's misses and weak categories with flashcards (and
 // guided cards, below); the quiz's missed card comes first; never practice passages.
-if (deckFull) { const miss = run("masteryFlashPool('cp').filter(q => masteryCategory(q) === '4C').at(-1).id");
+{ const miss = run("masteryFlashPool('cp').filter(q => masteryCategory(q) === '4C').at(-1).id");
   run(`(() => { const m = masteryLoad(); m.tests.push({ subj: 'cp', day: localDay(), t: 2, kind: 'daily', correct: 12, total: 30, pct: 40, scaled: 120, version: 'cp_half_1', cats: { '4C': { c: 0, t: 3 } }, missIds: ['${miss}'] }); masterySave(m); })()`);
   run('renderHome()'); const html = el('today-plan').innerHTML;
   assert.match(html, /startMasteryFollowup\('flashcards'\)/); assert.match(html, /startMasteryFollowup\('guided'\)/); assert.doesNotMatch(html, /startMasteryFollowup\('passages'\)|Practice passages/);

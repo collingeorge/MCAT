@@ -25,7 +25,9 @@ const root = __dirname + '/..';
 const TABLE = process.argv.includes('--table');
 
 const data = vm.createContext({});
-for (const f of ['qb-aamc-fl.js', 'cp-test-cards.js']) vm.runInContext(fs.readFileSync(root + '/data/' + f, 'utf8').replace(/^const /mg, 'var '), data, { filename: f });
+// CPT_FILE=<path>: check another file of cards (a writer's batch) for parts 1–3 only; part 4 runs on the app's deck.
+const CPT_FILE = process.env.CPT_FILE || root + '/data/cp-test-cards.js';
+for (const f of [root + '/data/qb-aamc-fl.js', CPT_FILE]) vm.runInContext(fs.readFileSync(f, 'utf8').replace(/^const /mg, 'var '), data, { filename: f });
 const FL = data.QB_AAMC_FL, CARDS = data.CP_TEST_CARDS;
 const PE_RE = /^pe[13456]-cp:\d+$/;
 const PE = new Map(FL.filter(q => PE_RE.test(q.src)).map(q => [q.src, q]));
@@ -35,10 +37,10 @@ assert.equal(PE.size, 295, 'Practice Exams 1, 3, 4, 5 and 6: 59 C/P questions ea
 assert.equal(SPEC.questions.length, 295, 'the specs cover all 295 questions');
 for (const q of SPEC.questions) { assert(PE.has(q.src), q.src + ': spec question has a Practice Exam card'); assert(q.items.length >= 1, q.src + ': spec lists what it needs'); }
 const ITEMS = new Map(SPEC.items.map(it => [it.ref, it]));
-// The Practice Exam questions written so far. INTERIM (review commit): Practice Exam 1, Q1–10. When the deck is
-// complete this becomes every one of the 295 (ALL_BUILT = true) and every spec item must have a card.
-const ALL_BUILT = false;
-const BUILT = ALL_BUILT ? [...PE.keys()] : Array.from({ length: 10 }, (_, i) => 'pe1-cp:' + (i + 1));
+// The questions written so far: every question any card comes from. Each of them must have a card for every one of
+// its "Needs" items; once all 295 are written, every spec item must have a card.
+const BUILT = [...new Set(CARDS.flatMap(c => (Array.isArray(c.from) ? c.from : []).map(r => String(r).split('#')[0])))].filter(s => PE.has(s));
+const ALL_BUILT = BUILT.length === PE.size;
 
 // ── 1. Coverage and worked methods ──
 const strip = t => String(t == null ? '' : t).replace(/<[^>]+>/g, ' ').replace(/\*\*/g, '');
@@ -54,7 +56,6 @@ for (const c of CARDS) {
   for (const ref of c.from) {
     assert(ITEMS.has(ref), id + ': from "' + ref + '" is an item of a spec question (peX-cp:Q#n)');
     const s = ref.split('#')[0];
-    assert(BUILT.includes(s), id + ': from "' + ref + '" is a question written so far');
     if (!bySrc.get(s).includes(id)) bySrc.get(s).push(id);
     byItem.get(ref).push(id);
   }
@@ -150,6 +151,7 @@ for (const c of CARDS) for (const s of new Set(c.from.map(r => r.split('#')[0]))
   for (const [topic, re] of Object.entries(BLOCKLIST)) assert(!re.test(text), c.id + ': untaught topic ' + topic);
 }
 
+if (process.env.CPT_FILE) { console.log(`Batch ${CPT_FILE}: ${CARDS.length} cards pass coverage, worked methods, style and originality.`); process.exit(0); }
 // ── 4. No QBank in TODAY ──
 // The QBank files are byte-identical to main (line endings normalized for Windows checkouts).
 const MAIN_SHA = {
@@ -216,6 +218,21 @@ for (let day = 0; day < 200; day++) {
   run('goHome()');
 }
 assert(frontSeen > 0, 'the flashcards built from a missed twin led the flashcard step on some days');
+// A full day: on a fresh day the flashcard step plans exactly 50 at the AAMC split, with no shortfall moved between
+// categories, and the session holds 50 different Practice Test flashcards, each from the category it counts for.
+{ run(`store.set(KEYS.mem, {}); store.set(KEYS.subjectPath, { tests: [{ subj: 'cp', day: '${today}', t: 1, kind: 'diagnostic', correct: 30, total: 59, pct: 51, scaled: 122, version: 'cp_diag2', cats: {} }] })`);
+  const step = JSON.parse(run("JSON.stringify(masteryPlanNow().steps.find(s => s.id === 'flashcards'))"));
+  const want = JSON.parse(run("JSON.stringify(Object.fromEntries(masteryBlueprintSplit(50, masteryWeights('cp')).map(t => [t.code, t.need])))"));
+  assert.equal(step.count, 50, 'the flashcard step is 50 cards');
+  assert.deepEqual(Object.fromEntries(step.topics.map(t => [t.code, t.need])), want, 'exactly the AAMC split: ' + JSON.stringify(want));
+  assert(step.topics.every(t => t.short === 0 && t.spill === 0), 'no shortfall moved between categories');
+  run('startMasteryFlashcards()');
+  const day = JSON.parse(run('JSON.stringify(quiz.items.map(v => ({ id: v.q.id, cat: masteryCategory(v.q), topic: quiz.topicOf[v.q.id] })))'));
+  assert.equal(day.length, 50, 'a day holds 50 flashcards');
+  assert.equal(new Set(day.map(x => x.id)).size, 50, 'no card twice');
+  assert(day.every(x => ids.has(x.id) && x.cat === x.topic), 'every card is a Practice Test flashcard from the category it counts for');
+  assert.deepEqual(day.reduce((o, x) => (o[x.cat] = (o[x.cat] || 0) + 1, o), {}), want, 'the day\'s set is exactly the AAMC split');
+  run('goHome()'); }
 
 // ── Report ──
 const split = JSON.parse(run("JSON.stringify(masteryBlueprintSplit(50, masteryWeights('cp')).map(t => [t.code, t.need]))"));
@@ -227,7 +244,7 @@ if (TABLE) {
   console.log('Coverage (spec item → flashcards):');
   for (const it of SPEC.items.filter(it => BUILT.includes(it.src))) console.log(`  ${it.ref} → ${byItem.get(it.ref).join(', ')}   (${it.text.split('\n')[0].slice(0, 70)})`);
 }
-if (ALL_BUILT) assert.deepEqual(short, [], 'every category has its 50-card daily count');
-console.log(`Practice Test flashcards passed: ${CARDS.length} cards covering ${covered}/${PE.size} Practice Exam C/P questions and ${SPEC.items.length - missingItems.length}/${SPEC.items.length} spec items` + (ALL_BUILT ? '' : ` (INTERIM: ${BUILT.length} written so far)`) +
+assert.deepEqual(short, [], 'every category has its 50-card daily count');
+console.log(`Practice Test flashcards passed: ${CARDS.length} cards covering ${covered}/${PE.size} Practice Exam C/P questions and ${SPEC.items.length - missingItems.length}/${SPEC.items.length} spec items` +
   `; stems median ${sm} words, choices median ${cm} / p90 ${c90}; how/teach valid; original against their sources; 200 simulated days with no QBank or Sample Test card in TODAY's flashcard or guided steps, each step in test order; QBank files identical to main.` +
   (short.length ? ` Short of the 50-card split: ${short.join(', ')}.` : ''));

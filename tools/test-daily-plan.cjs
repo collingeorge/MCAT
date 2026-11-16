@@ -262,13 +262,8 @@ for (const days of [22, 25, 27]) {
     assert.equal(row.split, 'exact', 'the saved row is rewritten to the exact split on load');
     assert.deepEqual(row.flashT, { '4B': 1 }, 'its counted answers are kept');
     const fl = JSON.parse(run("JSON.stringify(masteryPlanNow().steps.find(s=>s.id==='flashcards'))"));
-    // INTERIM (review commit): the Practice Test flashcards (data/cp-test-cards.js) cover Practice Exam 1 Q1–10 only, so
-    // most categories are short; the exact split is checked once the deck is complete. Remove this gate then.
-    const deckFull = run("(() => { bankReady('cpt'); const c = masteryCatCounts(masteryFlashPool('cp'), masteryCategory); return masteryBlueprintSplit(50, masteryWeights('cp')).every(t => (c[t.code] || 0) >= t.need); })()");
-    if (deckFull) assert.deepEqual(Object.fromEntries(fl.topics.map(t => [t.code, t.need])), { '5D': 12, '5E': 8, '4E': 7, '5A': 5, '4D': 4, '4C': 4, '4B': 3, '5B': 3, '4A': 2, '5C': 2 }, 'flashcard needs: the AAMC split');
-    else console.log('SKIPPED (Practice Test deck incomplete): flashcard needs on the exact AAMC split');
-    if (deckFull) assert.equal(fl.topics.find(t => t.code === '4B').progress, 1, '4B keeps its 1 counted card');
-    else assert.equal(fl.topics.find(t => t.code === '4B').raw, 1, '4B keeps its 1 counted answer');
+    assert.deepEqual(Object.fromEntries(fl.topics.map(t => [t.code, t.need])), { '5D': 12, '5E': 8, '4E': 7, '5A': 5, '4D': 4, '4C': 4, '4B': 3, '5B': 3, '4A': 2, '5C': 2 }, 'flashcard needs: the AAMC split');
+    assert.equal(fl.topics.find(t => t.code === '4B').progress, 1, '4B keeps its 1 counted card');
     assert.deepEqual(JSON.parse(run("JSON.stringify(masteryPlanNow().steps.map(s=>s.id))")), ['diagnostic', 'flashcards', 'guided', 'test'], 'exactly 3 daily steps after the diagnostic');
     const html = el('today-plan').innerHTML;
     assert.doesNotMatch(html, /Passage questions|startMasteryPassages/, 'no passage step on TODAY');

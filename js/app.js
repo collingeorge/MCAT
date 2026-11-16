@@ -1439,11 +1439,16 @@ function hintArea(view) {
   const h = howOf(view.q), level = view.hint || 0;
   if (!h) return '';
   // A card with a graph in the question teaches how to read it, on the graph itself, before you answer.
-  if (teachOf(view.q)) return view.teachCur ? teachHtml(view) : `<button class="micro-btn how-btn teach-btn" id="hint-btn" data-click="teachStep(1)">${isLessonCard(view.q) ? '💡 Help me / Show me how' : '👀 Teach me how to solve this, step by step'}</button>`;
+  // The walkthrough can be opened at any time: the button stays above the lesson and restarts it at step 1.
+  if (teachOf(view.q)) return helpButton('teachStep(0)') + (view.teachCur ? teachHtml(view) : '');
   const shown = (level >= 1 ? `<p><b>What it's asking:</b> ${fmt(h.ask)}</p>` : '') + (level >= 2 ? `<div><b>What you need to know:</b>${paragraphs(h.know)}</div>` : '');
   const label = level === 0 ? 'Show me how to start' : level === 1 ? 'Show what I need to know' : '';
   return `${shown ? `<div class="how-hint" role="status">${shown}</div>` : ''}${label ? `<button class="micro-btn how-btn" id="hint-btn" data-click="showHint()">💡 ${label}</button>` : ''}`;
 }
+// "💡 Help me / Show me how": on every card with a lesson, before answering, while thinking and after answering (right
+// or wrong). Before answering it opens the lesson on the question (teachStep); afterwards it opens the worked solution
+// (showLesson). Opening it never blocks answering.
+function helpButton(action) { return `<button class="micro-btn how-btn teach-btn" id="hint-btn" data-click="${action}">💡 Help me / Show me how</button>`; }
 // ── "Teach me this graph": steps that label and measure the question's own graph before answering ──
 function teachOf(q) { return q && !q.variant && !q.baseId && Array.isArray(q.teach) && q.teach.length ? q.teach : null; }
 function teachHtml(view) {
@@ -1548,12 +1553,18 @@ function lessonBox(q, ctx) {
   stepper = { q, cur: 1, ctx, playing: false, timer: null, lesson: true };
   return `<div class="how-box lesson-box" id="how-box"><div id="how-player" class="how-player" aria-live="polite">${lessonPlayerHtml()}</div></div>`;
 }
-// "Show me how" after a right answer: opens the same lesson at step 1.
+// After an answer, "Help me / Show me how" (and "Show me how" after a right answer) opens the worked solution at step 1:
+// a flashcard's lesson in its slot, or a guided card's walkthrough, replayed from the start.
 function showLesson() {
-  const view = quiz.items[quiz.idx], slot = $('lesson-slot');
-  if (!view || !quiz.answered || !slot || !isLessonCard(view.q)) return;
-  slot.innerHTML = lessonBox(view.q, { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null });
+  const view = quiz.items[quiz.idx];
+  if (!view || !quiz.answered || !howOf(view.q)) return;
+  const ctx = { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null }, slot = $('lesson-slot');
+  if (isLessonCard(view.q) && slot) slot.innerHTML = lessonBox(view.q, ctx);
+  else if ($('how-box') && stepper && stepper.q === view.q) howReplay();
+  else if ($('exp-area')) $('exp-area').insertAdjacentHTML('beforeend', howBox(view.q, { ctx }));
   applyStepContext();
+  howSchedule();
+  const box = $('how-box'); if (box && box.scrollIntoView) box.scrollIntoView({ behavior: 'smooth', block: 'start' });
   const next = $('how-next'); if (next) next.focus({ preventScroll: true });
 }
 function howPlayerHtml() {
@@ -1692,7 +1703,8 @@ function finishPick(chosen, other = null, answerMs = null) {
       ? `<div id="lesson-slot">${right ? '<button class="micro-btn how-btn" id="show-how-btn" data-click="showLesson()">💡 Show me how</button>' : lessonBox(view.q, { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null })}</div>`
       : howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null } }));
   if (isLessonCard(view.q) && right) stepper = null;
-  if ($('hint-area')) $('hint-area').innerHTML = '';
+  // The help button stays after the answer: it opens the worked solution from step 1.
+  if ($('hint-area')) $('hint-area').innerHTML = howOf(view.q) ? helpButton('showLesson()') : '';
   // A hinted answer was not pure recall: it starts as Unsure so the card comes back (you can change it)
   if (view.hint) quiz.pending.conf = 'unsure';
   if (howOf(view.q)) applyStepContext();
