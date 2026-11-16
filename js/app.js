@@ -1529,9 +1529,9 @@ function stepVisual(st, ctx) {
 // itself under the verdict; after a right answer a button replays it. It works the card's own problem one step at a
 // time (the question's words light up, working lines animate in, wrong choices are crossed out) and ends with the
 // card's Rule to reuse. Back and Next move through it; it never plays on its own.
-const isLessonCard = q => typeof isCpt === 'function' && isCpt(q) && !!howOf(q) && !!teachOf(q);
+function isLessonCard(q) { return typeof isCpt === 'function' && isCpt(q) && !!howOf(q) && !!teachOf(q); }
 function lessonSteps(q) { const rule = teachOf(q).at(-1); return [...howSteps(howOf(q)), { text: rule.text, rule: true }]; }
-const stepperSteps = () => (stepper.lesson ? lessonSteps(stepper.q) : howSteps(howOf(stepper.q)));
+function stepperSteps() { return stepper.lesson ? lessonSteps(stepper.q) : howSteps(howOf(stepper.q)); }
 function lessonPlayerHtml() {
   const { q, cur, ctx } = stepper, steps = lessonSteps(q), n = steps.length, st = steps[cur - 1], h = howOf(q);
   return `<div class="lesson-title">Here's how to solve it — step ${cur} of ${n}</div>

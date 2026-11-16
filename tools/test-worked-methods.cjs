@@ -45,6 +45,36 @@ for (const q of FL) {
 }
 assert(source.includes("let id = 'fl-' + hashId(q.s + '|' + (q.idStem || q.q));"), 'FL ids use idStem');
 
+// Rewritten 2026-11-15: these Practice Exam cards had reused the real question's own numbers, so they landed on the real
+// test's answer. Each now has its own scenario and numbers (same method, same id via idStem). The old key and choices are
+// kept here so a later edit cannot drift back to them: the new key differs from the old key, and no new choice is an old choice.
+const REWRITTEN = {
+  "pe1-cp:3": { key: "0.20", choices: ["0.27","0.20","5.0","0.30"] },
+  "pe1-cp:42": { key: "Nitrogen-14 and sulfur-32", choices: ["Boron-14 and silicon-32","Nitrogen-14 and sulfur-32","Nitrogen-14 and silicon-32","Beryllium-10 and aluminum-28"] },
+  "pe3-cp:7": { key: "40 kW", choices: ["40 kW","48 kW","25 W","960 kW"] },
+  "pe3-cp:19": { key: "1 × 10⁻¹⁸ J, at 200 nm", choices: ["7 × 10⁻¹⁹ J, at 300 nm","1 × 10⁻²⁷ J, at 200 nm","1 × 10⁻¹⁸ J, at 200 nm","4 × 10⁻³² J, at 200 nm"] },
+  "pe3-cp:34": { key: "10⁻⁴ M, a million times greater than [H⁺]", choices: ["10⁻⁴ M, a million times greater than [H⁺]","10⁻⁴ M, a million times smaller than [H⁺]","10⁻¹⁰ M, a million times smaller than [H⁺]","10⁻¹⁰ M, the same as [H⁺]"] },
+  "pe3-cp:39": { key: "200 Ω·cm", choices: ["200 Ω·cm","20 Ω·cm","2500 Ω·cm","5.0 × 10⁻³ Ω·cm"] },
+  "pe3-cp:45": { key: "pH 7.0, since the protein is negative there", choices: ["pH 4.0, since the protein is positive there","pH 7.0, since the protein is negative there","pH 5.5, since the protein has no net charge there","pH 4.0, since the protein is negative there"] },
+  "pe4-cp:15": { key: "4.0 Hz; average power 2.0 W", choices: ["4.0 Hz; average power 2.0 W","4.0 Hz; average power 5.0 × 10⁷ W","0.004 Hz; average power 2.0 × 10⁻³ W","1.0 × 10⁸ Hz; average power 5.0 × 10⁷ W"] },
+  "pe4-cp:22": { key: "6 × 10⁻⁴ μM; A is about 750 times more potent", choices: ["6 × 10⁻⁴ μM; A is about 750 times more potent","6 × 10² μM; B is about 1300 times more potent","6 × 10⁻⁷ μM; A is about 7.5 × 10⁵ times more potent","6 × 10⁻⁴ μM; B is about 750 times more potent"] },
+  "pe4-cp:38": { key: "500 μM", choices: ["50 μM","3.3 mM","500 μM","980 M"] },
+  "pe4-cp:53": { key: "8 m", choices: ["0.8 m","8 m","16 m","80 m"] },
+  "pe4-cp:54": { key: "1.5 × 10⁴ C", choices: ["4.2 C","250 C","1.5 × 10⁴ C","5.6 × 10⁴ C"] },
+  "pe5-cp:15": { key: "5 × 10⁻⁴ mol", choices: ["0.5 mol","5 × 10⁻⁴ mol","4 × 10⁻⁵ mol","2 × 10⁻⁶ mol"] },
+  "pe5-cp:24": { key: "0.15 mol; 8.8 g", choices: ["0.15 mol; 8.8 g","0.015 mol; 0.88 g","1.5 mol; 88 g","0.60 mol; 35 g"] },
+  "pe5-cp:49": { key: "20 kPa", choices: ["2.0 kPa","200 kPa","20 kPa","2.0 Pa"] },
+  "pe5-cp:50": { key: "7.5 A", choices: ["7.5 A","0.75 A","75 A","7.5 mA"] },
+  "pe5-cp:56": { key: "620 nm", choices: ["620 nm","310 nm","2480 nm","1240 nm"] },
+};
+for (const [src, old] of Object.entries(REWRITTEN)) {
+  const q = FL.find(x => x.src === src);
+  assert(q, src + ': rewritten card present');
+  assert.notEqual(q.choices[q.ans], old.key, src + ': new key differs from the old key');
+  for (const c of q.choices) assert(!old.choices.includes(c), src + ': choice "' + c + '" is not an old choice');
+  assert(typeof q.idStem === 'string' && q.idStem !== q.q, src + ': keeps its id through idStem');
+}
+
 // Animated walkthroughs: every Practice Exam card steps through the solution with at least 3 visual steps, at least
 // one of them a worked calculation, a graph or a structure. Each visual must point at something real: question text
 // to highlight, a wrong choice to cross out, a plotted point to trace, a drawing that exists.
@@ -122,7 +152,7 @@ const card = { ...pe6.find(q => q.src === 'pe6-cp:18'), teach: undefined }; // t
 const ctx = vm.createContext({ $: node, quiz: { answered: false, idx: 0, items: [{ q: card }] }, String, Array });
 ctx.stepper = null; ctx.Math = Math; ctx.Number = Number; ctx.Set = Set; ctx.Map = Map; ctx.structUrls = new Map(); ctx.structsFailed = false; ctx.encodeURIComponent = encodeURIComponent;
 for (const name of ['esc', 'fmt', 'paragraphs', 'howOf', 'teachOf', 'teachHtml', 'teachStep', 'hintArea', 'showHint', 'howSteps', 'markText', 'markParagraphs', 'stepVisual', 'howPlayerHtml', 'applyStepContext', 'clearStepContext', 'howStepMs', 'howSchedule', 'howToggle', 'howReplay', 'howStep', 'howBox',
-  'chartNum', 'chartText', 'chartTicks', 'chartSmooth', 'chartMarker', 'chartLegend', 'chartAxes', 'chartAnnotations', 'lineChart', 'barChart', 'figureHtml', 'structUrl', 'structImg', 'stemFigs']) vm.runInContext(extract(name), ctx);
+  'chartNum', 'chartText', 'chartTicks', 'chartSmooth', 'chartMarker', 'chartLegend', 'chartAxes', 'chartAnnotations', 'lineChart', 'barChart', 'figureHtml', 'structUrl', 'structImg', 'stemFigs', 'isLessonCard', 'lessonSteps', 'stepperSteps', 'lessonPlayerHtml', 'lessonBox']) vm.runInContext(extract(name), ctx);
 vm.runInContext("var CHART = { W: 560, L: 70, R: 18, T: 14, H: 250, B: 50 };", ctx);
 const view = ctx.quiz.items[0];
 
@@ -241,7 +271,8 @@ assert(fs.readFileSync(root + '/css/styles.css', 'utf8').includes('.struct-name{
 // Wiring: the hint action is allowlisted, the quiz shows the method after answering, and a hinted
 // answer starts as Unsure; the session's missed list includes the method.
 assert(fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'showHint'"));
-assert(source.includes("+ howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null } });") && source.includes("howBox(view.q, { ctx: { mode: 'passage', passage: pq.p.passage, figure: pq.p.figure, view, prefix: 'pc' } })"), 'player in recall and passage feedback');
+// Recall cards play the walkthrough after an answer; Practice Test flashcards open their lesson instead (isLessonCard).
+assert(source.includes(": howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null } }));") && source.includes("lessonBox(view.q, { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null })") && source.includes("howBox(view.q, { ctx: { mode: 'passage', passage: pq.p.passage, figure: pq.p.figure, view, prefix: 'pc' } })"), 'player in recall and passage feedback');
 assert(fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'howStep'"));
 assert(source.includes("if (view.hint) quiz.pending.conf = 'unsure';"));
 assert(source.includes('how: howBox(r.view.q, { static: true })'));
