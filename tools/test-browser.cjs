@@ -258,6 +258,22 @@ async function main() {
     assert.equal(await evaluate(opened),true,label+': after a '+(right?'right':'wrong')+' answer it opens the worked solution');
    }
   }
+  // "✂ Rule out 2" sits beside Help on every flashcard. Before answering it crosses out exactly two wrong choices,
+  // writes each one's quick reason under it (16 px or more) and says how to pick between the two left; answering
+  // still works, and the button stays after the answer.
+  await evaluate(leave+'startMasteryFlashcards(true);true'); await until('quiz.mastery==="flashcards" && !!document.querySelector("#cb-0")');
+  assert.match(await evaluate('document.querySelector("#elim-btn")?.textContent||""'),/Rule out 2/,'Rule out 2: the button is there before answering');
+  await evaluate('document.querySelector("#elim-btn").click()');
+  const elim=JSON.parse(await evaluate('JSON.stringify((()=>{const v=quiz.items[quiz.idx],out=[...document.querySelectorAll("#choices-area .choice-btn.elim-out")];return{answered:quiz.answered,n:out.length,key:out.some(b=>b.id==="cb-"+v.ans),whys:out.map(b=>{const w=b.querySelector(".elim-why");return w?[w.textContent.trim(),parseFloat(getComputedStyle(w).fontSize)]:["",0]}),then:document.querySelector("#elim-then")?.textContent||"",btn:parseFloat(getComputedStyle(document.querySelector("#elim-btn")).fontSize)}})())'));
+  assert.equal(elim.answered,false,'Rule out 2 works before answering');
+  assert.equal(elim.n,2,'Rule out 2 crosses out exactly two choices');
+  assert.equal(elim.key,false,'Rule out 2 never crosses out the key');
+  for(const [t,px] of elim.whys){assert(t.length>3,'each ruled-out choice shows its reason');assert(px>=16,'reason text is at least 16 px ('+px+')');}
+  assert(elim.btn>=16,'the Rule out 2 button text is at least 16 px');
+  assert.match(elim.then,/Two ruled out/,'it says how to choose between the two left');
+  await evaluate('document.querySelector("#cb-"+quiz.items[quiz.idx].ans).click()');
+  assert.equal(await evaluate('quiz.answered && !!document.querySelector("#elim-btn") && !!document.querySelector("#hint-btn")'),true,'Rule out 2 and Help stay after answering');
+  console.log('Rule out 2: two choices crossed out with reasons before answering; the key never; buttons stay after');
   await evaluate(leave);
   await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
   // Offline resilience: once the service worker has cached the app, a reload with no network still works.

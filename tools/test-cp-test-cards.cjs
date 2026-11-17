@@ -102,6 +102,18 @@ for (const c of CARDS) {
     for (const m of st.marks || []) assert(typeof m.t === 'string' && c.q.includes(m.t) && typeof m.note === 'string', id + ': teach mark "' + m.t + '" is in the stem');
   }
   assert(/^\*\*Rule to reuse:\*\* \S/.test(c.teach.at(-1).text), id + ': the last teach step starts "Rule to reuse:"');
+  // Rule out 2: every card names exactly two wrong choices with the quick rule that kills each (a trap, unit, sign,
+  // estimate or the formula's direction; pure recall gets the closest true rule), then how to pick between the two
+  // left (elimThen). The ✂ Rule out 2 button and the lesson's first step show them.
+  // CPT_ELIM_PENDING=1 (a writer's working copy only): cards that don't have elim yet are skipped; any elim is checked.
+  if (process.env.CPT_ELIM_PENDING && c.elim === undefined) continue;
+  assert(Array.isArray(c.elim) && c.elim.length === 2, id + ': elim names exactly two choices');
+  assert.notEqual(c.elim[0].c, c.elim[1].c, id + ': elim names two different choices');
+  for (const e of c.elim) {
+    assert(Number.isInteger(e.c) && e.c >= 0 && e.c < c.choices.length && e.c !== c.ans, id + ': elim never points at the key');
+    assert(typeof e.why === 'string' && e.why.trim() && e.why.length <= 160, id + ': elim reason is one short line (≤ 160 characters): ' + (e.why || '').length);
+  }
+  assert(typeof c.elimThen === 'string' && c.elimThen.trim() && c.elimThen.length <= 200, id + ': elimThen says how to choose between the two left (≤ 200 characters)');
 }
 const uncovered = BUILT.filter(s => !bySrc.get(s).length);
 assert.deepEqual(uncovered, [], 'every Practice Exam question written so far has at least one flashcard');
@@ -134,7 +146,7 @@ assert(cm <= 3, 'choice median ' + cm + ' words (≤ 3)'); assert(c90 <= 9, 'cho
 const LOCANT = /\b\d+(?:,\d+)*-(?=[\p{L}(])|(?<=[\p{L})])-\d+(?:,\d+)*\b/gu;   // 2-bromo, 1,2-shift, pent-2-ene
 // The base of a power of ten ("× 10⁻⁴", "10³") is notation, not a data number.
 const dataNums = t => numsOf(strip(t).replace(LOCANT, ' ').replace(/(×\s*)?\b10(?=[⁻⁰¹²³⁴⁵⁶⁷⁸⁹])/g, ' '));
-const lessonText = c => { const h = c.how || {}; return [h.ask, h.know, h.trap, ...(h.steps || []).flatMap(st => [st.text, ...(st.calc || [])]), ...(c.teach || []).flatMap(t => [t.text, ...(t.calc || []), ...(t.marks || []).map(m => m.note)])].filter(Boolean).join(' \n '); };
+const lessonText = c => { const h = c.how || {}; return [...(c.elim || []).map(e => e.why), c.elimThen, h.ask, h.know, h.trap, ...(h.steps || []).flatMap(st => [st.text, ...(st.calc || [])]), ...(c.teach || []).flatMap(t => [t.text, ...(t.calc || []), ...(t.marks || []).map(m => m.note)])].filter(Boolean).join(' \n '); };
 for (const c of CARDS) for (const s of new Set(c.from.map(r => r.split('#')[0]))) {
   const src = PE.get(s), srcNums = dataNums(src.q + ' ' + src.choices.join(' '));
   const shared = [...dataNums(c.q + ' ' + c.choices.join(' '))].filter(n => srcNums.has(n));

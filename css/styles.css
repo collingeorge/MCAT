@@ -866,6 +866,11 @@ mark.step-hl{background:#fde68a;color:inherit;padding:0 2px;border-radius:2px;an
 .step-strike{margin:6px 0;font-size:16px;color:#7f1d1d}
 .strike-line{animation:calcIn .4s ease both}
 .choice-btn.struck:not(.correct){opacity:.45;text-decoration:line-through;transition:opacity .4s ease}
+.choice-btn.elim-out:not(.correct) .choice-text{opacity:.5;text-decoration:line-through}
+.choice-btn.elim-out{flex-wrap:wrap}
+.elim-why{display:block;flex-basis:100%;margin-top:6px;font-size:16px;line-height:1.4;color:#7c2d12;text-decoration:none}
+.elim-btn{margin-left:8px;background:#f0f9ff;border-color:#0369a1;color:#0c4a6e;font-weight:700;font-size:16px;padding:10px 16px}
+.elim-box{font-size:16px}
 @media (prefers-reduced-motion:reduce){.calc-line,.strike-line{animation:none}}
 .step-visual .struct-img{min-height:80px;max-height:170px}
 /* Guided walkthrough: autoplay controls and progress */
