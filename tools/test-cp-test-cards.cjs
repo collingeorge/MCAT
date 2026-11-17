@@ -328,7 +328,21 @@ assert(frontSeen > 0, 'the flashcards built from a missed twin led their categor
     assert.deepEqual(chips, expect.filter(c => chips.includes(c)), step + ': TODAY lists the category chips weakest first');
     assert(chips.length >= 8, step + ': chips shown');
   }
-  assert(/4A [^<]*<b>weak<\/b>/.test(html), 'weak categories are still marked weak');
+  for (const c of want) assert(new RegExp(c + ' [^<]*<b>weak</b>').test(html), c + ': every category listed under "Weak content categories" is marked weak (up to four)');
+  assert(!/5D [^<]*<b>weak<\/b>/.test(html), 'a strong category is not marked weak');
+  // Missed cards always get a slot first: a 5-card drill on a category whose discipline mix gives biology no slot still
+  // holds the missed biology card; the mix fills the other slots.
+  { const r = JSON.parse(run(`(() => { const mk = (id, disc) => ({ id, disc, aamc: '4B' });
+      const pool = [...Array.from({ length: 12 }, (_, i) => mk('p' + i, 'physics')), ...Array.from({ length: 12 }, (_, i) => mk('c' + i, 'gen_chem')), mk('bio-missed', 'biology'), mk('bio-other', 'biology')];
+      const tier = masteryTierRank({ missed: new Set(['bio-missed']) });
+      const step = { topics: [{ code: '4B', need: 5, progress: 0 }], count: 5 };
+      const discW = [['gen_chem', 0.6], ['physics', 0.38], ['biology', 0.02]];
+      const withMiss = masteryTopicSet(step, pool, q => q.aamc, (c, k) => c.slice(0, k), { discOf: q => q.disc, discW, tierOf: tier }).list.map(q => q.id);
+      const noMiss = masteryTopicSet(step, pool, q => q.aamc, (c, k) => c.slice(0, k), { discOf: q => q.disc, discW, tierOf: masteryTierRank({}) }).list.map(q => q.id);
+      return JSON.stringify({ withMiss, noMiss }); })()`));
+    assert(r.withMiss.includes('bio-missed') && r.withMiss.length === 5, 'a missed biology card gets a slot in a 5-card drill: ' + r.withMiss.join(' '));
+    assert(!r.noMiss.some(id => id.startsWith('bio')), 'without the miss, the discipline mix gives biology no slot: ' + r.noMiss.join(' '));
+    assert(r.withMiss.filter(id => id !== 'bio-missed').every(id => /^[pc]/.test(id)), 'the mix fills the other slots'); }
   // The TODAY card describes the C/P steps as they are now: no QBank anywhere.
   assert(!/QBank/i.test(html), 'TODAY never says QBank for C/P');
   assert(html.includes('flashcards built from the C/P questions of AAMC Practice Exams 1, 3, 4, 5 and 6') && html.includes('Help me / Show me how') && html.includes('Split exactly like the exam') && html.includes('Weakest categories first'), 'step 1 says what it does now');
