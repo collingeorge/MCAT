@@ -1339,6 +1339,9 @@ add('cpt-pe6-cyclohexene', 'C1=CCCCC1', formula='C6H10')
 add('cpt-pe6-hexanoic-acid', 'CCCCCC(=O)O', formula='C6H12O2')
 add('cpt-pe6-isobutanol', 'CC(C)CO', formula='C4H10O')
 add('cpt-pe6-mtbe', 'COC(C)(C)C', formula='C5H12O')
+# cpt-pe1-05a: ethyl N-acetylglycinate with its ester group highlighted; cpt-pe1-33a: propanenitrile, nitrile carbon highlighted.
+add('cpt-fix-acgly-ester-hl', 'CC(=O)NC[C:1](=[O:2])[O:3]CC', formula='C6H11NO3', hl=[1, 2, 3])
+add('cpt-fix-propanenitrile-c-hl', 'CC[C:1]#N', formula='C3H5N', hl=[1])
 # end PE6 writer 1
 
 # ── PE6 writer 2 structures (add(...) lines here only) ──
@@ -1356,10 +1359,11 @@ add('cpt-pe6-asp-minus1', "[NH3+][C@@H](CC(=O)[O-])C(=O)[O-]", formula='C4H6NO4-
 add('cpt-pe6-asp-minus2', "N[C@@H](CC(=O)[O-])C(=O)[O-]", formula='C4H5NO4-2')
 add('cpt-pe6-dimethyloxirane', "C[C:2]1(C)[CH2:1]O1", formula='C4H8O', notes={1: "C1", 2: "C2"})
 add('cpt-pe6-oxirane-cation', "C[C+:2](C)[CH2:1]O[B-](F)(F)F", formula='C4H8BF3O', hl=[2], notes={1: "C1", 2: "3° C⁺"})
-# cpt-pe5-17a: L-threonine with W (carboxyl C), X (β-C), Y (methyl C), Z (N) marked; cpt-pe5-31a: 4-(aminomethyl)phenylalanine.
+# cpt-pe5-17a: L-threonine with W (carboxyl C), X (β-C), Y (methyl C), Z (N) marked; cpt-pe5-31a: 4-(aminomethyl)phenylalanine; cpt-pe5-14a: 4-methylimidazole.
 add('cpt-pe5-threonine-sites', "[NH2:4][C@@H:5]([C@@H:2]([CH3:3])O)[C:1](=O)O", formula='C4H9NO3', centers=2, cip={5: 'S', 2: 'R'}, notes={1: 'W', 2: 'X', 3: 'Y', 4: 'Z'})
 add('cpt-pe5-threonine-beta', "[NH2:4][C@@H:5]([C@@H:2]([CH3:3])O)[C:1](=O)O", formula='C4H9NO3', centers=2, cip={5: 'S', 2: 'R'}, notes={1: 'W', 2: 'X', 3: 'Y', 4: 'Z'}, hl=[2])
 add('cpt-pe5-aminomethyl-phe', "N[C@@H](Cc1ccc([CH2:1][NH2:2])cc1)C(=O)O", formula='C10H14N2O2', hl=[1, 2])
+add('cpt-pe5-4-methylimidazole', "Cc1c[nH]cn1", formula='C4H6N2')
 # end PE6 writer 3
 
 # ── PE6 writer 4 structures (add(...) lines here only) ──
