@@ -1277,6 +1277,7 @@ add('cpt-methanol', 'CO', formula='CH4O')
 add('cpt-benzoyl-methylene-malononitrile', 'O=C(C=C(C#N)C#N)c1ccccc1', formula='C11H6N2O')
 # cpt-pe4-29a: the amino ester with its nitrogen highlighted.
 add('cpt-amino-ester-n-hl', 'CC[NH:1]CCC(=O)OC', formula='C6H13NO2', hl=[1])
+add('cpt-fix-amino-ester-co-hl', 'CCNCC[C:1](=[O:2])[O:3]C', formula='C6H13NO2', hl=[1, 2, 3])
 # cpt-pe4-30a: methyl 4-oxopentanoate and the four product choices.
 add('cpt-methyl-4-oxopentanoate', 'CC(=O)CCC(=O)OC', formula='C6H10O3')
 add('cpt-gamma-valerolactone', 'CC1CCC(=O)O1', formula='C5H8O2', centers=1)
