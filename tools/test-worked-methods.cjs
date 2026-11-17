@@ -177,9 +177,11 @@ vm.runInContext('showHint()', ctx); assert.equal(view.hint, 2, 'hint level stops
 
 const box = vm.runInContext('howBox(quiz.items[0].q, { static: true })', ctx);
 assert.match(box, /How to work it out/); assert.match(box, /<ol class="how-steps">/); assert.match(box, /The trap/);
-assert.equal((box.match(/<li>/g) || []).length, card.how.steps.length);
+// A card with Rule out 2 lists it as its first step.
+assert.equal((box.match(/<li>/g) || []).length, card.how.steps.length + (card.elim ? 1 : 0));
+if (card.elim) assert(/<li>(<strong>)?Rule out 2 first/.test(box), 'Rule out 2 is the first step');
 // Player: one step at a time; the trap appears only at the last step; Back/Next stay in range.
-const player = vm.runInContext('howBox(quiz.items[0].q)', ctx), n = card.how.steps.length;
+const player = vm.runInContext('howBox(quiz.items[0].q)', ctx), n = card.how.steps.length + (card.elim ? 1 : 0);
 assert.match(player, /id="how-player"/); assert.equal((player.match(/class="how-step[ "]/g) || []).length, 1, 'starts at step 1');
 assert.doesNotMatch(player, /The trap/, 'trap hidden until the last step'); assert.match(player, new RegExp('Step 1 of ' + n));
 assert.match(player, /data-click="howStep\(1\)"/);
