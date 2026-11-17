@@ -1333,6 +1333,44 @@ add('cpt-pe5-carboxymethyl-phe', "N[C@@H](Cc1ccc([CH2:1][C:2](=[O:3])[OH:4])cc1)
 add('cpt-pe5-methyl-propanoate', "CCC(=O)OC", formula='C4H8O2', centers=0)
 # end PE5 writer 4
 
+# ── PE6 writer 1 structures (add(...) lines here only) ──
+# cpt-pe6-01a: IR choices (with cyclohexanol, cyclohexanone); cpt-pe6-27a: which compound shows a 6H doublet (key 2-methyl-1-propanol) (with 1-propanol, cpt-ethanol).
+add('cpt-pe6-cyclohexene', 'C1=CCCCC1', formula='C6H10')
+add('cpt-pe6-hexanoic-acid', 'CCCCCC(=O)O', formula='C6H12O2')
+add('cpt-pe6-isobutanol', 'CC(C)CO', formula='C4H10O')
+add('cpt-pe6-mtbe', 'COC(C)(C)C', formula='C5H12O')
+# end PE6 writer 1
+
+# ── PE6 writer 2 structures (add(...) lines here only) ──
+# cpt-pe6-04a: 3-methylhexan-1-ol with W (C1), X (C3, the stereocenter), Y (the methyl), Z (C5) marked.
+add('cpt-pe6-methylhexanol-sites', "O[CH2:1]C[CH:2]([CH3:3])C[CH2:4]C", formula='C7H16O', centers=1, notes={1: "W", 2: "X", 3: "Y", 4: "Z"})
+# end PE6 writer 2
+
+# ── PE6 writer 3 structures (add(...) lines here only) ──
+# cpt-pe6-12a: trans-1,3 (methyl axial); cpt-pe6-30a: dityrosine; cpt-pe6-42a: aspartate at four net charges; cpt-pe6-03a: epoxide and its opened cation.
+add('cpt-pe6-trans-tbu-3-me-chx', "C[C@H]1CCC[C@H](C(C)(C)C)C1", formula='C11H22')
+add('cpt-pe6-dityrosine', "N[C@@H](Cc1ccc([OH:2])[c:1](-[c:3]2cc(C[C@H](N)C(=O)O)ccc2[OH:4])c1)C(=O)O", formula='C18H20N2O6', hl=[1, 3], notes={1: "new C–C", 2: "OH", 4: "OH"})
+add('cpt-pe6-asp-plus1', "[NH3+][C@@H](CC(=O)O)C(=O)O", formula='C4H8NO4+')
+add('cpt-pe6-asp-net0', "[NH3+][C@@H](CC(=O)O)C(=O)[O-]", formula='C4H7NO4')
+add('cpt-pe6-asp-minus1', "[NH3+][C@@H](CC(=O)[O-])C(=O)[O-]", formula='C4H6NO4-')
+add('cpt-pe6-asp-minus2', "N[C@@H](CC(=O)[O-])C(=O)[O-]", formula='C4H5NO4-2')
+add('cpt-pe6-dimethyloxirane', "C[C:2]1(C)[CH2:1]O1", formula='C4H8O', notes={1: "C1", 2: "C2"})
+add('cpt-pe6-oxirane-cation', "C[C+:2](C)[CH2:1]O[B-](F)(F)F", formula='C4H8BF3O', hl=[2], notes={1: "C1", 2: "3° C⁺"})
+# end PE6 writer 3
+
+# ── PE6 writer 4 structures (add(...) lines here only) ──
+# cpt-pe6-44a / 44b: membrane lipids, a wax ester, a storage fat, a detergent and a fungal sterol.
+add('cpt-pe6-sphingomyelin', "CCCCCCCCCCCCC/C=C/[C@@H](O)[C@H](COP(=O)([O-])OCC[N+](C)(C)C)NC(=O)CCCCCCCCCCC", formula='C35H71N2O6P')
+add('cpt-pe6-galactocerebroside', "CCCCCCCCCCCCC/C=C/[C@@H](O)[C@H](CO[C@@H]1O[C@H](CO)[C@H](O)[C@H](O)[C@H]1O)NC(=O)CCCCCCCCCCC", formula='C36H69NO8')
+add('cpt-pe6-cetyl-palmitate', "CCCCCCCCCCCCCCCC(=O)OCCCCCCCCCCCCCCCC", formula='C32H64O2')
+add('cpt-pe6-phosphatidylinositol', "CCCCCCCCCCCC(=O)OC[C@H](COP(=O)([O-])OC1C(O)C(O)C(O)C(O)C1O)OC(=O)CCCCCCCCCCC", formula='C33H62O13P-')
+add('cpt-pe6-phosphatidylserine', "CCCCCCCCCCCC(=O)OC[C@H](COP(=O)([O-])OC[C@H]([NH3+])C(=O)[O-])OC(=O)CCCCCCCCCCC", formula='C30H57NO10P-')
+add('cpt-pe6-trimyristin', "CCCCCCCCCCCCCC(=O)OCC(OC(=O)CCCCCCCCCCCCC)COC(=O)CCCCCCCCCCCCC", formula='C45H86O6')
+add('cpt-pe6-ergosterol', "CC(C)[C@@H](C)/C=C/[C@@H](C)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3C2=CC=C4[C@@]3(CC[C@@H](C4)O)C)C", formula='C28H44O')
+# cpt-pe6-45a: dCTP (deoxyribose + cytosine + three phosphates).
+add('cpt-pe6-dctp', "Nc1ccn([C@H]2C[C@H](O)[C@@H](COP(=O)(O)OP(=O)(O)OP(=O)(O)O)O2)c(=O)n1", formula='C9H16N3O13P3')
+# end PE6 writer 4
+
 DIAGRAMS = {
  # A TLC plate: baseline, spot and solvent front; both distances are measured up from the baseline.
  'cpt-tlc-plate': (
