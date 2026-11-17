@@ -320,12 +320,16 @@ function masteryIsFront(q, front) {
 // flashcard built from that twin) comes before all of them (-1): it takes one of its own category's slots, so the day's counts don't change.
 function masteryTierRank(o = {}) {
   const missed = o.missed || new Set(), due = o.due || (() => false), acc = o.acc || (() => null), front = o.front || new Set();
-  return q => {
+  const rank = q => {
     if (masteryIsFront(q, front)) return -1;
     if (missed.has(q.baseId || q.id) || missed.has(q.id) || due(q)) return 0;
     const a = acc(q);
     return Number.isFinite(a) && a < MASTERY.weakBelow / 100 ? 1 + a : 3;
   };
+  // Missed cards (a missed question's twin, or a card missed today or on the latest test; not merely due ones): they
+  // always get a slot first (masteryTopicSet), before the discipline mix fills the rest.
+  rank.isMissed = q => masteryIsFront(q, front) || missed.has(q.baseId || q.id) || missed.has(q.id);
+  return rank;
 }
 // Builds today's set for one step: for each category, the cards it still needs. Cards not seen today come first,
 // from the category itself (when o.discW is given, in the discipline counts masteryDiscQuota chose for the whole
@@ -352,6 +356,10 @@ function masteryTopicSet(step, pool, catOf, pick, o = {}) {
     if (need <= 0) continue;
     const i = order.indexOf(t.code), cats = [...order.slice(i), ...order.slice(0, i), null];   // null: any other
     let got = [];
+    // Missed cards of this category first, however the discipline mix would split it (a missed biology card gets its
+    // slot even where biology's 2% share would round to none); the mix fills the slots that are left.
+    const isMissed = o.isMissed || (o.tierOf && o.tierOf.isMissed);
+    if (isMissed) { const ms = all.filter(q => catOf(q) === t.code && !used.has(q.id) && isMissed(q)); got = pk(ms, Math.min(need, ms.length)); }
     // The category's own cards follow the day's quota (what is left of it); other categories' cards, the mix.
     const left = () => Object.fromEntries(Object.entries(quota[t.code]).map(([d, n]) => [d, n - got.filter(q => o.discOf(q) === d).length]));
     for (const fresh of [true, false]) for (const c of cats) for (const pl of pools) {
@@ -791,8 +799,10 @@ function masteryCard() {
   // their counts still the AAMC weight), and any category whose pool was too small, with where its shortfall went.
   const bp = plan.split !== 'topics';
   const chip = (code, text, on, title, weak) => '<span class="mastery-chip' + (on ? ' done' : '') + '" title="' + esc(title) + '">' + (on ? '✓ ' : '') + esc(code) + ' ' + text + (weak ? ' <b>weak</b>' : '') + '</span>';
+  // "weak" marks every category listed under "Weak content categories" (up to four), not only the two the split uses.
+  const weakShown = new Set(plan.weak.slice(0, 4).map(w => w.code));
   const rank = masteryCatRank(plan), byRank = ts => [...ts].sort((a, b) => (a.code in rank ? rank[a.code] : 99) - (b.code in rank ? rank[b.code] : 99));
-  const chips = ts => '<div class="mastery-path mastery-mix">' + byRank(ts).filter(t => t.need > 0 || t.raw > 0).map(t => chip(t.code, t.progress + '/' + t.need, t.progress >= t.need, AAMC_CAT_LABEL(t.code), t.weak)).join('') + '</div>';
+  const chips = ts => '<div class="mastery-path mastery-mix">' + byRank(ts).filter(t => t.need > 0 || t.raw > 0).map(t => chip(t.code, t.progress + '/' + t.need, t.progress >= t.need, AAMC_CAT_LABEL(t.code), t.weak || weakShown.has(t.code))).join('') + '</div>';
   const shortNote = (ts, unit) => { const sh = ts.filter(t => t.short); return sh.length ? '<p class="muted-note">Shortfall: ' + sh.map(t => esc(t.code) + ' has too few ' + unit + ', so ' + t.short + (t.to.length ? ' moved to ' + t.to.map(esc).join(', ') : ' could not be placed')).join('; ') + '.</p>' : ''; };
   const bpNote = 'Split exactly like the exam: every content category by how often AAMC tests it. Weakest categories first (from your latest test, marked <b>weak</b>; each keeps its AAMC count); within each category, twins of questions you missed, then missed and due cards, then the rest in test order.';
   const cp = plan.subj === 'cp', fromPE = 'the C/P questions of AAMC Practice Exams 1, 3, 4, 5 and 6';
