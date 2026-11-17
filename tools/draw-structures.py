@@ -1333,6 +1333,18 @@ add('cpt-pe5-carboxymethyl-phe', "N[C@@H](Cc1ccc([CH2:1][C:2](=[O:3])[OH:4])cc1)
 add('cpt-pe5-methyl-propanoate', "CCC(=O)OC", formula='C4H8O2', centers=0)
 # end PE5 writer 4
 
+# ── PE6 writer 1 structures (add(...) lines here only) ──
+# end PE6 writer 1
+
+# ── PE6 writer 2 structures (add(...) lines here only) ──
+# end PE6 writer 2
+
+# ── PE6 writer 3 structures (add(...) lines here only) ──
+# end PE6 writer 3
+
+# ── PE6 writer 4 structures (add(...) lines here only) ──
+# end PE6 writer 4
+
 DIAGRAMS = {
  # A TLC plate: baseline, spot and solvent front; both distances are measured up from the baseline.
  'cpt-tlc-plate': (
