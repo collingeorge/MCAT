@@ -267,7 +267,7 @@ function buildCpt() {
 // tools/test-pages.cjs checks them against the data.
 // ASSET_V: the deploy's version (sw.js CACHE), added to every script the app loads on demand so the browser's HTTP
 // cache never serves one from an earlier deploy. Written by tools/generate-pages.cjs; do not edit by hand.
-const ASSET_V = '?v=mcat-v2.75-cp-pe5-2026-11-16';
+const ASSET_V = '?v=mcat-v2.78-cp-ruleout2-guided-2026-11-17';
 const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'], cpt: ['data/cp-test-cards.js'] };
 const BANK_COUNTS = { fl: 354, flCp: 295, flTests: 6 };
 const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined', cpt: () => typeof CP_TEST_CARDS !== 'undefined' };
@@ -1440,15 +1440,41 @@ function hintArea(view) {
   if (!h) return '';
   // A card with a graph in the question teaches how to read it, on the graph itself, before you answer.
   // The walkthrough can be opened at any time: the button stays above the lesson and restarts it at step 1.
-  if (teachOf(view.q)) return helpButton('teachStep(0)') + (view.teachCur ? teachHtml(view) : '');
+  if (teachOf(view.q)) return helpButton('teachStep(0)') + elimButton(view) + elimThenHtml(view) + (view.teachCur ? teachHtml(view) : '');
   const shown = (level >= 1 ? `<p><b>What it's asking:</b> ${fmt(h.ask)}</p>` : '') + (level >= 2 ? `<div><b>What you need to know:</b>${paragraphs(h.know)}</div>` : '');
   const label = level === 0 ? 'Show me how to start' : level === 1 ? 'Show what I need to know' : '';
-  return `${shown ? `<div class="how-hint" role="status">${shown}</div>` : ''}${label ? `<button class="micro-btn how-btn" id="hint-btn" data-click="showHint()">💡 ${label}</button>` : ''}`;
+  return `${shown ? `<div class="how-hint" role="status">${shown}</div>` : ''}${label ? `<button class="micro-btn how-btn" id="hint-btn" data-click="showHint()">💡 ${label}</button>` : ''}${elimButton(view)}${elimThenHtml(view)}`;
 }
 // "💡 Help me / Show me how": on every card with a lesson, before answering, while thinking and after answering (right
 // or wrong). Before answering it opens the lesson on the question (teachStep); afterwards it opens the worked solution
 // (showLesson). Opening it never blocks answering.
 function helpButton(action) { return `<button class="micro-btn how-btn teach-btn" id="hint-btn" data-click="${action}">💡 Help me / Show me how</button>`; }
+// ── "✂ Rule out 2": the fast elimination a test-taker does before the full work ──
+// A Practice Test flashcard names two wrong choices (q.elim: [{c: index in q.choices, why}]) with the quick rule that
+// kills each (an estimate, the units, the sign, the formula's direction, a common trap) and how to pick between the two
+// left (q.elimThen). The button sits beside Help at any time, before or after answering: it crosses out those two
+// choices, writes each reason under it, and shows the tie-break. The lesson (lessonSteps) opens with the same step.
+function elimOf(q) { return q && !q.variant && !q.baseId && Array.isArray(q.elim) && q.elim.length === 2 && q.elimThen ? q.elim : null; }
+function elimButton(view) { return elimOf(view.q) ? `<button class="micro-btn how-btn elim-btn" id="elim-btn" data-click="ruleOutTwo()" aria-pressed="${!!view.elimShown}">✂ Rule out 2</button>` : ''; }
+function elimThenHtml(view) { return elimOf(view.q) && view.elimShown ? `<div class="how-hint elim-box" id="elim-then" role="status"><b>✂ Two ruled out.</b> ${fmt(view.q.elimThen)}</div>` : ''; }
+// Crosses out the two choices on the answer buttons (by text: a session may show the choices in another order).
+function applyElim(view, prefix = 'cb') {
+  if (!view || !view.elimShown || !elimOf(view.q) || typeof $ !== 'function') return;
+  for (const e of view.q.elim) {
+    const i = view.choices.indexOf(view.q.choices[e.c]), b = i < 0 ? null : $(prefix + '-' + i);
+    if (!b || !b.classList) continue;
+    b.classList.add('elim-out');
+    if (b.querySelector && !b.querySelector('.elim-why')) b.insertAdjacentHTML('beforeend', `<span class="elim-why">✂ ${fmt(e.why)}</span>`);
+  }
+}
+function ruleOutTwo() {
+  const view = quiz.items[quiz.idx];
+  if (!view || !elimOf(view.q)) return;
+  if (!$('cb-0')) revealChoices();
+  view.elimShown = true;
+  if ($('hint-area')) $('hint-area').innerHTML = quiz.answered ? helpButton('showLesson()') + elimButton(view) + elimThenHtml(view) : hintArea(view);
+  applyElim(view);
+}
 // ── "Teach me this graph": steps that label and measure the question's own graph before answering ──
 function teachOf(q) { return q && !q.variant && !q.baseId && Array.isArray(q.teach) && q.teach.length ? q.teach : null; }
 function teachHtml(view) {
@@ -1535,8 +1561,11 @@ function stepVisual(st, ctx) {
 // time (the question's words light up, working lines animate in, wrong choices are crossed out) and ends with the
 // card's Rule to reuse. Back and Next move through it; it never plays on its own.
 function isLessonCard(q) { return typeof isCpt === 'function' && isCpt(q) && !!howOf(q) && !!teachOf(q); }
-function lessonSteps(q) { const rule = teachOf(q).at(-1); return [...howSteps(howOf(q)), { text: rule.text, rule: true }]; }
-function stepperSteps() { return stepper.lesson ? lessonSteps(stepper.q) : howSteps(howOf(stepper.q)); }
+// A card with Rule out 2 opens its lesson with it: the two quick eliminations, then how to pick between the two left.
+function elimStep(q) { return elimOf(q) ? [{ text: '**Rule out 2 first.** Two choices fall to a quick check before any full working.', strike: q.elim.map(e => q.choices[e.c]), calc: [...q.elim.map(e => '✗ ' + q.choices[e.c] + ': ' + e.why), 'Then: ' + q.elimThen] }] : []; }
+function lessonSteps(q) { const rule = teachOf(q).at(-1); return [...elimStep(q), ...howSteps(howOf(q)), { text: rule.text, rule: true }]; }
+// A guided Practice Exam card's walkthrough also opens with Rule out 2 when the card has it.
+function stepperSteps() { return stepper.lesson ? lessonSteps(stepper.q) : [...elimStep(stepper.q), ...howSteps(howOf(stepper.q))]; }
 function lessonPlayerHtml() {
   const { q, cur, ctx } = stepper, steps = lessonSteps(q), n = steps.length, st = steps[cur - 1], h = howOf(q);
   return `<div class="lesson-title">Here's how to solve it — step ${cur} of ${n}</div>
@@ -1569,7 +1598,7 @@ function showLesson() {
 }
 function howPlayerHtml() {
   if (stepper.lesson) return lessonPlayerHtml();
-  const { q, cur, ctx } = stepper, h = howOf(q), steps = howSteps(h), n = steps.length;
+  const { q, cur, ctx } = stepper, h = howOf(q), steps = stepperSteps(), n = steps.length;
   const list = steps.slice(0, cur).map((st, i) => `<li class="how-step${i === cur - 1 ? ' current' : ''}"><span class="step-text">${fmt(st.text)}</span>${i === cur - 1 ? stepVisual(st, ctx) : ''}</li>`).join('');
   return `<ol class="how-steps">${list}</ol>
     ${cur >= n && h.trap ? `<p class="how-trap"><b>4. The trap:</b> ${fmt(h.trap)}</p>` : ''}
@@ -1644,7 +1673,7 @@ function howStep(delta, auto) {
 function howBox(q, opts = {}) {
   const h = howOf(q);
   if (!h) return '';
-  const steps = howSteps(h);
+  const steps = [...elimStep(q), ...howSteps(h)];
   const head = `<div class="how-title">How to work it out</div>
     <p><b>1. What it's asking:</b> ${fmt(h.ask)}</p>
     <div><b>2. What you need to know:</b>${paragraphs(h.know)}</div>`;
@@ -1663,6 +1692,7 @@ function revealChoices() {
   view.revealed = true;
   view.revealedAt = Date.now();
   $('choices-area').innerHTML = choiceButtons(view.choices, 'pick', { view });
+  applyElim(view);
 }
 function flagCurrent() {
   const q = quiz.items[quiz.idx].q;
@@ -1704,7 +1734,7 @@ function finishPick(chosen, other = null, answerMs = null) {
       : howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null } }));
   if (isLessonCard(view.q) && right) stepper = null;
   // The help button stays after the answer: it opens the worked solution from step 1.
-  if ($('hint-area')) $('hint-area').innerHTML = howOf(view.q) ? helpButton('showLesson()') : '';
+  if ($('hint-area')) $('hint-area').innerHTML = howOf(view.q) ? helpButton('showLesson()') + elimButton(view) + elimThenHtml(view) : '';
   // A hinted answer was not pure recall: it starts as Unsure so the card comes back (you can change it)
   if (view.hint) quiz.pending.conf = 'unsure';
   if (howOf(view.q)) applyStepContext();
