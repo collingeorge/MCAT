@@ -134,6 +134,7 @@ assert(cm <= 3, 'choice median ' + cm + ' words (≤ 3)'); assert(c90 <= 9, 'cho
 const LOCANT = /\b\d+(?:,\d+)*-(?=[\p{L}(])|(?<=[\p{L})])-\d+(?:,\d+)*\b/gu;   // 2-bromo, 1,2-shift, pent-2-ene
 // The base of a power of ten ("× 10⁻⁴", "10³") is notation, not a data number.
 const dataNums = t => numsOf(strip(t).replace(LOCANT, ' ').replace(/(×\s*)?\b10(?=[⁻⁰¹²³⁴⁵⁶⁷⁸⁹])/g, ' '));
+const lessonText = c => { const h = c.how || {}; return [h.ask, h.know, h.trap, ...(h.steps || []).flatMap(st => [st.text, ...(st.calc || [])]), ...(c.teach || []).flatMap(t => [t.text, ...(t.calc || []), ...(t.marks || []).map(m => m.note)])].filter(Boolean).join(' \n '); };
 for (const c of CARDS) for (const s of new Set(c.from.map(r => r.split('#')[0]))) {
   const src = PE.get(s), srcNums = dataNums(src.q + ' ' + src.choices.join(' '));
   const shared = [...dataNums(c.q + ' ' + c.choices.join(' '))].filter(n => srcNums.has(n));
@@ -147,6 +148,12 @@ for (const c of CARDS) for (const s of new Set(c.from.map(r => r.split('#')[0]))
   const srcText = [src.q, ...src.choices, src.exp].join(' \n '), g = grams(srcText, 6);
   const run6 = [...grams([c.q, ...c.choices, c.exp].join(' \n '), 6)].find(x => g.has(x));
   assert(!run6, c.id + ': shares the 6-word run "' + run6 + '" with ' + s);
+  // The lesson too (how and teach): no 6-word run of prose shared with the source card. A run that is mostly symbols,
+  // numbers or one-letter variables (a formula such as "E cell = E cathode − E anode") is a standard formula, not
+  // copied wording, so it needs at least 4 words of 3+ letters to count.
+  const prose = x => x.split(' ').filter(w => /^\p{L}{3,}$/u.test(w)).length >= 4;
+  const lrun = [...grams(lessonText(c), 6)].find(x => g.has(x) && prose(x));
+  assert(!lrun, c.id + ': its lesson shares the 6-word run "' + lrun + '" with ' + s);
   // A numeric key ("0.50", "4.0 Hz"), not a locant in a name ("3-Methylpent-1-ene", "1,2-shift").
   const SUP = { '⁻': '-', '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9' };
   const keyNum = t => {
