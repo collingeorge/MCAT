@@ -150,7 +150,7 @@ const dataNums = t => numsOf(strip(t).replace(LOCANT, ' ').replace(/(×\s*)?\b10
 const KEY_SUB = { '₀': '0', '₁': '1', '₂': '2', '₃': '3', '₄': '4', '₅': '5', '₆': '6', '₇': '7', '₈': '8', '₉': '9', '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9', '⁺': '+', '⁻': '-' };
 const KEY_STOP = new Set('a an the of to in on at by for from with and or but so as is are was were be it its this that since because which than then into their they both each only'.split(' '));
 const keyNorm = t => String(t).toLowerCase().replace(/[₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]/g, ch => KEY_SUB[ch]).replace(/[^a-z0-9+\-. ]+/g, ' ').replace(/\s+/g, ' ').trim()
-  .replace(/\bd2sp3\b/g, 'sp3d2').replace(/\bdsp3\b/g, 'sp3d').replace(/^(a|an|the) /, '').replace(/ (group|point)s?$/, '');
+  .replace(/\bd2sp3\b/g, 'sp3d2').replace(/\bdsp3\b/g, 'sp3d').replace(/^(a|an|the) /, '').replace(/ (group|point|bond|bonding)s?$/, '');
 const keyWords = t => keyNorm(t).split(' ').filter(w => w && !KEY_STOP.has(w));
 const lessonText = c => { const h = c.how || {}; return [...(c.elim || []).map(e => e.why), c.elimThen, h.ask, h.know, h.trap, ...(h.steps || []).flatMap(st => [st.text, ...(st.calc || [])]), ...(c.teach || []).flatMap(t => [t.text, ...(t.calc || []), ...(t.marks || []).map(m => m.note)])].filter(Boolean).join(' \n '); };
 for (const c of CARDS) for (const s of new Set(c.from.map(r => r.split('#')[0]))) {
@@ -184,7 +184,7 @@ for (const c of CARDS) for (const s of new Set(c.from.map(r => r.split('#')[0]))
   assert(kn === null || sn === null || kn !== sn, c.id + ': its key number equals ' + s + "'s key number (" + kn + ')');
   for (const ch of c.choices) if (words(ch) >= 3) assert(!src.choices.some(x => norm(x) === norm(ch)), c.id + ': shares the answer choice "' + ch + '" with ' + s);
   // Compare keys by meaning, not just spelling: the card's key must not be the source card's correct choice once both
-  // are normalized (subscripts/superscripts to digits; a leading a/an/the and a trailing group/point dropped;
+  // are normalized (subscripts/superscripts to digits; a leading a/an/the and a trailing group/point/bond/bonding dropped;
   // d²sp³ = sp³d², dsp³ = sp³d; the source key read up to its reason, i.e. before ", since …", "; …"), nor may the
   // shorter of the two (up to 3 content words) be contained in the longer ("a photon" ⊂ "A gamma photon").
   // CPT_KEYMEAN_ONLY=id,id (a fixer's working copy only): check just those cards.
