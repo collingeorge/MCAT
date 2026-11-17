@@ -30,7 +30,8 @@ const TABLE = process.argv.includes('--table');
 const data = vm.createContext({});
 // CPT_FILE=<path>: check another file of cards (a writer's batch) for parts 1–3 only; part 4 runs on the app's deck.
 const CPT_FILE = process.env.CPT_FILE || root + '/data/cp-test-cards.js';
-for (const f of [root + '/data/qb-aamc-fl.js', CPT_FILE]) vm.runInContext(fs.readFileSync(f, 'utf8').replace(/^const /mg, 'var '), data, { filename: f });
+// CPT_FL_FILE=<path>: a writer's working copy of qb-aamc-fl.js (Rule out 2 batches).
+for (const f of [process.env.CPT_FL_FILE || root + '/data/qb-aamc-fl.js', CPT_FILE]) vm.runInContext(fs.readFileSync(f, 'utf8').replace(/^const /mg, 'var '), data, { filename: f });
 const FL = data.QB_AAMC_FL, CARDS = data.CP_TEST_CARDS;
 const PE_RE = /^pe[13456]-cp:\d+$/;
 const PE = new Map(FL.filter(q => PE_RE.test(q.src)).map(q => [q.src, q]));
@@ -220,8 +221,27 @@ for (const [f, sha] of Object.entries(MAIN_SHA)) assert.equal(crypto.createHash(
 assert.deepEqual(fs.readdirSync(root + '/data').filter(f => /^qb-/.test(f)).sort(), [...Object.keys(MAIN_SHA), 'qb-aamc-fl.js'].sort(), 'no QBank file added, renamed or removed');
 // qb-aamc-fl.js: only the 17 Practice Exam cards the user approved for rewriting (they reused the AAMC question's own
 // numbers) changed; every other card, the 59 Sample Test cards included, is exactly as on main.
+const MASTERY_PE_RE = /^pe\d-cp:\d+$/;
 const REWRITTEN = new Set(['pe1-cp:3', 'pe1-cp:42', 'pe3-cp:7', 'pe3-cp:19', 'pe3-cp:34', 'pe3-cp:39', 'pe3-cp:45', 'pe4-cp:15', 'pe4-cp:22', 'pe4-cp:38', 'pe4-cp:53', 'pe4-cp:54', 'pe5-cp:15', 'pe5-cp:24', 'pe5-cp:49', 'pe5-cp:50', 'pe5-cp:56']);
-assert.equal(crypto.createHash('sha256').update(JSON.stringify(FL.filter(q => !REWRITTEN.has(q.src)))).digest('hex'), '723535cabc35911d6f679fbe0910a422e9c8f2708066bb47329721d7cce25eda', 'qb-aamc-fl.js: every card but the 17 approved rewrites is unchanged from main');
+// The only other change the user approved: the "Rule out 2" fields (elim, elimThen) on the 295 Practice Exam cards.
+// With those two fields set aside, every card is exactly as approved: the 337 untouched ones as on main, the 17
+// rewrites as approved.
+const sansElim = q => { const { elim, elimThen, ...rest } = q; return rest; };
+assert.equal(crypto.createHash('sha256').update(JSON.stringify(FL.filter(q => !REWRITTEN.has(q.src)).map(sansElim))).digest('hex'), '723535cabc35911d6f679fbe0910a422e9c8f2708066bb47329721d7cce25eda', 'qb-aamc-fl.js: every card but the 17 approved rewrites is unchanged from main (apart from Rule out 2)');
+assert.equal(crypto.createHash('sha256').update(JSON.stringify(FL.filter(q => REWRITTEN.has(q.src)).map(sansElim))).digest('hex'), 'ff97b9ea57409f7732d1344fb4f72cf609e9d2a46f3938baafd82a42802f1d44', 'qb-aamc-fl.js: the 17 approved rewrites are as approved (apart from Rule out 2)');
+// Rule out 2 on every guided Practice Exam card (PE1/3/4/5/6), the same shape as on the flashcards; Sample Test
+// cards are left alone. CPT_ELIM_PENDING=1 (a writer's working copy) skips cards that don't have it yet.
+for (const q of FL) {
+  const pe = MASTERY_PE_RE.test(q.src), id = q.src;
+  if (!pe) { assert.equal(q.elim, undefined, id + ': Sample Test cards are left alone (no elim)'); continue; }
+  if (process.env.CPT_ELIM_PENDING && q.elim === undefined) continue;
+  assert(Array.isArray(q.elim) && q.elim.length === 2 && q.elim[0].c !== q.elim[1].c, id + ': elim names exactly two different choices');
+  for (const e of q.elim) {
+    assert(Number.isInteger(e.c) && e.c >= 0 && e.c < q.choices.length && e.c !== q.ans, id + ': elim never points at the key');
+    assert(typeof e.why === 'string' && e.why.trim() && e.why.length <= 160, id + ': elim reason is one short line (≤ 160 characters)');
+  }
+  assert(typeof q.elimThen === 'string' && q.elimThen.trim() && q.elimThen.length <= 200, id + ': elimThen (≤ 200 characters)');
+}
 assert.equal(FL.length, 354, 'qb-aamc-fl.js keeps its 354 cards');
 
 const storage = new Map(), node = () => ({ innerHTML: '', textContent: '', value: '', hidden: true, style: {}, dataset: {}, classList: { toggle() {}, add() {}, remove() {} }, setAttribute() {}, focus() {}, scrollIntoView() {}, remove() {}, querySelectorAll() { return []; } });

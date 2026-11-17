@@ -1443,7 +1443,7 @@ function hintArea(view) {
   if (teachOf(view.q)) return helpButton('teachStep(0)') + elimButton(view) + elimThenHtml(view) + (view.teachCur ? teachHtml(view) : '');
   const shown = (level >= 1 ? `<p><b>What it's asking:</b> ${fmt(h.ask)}</p>` : '') + (level >= 2 ? `<div><b>What you need to know:</b>${paragraphs(h.know)}</div>` : '');
   const label = level === 0 ? 'Show me how to start' : level === 1 ? 'Show what I need to know' : '';
-  return `${shown ? `<div class="how-hint" role="status">${shown}</div>` : ''}${label ? `<button class="micro-btn how-btn" id="hint-btn" data-click="showHint()">💡 ${label}</button>` : ''}`;
+  return `${shown ? `<div class="how-hint" role="status">${shown}</div>` : ''}${label ? `<button class="micro-btn how-btn" id="hint-btn" data-click="showHint()">💡 ${label}</button>` : ''}${elimButton(view)}${elimThenHtml(view)}`;
 }
 // "💡 Help me / Show me how": on every card with a lesson, before answering, while thinking and after answering (right
 // or wrong). Before answering it opens the lesson on the question (teachStep); afterwards it opens the worked solution
@@ -1564,7 +1564,8 @@ function isLessonCard(q) { return typeof isCpt === 'function' && isCpt(q) && !!h
 // A card with Rule out 2 opens its lesson with it: the two quick eliminations, then how to pick between the two left.
 function elimStep(q) { return elimOf(q) ? [{ text: '**Rule out 2 first.** Two choices fall to a quick check before any full working.', strike: q.elim.map(e => q.choices[e.c]), calc: [...q.elim.map(e => '✗ ' + q.choices[e.c] + ': ' + e.why), 'Then: ' + q.elimThen] }] : []; }
 function lessonSteps(q) { const rule = teachOf(q).at(-1); return [...elimStep(q), ...howSteps(howOf(q)), { text: rule.text, rule: true }]; }
-function stepperSteps() { return stepper.lesson ? lessonSteps(stepper.q) : howSteps(howOf(stepper.q)); }
+// A guided Practice Exam card's walkthrough also opens with Rule out 2 when the card has it.
+function stepperSteps() { return stepper.lesson ? lessonSteps(stepper.q) : [...elimStep(stepper.q), ...howSteps(howOf(stepper.q))]; }
 function lessonPlayerHtml() {
   const { q, cur, ctx } = stepper, steps = lessonSteps(q), n = steps.length, st = steps[cur - 1], h = howOf(q);
   return `<div class="lesson-title">Here's how to solve it — step ${cur} of ${n}</div>
@@ -1597,7 +1598,7 @@ function showLesson() {
 }
 function howPlayerHtml() {
   if (stepper.lesson) return lessonPlayerHtml();
-  const { q, cur, ctx } = stepper, h = howOf(q), steps = howSteps(h), n = steps.length;
+  const { q, cur, ctx } = stepper, h = howOf(q), steps = stepperSteps(), n = steps.length;
   const list = steps.slice(0, cur).map((st, i) => `<li class="how-step${i === cur - 1 ? ' current' : ''}"><span class="step-text">${fmt(st.text)}</span>${i === cur - 1 ? stepVisual(st, ctx) : ''}</li>`).join('');
   return `<ol class="how-steps">${list}</ol>
     ${cur >= n && h.trap ? `<p class="how-trap"><b>4. The trap:</b> ${fmt(h.trap)}</p>` : ''}
@@ -1672,7 +1673,7 @@ function howStep(delta, auto) {
 function howBox(q, opts = {}) {
   const h = howOf(q);
   if (!h) return '';
-  const steps = howSteps(h);
+  const steps = [...elimStep(q), ...howSteps(h)];
   const head = `<div class="how-title">How to work it out</div>
     <p><b>1. What it's asking:</b> ${fmt(h.ask)}</p>
     <div><b>2. What you need to know:</b>${paragraphs(h.know)}</div>`;
