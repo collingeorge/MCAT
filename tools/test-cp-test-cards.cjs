@@ -227,7 +227,11 @@ const REWRITTEN = new Set(['pe1-cp:3', 'pe1-cp:42', 'pe3-cp:7', 'pe3-cp:19', 'pe
 // With those two fields set aside, every card is exactly as approved: the 337 untouched ones as on main, the 17
 // rewrites as approved.
 const sansElim = q => { const { elim, elimThen, ...rest } = q; return rest; };
-assert.equal(crypto.createHash('sha256').update(JSON.stringify(FL.filter(q => !REWRITTEN.has(q.src)).map(sansElim))).digest('hex'), '723535cabc35911d6f679fbe0910a422e9c8f2708066bb47329721d7cce25eda', 'qb-aamc-fl.js: every card but the 17 approved rewrites is unchanged from main (apart from Rule out 2)');
+// Two explanation fixes the user approved (2026-11-17): pe3-cp:28 (the curve flattens as product builds up, not
+// because substrate runs out) and pe5-cp:38 (the octanol/water ratio is not the ether/water ratio).
+const FIXED = new Set(['pe3-cp:28', 'pe5-cp:38']);
+assert.equal(crypto.createHash('sha256').update(JSON.stringify(FL.filter(q => !REWRITTEN.has(q.src) && !FIXED.has(q.src)).map(sansElim))).digest('hex'), '779611d17648dec02b39a327bd38e2504c7c6f3ebfdd0b21ed74052dff24210e', 'qb-aamc-fl.js: every card but the 17 approved rewrites and 2 approved fixes is unchanged from main (apart from Rule out 2)');
+assert.equal(crypto.createHash('sha256').update(JSON.stringify(FL.filter(q => FIXED.has(q.src)).map(sansElim))).digest('hex'), '47807ba9d1a81a8b5774119e1a85398d9cf7cc9bd06b9c458bac7fefd4b94aba', 'qb-aamc-fl.js: the 2 approved explanation fixes are as approved');
 assert.equal(crypto.createHash('sha256').update(JSON.stringify(FL.filter(q => REWRITTEN.has(q.src)).map(sansElim))).digest('hex'), 'ff97b9ea57409f7732d1344fb4f72cf609e9d2a46f3938baafd82a42802f1d44', 'qb-aamc-fl.js: the 17 approved rewrites are as approved (apart from Rule out 2)');
 // Rule out 2 on every guided Practice Exam card (PE1/3/4/5/6), the same shape as on the flashcards; Sample Test
 // cards are left alone. CPT_ELIM_PENDING=1 (a writer's working copy) skips cards that don't have it yet.
