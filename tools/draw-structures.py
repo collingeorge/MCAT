@@ -1334,10 +1334,10 @@ add('cpt-pe5-methyl-propanoate', "CCC(=O)OC", formula='C4H8O2', centers=0)
 # end PE5 writer 4
 
 # ── PE6 writer 1 structures (add(...) lines here only) ──
-# cpt-pe6-01a: IR choices (with cyclohexanol, cyclohexanone); cpt-pe6-27a: which compound shows a 6H doublet (with 1-propanol, cpt-ethanol).
+# cpt-pe6-01a: IR choices (with cyclohexanol, cyclohexanone); cpt-pe6-27a: which compound shows a 6H doublet (key 2-methyl-1-propanol) (with 1-propanol, cpt-ethanol).
 add('cpt-pe6-cyclohexene', 'C1=CCCCC1', formula='C6H10')
 add('cpt-pe6-hexanoic-acid', 'CCCCCC(=O)O', formula='C6H12O2')
-add('cpt-pe6-2-propanol', 'CC(C)O', formula='C3H8O')
+add('cpt-pe6-isobutanol', 'CC(C)CO', formula='C4H10O')
 add('cpt-pe6-mtbe', 'COC(C)(C)C', formula='C5H12O')
 # end PE6 writer 1
 
