@@ -58,6 +58,45 @@ const ALL_BUILT = BUILT.length === PE.size;
 const strip = t => String(t == null ? '' : t).replace(/<[^>]+>/g, ' ').replace(/\*\*/g, '');
 const words = t => strip(t).trim().split(/\s+/).filter(Boolean).length;
 const ids = new Set(), stems = new Map(), bySrc = new Map([...PE.keys()].map(s => [s, []])), byItem = new Map(SPEC.items.map(it => [it.ref, []]));
+// Rule out 3 (flashcards and guided cards): exactly three entries {c, tag, why}, one per wrong choice, never the key;
+// tag is one of the six checks and the entries run in check order; each why ≤ 160 characters; a rule ≤ 200
+// characters; no elimThen. No give-away: no why and no rule contains the correct choice's text, or (for a numeric
+// choice) its number (whole numbers 0–10 aside; a power of ten such as 10³ is read as 10^3, not 103).
+const ELIM_TAGS = ['impossible', 'units', 'backwards', 'skipped', 'copied', 'fact'];
+const GIVE_SUB = { '₀': '0', '₁': '1', '₂': '2', '₃': '3', '₄': '4', '₅': '5', '₆': '6', '₇': '7', '₈': '8', '₉': '9', '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9', '⁻': '-', '⁺': '+' };
+const giveNorm = t => String(t).replace(/<[^>]+>|\*\*/g, '').replace(/10([⁻⁺]?[⁰¹²³⁴-⁹]+)/g, (m, e) => '10^(' + e + ')').replace(/[₀-₉⁰¹²³⁴-⁹⁺⁻]/g, ch => GIVE_SUB[ch] || ch).toLowerCase().replace(/\s+/g, ' ').replace(/[.;:,]+$/, '').trim();
+const giveNums = t => (giveNorm(t).replace(/(\d),(\d{3})/g, '$1$2').match(/\d+(?:\.\d+)?/g) || []).map(Number).filter(n => !(Number.isInteger(n) && n <= 10));
+function giveAway(key, text) {
+  const k = giveNorm(key), t = giveNorm(text);
+  if (k.length >= 3) { const at = t.indexOf(k); if (at >= 0 && !/[a-z0-9]/.test(t[at - 1] || '') && !/[a-z0-9]/.test(t[at + k.length] || '')) return 'its text'; }
+  else if (new RegExp('(^|[^A-Za-z0-9])' + String(key).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^A-Za-z0-9]|$)').test(String(text))) return 'its text';
+  const kn = giveNums(key), tn = new Set(giveNums(text));
+  const hit = kn.find(n => tn.has(n));
+  return hit != null ? 'its number ' + hit : null;
+}
+// ⚡ Shortcut: one of six kinds, the fastest repeatable route (it may lead to the answer). CPT_FAST_PENDING=1 (a
+// writer's working copy only) skips cards that don't have one yet.
+const FAST_KINDS = ['units', 'rearrange', 'round', 'scale', 'edge', 'anchor'];
+function checkFast(q, id) {
+  if (process.env.CPT_FAST_PENDING && q.fast === undefined) return;
+  assert(q.fast && FAST_KINDS.includes(q.fast.kind), id + ': a shortcut of one of the six kinds');
+  assert(typeof q.fast.how === 'string' && q.fast.how.trim() && q.fast.how.length <= 240, id + ': the shortcut is short (≤ 240 characters): ' + ((q.fast && q.fast.how) || '').length);
+}
+function checkElim3(q, id) {
+  checkFast(q, id);
+  assert(Array.isArray(q.elim) && q.elim.length === 3, id + ': Rule out 3 names exactly three choices');
+  assert.equal(new Set(q.elim.map(e => e.c)).size, 3, id + ': three different choices');
+  for (const e of q.elim) {
+    assert(Number.isInteger(e.c) && e.c >= 0 && e.c < q.choices.length && e.c !== q.ans, id + ': Rule out 3 never points at the key');
+    assert(ELIM_TAGS.includes(e.tag), id + ': tag "' + e.tag + '" is one of the six checks');
+    assert(typeof e.why === 'string' && e.why.trim() && e.why.length <= 160, id + ': reason is one short line (≤ 160 characters): ' + (e.why || '').length);
+  }
+  assert(q.elim.every((e, i) => !i || ELIM_TAGS.indexOf(q.elim[i - 1].tag) <= ELIM_TAGS.indexOf(e.tag)), id + ': reasons run in check order (1 → 6)');
+  assert(typeof q.rule === 'string' && q.rule.trim() && q.rule.length <= 200, id + ': a 3-second rule (≤ 200 characters)');
+  assert.equal(q.elimThen, undefined, id + ': no elimThen (it named the answer)');
+  const key = q.choices[q.ans];
+  for (const text of [...q.elim.map(e => e.why), q.rule]) { const g = giveAway(key, text); assert(!g, id + ': Rule out 3 gives the answer away (' + g + ' "' + key + '"): ' + text); }
+}
 for (const c of CARDS) {
   const id = c.id;
   assert(typeof id === 'string' && /^cpt-pe[13456]-\d{2}[a-z]$/.test(id), 'id format: ' + id);
@@ -103,18 +142,11 @@ for (const c of CARDS) {
     for (const m of st.marks || []) assert(typeof m.t === 'string' && c.q.includes(m.t) && typeof m.note === 'string', id + ': teach mark "' + m.t + '" is in the stem');
   }
   assert(/^\*\*Rule to reuse:\*\* \S/.test(c.teach.at(-1).text), id + ': the last teach step starts "Rule to reuse:"');
-  // Rule out 2: every card names exactly two wrong choices with the quick rule that kills each (a trap, unit, sign,
-  // estimate or the formula's direction; pure recall gets the closest true rule), then how to pick between the two
-  // left (elimThen). The ✂ Rule out 2 button and the lesson's first step show them.
-  // CPT_ELIM_PENDING=1 (a writer's working copy only): cards that don't have elim yet are skipped; any elim is checked.
-  if (process.env.CPT_ELIM_PENDING && c.elim === undefined) continue;
-  assert(Array.isArray(c.elim) && c.elim.length === 2, id + ': elim names exactly two choices');
-  assert.notEqual(c.elim[0].c, c.elim[1].c, id + ': elim names two different choices');
-  for (const e of c.elim) {
-    assert(Number.isInteger(e.c) && e.c >= 0 && e.c < c.choices.length && e.c !== c.ans, id + ': elim never points at the key');
-    assert(typeof e.why === 'string' && e.why.trim() && e.why.length <= 160, id + ': elim reason is one short line (≤ 160 characters): ' + (e.why || '').length);
-  }
-  assert(typeof c.elimThen === 'string' && c.elimThen.trim() && c.elimThen.length <= 200, id + ': elimThen says how to choose between the two left (≤ 200 characters)');
+  // Rule out 3: every card names its three wrong choices, each with the check that kills it (one of the six, in check
+  // order) and a one-line reason, plus a reusable 3-second rule; none of it names the correct choice (checkElim3).
+  // CPT_ELIM_PENDING=1 (a writer's working copy only): cards still in the old format (no rule) are skipped.
+  if (process.env.CPT_ELIM_PENDING && c.rule === undefined) continue;
+  checkElim3(c, id);
 }
 const uncovered = BUILT.filter(s => !bySrc.get(s).length);
 assert.deepEqual(uncovered, [], 'every Practice Exam question written so far has at least one flashcard');
@@ -152,7 +184,7 @@ const KEY_STOP = new Set('a an the of to in on at by for from with and or but so
 const keyNorm = t => String(t).toLowerCase().replace(/[₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]/g, ch => KEY_SUB[ch]).replace(/[^a-z0-9+\-. ]+/g, ' ').replace(/\s+/g, ' ').trim()
   .replace(/\bd2sp3\b/g, 'sp3d2').replace(/\bdsp3\b/g, 'sp3d').replace(/^(a|an|the) /, '').replace(/ (group|point|bond|bonding)s?$/, '');
 const keyWords = t => keyNorm(t).split(' ').filter(w => w && !KEY_STOP.has(w));
-const lessonText = c => { const h = c.how || {}; return [...(c.elim || []).map(e => e.why), c.elimThen, h.ask, h.know, h.trap, ...(h.steps || []).flatMap(st => [st.text, ...(st.calc || [])]), ...(c.teach || []).flatMap(t => [t.text, ...(t.calc || []), ...(t.marks || []).map(m => m.note)])].filter(Boolean).join(' \n '); };
+const lessonText = c => { const h = c.how || {}; return [...(c.elim || []).map(e => e.why), c.rule, c.fast && c.fast.how, h.ask, h.know, h.trap, ...(h.steps || []).flatMap(st => [st.text, ...(st.calc || [])]), ...(c.teach || []).flatMap(t => [t.text, ...(t.calc || []), ...(t.marks || []).map(m => m.note)])].filter(Boolean).join(' \n '); };
 for (const c of CARDS) for (const s of new Set(c.from.map(r => r.split('#')[0]))) {
   const src = PE.get(s), srcNums = dataNums(src.q + ' ' + src.choices.join(' '));
   const shared = [...dataNums(c.q + ' ' + c.choices.join(' '))].filter(n => srcNums.has(n));
@@ -237,28 +269,23 @@ assert.deepEqual(fs.readdirSync(root + '/data').filter(f => /^qb-/.test(f)).sort
 // numbers) changed; every other card, the 59 Sample Test cards included, is exactly as on main.
 const MASTERY_PE_RE = /^pe\d-cp:\d+$/;
 const REWRITTEN = new Set(['pe1-cp:3', 'pe1-cp:42', 'pe3-cp:7', 'pe3-cp:19', 'pe3-cp:34', 'pe3-cp:39', 'pe3-cp:45', 'pe4-cp:15', 'pe4-cp:22', 'pe4-cp:38', 'pe4-cp:53', 'pe4-cp:54', 'pe5-cp:15', 'pe5-cp:24', 'pe5-cp:49', 'pe5-cp:50', 'pe5-cp:56']);
-// The only other change the user approved: the "Rule out 2" fields (elim, elimThen) on the 295 Practice Exam cards.
+// The only other change the user approved: the "Rule out" fields (elim, rule; formerly elimThen) on the 295 Practice Exam cards.
 // With those two fields set aside, every card is exactly as approved: the 337 untouched ones as on main, the 17
 // rewrites as approved.
-const sansElim = q => { const { elim, elimThen, ...rest } = q; return rest; };
+const sansElim = q => { const { elim, elimThen, rule, fast, ...rest } = q; return rest; };
 // Two explanation fixes the user approved (2026-11-17): pe3-cp:28 (the curve flattens as product builds up, not
 // because substrate runs out) and pe5-cp:38 (the octanol/water ratio is not the ether/water ratio).
 const FIXED = new Set(['pe3-cp:28', 'pe5-cp:38']);
 assert.equal(crypto.createHash('sha256').update(JSON.stringify(FL.filter(q => !REWRITTEN.has(q.src) && !FIXED.has(q.src)).map(sansElim))).digest('hex'), '779611d17648dec02b39a327bd38e2504c7c6f3ebfdd0b21ed74052dff24210e', 'qb-aamc-fl.js: every card but the 17 approved rewrites and 2 approved fixes is unchanged from main (apart from Rule out 2)');
 assert.equal(crypto.createHash('sha256').update(JSON.stringify(FL.filter(q => FIXED.has(q.src)).map(sansElim))).digest('hex'), '47807ba9d1a81a8b5774119e1a85398d9cf7cc9bd06b9c458bac7fefd4b94aba', 'qb-aamc-fl.js: the 2 approved explanation fixes are as approved');
 assert.equal(crypto.createHash('sha256').update(JSON.stringify(FL.filter(q => REWRITTEN.has(q.src)).map(sansElim))).digest('hex'), 'ff97b9ea57409f7732d1344fb4f72cf609e9d2a46f3938baafd82a42802f1d44', 'qb-aamc-fl.js: the 17 approved rewrites are as approved (apart from Rule out 2)');
-// Rule out 2 on every guided Practice Exam card (PE1/3/4/5/6), the same shape as on the flashcards; Sample Test
-// cards are left alone. CPT_ELIM_PENDING=1 (a writer's working copy) skips cards that don't have it yet.
+// Rule out 3 on every guided Practice Exam card (PE1/3/4/5/6), the same shape as on the flashcards; Sample Test
+// cards are left alone. CPT_ELIM_PENDING=1 (a writer's working copy) skips cards still in the old format (no rule).
 for (const q of FL) {
   const pe = MASTERY_PE_RE.test(q.src), id = q.src;
   if (!pe) { assert.equal(q.elim, undefined, id + ': Sample Test cards are left alone (no elim)'); continue; }
-  if (process.env.CPT_ELIM_PENDING && q.elim === undefined) continue;
-  assert(Array.isArray(q.elim) && q.elim.length === 2 && q.elim[0].c !== q.elim[1].c, id + ': elim names exactly two different choices');
-  for (const e of q.elim) {
-    assert(Number.isInteger(e.c) && e.c >= 0 && e.c < q.choices.length && e.c !== q.ans, id + ': elim never points at the key');
-    assert(typeof e.why === 'string' && e.why.trim() && e.why.length <= 160, id + ': elim reason is one short line (≤ 160 characters)');
-  }
-  assert(typeof q.elimThen === 'string' && q.elimThen.trim() && q.elimThen.length <= 200, id + ': elimThen (≤ 200 characters)');
+  if (process.env.CPT_ELIM_PENDING && q.rule === undefined) continue;
+  checkElim3(q, id);
 }
 assert.equal(FL.length, 354, 'qb-aamc-fl.js keeps its 354 cards');
 
@@ -345,6 +372,7 @@ assert(frontSeen > 0, 'the flashcards built from a missed twin led their categor
     assert(r.withMiss.filter(id => id !== 'bio-missed').every(id => /^[pc]/.test(id)), 'the mix fills the other slots'); }
   // The TODAY card describes the C/P steps as they are now: no QBank anywhere.
   assert(!/QBank/i.test(html), 'TODAY never says QBank for C/P');
+  { const f = html.slice(html.indexOf('<b>Flashcards')); assert(/Rule out 3: the 6 checks/.test(f.slice(0, f.indexOf('</li>'))) && ['Impossible', 'Units / ×10', 'Backwards', 'Skipped step', 'Copied number', 'Wrong fact'].every(k => f.includes(k)), 'the six checks sit at the top of the C/P flashcard step'); }
   assert(html.includes('flashcards built from the C/P questions of AAMC Practice Exams 1, 3, 4, 5 and 6') && html.includes('Help me / Show me how') && html.includes('Split exactly like the exam') && html.includes('Weakest categories first'), 'step 1 says what it does now');
 }
 // A full day: on a fresh day the flashcard step plans exactly 50 at the AAMC split, with no shortfall moved between

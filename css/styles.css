@@ -871,6 +871,13 @@ mark.step-hl{background:#fde68a;color:inherit;padding:0 2px;border-radius:2px;an
 .elim-why{display:block;flex-basis:100%;margin-top:6px;font-size:16px;line-height:1.4;color:#7c2d12;text-decoration:none}
 .elim-btn{margin-left:8px;background:#f0f9ff;border-color:#0369a1;color:#0c4a6e;font-weight:700;font-size:16px;padding:10px 16px}
 .elim-box{font-size:16px}
+.fast-btn{margin-left:8px;background:#fefce8;border-color:#a16207;color:#713f12;font-weight:700;font-size:16px;padding:10px 16px}
+.elim-how-btn{margin-left:8px;font-size:16px;padding:10px 12px}
+.elim-checks table{border-collapse:collapse;width:100%;margin-top:8px}
+.elim-checks td{font-size:16px;padding:6px 8px;border-top:1px solid var(--border-med);vertical-align:top}
+.elim-checks td:first-child{white-space:nowrap}
+.elim-ex{display:block;color:var(--text-muted,#555);font-size:16px}
+@media (max-width:480px){.elim-checks td:first-child{white-space:normal}}
 @media (prefers-reduced-motion:reduce){.calc-line,.strike-line{animation:none}}
 .step-visual .struct-img{min-height:80px;max-height:170px}
 /* Guided walkthrough: autoplay controls and progress */
