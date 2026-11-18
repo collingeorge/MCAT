@@ -258,27 +258,35 @@ async function main() {
     assert.equal(await evaluate(opened),true,label+': after a '+(right?'right':'wrong')+' answer it opens the worked solution');
    }
   }
-  // "✂ Rule out 2" sits beside Help on every flashcard. Before answering it crosses out exactly two wrong choices,
-  // writes each one's quick reason under it (16 px or more) and says how to pick between the two left; answering
-  // still works, and the button stays after the answer.
-  // The same on the guided Practice Exam cards (step 2), whose walkthrough also opens with Rule out 2.
+  // "✂ Rule out 3" sits beside Help on every flashcard and guided card. Before answering it crosses out exactly the three
+  // wrong choices, writes each one's check and reason under it (16 px or more), shows the 3-second rule once below the
+  // choices, never marks the choice that is left, and opens the six checks the first time; answering still works, and
+  // the buttons stay after the answer. The guided walkthrough opens with Rule out 3.
+  await evaluate('localStorage.removeItem("mcat2_elim_how_seen");true');
   for(const [kind,start] of [['flashcards','startMasteryFlashcards(true)'],['guided','startMasteryGuided(true)']]){
   await evaluate(leave+start+';true'); await until('quiz.mastery==="'+kind+'" && !!document.querySelector("#cb-0")');
-  assert.match(await evaluate('document.querySelector("#elim-btn")?.textContent||""'),/Rule out 2/,kind+' · Rule out 2: the button is there before answering');
+  assert.match(await evaluate('document.querySelector("#elim-btn")?.textContent||""'),/Rule out 3/,kind+' · the Rule out 3 button is there before answering');
+  assert.match(await evaluate('document.querySelector("#elim-how-btn")?.textContent||""'),/How\?/,kind+' · a "How?" link sits beside it');
   await evaluate('document.querySelector("#elim-btn").click()');
-  const elim=JSON.parse(await evaluate('JSON.stringify((()=>{const v=quiz.items[quiz.idx],out=[...document.querySelectorAll("#choices-area .choice-btn.elim-out")];return{answered:quiz.answered,n:out.length,key:out.some(b=>b.id==="cb-"+v.ans),whys:out.map(b=>{const w=b.querySelector(".elim-why");return w?[w.textContent.trim(),parseFloat(getComputedStyle(w).fontSize)]:["",0]}),then:document.querySelector("#elim-then")?.textContent||"",btn:parseFloat(getComputedStyle(document.querySelector("#elim-btn")).fontSize)}})())'));
-  assert.equal(elim.answered,false,'Rule out 2 works before answering');
-  assert.equal(elim.n,2,'Rule out 2 crosses out exactly two choices');
-  assert.equal(elim.key,false,'Rule out 2 never crosses out the key');
-  for(const [t,px] of elim.whys){assert(t.length>3,'each ruled-out choice shows its reason');assert(px>=16,'reason text is at least 16 px ('+px+')');}
-  assert(elim.btn>=16,'the Rule out 2 button text is at least 16 px');
-  assert.match(elim.then,/Two ruled out/,'it says how to choose between the two left');
+  const elim=JSON.parse(await evaluate('JSON.stringify((()=>{const v=quiz.items[quiz.idx],btns=[...document.querySelectorAll("#choices-area .choice-btn")],out=btns.filter(b=>b.classList.contains("elim-out")),key=document.querySelector("#cb-"+v.ans);return{answered:quiz.answered,n:out.length,key:out.includes(key),keyClass:key.className,whys:out.map(b=>{const w=b.querySelector(".elim-why");return w?[w.textContent.trim(),parseFloat(getComputedStyle(w).fontSize)]:["",0]}),rule:document.querySelector("#elim-rule")?.textContent||"",ruleAfter:!!document.querySelector("#choices-area + #elim-rule"),ruleN:document.querySelectorAll("#elim-rule").length,how:!!document.querySelector("#elim-how .elim-checks"),btn:parseFloat(getComputedStyle(document.querySelector("#elim-btn")).fontSize)}})())'));
+  assert.equal(elim.answered,false,kind+' · Rule out 3 works before answering');
+  assert.equal(elim.n,3,kind+' · Rule out 3 crosses out exactly three choices');
+  assert.equal(elim.key,false,kind+' · Rule out 3 never crosses out the key');
+  assert.equal(elim.keyClass.trim(),'choice-btn',kind+' · the choice that is left is not highlighted or marked');
+  for(const [t,px] of elim.whys){assert.match(t,/^(🚫 Impossible|📏 Units \/ ×10|↕️ Backwards|✂️ Skipped step|📋 Copied number|🧠 Wrong fact): \S/,kind+' · each reason starts with its check ('+t.slice(0,40)+')');assert(px>=16,'reason text is at least 16 px ('+px+')');}
+  assert(elim.btn>=16,kind+' · the Rule out 3 button text is at least 16 px');
+  assert.match(elim.rule,/3-second rule/,kind+' · the 3-second rule is shown');
+  assert(elim.ruleAfter&&elim.ruleN===1,kind+' · once, below the choices');
+  if(kind==='flashcards')assert.equal(elim.how,true,'the six checks open by themselves the first time');
+  else assert.equal(elim.how,false,'after the first time, the six checks open only on "How?"');
+  await evaluate('document.querySelector("#elim-how-btn").click()');
+  assert.equal(await evaluate('!!document.querySelector("#elim-how .elim-checks")'),kind!=='flashcards',kind+' · "How?" toggles the six checks');
   await evaluate('document.querySelector("#cb-"+quiz.items[quiz.idx].ans).click()');
-  assert.equal(await evaluate('quiz.answered && !!document.querySelector("#elim-btn") && !!document.querySelector("#hint-btn")'),true,kind+' · Rule out 2 and Help stay after answering');
+  assert.equal(await evaluate('quiz.answered && quiz.results.length===1 && quiz.results[0].right && !!document.querySelector("#elim-btn") && !!document.querySelector("#hint-btn")'),true,kind+' · the answer tap is accepted; Rule out 3 and Help stay after answering');
   if(kind==='guided'){await evaluate('document.querySelector("#lesson-slot")&&(document.querySelector("#lesson-slot").innerHTML="");document.querySelector("#how-box")?.remove();document.querySelector("#hint-btn").click()');
-   assert.match(await evaluate('document.querySelector("#how-box .how-step.current .step-text, #lesson-slot .lesson-box")?.textContent||""'),/Rule out 2 first/,'guided · the walkthrough opens with Rule out 2');}
+   assert.match(await evaluate('document.querySelector("#how-box .how-step.current .step-text, #lesson-slot .lesson-box")?.textContent||""'),/Rule out 3 first/,'guided · the walkthrough opens with Rule out 3');}
   }
-  console.log('Rule out 2 (flashcards and guided cards): two choices crossed out with reasons before answering; the key never; buttons stay after');
+  console.log('Rule out 3 (flashcards and guided cards): three choices crossed out with their checks before answering; the key never, and never marked; the rule once below the choices; the six checks on first use');
   await evaluate(leave);
   await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
   // Offline resilience: once the service worker has cached the app, a reload with no network still works.

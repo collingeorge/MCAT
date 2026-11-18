@@ -110,7 +110,7 @@ for (const q of FL.filter(q => q.teach)) {
     for (const lb of (st.graph && st.graph.labels) || []) if (lb.series) assert((st.chart || q.chart).series.some(s => s.name === lb.series && s.points.some(([x]) => x === lb.x)), q.src + ': lesson label points at a plotted point');
   }
 }
-assert(source.includes("if (teachOf(view.q)) return helpButton('teachStep(0)') + elimButton(view) + elimThenHtml(view) + (view.teachCur ? teachHtml(view) : '');") && ['teachStep', 'showLesson', 'ruleOutTwo'].every(f => fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'" + f + "'")), 'graph lessons wired (the help button at any time) and allowlisted');
+assert(source.includes("if (teachOf(view.q)) return helpButton('teachStep(0)') + elimButton(view) + elimHowHtml(view) + (view.teachCur ? teachHtml(view) : '');") && ['teachStep', 'showLesson', 'ruleOutThree', 'toggleElimHow'].every(f => fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'" + f + "'")), 'graph lessons wired (the help button at any time) and allowlisted');
 for (const q of FL) {
   // Exam-form pictures: a structure in the question and/or one per answer choice must exist.
   for (const n of [].concat(q.fig ?? [], q.choiceFigs ?? [])) assert(STRUCT_NAMES.has(n), q.src + ': drawing ' + n + ' exists');
@@ -152,19 +152,27 @@ const card = { ...pe6.find(q => q.src === 'pe6-cp:18'), teach: undefined }; // t
 const ctx = vm.createContext({ $: node, quiz: { answered: false, idx: 0, items: [{ q: card }] }, String, Array });
 ctx.stepper = null; ctx.Math = Math; ctx.Number = Number; ctx.Set = Set; ctx.Map = Map; ctx.structUrls = new Map(); ctx.structsFailed = false; ctx.encodeURIComponent = encodeURIComponent;
 for (const name of ['esc', 'fmt', 'paragraphs', 'howOf', 'teachOf', 'teachHtml', 'teachStep', 'hintArea', 'showHint', 'howSteps', 'markText', 'markParagraphs', 'stepVisual', 'howPlayerHtml', 'applyStepContext', 'clearStepContext', 'howStepMs', 'howSchedule', 'howToggle', 'howReplay', 'howStep', 'howBox',
-  'chartNum', 'chartText', 'chartTicks', 'chartSmooth', 'chartMarker', 'chartLegend', 'chartAxes', 'chartAnnotations', 'lineChart', 'barChart', 'figureHtml', 'structUrl', 'structImg', 'stemFigs', 'isLessonCard', 'elimOf', 'elimButton', 'elimThenHtml', 'elimStep', 'lessonSteps', 'stepperSteps', 'lessonPlayerHtml', 'lessonBox']) vm.runInContext(extract(name), ctx);
+  'chartNum', 'chartText', 'chartTicks', 'chartSmooth', 'chartMarker', 'chartLegend', 'chartAxes', 'chartAnnotations', 'lineChart', 'barChart', 'figureHtml', 'structUrl', 'structImg', 'stemFigs', 'isLessonCard', 'elimOf', 'elimLabel', 'elimChecksHtml', 'elimButton', 'elimHowHtml', 'elimStep', 'lessonSteps', 'stepperSteps', 'lessonPlayerHtml', 'lessonBox']) vm.runInContext(extract(name), ctx);
 vm.runInContext("var CHART = { W: 560, L: 70, R: 18, T: 14, H: 250, B: 50 };", ctx);
 const view = ctx.quiz.items[0];
 
-// Rule out 2 opens the lesson of a card that has it: the two quick eliminations (struck) and the tie-break, before
+// Rule out 3 opens the lesson of a card that has it: the three quick eliminations (struck, each with its check) and
+// the 3-second rule, before
 // the full working; a card without it starts at its first worked step.
-{ const q = { q: 'Which?', choices: ['A1', 'B2', 'C3', 'D4'], ans: 2, elim: [{ c: 0, why: 'Wrong unit.' }, { c: 3, why: 'Sign flipped.' }], elimThen: 'Estimate: C3.',
+vm.runInContext(source.slice(source.indexOf('const ELIM_CHECKS = ['), source.indexOf('function elimOf(')).replace(/^const /mg, 'var '), ctx);
+{ const q = { q: 'Which?', choices: ['A1', 'B2', 'C3', 'D4'], ans: 2, elim: [{ c: 0, tag: 'impossible', why: 'Above 1.' }, { c: 1, tag: 'units', why: 'Off by 1000.' }, { c: 3, tag: 'backwards', why: 'Sign flipped.' }], rule: 'Estimate first.',
     how: { ask: 'a', know: 'k', steps: [{ text: 'work' }], trap: 't' }, teach: [{ text: 'x' }, { text: '**Rule to reuse:** r' }] };
   ctx.__q = q; const st = vm.runInContext('lessonSteps(__q)', ctx);
-  assert.match(st[0].text, /Rule out 2 first/); assert.deepEqual([...st[0].strike], ['A1', 'D4']);
-  assert.deepEqual([...st[0].calc], ['✗ A1: Wrong unit.', '✗ D4: Sign flipped.', 'Then: Estimate: C3.']);
+  assert.match(st[0].text, /Rule out 3 first/); assert.deepEqual([...st[0].strike], ['A1', 'B2', 'D4']);
+  assert.deepEqual([...st[0].calc], ['✗ A1 · 🚫 Impossible: Above 1.', '✗ B2 · 📏 Units / ×10: Off by 1000.', '✗ D4 · ↕️ Backwards: Sign flipped.', '3-second rule: Estimate first.']);
+  assert(!st[0].calc.some(l => l.includes('C3')), 'the Rule out 3 step never names the key');
   assert.equal(st[1].text, 'work'); assert.equal(st.length, 3);
-  ctx.__q = { ...q, elim: undefined }; assert.equal(vm.runInContext('lessonSteps(__q)', ctx)[0].text, 'work'); }
+  // The old two-choice format (elimThen) no longer counts.
+  ctx.__q = { ...q, elim: q.elim.slice(0, 2), rule: undefined, elimThen: 'C3' }; assert.equal(vm.runInContext('lessonSteps(__q)', ctx)[0].text, 'work');
+  ctx.__q = { ...q, elim: undefined }; assert.equal(vm.runInContext('lessonSteps(__q)', ctx)[0].text, 'work');
+  // The six checks, in order, with one example each.
+  const table = vm.runInContext('elimChecksHtml()', ctx);
+  ['Impossible', 'Units / ×10', 'Backwards', 'Skipped step', 'Copied number', 'Wrong fact'].reduce((at, name) => { const k = table.indexOf(name); assert(k > at, name + ' in order'); return k; }, -1); }
 let html = vm.runInContext('hintArea(quiz.items[0])', ctx);
 assert.match(html, /Show me how to start/); assert.doesNotMatch(html, /What it's asking/);
 vm.runInContext('showHint()', ctx); html = node('hint-area').innerHTML;
@@ -177,11 +185,12 @@ vm.runInContext('showHint()', ctx); assert.equal(view.hint, 2, 'hint level stops
 
 const box = vm.runInContext('howBox(quiz.items[0].q, { static: true })', ctx);
 assert.match(box, /How to work it out/); assert.match(box, /<ol class="how-steps">/); assert.match(box, /The trap/);
-// A card with Rule out 2 lists it as its first step.
-assert.equal((box.match(/<li>/g) || []).length, card.how.steps.length + (card.elim ? 1 : 0));
-if (card.elim) assert(/<li>(<strong>)?Rule out 2 first/.test(box), 'Rule out 2 is the first step');
+// A card with Rule out 3 lists it as its first step.
+const hasElim3 = !!(card.elim && card.elim.length === 3 && card.rule);
+assert.equal((box.match(/<li>/g) || []).length, card.how.steps.length + (hasElim3 ? 1 : 0));
+if (hasElim3) assert(/<li>(<strong>)?Rule out 3 first/.test(box), 'Rule out 3 is the first step');
 // Player: one step at a time; the trap appears only at the last step; Back/Next stay in range.
-const player = vm.runInContext('howBox(quiz.items[0].q)', ctx), n = card.how.steps.length + (card.elim ? 1 : 0);
+const player = vm.runInContext('howBox(quiz.items[0].q)', ctx), n = card.how.steps.length + (hasElim3 ? 1 : 0);
 assert.match(player, /id="how-player"/); assert.equal((player.match(/class="how-step[ "]/g) || []).length, 1, 'starts at step 1');
 assert.doesNotMatch(player, /The trap/, 'trap hidden until the last step'); assert.match(player, new RegExp('Step 1 of ' + n));
 assert.match(player, /data-click="howStep\(1\)"/);
