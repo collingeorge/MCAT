@@ -61,10 +61,10 @@ const ids = new Set(), stems = new Map(), bySrc = new Map([...PE.keys()].map(s =
 // Rule out 3 (flashcards and guided cards): exactly three entries {c, tag, why}, one per wrong choice, never the key;
 // tag is one of the six checks and the entries run in check order; each why ≤ 160 characters; a rule ≤ 200
 // characters; no elimThen. No give-away: no why and no rule contains the correct choice's text, or (for a numeric
-// choice) its number (whole numbers 0–10 aside).
+// choice) its number (whole numbers 0–10 aside; a power of ten such as 10³ is read as 10^3, not 103).
 const ELIM_TAGS = ['impossible', 'units', 'backwards', 'skipped', 'copied', 'fact'];
 const GIVE_SUB = { '₀': '0', '₁': '1', '₂': '2', '₃': '3', '₄': '4', '₅': '5', '₆': '6', '₇': '7', '₈': '8', '₉': '9', '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9', '⁻': '-', '⁺': '+' };
-const giveNorm = t => String(t).replace(/<[^>]+>|\*\*/g, '').replace(/[₀-₉⁰¹²³⁴-⁹⁺⁻]/g, ch => GIVE_SUB[ch] || ch).toLowerCase().replace(/\s+/g, ' ').replace(/[.;:,]+$/, '').trim();
+const giveNorm = t => String(t).replace(/<[^>]+>|\*\*/g, '').replace(/10([⁻⁺]?[⁰¹²³⁴-⁹]+)/g, (m, e) => '10^(' + e + ')').replace(/[₀-₉⁰¹²³⁴-⁹⁺⁻]/g, ch => GIVE_SUB[ch] || ch).toLowerCase().replace(/\s+/g, ' ').replace(/[.;:,]+$/, '').trim();
 const giveNums = t => (giveNorm(t).replace(/(\d),(\d{3})/g, '$1$2').match(/\d+(?:\.\d+)?/g) || []).map(Number).filter(n => !(Number.isInteger(n) && n <= 10));
 function giveAway(key, text) {
   const k = giveNorm(key), t = giveNorm(text);
