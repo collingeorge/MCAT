@@ -281,6 +281,12 @@ async function main() {
   else assert.equal(elim.how,false,'after the first time, the six checks open only on "How?"');
   await evaluate('document.querySelector("#elim-how-btn").click()');
   assert.equal(await evaluate('!!document.querySelector("#elim-how .elim-checks")'),kind!=='flashcards',kind+' · "How?" toggles the six checks');
+  // ⚡ Shortcut: its own button; it shows the card's shortcut below the choices and the card still waits for the tap.
+  assert.match(await evaluate('document.querySelector("#fast-btn")?.textContent||""'),/Shortcut/,kind+' · the Shortcut button is there');
+  await evaluate('document.querySelector("#fast-btn").click()');
+  assert.match(await evaluate('document.querySelector("#fast-box")?.textContent||""'),/⚡ Shortcut · \S/,kind+' · the shortcut is shown, with its kind');
+  assert.equal(await evaluate('quiz.answered'),false,kind+' · the card still waits for the answer');
+  assert(parseFloat(await evaluate('getComputedStyle(document.querySelector("#fast-box")).fontSize'))>=16,kind+' · shortcut text is at least 16 px');
   await evaluate('document.querySelector("#cb-"+quiz.items[quiz.idx].ans).click()');
   assert.equal(await evaluate('quiz.answered && quiz.results.length===1 && quiz.results[0].right && !!document.querySelector("#elim-btn") && !!document.querySelector("#hint-btn")'),true,kind+' · the answer tap is accepted; Rule out 3 and Help stay after answering');
   if(kind==='guided'){await evaluate('document.querySelector("#lesson-slot")&&(document.querySelector("#lesson-slot").innerHTML="");document.querySelector("#how-box")?.remove();document.querySelector("#hint-btn").click()');

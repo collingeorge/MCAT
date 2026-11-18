@@ -152,7 +152,7 @@ const card = { ...pe6.find(q => q.src === 'pe6-cp:18'), teach: undefined }; // t
 const ctx = vm.createContext({ $: node, quiz: { answered: false, idx: 0, items: [{ q: card }] }, String, Array });
 ctx.stepper = null; ctx.Math = Math; ctx.Number = Number; ctx.Set = Set; ctx.Map = Map; ctx.structUrls = new Map(); ctx.structsFailed = false; ctx.encodeURIComponent = encodeURIComponent;
 for (const name of ['esc', 'fmt', 'paragraphs', 'howOf', 'teachOf', 'teachHtml', 'teachStep', 'hintArea', 'showHint', 'howSteps', 'markText', 'markParagraphs', 'stepVisual', 'howPlayerHtml', 'applyStepContext', 'clearStepContext', 'howStepMs', 'howSchedule', 'howToggle', 'howReplay', 'howStep', 'howBox',
-  'chartNum', 'chartText', 'chartTicks', 'chartSmooth', 'chartMarker', 'chartLegend', 'chartAxes', 'chartAnnotations', 'lineChart', 'barChart', 'figureHtml', 'structUrl', 'structImg', 'stemFigs', 'isLessonCard', 'elimOf', 'elimLabel', 'elimChecksHtml', 'elimButton', 'elimHowHtml', 'elimStep', 'lessonSteps', 'stepperSteps', 'lessonPlayerHtml', 'lessonBox']) vm.runInContext(extract(name), ctx);
+  'chartNum', 'chartText', 'chartTicks', 'chartSmooth', 'chartMarker', 'chartLegend', 'chartAxes', 'chartAnnotations', 'lineChart', 'barChart', 'figureHtml', 'structUrl', 'structImg', 'stemFigs', 'isLessonCard', 'elimOf', 'elimLabel', 'elimChecksHtml', 'fastOf', 'fastLabel', 'fastKindsHtml', 'fastButton', 'elimButton', 'elimHowHtml', 'elimOnlyStep', 'elimStep', 'lessonSteps', 'stepperSteps', 'lessonPlayerHtml', 'lessonBox']) vm.runInContext(extract(name), ctx);
 vm.runInContext("var CHART = { W: 560, L: 70, R: 18, T: 14, H: 250, B: 50 };", ctx);
 const view = ctx.quiz.items[0];
 
@@ -160,6 +160,7 @@ const view = ctx.quiz.items[0];
 // the 3-second rule, before
 // the full working; a card without it starts at its first worked step.
 vm.runInContext(source.slice(source.indexOf('const ELIM_CHECKS = ['), source.indexOf('function elimOf(')).replace(/^const /mg, 'var '), ctx);
+vm.runInContext(source.slice(source.indexOf('const FAST_KINDS = ['), source.indexOf('function fastOf(')).replace(/^const /mg, 'var '), ctx);
 { const q = { q: 'Which?', choices: ['A1', 'B2', 'C3', 'D4'], ans: 2, elim: [{ c: 0, tag: 'impossible', why: 'Above 1.' }, { c: 1, tag: 'units', why: 'Off by 1000.' }, { c: 3, tag: 'backwards', why: 'Sign flipped.' }], rule: 'Estimate first.',
     how: { ask: 'a', know: 'k', steps: [{ text: 'work' }], trap: 't' }, teach: [{ text: 'x' }, { text: '**Rule to reuse:** r' }] };
   ctx.__q = q; const st = vm.runInContext('lessonSteps(__q)', ctx);
@@ -167,6 +168,9 @@ vm.runInContext(source.slice(source.indexOf('const ELIM_CHECKS = ['), source.ind
   assert.deepEqual([...st[0].calc], ['✗ A1 · 🚫 Impossible: Above 1.', '✗ B2 · 📏 Units / ×10: Off by 1000.', '✗ D4 · ↕️ Backwards: Sign flipped.', '3-second rule: Estimate first.']);
   assert(!st[0].calc.some(l => l.includes('C3')), 'the Rule out 3 step never names the key');
   assert.equal(st[1].text, 'work'); assert.equal(st.length, 3);
+  // A shortcut follows Rule out 3 as its own lesson step.
+  ctx.__q = { ...q, fast: { kind: 'rearrange', how: 'Use P = F × v.' } }; const sf = vm.runInContext('lessonSteps(__q)', ctx);
+  assert.match(sf[1].text, /⚡ Shortcut · 🔁 Rearrange\.\*\* Use P = F × v\./); assert.equal(sf[2].text, 'work');
   // The old two-choice format (elimThen) no longer counts.
   ctx.__q = { ...q, elim: q.elim.slice(0, 2), rule: undefined, elimThen: 'C3' }; assert.equal(vm.runInContext('lessonSteps(__q)', ctx)[0].text, 'work');
   ctx.__q = { ...q, elim: undefined }; assert.equal(vm.runInContext('lessonSteps(__q)', ctx)[0].text, 'work');
@@ -186,11 +190,11 @@ vm.runInContext('showHint()', ctx); assert.equal(view.hint, 2, 'hint level stops
 const box = vm.runInContext('howBox(quiz.items[0].q, { static: true })', ctx);
 assert.match(box, /How to work it out/); assert.match(box, /<ol class="how-steps">/); assert.match(box, /The trap/);
 // A card with Rule out 3 lists it as its first step.
-const hasElim3 = !!(card.elim && card.elim.length === 3 && card.rule);
-assert.equal((box.match(/<li>/g) || []).length, card.how.steps.length + (hasElim3 ? 1 : 0));
+const hasElim3 = !!(card.elim && card.elim.length === 3 && card.rule), hasFast = !!(card.fast && card.fast.kind && card.fast.how);
+assert.equal((box.match(/<li>/g) || []).length, card.how.steps.length + (hasElim3 ? 1 : 0) + (hasFast ? 1 : 0));
 if (hasElim3) assert(/<li>(<strong>)?Rule out 3 first/.test(box), 'Rule out 3 is the first step');
 // Player: one step at a time; the trap appears only at the last step; Back/Next stay in range.
-const player = vm.runInContext('howBox(quiz.items[0].q)', ctx), n = card.how.steps.length + (hasElim3 ? 1 : 0);
+const player = vm.runInContext('howBox(quiz.items[0].q)', ctx), n = card.how.steps.length + (hasElim3 ? 1 : 0) + (hasFast ? 1 : 0);
 assert.match(player, /id="how-player"/); assert.equal((player.match(/class="how-step[ "]/g) || []).length, 1, 'starts at step 1');
 assert.doesNotMatch(player, /The trap/, 'trap hidden until the last step'); assert.match(player, new RegExp('Step 1 of ' + n));
 assert.match(player, /data-click="howStep\(1\)"/);
