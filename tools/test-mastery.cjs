@@ -139,8 +139,9 @@ assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(masteryApportion(w, 
 // Tests are built from the Practice Exam cards (modeled one-for-one on the AAMC practice exams, with their
 // drawings and graphs), split by AAMC's discipline weights; the question bank is only a fallback.
 assert(src.includes('const pool = masteryPracticePool(subj), passages = [];') && src.includes("const items = shuffled(picked).map(q => ({ view: makeView(q), passage: null }));"), 'tests from Practice Exam cards');
-// Passage questions count toward their passage's content category, so weak topics use the whole test.
-assert(src.includes("tally(cats, r.view.q.cat || (p ? ((p.cats && p.cats[0]) || 'other') : masteryCategory(r.view.q)), r.right);"));
+// Passage questions count toward their passage's content category, so weak topics use the whole test; a question
+// the clock never reached counts toward none (it is "not reached").
+assert(src.includes("cat = r.view.q.cat || (p ? ((p.cats && p.cats[0]) || 'other') : masteryCategory(r.view.q));") && src.includes("if (r.chosen == null) { notReached[cat] = (notReached[cat] || 0) + 1; return; }") && src.includes('tally(cats, cat, r.right);'));
 // A section with no Practice Exam cards (B/B, P/S for now) has no Practice Exam step.
 { const mb = apply({ current: 'bb' }, test('bb', '2026-11-15', 'diagnostic', 122, { cats: { '1A': { c: 2, t: 9 } } }));
   assert.deepEqual(ids(plan(mb, '2026-11-16', { guided: 0 })), ['diagnostic', 'flashcards', 'test']); }

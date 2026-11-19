@@ -65,7 +65,7 @@ function masteryNormalize(raw) {
   // Saved (and cloud-synced) results reach the page as HTML text, so every number must be a real number.
   const tests = (Array.isArray(m.tests) ? m.tests : []).filter(t => t && MASTERY.order.includes(t.subj) && typeof t.day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(t.day)
     && Number.isInteger(t.scaled) && Number.isInteger(t.correct) && Number.isInteger(t.total) && t.total > 0 && t.correct >= 0 && t.correct <= t.total
-    && Number.isFinite(t.pct) && (t.kind === 'diagnostic' || t.kind === 'daily'));
+    && Number.isFinite(t.pct) && (t.kind === 'diagnostic' || t.kind === 'daily')).map(masteryCleanReview);
   const days = m.days && typeof m.days === 'object' && !Array.isArray(m.days) ? m.days : {};
   const passed = m.passed && typeof m.passed === 'object' && !Array.isArray(m.passed) ? m.passed : {};
   const current = MASTERY.order.includes(m.current) ? m.current : null;
@@ -76,6 +76,27 @@ function masteryNormalize(raw) {
   const rules = Object.fromEntries(Object.entries(m.rules && typeof m.rules === 'object' && !Array.isArray(m.rules) ? m.rules : {})
     .filter(([id, r]) => /^r-[a-z0-9-]+$/.test(id) && r && typeof r.d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(r.d) && typeof r.ok === 'boolean').map(([id, r]) => [id, { d: r.d, ok: r.ok }]));
   return { goal, tests, days, passed, current, perDay, usedSets, rules };
+}
+// A test row's review fields (synced text reaches the page, so each is checked): setId, answers [{qid, chosen
+// (original choice index, null = not reached), right, ms, u: true when a backfilled answer is uncertain}], answered,
+// notReached ({category: n}), timedOut, backfilled.
+function masteryCleanReview(t) {
+  const out = { ...t };
+  for (const k of ['answers', 'setId', 'answered', 'notReached', 'timedOut', 'backfilled']) delete out[k];
+  if (typeof t.setId === 'string' && /^[\w-]{1,40}$/.test(t.setId)) out.setId = t.setId;
+  if (Array.isArray(t.answers) && t.answers.length <= 120) {
+    const a = t.answers.filter(x => x && typeof x.qid === 'string' && /^[\w:.#-]{1,60}$/.test(x.qid) && (x.chosen === null || (Number.isInteger(x.chosen) && x.chosen >= 0 && x.chosen < 8)) && typeof x.right === 'boolean')
+      .map(x => ({ qid: x.qid, chosen: x.chosen, right: x.right, ms: Number.isFinite(x.ms) && x.ms >= 0 ? Math.round(x.ms) : 0, ...(x.u === true ? { u: true } : {}) }));
+    if (a.length === t.answers.length) out.answers = a;
+  }
+  if (Number.isInteger(t.answered) && t.answered >= 0 && t.answered <= t.total) out.answered = t.answered;
+  if (t.notReached && typeof t.notReached === 'object' && !Array.isArray(t.notReached)) {
+    const nr = Object.fromEntries(Object.entries(t.notReached).filter(([k, n]) => /^[\w]{1,12}$/.test(k) && Number.isInteger(n) && n > 0 && n <= t.total));
+    if (Object.keys(nr).length) out.notReached = nr;
+  }
+  if (t.timedOut === true) out.timedOut = true;
+  if (t.backfilled === true) out.backfilled = true;
+  return out;
 }
 // Current section: the one the student picked, else the first not yet mastered (in path order).
 function masterySubject(m, today) {
@@ -759,7 +780,7 @@ function startMasteryTest(kind) {
   Object.assign(pq, { mini: { subj, items, passages, firstExposures, completed: false, mastery: kind === 'diagnostic' ? 'diagnostic' : 'daily', day: localDay() },
     p: { id: 'mastery_' + subj, title: masteryName(subj) + (kind === 'diagnostic' ? ' diagnostic' : ' end-of-day test') },
     idx: 0, views: items.map(x => x.view), results: [], answered: false, completed: false, startedAt: Date.now(), qStart: Date.now(),
-    targetMs: items.length * MASTERY.secondsPerItem * 1000, errPending: null });
+    targetMs: items.length * MASTERY.secondsPerItem * 1000, errPending: null, warned: {}, hiddenAt: null });
   show('screen-passage');
   renderPassageQuestion();
   pq.timer = setInterval(updatePassageTimer, 1000);
@@ -791,7 +812,7 @@ function masteryRunSet(subj, kind, set) {
   Object.assign(pq, { mini: { subj, items, passages, firstExposures: Object.fromEntries(passages.map(p => [p.id, beginPassageExposure(p)])), completed: false, mastery: kind === 'diagnostic' ? 'diagnostic' : 'daily', setId: set.id, day: localDay() },
     p: { id: 'mastery_' + subj, title: set.title },
     idx: 0, views: items.map(x => x.view), results: [], answered: false, completed: false, startedAt: Date.now(), qStart: Date.now(),
-    targetMs: (set.timeMin ? set.timeMin * 60 : items.length * MASTERY.secondsPerItem) * 1000, errPending: null });
+    targetMs: (set.timeMin ? set.timeMin * 60 : items.length * MASTERY.secondsPerItem) * 1000, errPending: null, warned: {}, hiddenAt: null });
   show('screen-passage');
   renderPassageQuestion();
   pq.timer = setInterval(updatePassageTimer, 1000);
@@ -816,20 +837,29 @@ function masteryFinishTest(mini, results) {
   const tally = (o, k, right) => { o[k] = o[k] || { c: 0, t: 0 }; o[k].t++; if (right) o[k].c++; };
   // Every question counts toward its content category (its own cat, else its passage's), so the weak topics
   // come from the whole test (passages are most of it), not just the single questions.
+  // Only answered questions count toward the categories: a question the clock never reached is "not reached"
+  // (notReached), so tomorrow's plan is not aimed at topics never seen. The scaled score still counts it wrong.
+  const notReached = {};
   results.forEach((r, i) => {
-    const p = mini.items[i].passage;
-    tally(cats, r.view.q.cat || (p ? ((p.cats && p.cats[0]) || 'other') : masteryCategory(r.view.q)), r.right);
+    const p = mini.items[i].passage, cat = r.view.q.cat || (p ? ((p.cats && p.cats[0]) || 'other') : masteryCategory(r.view.q));
+    if (r.chosen == null) { notReached[cat] = (notReached[cat] || 0) + 1; return; }
+    tally(cats, cat, r.right);
     tally(parts, p ? 'passage' : 'single', r.right);
     if (r.view.q.skill) tally(skills, r.view.q.skill, r.right);
   });
   // Tomorrow's "misses" step reviews missed bank questions; test-only questions are reviewed on the results page.
-  const missIds = results.filter((r, i) => !r.right && !mini.items[i].passage).map(r => r.view.q.baseId || r.view.q.id).filter(id => id && typeof lookupQ === 'function' && lookupQ(id));
+  const missIds = results.filter((r, i) => !r.right && r.chosen != null && !mini.items[i].passage).map(r => r.view.q.baseId || r.view.q.id).filter(id => id && typeof lookupQ === 'function' && lookupQ(id));
   // The studied card each missed question twins: tomorrow it leads the guided step (Practice Exam card) or the
   // flashcards (QBank card).
-  const twinMisses = [...new Set(results.filter(r => !r.right && typeof r.view.q.twin === 'string').map(r => r.view.q.twin))];
+  const twinMisses = [...new Set(results.filter(r => !r.right && r.chosen != null && typeof r.view.q.twin === 'string').map(r => r.view.q.twin))];
   const pctRight = total ? 100 * correct / total : 0;
   // The day the test started: a quiz finished after midnight belongs to the day it was taken.
-  const test = { subj: mini.subj, day: mini.day || localDay(), t: Date.now(), kind: mini.mastery, correct, total, pct: Math.round(pctRight), scaled: rawToScaled(pctRight), cats, parts, skills, missIds, twinMisses, version: mini.setId || 'cards' };
+  // Each answer, so the quiz can be reviewed later (the questions come back from the set by setId and qid); the
+  // chosen index is into the question's own choices (the screen showed them in view order).
+  const answers = mini.setId ? results.map(r => ({ qid: String(r.view.q.id), chosen: r.chosen == null ? null : (r.view.order ? r.view.order[r.chosen] : r.chosen), right: !!r.right, ms: Math.round(r.ms || 0) })) : undefined;
+  const answered = results.filter(r => r.chosen != null).length;
+  const test = { subj: mini.subj, day: mini.day || localDay(), t: Date.now(), kind: mini.mastery, correct, total, pct: Math.round(pctRight), scaled: rawToScaled(pctRight), cats, parts, skills, missIds, twinMisses, version: mini.setId || 'cards',
+    answered, ...(Object.keys(notReached).length ? { notReached } : {}), ...(mini.setId ? { setId: mini.setId, answers } : {}), ...(mini.timedOut ? { timedOut: true } : {}) };
   const before = masteryLoad();
   const prevTest = before.tests.filter(t => t.subj === test.subj).at(-1) || null;
   const after = masteryApplyTest(before, test);
@@ -854,9 +884,106 @@ function masteryResultHtml(test, prev, m) {
   const skillRows = Object.entries(test.skills || {}).sort().map(([k, v]) => '<tr><td>' + esc(k.replace('SIRS ', 'Skill ')) + '</td><td>' + esc(SKILL[k] || k) + '</td><td>' + v.c + '/' + v.t + '</td><td>' + Math.round(100 * v.c / v.t) + '%</td></tr>').join('');
   const pass = (part.passage ? '<p class="muted-note">Passage questions: ' + part.passage.c + '/' + part.passage.t + (part.single ? ' · single questions: ' + part.single.c + '/' + part.single.t : '') + '.</p>' : '') +
     (skillRows ? '<div class="section-label">Scientific skills (data-based passages)</div><table class="data-table mastery-topics"><thead><tr><th>Skill</th><th></th><th>Right</th><th>%</th></tr></thead><tbody>' + skillRows + '</tbody></table>' : '');
-  return '<div class="results-hero"><div class="r-label">' + esc(masteryName(test.subj)) + (test.kind === 'diagnostic' ? ' diagnostic' : ' end-of-day test') + '</div><div class="score-pct">' + test.scaled + '</div><div class="score-sub">' + test.correct + '/' + test.total + ' correct (' + test.pct + '%) · goal ' + goal + (trend ? ' · ' + trend : '') + '</div></div>' +
-    '<div class="results-card">' + verdict + '<div class="section-label">Topics, weakest first</div><table class="data-table mastery-topics"><thead><tr><th>AAMC</th><th>Topic</th><th>Right</th><th>%</th></tr></thead><tbody>' + rows + '</tbody></table>' + pass +
+  const nr = test.notReached ? Object.entries(test.notReached).map(([c, n]) => esc(c) + ' ' + n).join(' · ') : '';
+  return (test.timedOut ? '<div class="times-up" role="alert">⏰ Time’s up</div>' : '') +
+    '<div class="results-hero"><div class="r-label">' + esc(masteryName(test.subj)) + (test.kind === 'diagnostic' ? ' diagnostic' : ' end-of-day test') + '</div><div class="score-pct">' + test.scaled + '</div><div class="score-sub">' + masteryAnsweredLine(test) + ' · goal ' + goal + (trend ? ' · ' + trend : '') + '</div></div>' +
+    '<div class="results-card">' + masteryPacingNote(test) + verdict + '<div class="section-label">Topics, weakest first</div><table class="data-table mastery-topics"><thead><tr><th>AAMC</th><th>Topic</th><th>Right</th><th>%</th></tr></thead><tbody>' + rows + '</tbody></table>' + (nr ? '<p class="muted-note">Not reached (not counted toward weak topics): ' + nr + '.</p>' : '') + pass +
     '<p class="muted-note">Scaled from % correct with the app’s raw-to-scaled table: an estimate for tracking progress, not an AAMC score.</p><div class="btn-row"><button class="new-quiz-btn" data-click="goHome()">Back to TODAY</button></div></div>';
+}
+// "Answered 18 of 30 · 10 of 18 right (56%) · 12 not reached" (the scaled score counts unanswered as wrong, as the
+// real test does). An older row without `answered` reads as all answered.
+// The quiz's time limit in minutes, as shown before it starts ("47½").
+function masteryQuizMinutes() { const s = MASTERY.testSize * MASTERY.secondsPerItem; return Math.floor(s / 60) + (s % 60 >= 30 ? '½' : ''); }
+function masteryAnsweredLine(t) {
+  const n = Number.isInteger(t.answered) ? t.answered : t.total, left = t.total - n;
+  return 'Answered ' + n + ' of ' + t.total + ' · ' + t.correct + ' of ' + n + ' right (' + (n ? Math.round(100 * t.correct / n) : 0) + '%)' + (left ? ' · ' + left + ' not reached' : '');
+}
+function masteryPacingNote(t) {
+  const n = Number.isInteger(t.answered) ? t.answered : t.total;
+  if (n >= t.total) return '';
+  return '<p class="mastery-pacing"><b>You ran out of time.</b> Accuracy on what you answered: ' + (n ? Math.round(100 * t.correct / n) : 0) + '%. Next time, guess on any question you can’t finish; there’s no penalty.</p>';
+}
+// ── Past quizzes: every finished quiz and diagnostic can be reopened ──
+// The questions are not stored again: they come back from the set (data/cp-pool.js or data/cp-diagnostic.js) by
+// setId and qid; the test row keeps only the answers.
+function masterySetById(id) {
+  if (typeof CP_DIAG !== 'undefined' && CP_DIAG && CP_DIAG.id === id) return CP_DIAG;
+  return (typeof CP_POOL !== 'undefined' ? CP_POOL : []).find(s => s.id === id) || null;
+}
+function masteryTestSetId(t) { return t.setId || (typeof t.version === 'string' && /^cp_(half_\d+|diag\d*)$/.test(t.version) ? t.version : null); }
+// A quiz taken before answers were saved: rebuild its answers from the mistake log (src 'mini': each wrong or
+// unanswered question with the chosen text, logged as the quiz ended). A question of the set with no log entry was
+// answered right, but only when the log's count matches the score; any question that can't be matched for certain
+// is kept without "your answer" (u: true).
+function masteryBackfill(m) {
+  if (typeof bankReady === 'function' && !bankReady('cp')) return false;
+  const log = store.get(KEYS.errors, []);
+  let changed = false;
+  for (const t of m.tests) {
+    if (t.answers || t.subj !== 'cp' || !Number.isFinite(t.t)) continue;
+    const set = masterySetById(masteryTestSetId(t));
+    if (!set) continue;
+    const qs = masterySetItems(set).map(x => x.view.q);
+    if (qs.length !== t.total) continue;
+    const by = new Map();
+    for (const e of log) if (e && e.src === 'mini' && Number.isFinite(e.t) && Math.abs(e.t - t.t) <= 10 * 60000) (by.get(e.id) || by.set(e.id, []).get(e.id)).push(e);
+    const sure = qs.filter(q => by.has(q.id)).length === t.total - t.correct;
+    const answers = qs.map(q => {
+      const es = by.get(q.id), a = { qid: String(q.id), chosen: null, right: false, ms: 0 };
+      if (!es) return sure ? { ...a, chosen: q.ans, right: true } : { ...a, u: true };
+      if (es.length !== 1) return { ...a, u: true };
+      if (es[0].chosen === '(unanswered)') return a;
+      const i = q.choices.indexOf(es[0].chosen);
+      return i >= 0 && i !== q.ans ? { ...a, chosen: i } : { ...a, u: true };
+    });
+    Object.assign(t, { setId: set.id, answers, backfilled: true });
+    if (sure) t.answered = answers.filter(a => a.chosen != null).length;
+    changed = true;
+  }
+  return changed;
+}
+// Reviewable rows only: a set that still exists (an earlier diagnostic version can't be reopened).
+function masteryPastList(m) { const ready = typeof bankReady !== 'function' || bankReady('cp');
+  return m.tests.filter(t => t.subj === 'cp' && Number.isFinite(t.t) && masteryTestSetId(t) && (!ready || masterySetById(masteryTestSetId(t)))).slice().sort((a, b) => b.t - a.t); }
+// Past quizzes, newest first (TODAY and Progress): the date, the score, how many were answered, and Review.
+function masteryPastHtml(m, open) {
+  if (typeof bankReady === 'function' && bankReady('cp') && masteryBackfill(m)) masterySave(m);
+  const rows = masteryPastList(m);
+  if (!rows.length) return '';
+  return '<details class="mastery-past"' + (open ? ' open' : '') + '><summary>Past quizzes (' + rows.length + ')</summary><ul class="past-list">' + rows.map(t =>
+    '<li><span class="past-what">' + esc(t.day) + ' · ' + (t.kind === 'diagnostic' ? 'Diagnostic' : 'Quiz') + ' · <b>' + t.scaled + '</b> · ' + (Number.isInteger(t.answered) ? 'answered ' + t.answered + ' of ' + t.total : t.correct + ' of ' + t.total + ' right') + '</span> ' +
+    '<button class="micro-btn" data-click="masteryReview(' + t.t + ')">Review</button></li>').join('') + '</ul></details>';
+}
+// Reopens a past quiz in the "Review every question" view: each passage, each question with your answer, the key,
+// the explanation and the link to its twin card; "not reached" for questions the clock ended. Filters: all, missed
+// only, not reached only.
+function masteryReview(tt, filter) {
+  if (typeof bankReady === 'function' && !bankReady('cp')) { withBank('cp', () => masteryReview(tt, filter)); return; }
+  if (typeof bankReady === 'function' && !bankReady('fl')) { withBank('fl', () => masteryReview(tt, filter)); return; }
+  const m = masteryLoad();
+  if (masteryBackfill(m)) masterySave(m);
+  const t = masteryLoad().tests.find(x => x.t === tt), set = t && masterySetById(masteryTestSetId(t));
+  if (!t || !set || !t.answers) { masteryNotice('This quiz can’t be reopened: its answers weren’t saved.'); return; }
+  const f = filter === 'missed' || filter === 'notreached' ? filter : 'all';
+  const by = new Map(t.answers.map(a => [a.qid, a]));
+  let lastP = null, n = 0;
+  const items = masterySetItems(set).map((it, i) => {
+    const q = it.view.q, a = by.get(String(q.id)), nr = !!a && a.chosen == null && !a.u, missed = !!a && !a.right && !nr && !a.u;
+    if ((f === 'missed' && !missed) || (f === 'notreached' && !nr)) return '';
+    n++;
+    const p = it.passage, head = p && p.id !== lastP ? '<details class="results-card"><summary>Passage: ' + esc(p.title) + '</summary>' + passageCard(p.topic || '', p.title, p.passage, p.figure, p.scheme) + '</details>' : '';
+    if (p) lastP = p.id;
+    return head + reviewItem({ stem: q.q, choices: q.choices, ans: q.ans, chosen: !a || a.u ? undefined : a.chosen, exp: q.exp, tag: 'Q' + (i + 1) + (nr ? ' · not reached' : ''), passageTitle: p && p.title, twin: q.twin, nullLabel: '— Not reached' });
+  }).join('');
+  const fb = (k, label) => '<button class="micro-btn' + (f === k ? ' on' : '') + '" aria-pressed="' + (f === k) + '" data-click="masteryReview(' + t.t + ',\'' + k + '\')">' + label + '</button>';
+  stopPassageTimer();
+  show('screen-results', 'score-report');
+  $('results-body').innerHTML = '<div class="results-hero"><div class="r-label">' + (t.kind === 'diagnostic' ? 'Diagnostic' : 'Quiz') + ' review · ' + esc(t.day) + ' · ' + esc(set.title || '') + '</div><div class="score-pct">' + t.scaled + '</div><div class="score-sub">' + masteryAnsweredLine(t) + '</div></div>' +
+    '<div class="results-card">' + masteryPacingNote(t) + (t.backfilled ? '<p class="muted-note">Rebuilt from your mistake log: questions it couldn’t match show without your answer.</p>' : '') +
+    '<div class="section-label">Review every question</div><div class="btn-row review-filters">' + fb('all', 'All') + fb('missed', 'Missed only') + fb('notreached', 'Not reached only') + '</div></div>' +
+    (n ? items : '<div class="results-card"><p class="muted-note">No questions match this filter.</p></div>') +
+    '<div class="btn-row"><button class="new-quiz-btn" data-click="goHome()">Back to TODAY</button></div>';
+  if (typeof window !== 'undefined' && window.scrollTo) window.scrollTo(0, 0);
 }
 function setMasteryGoal(v) { const m = masteryLoad(); if (MASTERY.goals.includes(Number(v))) { m.goal = Number(v); masterySave(m); } renderHome(); }
 function setMasteryPerDay(v) { const m = masteryLoad(); if (MASTERY.perDay.includes(Number(v))) { m.perDay = Number(v); masterySave(m); } renderHome(); }
@@ -912,7 +1039,7 @@ function masteryCard() {
         if (s.atGoal) { title = 'Done for today'; detail = 'You reached ' + plan.goal + ' on today’s quiz. Anything more is optional.' + (ws ? ' Weakest on the quiz: ' + ws + '.' : ''); button = ws ? btn('Optional: flashcards on the weak spots', 'startMasteryFollowup(\'flashcards\')', false) + ' ' + btn('Optional: guided cards on the weak spots', 'startMasteryFollowup(\'guided\')', false) : ''; }
         else { title = 'Work on what you missed'; count = s.practiced ? s.practiced + ' done' : ''; detail = 'Today’s quiz was below ' + plan.goal + '. Review the missed questions on the quiz results, then practice the weakest topics' + (ws ? ': ' + ws : '') + ' with flashcards and guided cards (the quiz’s missed and due cards first).'; button = btn('Flashcards on these topics', 'startMasteryFollowup(\'flashcards\')') + ' ' + btn('Guided cards on these topics', 'startMasteryFollowup(\'guided\')', false); }
       }
-      if (s.id === 'test') { title = '30-question quiz'; detail = s.done ? 'Today: <b>' + s.result.scaled + '</b> (' + s.result.correct + '/' + s.result.total + '). Tomorrow’s weak topics are updated.' : MASTERY.testSize + ' exam-style questions (passages and single questions' + (cp ? ', original, written to the AAMC C/P blueprint' : '') + ') at exam pace, to see your progress toward ' + plan.goal + '.';
+      if (s.id === 'test') { title = '30-question quiz'; detail = s.done ? 'Today: <b>' + s.result.scaled + '</b> (' + s.result.correct + '/' + s.result.total + '). Tomorrow’s weak topics are updated.' : MASTERY.testSize + ' exam-style questions (passages and single questions' + (cp ? ', original, written to the AAMC C/P blueprint' : '') + ') at exam pace, to see your progress toward ' + plan.goal + '. <b>Timed: ' + MASTERY.testSize + ' questions · ' + masteryQuizMinutes() + ' min · it ends on its own when time runs out, like the real test.</b>';
         // The quiz's fixed AAMC mix by category; once taken, right / asked in each.
         if (s.mix) { const r = s.done && s.result.cats ? s.result.cats : null; detail += (r ? ' Right by content category:' : ' The AAMC mix by content category:') + '<div class="mastery-path mastery-mix">' + Object.entries(s.mix.cats).map(([c, n]) => chip(c, r ? (r[c] ? r[c].c + '/' + r[c].t + ' right' : '–') : '× ' + n, false, AAMC_CAT_LABEL(c), false)).join('') + '</div>'; } time = s.done ? '' : mins(Math.round(MASTERY.testSize * MASTERY.secondsPerItem / 60)); if (!s.done) button = masteryQuizUnlocked(plan) ? btn('Start quiz', "startMasteryTest('daily')") : '<p class="muted-note">Unlocks when the flashcards are done.</p>'; }
       return '<li class="today-step' + (s.done ? ' done' : '') + '"><span class="today-num" aria-hidden="true">' + (s.done ? '✓' : num) + '</span><div class="today-body"><div class="today-title"><b>' + title + '</b>' + (count ? ' <span class="today-count">' + count + '</span>' : '') + time + '</div><div class="today-detail">' + detail + '</div>' + button + '</div></li>';
@@ -920,5 +1047,5 @@ function masteryCard() {
   }
   const mastered = plan.masteredToday ? '<p class="today-alldone">✓ ' + name(plan.subj) + ' reached goal on ' + MASTERY.passDays + ' days in a row. The next section starts tomorrow.</p>' : '';
   const controls = '<details class="mastery-settings"><summary>Path settings</summary><label>Goal <select data-change="setMasteryGoal(this.value)">' + MASTERY.goals.map(g => '<option value="' + g + '"' + (g === plan.goal ? ' selected' : '') + '>' + g + '</option>').join('') + '</select></label> <label>Cards a day <select data-change="setMasteryPerDay(this.value)">' + MASTERY.perDay.map(n => '<option value="' + n + '"' + (n === plan.perDay ? ' selected' : '') + '>' + n + ' + ' + n + '</option>').join('') + '</select></label> <label>Study this section now <select data-change="setMasterySubject(this.value)"><option value="">Next in path</option>' + MASTERY.order.map(s => '<option value="' + s + '"' + (s === plan.subj && masteryLoad().current === s ? ' selected' : '') + '>' + name(s) + '</option>').join('') + '</select></label></details>';
-  return head + latest + weak + mastered + body + controls;
+  return head + latest + weak + mastered + body + masteryPastHtml(masteryLoad()) + controls;
 }

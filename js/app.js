@@ -267,7 +267,7 @@ function buildCpt() {
 // tools/test-pages.cjs checks them against the data.
 // ASSET_V: the deploy's version (sw.js CACHE), added to every script the app loads on demand so the browser's HTTP
 // cache never serves one from an earlier deploy. Written by tools/generate-pages.cjs; do not edit by hand.
-const ASSET_V = '?v=mcat-v2.87-glance-rules-2026-11-19';
+const ASSET_V = '?v=mcat-v2.90-glance-rules-2026-11-19';
 const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'], cpt: ['data/cp-test-cards.js', 'data/cp-rules.js'] };
 const BANK_COUNTS = { fl: 354, flCp: 295, flTests: 6 };
 const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined', cpt: () => typeof CP_TEST_CARDS !== 'undefined' };
@@ -2011,13 +2011,14 @@ function twinFromHtml(src) {
 function studyTwinCard(src) {
   withBank('fl', () => { const card = twinCardOf(src); if (card) beginQuiz([card], 'Method from your test'); });
 }
-function reviewItem({ stem, choices, ans, chosen, exp, how, tag, passageTitle, other, otherHandler, otherId, twin }) {
+// chosen: an index, null (not answered: nullLabel, default "— Not answered") or undefined (unknown: no "your answer" line).
+function reviewItem({ stem, choices, ans, chosen, exp, how, tag, passageTitle, other, otherHandler, otherId, twin, nullLabel }) {
   return `<div class="missed-item">
     ${tag ? `<div class="missed-tag">${esc(tag)}</div>` : ''}
     ${passageTitle ? `<div class="missed-tag">Passage: ${esc(passageTitle)}</div>` : ''}
     <div class="missed-q">${fmt(stem)}</div>
     <div class="missed-correct">✓ ${fmt(choices[ans])}</div>
-    <div class="missed-wrong">${chosen == null ? '— Not answered' : chosen === ans ? '' : '✗ Your answer: ' + fmt(choices[chosen])}</div>
+    <div class="missed-wrong">${chosen === undefined ? '' : chosen == null ? esc(nullLabel || '— Not answered') : chosen === ans ? '' : '✗ Your answer: ' + fmt(choices[chosen])}</div>
     ${chosen != null && chosen !== ans && otherHandler ? runnerUpPrompt({choices,ans},chosen,otherHandler,other,otherId) : ''}
     <div${otherId ? ` id="alternative-feedback-${otherId}"` : ''}>${finalTwoFeedback({choices,ans,q:{id:'review'}},chosen,other)}</div>
     <details class="missed-exp"><summary>Explanation</summary>${paragraphs(exp)}</details>
@@ -2291,6 +2292,7 @@ function showProgress() {
     ${mistakeCard()}
     ${calibrationCard()}
     ${examHistoryCard()}
+    ${typeof masteryPastHtml === 'function' ? (h => h ? `<div class="results-card"><div class="section-label">Section mastery quizzes</div>${h}</div>` : '')(masteryPastHtml(masteryLoad(), true)) : ''}
     <div class="btn-row"><button class="new-quiz-btn secondary" data-click="goHome()">Home</button></div>
     <button class="text-btn danger" data-click="resetProgress()">Reset all progress on this device…</button>`;
 }
@@ -2333,13 +2335,47 @@ function startPassage(passage) {
 function updatePassageTimer() {
   const el = $('pp-timer');
   if (!el || activeScreen !== 'screen-passage') { stopPassageTimer(); return; }
+  if (pq.mini && pq.hiddenAt) return;   // paused while the app is hidden
   const used = Date.now() - pq.startedAt;
-  if (pq.mini && !pq.mini.completed && used >= pq.targetMs) { finishSubjectMini(); return; }
+  if (pq.mini && !pq.mini.completed && used >= pq.targetMs) { pq.mini.timedOut = true; miniTimeUp(el); return; }
+  // A timed quiz or diagnostic counts down (time left), with a notice at 10, 5 and 1 minute left.
+  if (pq.mini && pq.mini.mastery) {
+    const left = Math.max(0, pq.targetMs - used);
+    el.textContent = `${fmtTime(left)} left`;
+    el.title = 'Time left: the quiz ends on its own at 0:00';
+    el.className = 'qm-timer' + (left <= 5 * 60000 ? ' danger' : left <= 10 * 60000 ? ' warn' : '');
+    pq.warned = pq.warned || {};
+    for (const mn of [1, 5, 10]) if (left <= mn * 60000 && pq.targetMs > mn * 60000 && !pq.warned[mn]) { Object.assign(pq.warned, { 1: mn <= 1, 5: mn <= 5, 10: true }); timeNotice(mn === 1 ? '1 minute left' : mn + ' minutes left'); break; }
+    return;
+  }
   el.textContent = `${fmtTime(used)} / ${fmtTime(pq.targetMs)}`;
   el.title = 'Time used / AAMC pace for this passage';
   el.className = 'qm-timer' + (used > pq.targetMs ? ' danger' : used > pq.targetMs * 0.85 ? ' warn' : '');
 }
 function stopPassageTimer() { if (pq.timer) clearInterval(pq.timer); pq.timer = null; }
+// Time ran out: the clock reads 0:00, any earlier notice clears, and the quiz ends (results open with "Time's up").
+function miniTimeUp(el) {
+  if (el && pq.mini && pq.mini.mastery) { el.textContent = '0:00 left'; el.className = 'qm-timer danger'; }
+  const tn = typeof document !== 'undefined' && document.getElementById ? document.getElementById('time-notice') : null;
+  if (tn) tn.hidden = true;
+  finishSubjectMini();
+}
+// A clear notice for the clock ("10 minutes left"), read out by screen readers, shown for a few seconds.
+function timeNotice(msg) {
+  if (typeof document === 'undefined' || !document.getElementById) return;
+  let el = document.getElementById('time-notice');
+  if (!el) { el = document.createElement('div'); el.id = 'time-notice'; el.className = 'time-notice'; el.setAttribute('role', 'alert'); document.body.appendChild(el); }
+  el.textContent = '⏰ ' + msg; el.hidden = false;
+  clearTimeout(timeNotice.t); timeNotice.t = setTimeout(() => { el.hidden = true; }, 8000);
+}
+// The quiz clock pauses while the app is hidden (another app, a locked phone) and resumes when it is back, like the
+// full-length exam: the hidden time is added to the start.
+function miniVisibility() {
+  if (!pq.mini || pq.mini.completed || !pq.timer) { pq.hiddenAt = null; return; }
+  if (document.visibilityState === 'hidden') { if (!pq.hiddenAt) pq.hiddenAt = Date.now(); return; }
+  if (pq.hiddenAt) { const gap = Date.now() - pq.hiddenAt; pq.startedAt += gap; pq.qStart += gap; pq.hiddenAt = null; updatePassageTimer(); }
+}
+if (typeof document !== 'undefined' && document.addEventListener) document.addEventListener('visibilitychange', miniVisibility);
 function passageCard(topic, title, text, figure, scheme) {
   // Drawn structures and reaction schemes sit after the paragraph they belong to (row.after, 0-based over
   // blank-line-separated paragraphs; default: after the first).
@@ -2537,7 +2573,7 @@ function renderPassageQuestion() {
 }
 function finishPassageAnswer(chosen, other = null, answerMs = null) {
   if (pq.mini) {
-    if (Date.now() - pq.startedAt >= pq.targetMs) { finishSubjectMini(); return; }
+    if (Date.now() - pq.startedAt >= pq.targetMs) { pq.mini.timedOut = true; miniTimeUp($('pp-timer')); return; }
     miniAnswer(chosen, other, answerMs ?? (Date.now() - pq.qStart)); return;
   }
   if (pq.answered) return;
