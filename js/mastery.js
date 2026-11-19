@@ -276,10 +276,12 @@ function masteryTierPick(cards, k, tierOf, pick) {
 const MASTERY_EXAMS = ['pe1', 'pe3', 'pe4', 'pe5', 'pe6'];
 function masteryTestKey(q) {
   let best = null;
-  for (const ref of [...(Array.isArray(q.from) ? q.from : []), q.src]) {
-    const m = /^(pe\d)-cp:(\d+)(?:#(\d+))?$/.exec(String(ref || ''));
-    if (!m || !MASTERY_EXAMS.includes(m[1])) continue;
-    const k = [MASTERY_EXAMS.indexOf(m[1]), Number(m[2]), m[3] ? Number(m[3]) : 0];
+  for (const ref of [...(Array.isArray(q.from) ? q.from : []), ...(Array.isArray(q.twinOf) ? q.twinOf : []), q.src]) {
+    // A quiz-twin card (twinOf a Sample Test or QBank-pack question) sorts after the Practice Exam cards.
+    const x = /^(?:sample-cp|aamc-phys-qpack):Q?(\d+)$/.exec(String(ref || ''));
+    const m = x ? [null, null, x[1]] : /^(pe\d)-cp:(\d+)(?:#(\d+))?$/.exec(String(ref || ''));
+    if (!m || (!x && !MASTERY_EXAMS.includes(m[1]))) continue;
+    const k = [x ? MASTERY_EXAMS.length : MASTERY_EXAMS.indexOf(m[1]), Number(m[2]), m[3] ? Number(m[3]) : 0];
     if (!best || (k[0] - best[0] || k[1] - best[1] || k[2] - best[2]) < 0) best = k;
   }
   return best ? [...best, String(q.id || '')] : null;
@@ -313,7 +315,7 @@ function masteryDayOrder(list, catOf, rank, tierOf) {
 function masteryIsFront(q, front) {
   if (!q || !front || !front.size) return false;
   if (q.src && front.has(q.src)) return true;
-  return q.subj === 'cp_test' && Array.isArray(q.from) && q.from.some(s => front.has(String(s).split('#')[0]));
+  return q.subj === 'cp_test' && [...(Array.isArray(q.from) ? q.from : []), ...(Array.isArray(q.twinOf) ? q.twinOf : [])].some(s => front.has(String(s).split('#')[0]));
 }
 // The picking order within a category (pure; the app passes its saved data): 0 missed cards (o.missed, a Set of
 // ids: today's and the latest test's misses) and cards due for review (o.due(q): memory below the target
@@ -472,7 +474,10 @@ const masteryDiscs = s => Object.entries(masterySection(s)?.weights || {}).filte
 // Flashcards for the section. C/P: only the Practice Test flashcards (data/cp-test-cards.js, BANKS.cpt in app.js),
 // in a C/P content category; no QBank card and no other deck fills a gap (a short category is reported by
 // tools/test-cp-test-cards.cjs). Other sections: the AAMC QBank cards.
-const MASTERY_PE = /^pe\d-cp:/;   // the Practice Exam C/P cards (Practice Exams 1, 3, 4, 5, 6; no Sample Test)
+const MASTERY_PE = /^pe\d-cp:/;
+// A daily-quiz question that twins a Sample Test or QBank-pack question: its flashcard (cpt-st-*, twinOf) leads the
+// flashcard step after a miss; the guided step has no card for it.
+const MASTERY_QUIZ_TWIN = /^(sample-cp|aamc-phys-qpack):/;   // the Practice Exam C/P cards (Practice Exams 1, 3, 4, 5, 6; no Sample Test)
 function masteryFlashPool(s) {
   if (s !== 'cp') return masteryExamPool(s);
   if (!bankReady('cpt')) return [];
@@ -612,12 +617,12 @@ function masteryTierOf(m, plan, row) {
   const acc = q => { const r = stats[q.key || q.s]; return r && Number.isFinite(r.c) && Number.isFinite(r.t) && r.t > 0 ? r.c / r.t : null; };
   return masteryTierRank({ missed, due, acc, front: masteryTwinFront(plan) });
 }
-// The twin cards (by src) of the questions missed on the latest diagnostic or quiz, Practice Exam 1/3/4/5/6 twins
-// only (a twin on a Sample Test or QBank card is skipped: TODAY no longer teaches those). The Practice Exam card
+// The twin cards (by src) of the questions missed on the latest diagnostic or quiz: Practice Exam 1/3/4/5/6 twins, and
+// Sample Test / QBank-pack twins of the daily quiz (their cpt-st flashcards; no guided card). The Practice Exam card
 // leads the guided step; the Practice Test flashcards whose `from` names it lead the flashcard step.
 function masteryTwinFront(plan) {
   const latest = plan && plan.latest;
-  return new Set(((latest && latest.twinMisses) || []).filter(x => typeof x === 'string' && MASTERY_PE.test(x)));
+  return new Set(((latest && latest.twinMisses) || []).filter(x => typeof x === 'string' && (MASTERY_PE.test(x) || MASTERY_QUIZ_TWIN.test(x))));
 }
 function masteryStartQuiz(list, label, mode) {
   beginQuiz(list, label, { mastery: mode });

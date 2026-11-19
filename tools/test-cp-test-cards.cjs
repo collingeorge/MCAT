@@ -61,7 +61,7 @@ const sentences = t => String(t).replace(/\b(e\.g|i\.e|vs|approx|ca)\./g, '$1').
 // its "Needs" items; once all 295 are written, every spec item must have a card.
 // The exams written so far: every exam any card comes from; all 59 of each one's questions must map to a card.
 // 250 cards for the Practice Exams, plus the cards that twin the daily quiz's Sample Test and QBank-pack questions.
-const DECK_MAX = 340;
+const DECK_MAX = 350;
 const DECK_TARGET = { '5D': 60, '5E': 38, '4E': 32, '5A': 23, '4D': 20, '4C': 20, '4B': 17, '5B': 15, '4A': 13, '5C': 12 };
 assert.equal(Object.values(DECK_TARGET).reduce((a, b) => a + b, 0), 250, 'the category targets add up to the 250-card Practice Exam budget');
 assert(CARDS.length <= DECK_MAX, `the deck is ${CARDS.length} cards; the budget is ${DECK_MAX}`);
@@ -254,6 +254,13 @@ for (const c of CARDS) for (const s of new Set([...c.from.map(r => r.split('#')[
   const text = [c.q, ...c.choices, c.exp].join(' ');
   for (const [topic, re] of Object.entries(BLOCKLIST)) assert(!re.test(text), c.id + ': untaught topic ' + topic);
 }
+// A card practices the quiz question that twins the same source, never its answer: its key is not the quiz
+// question's correct choice. (Shared stem wording is expected: the card asks the same thing the same way.)
+const QUIZ_BY_TWIN = new Map();
+for (const h of POOL) for (const [p, q] of [...h.passages.flatMap(p => p.questions.map(q => [p, q])), ...h.standalones.map(q => [null, q])]) (QUIZ_BY_TWIN.get(q.twin) || QUIZ_BY_TWIN.set(q.twin, []).get(q.twin)).push({ p, q });
+for (const c of CARDS) for (const t of c.twinOf || []) for (const { p, q } of QUIZ_BY_TWIN.get(t) || []) {
+  assert.notEqual(keyNorm(c.choices[c.ans]), keyNorm(q.choices[q.ans]), c.id + ': its key is the key of the quiz question twinning ' + t);
+}
 
 // Cards look like the test: a card whose source question shows a figure carries one of the same kind, drawn for its
 // own problem: a structure (source `fig` / `choiceFigs`) as a structure on the card or in a lesson step, a graph or
@@ -359,7 +366,9 @@ for (let day = 0; day < 200; day++) {
     { subj: 'cp', day: '${today}', t: 1, kind: 'diagnostic', correct: 30, total: 59, pct: 51, scaled: 122, version: 'cp_diag2', cats: { '5D': { c: 2, t: 14 } } },
     { subj: 'cp', day: '${today}', t: 2, kind: 'daily', correct: 15, total: 30, pct: 50, scaled: 122, version: 'cp_half_${1 + (day % 6)}', cats: { '5C': { c: 0, t: 2 } }, missIds: [], twinMisses: ['${pe}', '${sampleSrc}', '${qbSrc}'] }] })`);
   const front = JSON.parse(run('JSON.stringify([...masteryTwinFront(masteryPlanNow())])'));
-  assert.deepEqual(front, [pe], 'day ' + day + ': only the Practice Exam twin leads (the Sample Test and QBank twins are skipped)');
+  // The Practice Exam twin leads both steps; a missed Sample Test quiz question's twin card (cpt-st) leads the flashcards
+  // (it has no guided card); a QBank twin is skipped.
+  assert.deepEqual(front, [pe, sampleSrc], 'day ' + day + ': the Practice Exam and Sample Test twins lead (the QBank twin is skipped)');
   // Weakest first: each step's set runs by category (masteryCatRank: weak categories of the latest test, lowest %
   // right first, then untested ones by AAMC weight); within a category the missed twin's cards, then test order
   // (PE1, PE3, PE4, PE5, PE6, then question number, then item).
