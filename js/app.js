@@ -270,7 +270,7 @@ function buildCpt() {
 const ASSET_V = '?v=mcat-v2.89-cp-same-ask-2026-11-19';
 const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'], cpt: ['data/cp-test-cards.js', 'data/cp-rules.js'] };
 const BANK_COUNTS = { fl: 354, flCp: 295, flTests: 6 };
-const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined', cpt: () => typeof CP_TEST_CARDS !== 'undefined' };
+const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined', cpt: () => typeof CP_TEST_CARDS !== 'undefined' && typeof CP_RULES !== 'undefined' };   // both files of BANKS.cpt (the rules warm-up needs CP_RULES)
 const bankDone = Object.create(null), bankLoading = Object.create(null);
 function bankReady(name) {
   if (bankDone[name]) return true;
