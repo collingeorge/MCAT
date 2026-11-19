@@ -2,8 +2,8 @@
 //   First: a diagnostic (a full section, scored 118–132, weak AAMC content categories shown; it can be retaken).
 //   Then every day, exactly 3 steps: 1 50 flashcards (C/P: the Practice Test flashcards of data/cp-test-cards.js, built
 //   from the C/P questions of Practice Exams 1, 3, 4, 5 and 6; no QBank card) → 2 50 guided Practice Exam cards with step-by-step
-//   lessons → 3 a 30-question quiz from data/cp-pool.js (half an AAMC section in exam order), unlocked once steps 1
-//   and 2 are done → done for the day at goal, otherwise a follow-up on the quiz's misses and weak categories with
+//   lessons → 3 a 30-question quiz from data/cp-pool.js (half an AAMC section in exam order), unlocked once the flashcards
+//   are done (guided cards recommended, not required) → done for the day at goal, otherwise a follow-up on the quiz's misses and weak categories with
 //   flashcards and guided cards.
 //   C/P follows the AAMC blueprint (MASTERY.blueprint) exactly: each step's count is split 100% over all 10 content
 //   categories by how often AAMC tests each one (masteryBlueprintSplit: largest remainder, ties to the heavier
@@ -695,9 +695,9 @@ function masteryRulesSheetHtml() {
   return (typeof elimChecksHtml === 'function' ? elimChecksHtml() : '') + (typeof fastKindsHtml === 'function' ? fastKindsHtml() : '') +
     sections.map(sec => '<div class="rules-sec"><b>' + esc(sec.title) + '</b><ul>' + sec.items.map(it => '<li>' + fmt(it) + '</li>').join('') + '</ul></div>').join('');
 }
-// Step 3, the daily quiz, unlocks once steps 1 and 2 (flashcards, guided cards with their lessons) are done.
+// The daily quiz unlocks once today's flashcards are done; the guided cards are recommended but not required.
 function masteryQuizUnlocked(plan) {
-  return plan.status === 'study' && plan.steps.filter(s => s.id === 'flashcards' || s.id === 'guided').every(s => s.done);
+  return plan.status === 'study' && plan.steps.filter(s => s.id === 'flashcards').every(s => s.done);
 }
 // Diagnostic / end-of-day test: 2 passages from the section's main disciplines (unattempted first) + discrete
 // questions spread over its disciplines in the exam's proportions, from the
@@ -708,8 +708,8 @@ function startMasteryTest(kind) {
   if (!bankReady('fl')) { withBank('fl', () => startMasteryTest(kind)); return; }
   const plan = masteryPlanNow();
   if (!plan.subj) return;
-  // The daily quiz (step 3) unlocks once today's flashcards and guided cards (steps 1 and 2) are done.
-  if (kind !== 'diagnostic' && !masteryQuizUnlocked(plan)) { masteryNotice('The quiz unlocks once today’s flashcards and guided cards are done.'); return; }
+  // The daily quiz unlocks once today's flashcards are done (guided cards optional).
+  if (kind !== 'diagnostic' && !masteryQuizUnlocked(plan)) { masteryNotice('The quiz unlocks once today’s flashcards are done.'); return; }
   const subj = plan.subj;
   // C/P: the Chem/Phys Diagnostic (data/cp-diagnostic.js) and the daily half-section pool (data/cp-pool.js):
   // original passages written to the AAMC C/P blueprint, in the exam's order of passages and stand-alones.
@@ -891,7 +891,7 @@ function masteryCard() {
       }
       if (s.id === 'test') { title = '30-question quiz'; detail = s.done ? 'Today: <b>' + s.result.scaled + '</b> (' + s.result.correct + '/' + s.result.total + '). Tomorrow’s weak topics are updated.' : MASTERY.testSize + ' exam-style questions (passages and single questions' + (cp ? ', original, written to the AAMC C/P blueprint' : '') + ') at exam pace, to see your progress toward ' + plan.goal + '.';
         // The quiz's fixed AAMC mix by category; once taken, right / asked in each.
-        if (s.mix) { const r = s.done && s.result.cats ? s.result.cats : null; detail += (r ? ' Right by content category:' : ' The AAMC mix by content category:') + '<div class="mastery-path mastery-mix">' + Object.entries(s.mix.cats).map(([c, n]) => chip(c, r ? (r[c] ? r[c].c + '/' + r[c].t + ' right' : '–') : '× ' + n, false, AAMC_CAT_LABEL(c), false)).join('') + '</div>'; } time = s.done ? '' : mins(Math.round(MASTERY.testSize * MASTERY.secondsPerItem / 60)); if (!s.done) button = masteryQuizUnlocked(plan) ? btn('Start quiz', "startMasteryTest('daily')") : '<p class="muted-note">Unlocks when the flashcards and guided cards are done.</p>'; }
+        if (s.mix) { const r = s.done && s.result.cats ? s.result.cats : null; detail += (r ? ' Right by content category:' : ' The AAMC mix by content category:') + '<div class="mastery-path mastery-mix">' + Object.entries(s.mix.cats).map(([c, n]) => chip(c, r ? (r[c] ? r[c].c + '/' + r[c].t + ' right' : '–') : '× ' + n, false, AAMC_CAT_LABEL(c), false)).join('') + '</div>'; } time = s.done ? '' : mins(Math.round(MASTERY.testSize * MASTERY.secondsPerItem / 60)); if (!s.done) button = masteryQuizUnlocked(plan) ? btn('Start quiz', "startMasteryTest('daily')") : '<p class="muted-note">Unlocks when the flashcards are done.</p>'; }
       return '<li class="today-step' + (s.done ? ' done' : '') + '"><span class="today-num" aria-hidden="true">' + (s.done ? '✓' : num) + '</span><div class="today-body"><div class="today-title"><b>' + title + '</b>' + (count ? ' <span class="today-count">' + count + '</span>' : '') + time + '</div><div class="today-detail">' + detail + '</div>' + button + '</div></li>';
     }).join('') + '</ol>';
   }

@@ -158,7 +158,7 @@ for (const a of ['startMasteryGuided', 'startMasteryFlashcards', 'startMasteryTe
 for (const page of ['index.html', 'recall-session.html']) assert(fs.readFileSync(root + '/' + page, 'utf8').includes('<script src="js/mastery.js?v='), page + ' loads the path');
 assert(fs.readFileSync(root + '/sw.js', 'utf8').includes("'js/mastery.js'"), 'cached for offline use');
 // After the quiz, below goal: the follow-up reviews the quiz's misses and weak categories with flashcards and
-// guided cards only; it never sends the student to practice passages. The quiz unlocks once steps 1 and 2 are done.
+// guided cards only; it never sends the student to practice passages. The quiz unlocks once the flashcards are done.
 { let mp = apply({}, test('cp', '2026-11-15', 'diagnostic', 122, { version: 'cp_diag' }));
   assert(plan(mp, '2026-11-15').steps[0].old, 'a diagnostic from the earlier version (cp_diag) is labeled as earlier');
   mp = apply({}, test('cp', '2026-11-15', 'diagnostic', 122, { version: 'cp_diag2' }));
@@ -168,8 +168,8 @@ assert(fs.readFileSync(root + '/sw.js', 'utf8').includes("'js/mastery.js'"), 'ca
   assert.equal(f.id, 'followup'); assert(!f.atGoal && !('passages' in f), 'below goal: no passage practice'); }
 assert(src.includes("btn('Flashcards on these topics', 'startMasteryFollowup(\\'flashcards\\')')") && src.includes("btn('Guided cards on these topics', 'startMasteryFollowup(\\'guided\\')', false)"), 'the follow-up offers flashcards and guided cards');
 assert(!/startMasteryPassages|masteryNextPractice|masteryNotePractice|masteryPassagePool|masteryPassageRank|startMasteryFollowup\('passages'\)/.test(src + actions + app), 'the passage step and its practice are gone');
-assert(src.includes("if (kind !== 'diagnostic' && !masteryQuizUnlocked(plan))") && src.includes("plan.steps.filter(s => s.id === 'flashcards' || s.id === 'guided').every(s => s.done)"), 'the quiz unlocks once steps 1 and 2 are done');
-assert(src.includes("'<p class=\"muted-note\">Unlocks when the flashcards and guided cards are done.</p>'"), 'TODAY shows the quiz locked until then');
+assert(src.includes("if (kind !== 'diagnostic' && !masteryQuizUnlocked(plan))") && src.includes("plan.steps.filter(s => s.id === 'flashcards').every(s => s.done)"), 'the quiz unlocks once the flashcards are done');
+assert(src.includes("'<p class=\"muted-note\">Unlocks when the flashcards are done.</p>'"), 'TODAY shows the quiz locked until then');
 // Results saved before the Chem/Phys Diagnostic existed (no version) are labeled as the old diagnostic.
 assert(src.includes("version: mini.setId || 'cards'") && src.includes('<b>earlier version</b> of the diagnostic'), 'old diagnostic labeled');
 // A retake button runs the full diagnostic again once the first one is done.

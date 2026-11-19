@@ -267,7 +267,7 @@ for (const days of [22, 25, 27]) {
     assert.deepEqual(JSON.parse(run("JSON.stringify(masteryPlanNow().steps.map(s=>s.id))")), ['diagnostic', 'rules', 'flashcards', 'guided', 'test'], 'exactly 3 daily steps after the diagnostic');
     const html = el('today-plan').innerHTML;
     assert.doesNotMatch(html, /Passage questions|startMasteryPassages/, 'no passage step on TODAY');
-    assert.match(html, /Unlocks when the flashcards and guided cards are done/, 'the quiz is locked until steps 1 and 2 are done');
+    assert.match(html, /Unlocks when the flashcards are done/, 'the quiz is locked until the flashcards are done');
     run(`store.set(KEYS.subjectPath,{})`); }
   // Malformed object maps from another device used to blank the app or freeze a question.
   storage.set('mcat2_evidence', '{"biology":null,"physics":7}'); storage.set('mcat2_calibration', '{"biology":null}'); storage.set('mcat2_recall_days', JSON.stringify({ [run('localDay()')]: 5 }));

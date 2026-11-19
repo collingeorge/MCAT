@@ -77,7 +77,7 @@ async function main() {
   await until('document.querySelector("#pp-question-box").textContent.includes("diagnostic")');
   assert(await evaluate('document.querySelector("#pp-question-box").textContent.includes("Topics, weakest first")'));
   // TODAY after the diagnostic: the diagnostic (retake), then exactly 3 daily steps numbered 1–3: 50 flashcards,
-  // 50 guided Practice Exam cards, the quiz, which stays locked until steps 1 and 2 are done.
+  // 50 guided Practice Exam cards, the quiz, which stays locked until the flashcards are done.
   await evaluate('goHome()');
   assert.deepEqual(await evaluate('[...document.querySelectorAll("#today-plan .today-step .today-title > b")].map(b=>b.textContent)'),['Diagnostic','Rules warm-up','Flashcards','Guided Practice Exam cards with walkthroughs','30-question quiz']);
   assert.deepEqual(await evaluate('[...document.querySelectorAll("#today-plan .today-step .today-num")].map(n=>n.textContent)'),['✓','1','2','3','4']);
@@ -92,7 +92,7 @@ async function main() {
   assert.match(await evaluate('document.querySelector("#exp-area").textContent'),/Rule:/,'the rule shows after answering');
   await evaluate('goHome()');
   assert.equal(await evaluate('[...document.querySelectorAll("#today-plan [data-click]")].some(b=>b.dataset.click.includes("daily"))'),false,'the quiz is locked');
-  assert(await evaluate('document.querySelector("#today-plan").textContent.includes("Unlocks when the flashcards and guided cards are done")'));
+  assert(await evaluate('document.querySelector("#today-plan").textContent.includes("Unlocks when the flashcards are done")'));
   await evaluate('goHome();showPlan()');
   await evaluate('document.querySelector("#plan-date").value=localDay(new Date(Date.now()+60*DAY));savePlan()');
   assert(await evaluate('const probe=document.createElement("div");probe.innerHTML=fmt("<img src=x onerror=alert(1)>");probe.querySelector("img")===null'));
