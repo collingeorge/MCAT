@@ -672,9 +672,9 @@
        "diff": "X"
       },
       {
-       "twin": "pe3-cp:8",
+       "twin": "pe5-cp:54",
        "kind": "P",
-       "aamc": "4A",
+       "aamc": "4D",
        "disc": "physics",
        "skill": "SIRS 4",
        "diff": "X"
@@ -975,9 +975,9 @@
        "diff": "X"
       },
       {
-       "twin": "pe1-cp:21",
+       "twin": "pe1-cp:16",
        "kind": "P",
-       "aamc": "4A",
+       "aamc": "4D",
        "disc": "physics",
        "skill": "SIRS 2",
        "diff": "D"
@@ -1461,9 +1461,9 @@
      "diff": "D"
     },
     {
-     "twin": "pe4-cp:12",
+     "twin": "pe1-cp:11",
      "kind": "SA",
-     "aamc": "4A",
+     "aamc": "4D",
      "disc": "physics",
      "skill": "SIRS 2",
      "diff": "D"
@@ -1788,9 +1788,9 @@
      "diff": "M"
     },
     {
-     "twin": "pe5-cp:47",
+     "twin": "pe1-cp:45",
      "kind": "SA",
-     "aamc": "4A",
+     "aamc": "4D",
      "disc": "physics",
      "skill": "SIRS 2",
      "diff": "X"
@@ -1903,9 +1903,9 @@
      ],
      "rows": [
       {
-       "twin": "pe6-cp:5",
+       "twin": "pe5-cp:53",
        "kind": "P",
-       "aamc": "4A",
+       "aamc": "4D",
        "disc": "physics",
        "skill": "SIRS 1",
        "diff": "D"
@@ -2222,9 +2222,9 @@
        "diff": "D"
       },
       {
-       "twin": "pe4-cp:55",
+       "twin": "pe5-cp:55",
        "kind": "P",
-       "aamc": "4A",
+       "aamc": "4D",
        "disc": "physics",
        "skill": "SIRS 2",
        "diff": "X"

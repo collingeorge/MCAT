@@ -68,5 +68,11 @@ const lr = (n, w) => { const e = Object.entries(w), t = e.reduce((a, [, x]) => a
 const SETS = [{ id: 'diag', n: 59, nP: 10, nSA: 15, sizes: [4, 4, 4, 4, 4, 4, 4, 5, 5, 6], layout: ['P', 'P', 4, 'P', 'P', 'P', 4, 'P', 'P', 'P', 4, 'P', 'P', 3] },
   ...[1, 2, 3, 4, 5, 6].map(i => ({ id: 'quiz' + i, n: 30, nP: 5, nSA: 8, sizes: [4, 4, 4, 5, 5], layout: ['P', 'P', 4, 'P', 'P', 'P', 4] }))];
 for (const s of SETS) s.t = { cats: lr(s.n, W.cats), discs: lr(s.n, W.discs), skills: lr(s.n, W.skills), diffs: lr(s.n, W.diffs) };
-module.exports = { cards, prim, secondary, saCards, SETS, W, lr, CL, FILES };
+// The daily quizzes follow the user's per-30 mix (2026-11-19): one 4A question became a 4D question in each set.
+const QUIZ_CATS = { '5D': 7, '5E': 5, '4E': 4, '5A': 3, '4D': 3, '4C': 2, '4B': 2, '5B': 2, '4A': 1, '5C': 1 };
+for (const s of SETS) if (/^quiz/.test(s.id)) s.t.cats = { ...QUIZ_CATS };
+// A quiz passage twins cards of one AAMC passage, except the one 4D question added to these passages (its twin is a
+// 4D Practice Exam card from another AAMC passage).
+const OUTSIDE_TWINS = { quiz1: 'pe5-cp:54', quiz2: 'pe1-cp:16', quiz5: 'pe5-cp:53', quiz6: 'pe5-cp:55' };
+module.exports = { cards, prim, secondary, saCards, SETS, W, lr, CL, FILES, OUTSIDE_TWINS };
 if (require.main === module) process.stdout.write(JSON.stringify({ cards: Object.values(cards).map(x => ({ id: x.id, file: x.file, index: x.index, aamc: x.card.aamc, disc: x.card.disc, skills: x.skills, score: +x.score.toFixed(2), primary: x.primary })), prim, secondary, sa: saCards, sets: SETS }));
