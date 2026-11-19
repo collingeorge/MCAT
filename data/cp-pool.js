@@ -1217,19 +1217,19 @@ const CP_POOL = [
       "id": "p_cpq2_3_q1"
      },
      {
-      "q": "Which method would best determine the mole ratio of the two alcohols in the commercial sample?",
+      "q": "Suppose the two alcohols in the commercial sample gave fully overlapping ¹H NMR peaks but boiled 15 °C apart. Which method would best determine their mole ratio?",
       "choices": [
        "IR band positions",
        "UV absorbance",
        "Proton NMR integrals",
-       "Boiling point"
+       "GC peak areas"
       ],
-      "ans": 2,
+      "ans": 3,
       "cat": "4D",
       "skill": "SIRS 2",
       "diff": "D",
       "twin": "pe6-cp:2",
-      "exp": "1. Translate: the question asks for amounts, a ratio, not for identity.\n2. The two alcohols share their functional groups (one O–H, one C=C), so their IR bands overlap, and the boiling behavior of the mixture only shows that it is not pure.\n3. UV absorbance needs conjugation differences, and neither compound is conjugated; it gives no H-by-H count either.\n4. Rule: a ¹H NMR integral is proportional to the number of H making the peak. Dihydromyrcenol has a unique =CH₂ peak (2 H) near 4.9 ppm; its isomer has a unique =CH– peak (1 H) near 5.1 ppm.\n5. Divide each integral by its number of H to get moles of each isomer: for integrals of 3.0 and 0.5: dihydromyrcenol: 3.0 ÷ 2 H = **1.5**; isomer: 0.5 ÷ 1 H = **0.5**; ratio = **3 : 1**.\n6. Answer: proton NMR integrals, because peak areas count H atoms and so give the mole ratio of the two isomers.\n\n**Rule to reuse:** \"how much of each\" in a mixture → ¹H NMR integrals (area ∝ number of H). IR/UV tell you *what* groups are there, not how much.",
+      "exp": "1. Translate: the question asks for amounts, a ratio, not for identity, and the stem takes away NMR's usual edge: the peaks overlap.\n2. With every ¹H NMR peak overlapping, each integral is the sum of both isomers, so the integrals can no longer be split between them.\n3. The two alcohols share their functional groups (one O–H, one C=C), so their IR bands overlap; neither is conjugated, so UV absorbance gives no handle either.\n4. Rule: gas chromatography separates compounds by volatility. Boiling points 15 °C apart give two separate peaks, and for two isomers each peak's area is proportional to the amount of that isomer.\n5. Divide each area by the total: for areas of 3.0 and 1.0: 3.0 ÷ 4.0 = **75%**; 1.0 ÷ 4.0 = **25%**; ratio = **3 : 1**.\n6. Answer: GC peak areas, because the isomers separate on the column and each area measures how much of that isomer is present.\n\n**Rule to reuse:** \"how much of each\" in a mixture → a method that gives each compound its own signal with area ∝ amount: ¹H NMR integrals when peaks are distinct, GC peak areas when the compounds separate by volatility.",
       "id": "p_cpq2_3_q2"
      },
      {
@@ -2111,12 +2111,12 @@ const CP_POOL = [
     "passage": "Hospitals use portable ultraviolet (UV) units to disinfect patient rooms between admissions. UV photons are absorbed by the nucleic acids of bacteria and viruses, and the more energetic the photons, the more efficiently they damage these molecules.\n\nIn one design, a sealed gas-filled lamp gives off light at every wavelength between 250 nm and 400 nm. To protect the lamp's quartz envelope, the gas inside must stay at or below 104 °F during operation, and engineers apply PV = nRT, the ideal gas equation, to predict the pressure in the envelope at this temperature. The lamp is powered by a driver that delivers square voltage pulses: the voltage is held at 300 V for 30 µs, then drops to 0 V for 20 µs, and this pattern repeats as long as the unit is switched on.\n\nBecause airborne dust scatters UV light and shields microbes, a fan draws room air through the unit, where it passes between two large parallel metal plates 3.0 mm apart. One plate is held at +900 V and the other is grounded (0 V). Except close to the plate edges, the field has one constant magnitude, 3.0 × 10⁵ V/m, throughout the gap. Dust particles that pick up a charge as they enter are pulled out of the airstream onto the plates, and the cleaned air leaves through a vent at the top of the unit.",
     "questions": [
      {
-      "q": "To predict the envelope pressure with PV = nRT at the maximum allowed gas temperature, what T must be entered?",
+      "q": "If the envelope's limit were raised to 167 °F, what T must be entered to predict the envelope pressure with PV = nRT at that temperature?",
       "choices": [
-       "377 K",
-       "345 K",
-       "313 K",
-       "40 K"
+       "440 K",
+       "408 K",
+       "348 K",
+       "75 K"
       ],
       "ans": 2,
       "cat": "4B",
@@ -2124,7 +2124,7 @@ const CP_POOL = [
       "diff": "X",
       "subj": "gen_chem",
       "twin": "pe3-cp:17",
-      "exp": "1. The given value is in Fahrenheit, and the gas law needs kelvin. Two conversions are needed, in order.\n2. Fahrenheit → Celsius: subtract 32, then scale by 5/9: °C = (104 − 32) × 5/9 = 72 × 5/9 = **40 °C**. Skipping × 5/9 gives 72 + 273 = 345 K ✗.\n3. Celsius → kelvin: add 273: K = 40 + 273 = **313 K**. Stopping at 40 K leaves the value in Celsius, and 104 + 273 = 377 K adds the Celsius offset to a Fahrenheit number ✗.\n4. Check on the conversion line: 104 °F sits between freezing (32 °F, 273 K) and boiling (212 °F, 373 K), just above body temperature (98.6 °F, 310 K).\n5. Answer: 313 K.\n\n**Rule to reuse:** °F → °C: (°F − 32) × 5/9; °C → K: + 273. Gas-law temperatures are ALWAYS in kelvin.",
+      "exp": "1. The given value is in Fahrenheit, and the gas law needs kelvin. Two conversions are needed, in order.\n2. Fahrenheit → Celsius: subtract 32, then scale by 5/9: °C = (167 − 32) × 5/9 = 135 × 5/9 = **75 °C**. Skipping × 5/9 gives 135 + 273 = 408 K ✗.\n3. Celsius → kelvin: add 273: K = 75 + 273 = **348 K**. Stopping at 75 K leaves the value in Celsius, and 167 + 273 = 440 K adds the Celsius offset to a Fahrenheit number ✗.\n4. Check on the conversion line: 167 °F sits between freezing (32 °F, 273 K) and boiling (212 °F, 373 K), three quarters of the way up: (167 − 32) ÷ 180 = 0.75, and 273 + 0.75 × 100 = 348 K.\n5. Answer: 348 K.\n\n**Rule to reuse:** °F → °C: (°F − 32) × 5/9; °C → K: + 273. Gas-law temperatures are ALWAYS in kelvin.",
       "id": "p_cpq3_3_q1"
      },
      {
@@ -3292,20 +3292,20 @@ const CP_POOL = [
     "id": "cp_q4_sa4"
    },
    {
-    "q": "Green laser light (λ = 532 nm) passes through a 60 μm gap between two razor blades. On a screen 1.5 m away, a row of equally spaced light and dark fringes appears on either side of the central spot. The fringes are primarily caused by:",
+    "q": "Green laser light (λ = 532 nm) strikes a flat glass plate (n = 1.5) at 56° from the normal. As the laser is turned about its own beam axis, the spot it reflects onto a screen 1.5 m away fades almost to dark twice per turn. The fading is primarily caused by:",
     "choices": [
      "Diffraction",
      "Refraction",
      "Polarization",
      "Reflection"
     ],
-    "ans": 0,
+    "ans": 2,
     "cat": "4D",
     "skill": "SIRS 2",
     "diff": "D",
     "subj": "physics",
     "twin": "pe4-cp:46",
-    "exp": "1. Translate: equally spaced light and dark fringes on both sides of the central spot are an interference pattern.\n2. Compare the gap with the wavelength: 60 μm ÷ 0.532 μm ≈ **113** wavelengths, narrow enough to spread the light noticeably.\n3. Predict the fringe spacing with the single-slit formula: Δy ≈ λL ÷ a = (5.32 × 10⁻⁷ m)(1.5 m) ÷ (6.0 × 10⁻⁵ m) ≈ **1.3 × 10⁻² m ≈ 1.3 cm**, easily visible.\n4. Refraction and reflection at the blade edges do not produce evenly spaced fringes, and polarization changes only the orientation of the light's field, not a band pattern. So \"Refraction\", \"Polarization\" and \"Reflection\" are out.\n5. Answer: diffraction of light at the edges of the narrow gap.\n\n**Rule to reuse:** bright/dark fringes around a small obstacle or through a narrow slit (size near λ) = diffraction plus interference. Spacing ≈ λL/a.",
+    "exp": "1. Translate: the spot's brightness depends on how the laser is turned about its own beam, not on where the light lands. That points to the orientation of the light's electric field.\n2. Check the angle: tan θ = n gives the Brewster angle, tan⁻¹(1.5) ≈ **56°**, the angle given.\n3. At the Brewster angle, light whose field lies in the plane of incidence is not reflected at all. Laser light is linearly polarized, so twice per turn its field lines up with that plane and the reflected spot nearly vanishes.\n4. Reflection makes the spot but does not by itself make it fade as the laser turns; refraction only bends the transmitted beam; diffraction needs a gap or edge close to λ in size. So \"Reflection\", \"Refraction\" and \"Diffraction\" are out.\n5. Answer: polarization of the laser light, reflected at the Brewster angle.\n\n**Rule to reuse:** brightness that changes as a source or filter is rotated about the beam = polarization. Brewster angle: tan θ_B = n₂/n₁; light reflected there is fully polarized.",
     "id": "cp_q4_sa5"
    },
    {
@@ -4473,19 +4473,19 @@ const CP_POOL = [
       "id": "p_cpq6_2_q3"
      },
      {
-      "q": "Based on the observations, the reaction of nickel with bromine is best categorized as:",
+      "q": "Suppose the student then added aqueous sodium carbonate to the green NiBr₂ solution and a pale green solid, NiCO₃, settled out. Based on these observations, how is this second reaction best categorized?",
       "choices": [
-       "precipitation, since NiBr₂ crystals form.",
+       "precipitation, since NiCO₃ comes out of solution.",
        "redox, since Ni is reduced.",
-       "acid–base, since Ni²⁺ acts as a Lewis acid.",
+       "acid–base, since CO₃²⁻ accepts a proton.",
        "redox, since Ni is oxidized."
       ],
-      "ans": 3,
+      "ans": 0,
       "cat": "4E",
       "skill": "SIRS 2",
       "diff": "D",
       "twin": "pe3-cp:16",
-      "exp": "1. Observations: nickel metal dissolves and ions appear (conductivity rises). Assign oxidation states before: Ni(s) **0**; Br₂ **0** (element).\n2. In NiBr₂, bromide is −1, so nickel must be +2: Ni + 2(Br) = 0; Br = **−1** → Ni = **+2**.\n3. Ni lost electrons (0 → +2, oxidized); each Br gained one (0 → −1, reduced): Ni → Ni²⁺ + **2 e⁻**; Br₂ + **2 e⁻** → 2 Br⁻. That rules out \"redox, since Ni is reduced.\"\n4. Rising conductivity means dissolved ions form, not a solid, and no proton or electron-pair transfer is the main event. That rules out the precipitation and Lewis acid–base choices.\n5. Answer: redox, since Ni is oxidized.\n\n**Rule to reuse:** assign oxidation states before and after; if any change, it is redox. Metals go up (oxidized), halogens go down to −1 (reduced).",
+      "exp": "1. Observations: mixing two ionic solutions gives a solid that settles out. Assign oxidation states before and after.\n2. Ni stays **+2** (Ni²⁺ in NiBr₂ and in NiCO₃); in carbonate, C stays **+4** and O stays **−2**. No element changes, so it is not redox. That rules out both redox choices.\n3. Carbonate can act as a base, but here no proton is transferred: Ni²⁺ and CO₃²⁻ simply combine into an insoluble salt. That rules out \"acid–base, since CO₃²⁻ accepts a proton.\"\n4. Net ionic equation: Ni²⁺(aq) + CO₃²⁻(aq) → **NiCO₃(s)**; Na⁺ and Br⁻ are spectator ions.\n5. Answer: precipitation, since NiCO₃ comes out of solution.\n\n**Rule to reuse:** assign oxidation states before and after; if none change and two dissolved ions form a solid, it is precipitation. Most carbonates (except those of Group 1 and NH₄⁺) are insoluble.",
       "id": "p_cpq6_2_q4"
      }
     ]
@@ -4536,19 +4536,19 @@ const CP_POOL = [
       "id": "p_cpq6_3_q2"
      },
      {
-      "q": "What are the frequency and the wavelength of the guide beam inside the window?",
+      "q": "If the guide laser were replaced by a 405-nm laser, what would be the frequency and the wavelength of its beam inside the window?",
       "choices": [
-       "3.5 × 10¹⁴ Hz and 500 nm",
-       "3.5 × 10¹⁴ Hz and 650 nm",
-       "4.6 × 10¹⁴ Hz and 500 nm",
-       "4.6 × 10¹⁴ Hz and 845 nm"
+       "5.7 × 10¹⁴ Hz and 312 nm",
+       "5.7 × 10¹⁴ Hz and 405 nm",
+       "7.4 × 10¹⁴ Hz and 312 nm",
+       "7.4 × 10¹⁴ Hz and 527 nm"
       ],
       "ans": 2,
       "cat": "4D",
       "skill": "SIRS 2",
       "diff": "X",
       "twin": "pe5-cp:55",
-      "exp": "1. Frequency comes from the source: f = c/λ = (3.0 × 10⁸ m/s) ÷ (6.5 × 10⁻⁷ m) ≈ **4.6 × 10¹⁴ Hz**. It **does not change** when the light enters the window.\n2. In the window the speed drops to c/n, and with f fixed, the wavelength drops by the same factor: λ = 650 nm ÷ 1.3 = **500 nm**.\n3. \"3.5 × 10¹⁴ Hz\" choices wrongly divide the frequency by n; \"650 nm\" also keeps the air wavelength. \"845 nm\" multiplies by n, but a slower wave has a shorter wavelength.\n4. Answer: 4.6 × 10¹⁴ Hz and 500 nm.\n\n**Rule to reuse:** at a boundary, frequency stays the same; speed and wavelength both divide by n.",
+      "exp": "1. Frequency comes from the source: f = c/λ = (3.0 × 10⁸ m/s) ÷ (4.05 × 10⁻⁷ m) ≈ **7.4 × 10¹⁴ Hz**. It **does not change** when the light enters the window.\n2. In the window the speed drops to c/n, and with f fixed, the wavelength drops by the same factor: λ = 405 nm ÷ 1.3 ≈ **312 nm**.\n3. \"5.7 × 10¹⁴ Hz\" choices wrongly divide the frequency by n; \"405 nm\" also keeps the air wavelength. \"527 nm\" multiplies by n, but a slower wave has a shorter wavelength.\n4. Answer: 7.4 × 10¹⁴ Hz and 312 nm.\n\n**Rule to reuse:** at a boundary, frequency stays the same; speed and wavelength both divide by n.",
       "id": "p_cpq6_3_q3"
      },
      {
