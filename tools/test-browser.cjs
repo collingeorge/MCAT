@@ -310,6 +310,28 @@ async function main() {
     for(let k=0;k<=i;k++) await evaluate('teachStep(1);true');
     assert(await evaluate('!!document.querySelector("#quiz-body .card-passage-text mark.step-hl")'), id+': the lesson step lights up its words in the passage');
     console.log('Passage cards: '+id+' shows its twin passage above the stem; the lesson highlights the passage'); }
+  // The quiz clock: it counts down, pauses while the page is hidden (a real visibilitychange), warns in a 16 px+ notice,
+  // and when it runs out the results open with "Time's up" and the answered / right / not reached line; Past quizzes
+  // then reopens the quiz.
+  { await evaluate(leave+"withBank('cp',()=>masteryRunSet('cp','daily',CP_POOL[0]));true"); await until('pq.mini&&pq.mini.mastery==="daily"&&!!document.querySelector("#pc-0")');
+    assert.match(await evaluate('document.querySelector("#pp-timer").textContent'),/left$/,'the quiz clock shows time left');
+    await evaluate('answerPassage(pq.views[0].ans);nextPassageQ();true');
+    const hide=v=>evaluate(`Object.defineProperty(document,'visibilityState',{configurable:true,get:()=>'${v}'});document.dispatchEvent(new Event('visibilitychange'));true`);
+    const before=await evaluate('pq.startedAt'); await hide('hidden');
+    assert(await evaluate('Number.isFinite(pq.hiddenAt)'),'hiding the page pauses the clock');
+    await evaluate('pq.hiddenAt-=15*60000;true'); await hide('visible');
+    assert(await evaluate('pq.startedAt')-before>=15*60000,'the hidden 15 minutes are not counted');
+    await evaluate('pq.startedAt=Date.now()-pq.targetMs+9.5*60000;updatePassageTimer();true');
+    const tn=JSON.parse(await evaluate('JSON.stringify({t:document.querySelector("#time-notice").textContent,px:parseFloat(getComputedStyle(document.querySelector("#time-notice")).fontSize)})'));
+    assert(tn.t.includes('10 minutes left')&&tn.px>=16,'a clear notice at 10 minutes left');
+    await evaluate('pq.startedAt=Date.now()-pq.targetMs-1;updatePassageTimer();true'); await until('pq.mini.completed');
+    const res=await evaluate('document.querySelector("#pp-question-box").textContent');
+    assert(/Time’s up/.test(res)&&/Answered 1 of 30 · 1 of 1 right \(100%\) · 29 not reached/.test(res)&&/You ran out of time/.test(res),'Time\'s up, then the whole score');
+    await evaluate(leave+'renderHome();true'); await until('!!document.querySelector("#today-plan .mastery-past")');
+    await evaluate('document.querySelector("#today-plan .mastery-past").open=true;document.querySelector("#today-plan .mastery-past button").click();true'); await until('activeScreen==="screen-results"&&/Review every question/.test(document.querySelector("#results-body").textContent)');
+    assert.equal(await evaluate('[...document.querySelectorAll("#results-body .missed-wrong")].filter(e=>/Not reached/.test(e.textContent)).length'),29,'the review marks the 29 not reached');
+    await evaluate('goHome();true');
+    console.log('Quiz clock: counts down, pauses while hidden, warns at 10 minutes, Time\'s up with answered / right / not reached; Past quizzes reopens it'); }
   await evaluate(leave);
   await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
   // Offline resilience: once the service worker has cached the app, a reload with no network still works.
