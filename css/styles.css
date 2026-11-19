@@ -166,6 +166,9 @@ body::before{
   padding:24px 26px 20px;
   position:relative;
 }
+.card-passage{margin:0 0 14px;padding:0 0 12px;border-bottom:1px solid var(--border)}
+.card-passage-label{font-size:16px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--navy-mid);margin-bottom:6px}
+.card-passage-text{font-family:Arial,Helvetica,sans-serif;font-size:var(--study-text);line-height:1.75;color:var(--text-body);margin:0}
 .question-text{
   font-family:Arial,Helvetica,sans-serif;
   font-size:var(--study-text);font-weight:700;line-height:1.65;color:var(--text);
