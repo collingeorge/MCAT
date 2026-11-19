@@ -80,7 +80,7 @@ const BUILT = process.env.CPT_FILE ? [...new Set(CARDS.flatMap(c => (c.from || [
 const ALL_BUILT = BUILT.length === PE.size;
 
 // ── 1. Coverage and worked methods ──
-const strip = t => String(t == null ? '' : t).replace(/<[^>]+>/g, ' ').replace(/\*\*/g, '');
+const strip = t => String(t == null ? '' : t).replace(/<\/?[a-z][a-z0-9]*(?:\s[^<>]*)?\/?>/gi, ' ').replace(/\*\*/g, '');
 const words = t => strip(t).trim().split(/\s+/).filter(Boolean).length;
 const SHARED = new Map();
 const ids = new Set(), stems = new Map(), bySrc = new Map([...PE.keys()].map(s => [s, []])), byItem = new Map(SPEC.items.map(it => [it.ref, []]));
@@ -90,7 +90,7 @@ const ids = new Set(), stems = new Map(), bySrc = new Map([...PE.keys()].map(s =
 // choice) its number (whole numbers 0–10 aside; a power of ten such as 10³ is read as 10^3, not 103).
 const ELIM_TAGS = ['impossible', 'units', 'backwards', 'skipped', 'copied', 'fact'];
 const GIVE_SUB = { '₀': '0', '₁': '1', '₂': '2', '₃': '3', '₄': '4', '₅': '5', '₆': '6', '₇': '7', '₈': '8', '₉': '9', '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9', '⁻': '-', '⁺': '+' };
-const giveNorm = t => String(t).replace(/<[^>]+>|\*\*/g, '').replace(/10([⁻⁺]?[⁰¹²³⁴-⁹]+)/g, (m, e) => '10^(' + e + ')').replace(/[₀-₉⁰¹²³⁴-⁹⁺⁻]/g, ch => GIVE_SUB[ch] || ch).toLowerCase().replace(/\s+/g, ' ').replace(/[.;:,]+$/, '').trim();
+const giveNorm = t => String(t).replace(/<\/?[a-z][a-z0-9]*(?:\s[^<>]*)?\/?>|\*\*/gi, '').replace(/10([⁻⁺]?[⁰¹²³⁴-⁹]+)/g, (m, e) => '10^(' + e + ')').replace(/[₀-₉⁰¹²³⁴-⁹⁺⁻]/g, ch => GIVE_SUB[ch] || ch).toLowerCase().replace(/\s+/g, ' ').replace(/[.;:,]+$/, '').trim();
 const giveNums = t => (giveNorm(t).replace(/(\d),(\d{3})/g, '$1$2').match(/\d+(?:\.\d+)?/g) || []).map(Number).filter(n => !(Number.isInteger(n) && n <= 10));
 function giveAway(key, text) {
   const k = giveNorm(key), t = giveNorm(text);
@@ -165,7 +165,7 @@ for (const c of CARDS) {
   if (c.from.length) assert(c.from.some(ref => { const q = SPEC.bySrc.get(ref.split('#')[0]); return q.aamc === c.aamc && q.disc === c.disc && q.skill === c.skill; }), id + ': aamc, disc and skill come from a source question\'s spec line');
   else assert(DECK_TARGET[c.aamc] && typeof c.disc === 'string' && /^SIRS [1-4]$/.test(c.skill), id + ': labels');
   assert(typeof c.q === 'string' && c.q.trim() && Array.isArray(c.choices) && c.choices.length === 4, id + ': stem and 4 choices');
-  assert.equal(new Set(c.choices.map(norm)).size, 4, id + ': distinct choices');
+  assert.equal(new Set(c.choices.map(require('./twin-checks.cjs').cnorm)).size, 4, id + ': distinct choices (math symbols count)');
   assert(Number.isInteger(c.ans) && c.ans >= 0 && c.ans < 4, id + ': ans');
   assert(typeof c.exp === 'string' && c.exp.length >= 40, id + ': explanation');
   const k = norm(c.q); assert(!stems.has(k), id + ': duplicate stem of ' + stems.get(k)); stems.set(k, id);
@@ -236,7 +236,8 @@ const LOCANT = /\b\d+(?:,\d+)*-(?=[\p{L}(])|(?<=[\p{L})])-\d+(?:,\d+)*\b/gu;   /
 const dataNums = t => numsOf(strip(t).replace(LOCANT, ' ').replace(/(×\s*)?\b10(?=[⁻⁰¹²³⁴⁵⁶⁷⁸⁹])/g, ' '));
 const KEY_SUB = { '₀': '0', '₁': '1', '₂': '2', '₃': '3', '₄': '4', '₅': '5', '₆': '6', '₇': '7', '₈': '8', '₉': '9', '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9', '⁺': '+', '⁻': '-' };
 const KEY_STOP = new Set('a an the of to in on at by for from with and or but so as is are was were be it its this that since because which than then into their they both each only'.split(' '));
-const keyNorm = t => String(t).toLowerCase().replace(/[₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]/g, ch => KEY_SUB[ch]).replace(/[^a-z0-9+\-. ]+/g, ' ').replace(/\s+/g, ' ').trim()
+const GREEK = { 'σ': ' sigma ', 'π': ' pi ', 'α': ' alpha ', 'β': ' beta ', 'γ': ' gamma ', 'δ': ' delta ', 'λ': ' lambda ', 'μ': ' mu ' };
+const keyNorm = t => String(t).toLowerCase().replace(/[σπαβγδλμ]/g, ch => GREEK[ch]).replace(/[₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]/g, ch => KEY_SUB[ch]).replace(/[^a-z0-9+\-. ]+/g, ' ').replace(/\s+/g, ' ').trim()
   .replace(/\bd2sp3\b/g, 'sp3d2').replace(/\bdsp3\b/g, 'sp3d').replace(/^(a|an|the) /, '').replace(/ (group|point|bond|bonding)s?$/, '');
 const keyWords = t => keyNorm(t).split(' ').filter(w => w && !KEY_STOP.has(w));
 const lessonText = c => { const h = c.how || {}; return [c.fast && c.fast.how, h.ask, h.know, h.trap, ...(h.steps || []).flatMap(st => [st.text, ...(st.calc || [])]), ...(c.teach || []).flatMap(t => [t.text, ...(t.calc || []), ...(t.marks || []).map(m => m.note)])].filter(Boolean).join(' \n '); };
@@ -249,25 +250,18 @@ for (const c of CARDS) {
     const [sh, lo] = ka.length <= kb.length ? [ka, kb] : [kb, ka];
     assert(!(keyNorm(c.choices[c.ans]) === keyNorm(String(src.choices[src.ans]).split(/,(?!\d)|;| since | because | which /)[0]) || (sh.length && sh.length <= 3 && sh.every(w => lo.includes(w)))), c.id + ': key "' + c.choices[c.ans] + '" means the same as the key of merged question ' + s); }
 }
+// AAMC's own words (the user, 2026-11-19): a card uses the AAMC question's terms, stem phrasing and kinds of choices and
+// changes only the content (molecule, numbers, system). Against each of its own source questions it may not copy the
+// full stem or the full choice set, reuse a data number (constants and standard values are fine: twin-checks STANDARD),
+// or have a key that means the real answer (below); its passage text stays original (no 6-word run with the source).
+const { copiedStem, copiedChoices, dataOnly } = require('./twin-checks.cjs');
 for (const c of CARDS) for (const s of ownSrcs(c)) {
-  const src = SRC.get(s), srcNums = dataNums(src.q + ' ' + src.choices.join(' '));
-  const shared = [...dataNums((c.passage || '') + ' ' + c.q + ' ' + c.choices.join(' '))].filter(n => srcNums.has(n));
-  assert.deepEqual(shared, [], c.id + ': shares no data number with ' + s);
-  for (const ch of c.choices) {
-    assert(!src.choices.some(x => norm(x) === norm(ch)), c.id + ': choice "' + ch + '" is a choice of ' + s);
-    const p = src.choices.find(x => paraphrase(ch, x)); assert(!p, c.id + ': choice "' + ch + '" paraphrases "' + p + '" of ' + s);
-  }
-  // Twin, never the test question: no 6-word run shared with the source card (its stem, choices or explanation), no key
-  // number equal to the source card's key number, no shared answer choice of 3 or more words.
-  const srcText = [src.q, ...src.choices, src.exp].join(' \n '), g = grams(srcText, 6);
-  const run6 = [...grams([c.passage || '', c.q, ...c.choices, c.exp].join(' \n '), 6)].find(x => g.has(x));
-  assert(!run6, c.id + ': shares the 6-word run "' + run6 + '" with ' + s);
-  // The lesson too (how and teach): no 6-word run of prose shared with the source card. A run that is mostly symbols,
-  // numbers or one-letter variables (a formula such as "E cell = E cathode − E anode") is a standard formula, not
-  // copied wording, so it needs at least 4 words of 3+ letters to count.
-  const prose = x => x.split(' ').filter(w => /^\p{L}{3,}$/u.test(w)).length >= 4;
-  const lrun = [...grams(lessonText(c), 6)].find(x => g.has(x) && prose(x));
-  assert(!lrun, c.id + ': its lesson shares the 6-word run "' + lrun + '" with ' + s);
+  const src = SRC.get(s), srcNums = dataOnly(dataNums(src.q + ' ' + src.choices.join(' ')));
+  const shared = [...dataOnly(dataNums((c.passage || '') + ' ' + c.q + ' ' + c.choices.join(' ')))].filter(n => srcNums.has(n));
+  assert.deepEqual(shared, [], c.id + ': reuses no data number of ' + s + ' (constants and standard values aside)');
+  assert(!copiedStem(c.q, src.q), c.id + ': does not copy the full stem of ' + s);
+  assert(!copiedChoices(c.choices, src.choices), c.id + ': does not copy the full choice set of ' + s);
+  if (c.passage) { const g = grams([src.q, ...src.choices, src.exp].join(' \n '), 6), r = [...grams(c.passage, 6)].find(x => g.has(x)); assert(!r, c.id + ': its passage shares the 6-word run "' + r + '" with ' + s + ' (passage text stays original)'); }
   // A numeric key ("0.50", "4.0 Hz"), not a locant in a name ("3-Methylpent-1-ene", "1,2-shift").
   const SUP = { '⁻': '-', '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9' };
   const keyNum = t => {
@@ -276,9 +270,10 @@ for (const c of CARDS) for (const s of ownSrcs(c)) {
     const e = m[2] || m[3], exp = e ? Number([...e].map(ch => SUP[ch] || '').join('')) : 0;
     return m[3] ? Number(m[1]) ** exp : Number(m[1].replace('−', '-')) * 10 ** exp;
   };
+  // The key's numbers as a whole ("3 and +1" is not "3 and −1"): equal to the real answer's only if every number matches.
+  const allNums = t => (strip(t).replace(/−/g, '-').match(/[+-]?\d+(?:\.\d+)?/g) || []).join(' ');
   const kn = keyNum(c.choices[c.ans]), sn = keyNum(src.choices[src.ans]);
-  assert(kn === null || sn === null || kn !== sn, c.id + ': its key number equals ' + s + "'s key number (" + kn + ')');
-  for (const ch of c.choices) if (words(ch) >= 3) assert(!src.choices.some(x => norm(x) === norm(ch)), c.id + ': shares the answer choice "' + ch + '" with ' + s);
+  assert(kn === null || sn === null || kn !== sn || allNums(c.choices[c.ans]) !== allNums(src.choices[src.ans]), c.id + ': its key number equals ' + s + "'s key number (" + kn + ')');
   // Compare keys by meaning, not just spelling: the card's key must not be the source card's correct choice once both
   // are normalized (subscripts/superscripts to digits; a leading a/an/the and a trailing group/point/bond/bonding dropped;
   // d²sp³ = sp³d², dsp³ = sp³d; the source key read up to its reason, i.e. before ", since …", "; …"), nor may the

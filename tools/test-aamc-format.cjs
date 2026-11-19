@@ -57,7 +57,7 @@ function load(file, name) {
 }
 
 // ── Text helpers ──
-const strip = t => String(t == null ? '' : t).replace(/<[^>]+>/g, ' ').replace(/\*\*|__(?=\w)|(?<=\w)__/g, '');
+const strip = t => String(t == null ? '' : t).replace(/<\/?[a-z][a-z0-9]*(?:\s[^<>]*)?\/?>/gi, ' ').replace(/\*\*|__(?=\w)|(?<=\w)__/g, '');
 const words = t => strip(t).trim().split(/\s+/).filter(Boolean).length;
 const chars = t => strip(t).trim().length;
 const median = a => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
