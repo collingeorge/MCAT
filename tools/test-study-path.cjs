@@ -33,7 +33,7 @@ run(`store.set(KEYS.subjectPath, { tests: [{ subj: 'cp', day: '${today}', t: 1, 
 let plan = JSON.parse(run('JSON.stringify(masteryPlanNow())'));
 assert.deepEqual(plan.steps.map(s => s.id), ['diagnostic', 'rules', 'flashcards', 'guided', 'test'], 'after the diagnostic: exactly 3 daily steps');
 run('renderHome()'); assert.doesNotMatch(el('today-plan').innerHTML, /Passage questions|startMasteryPassages/, 'no passage step on TODAY');
-assert.match(el('today-plan').innerHTML, /Unlocks when steps 1 and 2 are done/); assert.doesNotMatch(el('today-plan').innerHTML, /startMasteryTest\('daily'\)/, 'the quiz is locked');
+assert.match(el('today-plan').innerHTML, /Unlocks when the flashcards and guided cards are done/); assert.doesNotMatch(el('today-plan').innerHTML, /startMasteryTest\('daily'\)/, 'the quiz is locked');
 // Exact split: every step shows its per-category targets as chips at the AAMC weight; the two weak categories are
 // marked "weak" with the same counts (5D 12 of 50, as with no weak category); no "+ extra".
 assert.equal(plan.split, 'exact'); assert.deepEqual(plan.weakT, ['5D', '4E']);

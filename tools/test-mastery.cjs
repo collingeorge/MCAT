@@ -169,7 +169,7 @@ assert(fs.readFileSync(root + '/sw.js', 'utf8').includes("'js/mastery.js'"), 'ca
 assert(src.includes("btn('Flashcards on these topics', 'startMasteryFollowup(\\'flashcards\\')')") && src.includes("btn('Guided cards on these topics', 'startMasteryFollowup(\\'guided\\')', false)"), 'the follow-up offers flashcards and guided cards');
 assert(!/startMasteryPassages|masteryNextPractice|masteryNotePractice|masteryPassagePool|masteryPassageRank|startMasteryFollowup\('passages'\)/.test(src + actions + app), 'the passage step and its practice are gone');
 assert(src.includes("if (kind !== 'diagnostic' && !masteryQuizUnlocked(plan))") && src.includes("plan.steps.filter(s => s.id === 'flashcards' || s.id === 'guided').every(s => s.done)"), 'the quiz unlocks once steps 1 and 2 are done');
-assert(src.includes("'<p class=\"muted-note\">Unlocks when steps 1 and 2 are done.</p>'"), 'TODAY shows the quiz locked until then');
+assert(src.includes("'<p class=\"muted-note\">Unlocks when the flashcards and guided cards are done.</p>'"), 'TODAY shows the quiz locked until then');
 // Results saved before the Chem/Phys Diagnostic existed (no version) are labeled as the old diagnostic.
 assert(src.includes("version: mini.setId || 'cards'") && src.includes('<b>earlier version</b> of the diagnostic'), 'old diagnostic labeled');
 // A retake button runs the full diagnostic again once the first one is done.
