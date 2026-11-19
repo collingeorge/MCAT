@@ -249,25 +249,18 @@ for (const c of CARDS) {
     const [sh, lo] = ka.length <= kb.length ? [ka, kb] : [kb, ka];
     assert(!(keyNorm(c.choices[c.ans]) === keyNorm(String(src.choices[src.ans]).split(/,(?!\d)|;| since | because | which /)[0]) || (sh.length && sh.length <= 3 && sh.every(w => lo.includes(w)))), c.id + ': key "' + c.choices[c.ans] + '" means the same as the key of merged question ' + s); }
 }
+// AAMC's own words (the user, 2026-11-19): a card uses the AAMC question's terms, stem phrasing and kinds of choices and
+// changes only the content (molecule, numbers, system). Against each of its own source questions it may not copy the
+// full stem or the full choice set, reuse a data number (constants and standard values are fine: twin-checks STANDARD),
+// or have a key that means the real answer (below); its passage text stays original (no 6-word run with the source).
+const { copiedStem, copiedChoices, dataOnly } = require('./twin-checks.cjs');
 for (const c of CARDS) for (const s of ownSrcs(c)) {
-  const src = SRC.get(s), srcNums = dataNums(src.q + ' ' + src.choices.join(' '));
-  const shared = [...dataNums((c.passage || '') + ' ' + c.q + ' ' + c.choices.join(' '))].filter(n => srcNums.has(n));
-  assert.deepEqual(shared, [], c.id + ': shares no data number with ' + s);
-  for (const ch of c.choices) {
-    assert(!src.choices.some(x => norm(x) === norm(ch)), c.id + ': choice "' + ch + '" is a choice of ' + s);
-    const p = src.choices.find(x => paraphrase(ch, x)); assert(!p, c.id + ': choice "' + ch + '" paraphrases "' + p + '" of ' + s);
-  }
-  // Twin, never the test question: no 6-word run shared with the source card (its stem, choices or explanation), no key
-  // number equal to the source card's key number, no shared answer choice of 3 or more words.
-  const srcText = [src.q, ...src.choices, src.exp].join(' \n '), g = grams(srcText, 6);
-  const run6 = [...grams([c.passage || '', c.q, ...c.choices, c.exp].join(' \n '), 6)].find(x => g.has(x));
-  assert(!run6, c.id + ': shares the 6-word run "' + run6 + '" with ' + s);
-  // The lesson too (how and teach): no 6-word run of prose shared with the source card. A run that is mostly symbols,
-  // numbers or one-letter variables (a formula such as "E cell = E cathode − E anode") is a standard formula, not
-  // copied wording, so it needs at least 4 words of 3+ letters to count.
-  const prose = x => x.split(' ').filter(w => /^\p{L}{3,}$/u.test(w)).length >= 4;
-  const lrun = [...grams(lessonText(c), 6)].find(x => g.has(x) && prose(x));
-  assert(!lrun, c.id + ': its lesson shares the 6-word run "' + lrun + '" with ' + s);
+  const src = SRC.get(s), srcNums = dataOnly(dataNums(src.q + ' ' + src.choices.join(' ')));
+  const shared = [...dataOnly(dataNums((c.passage || '') + ' ' + c.q + ' ' + c.choices.join(' ')))].filter(n => srcNums.has(n));
+  assert.deepEqual(shared, [], c.id + ': reuses no data number of ' + s + ' (constants and standard values aside)');
+  assert(!copiedStem(c.q, src.q), c.id + ': does not copy the full stem of ' + s);
+  assert(!copiedChoices(c.choices, src.choices), c.id + ': does not copy the full choice set of ' + s);
+  if (c.passage) { const g = grams([src.q, ...src.choices, src.exp].join(' \n '), 6), r = [...grams(c.passage, 6)].find(x => g.has(x)); assert(!r, c.id + ': its passage shares the 6-word run "' + r + '" with ' + s + ' (passage text stays original)'); }
   // A numeric key ("0.50", "4.0 Hz"), not a locant in a name ("3-Methylpent-1-ene", "1,2-shift").
   const SUP = { '⁻': '-', '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9' };
   const keyNum = t => {
@@ -278,7 +271,6 @@ for (const c of CARDS) for (const s of ownSrcs(c)) {
   };
   const kn = keyNum(c.choices[c.ans]), sn = keyNum(src.choices[src.ans]);
   assert(kn === null || sn === null || kn !== sn, c.id + ': its key number equals ' + s + "'s key number (" + kn + ')');
-  for (const ch of c.choices) if (words(ch) >= 3) assert(!src.choices.some(x => norm(x) === norm(ch)), c.id + ': shares the answer choice "' + ch + '" with ' + s);
   // Compare keys by meaning, not just spelling: the card's key must not be the source card's correct choice once both
   // are normalized (subscripts/superscripts to digits; a leading a/an/the and a trailing group/point/bond/bonding dropped;
   // d²sp³ = sp³d², dsp³ = sp³d; the source key read up to its reason, i.e. before ", since …", "; …"), nor may the
