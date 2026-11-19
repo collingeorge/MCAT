@@ -270,8 +270,10 @@ for (const c of CARDS) for (const s of ownSrcs(c)) {
     const e = m[2] || m[3], exp = e ? Number([...e].map(ch => SUP[ch] || '').join('')) : 0;
     return m[3] ? Number(m[1]) ** exp : Number(m[1].replace('−', '-')) * 10 ** exp;
   };
+  // The key's numbers as a whole ("3 and +1" is not "3 and −1"): equal to the real answer's only if every number matches.
+  const allNums = t => (strip(t).replace(/−/g, '-').match(/[+-]?\d+(?:\.\d+)?/g) || []).join(' ');
   const kn = keyNum(c.choices[c.ans]), sn = keyNum(src.choices[src.ans]);
-  assert(kn === null || sn === null || kn !== sn, c.id + ': its key number equals ' + s + "'s key number (" + kn + ')');
+  assert(kn === null || sn === null || kn !== sn || allNums(c.choices[c.ans]) !== allNums(src.choices[src.ans]), c.id + ': its key number equals ' + s + "'s key number (" + kn + ')');
   // Compare keys by meaning, not just spelling: the card's key must not be the source card's correct choice once both
   // are normalized (subscripts/superscripts to digits; a leading a/an/the and a trailing group/point/bond/bonding dropped;
   // d²sp³ = sp³d², dsp³ = sp³d; the source key read up to its reason, i.e. before ", since …", "; …"), nor may the
