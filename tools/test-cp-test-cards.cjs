@@ -132,7 +132,14 @@ for (const c of CARDS) {
   // sentence that holds the clue (its hl is in the passage).
   if (c.passage !== undefined) {
     const n = sentences(c.passage); assert(typeof c.passage === 'string' && n >= 3 && n <= 10 && c.passage.length <= 1500, id + ': passage is 3–10 sentences, ≤ 1500 characters (' + n + ', ' + String(c.passage).length + ')');
-  }
+    // (Until the shared passages are merged, these run on a writer's batch only.)
+    if (process.env.CPT_FILE) {
+    assert(c.twinOf.every(t => passageOf(t) === c.pid), id + ': pid "' + c.pid + '" is the AAMC passage of its twin(s) ' + c.twinOf.map(passageOf).join(', '));
+    const p = SHARED.get(c.pid); if (p === undefined) SHARED.set(c.pid, c.passage); else assert.equal(c.passage, p, id + ': the cards of ' + c.pid + ' share one twin passage');
+    const s0 = c.how && c.how.steps && c.how.steps[0];
+    assert(s0 && typeof s0.hl === 'string' && c.passage.includes(s0.hl) && /sentence/i.test(s0.text), id + ': the lesson\'s first step names the passage sentence that holds the clue (text says "sentence", hl is in the passage)');
+    }
+  } else assert.equal(c.pid, undefined, id + ': a stand-alone card has no pid');
   // Each source names a spec item, "peX-cp:Q#n": the card teaches item n of that question's "Needs" list.
   for (const ref of c.from) {
     assert(ITEMS.has(ref), id + ': from "' + ref + '" is an item of a spec question (peX-cp:Q#n)');
