@@ -48,14 +48,14 @@
       "inward, toward the cytoplasm.",
       "outward, toward the extracellular fluid.",
       "along the length of the axon.",
-      "zero everywhere inside it."
+      "nowhere, since the field there is zero."
      ],
      "ans": 1,
      "cat": "4C",
      "skill": "SIRS 1",
      "diff": "M",
      "twin": "sample-cp:5",
-     "exp": "1. Read the potential difference across the membrane at the peak: the interior is at +35 mV relative to the outside fluid.\n2. Rank the two sides and point the field from high to low: outside = 0 mV (reference); inside = +35 mV; high → low: **inside → outside**.\n3. Pointing \"inward, toward the cytoplasm\" runs from low to high potential, the reverse of the field direction.\n4. A potential difference across the membrane means a field across it, not along it and not zero, so \"along the length of the axon\" and \"zero everywhere inside it\" are out.\n5. Answer: outward, toward the extracellular fluid. (At rest, with the interior at −80 mV, the same rule gives an inward field.)\n\n**Rule to reuse:** electric field always points from higher to lower potential; a positive interior means an outward-pointing field across the membrane.",
+     "exp": "1. Read the potential difference across the membrane at the peak: the interior is at +35 mV relative to the outside fluid.\n2. Rank the two sides and point the field from high to low: outside = 0 mV (reference); inside = +35 mV; high → low: **inside → outside**.\n3. Pointing \"inward, toward the cytoplasm\" runs from low to high potential, the reverse of the field direction.\n4. A potential difference across the membrane means a field across it, not along it and not zero, so \"along the length of the axon\" and \"nowhere, since the field there is zero\" are out.\n5. Answer: outward, toward the extracellular fluid. (At rest, with the interior at −80 mV, the same rule gives an inward field.)\n\n**Rule to reuse:** electric field always points from higher to lower potential; a positive interior means an outward-pointing field across the membrane.",
      "id": "p_cpq2_1_q1"
     },
     {
@@ -118,10 +118,11 @@
    "cats": [
     "4B",
     "4E",
-    "4A"
+    "4A",
+    "4D"
    ],
    "title": "Pressure and Radiation in Eye Care",
-   "passage": "The fluid inside the eye is held at an intraocular pressure (IOP), reported as a gauge pressure: the amount by which it exceeds atmospheric pressure. Normal IOP is about 10–21 mmHg. Blood flowing to the retina and optic nerve must push against this pressure, so clinicians estimate the mean ocular perfusion pressure (OPP) from the mean arterial pressure (MAP) measured at the arm:\n\nOPP = (2/3)MAP − IOP\n\nThe factor 2/3 corrects for the height of the eye above the heart. An OPP that stays below about 50 mmHg is linked to optic nerve damage in glaucoma, so lowering IOP with eye drops or surgery is the main treatment.\n\nTumors inside the eye are often treated with a small gold plaque that holds seeds of iodine-125 and is sewn to the outside of the eyeball. ¹²⁵I decays by electron capture and emits low-energy photons that are absorbed within a few centimeters of tissue, so the tumor receives a large dose while distant tissue is spared. Because the seeds lose activity, the time the plaque stays in place is set from the activity on the day of surgery. Figure 1 shows the activity of one batch of seeds, measured at intervals after calibration.\n\nSmall tumors can instead be heated with an infrared laser aimed through the pupil. The beam is focused to a spot a few millimeters across and delivers a steady power for a few minutes, raising the temperature of the tumor by about 10 °C.",
+   "passage": "The fluid inside the eye is held at an intraocular pressure (IOP), reported as a gauge pressure: the amount by which it exceeds atmospheric pressure. Normal IOP is about 10–21 mmHg. Blood flowing to the retina and optic nerve must push against this pressure, so clinicians estimate the mean ocular perfusion pressure (OPP) from the mean arterial pressure (MAP) measured at the arm:\n\nOPP = (2/3)MAP − IOP\n\nThe factor 2/3 corrects for the height of the eye above the heart. An OPP that stays below about 50 mmHg is linked to optic nerve damage in glaucoma, so lowering IOP with eye drops or surgery is the main treatment.\n\nTumors inside the eye are often treated with a small gold plaque that holds seeds of iodine-125 and is sewn to the outside of the eyeball. ¹²⁵I decays by electron capture and emits low-energy photons that are absorbed within a few centimeters of tissue, so the tumor receives a large dose while distant tissue is spared. Because the seeds lose activity, the time the plaque stays in place is set from the activity on the day of surgery. Figure 1 shows the activity of one batch of seeds, measured at intervals after calibration.\n\nSmall tumors can instead be heated with an infrared laser aimed through the pupil. The beam is focused to a spot a few millimeters across and delivers a steady power for a few minutes, raising the temperature of the tumor by about 10 °C. The laser emits light of wavelength 810 nm. Some clinics instead use a 1064-nm laser run at the same steady power.",
    "figure": {
     "type": "line",
     "caption": "Figure 1 Activity of a batch of ¹²⁵I seeds after calibration",
@@ -185,19 +186,19 @@
    },
    "questions": [
     {
-     "q": "A glaucoma patient has an OPP of 50 mmHg and an IOP of 22 mmHg. According to the passage formula, what is this patient’s MAP?",
+     "q": "According to the passage formula, which equation gives a patient’s MAP from the OPP and the IOP?",
      "choices": [
-      "42 mmHg",
-      "48 mmHg",
-      "72 mmHg",
-      "108 mmHg"
+      "MAP = (2/3)(OPP + IOP)",
+      "MAP = (3/2)(OPP − IOP)",
+      "MAP = (3/2)(OPP + IOP)",
+      "MAP = (2/3)OPP + IOP"
      ],
-     "ans": 3,
+     "ans": 2,
      "cat": "4B",
      "skill": "SIRS 2",
      "diff": "D",
      "twin": "pe1-cp:18",
-     "exp": "1. The formula is given; the unknown is MAP: OPP + IOP = (2/3)MAP; MAP = (3/2)(OPP + IOP).\n2. Plug in the patient’s values: MAP = (3/2)(50 + 22); MAP = 1.5 × 72; MAP = **108 mmHg**. Check: (2/3)(108) − 22 = 72 − 22 = 50 ✓.\n3. 72 mmHg is OPP + IOP, which is only (2/3)MAP: it forgets to multiply by 3/2. 42 mmHg (subtracting IOP instead of adding it) and 48 mmHg (multiplying by 2/3 instead of 3/2) do not follow from the formula.\n4. Answer: the MAP is 108 mmHg.\n\n**Rule to reuse:** to solve a given formula for one variable, undo the operations in reverse order (subtract, then multiply), then plug in and check.",
+     "exp": "1. The formula is given; the unknown is MAP, so undo the operations in reverse order.\n2. Add IOP to both sides: OPP + IOP = (2/3)MAP.\n3. Multiply both sides by 3/2: **MAP = (3/2)(OPP + IOP)**. Check with OPP = 50 mmHg and IOP = 20 mmHg: MAP = 105 mmHg, and (2/3)(105) − 20 = 50 ✓.\n4. (3/2)(OPP − IOP) subtracts IOP instead of adding it back; (2/3)(OPP + IOP) multiplies by 2/3 again instead of undoing it; (2/3)OPP + IOP only moves IOP across and leaves MAP unsolved.\n5. Answer: MAP = (3/2)(OPP + IOP).\n\n**Rule to reuse:** to solve a given formula for one variable, undo the operations in reverse order (add back what was subtracted, then divide by the factor), and check with simple numbers.",
      "id": "p_cpq2_2_q1"
     },
     {
@@ -234,19 +235,19 @@
      "id": "p_cpq2_2_q3"
     },
     {
-     "q": "During a 2.5-min treatment, the laser delivers a steady 0.60 W through a 3.0-mm spot. How much energy does the beam deliver to the tissue?",
+     "q": "Compared with the 810-nm laser, the 1064-nm laser delivers:",
      "choices": [
-      "1.5 J",
-      "36 J",
-      "90 J",
-      "270 J"
+      "fewer photons per second, each with more energy.",
+      "fewer photons per second, each with less energy.",
+      "more photons per second, each with less energy.",
+      "more photons per second, each with more energy."
      ],
      "ans": 2,
-     "cat": "4A",
+     "cat": "4D",
      "skill": "SIRS 2",
      "diff": "D",
-     "twin": "pe1-cp:21",
-     "exp": "1. Energy from power: W = P × t. Power in watts is joules per second, so time must be in seconds.\n2. Convert time: t = 2.5 min × 60 s/min = **150 s**.\n3. Multiply: W = 0.60 J/s × 150 s = **90 J**.\n4. The spot size is a distractor: it is not part of the energy equation. Multiplying by 3.0 too gives 270 J; using minutes instead of seconds gives 0.60 × 2.5 = 1.5 J; using 1 minute (60 s) instead of 2.5 minutes gives 36 J.\n5. Answer: 90 J.\n\n**Rule to reuse:** work = power × time, with power in watts (J/s) and time in **seconds**. Ignore numbers that don't belong to the equation.",
+     "twin": "pe1-cp:16",
+     "exp": "1. Beam power = (energy per photon) × (photons per second). The two lasers are set to the same power.\n2. Energy per photon depends only on wavelength: **E = hc/λ**. The 1064-nm wavelength is longer, so each photon carries **less energy**.\n3. To keep the same power with smaller photons, the 1064-nm laser must emit **more photons per second**.\n4. \"More energy\" choices reverse E = hc/λ. \"Fewer photons per second, each with less energy\" would lower the power, which contradicts the equal setting.\n5. Answer: more photons per second, each with less energy.\n\n**Rule to reuse:** power = photon energy × photon rate. Wavelength fixes the photon energy; at fixed power, lower-energy photons mean more photons per second.",
      "id": "p_cpq2_2_q4"
     }
    ]
@@ -398,35 +399,35 @@
    },
    "questions": [
     {
-     "q": "Which type of product from Step 1 is consistent with the IR spectrum in Figure 1?",
+     "q": "Which region of Figure 1 shows the bands that distinguish the Step 1 product from a ketone?",
      "choices": [
-      "A carboxylic acid",
-      "An aldehyde",
-      "An alcohol",
-      "An ether"
+      "1000–1300 cm⁻¹",
+      "1700–1750 cm⁻¹",
+      "2700–2850 cm⁻¹",
+      "3200–3600 cm⁻¹"
      ],
-     "ans": 1,
+     "ans": 2,
      "cat": "4D",
      "skill": "SIRS 3",
      "diff": "M",
      "twin": "pe6-cp:1",
-     "exp": "1. Start from the reaction: an oxidant acting on a primary alcohol should remove the O–H and form a C=O.\n2. Read the carbonyl window first: a deep, narrow dip at 1725 cm⁻¹ means a C=O is present: 1725 cm⁻¹: transmittance **8%** → strong C=O. The two weaker dips at 2720 and 2820 cm⁻¹ are the C–H stretch of a CHO group.\n3. Now the O–H window: at 3300 cm⁻¹ the trace stays near the top (about 92%), so there is no O–H. That removes the alcohol and the acid, whose O–H bands are broad and deep.\n4. An ether has no C=O, so it could not make the 1725 cm⁻¹ dip.\n5. Answer: an aldehyde, 3-phenylpropanal. Rule: look at 1700 for C=O, then at 3300 for O–H; C=O with no O–H means a ketone or aldehyde.\n\n**Rule to reuse:** IR shows which bonds a molecule has. Check only the windows that matter: **O–H ≈ 3200–3600 cm⁻¹, broad and rounded**; **C=O ≈ 1700–1750 cm⁻¹, sharp and strong**; sp³ C–H ≈ 2850–3000 cm⁻¹ (almost every organic molecule has it); C=C ≈ 1650 cm⁻¹, weak.",
+     "exp": "1. PCC oxidizes the primary alcohol 3-phenyl-1-propanol to an aldehyde, 3-phenylpropanal.\n2. Aldehydes and ketones both show a strong C=O dip near 1725 cm⁻¹ (here **8%** transmittance), so the 1700–1750 cm⁻¹ region cannot tell them apart.\n3. Only an aldehyde has an H on the carbonyl carbon. Its C–H stretch gives two weaker dips at about **2720 and 2820 cm⁻¹**, inside 2700–2850 cm⁻¹; a ketone has none.\n4. At 3300 cm⁻¹ the trace stays near the top (about 92%): there is no O–H band at all. The 1000–1300 cm⁻¹ region holds C–C and C–O bands that many compounds share, so it does not single out a CHO group.\n5. Answer: 2700–2850 cm⁻¹.\n\n**Rule to reuse:** C=O near 1700 cm⁻¹ says aldehyde or ketone; the pair of CHO C–H dips near 2720 and 2820 cm⁻¹ says aldehyde. O–H ≈ 3200–3600 cm⁻¹, broad; sp³ C–H ≈ 2850–3000 cm⁻¹.",
      "id": "p_cpq2_3_q1"
     },
     {
-     "q": "Which method would best determine the mole ratio of the two alcohols in the commercial sample?",
+     "q": "Suppose the two alcohols in the commercial sample gave fully overlapping ¹H NMR peaks but boiled 15 °C apart. Which method would best determine their mole ratio?",
      "choices": [
       "IR band positions",
       "UV absorbance",
       "Proton NMR integrals",
-      "Boiling point"
+      "GC peak areas"
      ],
-     "ans": 2,
+     "ans": 3,
      "cat": "4D",
      "skill": "SIRS 2",
      "diff": "D",
      "twin": "pe6-cp:2",
-     "exp": "1. Translate: the question asks for amounts, a ratio, not for identity.\n2. The two alcohols share their functional groups (one O–H, one C=C), so their IR bands overlap, and the boiling behavior of the mixture only shows that it is not pure.\n3. UV absorbance needs conjugation differences, and neither compound is conjugated; it gives no H-by-H count either.\n4. Rule: a ¹H NMR integral is proportional to the number of H making the peak. Dihydromyrcenol has a unique =CH₂ peak (2 H) near 4.9 ppm; its isomer has a unique =CH– peak (1 H) near 5.1 ppm.\n5. Divide each integral by its number of H to get moles of each isomer: for integrals of 3.0 and 0.5: dihydromyrcenol: 3.0 ÷ 2 H = **1.5**; isomer: 0.5 ÷ 1 H = **0.5**; ratio = **3 : 1**.\n6. Answer: proton NMR integrals, because peak areas count H atoms and so give the mole ratio of the two isomers.\n\n**Rule to reuse:** \"how much of each\" in a mixture → ¹H NMR integrals (area ∝ number of H). IR/UV tell you *what* groups are there, not how much.",
+     "exp": "1. Translate: the question asks for amounts, a ratio, not for identity, and the stem takes away NMR's usual edge: the peaks overlap.\n2. With every ¹H NMR peak overlapping, each integral is the sum of both isomers, so the integrals can no longer be split between them.\n3. The two alcohols share their functional groups (one O–H, one C=C), so their IR bands overlap; neither is conjugated, so UV absorbance gives no handle either.\n4. Rule: gas chromatography separates compounds by volatility. Boiling points 15 °C apart give two separate peaks, and for two isomers each peak's area is proportional to the amount of that isomer.\n5. Divide each area by the total: for areas of 3.0 and 1.0: 3.0 ÷ 4.0 = **75%**; 1.0 ÷ 4.0 = **25%**; ratio = **3 : 1**.\n6. Answer: GC peak areas, because the isomers separate on the column and each area measures how much of that isomer is present.\n\n**Rule to reuse:** \"how much of each\" in a mixture → a method that gives each compound its own signal with area ∝ amount: ¹H NMR integrals when peaks are distinct, GC peak areas when the compounds separate by volatility.",
      "id": "p_cpq2_3_q2"
     },
     {
@@ -572,10 +573,10 @@
     {
      "q": "Valence configurations: Mn, [Ar]3d⁵4s²; Co, [Ar]3d⁷4s²; Ca, [Ar]4s²; K, [Ar]4s¹. Which of these metals cannot readily form a 2+ ion, and why?",
      "choices": [
-      "Ca, lacking d electrons",
-      "Co, also forming Co³⁺",
-      "Mn, with a half-filled d subshell",
-      "K, forming only K⁺"
+      "Ca, because it has no d electrons",
+      "Co, because it also forms Co³⁺",
+      "Mn, because its d subshell is half-filled",
+      "K, because it forms only K⁺"
      ],
      "ans": 3,
      "subj": "gen_chem",
@@ -583,7 +584,7 @@
      "skill": "SIRS 1",
      "diff": "M",
      "twin": "pe4-cp:52",
-     "exp": "1. Translate: the enzyme needs a 2+ cation. Find which metal cannot lose two electrons easily.\n2. Read the valence configurations: Mn, Co and Ca each have two outer 4s electrons to lose. Having no d electrons, a half-filled d subshell or a 3+ option does not prevent a 2+ ion.\n3. K has one valence electron; the second would come from the [Ar] core. The second ionization energies show the cost.\n4. Quantify the jump: K: IE₂ ÷ IE₁ = 3052 ÷ 419 ≈ **7.3**; Ca: IE₂ ÷ IE₁ = 1145 ÷ 590 ≈ **1.9** (kJ/mol).\n5. Answer: K, forming only K⁺.\n\n**Rule to reuse:** count the outer s electrons: ns² → 2+ ion easily; ns¹ (group 1) → 1+ only, because the next electron is in the core.",
+     "exp": "1. Translate: the enzyme needs a 2+ cation. Find which metal cannot lose two electrons easily.\n2. Read the valence configurations: Mn, Co and Ca each have two outer 4s electrons to lose. Having no d electrons, a half-filled d subshell or a 3+ option does not prevent a 2+ ion.\n3. K has one valence electron; the second would come from the [Ar] core. The second ionization energies show the cost.\n4. Quantify the jump: K: IE₂ ÷ IE₁ = 3052 ÷ 419 ≈ **7.3**; Ca: IE₂ ÷ IE₁ = 1145 ÷ 590 ≈ **1.9** (kJ/mol).\n5. Answer: K, because it forms only K⁺.\n\n**Rule to reuse:** count the outer s electrons: ns² → 2+ ion easily; ns¹ (group 1) → 1+ only, because the next electron is in the core.",
      "id": "p_cpq2_4_q5"
     }
    ]
@@ -679,7 +680,7 @@
    },
    "questions": [
     {
-     "q": "Percent labeling at pH 4.5 was E86 25%, E172 0%, D37 30%; at pH 6.0 it was E86 0%, E172 0%, D37 55%. Which residue can be labeled alone, and when?",
+     "q": "Percent labeling at pH 4.5 was E86 25%, E172 0%, D37 30%; at pH 6.0 it was E86 0%, E172 0%, D37 55%. Which residue can be labeled selectively, and at which pH?",
      "choices": [
       "D37, at pH 4.5",
       "E86, at pH 4.5",
@@ -713,17 +714,17 @@
     {
      "q": "E172 is never labeled at 25 °C. After the enzyme is heated to 80 °C in buffer with no protease, E172 is labeled, and the heated, unlabeled enzyme keeps its original mass. What best explains this?",
      "choices": [
-      "Cleavage of the backbone",
-      "Nicking by a protease",
-      "Unfolding of the chain",
-      "Reagent penetration of the intact fold"
+      "Heating cleaved the backbone",
+      "A protease nicked the chain",
+      "Heating unfolded the chain, exposing E172",
+      "The reagent penetrated the intact fold"
      ],
      "ans": 2,
      "cat": "5D",
      "skill": "SIRS 2",
      "diff": "D",
      "twin": "pe5-cp:33",
-     "exp": "1. No labeling at 25 °C means the carboxylate is hidden from the reagent, not missing.\n2. Backbone hydrolysis adds water and breaks the chain, which would change the mass: each hydrolyzed peptide bond: + H₂O = **+18 Da**; observed Δmass = **0**, so \"Cleavage of the backbone\" is out.\n3. Nicking requires a protease to catalyze the hydrolysis, and none was present (it would also add 18 Da per cut), so \"Nicking by a protease\" is out.\n4. Heat breaks noncovalent interactions, so the chain unfolds and the buried carboxylate becomes exposed; covalent structure is untouched. A folded core has no pores for the reagent to pass through. Answer: unfolding of the chain.\n\n**Rule to reuse:** heat denatures by breaking noncovalent bonds; covalent structure and mass stay the same. Buried groups become reachable once the protein unfolds.",
+     "exp": "1. No labeling at 25 °C means the carboxylate is hidden from the reagent, not missing.\n2. Backbone hydrolysis adds water and breaks the chain, which would change the mass: each hydrolyzed peptide bond: + H₂O = **+18 Da**; observed Δmass = **0**, so \"Heating cleaved the backbone\" is out.\n3. Nicking requires a protease to catalyze the hydrolysis, and none was present (it would also add 18 Da per cut), so \"A protease nicked the chain\" is out.\n4. Heat breaks noncovalent interactions, so the chain unfolds and the buried carboxylate becomes exposed; covalent structure is untouched. A folded core has no pores for the reagent to pass through. Answer: heating unfolded the chain, exposing E172.\n\n**Rule to reuse:** heat denatures by breaking noncovalent bonds; covalent structure and mass stay the same. Buried groups become reachable once the protein unfolds.",
      "id": "p_cpq2_5_q3"
     },
     {
@@ -783,10 +784,10 @@
   {
    "q": "Hydrogen fluoride (HF, 20 g/mol) boils at 19.5 °C, but hydrogen chloride (HCl, 36.5 g/mol), a heavier molecule with a similar structure, boils at −85 °C. Which factor best accounts for this difference?",
    "choices": [
-    "HCl is the lighter molecule",
-    "Dispersion forces are larger in HF",
-    "HF molecules H-bond, but HCl molecules do not",
-    "The H–F bond is less polar"
+    "HCl has the lower molar mass",
+    "London dispersion forces are stronger in HF",
+    "HF forms hydrogen bonds, but HCl does not",
+    "The H–F bond is less polar than H–Cl"
    ],
    "ans": 2,
    "subj": "gen_chem",
@@ -794,33 +795,33 @@
    "skill": "SIRS 1",
    "diff": "E",
    "twin": "sample-cp:28",
-   "exp": "1. Note the puzzle: the heavier molecule boils lower.\n2. Compare the atoms bonded to H and the masses: F: small, very electronegative → **H-bonds**; Cl: larger, less electronegative → no significant H-bonds; mass: HCl 36.5 > HF 20 g/mol.\n3. HCl is heavier, not lighter, so dispersion favors HCl, not HF. And the H–F bond is more polar, not less.\n4. Answer: HF molecules H-bond, but HCl molecules do not.\n\n**Rule to reuse:** when a lighter molecule boils far higher than a heavier analog, look for hydrogen bonding (H on N, O or F).",
+   "exp": "1. Note the puzzle: the heavier molecule boils lower.\n2. Compare the atoms bonded to H and the masses: F: small, very electronegative → **H-bonds**; Cl: larger, less electronegative → no significant H-bonds; mass: HCl 36.5 > HF 20 g/mol.\n3. HCl is heavier, not lighter, so dispersion favors HCl, not HF. And the H–F bond is more polar, not less.\n4. Answer: HF forms hydrogen bonds, but HCl does not.\n\n**Rule to reuse:** when a lighter molecule boils far higher than a heavier analog, look for hydrogen bonding (H on N, O or F).",
    "id": "cp_q2_sa2"
   },
   {
-   "q": "Poured on a cut, 3% hydrogen peroxide foams as catalase in the tissue rapidly decomposes it: 2H₂O₂(aq) → 2H₂O(l) + O₂(g); ΔH° ≈ −190 kJ. What are the most likely signs of ΔG° and ΔS° for this reaction?",
+   "q": "In a closed flask, ammonia gas and hydrogen chloride gas meet and at once form a white smoke of solid ammonium chloride: NH₃(g) + HCl(g) → NH₄Cl(s); ΔH° ≈ −176 kJ. Under standard conditions, the signs of ΔG° and ΔS° for this reaction are most likely:",
    "choices": [
-    "ΔG° negative, ΔS° positive",
-    "ΔG° negative, ΔS° negative",
-    "ΔG° positive, ΔS° positive",
-    "ΔG° positive, ΔS° negative"
+    "ΔG° negative, ΔS° positive.",
+    "ΔG° negative, ΔS° negative.",
+    "ΔG° positive, ΔS° positive.",
+    "ΔG° positive, ΔS° negative."
    ],
-   "ans": 0,
+   "ans": 1,
    "subj": "gen_chem",
    "cat": "5E",
    "skill": "SIRS 2",
    "diff": "M",
    "twin": "pe1-cp:47",
-   "exp": "1. Proceeds on its own, vigorously, at body temperature → spontaneous → ΔG° < 0. (Catalase only speeds the reaction; it does not change ΔG°.) Both \"ΔG° positive\" choices are out.\n2. Count gas moles on each side: a gas forms from a solution, so disorder rises: gas moles: reactants **0** → products **1**; Δn(gas) = +1 → **ΔS° > 0**, so \"ΔG° negative, ΔS° negative\" is out.\n3. Check consistency with ΔG° = ΔH° − TΔS°: ΔH° < 0 (−190 kJ); −TΔS° < 0 (since ΔS° > 0); ΔG° = (−) + (−) → **negative** at every T ✓.\n4. Answer: ΔG° negative, ΔS° positive.\n\n**Rule to reuse:** happens on its own → ΔG < 0. Gas produced from solids/liquids (more gas moles) → ΔS > 0. Confirm with ΔG = ΔH − TΔS.",
+   "exp": "1. The gases react on their own, at once, to form the solid → spontaneous → **ΔG° < 0**. Both \"ΔG° positive\" choices are out.\n2. Count gas moles on each side: two gases combine into one solid, so disorder falls: gas moles: reactants **2** → products **0**; Δn(gas) = −2 → **ΔS° < 0**, so \"ΔG° negative, ΔS° positive.\" is out.\n3. Check consistency with ΔG° = ΔH° − TΔS°: ΔH° < 0 (−176 kJ); −TΔS° > 0 (since ΔS° < 0); ΔG° stays negative only while |ΔH°| > T|ΔS°|, which holds at room temperature ✓: the reaction is enthalpy-driven.\n4. Answer: ΔG° negative, ΔS° negative.\n\n**Rule to reuse:** happens on its own → ΔG < 0. Gases turning into a solid or liquid (fewer gas moles) → ΔS < 0, so a large negative ΔH must be what makes ΔG negative. Confirm with ΔG = ΔH − TΔS.",
    "id": "cp_q2_sa3"
   },
   {
    "q": "The titration curve shown is for acetic acid with NaOH. An acetic acid–sodium acetate buffer reads pH 5.1. To shift it to the pH of greatest buffer capacity, what should be added, and why?",
    "choices": [
-    "NaOH, lowering base:acid from 2.0",
-    "CH₃COONa, lowering base:acid from 2.0",
-    "CH₃COOH, raising base:acid from 0.50",
-    "CH₃COOH, lowering base:acid from 2.0"
+    "NaOH, since base:acid must fall from 2.0 to 1",
+    "CH₃COONa, since base:acid must fall from 2.0 to 1",
+    "CH₃COOH, since base:acid must rise from 0.50 to 1",
+    "CH₃COOH, since base:acid must fall from 2.0 to 1"
    ],
    "ans": 3,
    "subj": "gen_chem",
@@ -881,7 +882,7 @@
      }
     ]
    },
-   "exp": "1. Find the point of greatest capacity: the flattest part of the curve, at half-equivalence. Its pH is the pKa: half-equivalence: [CH₃COO⁻] = [CH₃COOH]; pH = pKa = **4.8**.\n2. Locate the buffer as it is now, at pH 5.1, and get its ratio: 5.1 = 4.8 + log(base/acid); log(base/acid) = **+0.3**; base/acid = 10⁰·³ = **2.0**.\n3. The ratio is 2.0, not 0.50, and it must fall to 1, not rise, so \"CH₃COOH, raising base:acid from 0.50\" is out.\n4. Lowering the ratio needs more acid form. Adding CH₃COONa, the base form, or NaOH raises the ratio instead, so both are out.\n5. Answer: add CH₃COOH, moving the buffer left along the curve to the flat center at pH 4.8. Rule: below the pKa, add the base form; above it, add the acid form.\n\n**Rule to reuse:** best buffer = pH = pKa (ratio 1). Below pKa, add the base form; above pKa, add the acid form. base/acid = 10^(pH − pKa).",
+   "exp": "1. Find the point of greatest capacity: the flattest part of the curve, at half-equivalence. Its pH is the pKa: half-equivalence: [CH₃COO⁻] = [CH₃COOH]; pH = pKa = **4.8**.\n2. Locate the buffer as it is now, at pH 5.1, and get its ratio: 5.1 = 4.8 + log(base/acid); log(base/acid) = **+0.3**; base/acid = 10⁰·³ = **2.0**.\n3. The ratio is 2.0, not 0.50, and it must fall to 1, not rise, so \"CH₃COOH, since base:acid must rise from 0.50 to 1\" is out.\n4. Lowering the ratio needs more acid form. Adding CH₃COONa, the base form, or NaOH raises the ratio instead, so both are out.\n5. Answer: add CH₃COOH, moving the buffer left along the curve to the flat center at pH 4.8. Rule: below the pKa, add the base form; above it, add the acid form.\n\n**Rule to reuse:** best buffer = pH = pKa (ratio 1). Below pKa, add the base form; above pKa, add the acid form. base/acid = 10^(pH − pKa).",
    "id": "cp_q2_sa4"
   },
   {

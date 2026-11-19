@@ -127,7 +127,7 @@
        ],
        [
         1,
-        1.0
+        1
        ],
        [
         2,
@@ -135,7 +135,7 @@
        ],
        [
         4,
-        1.0
+        1
        ],
        [
         6,
@@ -205,7 +205,7 @@
        ],
        [
         4,
-        2.0
+        2
        ],
        [
         6,
@@ -217,7 +217,7 @@
        ],
        [
         10,
-        3.0
+        3
        ]
       ]
      }
@@ -241,19 +241,19 @@
      "id": "p_cpq3_2_q1"
     },
     {
-     "q": "The platinum on the disc in a lens case is best classified as which type of catalyst?",
+     "q": "How is the platinum on the disc in a lens case best classified?",
      "choices": [
-      "Homogeneous; not consumed",
-      "Heterogeneous; consumed",
-      "Heterogeneous; not consumed",
-      "Homogeneous; consumed"
+      "A homogeneous catalyst that is not consumed",
+      "A heterogeneous catalyst that is consumed",
+      "A heterogeneous catalyst that is not consumed",
+      "A homogeneous catalyst that is consumed"
      ],
      "ans": 2,
      "cat": "5E",
      "skill": "SIRS 1",
      "diff": "E",
      "twin": "pe1-cp:49",
-     "exp": "1. Read the phases: catalyst: Pt **(s)**; reactant: H₂O₂ **(aq)**; different phases → **heterogeneous**.\n2. \"Homogeneous\" means the same phase as the reactants, which a solid in a solution is not, so both homogeneous labels fail.\n3. Catalysts are not used up, so \"consumed\" is false even with the right label.\n4. Answer: heterogeneous; not consumed.\n\n**Rule to reuse:** a catalyst in a different phase from the reactants is heterogeneous, in the same phase homogeneous, and in either case it is not consumed.",
+     "exp": "1. Read the phases: catalyst: Pt **(s)**; reactant: H₂O₂ **(aq)**; different phases → **heterogeneous**.\n2. \"Homogeneous\" means the same phase as the reactants, which a solid in a solution is not, so both homogeneous labels fail.\n3. Catalysts are not used up, so \"consumed\" is false even with the right label.\n4. Answer: a heterogeneous catalyst that is not consumed.\n\n**Rule to reuse:** a catalyst in a different phase from the reactants is heterogeneous, in the same phase homogeneous, and in either case it is not consumed.",
      "id": "p_cpq3_2_q2"
     },
     {
@@ -273,19 +273,19 @@
      "id": "p_cpq3_2_q3"
     },
     {
-     "q": "In the MnO₂ trials, by what factor does grinding the cube change the rate of O₂ formation?",
+     "q": "If the KI in the model run were ground to a fine powder before being added, how would the rate of O₂ formation change?",
      "choices": [
-      "0.0025",
-      "400",
-      "160,000",
-      "64,000,000"
+      "It increases, because more KI surface is exposed.",
+      "It decreases, because less KI surface is exposed.",
+      "It stays the same, because KI fully dissolves.",
+      "It increases, because the KI dissolves more quickly."
      ],
-     "ans": 1,
+     "ans": 2,
      "cat": "5E",
      "skill": "SIRS 2",
      "diff": "X",
      "twin": "pe1-cp:51",
-     "exp": "1. The rate tracks exposed surface area, so compare the areas before and after grinding.\n2. Area of the single cube: A = 6 × (0.80 cm)² = 6 × 0.64 = **3.84 cm²**.\n3. Number of small cubes (same total volume): edge ratio = 0.80 ÷ 0.0020 = **400**; number = 400³ = **6.4 × 10⁷** cubes.\n4. Total area of the small cubes: one cube: 6 × (0.0020 cm)² = 2.4 × 10⁻⁵ cm²; all: 6.4 × 10⁷ × 2.4 × 10⁻⁵ = **1536 cm²**; 1536 ÷ 3.84 = **400**.\n5. Eliminate: 0.0025 inverts the factor (1 ÷ 400), as if grinding shrank the area; 160,000 squares the edge ratio (400²) and 64,000,000 cubes it (400³) instead of using it once.\n6. Answer: the rate increases 400-fold, equal to the edge-length ratio.\n\n**Rule to reuse:** cutting a cube into cubes k times smaller in edge multiplies the total surface area (and a surface-limited rate) by k.",
+     "exp": "1. The passage says KI dissolves completely in the saline, so it acts as a dissolved catalyst: its I⁻ ions are spread through the solution.\n2. Once dissolved, the rate depends on [I⁻] and [H₂O₂], not on the size of the crystals that were added.\n3. The same 1.5 mM KI gives the same [I⁻], so the rate of O₂ formation **stays the same**.\n4. Surface area matters only for a catalyst that stays solid, like the MnO₂: grinding its 0.80-cm cube into 0.0020-cm particles raises the area, and the rate, 400-fold. That rules out both surface-area choices for KI.\n5. Faster dissolving changes only how soon the KI is in solution, not how much is there, so the rate during the run does not rise.\n6. Answer: it stays the same, because KI fully dissolves.\n\n**Rule to reuse:** grinding speeds a reaction only when the catalyst stays solid; a catalyst that dissolves completely acts through its concentration, which grinding does not change.",
      "id": "p_cpq3_2_q4"
     }
    ]
@@ -305,12 +305,12 @@
    "passage": "Hospitals use portable ultraviolet (UV) units to disinfect patient rooms between admissions. UV photons are absorbed by the nucleic acids of bacteria and viruses, and the more energetic the photons, the more efficiently they damage these molecules.\n\nIn one design, a sealed gas-filled lamp gives off light at every wavelength between 250 nm and 400 nm. To protect the lamp's quartz envelope, the gas inside must stay at or below 104 °F during operation, and engineers apply PV = nRT, the ideal gas equation, to predict the pressure in the envelope at this temperature. The lamp is powered by a driver that delivers square voltage pulses: the voltage is held at 300 V for 30 µs, then drops to 0 V for 20 µs, and this pattern repeats as long as the unit is switched on.\n\nBecause airborne dust scatters UV light and shields microbes, a fan draws room air through the unit, where it passes between two large parallel metal plates 3.0 mm apart. One plate is held at +900 V and the other is grounded (0 V). Except close to the plate edges, the field has one constant magnitude, 3.0 × 10⁵ V/m, throughout the gap. Dust particles that pick up a charge as they enter are pulled out of the airstream onto the plates, and the cleaned air leaves through a vent at the top of the unit.",
    "questions": [
     {
-     "q": "To predict the envelope pressure with PV = nRT at the maximum allowed gas temperature, what T must be entered?",
+     "q": "If the envelope's limit were raised to 167 °F, what T must be entered to predict the envelope pressure with PV = nRT at that temperature?",
      "choices": [
-      "377 K",
-      "345 K",
-      "313 K",
-      "40 K"
+      "440 K",
+      "408 K",
+      "348 K",
+      "75 K"
      ],
      "ans": 2,
      "cat": "4B",
@@ -318,7 +318,7 @@
      "diff": "X",
      "subj": "gen_chem",
      "twin": "pe3-cp:17",
-     "exp": "1. The given value is in Fahrenheit, and the gas law needs kelvin. Two conversions are needed, in order.\n2. Fahrenheit → Celsius: subtract 32, then scale by 5/9: °C = (104 − 32) × 5/9 = 72 × 5/9 = **40 °C**. Skipping × 5/9 gives 72 + 273 = 345 K ✗.\n3. Celsius → kelvin: add 273: K = 40 + 273 = **313 K**. Stopping at 40 K leaves the value in Celsius, and 104 + 273 = 377 K adds the Celsius offset to a Fahrenheit number ✗.\n4. Check on the conversion line: 104 °F sits between freezing (32 °F, 273 K) and boiling (212 °F, 373 K), just above body temperature (98.6 °F, 310 K).\n5. Answer: 313 K.\n\n**Rule to reuse:** °F → °C: (°F − 32) × 5/9; °C → K: + 273. Gas-law temperatures are ALWAYS in kelvin.",
+     "exp": "1. The given value is in Fahrenheit, and the gas law needs kelvin. Two conversions are needed, in order.\n2. Fahrenheit → Celsius: subtract 32, then scale by 5/9: °C = (167 − 32) × 5/9 = 135 × 5/9 = **75 °C**. Skipping × 5/9 gives 135 + 273 = 408 K ✗.\n3. Celsius → kelvin: add 273: K = 75 + 273 = **348 K**. Stopping at 75 K leaves the value in Celsius, and 167 + 273 = 440 K adds the Celsius offset to a Fahrenheit number ✗.\n4. Check on the conversion line: 167 °F sits between freezing (32 °F, 273 K) and boiling (212 °F, 373 K), three quarters of the way up: (167 − 32) ÷ 180 = 0.75, and 273 + 0.75 × 100 = 348 K.\n5. Answer: 348 K.\n\n**Rule to reuse:** °F → °C: (°F − 32) × 5/9; °C → K: + 273. Gas-law temperatures are ALWAYS in kelvin.",
      "id": "p_cpq3_3_q1"
     },
     {
@@ -354,19 +354,19 @@
      "id": "p_cpq3_3_q3"
     },
     {
-     "q": "In the gap between the dust-collecting plates, how are the electric field lines arranged?",
+     "q": "In the gap between the dust-collecting plates, the electric field lines are:",
      "choices": [
-      "Uniform, directed at the grounded plate",
-      "Uniform, directed at the +900 V plate",
-      "Denser near the +900 V plate",
-      "Denser near the grounded plate"
+      "evenly spaced, pointing toward the grounded plate.",
+      "evenly spaced, pointing toward the +900 V plate.",
+      "crowded near the +900 V plate.",
+      "crowded near the grounded plate."
      ],
      "ans": 0,
      "cat": "4C",
      "skill": "SIRS 1",
      "diff": "M",
      "twin": "pe3-cp:20",
-     "exp": "1. Check that the numbers fit a uniform field: E = ΔV/d = 900 V ÷ 0.0030 m = **3.0 × 10⁵ V/m** ✓.\n2. Same magnitude everywhere → uniform field → field lines evenly spaced and parallel. Lines denser near either plate would mean a stronger field there.\n3. Direction: E points 'downhill' in potential, from high V to low V, so the lines leave the +900 V plate and end on the grounded plate, not the reverse.\n4. Answer: uniform, directed at the grounded plate.\n\n**Rule to reuse:** field lines point from high V to low V; equal spacing = uniform field; between parallel plates E = ΔV/d.",
+     "exp": "1. Check that the numbers fit a uniform field: E = ΔV/d = 900 V ÷ 0.0030 m = **3.0 × 10⁵ V/m** ✓.\n2. Same magnitude everywhere → uniform field → field lines evenly spaced and parallel. Lines denser near either plate would mean a stronger field there.\n3. Direction: E points 'downhill' in potential, from high V to low V, so the lines leave the +900 V plate and end on the grounded plate, not the reverse.\n4. Answer: evenly spaced, pointing toward the grounded plate.\n\n**Rule to reuse:** field lines point from high V to low V; equal spacing = uniform field; between parallel plates E = ΔV/d.",
      "id": "p_cpq3_3_q4"
     }
    ]
@@ -381,7 +381,7 @@
     "5D"
    ],
    "title": "Assembling a Drug Candidate from Three Fragments",
-   "passage": "Compound 7, a candidate drug for chronic pain, contains four nitrogen atoms, labeled N1 through N4. Table 1 lists the atoms bonded to each of them, together with approximate pKa values used in planning the synthesis. Compound 7 was assembled from three fragments.\n\nFragment A was made from methyl 4-oxo-4-phenylbutanoate. Sodium borohydride (NaBH₄) converted the ketone into a secondary alcohol but left the ester untouched, and the new hydroxyl group then attacked the ester carbonyl carbon of the same molecule, releasing methanol and closing a lactone ring. Later in the route, an intermediate that carried both this lactone ring and an ethyl ester was heated with 3 equivalents of aqueous NaOH in an attempt to remove only the ethyl group.\n\nFragment B, tetrahydroisoquinoline (THIQ), is a cyclic secondary amine that is sold as its hydrochloride salt, THIQ·HCl. The salt was first stirred with triethylamine (Et₃N) in acetonitrile, and an alkyl bromide fragment was then added; an SN2 reaction joined the two pieces and formed N4 of Compound 7.\n\nThe third fragment carries N1, which is protected as a methyl carbamate, R₂N–C(=O)–OCH₃, and remains so in Compound 7. In a related analog, the chemists removed this group at the end of the route by complete hydrolysis in hot aqueous base.",
+   "passage": "Compound 7, a candidate drug for chronic pain, contains four nitrogen atoms, labeled N1 through N4. Table 1 lists the atoms bonded to each of them, together with approximate pKa values used in planning the synthesis. Compound 7 was assembled from three fragments.\n\nFragment A was made from methyl 4-oxo-4-phenylbutanoate. Sodium borohydride (NaBH₄) converted the ketone into a secondary alcohol but left the ester untouched, and the new hydroxyl group then attacked the ester carbonyl carbon of the same molecule, releasing methanol and closing a lactone ring. Later in the route, an intermediate that carried both this lactone ring and a tert-butyl ester was heated with 1 equivalent of aqueous NaOH.\n\nFragment B, tetrahydroisoquinoline (THIQ), is a cyclic secondary amine that is sold as its hydrochloride salt, THIQ·HCl. The salt was first stirred with triethylamine (Et₃N) in acetonitrile, and an alkyl bromide fragment was then added; an SN2 reaction joined the two pieces and formed N4 of Compound 7.\n\nThe third fragment carries N1, which is protected as a methyl carbamate, R₂N–C(=O)–OCH₃, and remains so in Compound 7. In a related analog, the chemists removed this group at the end of the route by complete hydrolysis in hot aqueous base.",
    "figure": {
     "caption": "Table 1 Bonding at the nitrogens of Compound 7, and approximate pKa values",
     "columns": [
@@ -441,39 +441,39 @@
      "id": "p_cpq3_4_q1"
     },
     {
-     "q": "Which product forms when Fragment A is made from methyl 4-oxo-4-phenylbutanoate?",
+     "q": "When Fragment A is made from methyl 4-oxo-4-phenylbutanoate, the product that forms is:",
      "choices": [
-      "Four-atom cyclic ester",
-      "Five-atom cyclic ester",
-      "Six-atom cyclic ester",
-      "Open-chain diol"
+      "a four-membered lactone",
+      "a five-membered lactone",
+      "a six-membered lactone",
+      "an open-chain diol"
      ],
      "ans": 1,
      "cat": "5D",
      "skill": "SIRS 2",
      "diff": "D",
      "twin": "pe4-cp:30",
-     "exp": "1. Only the ketone is reduced; the ester stays to be attacked.\n2. So the ester is not reduced, and both carbonyls cannot become alcohols: no diol forms.\n3. After reduction, trace the ring that forms: from the ester carbon (C1) along the chain to the new OH oxygen on C4.\n4. Count ring atoms: carbons C1, C2, C3, C4 = **4**; ring oxygen = **1**; ring size = 4 + 1 = **5**. Four atoms forgets the ring O, and six atoms counts one atom too many.\n5. Answer: the five-atom cyclic ester (a γ-lactone), with the phenyl on the carbon beside the ring O.\n6. Rule: ring size = carbonyl carbon through OH carbon, plus one for the ring O.\n\n**Rule to reuse:** ring size = carbonyl carbon through the OH carbon, **plus 1 for the ring O**. For each choice, count ring atoms, find the CH₃, and ask: is the ester C=O still there?",
+     "exp": "1. Only the ketone is reduced; the ester stays to be attacked.\n2. So the ester is not reduced, and both carbonyls cannot become alcohols: no diol forms.\n3. After reduction, trace the ring that forms: from the ester carbon (C1) along the chain to the new OH oxygen on C4.\n4. Count ring atoms: carbons C1, C2, C3, C4 = **4**; ring oxygen = **1**; ring size = 4 + 1 = **5**. A four-membered ring forgets the ring O, and a six-membered ring counts one atom too many.\n5. Answer: the five-membered lactone (a γ-lactone), with the phenyl on the carbon beside the ring O.\n6. Rule: ring size = carbonyl carbon through OH carbon, plus one for the ring O.\n\n**Rule to reuse:** ring size = carbonyl carbon through the OH carbon, **plus 1 for the ring O**. For each choice, count ring atoms, find the CH₃, and ask: is the ester C=O still there?",
      "id": "p_cpq3_4_q2"
     },
     {
-     "q": "When the intermediate bearing the lactone ring and the ethyl ester is heated with the aqueous NaOH, what happens?",
+     "q": "When the intermediate bearing the lactone ring and the tert-butyl ester is heated with the aqueous NaOH, what happens?",
      "choices": [
-      "Only the ethyl ester is cleaved",
-      "Both esters are cleaved",
+      "Only the tert-butyl ester is hydrolyzed",
+      "Both esters are hydrolyzed",
       "Only the lactone ring opens",
       "Neither ester reacts"
      ],
-     "ans": 1,
+     "ans": 2,
      "cat": "5D",
      "skill": "SIRS 1",
      "diff": "M",
      "twin": "pe4-cp:31",
-     "exp": "1. Both groups are esters: ethyl ester → carboxylate + CH₃CH₂OH; lactone (cyclic ester) → opens to a hydroxy carboxylate.\n2. There is enough base for both: 2 ester groups, 3 equivalents of OH⁻ → enough for **both**.\n3. A lactone is just a cyclic ester, so hydroxide does not spare either one, and hydroxide is a good nucleophile toward esters; the attempt to cleave only the ethyl group fails.\n4. Answer: both esters are cleaved to carboxylates.\n\n**Rule to reuse:** a lactone reacts like any ester; excess hydroxide saponifies every ester group to a carboxylate, and a lactone opens to a hydroxy carboxylate.",
+     "exp": "1. Both groups are esters: the lactone is a cyclic ester, and the tert-butyl ester has a bulky (CH₃)₃C group on its O.\n2. Count the base: each saponification uses up one OH⁻, so **1 equivalent** can hydrolyze only one of the two groups. That rules out \"Both esters are hydrolyzed\", and hot hydroxide does react, which rules out \"Neither ester reacts\".\n3. OH⁻ must add to the C=O. The tert-butyl group crowds its C=O, so tert-butyl esters resist basic hydrolysis (they are cleaved with acid): \"Only the tert-butyl ester is hydrolyzed\" is out.\n4. The unhindered lactone C=O is attacked, and the ring opens to a hydroxy carboxylate.\n5. Answer: only the lactone ring opens.\n\n**Rule to reuse:** count the equivalents of base first; when they run short, the least hindered ester (or lactone) reacts and a tert-butyl ester survives.",
      "id": "p_cpq3_4_q3"
     },
     {
-     "q": "Based on Table 1, after THIQ·HCl is stirred with Et₃N, which species attacks the alkyl bromide?",
+     "q": "Based on Table 1, after THIQ·HCl is stirred with Et₃N, the species that attacks the alkyl bromide is:",
      "choices": [
       "Protonated THIQ",
       "Neutral THIQ",
@@ -489,12 +489,12 @@
      "id": "p_cpq3_4_q4"
     },
     {
-     "q": "Complete hydrolysis of the methyl carbamate on N1 in hot aqueous base gives:",
+     "q": "Which products form on complete hydrolysis of the methyl carbamate on N1 in hot aqueous base?",
      "choices": [
-      "a carbamic acid and methane.",
-      "an amide and methanol.",
-      "the free amine, carbonate and methanol.",
-      "the free amine and methyl acetate."
+      "A carbamic acid and methane",
+      "An amide and methanol",
+      "The free amine, carbonate and methanol",
+      "The free amine and methyl acetate"
      ],
      "ans": 2,
      "cat": "5D",
@@ -537,12 +537,12 @@
      "id": "p_cpq3_5_q1"
     },
     {
-     "q": "The many asparagine and glutamine residues on the module's surface most likely contribute to its:",
+     "q": "To which property of the module do the many asparagine and glutamine residues on its surface most likely contribute?",
      "choices": [
-      "binding of cellulose.",
-      "rate of aggregation.",
-      "overall anionic charge.",
-      "solubility in water."
+      "Binding of cellulose",
+      "Rate of aggregation",
+      "Overall anionic charge",
+      "Solubility in water"
      ],
      "ans": 3,
      "cat": "5D",
@@ -627,10 +627,10 @@
   {
    "q": "Bacteria reduce diacetyl to 2,3-butanediol in two NADH-dependent steps; overall: CH₃COCOCH₃ + 2 NADH + __H⁺ → CH₃CH(OH)CH(OH)CH₃ + 2 NAD⁺. What coefficient on H⁺ balances this equation?",
    "choices": [
-    "One",
-    "Two",
-    "Three",
-    "Four"
+    "1",
+    "2",
+    "3",
+    "4"
    ],
    "ans": 1,
    "cat": "4E",
@@ -642,37 +642,37 @@
    "id": "cp_q3_sa2"
   },
   {
-   "q": "A size-exclusion resin is made of dextran, chains of glucose rings joined by glycosidic bonds and cross-linked by short –CH₂–CH(OH)–CH₂– bridges. Some small peptides leave the column later than expected for their size. Which weak interaction with the resin is most likely responsible?",
+   "q": "A size-exclusion resin is made of polystyrene, a carbon chain bearing a phenyl ring on every other carbon, cross-linked by divinylbenzene. Some small peptides rich in phenylalanine and tryptophan leave the column later than expected for their size. Which weak interaction with the resin is most likely responsible?",
    "choices": [
-    "Ionic pairing with sulfonates",
-    "H-bonding with sugar –OH",
-    "Stacking on phenyl groups",
-    "Nonpolar contact with octyl tails"
+    "Ionic attraction to sulfonate groups",
+    "Hydrogen bonding with hydroxyl groups",
+    "π-stacking with phenyl rings",
+    "Hydrophobic interaction with octyl chains"
    ],
-   "ans": 1,
+   "ans": 2,
    "cat": "5C",
    "skill": "SIRS 3",
    "diff": "D",
    "subj": "biochemistry",
    "twin": "pe3-cp:46",
-   "exp": "1. The resin attracts the peptides weakly: look for a weak, noncovalent interaction the polymer can make.\n2. Inventory the structure: charges: **none**; aromatic rings: **none** (glucose rings are saturated); chains: short C–C units, **no long alkyl chain**; groups: **many –OH**, ring and ether O atoms.\n3. No charges means no ionic pairing (there are no sulfonate groups), and no aromatic rings means no stacking on phenyl groups.\n4. Each short carbon stretch carries –OH groups, so there is no extended nonpolar surface such as an octyl tail.\n5. The hydroxyls offer O–H donors and O acceptors to the peptides' polar groups. Answer: H-bonding with sugar –OH.\n6. Rule: on a structure question about interactions, only count groups that are present: N–H/O–H and C=O → H-bonds; charges → ionic; rings → π; long C–H chains → hydrophobic.\n\n**Rule to reuse:** To predict what a surface can do, list its functional groups from its description.",
+   "exp": "1. The resin attracts the peptides weakly: look for a weak, noncovalent interaction the polymer can make.\n2. Inventory the structure: charges: **none**; O–H or N–H groups: **none** (only C and H); chains: a C–C backbone, **no octyl tail**; rings: **a phenyl on every other carbon**.\n3. No charges means no ionic pairing (there are no sulfonate groups), and no O–H groups means no hydrogen bonding with hydroxyls.\n4. The backbone carries a ring on every other carbon, so there is no free eight-carbon tail such as an octyl chain.\n5. The slowed peptides are the ones with aromatic side chains (Phe, Trp), whose rings stack face to face on the resin's phenyl rings. Answer: π-stacking with phenyl rings.\n6. Rule: on a structure question about interactions, only count groups that are present: N–H/O–H and C=O → H-bonds; charges → ionic; rings → π; long C–H chains → hydrophobic.\n\n**Rule to reuse:** To predict what a surface can do, list its functional groups from its description, then match them to the peptides that are slowed.",
    "id": "cp_q3_sa3"
   },
   {
-   "q": "A 15 N force and a 9 N force pull on the same small object, and the angle between their directions may take any value up to 180°. Which resultant magnitude is NOT possible?",
+   "q": "A capsule endoscope's camera lens is mounted 2.0 cm from its image sensor. What lens power brings a polyp 10 cm from the lens into sharp focus on the sensor?",
    "choices": [
-    "4 N",
-    "6 N",
-    "17.5 N",
-    "24 N"
+    "+0.60 D",
+    "+10 D",
+    "+40 D",
+    "+60 D"
    ],
-   "ans": 0,
-   "cat": "4A",
+   "ans": 3,
+   "cat": "4D",
    "skill": "SIRS 2",
    "diff": "D",
    "subj": "physics",
-   "twin": "pe4-cp:12",
-   "exp": "1. Translate: the angle can vary, so find the full range of possible resultants; anything outside it is impossible.\n2. Extremes: parallel forces add, opposite forces subtract: max (θ = 0°): 15 + 9 = **24 N**; min (θ = 180°): 15 − 9 = **6 N**. Both are possible.\n3. Check a middle case: perpendicular forces combine by Pythagoras: R = √(15² + 9²) = √(225 + 81) = √306 ≈ **17.5 N**, also possible.\n4. The resultant shrinks smoothly from 24 N to 6 N as the angle opens; it never goes below 6 N.\n5. Answer: 4 N is below the 6 N minimum, so it is NOT possible.\n\n**Rule to reuse:** two forces A and B combine to anything between |A − B| (opposite) and A + B (same way); at 90° use √(A² + B²).",
+   "twin": "pe1-cp:11",
+   "exp": "1. Lens power in diopters is **P = 1/f with f in meters**, so convert both distances first: o = **0.10 m**, i = **0.020 m**.\n2. Thin lens: 1/f = 1/0.10 + 1/0.020 = 10 + 50 = **60 m⁻¹**, so P = **+60 D**. The sharp image forms on the sensor, a real image, so the lens is converging (positive).\n3. \"+0.60 D\" uses centimeters (1/10 + 1/2 = 0.60 cm⁻¹). \"+10 D\" uses only the object distance. \"+40 D\" subtracts the terms instead of adding them.\n4. Answer: +60 D.\n\n**Rule to reuse:** P = 1/o + 1/i with distances in meters; a real image on a screen or sensor needs a positive (converging) lens.",
    "id": "cp_q3_sa4"
   },
   {
@@ -727,20 +727,20 @@
    "id": "cp_q3_sa7"
   },
   {
-   "q": "Cyanide ion, CN⁻, is drawn so that both atoms have octets. Which choice gives the carbon–nitrogen bond and carbon's formal charge?",
+   "q": "Methanimine, CH₂NH, is drawn so that every atom has a full valence shell. How many bonds join its carbon and nitrogen atoms?",
    "choices": [
-    "Double; carbon is neutral",
-    "Double; carbon is negative",
-    "Triple; carbon is neutral",
-    "Triple; carbon is negative"
+    "1",
+    "2",
+    "3",
+    "4"
    ],
-   "ans": 3,
+   "ans": 1,
    "cat": "5B",
    "skill": "SIRS 2",
    "diff": "X",
    "subj": "gen_chem",
    "twin": "pe6-cp:59",
-   "exp": "1. Count valence electrons: C 4 + N 5 + 1 (ion charge) = **10** e⁻.\n2. Give both atoms octets with 10 electrons: a triple bond plus one lone pair on each atom: triple bond = **6** e⁻, lone pairs 2 + 2 = **4** e⁻; total 10 ✓; bond order = **3**, so neither double-bond choice fits.\n3. Formal charge = valence − nonbonding − ½ bonding: FC on C = 4 − 2 − 6/2 = **−1**; FC on N = 5 − 2 − 6/2 = **0**; sum = −1 = ion charge ✓. Carbon is not neutral here.\n4. Answer: a triple bond, with the negative formal charge on carbon, even though N is more electronegative.\n\n**Rule to reuse:** count valence e⁻, add bonds until every atom has an octet, then FC = valence − nonbonding − ½ bonding for each atom.",
+   "exp": "1. Count valence electrons: C 4 + N 5 + 3 H × 1 = **12** e⁻.\n2. Connect the atoms: two C–H, one N–H and one C–N single bond use 8 e⁻, leaving 4.\n3. Put the 4 on N as two lone pairs; carbon then has only 6 e⁻, so turn one N lone pair into a second C–N bond: C=N. Now C has 4 bonds (8 e⁻) and N has 3 bonds plus one lone pair (8 e⁻); total 2 + 2 + 2 + 4 + 2 = 12 ✓.\n4. Formal charges are all 0, so this is the best structure: **2 bonds** (one σ, one π) join C and N. A single bond leaves carbon short of an octet; a triple bond would give carbon five bonds.\n5. Answer: 2.\n\n**Rule to reuse:** count valence e⁻, connect the atoms with single bonds, then turn lone pairs into multiple bonds until every atom has an octet (H: 2 e⁻); the number of bonds between two atoms is the bond count.",
    "id": "cp_q3_sa8"
   }
  ]

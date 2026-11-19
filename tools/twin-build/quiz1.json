@@ -59,10 +59,10 @@
     {
      "q": "As the oxalate dissolves in the plasma of a typical tube, what happens to the calcium, and why?",
      "choices": [
-      "No solid forms; Q < Ksp",
-      "Solid forms; Q > Ksp",
-      "Solid forms; [Ca²⁺] + [C₂O₄²⁻] > Ksp",
-      "No solid forms; Q = Ksp"
+      "CaC₂O₄ stays dissolved, because Q < Ksp",
+      "CaC₂O₄ precipitates, because Q > Ksp",
+      "CaC₂O₄ precipitates, because [Ca²⁺] + [C₂O₄²⁻] > Ksp",
+      "CaC₂O₄ stays dissolved, because Q = Ksp"
      ],
      "ans": 1,
      "cat": "5A",
@@ -70,7 +70,7 @@
      "diff": "D",
      "subj": "gen_chem",
      "twin": "sample-cp:3",
-     "exp": "1. Take both ion concentrations from the passage: [Ca²⁺] = 1.2 × 10⁻³ M and [C₂O₄²⁻] = 5.0 × 10⁻³ M.\n2. Multiply them to get Q, then compare with Ksp: Q = [Ca²⁺][C₂O₄²⁻] = (1.2 × 10⁻³)(5.0 × 10⁻³) = **6.0 × 10⁻⁶**; 6.0 × 10⁻⁶ > 2.3 × 10⁻⁹ → **Q > Ksp**.\n3. Adding the concentrations (1.2 × 10⁻³ + 5.0 × 10⁻³ = 6.2 × 10⁻³) is not a valid Q. And 6.0 × 10⁻⁶ is larger than 2.3 × 10⁻⁹, not smaller, so the solution is neither below nor at equilibrium: \"Q < Ksp\" and \"Q = Ksp\" both fail.\n4. Answer: solid forms; Q > Ksp. CaC₂O₄ precipitates until Q falls to Ksp, which strips out the free Ca²⁺ that clotting needs.\n\n**Rule to reuse:** Q uses the same product formula as Ksp. Q > Ksp → solid precipitates; Q < Ksp → stays dissolved; Q = Ksp → equilibrium.",
+     "exp": "1. Take both ion concentrations from the passage: [Ca²⁺] = 1.2 × 10⁻³ M and [C₂O₄²⁻] = 5.0 × 10⁻³ M.\n2. Multiply them to get Q, then compare with Ksp: Q = [Ca²⁺][C₂O₄²⁻] = (1.2 × 10⁻³)(5.0 × 10⁻³) = **6.0 × 10⁻⁶**; 6.0 × 10⁻⁶ > 2.3 × 10⁻⁹ → **Q > Ksp**.\n3. Adding the concentrations (1.2 × 10⁻³ + 5.0 × 10⁻³ = 6.2 × 10⁻³) is not a valid Q. And 6.0 × 10⁻⁶ is larger than 2.3 × 10⁻⁹, not smaller, so the solution is neither below nor at equilibrium: \"Q < Ksp\" and \"Q = Ksp\" both fail.\n4. Answer: CaC₂O₄ precipitates, because Q > Ksp. CaC₂O₄ precipitates until Q falls to Ksp, which strips out the free Ca²⁺ that clotting needs.\n\n**Rule to reuse:** Q uses the same product formula as Ksp. Q > Ksp → solid precipitates; Q < Ksp → stays dissolved; Q = Ksp → equilibrium.",
      "id": "p_cpq1_1_q3"
     },
     {
@@ -102,7 +102,7 @@
     "4A"
    ],
    "title": "Testing an Electric Airport Shuttle",
-   "passage": "Engineers tested a small electric shuttle, designed to carry passengers between airport terminals, on a straight, level test track before approving it for service. Each phase was repeated five times, and the mean values are reported. Each run had three phases: a cruise at constant speed, a pass by a trackside signal, and a stop in a braking section. Before each run, a 300-mF capacitor that powers the shuttle's door actuators is charged from the shuttle's 12.0-V battery, whose internal resistance is 0.15 Ω.\n\nDuring the cruise phase, the 500-kg shuttle travels at a constant 12 m/s. Force sensors show that air drag and rolling friction together exert 750 N opposing the motion. Midway along the track, a stationary warning bell beside the rails rings at a steady frequency f, and a microphone riding in the shuttle records the tone as the shuttle approaches the bell and then moves away from it. Sound travels at 343 m/s in the air around the track.\n\nThe shuttle carried no passengers during these runs. At the end of the track, the motors are switched off and the shuttle enters a hydraulic braking section. The track there is still level, and rolling friction in this section is negligible compared with the braking force. The speed of the shuttle in the braking section, recorded once per second, is shown in Figure 1.",
+   "passage": "Engineers tested a small electric shuttle, designed to carry passengers between airport terminals, on a straight, level test track before approving it for service. Each phase was repeated five times, and the mean values are reported. Each run had three phases: a cruise at constant speed, a pass by a trackside signal, and a stop in a braking section. Before each run, a 300-mF capacitor that powers the shuttle's door actuators is charged from the shuttle's 12.0-V battery, whose internal resistance is 0.15 Ω.\n\nDuring the cruise phase, the 500-kg shuttle travels at a constant 12 m/s. Force sensors show that air drag and rolling friction together exert 750 N opposing the motion. Midway along the track, a stationary warning bell beside the rails rings at a steady frequency f, and a microphone riding in the shuttle records the tone as the shuttle approaches the bell and then moves away from it. Sound travels at 343 m/s in the air around the track.\n\nThe shuttle carried no passengers during these runs. At the end of the track, the motors are switched off and the shuttle enters a hydraulic braking section. The track there is still level, and rolling friction in this section is negligible compared with the braking force. The speed of the shuttle in the braking section, recorded once per second, is shown in Figure 1. The trackside signal shows a red lamp of wavelength 660 nm when the track ahead is occupied and a blue lamp of wavelength 440 nm when it is clear.",
    "figure": {
     "type": "line",
     "caption": "Figure 1 Speed of the shuttle in the braking section",
@@ -170,19 +170,19 @@
      "id": "p_cpq1_2_q1"
     },
     {
-     "q": "Compared with f, how does the frequency recorded by the microphone change as the shuttle approaches and then recedes from the bell?",
+     "q": "Which describes the frequency f′ that the microphone records, compared with f, as the shuttle approaches and then recedes from the bell?",
      "choices": [
-      "Lower approaching; higher receding",
-      "Equal approaching; equal receding",
-      "Higher approaching; lower receding",
-      "Higher approaching; higher receding"
+      "f > f′ approaching; f′ > f receding",
+      "f′ = f approaching; f′ = f receding",
+      "f′ > f approaching; f′ < f receding",
+      "f′ > f approaching; f′ > f receding"
      ],
      "ans": 2,
      "cat": "4D",
      "skill": "SIRS 2",
      "diff": "D",
      "twin": "pe3-cp:6",
-     "exp": "1. Identify who moves: the bell is stationary, and the microphone (the observer) moves at 12 m/s. For a moving observer, f′ = f(v ± v_o)/v, with + when moving toward the source.\n2. Approaching: use the + sign. f′ = f(343 + **12**)/343 = f × 355/343 ≈ **1.035f** > f.\n3. Receding: use the − sign. f′ = f(343 − **12**)/343 = f × 331/343 ≈ **0.965f** < f.\n4. The speed is constant, so the pitch is steady on each side and drops as the shuttle passes the bell. \"Lower approaching; higher receding\" reverses the signs, \"equal\" both times ignores the moving observer, and \"higher\" both times forgets that the shift flips once the shuttle moves away.\n5. Answer: higher approaching; lower receding, about 1.035f and then 0.965f.\n\n**Rule to reuse:** getting closer → higher pitch; getting farther → lower pitch, whether the listener or the source moves. Moving listener: f′ = f(v ± v_o)/v.",
+     "exp": "1. Identify who moves: the bell is stationary, and the microphone (the observer) moves at 12 m/s. For a moving observer, f′ = f(v ± v_o)/v, with + when moving toward the source.\n2. Approaching: use the + sign. f′ = f(343 + **12**)/343 = f × 355/343 ≈ **1.035f** > f.\n3. Receding: use the − sign. f′ = f(343 − **12**)/343 = f × 331/343 ≈ **0.965f** < f.\n4. The speed is constant, so the pitch is steady on each side and drops as the shuttle passes the bell. The choice with f′ below f approaching and above f receding reverses the signs, f′ = f both times ignores the moving observer, and f′ above f both times forgets that the shift flips once the shuttle moves away.\n5. Answer: f′ is above f approaching and below f receding, about 1.035f and then 0.965f.\n\n**Rule to reuse:** getting closer → higher pitch; getting farther → lower pitch, whether the listener or the source moves. Moving listener: f′ = f(v ± v_o)/v.",
      "id": "p_cpq1_2_q2"
     },
     {
@@ -202,19 +202,19 @@
      "id": "p_cpq1_2_q3"
     },
     {
-     "q": "According to Figure 1, how does the braking force on the shuttle behave?",
+     "q": "How do the energy and frequency of a photon from the signal's blue lamp compare with those of a photon from its red lamp?",
      "choices": [
-      "Constant in size",
-      "Increasing with time",
-      "Linear in time",
-      "Proportional to speed"
+      "1.5 times the energy and 1.5 times the frequency",
+      "1.5 times the energy and 0.67 times the frequency",
+      "0.67 times the energy and 1.5 times the frequency",
+      "0.67 times the energy and 0.67 times the frequency"
      ],
-     "ans": 3,
-     "cat": "4A",
+     "ans": 0,
+     "cat": "4D",
      "skill": "SIRS 4",
      "diff": "X",
-     "twin": "pe3-cp:8",
-     "exp": "1. The track is level, the motors are off and friction is negligible, so the brake is the only horizontal force and sets the slope of Figure 1.\n2. Read the speed at each second: 0 → 1 s: 12 → 7.2, lost **4.8 m/s**; 1 → 2 s: 7.2 → 4.3, lost **2.9 m/s**; 2 → 3 s: 4.3 → 2.6, lost **1.7 m/s**. The fraction lost is the same, **0.40**, each second (4.8/12 = 0.40, 2.9/7.2 ≈ 0.40, 1.7/4.3 ≈ 0.40).\n3. The amount lost shrinks each second, so the force is not constant, and it does not grow in proportion to time.\n4. Compare force with speed using F = ma: 0–1 s: F = 500 × 4.8 = **2400 N**, average v = 9.6 m/s; 1–2 s: F = 500 × 2.9 = **1450 N**, average v ≈ 5.8 m/s; F ÷ v = 2400/9.6 = 250 and 1450/5.8 ≈ **250** → F ∝ v.\n5. A flatter curve means a smaller slope and a smaller force, not a larger one, so the force is not increasing with time.\n6. Answer: proportional to speed. Equal fractions lost per equal time mean F ∝ v; equal amounts lost would mean a constant F.\n\n**Rule to reuse:** on a speed–time graph, slope = acceleration ∝ force. Equal amounts lost per second → constant force; equal fractions lost → force ∝ speed (drag-like).",
+     "twin": "pe5-cp:54",
+     "exp": "1. Photon energy and frequency both scale as 1/λ: **E = hf = hc/λ**, so E and f always change by the same factor.\n2. Wavelength ratio, red ÷ blue: 660 nm ÷ 440 nm = **1.5**. The blue photon has the shorter wavelength, so it has the larger energy and frequency.\n3. Blue ÷ red: E and f are each **1.5 times** as large.\n4. \"0.67 times the energy and 0.67 times the frequency\" treats E and f as proportional to λ. The two mixed choices split E and f, which is impossible because E = hf ties them together.\n5. Answer: 1.5 times the energy and 1.5 times the frequency.\n\n**Rule to reuse:** E ∝ f ∝ 1/λ. Find the wavelength ratio, then flip it for both energy and frequency.",
      "id": "p_cpq1_2_q4"
     }
    ]
@@ -233,7 +233,7 @@
    "passage": "Each astronaut exhales about 1 kg of CO₂ per day, and in a sealed cabin the gas must be removed before its partial pressure becomes harmful. Early spacecraft used canisters of lithium hydroxide granules, which absorb CO₂ irreversibly:\n\n2 LiOH(s) + CO₂(g) → Li₂CO₃(s) + H₂O(g)   Reaction 1\n\nInside the moist granules the absorption happens in steps. Dissolved CO₂ first combines with a hydroxide ion to give hydrogen carbonate, and a second hydroxide ion then removes the proton from HCO₃⁻:\n\nHCO₃⁻(aq) + OH⁻(aq) → CO₃²⁻(aq) + H₂O(l)   Reaction 2\n\nBecause a spent LiOH canister must be discarded, later spacesuits used a regenerable silver-based sorbent that captures CO₂ as silver carbonate:\n\nAg₂O(s) + CO₂(g) ⇌ Ag₂CO₃(s)   Reaction 3\n\nThe sorbent is regenerated by heating the spent cartridge in an oven to drive the reverse of Reaction 3, the decomposition of Ag₂CO₃. For that decomposition, ΔH° = +81 kJ/mol and ΔS° = +168 J/(mol·K). In one test, a spent cartridge held at 400 K under standard conditions released no CO₂ at all, so engineers had to redesign the oven. Mission planners also needed to know how much CO₂ a given mass of each sorbent can hold, because every kilogram launched into orbit is expensive. Both sorbents must work reliably on missions lasting many days, so their capacity and regeneration were tested on the ground first.",
    "questions": [
     {
-     "q": "Which statement best describes the decomposition of Ag₂CO₃ at 400 K in the test?",
+     "q": "At 400 K in the test, the decomposition of Ag₂CO₃ is best described as:",
      "choices": [
       "Spontaneous; entropy dominates",
       "Spontaneous; enthalpy dominates",
@@ -251,33 +251,33 @@
     {
      "q": "A sealed cartridge contains Ag₂O(s), Ag₂CO₃(s) and CO₂(g) at equilibrium (Reaction 3). If more Ag₂CO₃(s) is added at constant temperature, which expression for K applies, and how does P_CO₂ respond?",
      "choices": [
-      "K = [Ag₂CO₃]/([Ag₂O]P_CO₂); P_CO₂ rises",
-      "K = [Ag₂CO₃]/P_CO₂; no change in P_CO₂",
-      "K = 1/P_CO₂; P_CO₂ rises",
-      "K = 1/P_CO₂; no change in P_CO₂"
+      "K = [Ag₂CO₃]/([Ag₂O]P_CO₂); P_CO₂ increases",
+      "K = [Ag₂CO₃]/P_CO₂; P_CO₂ is unchanged",
+      "K = 1/P_CO₂; P_CO₂ increases",
+      "K = 1/P_CO₂; P_CO₂ is unchanged"
      ],
      "ans": 3,
      "cat": "5E",
      "skill": "SIRS 1",
      "diff": "M",
      "twin": "pe4-cp:2",
-     "exp": "1. Label each species' phase: Ag₂O and Ag₂CO₃ are solids; CO₂ is the only gas.\n2. Pure solids have activity 1 and drop out of K: K = a_Ag₂CO₃ ÷ (a_Ag₂O × P_CO₂) = **1** ÷ (**1** × P_CO₂) = **1/P_CO₂**. Both expressions that keep a bracketed solid are wrong.\n3. Adding solid Ag₂CO₃ does not change any term in K, so Q still equals K and nothing shifts; P_CO₂ does not rise.\n4. Answer: K = 1/P_CO₂; no change in P_CO₂ at constant temperature; only a temperature change could alter it.\n\n**Rule to reuse:** leave pure solids and liquids out of K. Adding or removing a solid never shifts the equilibrium; only gases, solutes and temperature matter.",
+     "exp": "1. Label each species' phase: Ag₂O and Ag₂CO₃ are solids; CO₂ is the only gas.\n2. Pure solids have activity 1 and drop out of K: K = a_Ag₂CO₃ ÷ (a_Ag₂O × P_CO₂) = **1** ÷ (**1** × P_CO₂) = **1/P_CO₂**. Both expressions that keep a bracketed solid are wrong.\n3. Adding solid Ag₂CO₃ does not change any term in K, so Q still equals K and nothing shifts; P_CO₂ does not rise.\n4. Answer: K = 1/P_CO₂; P_CO₂ is unchanged at constant temperature; only a temperature change could alter it.\n\n**Rule to reuse:** leave pure solids and liquids out of K. Adding or removing a solid never shifts the equilibrium; only gases, solutes and temperature matter.",
      "id": "p_cpq1_3_q2"
     },
     {
      "q": "In Reaction 2, what happens to the oxidation state of the carbon atom?",
      "choices": [
-      "Rises: the ion loses H",
-      "Falls: the ion gains charge",
-      "Unchanged: only H⁺ moves",
-      "Unchanged: C stays negative"
+      "It increases, since the ion loses H",
+      "It decreases, since the ion gains charge",
+      "It is unchanged, since only H⁺ moves",
+      "It is unchanged, since C stays negative"
      ],
      "ans": 2,
      "cat": "4E",
      "skill": "SIRS 2",
      "diff": "D",
      "twin": "pe4-cp:3",
-     "exp": "1. Translate: assign carbon's oxidation state before and after, then decide whether Reaction 2 is redox or acid–base.\n2. Oxidation state in HCO₃⁻: O is −2, H is +1, and the ion's charge is −1: C + 1 + 3(−2) = −1 → C = **+4**.\n3. Oxidation state in CO₃²⁻: same rule, but the charge is −2: C + 3(−2) = −2 → C = **+4**. Carbon neither rises nor falls.\n4. Nothing changed at carbon: an H⁺ moved from HCO₃⁻ to OH⁻. A proton transfer is acid–base, not redox. A negative value has the wrong sign for a carbon bonded only to the more electronegative O.\n5. Answer: unchanged; carbon stays +4, since only H⁺ moves.\n\n**Rule to reuse:** to test for redox, compute oxidation states before and after (H = +1, sum = charge). Moving only H⁺ is acid–base, never redox.",
+     "exp": "1. Translate: assign carbon's oxidation state before and after, then decide whether Reaction 2 is redox or acid–base.\n2. Oxidation state in HCO₃⁻: O is −2, H is +1, and the ion's charge is −1: C + 1 + 3(−2) = −1 → C = **+4**.\n3. Oxidation state in CO₃²⁻: same rule, but the charge is −2: C + 3(−2) = −2 → C = **+4**. Carbon neither rises nor falls.\n4. Nothing changed at carbon: an H⁺ moved from HCO₃⁻ to OH⁻. A proton transfer is acid–base, not redox. A negative value has the wrong sign for a carbon bonded only to the more electronegative O.\n5. Answer: it is unchanged; carbon stays +4, since only H⁺ moves.\n\n**Rule to reuse:** to test for redox, compute oxidation states before and after (H = +1, sum = charge). Moving only H⁺ is acid–base, never redox.",
      "id": "p_cpq1_3_q3"
     },
     {
@@ -404,12 +404,12 @@
      "id": "p_cpq1_4_q2"
     },
     {
-     "q": "During the final workup, where will most of Compound 4 be found?",
+     "q": "During the final workup, most of Compound 4 will be found:",
      "choices": [
-      "Ethyl acetate, as Compound 4 is lipophilic",
-      "Water, as positive log P means polar",
-      "Water, as it forms the lower layer",
-      "Both equally, as the volumes match"
+      "in ethyl acetate, because Compound 4 is lipophilic.",
+      "in water, because positive log P means polar.",
+      "in water, because it is the lower layer.",
+      "in both equally, because the volumes match."
      ],
      "ans": 0,
      "cat": "5C",
@@ -417,7 +417,7 @@
      "diff": "M",
      "subj": "organic_chem",
      "twin": "pe5-cp:38",
-     "exp": "1. P is the ratio of concentrations, organic over water: P = [Compound 4]organic / [Compound 4]water; log P = 2.2 → P = 10^2.2 ≈ **1.6 × 10²**.\n2. log P > 0 means the organic phase wins. \"Positive log P means polar\" flips the definition.\n3. Compound 4 is neutral, so pH cannot pull it into water as an ion. Ethyl acetate, like octanol, is an organic solvent that does not mix with water.\n4. With equal volumes, fraction in ethyl acetate ≈ P/(P + 1) = 160/161 ≈ **99.4%**. Density only decides which layer is on top (water is denser, so it is the lower layer), and equal volumes do not mean equal amounts. Answer: ethyl acetate, as Compound 4 is lipophilic.\n\n**Rule to reuse:** log P > 0 → prefers the oily (organic) layer; log P < 0 → prefers water. Each +1 in log P = 10× more in the oily layer.",
+     "exp": "1. P is the ratio of concentrations, organic over water: P = [Compound 4]organic / [Compound 4]water; log P = 2.2 → P = 10^2.2 ≈ **1.6 × 10²**.\n2. log P > 0 means the organic phase wins. \"positive log P means polar\" flips the definition.\n3. Compound 4 is neutral, so pH cannot pull it into water as an ion. Ethyl acetate, like octanol, is an organic solvent that does not mix with water.\n4. With equal volumes, fraction in ethyl acetate ≈ P/(P + 1) = 160/161 ≈ **99.4%**. Density only decides which layer is on top (water is denser, so it is the lower layer), and equal volumes do not mean equal amounts. Answer: in ethyl acetate, because Compound 4 is lipophilic.\n\n**Rule to reuse:** log P > 0 → prefers the oily (organic) layer; log P < 0 → prefers water. Each +1 in log P = 10× more in the oily layer.",
      "id": "p_cpq1_4_q3"
     },
     {
@@ -437,19 +437,19 @@
      "id": "p_cpq1_4_q4"
     },
     {
-     "q": "Based on the binding data in the passage, substrate binding by Enzyme T is best described as showing:",
+     "q": "Based on the binding data in the passage, which description best fits substrate binding by Enzyme T?",
      "choices": [
-      "negative cooperativity, given weak binding at low [S].",
-      "no cooperativity, since both enzymes saturate fully.",
-      "positive cooperativity, given its S-shaped saturation curve.",
-      "positive cooperativity, given higher affinity at all [S]."
+      "Negative cooperativity, since it binds weakly at low [S]",
+      "No cooperativity, since both enzymes saturate fully",
+      "Positive cooperativity, since its saturation curve is sigmoidal",
+      "Positive cooperativity, since its affinity is higher at every [S]"
      ],
      "ans": 2,
      "cat": "5E",
      "skill": "SIRS 1",
      "diff": "M",
      "twin": "pe5-cp:40",
-     "exp": "1. Enzyme T has four subunits, so cooperativity is possible. Compare its data with those of the monomeric Enzyme H.\n2. Enzyme H rises steeply at first and then levels off, the hyperbolic, noncooperative shape: 3 μM: **0.17**; 15 μM: **0.50**; 30 μM: **0.67**.\n3. Enzyme T starts flat and then climbs steeply around 15 μM, an S-shaped curve: 3 μM: **0.04**; 15 μM: **0.50**; 30 μM: **0.80**.\n4. Every curve saturates eventually, so that says nothing about cooperativity. And T binds less than H below 15 μM, so its affinity is not higher at all [S].\n5. A weak start followed by a steep rise means later substrate molecules bind more tightly: the opposite of negative cooperativity.\n6. Answer: positive cooperativity, given its S-shaped saturation curve. Hyperbola = independent sites; sigmoid = positive cooperativity.\n\n**Rule to reuse:** hyperbola = noncooperative; sigmoid (S-shaped) = positive cooperativity. Reaching full saturation says nothing about cooperativity; the shape does.",
+     "exp": "1. Enzyme T has four subunits, so cooperativity is possible. Compare its data with those of the monomeric Enzyme H.\n2. Enzyme H rises steeply at first and then levels off, the hyperbolic, noncooperative shape: 3 μM: **0.17**; 15 μM: **0.50**; 30 μM: **0.67**.\n3. Enzyme T starts flat and then climbs steeply around 15 μM, an S-shaped curve: 3 μM: **0.04**; 15 μM: **0.50**; 30 μM: **0.80**.\n4. Every curve saturates eventually, so that says nothing about cooperativity. And T binds less than H below 15 μM, so its affinity is not higher at all [S].\n5. A weak start followed by a steep rise means later substrate molecules bind more tightly: the opposite of negative cooperativity.\n6. Answer: positive cooperativity, since its saturation curve is sigmoidal. Hyperbola = independent sites; sigmoid = positive cooperativity.\n\n**Rule to reuse:** hyperbola = noncooperative; sigmoid (S-shaped) = positive cooperativity. Reaching full saturation says nothing about cooperativity; the shape does.",
      "id": "p_cpq1_4_q5"
     }
    ]
@@ -465,7 +465,7 @@
     "4E"
    ],
    "title": "Attaching a Fluorescent Dye to Enzyme K",
-   "passage": "Fluorescent labels are widely used because they let changes in protein shape be followed in real time. To follow conformational changes of Enzyme K, a 50-kDa enzyme, by fluorescence, researchers attached a dye through an iodoacetamide group, which at pH 7.5 alkylates only sulfhydryl (–SH) groups. Enzyme K has a single such side chain. The protein (2.0 mL of a 6.0 mg/mL solution) was mixed with excess dye in a labeling buffer of 0.200 M Tris (molar mass 121.1 g/mol) and kept for 2 h at 4°C.\n\nThe product was analyzed by native gel electrophoresis, which separates proteins by charge as well as by size. Because the dye carries two negative charges, labeled Enzyme K migrates farther toward the positive electrode than unlabeled Enzyme K. An unlabeled control sample was run in lane 1 and the labeling product in lane 2. The gel was first viewed under UV light and then stained for protein, and the bands are summarized in Table 1. Gels were run in duplicate, and the duplicate gels gave identical bands.\n\nLabeling efficiency matters because unlabeled molecules are invisible in fluorescence experiments, while free dye raises the background signal. Finally, the specific activity of the protein in the labeling product (activity per milligram of Enzyme K) was found to equal that of unlabeled Enzyme K within experimental error.",
+   "passage": "Fluorescent labels are widely used because they let changes in protein shape be followed in real time. To follow conformational changes of Enzyme K, a 50-kDa enzyme, by fluorescence, researchers attached a dye through a triazolinedione group, which at pH 7.5 adds only to the electron-rich ring of phenol (aryl –OH) side chains. Enzyme K has a single such side chain. The protein (2.0 mL of a 6.0 mg/mL solution) was mixed with excess dye in a labeling buffer of 0.200 M Tris (molar mass 121.1 g/mol) and kept for 2 h at 4°C.\n\nThe product was analyzed by native gel electrophoresis, which separates proteins by charge as well as by size. Because the dye carries two negative charges, labeled Enzyme K migrates farther toward the positive electrode than unlabeled Enzyme K. An unlabeled control sample was run in lane 1 and the labeling product in lane 2. The gel was first viewed under UV light and then stained for protein, and the bands are summarized in Table 1. Gels were run in duplicate, and the duplicate gels gave identical bands.\n\nLabeling efficiency matters because unlabeled molecules are invisible in fluorescence experiments, while free dye raises the background signal. Finally, the specific activity of the protein in the labeling product (activity per milligram of Enzyme K) was found to equal that of unlabeled Enzyme K within experimental error.",
    "figure": {
     "caption": "Table 1 Native gel of the labeling reaction",
     "columns": [
@@ -519,20 +519,20 @@
      "id": "p_cpq1_5_q1"
     },
     {
-     "q": "Which amino acid side chain of Enzyme K does the iodoacetamide group of the dye modify?",
+     "q": "Which amino acid side chain of Enzyme K does the triazolinedione group of the dye modify?",
      "choices": [
       "Cys, –CH₂SH",
       "Met, –CH₂CH₂SCH₃",
       "Thr, –CH(OH)CH₃",
       "Tyr, –CH₂C₆H₄OH"
      ],
-     "ans": 0,
+     "ans": 3,
      "cat": "5D",
      "skill": "SIRS 1",
      "diff": "E",
      "subj": "organic_chem",
      "twin": "pe6-cp:34",
-     "exp": "1. The reagent needs an S–H: a sulfur bonded to hydrogen.\n2. Find the atom at the end of each side chain and what it is bonded to: Cys: –CH₂–**S–H**; Met: –CH₂CH₂–**S–CH₃**, no H on S; Thr: –CH(**O–H**)CH₃; Tyr: –CH₂–C₆H₄–**O–H**.\n3. Methionine has sulfur, but it is a thioether with no H on S.\n4. Threonine and tyrosine have O–H groups, not S–H.\n5. Answer: Cys, –CH₂SH. S with an H = thiol = cysteine; S between two carbons = methionine.\n\n**Rule to reuse:** **Thiol:** R–S–H. **Thioether (sulfide):** R–S–R, no H on S. **Alcohol:** R–O–H. **Primary amine:** R–NH₂.",
+     "exp": "1. The reagent needs a phenol: an –OH bonded directly to an aromatic ring.\n2. Find the atom at the end of each side chain and what it is bonded to: Cys: –CH₂–**S–H**; Met: –CH₂CH₂–**S–CH₃**; Thr: –CH(**O–H**)CH₃, an OH on an sp³ carbon; Tyr: –CH₂–C₆H₄–**O–H**, an OH on a benzene ring.\n3. Cysteine and methionine have sulfur and no ring, so they are out.\n4. Threonine has an O–H, but it is an alcohol: no aromatic ring for the reagent to add to.\n5. Answer: Tyr, –CH₂C₆H₄OH. OH on a benzene ring = phenol = tyrosine; OH on an sp³ carbon = alcohol (Ser, Thr).\n\n**Rule to reuse:** **Phenol:** Ar–O–H (tyrosine). **Alcohol:** R–O–H (serine, threonine). **Thiol:** R–S–H (cysteine). **Thioether:** R–S–R (methionine).",
      "id": "p_cpq1_5_q2"
     },
     {
@@ -570,19 +570,19 @@
      "id": "p_cpq1_5_q4"
     },
     {
-     "q": "Because labeling did not change the specific activity of Enzyme K, its labeled cysteine is most likely:",
+     "q": "Because labeling did not change the specific activity of Enzyme K, which best describes the location of its labeled tyrosine?",
      "choices": [
-      "within the catalytic pocket.",
-      "in the nonpolar interior of the fold.",
-      "solvent-exposed, distant from the catalytic pocket.",
-      "at a site where partner proteins dock."
+      "Within the catalytic pocket",
+      "In the nonpolar interior of the fold",
+      "Solvent-exposed, distant from the catalytic pocket",
+      "At a site where partner proteins dock"
      ],
      "ans": 2,
      "cat": "5D",
      "skill": "SIRS 1",
      "diff": "M",
      "twin": "pe6-cp:37",
-     "exp": "1. Two clues: the dye reagent is dissolved in water, and the labeled enzyme keeps its full specific activity.\n2. The dye attaches to the cysteine thiol, and a bulky dye there would block anything nearby.\n3. Full activity rules out a label within the catalytic pocket.\n4. A water-soluble reagent reaches exposed residues first; the nonpolar interior of the fold and a docking site covered by a partner protein are hidden from solvent.\n5. Answer: solvent-exposed, distant from the catalytic pocket, where the dye can reach the cysteine without disturbing catalysis.\n\n**Rule to reuse:** a reagent in water labels exposed surface residues; if activity is unchanged, the label is away from the active site.",
+     "exp": "1. Two clues: the dye reagent is dissolved in water, and the labeled enzyme keeps its full specific activity.\n2. The dye attaches to the tyrosine ring, and a bulky dye there would block anything nearby.\n3. Full activity rules out a label within the catalytic pocket.\n4. A water-soluble reagent reaches exposed residues first; the nonpolar interior of the fold and a docking site covered by a partner protein are hidden from solvent.\n5. Answer: solvent-exposed, distant from the catalytic pocket, where the dye can reach the tyrosine without disturbing catalysis.\n\n**Rule to reuse:** a reagent in water labels exposed surface residues; if activity is unchanged, the label is away from the active site.",
      "id": "p_cpq1_5_q5"
     }
    ]
@@ -609,10 +609,10 @@
   {
    "q": "A child's eyeball is slightly too short, so light from a nearby page comes to a focus behind the retina. What kind of corrective lens is needed?",
    "choices": [
-    "Convex lens",
-    "Concave lens",
-    "Prism",
-    "Plain window glass"
+    "A converging lens",
+    "A diverging lens",
+    "A prism",
+    "A plain glass plate"
    ],
    "ans": 0,
    "cat": "4D",
@@ -620,16 +620,16 @@
    "diff": "E",
    "subj": "physics",
    "twin": "sample-cp:43",
-   "exp": "1. The image lands behind the retina.\n2. Reason from where the focus is: focus behind the retina → the eye bends light too little → it needs more bending → a convex (converging, positive-power) lens, which moves the focus forward onto the retina.\n3. A concave (diverging) lens would push the focus farther back; it corrects nearsightedness. A prism only redirects light, and plain window glass adds no converging power.\n4. Answer: a convex lens.\n\n**Rule to reuse:** focus behind the retina (farsighted) needs a converging lens; focus in front (nearsighted) needs a diverging lens.",
+   "exp": "1. The image lands behind the retina.\n2. Reason from where the focus is: focus behind the retina → the eye bends light too little → it needs more bending → a convex (converging, positive-power) lens, which moves the focus forward onto the retina.\n3. A concave (diverging) lens would push the focus farther back; it corrects nearsightedness. A prism only redirects light, and plain window glass adds no converging power.\n4. Answer: a converging lens.\n\n**Rule to reuse:** focus behind the retina (farsighted) needs a converging lens; focus in front (nearsighted) needs a diverging lens.",
    "id": "cp_q1_sa2"
   },
   {
-   "q": "Data at 25°C: AgBr, Ksp = 5.0 × 10⁻¹³; NaBr is very soluble. Solid NaBr is dissolved in a saturated AgBr solution until [Br⁻] = 0.020 M. Which outcome is expected?",
+   "q": "Data at 25°C: AgBr, Ksp = 5.0 × 10⁻¹³; NaBr is very soluble. Solid NaBr is dissolved in a saturated AgBr solution until [Br⁻] = 0.020 M. Once the NaBr has dissolved, the expected outcome is that:",
    "choices": [
-    "AgBr precipitates; Ksp falls",
-    "Solid AgBr dissolves further; Q < Ksp",
-    "Nothing happens; Ksp stays fixed",
-    "AgBr precipitates; Q rises above Ksp"
+    "AgBr precipitates, because Ksp decreases.",
+    "more AgBr dissolves, because Q < Ksp.",
+    "nothing happens, because Ksp stays constant.",
+    "AgBr precipitates, because Q > Ksp."
    ],
    "ans": 3,
    "cat": "5A",
@@ -637,7 +637,7 @@
    "diff": "X",
    "subj": "gen_chem",
    "twin": "pe1-cp:57",
-   "exp": "1. Find [Ag⁺] in the saturated solution before anything is added: Ksp = [Ag⁺][Br⁻] = s²; s = √(5.0 × 10⁻¹³) ≈ **7.1 × 10⁻⁷ M**.\n2. Add the common ion and compute Q: Q = [Ag⁺][Br⁻] = (7.1 × 10⁻⁷)(0.020) = **1.4 × 10⁻⁸**.\n3. Compare Q with Ksp: 1.4 × 10⁻⁸ > 5.0 × 10⁻¹³ → **Q > Ksp** (about 28,000 times larger), so the solution is supersaturated and solid forms until [Ag⁺] = 5.0 × 10⁻¹³ ÷ 0.020 = 2.5 × 10⁻¹¹ M. More AgBr cannot dissolve, and something does happen.\n4. Ksp depends only on temperature, so it did not fall; Q rose instead.\n5. Answer: AgBr precipitates; Q rises above Ksp (the common-ion effect).\n\n**Rule to reuse:** compute Q with current ion concentrations. Q > Ksp → precipitate; Q < Ksp → more dissolves; Q = Ksp → saturated. Ksp changes only with T.",
+   "exp": "1. Find [Ag⁺] in the saturated solution before anything is added: Ksp = [Ag⁺][Br⁻] = s²; s = √(5.0 × 10⁻¹³) ≈ **7.1 × 10⁻⁷ M**.\n2. Add the common ion and compute Q: Q = [Ag⁺][Br⁻] = (7.1 × 10⁻⁷)(0.020) = **1.4 × 10⁻⁸**.\n3. Compare Q with Ksp: 1.4 × 10⁻⁸ > 5.0 × 10⁻¹³ → **Q > Ksp** (about 28,000 times larger), so the solution is supersaturated and solid forms until [Ag⁺] = 5.0 × 10⁻¹³ ÷ 0.020 = 2.5 × 10⁻¹¹ M. More AgBr cannot dissolve, and something does happen.\n4. Ksp depends only on temperature, so it did not fall; Q rose instead.\n5. Answer: AgBr precipitates, because Q > Ksp (the common-ion effect).\n\n**Rule to reuse:** compute Q with current ion concentrations. Q > Ksp → precipitate; Q < Ksp → more dissolves; Q = Ksp → saturated. Ksp changes only with T.",
    "id": "cp_q1_sa3"
   },
   {
@@ -647,9 +647,9 @@
     "cpd-pbr3"
    ],
    "choices": [
-    "BBr₃ planar; PBr₃ pyramidal",
-    "BBr₃ planar; PBr₃ planar",
-    "BBr₃ pyramidal; PBr₃ planar",
+    "BBr₃ trigonal planar; PBr₃ trigonal pyramidal",
+    "BBr₃ trigonal planar; PBr₃ trigonal planar",
+    "BBr₃ trigonal pyramidal; PBr₃ trigonal planar",
     "BBr₃ tetrahedral; PBr₃ tetrahedral"
    ],
    "ans": 0,
@@ -658,7 +658,7 @@
    "diff": "D",
    "subj": "gen_chem",
    "twin": "pe3-cp:57",
-   "exp": "1. Both drawings show three bonds; what differs is what the central atom has left over.\n2. Add the missing lone pairs by counting valence electrons: B: 3 valence − 3 in bonds = **0** → 0 lone pairs; P: 5 valence − 3 in bonds = **2** → 1 lone pair; domains: BBr₃ = **3**, PBr₃ = **4**.\n3. Boron has no lone pair and only three domains, so BBr₃ is neither pyramidal nor tetrahedral.\n4. The lone pair on P makes four domains: tetrahedral electron geometry, but with only three atoms the shape is a pyramid. PBr₃ is not planar, so \"BBr₃ planar; PBr₃ planar\" fails.\n5. Answer: BBr₃ planar; PBr₃ pyramidal. Add the lone pairs before naming a shape; molecular shape counts atoms only.\n\n**Rule to reuse:** Skeletal drawings often leave out lone pairs. Add them: **lone-pair electrons on the central atom = valence electrons − electrons used in bonds** (one per single bond from that atom).",
+   "exp": "1. Both drawings show three bonds; what differs is what the central atom has left over.\n2. Add the missing lone pairs by counting valence electrons: B: 3 valence − 3 in bonds = **0** → 0 lone pairs; P: 5 valence − 3 in bonds = **2** → 1 lone pair; domains: BBr₃ = **3**, PBr₃ = **4**.\n3. Boron has no lone pair and only three domains, so BBr₃ is neither pyramidal nor tetrahedral.\n4. The lone pair on P makes four domains: tetrahedral electron geometry, but with only three atoms the shape is a pyramid. PBr₃ is not planar, so \"BBr₃ trigonal planar; PBr₃ trigonal planar\" fails.\n5. Answer: BBr₃ trigonal planar; PBr₃ trigonal pyramidal. Add the lone pairs before naming a shape; molecular shape counts atoms only.\n\n**Rule to reuse:** Skeletal drawings often leave out lone pairs. Add them: **lone-pair electrons on the central atom = valence electrons − electrons used in bonds** (one per single bond from that atom).",
    "id": "cp_q1_sa4"
   },
   {
@@ -757,12 +757,12 @@
    "id": "cp_q1_sa6"
   },
   {
-   "q": "In a fusion reactor, deuterium and tritium nuclei must come within about 3 × 10⁻¹⁵ m of each other to fuse. Why must the fuel be heated to about 10⁸ K?",
+   "q": "In a fusion reactor, deuterium and tritium nuclei must come within about 3 × 10⁻¹⁵ m of each other to fuse. The fuel must be heated to about 10⁸ K because:",
    "choices": [
-    "Heat switches off strong-force repulsion",
-    "Heat removes the nuclei's positive charge",
-    "Heat thins the plasma, softening collisions",
-    "Only fast nuclei beat their mutual repulsion"
+    "heating turns off the repulsive strong force.",
+    "heating removes the positive charge of the nuclei.",
+    "heating lowers the plasma density, softening collisions.",
+    "only fast nuclei overcome their Coulomb repulsion."
    ],
    "ans": 3,
    "cat": "4E",
@@ -770,7 +770,7 @@
    "diff": "D",
    "subj": "physics",
    "twin": "pe5-cp:26",
-   "exp": "1. Each nucleus contains one proton (deuterium: 1 p + 1 n; tritium: 1 p + 2 n), so each carries +1e and the two repel.\n2. Compute the repulsive energy at the fusion distance: U = kq₁q₂/r = (9.0 × 10⁹)(1.6 × 10⁻¹⁹)² / (**3 × 10⁻¹⁵ m**) ≈ **7.7 × 10⁻¹⁴ J** ≈ 0.48 MeV.\n3. The repulsive energy climbs steeply as r shrinks, so the nuclei must arrive with enough kinetic energy to climb this hill.\n4. Temperature sets the kinetic energy: KE_avg = (3/2)kT = 1.5 × 1.38 × 10⁻²³ × **10⁸ K** ≈ **2.1 × 10⁻¹⁵ J**. Even this is below the barrier, so only the fastest nuclei, helped by quantum tunneling, fuse; that is why T must be so high.\n5. The strong force attracts nucleons and is not a repulsion to switch off; heat strips electrons, not nuclear charge; a thinner plasma means fewer collisions. Answer: only fast nuclei beat their mutual repulsion.\n\n**Rule to reuse:** fusion needs extreme temperature because positive nuclei repel (Coulomb); only very high kinetic energy gets them close enough for the strong force to bind them.",
+   "exp": "1. Each nucleus contains one proton (deuterium: 1 p + 1 n; tritium: 1 p + 2 n), so each carries +1e and the two repel.\n2. Compute the repulsive energy at the fusion distance: U = kq₁q₂/r = (9.0 × 10⁹)(1.6 × 10⁻¹⁹)² / (**3 × 10⁻¹⁵ m**) ≈ **7.7 × 10⁻¹⁴ J** ≈ 0.48 MeV.\n3. The repulsive energy climbs steeply as r shrinks, so the nuclei must arrive with enough kinetic energy to climb this hill.\n4. Temperature sets the kinetic energy: KE_avg = (3/2)kT = 1.5 × 1.38 × 10⁻²³ × **10⁸ K** ≈ **2.1 × 10⁻¹⁵ J**. Even this is below the barrier, so only the fastest nuclei, helped by quantum tunneling, fuse; that is why T must be so high.\n5. The strong force attracts nucleons and is not a repulsion to switch off; heat strips electrons, not nuclear charge; a thinner plasma means fewer collisions. Answer: only fast nuclei overcome their Coulomb repulsion.\n\n**Rule to reuse:** fusion needs extreme temperature because positive nuclei repel (Coulomb); only very high kinetic energy gets them close enough for the strong force to bind them.",
    "id": "cp_q1_sa7"
   },
   {

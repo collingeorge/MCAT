@@ -182,23 +182,23 @@
      "id": "p_cpq5_2_q1"
     },
     {
-     "q": "In Experiment 1, adding L raised the fraction of enzyme bound while Kd stayed the same. Which statement best explains this result?",
+     "q": "In Experiment 1, adding L raised the fraction of enzyme bound while Kd stayed the same. Consistent with this result, when L is added, the binding equilibrium:",
      "choices": [
-      "Less EL forms; Kd rises",
-      "More EL forms; Kd falls",
-      "EL unchanged; Kd is fixed",
-      "More EL forms; Kd is unchanged"
+      "shifts toward free E, and Kd rises.",
+      "shifts toward EL, and Kd falls.",
+      "does not shift, since Kd is fixed.",
+      "shifts toward EL, and Kd is unchanged."
      ],
      "ans": 3,
      "cat": "5E",
      "skill": "SIRS 1",
      "diff": "M",
      "twin": "pe5-cp:2",
-     "exp": "1. Two observations: more enzyme ends up as EL, and Kd does not change. The right answer must fit both.\n2. Write the equilibrium and compare Q with Kd right after L is added: E + L ⇌ EL; Kd = [E][L]/[EL]; adding L makes Q = [E][**L↑**]/[EL] > Kd; to restore Kd, E + L → EL, a **shift toward EL**.\n3. The data show the bound fraction climbing from 0.20 at 5 μM L to 0.83 at 100 μM L while Kd stays at 20 μM: the composition changes, the constant does not.\n4. Eliminate choices that contradict the data: Kd did not fall, and the bound fraction did change, so \"More EL forms; Kd falls\" and \"EL unchanged; Kd is fixed\" are out.\n5. Answer: more EL forms and Kd is unchanged, because added L is a stress the system partly uses up (Le Châtelier). \"Less EL forms; Kd rises\" has the wrong direction.\n\n**Rule to reuse:** adding a reactant shifts an equilibrium toward products (Le Châtelier), but K itself stays put unless the temperature changes.",
+     "exp": "1. Two observations: more enzyme ends up as EL, and Kd does not change. The right answer must fit both.\n2. Write the equilibrium and compare Q with Kd right after L is added: E + L ⇌ EL; Kd = [E][L]/[EL]; adding L makes Q = [E][**L↑**]/[EL] > Kd; to restore Kd, E + L → EL, a **shift toward EL**.\n3. The data show the bound fraction climbing from 0.20 at 5 μM L to 0.83 at 100 μM L while Kd stays at 20 μM: the composition changes, the constant does not.\n4. Eliminate choices that contradict the data: Kd did not fall, and the bound fraction did change, so \"shifts toward EL, and Kd falls.\" and \"does not shift, since Kd is fixed.\" are out.\n5. Answer: the equilibrium shifts toward EL, and Kd is unchanged, because added L is a stress the system partly uses up (Le Châtelier). \"shifts toward free E, and Kd rises.\" has the wrong direction.\n\n**Rule to reuse:** adding a reactant shifts an equilibrium toward products (Le Châtelier), but K itself stays put unless the temperature changes.",
      "id": "p_cpq5_2_q2"
     },
     {
-     "q": "Based on Table 1, which analog should dissolve in water better than Compound L does?",
+     "q": "Based on Table 1, which analog is most likely to be more soluble in water than Compound L?",
      "choices": [
       "Analog A",
       "Analog B",
@@ -214,19 +214,19 @@
      "id": "p_cpq5_2_q3"
     },
     {
-     "q": "In Experiment 2, [L] was raised from 20 μM to 80 μM at constant temperature and pH. Compared with the 20 μM trial, the 80 μM trial shows:",
+     "q": "In Experiment 2, [L] was raised from 20 μM to 80 μM at constant temperature and pH. What percentage of the enzyme’s activity is inhibited in the 80 μM trial?",
      "choices": [
-      "the same Ki and more inhibition.",
-      "the same Ki and the same inhibition.",
-      "a fourfold higher Ki and more inhibition.",
-      "a fourfold lower Ki and more inhibition."
+      "33%",
+      "50%",
+      "67%",
+      "80%"
      ],
-     "ans": 0,
+     "ans": 2,
      "cat": "5E",
      "skill": "SIRS 2",
      "diff": "X",
      "twin": "pe5-cp:4",
-     "exp": "1. Ki is an equilibrium constant. Like every K, it changes with temperature (and here pH), not with concentration: EL ⇌ E + L; Ki = [E][L]/[EL] = **20 μM** at this T and pH; T and pH unchanged → Ki still **20 μM**.\n2. Eliminate both choices in which Ki changes: \"a fourfold higher Ki and more inhibition.\" and \"a fourfold lower Ki and more inhibition.\"\n3. Find how much inhibition each trial gives with the competitive-inhibition rate law: v_I/v₀ = (Km + [S]) / (Km(1 + [L]/Ki) + [S]); with [S] = Km, v_I/v₀ = 2 / (2 + [L]/Ki). [L] = 20 μM: 2 / (2 + **1**) = 0.67 → **33%** inhibited; [L] = 80 μM: 2 / (2 + **4**) = 0.33 → **67%** inhibited.\n4. Same Ki, but quadrupling [L] moves the enzyme from 33% to 67% inhibited.\n5. Answer: the same Ki and more inhibition. Unchanged inhibition would require [L] to stay the same, so \"the same Ki and the same inhibition.\" is out.\n\n**Rule to reuse:** Ki, Km and Kd are constants: changing a concentration never changes them (only T or pH can). Changing [I] changes how much enzyme is bound.",
+     "exp": "1. Ki is an equilibrium constant, so with T and pH unchanged it is still **20 μM** at both [L].\n2. Use the competitive-inhibition rate law: v_I/v₀ = (Km + [S]) / (Km(1 + [L]/Ki) + [S]). With [S] = Km this becomes v_I/v₀ = 2 / (2 + [L]/Ki).\n3. At [L] = 80 μM: [L]/Ki = **4**, so v_I/v₀ = 2 / 6 = 0.33; the activity left is 33%, and **67%** is inhibited.\n4. 33% is the inhibition at 20 μM (2 / 3 of activity left) or the activity left at 80 μM. 80% is [L]/([L] + Ki), the share of free enzyme bound with no substrate present, which ignores the competing substrate. 50% would need [L]/Ki = 2.\n5. Answer: 67%.\n\n**Rule to reuse:** for a competitive inhibitor at [S] = Km, the fraction of activity left is 2 / (2 + [I]/Ki); Ki stays fixed when only [I] changes.",
      "id": "p_cpq5_2_q4"
     }
    ]
@@ -239,10 +239,11 @@
    "cats": [
     "4A",
     "4C",
-    "5A"
+    "5A",
+    "4D"
    ],
    "title": "An Automated Workstation for DNA Gel Analysis",
-   "passage": "In an automated workstation for DNA analysis, a carriage carrying a pipette head runs along a level rail between a sample rack and an agarose gel. For each transfer, a motor starts the carriage from rest, brings it to a cruising speed, and then brakes it to a stop above the gel, and a position sensor logs where the carriage is once every second. The same motor profile is used for every transfer, so the log from one transfer is used to tune the speed and braking of all of them.\n\nThe gel is cast and run in TBE buffer at pH 8.3 and 25 °C. Samples are loaded into wells at the negative electrode, and a DNA ladder of known fragment lengths is run in a neighboring lane. In one run, the ladder bands of 200, 400, 600, 1000, 1500 and 3000 bp traveled 6.0, 4.6, 3.8, 2.9, 2.2 and 1.2 cm from the wells, respectively. After the run, the gel is stained so that each band can be located and its distance measured.\n\nBefore loading, each sample is mixed with a loading buffer that must hold pH 7.4. The buffer is made from a weak acid, HB, and its conjugate base, B⁻. To find the pKa of HB, a technician titrated 40.0 mL of 0.050 M HB with 0.10 M NaOH at 25 °C and recorded the pH after each addition (Figure 1).",
+   "passage": "In an automated workstation for DNA analysis, a carriage carrying a pipette head runs along a level rail between a sample rack and an agarose gel. For each transfer, a motor starts the carriage from rest, brings it to a cruising speed, and then brakes it to a stop above the gel, and a position sensor logs where the carriage is once every second. The same motor profile is used for every transfer, so the log from one transfer is used to tune the speed and braking of all of them.\n\nThe gel is cast and run in TBE buffer at pH 8.3 and 25 °C. Samples are loaded into wells at the negative electrode, and a DNA ladder of known fragment lengths is run in a neighboring lane. In one run, the ladder bands of 200, 400, 600, 1000, 1500 and 3000 bp traveled 6.0, 4.6, 3.8, 2.9, 2.2 and 1.2 cm from the wells, respectively. After the run, the gel is stained so that each band can be located and its distance measured.\n\nBefore loading, each sample is mixed with a loading buffer that must hold pH 7.4. The buffer is made from a weak acid, HB, and its conjugate base, B⁻. To find the pKa of HB, a technician titrated 40.0 mL of 0.050 M HB with 0.10 M NaOH at 25 °C and recorded the pH after each addition (Figure 1). To locate the bands, the stain is excited with 480-nm blue light, and it then emits 600-nm orange light. Both wavelengths are measured in air, where all colors of light travel at essentially the same speed c.",
    "figure": {
     "type": "line",
     "caption": "Figure 1 Titration of 40.0 mL of 0.050 M HB with 0.10 M NaOH",
@@ -338,19 +339,19 @@
    },
    "questions": [
     {
-     "q": "In one transfer, the carriage leaves rest at t = 10 s. At t = 10, 11, 12, 13, 14, 15, 16, 17 and 18 s it is at 0, 1, 4, 9, 15, 21, 27, 31.5 and 33 cm. In which interval is no net force acting on it?",
+     "q": "Compared with the frequency of the excitation light, the frequency of the light emitted by the stained bands is:",
      "choices": [
-      "10 to 13 s",
-      "13 to 16 s",
-      "16 to 18 s",
-      "10 to 16 s"
+      "about two-thirds as high.",
+      "four-fifths as high.",
+      "unchanged.",
+      "five-fourths as high."
      ],
      "ans": 1,
-     "cat": "4A",
+     "cat": "4D",
      "skill": "SIRS 1",
      "diff": "D",
-     "twin": "pe6-cp:5",
-     "exp": "1. Zero net force means zero acceleration: look for the stretch where the slope of position against time, the velocity, stays the same.\n2. Between 13 and 16 s the carriage moves the same distance every second (9 → 15 → 21 → 27 cm). Its slope: (27 − 9) cm ÷ (16 − 13) s = **6 cm/s**, the same every second.\n3. From 10 to 13 s the gaps grow, 1 cm, then 3 cm, then 5 cm: the carriage speeds up, so a net force acts and \"10 to 13 s\" is out.\n4. From 16 to 18 s the gaps shrink, 4.5 cm then 1.5 cm: the carriage slows, so a net force acts again. \"10 to 16 s\" includes the speeding-up stretch from 10 to 13 s, so it is out too.\n5. Answer: 13 to 16 s. On a position–time record, equal steps in equal times mean constant velocity and zero net force.\n\n**Rule to reuse:** on a position–time graph, a straight slanted line = constant velocity = zero net force. A curve bending = speed changing = net force.",
+     "twin": "pe5-cp:53",
+     "exp": "1. In air, light of every color travels at the same speed c, and **c = fλ**, so frequency is inversely proportional to wavelength.\n2. Wavelength ratio, emitted ÷ excitation: 600 nm ÷ 480 nm = **5/4**. The emitted light has the longer wavelength.\n3. Frequency ratio is the inverse: f(emitted) ÷ f(excitation) = **4/5**, so the emitted frequency is four-fifths as high.\n4. \"Five-fourths as high\" treats f as proportional to λ; \"about two-thirds\" squares the ratio (16/25 ≈ 0.64); \"unchanged\" forgets that c = fλ ties f to λ when c is fixed.\n5. Answer: four-fifths as high.\n\n**Rule to reuse:** at a fixed wave speed, f ∝ 1/λ. A wavelength longer by some factor means a frequency lower by the same factor.",
      "id": "p_cpq5_3_q1"
     },
     {
@@ -370,37 +371,37 @@
      "id": "p_cpq5_3_q2"
     },
     {
-     "q": "How do [H⁺] and [OH⁻] in the TBE running buffer compare with those in pure water at 25 °C?",
+     "q": "In the TBE running buffer, compared with pure water at 25 °C:",
      "subj": "gen_chem",
      "choices": [
-      "1.3× less H⁺, 1.3× more OH⁻",
-      "20× more H⁺, 20× less OH⁻",
-      "20× less H⁺, unchanged OH⁻",
-      "20× less H⁺, 20× more OH⁻"
+      "[H⁺] is about 1.3 times lower and [OH⁻] about 1.3 times higher.",
+      "[H⁺] is about 20 times higher and [OH⁻] about 20 times lower.",
+      "[H⁺] is about 20 times lower and [OH⁻] is unchanged.",
+      "[H⁺] is about 20 times lower and [OH⁻] about 20 times higher."
      ],
      "ans": 3,
      "cat": "5A",
      "skill": "SIRS 2",
      "diff": "D",
      "twin": "pe6-cp:7",
-     "exp": "1. Translate: compare each concentration with water, where [H⁺] = [OH⁻] = 10⁻⁷ M.\n2. Rule: pH = −log[H⁺] and pH + pOH = 14. The buffer has pH 8.3, so pOH = 5.7.\n3. Convert each log difference to a factor: [H⁺] = 10⁻⁸·³ = **5.0 × 10⁻⁹ M**; 10⁻⁷ ÷ 5.0 × 10⁻⁹ = 10¹·³ ≈ **20× lower**; [OH⁻] = 10⁻⁵·⁷ = **2.0 × 10⁻⁶ M**; 2.0 × 10⁻⁶ ÷ 10⁻⁷ = **20× higher**.\n4. A 1.3-unit pH change is a factor of 10¹·³, not 1.3; a higher pH means less H⁺, not more; and Kw fixes [OH⁻] once [H⁺] drops. So \"1.3× less H⁺, 1.3× more OH⁻\", \"20× more H⁺, 20× less OH⁻\" and \"20× less H⁺, unchanged OH⁻\" are out.\n5. Answer: 20× less H⁺, 20× more OH⁻ than in water, a weakly basic buffer.\n\n**Rule to reuse:** a pH difference of d units = a factor of 10ᵈ in [H⁺]. [OH⁻] changes by the same factor the other way (Kw = 10⁻¹⁴ at 25 °C).",
+     "exp": "1. Translate: compare each concentration with water, where [H⁺] = [OH⁻] = 10⁻⁷ M.\n2. Rule: pH = −log[H⁺] and pH + pOH = 14. The buffer has pH 8.3, so pOH = 5.7.\n3. Convert each log difference to a factor: [H⁺] = 10⁻⁸·³ = **5.0 × 10⁻⁹ M**; 10⁻⁷ ÷ 5.0 × 10⁻⁹ = 10¹·³ ≈ **20× lower**; [OH⁻] = 10⁻⁵·⁷ = **2.0 × 10⁻⁶ M**; 2.0 × 10⁻⁶ ÷ 10⁻⁷ = **20× higher**.\n4. A 1.3-unit pH change is a factor of 10¹·³, not 1.3; a higher pH means less H⁺, not more; and Kw fixes [OH⁻] once [H⁺] drops. So \"[H⁺] is about 1.3 times lower and [OH⁻] about 1.3 times higher.\", \"[H⁺] is about 20 times higher and [OH⁻] about 20 times lower.\" and \"[H⁺] is about 20 times lower and [OH⁻] is unchanged.\" are out.\n5. Answer: [H⁺] is about 20 times lower and [OH⁻] about 20 times higher than in water, a weakly basic buffer.\n\n**Rule to reuse:** a pH difference of d units = a factor of 10ᵈ in [H⁺]. [OH⁻] changes by the same factor the other way (Kw = 10⁻¹⁴ at 25 °C).",
      "id": "p_cpq5_3_q3"
     },
     {
-     "q": "Based on Figure 1, what ratio [B⁻]/[HB] gives the pH 7.4 loading buffer?",
+     "q": "Based on Figure 1, what ratio of B⁻ to HB is needed for the pH 7.4 loading buffer?",
      "subj": "gen_chem",
      "choices": [
-      "4.0",
-      "1.8",
-      "0.60",
-      "0.25"
+      "4:1",
+      "9:5",
+      "3:5",
+      "1:4"
      ],
      "ans": 0,
      "cat": "5A",
      "skill": "SIRS 4",
      "diff": "X",
      "twin": "pe6-cp:8",
-     "exp": "1. Find the equivalence point, the steep jump, at 20 mL: 40.0 mL × 0.050 M = 2.0 mmol HB; 2.0 mmol ÷ 0.10 M NaOH = **20 mL**.\n2. Half of 20 mL is 10 mL, and the pH there is the pKa: half-equivalence = 20 ÷ 2 = **10 mL**; pH at 10 mL = pKa = **6.8**.\n3. Put the target pH into Henderson–Hasselbalch: 7.4 = 6.8 + log([B⁻]/[HB]); log([B⁻]/[HB]) = **0.6**; [B⁻]/[HB] = 10⁰·⁶ ≈ **4.0**. The curve agrees: at 16 mL, B⁻ : HB = 16 : 4 = 4, and the pH is 7.4.\n4. 0.60 uses the log itself as the ratio; 1.8 takes e⁰·⁶ instead of 10⁰·⁶; 0.25 is the flipped ratio, which would give pH 6.8 − 0.6 = 6.2.\n5. Answer: 4.0. Read the pKa at half the equivalence volume; a pH above the pKa means more B⁻ than HB.\n\n**Rule to reuse:** pKa = pH at half the equivalence volume. Each pH unit above the pKa = 10× more A⁻ than HA; each unit below = 10× more HA.",
+     "exp": "1. Find the equivalence point, the steep jump, at 20 mL: 40.0 mL × 0.050 M = 2.0 mmol HB; 2.0 mmol ÷ 0.10 M NaOH = **20 mL**.\n2. Half of 20 mL is 10 mL, and the pH there is the pKa: half-equivalence = 20 ÷ 2 = **10 mL**; pH at 10 mL = pKa = **6.8**.\n3. Put the target pH into Henderson–Hasselbalch: 7.4 = 6.8 + log([B⁻]/[HB]); log([B⁻]/[HB]) = **0.6**; [B⁻]/[HB] = 10⁰·⁶ ≈ **4.0**. The curve agrees: at 16 mL, B⁻ : HB = 16 : 4 = 4, and the pH is 7.4.\n4. 3:5 (0.60) uses the log itself as the ratio; 9:5 (1.8) takes e⁰·⁶ instead of 10⁰·⁶; 1:4 is the flipped ratio, which would give pH 6.8 − 0.6 = 6.2.\n5. Answer: 4:1. Read the pKa at half the equivalence volume; a pH above the pKa means more B⁻ than HB.\n\n**Rule to reuse:** pKa = pH at half the equivalence volume. Each pH unit above the pKa = 10× more A⁻ than HA; each unit below = 10× more HA.",
      "id": "p_cpq5_3_q4"
     }
    ]
@@ -419,7 +420,7 @@
    "passage": "Fungi of the genus Cordyceps make cordycepin, a nucleoside identical to adenosine except that its sugar has no –OH group on the 3′ carbon. The fungus builds cordycepin from adenosine, whose sugar comes from ribose 5-phosphate, a product of the pentose phosphate pathway. In human cells, kinases add phosphate groups to the 5′ carbon of cordycepin to give cordycepin triphosphate. RNA polymerase can add this nucleotide to a growing RNA chain, but synthesis then stops, because the next phosphodiester bond requires the missing 3′ –OH.\n\nThe cell wall of the fungus is built largely from a branched glucan, a polymer made only of glucose. When the wall glucan is partly digested by an enzyme that cuts the main-chain links but leaves the branch-point links intact, a single glucose disaccharide, Disaccharide X, which contains the branch-point link, is released.\n\nResearchers also asked whether cordycepin changes the phosphorylation of AMP-activated protein kinase (AMPK) in cultured liver cells. Cells were first grown with ³⁵S-methionine, so the label entered the polypeptide chain of every newly made protein, and were then incubated with ³³P-labeled phosphate, which kinases transfer onto serine and threonine side chains. AMPK was isolated from treated and untreated cells, and both radioactive signals were counted by liquid scintillation. Both isotopes are β⁻ emitters with half-lives of several weeks, so the two signals can be separated by the energies of their particles.",
    "questions": [
     {
-     "q": "In ribose 5-phosphate (furanose form), to which carbon is the phosphate bonded?",
+     "q": "In ribose 5-phosphate (furanose form), the phosphate group is attached to which carbon?",
      "choices": [
       "C1",
       "C2",
@@ -467,23 +468,23 @@
      "id": "p_cpq5_4_q3"
     },
     {
-     "q": "If the isolated AMPK is treated with a phosphatase, which radioactive signal from the protein decreases?",
+     "q": "If the isolated AMPK is treated with a phosphatase, then, of the radioactive signals from the protein:",
      "choices": [
-      "Only ³⁵S",
-      "Neither signal",
-      "Only ³³P",
-      "Both ³³P and ³⁵S"
+      "³⁵S decreases and ³³P is unchanged.",
+      "Neither changes.",
+      "³³P decreases and ³⁵S is unchanged.",
+      "Both decrease."
      ],
      "ans": 2,
      "cat": "5E",
      "skill": "SIRS 1",
      "diff": "E",
      "twin": "pe1-cp:41",
-     "exp": "1. Locate each label: ³⁵S → methionine in the polypeptide chain; ³³P → phosphate groups on serine and threonine side chains.\n2. The enzyme cuts off phosphate only: phosphate leaves → ³³P **decreases**; the chain stays → ³⁵S **unchanged**.\n3. The polypeptide, with its ³⁵S, stays intact, so ³⁵S cannot drop, and ³³P must drop: \"Only ³⁵S\", \"Both ³³P and ³⁵S\" and \"Neither signal\" are out.\n4. Answer: only ³³P.\n\n**Rule to reuse:** to predict which label is lost, match each isotope to the group it sits on, then ask which group the enzyme removes.",
+     "exp": "1. Locate each label: ³⁵S → methionine in the polypeptide chain; ³³P → phosphate groups on serine and threonine side chains.\n2. The enzyme cuts off phosphate only: phosphate leaves → ³³P **decreases**; the chain stays → ³⁵S **unchanged**.\n3. The polypeptide, with its ³⁵S, stays intact, so ³⁵S cannot drop, and ³³P must drop: \"³⁵S decreases and ³³P is unchanged.\", \"Both decrease.\" and \"Neither changes.\" are out.\n4. Answer: ³³P decreases and ³⁵S is unchanged.\n\n**Rule to reuse:** to predict which label is lost, match each isotope to the group it sits on, then ask which group the enzyme removes.",
      "id": "p_cpq5_4_q4"
     },
     {
-     "q": "Each decaying ³³P or ³⁵S nucleus ejects an electron and an antineutrino. Which pair of daughter nuclides results?",
+     "q": "Each decaying ³³P or ³⁵S nucleus ejects an electron and an antineutrino. Which daughter nuclides form?",
      "subj": "physics",
      "choices": [
       "Silicon-33 and phosphorus-35",
@@ -618,12 +619,12 @@
  ],
  "standalones": [
   {
-   "q": "A 0.500-mol sample of argon at 37 °C and 1.00 atm is compared with the ideal-gas model, with R = 8.21 × 10⁻² L·atm/(mol·K). Which choice pairs a premise of ideal behavior with the volume predicted for the sample?",
+   "q": "A 0.500-mol sample of argon at 37 °C and 1.00 atm is compared with the ideal-gas model, with R = 8.21 × 10⁻² L·atm/(mol·K). Which pair gives an assumption of the ideal-gas model and the volume it predicts for the sample?",
    "choices": [
-    "Point-like particles; 11.2 L",
-    "Point-like particles; 12.7 L",
-    "Weak attractions; 11.2 L",
-    "Weak attractions; 12.7 L"
+    "Particles occupy no volume; 11.2 L",
+    "Particles occupy no volume; 12.7 L",
+    "Particles attract weakly; 11.2 L",
+    "Particles attract weakly; 12.7 L"
    ],
    "ans": 1,
    "cat": "4B",
@@ -631,11 +632,11 @@
    "diff": "D",
    "subj": "gen_chem",
    "twin": "pe1-cp:29",
-   "exp": "1. Model half: an ideal gas has particles with no volume and NO attractions. \"Weak attractions\" describes a real gas, so both \"Weak attractions\" choices are out.\n2. Volume half: convert the temperature to kelvin: T = 37 + 273 = **310 K**.\n3. Solve PV = nRT for V: V = nRT ÷ P = (0.500 mol)(0.0821 L·atm·mol⁻¹·K⁻¹)(310 K) ÷ 1.00 atm = **12.7 L**.\n4. 11.2 L is 0.500 × 22.4 L, the molar volume at 273 K; at 310 K the volume is larger by 310/273: 11.2 L × 310/273 = **12.7 L**. So \"Point-like particles; 11.2 L\" is out.\n5. Answer: point-like particles; 12.7 L.\n\n**Rule to reuse:** ideal gas = no particle volume + no attractions. V = nRT/P with T in kelvin; 22.4 L/mol only at 0 °C and 1 atm.",
+   "exp": "1. Model half: an ideal gas has particles with no volume and NO attractions. \"Particles attract weakly\" describes a real gas, so both \"Particles attract weakly\" choices are out.\n2. Volume half: convert the temperature to kelvin: T = 37 + 273 = **310 K**.\n3. Solve PV = nRT for V: V = nRT ÷ P = (0.500 mol)(0.0821 L·atm·mol⁻¹·K⁻¹)(310 K) ÷ 1.00 atm = **12.7 L**.\n4. 11.2 L is 0.500 × 22.4 L, the molar volume at 273 K; at 310 K the volume is larger by 310/273: 11.2 L × 310/273 = **12.7 L**. So \"Particles occupy no volume; 11.2 L\" is out.\n5. Answer: particles occupy no volume; 12.7 L.\n\n**Rule to reuse:** ideal gas = no particle volume + no attractions. V = nRT/P with T in kelvin; 22.4 L/mol only at 0 °C and 1 atm.",
    "id": "cp_q5_sa1"
   },
   {
-   "q": "Tritium-labeled serotonin is used to follow uptake by brain-tissue slices kept in aqueous buffer for 24 hours. Which tritium position would best keep its label throughout the study?",
+   "q": "Tritium-labeled serotonin is used to follow uptake by brain-tissue slices kept in aqueous buffer for 24 hours. Which tritium position would best retain the label throughout the experiment?",
    "choices": [
     "The indole N–H",
     "The amine N–H",
@@ -652,7 +653,7 @@
    "id": "cp_q5_sa2"
   },
   {
-   "q": "Fractional distillation at atmospheric pressure is used to separate a mixture of four liquids whose molar masses are all about 86–88 g/mol. Which liquid distills over first?",
+   "q": "Fractional distillation at atmospheric pressure is used to separate a mixture of four liquids whose molar masses are all about 86–88 g/mol. Which liquid collects first in the receiving flask?",
    "choices": [
     "Ethyl propyl ether",
     "Pentanal",
@@ -669,12 +670,12 @@
    "id": "cp_q5_sa3"
   },
   {
-   "q": "In acetonitrile, CH₃C≡N, the carbon–nitrogen bond is 116 pm long, compared with 147 pm for the C–N bond in methylamine. Which set of bonds between C and N accounts for the shorter bond?",
+   "q": "In acetonitrile, CH₃C≡N, the carbon–nitrogen bond is 116 pm long, compared with 147 pm for the C–N bond in methylamine. Which bonding description best accounts for the shorter bond in acetonitrile?",
    "choices": [
-    "Three σ",
-    "One σ and one π",
-    "One σ and two π",
-    "Two σ and one π"
+    "Three σ bonds between C and N",
+    "One σ bond and one π bond between C and N",
+    "One σ bond and two π bonds between C and N",
+    "Two σ bonds and one π bond between C and N"
    ],
    "ans": 2,
    "cat": "5B",
@@ -682,16 +683,16 @@
    "diff": "M",
    "subj": "organic_chem",
    "twin": "pe4-cp:25",
-   "exp": "1. Translate: the C–N link in acetonitrile is shorter than a C–N single bond; find the bonding that makes it shorter.\n2. Draw both: acetonitrile has a C≡N triple bond, while methylamine, CH₃NH₂, has a C–N single bond.\n3. Rule: the first bond between two atoms is σ; each additional bond is π. Bond order 3 = **1 σ** + **2 π**; bond order ↑ → bond length ↓. Two atoms share only one head-on σ overlap, so \"Three σ\" and \"Two σ and one π\" are impossible.\n4. One σ plus one π is a double bond, as in an imine, which acetonitrile does not have: \"One σ and one π\" is out.\n5. Answer: one σ and two π.\n\n**Rule to reuse:** single = 1σ; double = 1σ + 1π; triple = 1σ + 2π. More bonds → shorter and stronger.",
+   "exp": "1. Translate: the C–N link in acetonitrile is shorter than a C–N single bond; find the bonding that makes it shorter.\n2. Draw both: acetonitrile has a C≡N triple bond, while methylamine, CH₃NH₂, has a C–N single bond.\n3. Rule: the first bond between two atoms is σ; each additional bond is π. Bond order 3 = **1 σ** + **2 π**; bond order ↑ → bond length ↓. Two atoms share only one head-on σ overlap, so \"Three σ bonds between C and N\" and \"Two σ bonds and one π bond between C and N\" are impossible.\n4. One σ plus one π is a double bond, as in an imine, which acetonitrile does not have: \"One σ bond and one π bond between C and N\" is out.\n5. Answer: one σ bond and two π bonds between C and N.\n\n**Rule to reuse:** single = 1σ; double = 1σ + 1π; triple = 1σ + 2π. More bonds → shorter and stronger.",
    "id": "cp_q5_sa4"
   },
   {
    "q": "A gas sample sealed under a freely sliding piston holds 0.40 mol of ideal gas at 77 °C and 3.0 atm. Holding everything else constant, which single change would NOT double the volume of the gas?",
    "choices": [
-    "Heating it to 427 °C",
-    "Raising P to 6.0 atm",
-    "Lowering P to 1.5 atm",
-    "Doubling n to 0.80 mol"
+    "Raising the temperature from 77 °C to 427 °C",
+    "Raising the pressure from 3.0 atm to 6.0 atm",
+    "Lowering the pressure from 3.0 atm to 1.5 atm",
+    "Adding 0.40 mol of the same gas"
    ],
    "ans": 1,
    "cat": "4B",
@@ -699,7 +700,7 @@
    "diff": "X",
    "subj": "gen_chem",
    "twin": "pe5-cp:12",
-   "exp": "1. Solve the ideal gas law for V and note how it depends on each variable: PV = nRT → V = nRT/P; V ∝ n, V ∝ T in kelvin, V ∝ 1/P.\n2. Temperature must be in kelvin: 77 °C + 273 = **350 K**; 427 °C + 273 = **700 K**; T × 2 → V × 2, so \"Heating it to 427 °C\" doubles V and is out.\n3. Halving P or doubling n each doubles V: P 3.0 → 1.5 atm → V × **2**; n 0.40 → 0.80 mol → V × **2**. So \"Lowering P to 1.5 atm\" and \"Doubling n to 0.80 mol\" are out.\n4. Doubling P does the opposite: P 3.0 → 6.0 atm → V × **½**. Answer: raising P to 6.0 atm does not double V.\n\n**Rule to reuse:** V = nRT/P. V follows n and kelvin T up, and goes opposite to P. Always convert °C to K before comparing temperatures.",
+   "exp": "1. Solve the ideal gas law for V and note how it depends on each variable: PV = nRT → V = nRT/P; V ∝ n, V ∝ T in kelvin, V ∝ 1/P.\n2. Temperature must be in kelvin: 77 °C + 273 = **350 K**; 427 °C + 273 = **700 K**; T × 2 → V × 2, so \"Raising the temperature from 77 °C to 427 °C\" doubles V and is out.\n3. Halving P or doubling n each doubles V: P 3.0 → 1.5 atm → V × **2**; n 0.40 → 0.80 mol → V × **2**. So \"Lowering the pressure from 3.0 atm to 1.5 atm\" and \"Adding 0.40 mol of the same gas\" are out.\n4. Doubling P does the opposite: P 3.0 → 6.0 atm → V × **½**. Answer: raising the pressure from 3.0 atm to 6.0 atm does not double V.\n\n**Rule to reuse:** V = nRT/P. V follows n and kelvin T up, and goes opposite to P. Always convert °C to K before comparing temperatures.",
    "id": "cp_q5_sa5"
   },
   {
@@ -720,7 +721,7 @@
    "id": "cp_q5_sa6"
   },
   {
-   "q": "Urea dissolves spontaneously in water at 25 °C, and the solution becomes colder as it dissolves. What must be true of this process at 25 °C?",
+   "q": "Urea dissolves spontaneously in water at 25 °C, and the solution becomes colder as it dissolves. Which statement about the dissolution at 25 °C is correct?",
    "choices": [
     "Endothermic; TΔS exceeds ΔH",
     "Endothermic; ΔH exceeds TΔS",
@@ -737,10 +738,10 @@
    "id": "cp_q5_sa7"
   },
   {
-   "q": "An unknown with formula C₅H₁₂O shows exactly two ¹H NMR signals, both singlets: one integrating to 9H and one to 3H. Which compound is it?",
+   "q": "An unknown with formula C₅H₁₂O shows exactly two ¹H NMR signals, both singlets: one integrating to 9H and one to 3H. Which compound fits the spectrum?",
    "choices": [
-    "Neopentyl alcohol",
-    "Tertiary amyl alcohol",
+    "2,2-Dimethyl-1-propanol",
+    "2-Methyl-2-butanol",
     "Methyl tert-butyl ether",
     "Butyl methyl ether"
    ],
@@ -750,7 +751,7 @@
    "diff": "D",
    "subj": "organic_chem",
    "twin": "pe6-cp:27",
-   "exp": "1. The key signal: 9H, all equivalent, and not split.\n2. Translate it into a group: 9H = **3 × CH₃**, all equivalent; singlet → the neighboring carbon has **0 H**; → (CH₃)₃C– on a carbon with no H. The 3H singlet is one CH₃ with no H neighbors.\n3. Methyl tert-butyl ether, (CH₃)₃C–O–CH₃, has exactly that: a tert-butyl group and a CH₃, each bonded to the O, giving two singlets, 9H and 3H.\n4. Neopentyl alcohol, (CH₃)₃C–CH₂OH, has a 9H singlet but three signals (9H, 2H, 1H); tert-amyl alcohol gives a 6H singlet, a 2H quartet, a 3H triplet and a 1H O–H; butyl methyl ether has a 3H singlet but split CH₂ and CH₃ signals and no 9H group. All three are out.\n5. Answer: methyl tert-butyl ether. A 9H singlet means a tert-butyl group on an atom with no H.\n\n**Rule to reuse:** **Number of signals** = number of sets of equivalent H.",
+   "exp": "1. The key signal: 9H, all equivalent, and not split.\n2. Translate it into a group: 9H = **3 × CH₃**, all equivalent; singlet → the neighboring carbon has **0 H**; → (CH₃)₃C– on a carbon with no H. The 3H singlet is one CH₃ with no H neighbors.\n3. Methyl tert-butyl ether, (CH₃)₃C–O–CH₃, has exactly that: a tert-butyl group and a CH₃, each bonded to the O, giving two singlets, 9H and 3H.\n4. 2,2-Dimethyl-1-propanol (neopentyl alcohol), (CH₃)₃C–CH₂OH, has a 9H singlet but three signals (9H, 2H, 1H); 2-methyl-2-butanol gives a 6H singlet, a 2H quartet, a 3H triplet and a 1H O–H; butyl methyl ether has a 3H singlet but split CH₂ and CH₃ signals and no 9H group. All three are out.\n5. Answer: methyl tert-butyl ether. A 9H singlet means a tert-butyl group on an atom with no H.\n\n**Rule to reuse:** **Number of signals** = number of sets of equivalent H.",
    "id": "cp_q5_sa8"
   }
  ]

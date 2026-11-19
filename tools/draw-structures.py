@@ -1279,7 +1279,7 @@ add('cpt-dimethylamine-nh-hl', 'C[NH:1]C', formula='C2H7N', hl=[1])
 add('cpt-acetaldehyde', 'CC=O', formula='C2H4O')
 add('cpt-hydrogen-sulfide', 'S', formula='H2S')
 add('cpt-propane', 'CCC', formula='C3H8')
-# cpt-pe4-25a: a ketone with a ring, an outside C=C and two nitriles (9 π bonds).
+# cpt-pe4-37a: the probe, a ketone with a ring, an outside C=C and two nitriles (9 π bonds).
 add('cpt-benzoyl-methylene-malononitrile', 'O=C(C=C(C#N)C#N)c1ccccc1', formula='C11H6N2O')
 # cpt-pe4-29a: the amino ester with its nitrogen highlighted.
 add('cpt-amino-ester-n-hl', 'CC[NH:1]CCC(=O)OC', formula='C6H13NO2', hl=[1])
