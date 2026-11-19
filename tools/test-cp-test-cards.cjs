@@ -306,9 +306,15 @@ assert(['data/cp-test-cards.js', 'data/cp-rules.js'].every(f => fs.readFileSync(
   assert.equal(secs.size, R.sheet.length, 'rules sheet: unique section ids');
   assert(R.cards.length >= 50, 'at least 50 rule cards: ' + R.cards.length);
   assert.equal(new Set(R.cards.map(c => c.id)).size, R.cards.length, 'rule cards: unique ids');
+  // Each rule card is a short multiple-choice problem that applies its rule: 4 different choices (the 3 wrong ones are
+  // the traps the rule kills), one key, and the rule as its explanation.
   for (const c of R.cards) {
     assert(/^r-[a-z0-9-]+$/.test(c.id) && secs.has(c.sheet), c.id + ': id and section');
-    assert(typeof c.front === 'string' && c.front.trim() && c.front.length <= 160 && typeof c.back === 'string' && c.back.trim() && c.back.length <= 240, c.id + ': short front and back');
+    assert(typeof c.q === 'string' && c.q.trim() && c.q.length <= 200, c.id + ': a short problem (≤ 200 characters)');
+    assert(Array.isArray(c.choices) && c.choices.length === 4 && new Set(c.choices).size === 4 && c.choices.every(x => typeof x === 'string' && x.trim()), c.id + ': 4 different choices');
+    assert(Number.isInteger(c.ans) && c.ans >= 0 && c.ans < 4, c.id + ': one key');
+    assert(typeof c.rule === 'string' && c.rule.trim() && c.rule.length <= 240, c.id + ': the rule, shown after answering (≤ 240 characters)');
+    assert(c.front === undefined && c.back === undefined, c.id + ': no flip-card fields');
     assert(Array.isArray(c.cards) && c.cards.length >= 1 && c.cards.every(id => deck.has(id)), c.id + ': tied to deck cards that use the rule');
   }
   for (const sec of R.sheet) assert(R.cards.some(c => c.sheet === sec.id), sec.id + ': the section has rule cards'); }
@@ -384,8 +390,9 @@ assert(frontSeen > 0, 'the flashcards built from a missed twin led their categor
     assert(!r.noMiss.some(id => id.startsWith('bio')), 'without the miss, the discipline mix gives biology no slot: ' + r.noMiss.join(' '));
     assert(r.withMiss.filter(id => id !== 'bio-missed').every(id => /^[pc]/.test(id)), 'the mix fills the other slots'); }
   // The rules warm-up is step 1 and the flashcards wait for it: "Start" on the flashcards before it is done starts
-  // nothing; 10 rule cards (Again sends one to the back) finish it; then the flashcards start.
-  { run('goHome(); masteryRulesView = null; true');
+  // nothing. The warm-up runs today's 10 rule cards as multiple-choice questions with the rule as the explanation;
+  // answering them all finishes it, a missed card comes back first next time, and then the flashcards start.
+  { run('goHome(); true');
     const plan0 = JSON.parse(run("JSON.stringify(masteryPlanNow().steps.map(s => s.id))"));
     assert.equal(plan0[1], 'rules', 'C/P: the rules warm-up is the first daily step (after the diagnostic): ' + plan0.join(' '));
     assert.equal(plan0[2], 'flashcards', 'then the flashcards');
@@ -393,24 +400,24 @@ assert(frontSeen > 0, 'the flashcards built from a missed twin led their categor
     run('startMasteryFlashcards()');
     assert.notEqual(run('quiz.mastery'), 'flashcards', 'the flashcards wait for the rules warm-up');
     run('startMasteryRules()');
-    assert(/id="rules-card"/.test(run('masteryCard()')) && !/id="rules-back"/.test(run('masteryCard()')), 'a rule card opens, front first');
-    run('rulesFlip()'); assert(/id="rules-back"/.test(run('masteryCard()')), 'flip shows the back');
-    const first = run('masteryRulesQueue(masteryLoad(), masteryDayRow(masteryLoad(), "cp"))[0]');
-    run('rulesMark(false)');
-    const q = JSON.parse(run('JSON.stringify(masteryRulesQueue(masteryLoad(), masteryDayRow(masteryLoad(), "cp")))'));
-    assert.equal(q.at(-1), first, '"Again" sends the card to the back of the queue');
-    for (let i = 0; i < 20 && run("!masteryRulesDone(masteryPlanNow())"); i++) { run('rulesFlip()'); run('rulesMark(true)'); }
-    assert(run('masteryRulesDone(masteryPlanNow())'), 'every card marked "Got it" finishes the warm-up');
+    assert.equal(run('quiz.mastery'), 'rules', 'the warm-up runs as a quiz');
+    assert.equal(run('quiz.items.length'), 10, "today's 10 rule cards");
+    assert(run('quiz.items.every(v => CP_RULES.cards.some(c => c.id === v.q.id && c.q === v.q.q && /^\\*\\*Rule:\\*\\* /.test(v.q.exp)))'), 'each is a rule card, its rule as the explanation');
+    const first = run('quiz.items[0].q.id');
+    run('pick((quiz.items[0].ans + 1) % 4)');   // a wrong answer
+    assert(run('/Rule:/.test(document.getElementById("exp-area").innerHTML)'), 'the rule shows after answering');
+    for (let i = 1; i < 10; i++) { run('quiz.idx = ' + i + '; quiz.answered = false; renderQuizQuestion(); true'); run('pick(quiz.items[' + i + '].ans)'); }
+    assert(run('masteryRulesDone(masteryPlanNow())'), 'answering every rule card finishes the warm-up');
     assert.equal(run("masteryPlanNow().steps.find(s => s.id === 'rules').progress"), 10, '10 rule cards a day');
     const saved = JSON.parse(run('JSON.stringify(masteryLoad().rules)'));
-    assert(saved[first] && saved[first].ok === true, 'each card remembers its last result');
-    run('startMasteryFlashcards()');
+    assert(saved[first] && saved[first].ok === false && Object.keys(saved).length === 10, 'each card remembers its result');
+    assert.equal(JSON.parse(run('JSON.stringify(masteryRulesPick(masteryLoad(), 1))'))[0], first, 'the missed rule card comes back first');
+    run('goHome()'); run('startMasteryFlashcards()');
     assert.equal(run('quiz.mastery'), 'flashcards', 'then the flashcards start');
     run('goHome()');
-    // Tomorrow's pick puts "Again" cards first, then cards never seen.
     const pick = JSON.parse(run(`(() => { const m = { rules: { [CP_RULES.cards[5].id]: { d: '2026-01-01', ok: false }, [CP_RULES.cards[0].id]: { d: '2026-01-02', ok: true } } }; return JSON.stringify(masteryRulesPick(m, 3)); })()`));
     const ids = JSON.parse(run('JSON.stringify(CP_RULES.cards.map(c => c.id))'));
-    assert.deepEqual(pick, [ids[5], ids[1], ids[2]], 'rule cards marked "Again" come back first, then new ones'); }
+    assert.deepEqual(pick, [ids[5], ids[1], ids[2]], 'missed rule cards first, then new ones'); }
   // The TODAY card describes the C/P steps as they are now: no QBank anywhere.
   assert(!/QBank/i.test(html), 'TODAY never says QBank for C/P');
   { const f = html.slice(html.indexOf('<b>Rules warm-up')), step = f.slice(0, f.indexOf('</li>'));

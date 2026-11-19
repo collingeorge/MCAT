@@ -513,6 +513,16 @@ function masteryNoteAnswer(q, right) {
   const day = quiz.masteryDay || localDay(), m = masteryLoad(), subj = masterySubject(m, day);
   if (!subj) return;
   const id = q.baseId || q.id, row = masteryDayRow(m, subj, day);
+  // A rule card of the warm-up: its first answer today marks it done for the day and is remembered (right or not:
+  // a missed rule card comes back first next time).
+  if (quiz.mastery === 'rules') {
+    if (quiz.masteryCounted && quiz.masteryCounted.has(id)) return;
+    if (quiz.masteryCounted) quiz.masteryCounted.add(id);
+    m.rules = m.rules && typeof m.rules === 'object' ? m.rules : {};
+    m.rules[id] = { d: day, ok: !!right };
+    row.rulesOk = [...new Set([...(row.rulesOk || []), id])];
+    masterySave(m); return;
+  }
   let changed = false;
   // Only the first answer to a card in a session counts: re-asked misses and "unsure" cards are practice, not
   // new cards toward the 50.
@@ -643,60 +653,40 @@ function startMasteryFlashcards(more) {
   // C/P: Practice Test flashcards only (other sections: QBank cards), in today's content categories.
   masteryBegin(plan, plan.steps.find(s => s.id === 'flashcards'), masteryFlashPool(plan.subj), masteryCategory, 'flashcards', 'flashcards', more);
 }
-// ── Rules warm-up (C/P): the rules sheet, then today's rule cards (front → flip → "Got it" / "Again") ──
-// Today's cards: the ones marked "Again" last time first, then cards never seen, then the longest unseen (saved
-// per card in m.rules {id: {d: day, ok}}). "Again" sends a card to the back of today's queue; the step is done when
-// every card of the day is marked "Got it".
+// ── Rules warm-up (C/P): the rules sheet, then today's rule cards ──
+// Each rule card (data/cp-rules.js) is a short multiple-choice problem that applies one rule; its three wrong
+// choices are the traps that rule kills, and the rule is the explanation after answering. Today's cards: the ones
+// missed last time first, then cards never seen, then the longest unseen (saved per card in m.rules {id: {d, ok}}).
+// The step is done when today's cards are all answered; the flashcards wait for it.
 function masteryRulesDone(plan) { const st = plan && plan.steps.find(s => s.id === 'rules'); return !st || st.done; }
-let masteryRulesView = null;   // { open, flipped }
 function masteryRulesPick(m, n) {
   const seen = (m.rules && typeof m.rules === 'object') ? m.rules : {};
   const rank = c => { const r = seen[c.id]; return !r ? [1, ''] : r.ok === false ? [0, r.d || ''] : [2, r.d || '']; };
   return (typeof CP_RULES !== 'undefined' ? CP_RULES.cards : []).map((c, i) => [rank(c), i, c]).sort((a, b) => a[0][0] - b[0][0] || (a[0][1] < b[0][1] ? -1 : a[0][1] > b[0][1] ? 1 : 0) || a[1] - b[1]).slice(0, n).map(x => x[2].id);
 }
-function masteryRulesQueue(m, row) {
-  if (!Array.isArray(row.rulesIds) || !row.rulesIds.length) row.rulesIds = masteryRulesPick(m, MASTERY.rulesPerDay);
-  const ok = new Set(row.rulesOk || []);
-  const queue = (Array.isArray(row.rulesQueue) ? row.rulesQueue : row.rulesIds).filter(id => !ok.has(id));
-  return queue.length ? queue : row.rulesIds.filter(id => !ok.has(id));
+// A rule card as a quiz question (built once per card; the rule is its explanation).
+const RULEQ_BY_ID = new Map();
+function masteryRuleQ(id) {
+  if (RULEQ_BY_ID.has(id)) return RULEQ_BY_ID.get(id);
+  const c = typeof CP_RULES !== 'undefined' && CP_RULES.cards.find(x => x.id === id);
+  if (!c) return null;
+  const sec = CP_RULES.sheet.find(x => x.id === c.sheet), q = { id: c.id, subj: 'cp_test', key: 'cp_test|Rules warm-up', s: 'Rules warm-up · ' + (sec ? sec.title : ''), q: c.q, choices: c.choices, ans: c.ans, exp: '**Rule:** ' + c.rule };
+  RULEQ_BY_ID.set(id, q); return q;
 }
 function startMasteryRules() {
   if (!bankReady('cpt')) { withBank('cpt', () => startMasteryRules()); return; }
   const plan = masteryPlanNow(); if (!plan.subj) return;
   const m = masteryLoad(), row = masteryDayRow(m, plan.subj);
-  row.rulesQueue = masteryRulesQueue(m, row); masterySave(m);
-  masteryRulesView = { open: true, flipped: false };
-  if (typeof renderDailyPlan === 'function') renderDailyPlan();
+  if (!Array.isArray(row.rulesIds) || !row.rulesIds.length) { row.rulesIds = masteryRulesPick(m, MASTERY.rulesPerDay); masterySave(m); }
+  const done = new Set(row.rulesOk || []), list = row.rulesIds.filter(id => !done.has(id)).map(masteryRuleQ).filter(Boolean);
+  if (!list.length) { masteryNotice('Today’s rule cards are done.'); return; }
+  masteryStartQuiz(list, 'C/P · Rules warm-up', 'rules');
 }
-function rulesFlip() { if (masteryRulesView) { masteryRulesView.flipped = true; if (typeof renderDailyPlan === 'function') renderDailyPlan(); } }
-function rulesMark(ok) {
-  const plan = masteryPlanNow(), m = masteryLoad(), row = masteryDayRow(m, plan.subj), q = masteryRulesQueue(m, row), id = q[0];
-  if (!id) return;
-  m.rules = m.rules && typeof m.rules === 'object' ? m.rules : {};
-  m.rules[id] = { d: localDay(), ok: !!ok };
-  if (ok) row.rulesOk = [...new Set([...(row.rulesOk || []), id])];
-  row.rulesQueue = ok ? q.slice(1) : [...q.slice(1), id];
-  masterySave(m);
-  masteryRulesView = { open: row.rulesQueue.length > 0, flipped: false };
-  if (typeof renderDailyPlan === 'function') renderDailyPlan();
-}
-function rulesClose() { masteryRulesView = null; if (typeof renderDailyPlan === 'function') renderDailyPlan(); }
 // The rules sheet: the six checks and six shortcut moves, then the C/P rules by topic.
 function masteryRulesSheetHtml() {
   const sections = typeof CP_RULES !== 'undefined' ? CP_RULES.sheet : [];
   return (typeof elimChecksHtml === 'function' ? elimChecksHtml() : '') + (typeof fastKindsHtml === 'function' ? fastKindsHtml() : '') +
     sections.map(sec => '<div class="rules-sec"><b>' + esc(sec.title) + '</b><ul>' + sec.items.map(it => '<li>' + fmt(it) + '</li>').join('') + '</ul></div>').join('');
-}
-function masteryRulesCardHtml(plan) {
-  if (!masteryRulesView || !masteryRulesView.open || typeof CP_RULES === 'undefined') return '';
-  const m = masteryLoad(), row = masteryDayRow(m, plan.subj), q = masteryRulesQueue(m, row), id = q[0];
-  const card = CP_RULES.cards.find(c => c.id === id);
-  if (!card) return '';
-  const done = new Set(row.rulesOk || []).size, f = masteryRulesView.flipped;
-  return '<div class="rules-card" id="rules-card" role="group" aria-label="Rule card"><div class="rules-front">' + fmt(card.front) + '</div>' +
-    (f ? '<div class="rules-back" id="rules-back">' + fmt(card.back) + '</div><button class="new-quiz-btn" id="rules-ok" data-click="rulesMark(true)">✓ Got it</button> <button class="micro-btn" id="rules-again" data-click="rulesMark(false)">↻ Again</button>'
-      : '<button class="new-quiz-btn" id="rules-flip" data-click="rulesFlip()">Show the answer</button>') +
-    '<p class="muted-note">Card ' + (done + 1) + ' of ' + MASTERY.rulesPerDay + ' · ' + done + ' got today · <button class="micro-btn" data-click="rulesClose()">Close</button></p></div>';
 }
 // Step 3, the daily quiz, unlocks once steps 1 and 2 (flashcards, guided cards with their lessons) are done.
 function masteryQuizUnlocked(plan) {
@@ -882,9 +872,9 @@ function masteryCard() {
       const num = ['rules', 'flashcards', 'guided', 'test'].includes(s.id) ? String(++n) : '•';
       let title = '', detail = '', button = '', count = '', time = '';
       if (s.id === 'diagnostic') { title = 'Diagnostic'; count = '<b>' + s.result.scaled + '</b> (' + s.result.correct + '/' + s.result.total + ') · ' + shortDay(s.result.day); detail = (s.old ? '<b>Earlier version</b> of the diagnostic. Retake the new ' + MASTERY.diagSize + '-question diagnostic for a fresh start. ' : 'Done. ') + 'Retaking it runs the full section again; your newest result sets the weak topics.'; button = btn('Retake diagnostic', "startMasteryTest('diagnostic')", s.old); }
-      if (s.id === 'rules') { title = 'Rules warm-up'; count = s.progress + ' / ' + s.count; detail = 'Before the flashcards: read the rules sheet (the 6 checks to rule out 3, the 6 shortcut moves and the C/P rules by topic), then ' + s.count + ' rule cards: recall the rule, flip, mark “Got it” or “Again” (again cards come back). The flashcards unlock when every card is “Got it”.' +
-          '<details class="elim-today rules-sheet"' + (s.done ? '' : ' open') + '><summary><b>📋 Rules sheet</b></summary>' + (typeof CP_RULES !== 'undefined' ? masteryRulesSheetHtml() : '<p class="muted-note">Opens with the warm-up.</p>') + '</details>' + masteryRulesCardHtml(plan);
-        time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 0.3) + 2); button = s.done ? '' : (masteryRulesView && masteryRulesView.open ? '' : btn(s.progress ? 'Continue' : 'Start', 'startMasteryRules()')); }
+      if (s.id === 'rules') { title = 'Rules warm-up'; count = s.progress + ' / ' + s.count; detail = 'Before the flashcards: read the rules sheet (the 6 checks to rule out 3, the 6 shortcut moves and the C/P rules by topic), then ' + s.count + ' rule cards: short problems where one rule gives the answer and the 3 wrong choices are the traps it kills. A missed rule card comes back first next time. The flashcards unlock when today’s rule cards are done.' +
+          '<details class="elim-today rules-sheet"' + (s.done ? '' : ' open') + '><summary><b>📋 Rules sheet</b></summary>' + (typeof CP_RULES !== 'undefined' ? masteryRulesSheetHtml() : '<p class="muted-note">Opens with the warm-up.</p>') + '</details>';
+        time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 0.5) + 2); button = s.done ? '' : btn(s.progress ? 'Continue' : 'Start', 'startMasteryRules()'); }
       if (s.id === 'flashcards') { title = 'Flashcards'; count = s.progress + ' / ' + s.count; detail = cp ? '<b>' + s.count + ' flashcards built from ' + fromPE + '.</b> Each card teaches the method behind those questions, with “💡 Help me / Show me how”. ' + bpNote + (bp ? targets(s.topics, 'cards') : topicList(byRank(s.topics))) : bp ? 'AAMC QBank cards only, in the AAMC mix of disciplines across the day. ' + bpNote + targets(s.topics, 'cards') : 'AAMC QBank cards only, weakest topics first, spread over today’s content categories.' + topicList(s.topics); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 0.6)); button = s.done ? more('startMasteryFlashcards(true)', s) : masteryRulesDone(plan) ? btn(s.progress ? 'Continue' : 'Start', 'startMasteryFlashcards()') : '<p class="muted-note">Unlocks when the rules warm-up is done.</p>'; }
       if (s.id === 'guided') { title = 'Guided Practice Exam cards with walkthroughs'; count = s.progress + ' / ' + s.count + ' cards · ' + s.lessons + ' / ' + s.lessonCount + ' lessons'; detail = (cp ? s.count + ' Practice Exam cards: ' + fromPE + ', as the test asks them. ' : '') + (bp ? 'Each card opens its step-by-step lesson: step through it, answer, then watch the walkthrough. ' + bpNote + targets(s.topics, 'cards') : 'Weakest topics first. Each card opens its step-by-step lesson: step through it, answer, then watch the walkthrough.' + topicList(byRank(s.topics))); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 1.2 + (s.lessonCount - s.lessons) * 2)); button = s.done ? more('startMasteryGuided(true)', s) : btn(s.progress || s.lessons ? 'Continue' : 'Start', 'startMasteryGuided()'); }
       if (s.id === 'followup') {
