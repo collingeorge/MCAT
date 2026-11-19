@@ -726,7 +726,8 @@ function startMasteryRules() {
   if (!bankReady('cpt')) { withBank('cpt', () => startMasteryRules()); return; }
   const plan = masteryPlanNow(); if (!plan.subj) return;
   const m = masteryLoad(), row = masteryDayRow(m, plan.subj);
-  if (!Array.isArray(row.rulesIds) || !row.rulesIds.length) { row.rulesIds = masteryRulesPick(m, MASTERY.rulesPerDay); masterySave(m); }
+  // (Picked only once the rule cards are loaded: an empty pick would read as "done".)
+  if (!Array.isArray(row.rulesIds) || !row.rulesIds.length) { const ids = masteryRulesPick(m, MASTERY.rulesPerDay); if (ids.length) { row.rulesIds = ids; masterySave(m); } else { masteryNotice('The rule cards are still loading. Try again in a moment.'); return; } }
   const done = new Set(row.rulesOk || []), list = row.rulesIds.filter(id => !done.has(id)).map(masteryRuleQ).filter(Boolean);
   if (!list.length) { masteryNotice('Today’s rule cards are done.'); return; }
   masteryStartQuiz(list, 'C/P · Rules warm-up', 'rules');
