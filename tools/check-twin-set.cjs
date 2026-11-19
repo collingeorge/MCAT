@@ -4,7 +4,7 @@
 //   each question's category, discipline, skill and difficulty = its map slot;
 //   near-copy and untaught-topic checks (tools/twin-checks.cjs);
 //   AAMC length and format: passage 150–400 words, passage-question stem 6–50, stand-alone stem 7–57, stems end in
-//   "?" or ":", 4 parallel choices, the set's choice median ≤ 3 words and 90th percentile ≤ 9, key not the single
+//   "?" or ":" (a given value in parentheses may follow, as in tools/test-aamc-format.cjs), 4 parallel choices, the set's choice median ≤ 3 words and 90th percentile ≤ 9, key not the single
 //   longest choice by 1.5× and 3+ words, explanations end with "**Rule to reuse:**" and never name a choice letter.
 // Run: node tools/check-twin-set.cjs diag quiz1 ... (default: every file in tools/twin-build/)
 'use strict';
@@ -52,7 +52,7 @@ function check(id) {
     if (!Number.isInteger(q.ans) || q.ans < 0 || q.ans > 3) err(where + ': ans 0–3');
     const sw = words(q.q);
     if (p ? sw < 6 || sw > 50 : sw < 7 || sw > 57) err(where + `: stem ${sw} words`);
-    if (!/[?:]$|_{3,}/.test(strip(q.q).trim())) err(where + ': stem must end in "?" or ":"');
+    if (!/[?:]$|_{3,}/.test(strip(q.q).trim().replace(/([?:])\s*\((?:[^()]|\([^()]*\))*\)\.?$/, '$1'))) err(where + ': stem must end in "?" or ":"');
     if (q.choices.some(c => /^(?:[A-D](?:,? (?:and )?[A-D])*)(?: only)?$/.test(String(c).trim()))) err(where + ': a choice reads like answer letters');
     q.choices.forEach(c => choiceW.push(words(c)));
     const cw = q.choices.map(words), key = cw[q.ans], others = cw.filter((_, i) => i !== q.ans);
@@ -67,8 +67,10 @@ function check(id) {
   for (const p of set.passages) {
     const pw = words(p.passage);
     if (pw < 150 || pw > 400) err(p.id + `: passage ${pw} words`);
-    const twins = p.questions.map(q => q.twin).sort().join(), m = map.passages.find(mp => [...mp.ids].sort().join() === twins);
-    if (!m) err(p.id + ': its questions do not twin exactly one AAMC passage of the map');
+    // Every question twins a card of one AAMC passage of the map, as in tools/test-twins.cjs; the set's one added 4D
+    // question (S.OUTSIDE_TWINS) may join a passage.
+    const twins = p.questions.map(q => q.twin).filter(t => t !== S.OUTSIDE_TWINS[sid]), m = map.passages.find(mp => twins.every(t => mp.ids.includes(t)));
+    if (!m) err(p.id + ': its questions do not all twin one AAMC passage of the map (plus the set\'s one added 4D question)');
     for (const q of p.questions) one(q, p);
   }
   for (const q of set.standalones) one(q, null);

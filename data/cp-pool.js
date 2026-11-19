@@ -1,8 +1,7 @@
 // Chem/Phys daily quizzes: six original half-sections in the AAMC layout (P P [4] P P P [4]: 5 passages with 22
 // questions + 8 stand-alones, 30 in all), for the Section Mastery end-of-day test. Every question is a twin of one studied
 // card (`twin`: the card's src). Map: tools/twin-map.json. Not AAMC material.
-const CP_POOL =
-[
+const CP_POOL = [
  {
   "id": "cp_half_1",
   "title": "Chem/Phys Quiz 1",
