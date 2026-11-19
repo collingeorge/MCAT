@@ -102,14 +102,16 @@ function checkFast(q, id) {
   assert(q.fast && FAST_KINDS.includes(q.fast.kind), id + ': a shortcut of one of the six kinds');
   assert(typeof q.fast.how === 'string' && q.fast.how.trim() && q.fast.how.length <= 240, id + ': the shortcut is short (≤ 240 characters): ' + ((q.fast && q.fast.how) || '').length);
 }
-// ✂ Rule out (glance rules): cut = [{r: 1–6, c: [indexes in choices]}]: each r one of the six glance rules, each
+// ✂ Rule out: cut = [{r: 1–6, c} | {f: fact, c}]: each r one of the six glance rules, or one fact you know; each
 // choice cut at most once, the key never, at most three cut; the old elim / rule / elimThen fields are gone.
 function checkElim3(q, id) {
   checkFast(q, id);
   assert(Array.isArray(q.cut), id + ': a cut list (may be empty)');
   const seen = new Set();
   for (const e of q.cut) {
-    assert(e && Number.isInteger(e.r) && e.r >= 1 && e.r <= 6, id + ': cut rule ' + (e && e.r) + ' is one of the six glance rules');
+    // A glance rule (r 1–6) or "one fact you know" (f: a plain fact of 6 words or fewer that never names the key).
+    assert(e && ((Number.isInteger(e.r) && e.r >= 1 && e.r <= 6 && e.f === undefined) || (e.r === undefined && typeof e.f === 'string' && e.f.trim() && e.f.trim().split(/\s+/).length <= 6)), id + ': a cut is a glance rule (1–6) or a fact of 6 words or fewer: ' + JSON.stringify(e));
+    if (e.f !== undefined) { const g = giveAway(q.choices[q.ans], e.f); assert(!g, id + ': the fact "' + e.f + '" gives the key away (' + g + ')'); }
     assert(Array.isArray(e.c) && e.c.length, id + ': each cut names choices');
     for (const c of e.c) {
       assert(Number.isInteger(c) && c >= 0 && c < q.choices.length, id + ': cut index ' + c);

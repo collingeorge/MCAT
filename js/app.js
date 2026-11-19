@@ -1465,7 +1465,10 @@ const GLANCE_RULES = [
   { r: 6, name: 'Formula has ½', full: 'Formula has ½? Take the smaller twin.', ex: 'two choices differ by exactly ×2' },
 ];
 const GLANCE = Object.fromEntries(GLANCE_RULES.map(g => [g.r, g]));
-function cutOf(q) { return q && !q.variant && !q.baseId && Array.isArray(q.cut) ? q.cut.filter(e => e && GLANCE[e.r] && Array.isArray(e.c) && e.c.length) : null; }
+// A cut is a glance rule ({r: 1–6, c}) or "one fact you know" ({f: a plain fact of 6 words or fewer, c}); both show
+// as one line: the rule's name or the fact, then the letters it cuts.
+function cutOf(q) { return q && !q.variant && !q.baseId && Array.isArray(q.cut) ? q.cut.filter(e => e && (GLANCE[e.r] || (typeof e.f === 'string' && e.f.trim())) && Array.isArray(e.c) && e.c.length) : null; }
+function cutName(e) { return GLANCE[e.r] ? GLANCE[e.r].name : e.f; }
 // The six rules, one example each: the 📋 Rules sheet.
 function glanceRulesHtml() {
   return `<ol class="glance-rules">${GLANCE_RULES.map(g => `<li><b>${esc(g.full)}</b> <span class="elim-ex">(${esc(g.ex)})</span></li>`).join('')}</ol>`;
@@ -1482,7 +1485,8 @@ const ELIM_CHECKS = [
 function elimChecksHtml() {
   return `<div class="elim-checks"><p><b>Six checks (worked elimination).</b></p><table><tbody>${ELIM_CHECKS.map((k, i) => `<tr><td>${i + 1}. ${k.icon} <b>${k.name}</b></td><td>${esc(k.ask)} <span class="elim-ex">e.g. ${esc(k.ex)}</span></td></tr>`).join('')}</tbody></table></div>`;
 }
-function elimButton(view) { return cutOf(view.q) ? `<button class="micro-btn how-btn elim-btn" id="elim-btn" data-click="ruleOut()" aria-pressed="${!!view.elimShown}">✂ Rule out</button>` : ''; }
+// Shown only on a card where a rule or fact cuts something: a button that comes up empty trains you to stop using it.
+function elimButton(view) { const cut = cutOf(view.q); return cut && cut.length ? `<button class="micro-btn how-btn elim-btn" id="elim-btn" data-click="ruleOut()" aria-pressed="${!!view.elimShown}">✂ Rule out</button>` : ''; }
 function elimHowHtml() { return ''; }
 // Strikes the cut choices on the answer buttons (by text: a session may show them in another order) and writes one
 // line per rule below the choices, with the letters as shown. The choice that is left is not touched.
@@ -1497,15 +1501,15 @@ function applyElim(view, prefix = 'cb') {
       if (b && b.classList) b.classList.add('elim-out');
     }
     letters.sort((a, b) => a - b);
-    lines.push(`<div class="cut-line"><span class="cut-rule">${esc(GLANCE[e.r].name)}</span> → ✂ ${letters.map(i => 'ABCD'[i]).join(', ')}</div>`);
+    lines.push(`<div class="cut-line${GLANCE[e.r] ? '' : ' cut-fact'}"><span class="cut-rule">${fmt(cutName(e))}</span> → ✂ ${letters.map(i => 'ABCD'[i]).join(', ')}</div>`);
   }
   const area = $('choices-area');
-  if (area && area.insertAdjacentHTML && !$('elim-rule')) area.insertAdjacentHTML('afterend', `<div class="cut-lines" id="elim-rule" role="status">${lines.join('') || '<div class="cut-line">No glance rule cuts here.</div>'}</div>`);
+  if (area && area.insertAdjacentHTML && !$('elim-rule')) area.insertAdjacentHTML('afterend', `<div class="cut-lines" id="elim-rule" role="status">${lines.join('') || ''}</div>`);
 }
 function elimHintRefresh(view) { if ($('hint-area')) $('hint-area').innerHTML = quiz.answered ? helpButton('showLesson()') + elimButton(view) : hintArea(view); }
 function ruleOut() {
   const view = quiz.items[quiz.idx];
-  if (!view || !cutOf(view.q)) return;
+  if (!view || !cutOf(view.q) || !cutOf(view.q).length) return;
   if (!$('cb-0')) revealChoices();
   view.elimShown = true;
   elimHintRefresh(view);
@@ -1627,7 +1631,7 @@ function stepVisual(st, ctx) {
 function isLessonCard(q) { return typeof isCpt === 'function' && isCpt(q) && !!howOf(q) && !!teachOf(q); }
 // A card with Rule out 3 opens its lesson with it: the three quick eliminations and the 3-second rule, then the method.
 function elimStep(q) { return [...elimOnlyStep(q), ...(fastOf(q) ? [{ text: '**⚡ Shortcut · ' + fastLabel(q.fast) + '.** ' + q.fast.how }] : [])]; }
-function elimOnlyStep(q) { const cut = cutOf(q); return cut && cut.length ? [{ text: '**Rule out at a glance.** No math, no writing: the glance rules cut these.', strike: cut.flatMap(e => e.c.map(c => q.choices[c])), calc: cut.map(e => GLANCE[e.r].name + ' → ✂ ' + e.c.map(c => q.choices[c]).join(' · ')) }] : []; }
+function elimOnlyStep(q) { const cut = cutOf(q); return cut && cut.length ? [{ text: '**Rule out at a glance.** No math, no writing: the glance rules and one fact you know cut these.', strike: cut.flatMap(e => e.c.map(c => q.choices[c])), calc: cut.map(e => cutName(e) + ' → ✂ ' + e.c.map(c => q.choices[c]).join(' · ')) }] : []; }
 // A passage card starts where a passage question starts: the sentence that holds the clue (how.steps[0]), then Rule out 3.
 function lessonSteps(q) { const rule = teachOf(q).at(-1), hs = howSteps(howOf(q)), lead = q.passage && hs.length ? hs.splice(0, 1) : [];
   return [...lead, ...elimStep(q), ...hs, { text: rule.text, rule: true }]; }

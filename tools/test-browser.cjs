@@ -283,7 +283,8 @@ async function main() {
   assert.equal(r.n,r.want,kind+' · it strikes exactly the cut choices');
   assert.equal(r.key,false,kind+' · never the key'); assert.equal(r.keyClass.trim(),'choice-btn',kind+' · the choice left is not marked');
   assert.equal(r.lines.length,r.rules,kind+' · one line per rule used');
-  for(const l of r.lines)assert.match(l,/^(Opposites|Match the passage|Way off in size|Starting number|Solid, catalyst or pure liquid|Formula has ½) → ✂ [A-D](, [A-D])*$/,kind+' · a rule line: '+l);
+  for(const l of r.lines)assert.match(l,/^\S.{0,80} → ✂ [A-D](, [A-D])*$/,kind+' · a rule or fact line: '+l);
+  assert(r.lines.every(l=>l.split(' → ')[0].trim().split(/\s+/).length<=6),kind+' · each line is short (6 words or fewer before the arrow)');
   assert(!r.whys&&!r.extra&&!r.ruleText,kind+' · only the rule lines: no reasons, tables, How?, shortcut or 3-second rule');
   assert(r.px>=16,kind+' · rule lines at least 16 px');
   await evaluate('document.querySelector("#cb-"+quiz.items[quiz.idx].ans).click()');
@@ -295,6 +296,9 @@ async function main() {
   const steps=await evaluate('[...document.querySelectorAll(".step-controls button")].map(b=>b.textContent.trim()).join("|")');
   assert(/Step ▶/.test(steps)&&/◀ Step/.test(steps)&&!/Next ▶|◀ Back/.test(steps),kind+' · the lesson buttons read ◀ Step / Step ▶ ('+steps+')');
   }
+  // A card where nothing is cut has no ✂ Rule out button: only 💡 Show me how.
+  { await evaluate(leave+"withBank('cpt',()=>{window.__c=CPTQ.find(q=>!q.cut.length&&q.teach);beginQuiz([window.__c],'No cuts')});true"); await until('!!document.querySelector("#cb-0")');
+    assert.deepEqual(JSON.parse(await evaluate('JSON.stringify([...document.querySelectorAll("#hint-area > button")].map(b=>b.textContent.trim()))')),['💡 Show me how'],'no cuts: the Rule out button is hidden'); }
   console.log('✂ Rule out (flashcards and guided cards): two toolbar buttons; strikes only the cut choices with one rule line each, never the key; "Tap an answer to go on", then a large "Next card →"; lesson buttons ◀ Step / Step ▶');
   // Same ask, same setup: a flashcard that twins a passage question shows its short twin passage above the stem (16 px
   // or more), and a lesson step that quotes the passage lights that text up in it.

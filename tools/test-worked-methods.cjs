@@ -152,7 +152,7 @@ const card = { ...pe6.find(q => q.src === 'pe6-cp:18'), teach: undefined }; // t
 const ctx = vm.createContext({ $: node, quiz: { answered: false, idx: 0, items: [{ q: card }] }, String, Array });
 ctx.stepper = null; ctx.Math = Math; ctx.Number = Number; ctx.Set = Set; ctx.Map = Map; ctx.structUrls = new Map(); ctx.structsFailed = false; ctx.encodeURIComponent = encodeURIComponent;
 for (const name of ['esc', 'fmt', 'paragraphs', 'howOf', 'teachOf', 'teachHtml', 'teachStep', 'hintArea', 'showHint', 'howSteps', 'markText', 'markParagraphs', 'stepVisual', 'howPlayerHtml', 'applyStepContext', 'clearStepContext', 'howStepMs', 'howSchedule', 'howToggle', 'howReplay', 'howStep', 'howBox',
-  'chartNum', 'chartText', 'chartTicks', 'chartSmooth', 'chartMarker', 'chartLegend', 'chartAxes', 'chartAnnotations', 'lineChart', 'barChart', 'figureHtml', 'structUrl', 'structImg', 'stemFigs', 'isLessonCard', 'cutOf', 'glanceRulesHtml', 'elimChecksHtml', 'fastOf', 'fastLabel', 'fastKindsHtml', 'elimButton', 'elimHowHtml', 'elimOnlyStep', 'elimStep', 'lessonSteps', 'stepperSteps', 'lessonPlayerHtml', 'lessonBox', 'paintCardPassage']) vm.runInContext(extract(name), ctx);
+  'chartNum', 'chartText', 'chartTicks', 'chartSmooth', 'chartMarker', 'chartLegend', 'chartAxes', 'chartAnnotations', 'lineChart', 'barChart', 'figureHtml', 'structUrl', 'structImg', 'stemFigs', 'isLessonCard', 'cutOf', 'cutName', 'glanceRulesHtml', 'elimChecksHtml', 'fastOf', 'fastLabel', 'fastKindsHtml', 'elimButton', 'elimHowHtml', 'elimOnlyStep', 'elimStep', 'lessonSteps', 'stepperSteps', 'lessonPlayerHtml', 'lessonBox', 'paintCardPassage']) vm.runInContext(extract(name), ctx);
 vm.runInContext("var CHART = { W: 560, L: 70, R: 18, T: 14, H: 250, B: 50 };", ctx);
 const view = ctx.quiz.items[0];
 
@@ -170,6 +170,9 @@ vm.runInContext(source.slice(source.indexOf('const FAST_KINDS = ['), source.inde
   // A shortcut follows Rule out as its own lesson step.
   ctx.__q = { ...q, fast: { kind: 'rearrange', how: 'Use P = F × v.' } }; const sf = vm.runInContext('lessonSteps(__q)', ctx);
   assert.match(sf[1].text, /⚡ Shortcut · 🔁 Rearrange\.\*\* Use P = F × v\./); assert.equal(sf[2].text, 'work');
+  // "One fact you know" shows the same way: the fact, then what it cuts.
+  ctx.__q = { ...q, cut: [{ r: 3, c: [0] }, { f: 'Solids aren’t in K', c: [3] }] };
+  assert.deepEqual([...vm.runInContext('lessonSteps(__q)', ctx)[0].calc], ['Way off in size → ✂ A1', 'Solids aren’t in K → ✂ D4']);
   // No cuts (or the old elim format): no Rule out step.
   ctx.__q = { ...q, cut: [] }; assert.equal(vm.runInContext('lessonSteps(__q)', ctx)[0].text, 'work');
   ctx.__q = { ...q, cut: undefined, elim: [{ c: 0, tag: 'units', why: 'x' }] }; assert.equal(vm.runInContext('lessonSteps(__q)', ctx)[0].text, 'work');
