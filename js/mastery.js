@@ -297,10 +297,12 @@ function masteryTierPick(cards, k, tierOf, pick) {
 const MASTERY_EXAMS = ['pe1', 'pe3', 'pe4', 'pe5', 'pe6'];
 function masteryTestKey(q) {
   let best = null;
-  for (const ref of [...(Array.isArray(q.from) ? q.from : []), q.src]) {
-    const m = /^(pe\d)-cp:(\d+)(?:#(\d+))?$/.exec(String(ref || ''));
-    if (!m || !MASTERY_EXAMS.includes(m[1])) continue;
-    const k = [MASTERY_EXAMS.indexOf(m[1]), Number(m[2]), m[3] ? Number(m[3]) : 0];
+  for (const ref of [...(Array.isArray(q.from) ? q.from : []), ...(Array.isArray(q.twinOf) ? q.twinOf : []), q.src]) {
+    // A quiz-twin card (twinOf a Sample Test or QBank-pack question) sorts after the Practice Exam cards.
+    const x = /^(?:sample-cp|aamc-phys-qpack):Q?(\d+)$/.exec(String(ref || ''));
+    const m = x ? [null, null, x[1]] : /^(pe\d)-cp:(\d+)(?:#(\d+))?$/.exec(String(ref || ''));
+    if (!m || (!x && !MASTERY_EXAMS.includes(m[1]))) continue;
+    const k = [x ? MASTERY_EXAMS.length : MASTERY_EXAMS.indexOf(m[1]), Number(m[2]), m[3] ? Number(m[3]) : 0];
     if (!best || (k[0] - best[0] || k[1] - best[1] || k[2] - best[2]) < 0) best = k;
   }
   return best ? [...best, String(q.id || '')] : null;
@@ -327,14 +329,30 @@ function masteryCatRank(plan) {
 function masteryDayOrder(list, catOf, rank, tierOf) {
   const big = Object.keys(rank).length, cr = q => { const c = catOf(q); return c in rank ? rank[c] : big; };
   const tb = q => { const t = tierOf ? tierOf(q) : 1; return t < 0 ? 0 : t === 0 ? 1 : 2; };
-  return masteryTestOrder(list).map((q, i) => [cr(q), tb(q), i, q]).sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]).map(x => x[3]);
+  return masteryGroupPassages(masteryTestOrder(list).map((q, i) => [cr(q), tb(q), i, q]).sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]).map(x => x[3]));
+}
+// Cards that share one twin passage (the same `pid`: one AAMC passage) run back to back, the way the test shows a
+// passage's questions: each group moves up to where its first card stands, in the passage's question order.
+function masteryGroupPassages(list) {
+  const groups = new Map();
+  for (const q of list) if (q && q.pid) (groups.get(q.pid) || groups.set(q.pid, []).get(q.pid)).push(q);
+  if (!groups.size) return list;
+  const qn = q => { const k = masteryTestKey({ twinOf: q.twinOf }); return k ? k[1] : 0; };
+  const out = [], done = new Set();
+  for (const q of list) {
+    if (!q || !q.pid) { out.push(q); continue; }
+    if (done.has(q.pid)) continue;
+    done.add(q.pid);
+    out.push(...groups.get(q.pid).map((x, i) => [qn(x), i, x]).sort((a, b) => a[0] - b[0] || a[1] - b[1]).map(x => x[2]));
+  }
+  return out;
 }
 // A card is a front card when its own src is in the set (a Practice Exam card) or, for a Practice Test flashcard
 // (data/cp-test-cards.js, its subj 'cp_test'), when its `from` names one (an item of it: 'pe1-cp:4#2' names pe1-cp:4).
 function masteryIsFront(q, front) {
   if (!q || !front || !front.size) return false;
   if (q.src && front.has(q.src)) return true;
-  return q.subj === 'cp_test' && Array.isArray(q.from) && q.from.some(s => front.has(String(s).split('#')[0]));
+  return q.subj === 'cp_test' && [...(Array.isArray(q.from) ? q.from : []), ...(Array.isArray(q.twinOf) ? q.twinOf : [])].some(s => front.has(String(s).split('#')[0]));
 }
 // The picking order within a category (pure; the app passes its saved data): 0 missed cards (o.missed, a Set of
 // ids: today's and the latest test's misses) and cards due for review (o.due(q): memory below the target
@@ -493,7 +511,10 @@ const masteryDiscs = s => Object.entries(masterySection(s)?.weights || {}).filte
 // Flashcards for the section. C/P: only the Practice Test flashcards (data/cp-test-cards.js, BANKS.cpt in app.js),
 // in a C/P content category; no QBank card and no other deck fills a gap (a short category is reported by
 // tools/test-cp-test-cards.cjs). Other sections: the AAMC QBank cards.
-const MASTERY_PE = /^pe\d-cp:/;   // the Practice Exam C/P cards (Practice Exams 1, 3, 4, 5, 6; no Sample Test)
+const MASTERY_PE = /^pe\d-cp:/;
+// A daily-quiz question that twins a Sample Test or QBank-pack question: its flashcard (cpt-st-*, twinOf) leads the
+// flashcard step after a miss; the guided step has no card for it.
+const MASTERY_QUIZ_TWIN = /^(sample-cp|aamc-phys-qpack):/;   // the Practice Exam C/P cards (Practice Exams 1, 3, 4, 5, 6; no Sample Test)
 function masteryFlashPool(s) {
   if (s !== 'cp') return masteryExamPool(s);
   if (!bankReady('cpt')) return [];
@@ -633,12 +654,12 @@ function masteryTierOf(m, plan, row) {
   const acc = q => { const r = stats[q.key || q.s]; return r && Number.isFinite(r.c) && Number.isFinite(r.t) && r.t > 0 ? r.c / r.t : null; };
   return masteryTierRank({ missed, due, acc, front: masteryTwinFront(plan) });
 }
-// The twin cards (by src) of the questions missed on the latest diagnostic or quiz, Practice Exam 1/3/4/5/6 twins
-// only (a twin on a Sample Test or QBank card is skipped: TODAY no longer teaches those). The Practice Exam card
+// The twin cards (by src) of the questions missed on the latest diagnostic or quiz: Practice Exam 1/3/4/5/6 twins, and
+// Sample Test / QBank-pack twins of the daily quiz (their cpt-st flashcards; no guided card). The Practice Exam card
 // leads the guided step; the Practice Test flashcards whose `from` names it lead the flashcard step.
 function masteryTwinFront(plan) {
   const latest = plan && plan.latest;
-  return new Set(((latest && latest.twinMisses) || []).filter(x => typeof x === 'string' && MASTERY_PE.test(x)));
+  return new Set(((latest && latest.twinMisses) || []).filter(x => typeof x === 'string' && (MASTERY_PE.test(x) || MASTERY_QUIZ_TWIN.test(x))));
 }
 function masteryStartQuiz(list, label, mode) {
   beginQuiz(list, label, { mastery: mode });
@@ -705,7 +726,8 @@ function startMasteryRules() {
   if (!bankReady('cpt')) { withBank('cpt', () => startMasteryRules()); return; }
   const plan = masteryPlanNow(); if (!plan.subj) return;
   const m = masteryLoad(), row = masteryDayRow(m, plan.subj);
-  if (!Array.isArray(row.rulesIds) || !row.rulesIds.length) { row.rulesIds = masteryRulesPick(m, MASTERY.rulesPerDay); masterySave(m); }
+  // (Picked only once the rule cards are loaded: an empty pick would read as "done".)
+  if (!Array.isArray(row.rulesIds) || !row.rulesIds.length) { const ids = masteryRulesPick(m, MASTERY.rulesPerDay); if (ids.length) { row.rulesIds = ids; masterySave(m); } else { masteryNotice('The rule cards are still loading. Try again in a moment.'); return; } }
   const done = new Set(row.rulesOk || []), list = row.rulesIds.filter(id => !done.has(id)).map(masteryRuleQ).filter(Boolean);
   if (!list.length) { masteryNotice('Today’s rule cards are done.'); return; }
   masteryStartQuiz(list, 'C/P · Rules warm-up', 'rules');

@@ -267,10 +267,10 @@ function buildCpt() {
 // tools/test-pages.cjs checks them against the data.
 // ASSET_V: the deploy's version (sw.js CACHE), added to every script the app loads on demand so the browser's HTTP
 // cache never serves one from an earlier deploy. Written by tools/generate-pages.cjs; do not edit by hand.
-const ASSET_V = '?v=mcat-v2.86-quiz-review-2026-11-19';
+const ASSET_V = '?v=mcat-v2.89-cp-same-ask-2026-11-19';
 const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'], cpt: ['data/cp-test-cards.js', 'data/cp-rules.js'] };
 const BANK_COUNTS = { fl: 354, flCp: 295, flTests: 6 };
-const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined', cpt: () => typeof CP_TEST_CARDS !== 'undefined' };
+const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined', cpt: () => typeof CP_TEST_CARDS !== 'undefined' && typeof CP_RULES !== 'undefined' };   // both files of BANKS.cpt (the rules warm-up needs CP_RULES)
 const bankDone = Object.create(null), bankLoading = Object.create(null);
 function bankReady(name) {
   if (bankDone[name]) return true;
@@ -1408,6 +1408,7 @@ function renderQuizQuestion() {
       </div>
       ${quiz.speed ? `<div class="speed-bar"><div class="speed-fill" id="speed-fill"></div></div>` : ''}
       ${why ? `<div class="q-reason"><span>Why this question: ${esc(why)}</span></div>` : ''}
+      ${q.passage ? `<div class="card-passage"><div class="card-passage-label">Passage</div><p class="card-passage-text">${fmt(q.passage)}</p></div>` : ''}
       <div class="question-text">${fmt(q.q)}</div>
       ${stemFigs(q)}
       ${q.chart ? figureHtml(q.chart) : ''}
@@ -1557,6 +1558,7 @@ function teachStep(delta) {
   // The words of the question that matter at this step light up.
   const qEl = qs('#quiz-body .question-box .question-text');
   if (qEl) qEl.innerHTML = Array.isArray(st.marks) && st.marks.length ? markCallouts(view.q.q, st.marks) : markText(view.q.q, st.hl && String(view.q.q).includes(st.hl) ? st.hl : null);
+  paintCardPassage(view.q, st);
   // Molecule lessons swap the question's drawing for the stage being explained (the OH leaving, the + charge…).
   const sEl = view.q.fig && qs('#quiz-body .question-box .struct-row');
   if (sEl) sEl.outerHTML = stemFigs({ fig: st.fig || view.q.fig });
@@ -1591,6 +1593,15 @@ function markCallouts(text, marks) {
   spots.forEach(s => { out += fmt(raw.slice(at, s.start)) + `<span class="q-callout q-c${s.n % 4}"><mark class="step-hl">${fmt(raw.slice(s.start, s.end))}</mark>${s.note ? `<span class="q-note">${fmt(s.note)}</span>` : ''}</span>`; at = s.end; });
   return out + fmt(raw.slice(at));
 }
+// A flashcard's short twin passage (q.passage) lights up like the question: a step's hl or marks that fall in the
+// passage are highlighted there.
+function paintCardPassage(q, st) {
+  if (!q || !q.passage || typeof document === 'undefined' || !document.querySelector) return;
+  const el = document.querySelector('#quiz-body .card-passage-text');
+  if (!el) return;
+  const marks = Array.isArray(st && st.marks) ? st.marks.filter(m => m && m.t && q.passage.includes(m.t)) : [];
+  el.innerHTML = marks.length ? markCallouts(q.passage, marks) : markText(q.passage, st && st.hl && q.passage.includes(st.hl) ? st.hl : null);
+}
 function markParagraphs(text, hl) {
   return String(text ?? '').split(/\n+/).map(p => p.trim()).filter(Boolean).map(p => `<p>${markText(p, hl && p.includes(hl) ? hl : null)}</p>`).join('');
 }
@@ -1599,7 +1610,7 @@ function markParagraphs(text, hl) {
 let stepper = null;
 function stepVisual(st, ctx) {
   let out = '';
-  if (st.hl) { const src = ctx.passage && String(ctx.passage).includes(st.hl) ? 'From the passage' : 'From the question';
+  if (st.hl) { const pass = ctx.passage || (stepper && stepper.q && stepper.q.passage), src = pass && String(pass).includes(st.hl) ? 'From the passage' : 'From the question';
     out += `<blockquote class="step-quote"><span class="step-quote-src">${src}:</span> <mark class="step-hl">${fmt(st.hl)}</mark></blockquote>`; }
   // A step can carry its own small graph (chart) or reuse the passage's figure; graph is the overlay on it.
   const chart = st.chart || ((st.graph && ctx.figure) ? ctx.figure : null);
@@ -1619,7 +1630,9 @@ function isLessonCard(q) { return typeof isCpt === 'function' && isCpt(q) && !!h
 // A card with Rule out 3 opens its lesson with it: the three quick eliminations and the 3-second rule, then the method.
 function elimStep(q) { return [...elimOnlyStep(q), ...(fastOf(q) ? [{ text: '**⚡ Shortcut · ' + fastLabel(q.fast) + '.** ' + q.fast.how }] : [])]; }
 function elimOnlyStep(q) { return elimOf(q) ? [{ text: '**Rule out 3 first.** Three choices fall to the six quick checks before any full working.', strike: q.elim.map(e => q.choices[e.c]), calc: [...q.elim.map(e => '✗ ' + q.choices[e.c] + ' · ' + elimLabel(e) + e.why), '3-second rule: ' + q.rule] }] : []; }
-function lessonSteps(q) { const rule = teachOf(q).at(-1); return [...elimStep(q), ...howSteps(howOf(q)), { text: rule.text, rule: true }]; }
+// A passage card starts where a passage question starts: the sentence that holds the clue (how.steps[0]), then Rule out 3.
+function lessonSteps(q) { const rule = teachOf(q).at(-1), hs = howSteps(howOf(q)), lead = q.passage && hs.length ? hs.splice(0, 1) : [];
+  return [...lead, ...elimStep(q), ...hs, { text: rule.text, rule: true }]; }
 // A guided Practice Exam card's walkthrough also opens with Rule out 3 when the card has it.
 function stepperSteps() { return stepper.lesson ? lessonSteps(stepper.q) : [...elimStep(stepper.q), ...howSteps(howOf(stepper.q))]; }
 function lessonPlayerHtml() {
@@ -1672,6 +1685,7 @@ function applyStepContext() {
   const { q, cur, ctx } = stepper, st = stepperSteps()[cur - 1] || {};
   const qEl = document.querySelector(ctx.mode === 'passage' ? '#pp-question-box .question-text' : '#quiz-body .question-text');
   if (qEl) qEl.innerHTML = markText(q.q, st.hl && String(q.q).includes(st.hl) ? st.hl : null);
+  if (ctx.mode !== 'passage') paintCardPassage(q, st);
   // Choices ruled out so far stay crossed out on the answer buttons.
   if (ctx.view && ctx.prefix && typeof $ === 'function') {
     const struck = new Set(stepperSteps().slice(0, cur).flatMap(x => x.strike || []));

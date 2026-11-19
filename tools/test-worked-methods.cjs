@@ -152,7 +152,7 @@ const card = { ...pe6.find(q => q.src === 'pe6-cp:18'), teach: undefined }; // t
 const ctx = vm.createContext({ $: node, quiz: { answered: false, idx: 0, items: [{ q: card }] }, String, Array });
 ctx.stepper = null; ctx.Math = Math; ctx.Number = Number; ctx.Set = Set; ctx.Map = Map; ctx.structUrls = new Map(); ctx.structsFailed = false; ctx.encodeURIComponent = encodeURIComponent;
 for (const name of ['esc', 'fmt', 'paragraphs', 'howOf', 'teachOf', 'teachHtml', 'teachStep', 'hintArea', 'showHint', 'howSteps', 'markText', 'markParagraphs', 'stepVisual', 'howPlayerHtml', 'applyStepContext', 'clearStepContext', 'howStepMs', 'howSchedule', 'howToggle', 'howReplay', 'howStep', 'howBox',
-  'chartNum', 'chartText', 'chartTicks', 'chartSmooth', 'chartMarker', 'chartLegend', 'chartAxes', 'chartAnnotations', 'lineChart', 'barChart', 'figureHtml', 'structUrl', 'structImg', 'stemFigs', 'isLessonCard', 'elimOf', 'elimLabel', 'elimChecksHtml', 'fastOf', 'fastLabel', 'fastKindsHtml', 'fastButton', 'elimButton', 'elimHowHtml', 'elimOnlyStep', 'elimStep', 'lessonSteps', 'stepperSteps', 'lessonPlayerHtml', 'lessonBox']) vm.runInContext(extract(name), ctx);
+  'chartNum', 'chartText', 'chartTicks', 'chartSmooth', 'chartMarker', 'chartLegend', 'chartAxes', 'chartAnnotations', 'lineChart', 'barChart', 'figureHtml', 'structUrl', 'structImg', 'stemFigs', 'isLessonCard', 'elimOf', 'elimLabel', 'elimChecksHtml', 'fastOf', 'fastLabel', 'fastKindsHtml', 'fastButton', 'elimButton', 'elimHowHtml', 'elimOnlyStep', 'elimStep', 'lessonSteps', 'stepperSteps', 'lessonPlayerHtml', 'lessonBox', 'paintCardPassage']) vm.runInContext(extract(name), ctx);
 vm.runInContext("var CHART = { W: 560, L: 70, R: 18, T: 14, H: 250, B: 50 };", ctx);
 const view = ctx.quiz.items[0];
 

@@ -32,6 +32,7 @@ const data = vm.createContext({});
 const CPT_FILE = process.env.CPT_FILE || root + '/data/cp-test-cards.js';
 // CPT_FL_FILE=<path>: a writer's working copy of qb-aamc-fl.js (Rule out 2 batches).
 for (const f of [process.env.CPT_FL_FILE || root + '/data/qb-aamc-fl.js', CPT_FILE]) vm.runInContext(fs.readFileSync(f, 'utf8').replace(/^const /mg, 'var '), data, { filename: f });
+vm.runInContext(fs.readFileSync(root + '/data/qb-aamc-phys.js', 'utf8').replace(/^const /mg, 'var '), data, { filename: 'qb-aamc-phys.js' });
 const FL = data.QB_AAMC_FL, CARDS = data.CP_TEST_CARDS;
 const PE_RE = /^pe[13456]-cp:\d+$/;
 const PE = new Map(FL.filter(q => PE_RE.test(q.src)).map(q => [q.src, q]));
@@ -41,12 +42,30 @@ assert.equal(PE.size, 295, 'Practice Exams 1, 3, 4, 5 and 6: 59 C/P questions ea
 assert.equal(SPEC.questions.length, 295, 'the specs cover all 295 questions');
 for (const q of SPEC.questions) { assert(PE.has(q.src), q.src + ': spec question has a Practice Exam card'); assert(q.items.length >= 1, q.src + ': spec lists what it needs'); }
 const ITEMS = new Map(SPEC.items.map(it => [it.ref, it]));
+// Same ask, same setup (the user's standing rule): every card names in `twinOf` the question(s) whose ask it practices
+// the way the MCAT asks it: the same kind of stem and choices, and, for a passage question, a short twin passage
+// (`passage`, 3–6 sentences) giving the same kind of clues; a stand-alone question gets a stand-alone card. Every
+// Practice Exam question (295) and every daily-quiz question's twin (data/cp-pool.js: the 30 Sample Test questions and
+// 1 QBank pack question that no Practice Exam card covers) is some card's twin. Passage or stand-alone comes from
+// tools/twin-clusters.json (AAMC question numbers only).
+const CLUSTERS = require('./twin-clusters.json').exams;
+const isPassageQ = src => { const [e, n] = String(src).split(':'); return !!(CLUSTERS[e] && CLUSTERS[e].passages.some(([a, b]) => +n >= a && +n <= b)); };
+const POOL = (() => { const c = vm.createContext({}); vm.runInContext(fs.readFileSync(root + '/data/cp-pool.js', 'utf8').replace(/^const /mg, 'var '), c); return c.CP_POOL; })();
+const QUIZ_TWINS = [...new Set(POOL.flatMap(h => [...h.passages.flatMap(p => p.questions), ...h.standalones]).map(q => q.twin))];
+// The source card of each twin: a Practice Exam or Sample Test card (qb-aamc-fl.js) or the QBank pack card.
+const SRC = new Map([...FL.map(q => [q.src, q]), ...data.QB_AAMC_PHYS.filter(q => QUIZ_TWINS.includes(q.src)).map(q => [q.src, q])]);
+const QUIZ_EXTRA = QUIZ_TWINS.filter(t => !PE_RE.test(t));
+assert(QUIZ_EXTRA.every(t => SRC.has(t)), 'every quiz twin has its source card');
+// The AAMC passage a question belongs to (its range in twin-clusters.json): "pe1-cp:P3" for Practice Exam 1's third.
+const passageOf = src => { const [e, n] = String(src).split(':'); const i = CLUSTERS[e] ? CLUSTERS[e].passages.findIndex(([a, b]) => +n >= a && +n <= b) : -1; return i < 0 ? null : e + ':P' + (i + 1); };
+const sentences = t => String(t).replace(/\b(e\.g|i\.e|vs|approx|ca)\./g, '$1').split(/(?<=[.!?])\s+(?=[A-Z(\d])/).filter(x => x.trim()).length;
 // The questions written so far: every question any card comes from. Each of them must have a card for every one of
 // its "Needs" items; once all 295 are written, every spec item must have a card.
 // The exams written so far: every exam any card comes from; all 59 of each one's questions must map to a card.
-const DECK_MAX = 250;
+// 250 cards for the Practice Exams, plus the cards that twin the daily quiz's Sample Test and QBank-pack questions.
+const DECK_MAX = 350;
 const DECK_TARGET = { '5D': 60, '5E': 38, '4E': 32, '5A': 23, '4D': 20, '4C': 20, '4B': 17, '5B': 15, '4A': 13, '5C': 12 };
-assert.equal(Object.values(DECK_TARGET).reduce((a, b) => a + b, 0), DECK_MAX, 'the category targets add up to the 250-card budget');
+assert.equal(Object.values(DECK_TARGET).reduce((a, b) => a + b, 0), 250, 'the category targets add up to the 250-card Practice Exam budget');
 assert(CARDS.length <= DECK_MAX, `the deck is ${CARDS.length} cards; the budget is ${DECK_MAX}`);
 const EXAMS_WRITTEN = [...new Set(CARDS.flatMap(c => (Array.isArray(c.from) ? c.from : []).map(r => String(r).split('-')[0])))];
 // A writer's batch (CPT_FILE) covers some of an exam's questions: only those are checked for coverage.
@@ -57,6 +76,7 @@ const ALL_BUILT = BUILT.length === PE.size;
 // ── 1. Coverage and worked methods ──
 const strip = t => String(t == null ? '' : t).replace(/<[^>]+>/g, ' ').replace(/\*\*/g, '');
 const words = t => strip(t).trim().split(/\s+/).filter(Boolean).length;
+const SHARED = new Map();
 const ids = new Set(), stems = new Map(), bySrc = new Map([...PE.keys()].map(s => [s, []])), byItem = new Map(SPEC.items.map(it => [it.ref, []]));
 // Rule out 3 (flashcards and guided cards): exactly three entries {c, tag, why}, one per wrong choice, never the key;
 // tag is one of the six checks and the entries run in check order; each why ≤ 160 characters; a rule ≤ 200
@@ -99,10 +119,26 @@ function checkElim3(q, id) {
 }
 for (const c of CARDS) {
   const id = c.id;
-  assert(typeof id === 'string' && /^cpt-pe[13456]-\d{2}[a-z]$/.test(id), 'id format: ' + id);
+  assert(typeof id === 'string' && /^cpt-(pe[13456]|st)-\d{2}[a-z]$/.test(id), 'id format: ' + id);
+  const st = /^cpt-st-/.test(id);
   assert(!ids.has(id), 'unique id: ' + id); ids.add(id);
   assert(typeof c.s === 'string' && c.s.trim(), id + ': topic tag s');
-  assert(Array.isArray(c.from) && c.from.length >= 1 && new Set(c.from).size === c.from.length, id + ': from is a list of distinct sources');
+  assert(Array.isArray(c.from) && (c.from.length >= 1 || st) && new Set(c.from).size === c.from.length, id + ': from is a list of distinct sources');
+  // Same ask, same setup: twinOf names the question(s) it mirrors; a passage question's card has a 3–6 sentence passage.
+  assert(Array.isArray(c.twinOf) && c.twinOf.length >= 1 && c.twinOf.every(t => SRC.has(t) && (PE_RE.test(t) || QUIZ_EXTRA.includes(t))), id + ': twinOf names Practice Exam or quiz-twin questions');
+  for (const t of c.twinOf) assert.equal(!!c.passage, isPassageQ(t), id + ': ' + t + ' is a ' + (isPassageQ(t) ? 'passage' : 'stand-alone') + ' question, so the card ' + (isPassageQ(t) ? 'has' : 'has no') + ' passage');
+  // Teach for the passage: the cards whose twins sit in one AAMC passage share one twin passage (`pid` names that AAMC
+  // passage; the same text on each), which combines that passage's topics; the lesson's first step points at the
+  // sentence that holds the clue (its hl is in the passage).
+  if (c.passage !== undefined) {
+    const n = sentences(c.passage); assert(typeof c.passage === 'string' && n >= 3 && n <= 10 && c.passage.length <= 1500, id + ': passage is 3–10 sentences, ≤ 1500 characters (' + n + ', ' + String(c.passage).length + ')');
+    {
+    assert(c.twinOf.every(t => passageOf(t) === c.pid), id + ': pid "' + c.pid + '" is the AAMC passage of its twin(s) ' + c.twinOf.map(passageOf).join(', '));
+    const p = SHARED.get(c.pid); if (p === undefined) SHARED.set(c.pid, c.passage); else assert.equal(c.passage, p, id + ': the cards of ' + c.pid + ' share one twin passage');
+    const s0 = c.how && c.how.steps && c.how.steps[0];
+    assert(s0 && typeof s0.hl === 'string' && c.passage.includes(s0.hl) && /sentence/i.test(s0.text), id + ': the lesson\'s first step names the passage sentence that holds the clue (text says "sentence", hl is in the passage)');
+    }
+  } else assert.equal(c.pid, undefined, id + ': a stand-alone card has no pid');
   // Each source names a spec item, "peX-cp:Q#n": the card teaches item n of that question's "Needs" list.
   for (const ref of c.from) {
     assert(ITEMS.has(ref), id + ': from "' + ref + '" is an item of a spec question (peX-cp:Q#n)');
@@ -111,13 +147,14 @@ for (const c of CARDS) {
     byItem.get(ref).push(id);
   }
   // Labels from the spec line: category, discipline and skill.
-  assert(c.from.some(ref => { const q = SPEC.bySrc.get(ref.split('#')[0]); return q.aamc === c.aamc && q.disc === c.disc && q.skill === c.skill; }), id + ': aamc, disc and skill come from a source question\'s spec line');
+  if (c.from.length) assert(c.from.some(ref => { const q = SPEC.bySrc.get(ref.split('#')[0]); return q.aamc === c.aamc && q.disc === c.disc && q.skill === c.skill; }), id + ': aamc, disc and skill come from a source question\'s spec line');
+  else assert(DECK_TARGET[c.aamc] && typeof c.disc === 'string' && /^SIRS [1-4]$/.test(c.skill), id + ': labels');
   assert(typeof c.q === 'string' && c.q.trim() && Array.isArray(c.choices) && c.choices.length === 4, id + ': stem and 4 choices');
   assert.equal(new Set(c.choices.map(norm)).size, 4, id + ': distinct choices');
   assert(Number.isInteger(c.ans) && c.ans >= 0 && c.ans < 4, id + ': ans');
   assert(typeof c.exp === 'string' && c.exp.length >= 40, id + ': explanation');
   const k = norm(c.q); assert(!stems.has(k), id + ': duplicate stem of ' + stems.get(k)); stems.set(k, id);
-  const inCard = t => typeof t === 'string' && t.length > 0 && (c.q.includes(t) || c.choices.some(ch => ch.includes(t)));
+  const inCard = t => typeof t === 'string' && t.length > 0 && (c.q.includes(t) || (c.passage || '').includes(t) || c.choices.some(ch => ch.includes(t)));
   const key = c.choices[c.ans];
   const h = c.how;
   assert(h && typeof h === 'object', id + ': how');
@@ -139,7 +176,7 @@ for (const c of CARDS) {
   assert(Array.isArray(c.teach) && c.teach.length >= 2, id + ': teach');
   for (const [i, st] of c.teach.entries()) {
     assert(st && typeof st.text === 'string' && st.text.trim(), id + ': teach ' + (i + 1) + ' text');
-    for (const m of st.marks || []) assert(typeof m.t === 'string' && c.q.includes(m.t) && typeof m.note === 'string', id + ': teach mark "' + m.t + '" is in the stem');
+    for (const m of st.marks || []) assert(typeof m.t === 'string' && (c.q.includes(m.t) || (c.passage || '').includes(m.t)) && typeof m.note === 'string', id + ': teach mark "' + m.t + '" is in the stem or passage');
   }
   assert(/^\*\*Rule to reuse:\*\* \S/.test(c.teach.at(-1).text), id + ': the last teach step starts "Rule to reuse:"');
   // Rule out 3: every card names its three wrong choices, each with the check that kills it (one of the six, in check
@@ -148,6 +185,10 @@ for (const c of CARDS) {
   if (process.env.CPT_ELIM_PENDING && c.rule === undefined) continue;
   checkElim3(c, id);
 }
+const twinned = new Set(CARDS.flatMap(c => c.twinOf || []));
+// A writer's batch covers its own exam(s): every question of each exam it twins.
+const TWIN_NEED = process.env.CPT_FILE ? [...PE.keys(), ...QUIZ_EXTRA].filter(t => [...twinned].some(x => x.split(':')[0] === t.split(':')[0])) : [...PE.keys(), ...QUIZ_EXTRA];
+assert.deepEqual(TWIN_NEED.filter(t => !twinned.has(t)), [], 'every Practice Exam question and quiz twin has a card with the same ask and setup');
 const uncovered = BUILT.filter(s => !bySrc.get(s).length);
 assert.deepEqual(uncovered, [], 'every Practice Exam question written so far has at least one flashcard');
 // Every "Needs" item of the questions written so far has a card; the items of the questions not yet written are
@@ -161,9 +202,9 @@ const covered = [...bySrc.values()].filter(a => a.length).length;
 const median = a => { const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 const pct = (a, p) => { const s = [...a].sort((x, y) => x - y); return s[Math.min(s.length - 1, Math.ceil(p * s.length) - 1)]; };
 const POSITION = /\b(first|second|third|fourth|last|final|top|bottom) (choice|option|answer)s?\b|\b(choice|option)s?\s*\(?[A-D]\)?(?![\w-])/i;
-const stemW = CARDS.map(c => words(c.q)), choiceW = CARDS.flatMap(c => c.choices.map(words));
+const stemW = CARDS.filter(c => !c.passage).map(c => words(c.q)), choiceW = CARDS.flatMap(c => c.choices.map(words));
 for (const c of CARDS) {
-  const n = words(c.q); assert(n >= 7 && n <= 45, c.id + ': stem ' + n + ' words (7–45)');
+  const n = words(c.q); assert(n >= (c.passage ? 3 : 7) && n <= 45, c.id + ': stem ' + n + ' words (' + (c.passage ? 3 : 7) + '–45)');
   const ch = c.choices.map(x => strip(x).trim()), cl = ch.map(x => x.length), cw = c.choices.map(words);
   const oc = cl.filter((_, i) => i !== c.ans), ow = cw.filter((_, i) => i !== c.ans);
   assert(cl[c.ans] <= Math.max(...oc), c.id + ': the key is not the longest choice (characters)');
@@ -172,7 +213,7 @@ for (const c of CARDS) {
   for (const t of texts) assert(!POSITION.test(strip(t)), c.id + ': no position words: "' + (strip(t).match(POSITION) || [''])[0] + '"');
 }
 const sm = median(stemW), cm = median(choiceW), c90 = pct(choiceW, 0.9);
-assert(sm >= 15 && sm <= 25, 'stem median ' + sm + ' words (15–25; AAMC stand-alones ≈ 20)');
+assert(!stemW.length || (sm >= 15 && sm <= 25), 'stand-alone stem median ' + sm + ' words (15–25; AAMC stand-alones ≈ 20)');
 assert(cm <= 3, 'choice median ' + cm + ' words (≤ 3)'); assert(c90 <= 9, 'choice 90th percentile ' + c90 + ' words (≤ 9)');
 
 // ── 3. Originality against each source card ──
@@ -185,9 +226,9 @@ const keyNorm = t => String(t).toLowerCase().replace(/[₀₁₂₃₄₅₆₇�
   .replace(/\bd2sp3\b/g, 'sp3d2').replace(/\bdsp3\b/g, 'sp3d').replace(/^(a|an|the) /, '').replace(/ (group|point|bond|bonding)s?$/, '');
 const keyWords = t => keyNorm(t).split(' ').filter(w => w && !KEY_STOP.has(w));
 const lessonText = c => { const h = c.how || {}; return [...(c.elim || []).map(e => e.why), c.rule, c.fast && c.fast.how, h.ask, h.know, h.trap, ...(h.steps || []).flatMap(st => [st.text, ...(st.calc || [])]), ...(c.teach || []).flatMap(t => [t.text, ...(t.calc || []), ...(t.marks || []).map(m => m.note)])].filter(Boolean).join(' \n '); };
-for (const c of CARDS) for (const s of new Set(c.from.map(r => r.split('#')[0]))) {
-  const src = PE.get(s), srcNums = dataNums(src.q + ' ' + src.choices.join(' '));
-  const shared = [...dataNums(c.q + ' ' + c.choices.join(' '))].filter(n => srcNums.has(n));
+for (const c of CARDS) for (const s of new Set([...c.from.map(r => r.split('#')[0]), ...(c.twinOf || [])])) {
+  const src = SRC.get(s), srcNums = dataNums(src.q + ' ' + src.choices.join(' '));
+  const shared = [...dataNums((c.passage || '') + ' ' + c.q + ' ' + c.choices.join(' '))].filter(n => srcNums.has(n));
   assert.deepEqual(shared, [], c.id + ': shares no data number with ' + s);
   for (const ch of c.choices) {
     assert(!src.choices.some(x => norm(x) === norm(ch)), c.id + ': choice "' + ch + '" is a choice of ' + s);
@@ -196,7 +237,7 @@ for (const c of CARDS) for (const s of new Set(c.from.map(r => r.split('#')[0]))
   // Twin, never the test question: no 6-word run shared with the source card (its stem, choices or explanation), no key
   // number equal to the source card's key number, no shared answer choice of 3 or more words.
   const srcText = [src.q, ...src.choices, src.exp].join(' \n '), g = grams(srcText, 6);
-  const run6 = [...grams([c.q, ...c.choices, c.exp].join(' \n '), 6)].find(x => g.has(x));
+  const run6 = [...grams([c.passage || '', c.q, ...c.choices, c.exp].join(' \n '), 6)].find(x => g.has(x));
   assert(!run6, c.id + ': shares the 6-word run "' + run6 + '" with ' + s);
   // The lesson too (how and teach): no 6-word run of prose shared with the source card. A run that is mostly symbols,
   // numbers or one-letter variables (a formula such as "E cell = E cathode − E anode") is a standard formula, not
@@ -227,6 +268,16 @@ for (const c of CARDS) for (const s of new Set(c.from.map(r => r.split('#')[0]))
   const text = [c.q, ...c.choices, c.exp].join(' ');
   for (const [topic, re] of Object.entries(BLOCKLIST)) assert(!re.test(text), c.id + ': untaught topic ' + topic);
 }
+// A card practices the quiz question that twins the same source, never its answer: its key is not the quiz
+// question's correct choice. (Shared stem wording is expected: the card asks the same thing the same way.)
+const QUIZ_BY_TWIN = new Map(); const QUIZ_FAILS = [];
+for (const h of POOL) for (const [p, q] of [...h.passages.flatMap(p => p.questions.map(q => [p, q])), ...h.standalones.map(q => [null, q])]) (QUIZ_BY_TWIN.get(q.twin) || QUIZ_BY_TWIN.set(q.twin, []).get(q.twin)).push({ p, q });
+for (const c of CARDS) for (const t of c.twinOf || []) for (const { p, q } of QUIZ_BY_TWIN.get(t) || []) {
+  const ka = keyWords(c.choices[c.ans]), kb = keyWords(String(q.choices[q.ans]).split(/,? since |,? because |, which /)[0]);
+  const [sh, lo] = ka.length <= kb.length ? [ka, kb] : [kb, ka];
+  if (process.env.CPT_LIST_QUIZ && (keyNorm(c.choices[c.ans]) === keyNorm(q.choices[q.ans]) || (sh.length && sh.length <= 3 && sh.every(w => lo.includes(w))))) { console.log('QUIZKEY', c.id, '|', c.choices[c.ans], '|', q.choices[q.ans]); continue; }
+  assert(!(keyNorm(c.choices[c.ans]) === keyNorm(q.choices[q.ans]) || (sh.length && sh.length <= 3 && sh.every(w => lo.includes(w)))), c.id + ': its key "' + c.choices[c.ans] + '" means the same as the key of the quiz question twinning ' + t + ' ("' + q.choices[q.ans] + '")');
+}
 
 // Cards look like the test: a card whose source question shows a figure carries one of the same kind, drawn for its
 // own problem: a structure (source `fig` / `choiceFigs`) as a structure on the card or in a lesson step, a graph or
@@ -241,7 +292,7 @@ const cardFigs = c => { const steps = [...((c.how && c.how.steps) || []), ...(c.
   return { names: [c.fig, c.choiceFigs, ...steps.map(st => st.fig)].flat().filter(x => x != null), chart: !!(c.chart || steps.some(st => st.chart)) }; };
 let figCards = 0;
 for (const c of CARDS) {
-  const need = new Set(c.from.flatMap(r => [...srcKinds(PE.get(r.split('#')[0]))])), f = cardFigs(c);
+  const need = new Set([...c.from.map(r => r.split('#')[0]), ...(c.twinOf || [])].flatMap(r => [...srcKinds(SRC.get(r))])), f = cardFigs(c);
   for (const n of f.names) assert(typeof n === 'string' && STRUCT[n], c.id + ': figure "' + n + '" is drawn in data/structures.js');
   if (!need.size) continue;
   figCards++;
@@ -250,7 +301,7 @@ for (const c of CARDS) {
   if (need.has('chart') && !need.has('structure') && !MECHANISM.has(c.id)) assert(f.chart, c.id + ': its source shows a graph or table, so the card shows a chart');
   if (MECHANISM.has(c.id)) assert(f.names.length, c.id + ': its mechanism-step diagram is drawn');
 }
-assert(figCards > 0, 'some cards come from questions with figures');
+assert(process.env.CPT_FILE || figCards > 0, 'some cards come from questions with figures');
 if (process.env.CPT_FILE) { console.log(`Batch ${CPT_FILE}: ${CARDS.length} cards pass coverage, worked methods, style and originality.`); process.exit(0); }
 // ── 4. No QBank in TODAY ──
 // The QBank files are byte-identical to main (line endings normalized for Windows checkouts).
@@ -332,20 +383,28 @@ for (let day = 0; day < 200; day++) {
     { subj: 'cp', day: '${today}', t: 1, kind: 'diagnostic', correct: 30, total: 59, pct: 51, scaled: 122, version: 'cp_diag2', cats: { '5D': { c: 2, t: 14 } } },
     { subj: 'cp', day: '${today}', t: 2, kind: 'daily', correct: 15, total: 30, pct: 50, scaled: 122, version: 'cp_half_${1 + (day % 6)}', cats: { '5C': { c: 0, t: 2 } }, missIds: [], twinMisses: ['${pe}', '${sampleSrc}', '${qbSrc}'] }] })`);
   const front = JSON.parse(run('JSON.stringify([...masteryTwinFront(masteryPlanNow())])'));
-  assert.deepEqual(front, [pe], 'day ' + day + ': only the Practice Exam twin leads (the Sample Test and QBank twins are skipped)');
+  // The Practice Exam twin leads both steps; a missed Sample Test quiz question's twin card (cpt-st) leads the flashcards
+  // (it has no guided card); a QBank twin is skipped.
+  assert.deepEqual(front, [pe, sampleSrc], 'day ' + day + ': the Practice Exam and Sample Test twins lead (the QBank twin is skipped)');
   // Weakest first: each step's set runs by category (masteryCatRank: weak categories of the latest test, lowest %
   // right first, then untested ones by AAMC weight); within a category the missed twin's cards, then test order
   // (PE1, PE3, PE4, PE5, PE6, then question number, then item).
   const inOrder = `(() => { const plan = masteryPlanNow(), f = masteryTwinFront(plan), rank = masteryCatRank(plan), it = quiz.items.map(v => v.q);
     const key = q => [rank[q.aamc] ?? 99, masteryIsFront(q, f) ? 0 : 1, ...masteryTestKey(q)];
     const cmp = (a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2] || a[3] - b[3] || a[4] - b[4] || (a[5] < b[5] ? -1 : a[5] > b[5] ? 1 : 0);
-    return it.every((q, i) => !i || cmp(key(it[i - 1]), key(q)) <= 0); })()`;
+    // Cards sharing a twin passage (pid) run back to back in question order; each such run sorts by its earliest card.
+    const units = []; for (const q of it) { const u = units.at(-1); if (q.pid && u && u.pid === q.pid) u.qs.push(q); else units.push({ pid: q.pid, qs: [q] }); }
+    const pids = units.filter(u => u.pid).map(u => u.pid); if (new Set(pids).size !== pids.length) return false;
+    const qn = q => masteryTestKey({ twinOf: q.twinOf })[1];
+    if (!units.every(u => u.qs.every((q, i) => !i || qn(u.qs[i - 1]) <= qn(q)))) return false;
+    const uk = units.map(u => u.qs.map(key).sort(cmp)[0]);
+    return uk.every((k, i) => !i || cmp(uk[i - 1], k) <= 0); })()`;
   run('startMasteryFlashcards(true)');
   const flash = JSON.parse(run('JSON.stringify(quiz.items.map(v => ({ id: v.q.id, from: v.q.from || [] })))'));
   assert(flash.length > 0 && flash.every(x => ids.has(x.id)), 'day ' + day + ': flashcards are Practice Test flashcards only');
   assert(run('quiz.items.every(v => !AQB_BY_ID.has(v.q.id) && !(v.q.src && /^sample-cp:/.test(v.q.src)))'), 'day ' + day + ': no QBank or Sample Test card among the flashcards');
   if (run(`(() => { const f = masteryTwinFront(masteryPlanNow()), it = quiz.items.map(v => v.q), i = it.findIndex(q => masteryIsFront(q, f)); return i >= 0 && (i === 0 || it[i - 1].aamc !== it[i].aamc); })()`)) frontSeen++;
-  assert(run(inOrder), 'day ' + day + ': the flashcards run weakest category first; in each, the missed twin\'s cards, then test order');
+  assert(run(inOrder), 'day ' + day + ': the flashcards run weakest category first; in each, the missed twin\'s cards, then test order; a passage\'s cards back to back');
   run('goHome()');
   run('startMasteryGuided(true)');
   const guided = JSON.parse(run('JSON.stringify(quiz.items.map(v => v.q.src || ""))'));
@@ -363,7 +422,10 @@ assert(frontSeen > 0, 'the flashcards built from a missed twin led their categor
   assert.deepEqual(Object.keys(JSON.parse(run('JSON.stringify(masteryCatRank(masteryPlanNow()))'))), expect, 'category rank: weak by % right, untested by AAMC weight, then the strong 5D');
   for (const fn of ['startMasteryFlashcards(true)', 'startMasteryGuided(true)']) {
     run(fn);
-    const cats = JSON.parse(run('JSON.stringify(quiz.items.map(v => v.q.aamc))')), runs = cats.filter((c, i) => !i || cats[i - 1] !== c);
+    // A passage's cards run back to back (one shared twin passage): the run counts once, under its weakest category.
+    const items = JSON.parse(run('JSON.stringify(quiz.items.map(v => ({ c: v.q.aamc, pid: v.q.pid || null })))')), cats = [];
+    items.forEach((x, i) => { if (x.pid && i && items[i - 1].pid === x.pid) { const k = cats.length - 1; if (expect.indexOf(x.c) < expect.indexOf(cats[k])) cats[k] = x.c; } else cats.push(x.c); });
+    const runs = cats.filter((c, i) => !i || cats[i - 1] !== c);
     assert.deepEqual(runs, expect.filter(c => cats.includes(c)), fn + ': one run per category, weakest first (' + runs.join(' ') + ')');
     assert.equal(cats[0], '4A', fn + ': the day opens with 4A cards');
     run('goHome()');
@@ -452,7 +514,9 @@ if (TABLE) {
   for (const s of BUILT) console.log(`  ${s}${SPEC.bySrc.get(s).match === 'partial' ? ' (Partial)' : ''} → ${bySrc.get(s).join(', ')}`);
 }
 assert.deepEqual(short, [], 'every category has its 50-card daily count');
-if (ALL_BUILT) for (const [c, n] of Object.entries(DECK_TARGET)) assert(Math.abs((perCat[c] || 0) - n) <= 2, `category ${c}: ${perCat[c] || 0} cards, target ${n} ± 2`);
+// The category balance is checked on the Practice Exam cards (the quiz-twin cards follow the quiz's own mix).
+const perCatPE = CARDS.filter(c => !/^cpt-st-/.test(c.id)).reduce((o, c) => (o[c.aamc] = (o[c.aamc] || 0) + 1, o), {}), nPE = Object.values(perCatPE).reduce((a, b) => a + b, 0);
+if (ALL_BUILT) for (const [c, n] of Object.entries(DECK_TARGET)) { const t = n * nPE / 250; assert(Math.abs((perCatPE[c] || 0) - t) <= 3, `category ${c}: ${perCatPE[c] || 0} cards, target ${t.toFixed(1)} ± 3`); }
 console.log(`Practice Test flashcards passed: ${CARDS.length}/${DECK_MAX} cards covering ${covered}/${PE.size} Practice Exam C/P questions and ${SPEC.items.length - missingItems.length}/${SPEC.items.length} spec items` +
   `; stems median ${sm} words, choices median ${cm} / p90 ${c90}; how/teach valid; original against their sources; figures like their sources'; 200 simulated days with no QBank or Sample Test card in TODAY's flashcard or guided steps, each step weakest category first, then test order; QBank files identical to main.` +
   (short.length ? ` Short of the 50-card split: ${short.join(', ')}.` : ''));

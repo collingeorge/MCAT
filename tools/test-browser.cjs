@@ -302,6 +302,16 @@ async function main() {
    assert.match(await evaluate('document.querySelector("#how-box .how-step.current .step-text, #lesson-slot .lesson-box")?.textContent||""'),/Rule out 3 first/,'guided · the walkthrough opens with Rule out 3');}
   }
   console.log('Rule out 3 (flashcards and guided cards): three choices crossed out with their checks before answering; the key never, and never marked; the rule once below the choices; the six checks on first use');
+  // Same ask, same setup: a flashcard that twins a passage question shows its short twin passage above the stem (16 px
+  // or more), and a lesson step that quotes the passage lights that text up in it.
+  { const id=await evaluate('CPTQ.find(q=>q.passage&&q.teach.some(t=>(t.marks||[]).some(m=>q.passage.includes(m.t)))).id');
+    await evaluate(leave+'beginQuiz([CPTQ_BY_ID.get("'+id+'")],"Passage card");true'); await until('!!document.querySelector("#quiz-body .card-passage-text")');
+    const p=JSON.parse(await evaluate('JSON.stringify({text:document.querySelector("#quiz-body .card-passage-text").textContent,px:parseFloat(getComputedStyle(document.querySelector("#quiz-body .card-passage-text")).fontSize),label:document.querySelector("#quiz-body .card-passage-label").textContent,before:!!document.querySelector("#quiz-body .card-passage + .question-text")})'));
+    assert(p.text.length>100 && p.px>=16 && /Passage/i.test(p.label) && p.before, id+': the twin passage shows above the stem at 16 px or more');
+    const i=await evaluate('CPTQ_BY_ID.get("'+id+'").teach.findIndex(t=>(t.marks||[]).some(m=>CPTQ_BY_ID.get("'+id+'").passage.includes(m.t)))');
+    for(let k=0;k<=i;k++) await evaluate('teachStep(1);true');
+    assert(await evaluate('!!document.querySelector("#quiz-body .card-passage-text mark.step-hl")'), id+': the lesson step lights up its words in the passage');
+    console.log('Passage cards: '+id+' shows its twin passage above the stem; the lesson highlights the passage'); }
   // The quiz clock: it counts down, pauses while the page is hidden (a real visibilitychange), warns in a 16 px+ notice,
   // and when it runs out the results open with "Time's up" and the answered / right / not reached line; Past quizzes
   // then reopens the quiz.

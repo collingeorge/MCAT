@@ -12,7 +12,8 @@
 // Part A, length bands (enforced files):
 //   passages 150–400 words, each file's median 220–290;
 //   passage-question stems 6–50 words, each file's median 15–22;
-//   stand-alone and flashcard stems 7–57 words;
+//   stand-alone and flashcard stems 7–57 words (a Practice Test flashcard with a twin passage: 6–50, as a passage
+//     question; its short passage is checked by tools/test-cp-test-cards.cjs, not by the AAMC passage band);
 //   answer choices: each file's median ≤ 4 words and 90th percentile ≤ 12;
 //   key length: the key may not be the single longest choice by more than 1.5× the next-longest, in words, when it
 //     is also at least 3 words longer (so "Social loafing" against "Deindividuation", 2 words against 1, passes).
@@ -82,7 +83,7 @@ for (const [file, name, all] of [['qb-aamc-chem.js', 'QB_AAMC_CHEM', true], ['qb
   ['qb-aamc-biochem.js', 'QB_AAMC_BIOCHEM', true], ['qb-aamc-iqb.js', 'QB_AAMC_IQB', false], ['qb-aamc-fl.js', 'QB_AAMC_FL', true],
   ['cp-test-cards.js', 'CP_TEST_CARDS', true]]) {
   const cards = load(file, name).filter(q => all || CP_CATS.test(q.aamc));
-  files.push({ file, enforced: file !== 'qb-aamc-fl.js', passages: [], questions: cards.map(q => ({ file, id: q.src || q.id, kind: 'fc', q })) });
+  files.push({ file, enforced: file !== 'qb-aamc-fl.js', passages: [], questions: cards.map(q => ({ file, id: q.src || q.id, kind: q.passage ? 'pq' : 'fc', q })) });
 }
 
 // ── Classifiers ──
