@@ -115,6 +115,17 @@ assert.equal(run('masteryLoad().days[localDay()].prac'), undefined, 'passage ans
   assert.equal(g.lessons, 11, 'finishing a lesson counts'); assert.equal(g.progress, 20, 'finishing lessons adds no cards');
   run('teachStep(0)'); // replaying a lesson on the same card never counts twice
   run('goHome()');
+  // Cards 20/20 with lessons still open: Continue (finishes the lessons) and Another set, as on the flashcards.
+  run(`(() => { const m = masteryLoad(); const row = masteryDayRow(m, 'cp'); row.lessonsN = 0; row.lessonIds = []; masterySave(m); })()`);
+  run('renderHome()'); { const html = el('today-plan').innerHTML, gi = html.indexOf('Guided Practice Exam cards'), gs = html.slice(gi, html.indexOf('</li>', gi));
+    assert.match(gs, /20 \/ 20 cards · 0 \/ 20 lessons/); assert.match(gs, /class="new-quiz-btn today-start" data-click="startMasteryGuided\(\)">Continue</, 'Continue stays the primary button');
+    assert.match(gs, /data-click="startMasteryGuided\(true\)">Another set \(20\)</, 'Another set (20) beside it'); assert.doesNotMatch(gs, /more done today/, 'nothing beyond the set yet'); }
+  el('page-notice').hidden = true; run('startMasteryGuided(true)');
+  assert.equal(el('page-notice').hidden, true, 'no "This step is done" notice'); assert.equal(run('quiz.mastery'), 'guided'); assert.equal(run('quiz.items.length'), 20, 'a second set of 20');
+  run('quiz.items.forEach(v => masteryNoteAnswer(v.q, true))'); run('goHome(); renderHome()');
+  assert.equal(run('masteryPlanNow().steps.find(s=>s.id==="guided").extra'), 20, 'the second set counts beyond the set');
+  { const html = el('today-plan').innerHTML, gi = html.indexOf('Guided Practice Exam cards'), gs = html.slice(gi, html.indexOf('</li>', gi));
+    assert.match(gs, /\+20 more done today, beyond the set\./); assert.match(gs, /startMasteryGuided\(\)">Continue</); }
   // A step with nothing to start shows a message instead of doing nothing.
   run(`(() => { const m = masteryLoad(); const row = masteryDayRow(m, 'cp'); row.flashT = Object.fromEntries(masteryPlanNow().steps.find(s=>s.id==='flashcards').topics.map(x => [x.code, x.need])); masterySave(m); })()`);
   el('page-notice').hidden = true; run("(() => { const m = masteryLoad(), r = masteryDayRow(m, masteryPlanNow().subj); r.rulesOk = ['r-a','r-b','r-c','r-d','r-e','r-f','r-g','r-h','r-i','r-j']; masterySave(m); })(); startMasteryFlashcards()");
