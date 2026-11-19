@@ -102,20 +102,25 @@ function checkFast(q, id) {
   assert(q.fast && FAST_KINDS.includes(q.fast.kind), id + ': a shortcut of one of the six kinds');
   assert(typeof q.fast.how === 'string' && q.fast.how.trim() && q.fast.how.length <= 240, id + ': the shortcut is short (≤ 240 characters): ' + ((q.fast && q.fast.how) || '').length);
 }
+// ✂ Rule out: cut = [{r: 1–6, c} | {f: fact, c}]: each r one of the six glance rules, or one fact you know; each
+// choice cut at most once, the key never, at most three cut; the old elim / rule / elimThen fields are gone.
 function checkElim3(q, id) {
   checkFast(q, id);
-  assert(Array.isArray(q.elim) && q.elim.length === 3, id + ': Rule out 3 names exactly three choices');
-  assert.equal(new Set(q.elim.map(e => e.c)).size, 3, id + ': three different choices');
-  for (const e of q.elim) {
-    assert(Number.isInteger(e.c) && e.c >= 0 && e.c < q.choices.length && e.c !== q.ans, id + ': Rule out 3 never points at the key');
-    assert(ELIM_TAGS.includes(e.tag), id + ': tag "' + e.tag + '" is one of the six checks');
-    assert(typeof e.why === 'string' && e.why.trim() && e.why.length <= 160, id + ': reason is one short line (≤ 160 characters): ' + (e.why || '').length);
+  assert(Array.isArray(q.cut), id + ': a cut list (may be empty)');
+  const seen = new Set();
+  for (const e of q.cut) {
+    // A glance rule (r 1–6) or "one fact you know" (f: a plain fact of 6 words or fewer that never names the key).
+    assert(e && ((Number.isInteger(e.r) && e.r >= 1 && e.r <= 6 && e.f === undefined) || (e.r === undefined && typeof e.f === 'string' && e.f.trim() && e.f.trim().split(/\s+/).length <= 6)), id + ': a cut is a glance rule (1–6) or a fact of 6 words or fewer: ' + JSON.stringify(e));
+    if (e.f !== undefined) { const g = giveAway(q.choices[q.ans], e.f); assert(!g, id + ': the fact "' + e.f + '" gives the key away (' + g + ')'); }
+    assert(Array.isArray(e.c) && e.c.length, id + ': each cut names choices');
+    for (const c of e.c) {
+      assert(Number.isInteger(c) && c >= 0 && c < q.choices.length, id + ': cut index ' + c);
+      assert.notEqual(c, q.ans, id + ': a cut never includes the key');
+      assert(!seen.has(c), id + ': a choice is cut at most once'); seen.add(c);
+    }
   }
-  assert(q.elim.every((e, i) => !i || ELIM_TAGS.indexOf(q.elim[i - 1].tag) <= ELIM_TAGS.indexOf(e.tag)), id + ': reasons run in check order (1 → 6)');
-  assert(typeof q.rule === 'string' && q.rule.trim() && q.rule.length <= 200, id + ': a 3-second rule (≤ 200 characters)');
-  assert.equal(q.elimThen, undefined, id + ': no elimThen (it named the answer)');
-  const key = q.choices[q.ans];
-  for (const text of [...q.elim.map(e => e.why), q.rule]) { const g = giveAway(key, text); assert(!g, id + ': Rule out 3 gives the answer away (' + g + ' "' + key + '"): ' + text); }
+  assert(seen.size <= 3, id + ': at most three cuts');
+  for (const f of ['elim', 'rule', 'elimThen']) assert.equal(q[f], undefined, id + ': no ' + f + ' (replaced by cut)');
 }
 for (const c of CARDS) {
   const id = c.id;
@@ -182,7 +187,6 @@ for (const c of CARDS) {
   // Rule out 3: every card names its three wrong choices, each with the check that kills it (one of the six, in check
   // order) and a one-line reason, plus a reusable 3-second rule; none of it names the correct choice (checkElim3).
   // CPT_ELIM_PENDING=1 (a writer's working copy only): cards still in the old format (no rule) are skipped.
-  if (process.env.CPT_ELIM_PENDING && c.rule === undefined) continue;
   checkElim3(c, id);
 }
 const twinned = new Set(CARDS.flatMap(c => c.twinOf || []));
@@ -225,7 +229,7 @@ const KEY_STOP = new Set('a an the of to in on at by for from with and or but so
 const keyNorm = t => String(t).toLowerCase().replace(/[₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]/g, ch => KEY_SUB[ch]).replace(/[^a-z0-9+\-. ]+/g, ' ').replace(/\s+/g, ' ').trim()
   .replace(/\bd2sp3\b/g, 'sp3d2').replace(/\bdsp3\b/g, 'sp3d').replace(/^(a|an|the) /, '').replace(/ (group|point|bond|bonding)s?$/, '');
 const keyWords = t => keyNorm(t).split(' ').filter(w => w && !KEY_STOP.has(w));
-const lessonText = c => { const h = c.how || {}; return [...(c.elim || []).map(e => e.why), c.rule, c.fast && c.fast.how, h.ask, h.know, h.trap, ...(h.steps || []).flatMap(st => [st.text, ...(st.calc || [])]), ...(c.teach || []).flatMap(t => [t.text, ...(t.calc || []), ...(t.marks || []).map(m => m.note)])].filter(Boolean).join(' \n '); };
+const lessonText = c => { const h = c.how || {}; return [c.fast && c.fast.how, h.ask, h.know, h.trap, ...(h.steps || []).flatMap(st => [st.text, ...(st.calc || [])]), ...(c.teach || []).flatMap(t => [t.text, ...(t.calc || []), ...(t.marks || []).map(m => m.note)])].filter(Boolean).join(' \n '); };
 for (const c of CARDS) for (const s of new Set([...c.from.map(r => r.split('#')[0]), ...(c.twinOf || [])])) {
   const src = SRC.get(s), srcNums = dataNums(src.q + ' ' + src.choices.join(' '));
   const shared = [...dataNums((c.passage || '') + ' ' + c.q + ' ' + c.choices.join(' '))].filter(n => srcNums.has(n));
@@ -323,7 +327,7 @@ const REWRITTEN = new Set(['pe1-cp:3', 'pe1-cp:42', 'pe3-cp:7', 'pe3-cp:19', 'pe
 // The only other change the user approved: the "Rule out" fields (elim, rule; formerly elimThen) on the 295 Practice Exam cards.
 // With those two fields set aside, every card is exactly as approved: the 337 untouched ones as on main, the 17
 // rewrites as approved.
-const sansElim = q => { const { elim, elimThen, rule, fast, ...rest } = q; return rest; };
+const sansElim = q => { const { elim, elimThen, rule, fast, cut, ...rest } = q; return rest; };
 // Two explanation fixes the user approved (2026-11-17): pe3-cp:28 (the curve flattens as product builds up, not
 // because substrate runs out) and pe5-cp:38 (the octanol/water ratio is not the ether/water ratio).
 const FIXED = new Set(['pe3-cp:28', 'pe5-cp:38']);
@@ -334,8 +338,7 @@ assert.equal(crypto.createHash('sha256').update(JSON.stringify(FL.filter(q => RE
 // cards are left alone. CPT_ELIM_PENDING=1 (a writer's working copy) skips cards still in the old format (no rule).
 for (const q of FL) {
   const pe = MASTERY_PE_RE.test(q.src), id = q.src;
-  if (!pe) { assert.equal(q.elim, undefined, id + ': Sample Test cards are left alone (no elim)'); continue; }
-  if (process.env.CPT_ELIM_PENDING && q.rule === undefined) continue;
+  if (!pe) { assert(q.elim === undefined && q.cut === undefined, id + ': Sample Test cards are left alone (no elim or cut)'); continue; }
   checkElim3(q, id);
 }
 assert.equal(FL.length, 354, 'qb-aamc-fl.js keeps its 354 cards');
@@ -482,8 +485,9 @@ assert(frontSeen > 0, 'the flashcards built from a missed twin led their categor
     assert.deepEqual(pick, [ids[5], ids[1], ids[2]], 'missed rule cards first, then new ones'); }
   // The TODAY card describes the C/P steps as they are now: no QBank anywhere.
   assert(!/QBank/i.test(html), 'TODAY never says QBank for C/P');
-  { const f = html.slice(html.indexOf('<b>Rules warm-up')), step = f.slice(0, f.indexOf('</li>'));
-    assert(/Rules sheet/.test(step) && ['Impossible', 'Units / ×10', 'Backwards', 'Skipped step', 'Copied number', 'Wrong fact', 'Units first', 'Rearrange', 'Anchor fact'].every(k => step.includes(k)), 'the rules sheet (the six checks, the six shortcut moves) sits in the rules warm-up step');
+  { const f = html.slice(html.indexOf('<b>Rules warm-up')), step = f.slice(0, f.indexOf('<li class="today-step'));
+    assert(/Rules sheet/.test(step) && ['Opposites? Answer is one of them.', 'Way off in size? Cut it.', 'Formula has ½? Take the smaller twin.'].every(k => step.includes(k)), 'the rules sheet (the six glance rules) sits in the rules warm-up step');
+    assert(step.indexOf('<summary>More</summary>') > step.indexOf('Formula has ½') && step.indexOf('Wrong fact') > step.indexOf('<summary>More</summary>') && step.indexOf('Anchor fact') > step.indexOf('<summary>More</summary>'), 'the earlier checks and shortcut moves fold under "More"');
     assert(html.indexOf('<b>Rules warm-up') < html.indexOf('<b>Flashcards'), 'the rules warm-up comes before the flashcards'); }
   assert(html.includes('flashcards built from the C/P questions of AAMC Practice Exams 1, 3, 4, 5 and 6') && html.includes('Help me / Show me how') && html.includes('Split exactly like the exam') && html.includes('Weakest categories first'), 'step 1 says what it does now');
 }

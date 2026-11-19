@@ -732,11 +732,13 @@ function startMasteryRules() {
   if (!list.length) { masteryNotice('Today’s rule cards are done.'); return; }
   masteryStartQuiz(list, 'C/P · Rules warm-up', 'rules');
 }
-// The rules sheet: the six checks and six shortcut moves, then the C/P rules by topic.
+// The rules sheet: the six glance rules (no math, no writing), one example each; the earlier checks, shortcut moves
+// and the C/P rules by topic folded under "More".
 function masteryRulesSheetHtml() {
   const sections = typeof CP_RULES !== 'undefined' ? CP_RULES.sheet : [];
-  return (typeof elimChecksHtml === 'function' ? elimChecksHtml() : '') + (typeof fastKindsHtml === 'function' ? fastKindsHtml() : '') +
-    sections.map(sec => '<div class="rules-sec"><b>' + esc(sec.title) + '</b><ul>' + sec.items.map(it => '<li>' + fmt(it) + '</li>').join('') + '</ul></div>').join('');
+  return (typeof glanceRulesHtml === 'function' ? glanceRulesHtml() : '') +
+    '<details class="rules-more"><summary>More</summary>' + (typeof elimChecksHtml === 'function' ? elimChecksHtml() : '') + (typeof fastKindsHtml === 'function' ? fastKindsHtml() : '') +
+    sections.map(sec => '<div class="rules-sec"><b>' + esc(sec.title) + '</b><ul>' + sec.items.map(it => '<li>' + fmt(it) + '</li>').join('') + '</ul></div>').join('') + '</details>';
 }
 // The daily quiz unlocks once today's flashcards are done; the guided cards are recommended but not required.
 function masteryQuizUnlocked(plan) {
