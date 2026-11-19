@@ -1,7 +1,8 @@
 // Chem/Phys daily quizzes: six original half-sections in the AAMC layout (P P [4] P P P [4]: 5 passages with 22
 // questions + 8 stand-alones, 30 in all), for the Section Mastery end-of-day test. Every question is a twin of one studied
 // card (`twin`: the card's src). Map: tools/twin-map.json. Not AAMC material.
-const CP_POOL = [
+const CP_POOL =
+[
  {
   "id": "cp_half_1",
   "title": "Chem/Phys Quiz 1",
@@ -2187,7 +2188,7 @@ const CP_POOL = [
      "5D"
     ],
     "title": "Assembling a Drug Candidate from Three Fragments",
-    "passage": "Compound 7, a candidate drug for chronic pain, contains four nitrogen atoms, labeled N1 through N4. Table 1 lists the atoms bonded to each of them, together with approximate pKa values used in planning the synthesis. Compound 7 was assembled from three fragments.\n\nFragment A was made from methyl 4-oxo-4-phenylbutanoate. Sodium borohydride (NaBH₄) converted the ketone into a secondary alcohol but left the ester untouched, and the new hydroxyl group then attacked the ester carbonyl carbon of the same molecule, releasing methanol and closing a lactone ring. Later in the route, an intermediate that carried both this lactone ring and an ethyl ester was heated with 3 equivalents of aqueous NaOH in an attempt to remove only the ethyl group.\n\nFragment B, tetrahydroisoquinoline (THIQ), is a cyclic secondary amine that is sold as its hydrochloride salt, THIQ·HCl. The salt was first stirred with triethylamine (Et₃N) in acetonitrile, and an alkyl bromide fragment was then added; an SN2 reaction joined the two pieces and formed N4 of Compound 7.\n\nThe third fragment carries N1, which is protected as a methyl carbamate, R₂N–C(=O)–OCH₃, and remains so in Compound 7. In a related analog, the chemists removed this group at the end of the route by complete hydrolysis in hot aqueous base.",
+    "passage": "Compound 7, a candidate drug for chronic pain, contains four nitrogen atoms, labeled N1 through N4. Table 1 lists the atoms bonded to each of them, together with approximate pKa values used in planning the synthesis. Compound 7 was assembled from three fragments.\n\nFragment A was made from methyl 4-oxo-4-phenylbutanoate. Sodium borohydride (NaBH₄) converted the ketone into a secondary alcohol but left the ester untouched, and the new hydroxyl group then attacked the ester carbonyl carbon of the same molecule, releasing methanol and closing a lactone ring. Later in the route, an intermediate that carried both this lactone ring and a tert-butyl ester was heated with 1 equivalent of aqueous NaOH.\n\nFragment B, tetrahydroisoquinoline (THIQ), is a cyclic secondary amine that is sold as its hydrochloride salt, THIQ·HCl. The salt was first stirred with triethylamine (Et₃N) in acetonitrile, and an alkyl bromide fragment was then added; an SN2 reaction joined the two pieces and formed N4 of Compound 7.\n\nThe third fragment carries N1, which is protected as a methyl carbamate, R₂N–C(=O)–OCH₃, and remains so in Compound 7. In a related analog, the chemists removed this group at the end of the route by complete hydrolysis in hot aqueous base.",
     "figure": {
      "caption": "Table 1 Bonding at the nitrogens of Compound 7, and approximate pKa values",
      "columns": [
@@ -2263,19 +2264,19 @@ const CP_POOL = [
       "id": "p_cpq3_4_q2"
      },
      {
-      "q": "When the intermediate bearing the lactone ring and the ethyl ester is heated with the aqueous NaOH, what happens?",
+      "q": "When the intermediate bearing the lactone ring and the tert-butyl ester is heated with the aqueous NaOH, what happens?",
       "choices": [
-       "Only the ethyl ester is hydrolyzed",
+       "Only the tert-butyl ester is hydrolyzed",
        "Both esters are hydrolyzed",
        "Only the lactone ring opens",
        "Neither ester reacts"
       ],
-      "ans": 1,
+      "ans": 2,
       "cat": "5D",
       "skill": "SIRS 1",
       "diff": "M",
       "twin": "pe4-cp:31",
-      "exp": "1. Both groups are esters: ethyl ester → carboxylate + CH₃CH₂OH; lactone (cyclic ester) → opens to a hydroxy carboxylate.\n2. There is enough base for both: 2 ester groups, 3 equivalents of OH⁻ → enough for **both**.\n3. A lactone is just a cyclic ester, so hydroxide does not spare either one, and hydroxide is a good nucleophile toward esters; the attempt to cleave only the ethyl group fails.\n4. Answer: both esters are hydrolyzed to carboxylates.\n\n**Rule to reuse:** a lactone reacts like any ester; excess hydroxide saponifies every ester group to a carboxylate, and a lactone opens to a hydroxy carboxylate.",
+      "exp": "1. Both groups are esters: the lactone is a cyclic ester, and the tert-butyl ester has a bulky (CH₃)₃C group on its O.\n2. Count the base: each saponification uses up one OH⁻, so **1 equivalent** can hydrolyze only one of the two groups. That rules out \"Both esters are hydrolyzed\", and hot hydroxide does react, which rules out \"Neither ester reacts\".\n3. OH⁻ must add to the C=O. The tert-butyl group crowds its C=O, so tert-butyl esters resist basic hydrolysis (they are cleaved with acid): \"Only the tert-butyl ester is hydrolyzed\" is out.\n4. The unhindered lactone C=O is attacked, and the ring opens to a hydroxy carboxylate.\n5. Answer: only the lactone ring opens.\n\n**Rule to reuse:** count the equivalents of base first; when they run short, the least hindered ester (or lactone) reacts and a tert-butyl ester survives.",
       "id": "p_cpq3_4_q3"
      },
      {
@@ -4836,7 +4837,7 @@ const CP_POOL = [
    {
     "q": "A lipid-soluble hormone crosses the plasma membrane, binds a receptor inside the cell, and the complex then changes gene transcription. If this messenger is a steroid, which of the following could it be?",
     "choices": [
-     "Aldosterone",
+     "Testosterone",
      "Thyroxine",
      "Epinephrine",
      "Linoleic acid"
@@ -4847,7 +4848,7 @@ const CP_POOL = [
     "diff": "M",
     "subj": "biochemistry",
     "twin": "pe3-cp:25",
-    "exp": "1. The question fixes the class: a steroid. Look for the steroid ring pattern, not just lipid solubility.\n2. The steroid nucleus is four fused rings, three six-membered and one five-membered. Count the rings in each: steroid core, **6-6-6-5**, four fused rings; thyroxine, **2** benzene rings joined through an O, not fused; epinephrine, **1** benzene ring + amine; linoleic acid, **0** rings.\n3. Epinephrine is a catecholamine: one aromatic ring and an amine, water-soluble. That rules it out.\n4. Linoleic acid is a fatty acid, a long chain ending in COOH with no rings, and thyroxine has two separate rings linked by an ether O. That rules them out.\n5. Aldosterone shows the 6-6-6-5 fused core, with a C=O on ring A.\n6. Answer: aldosterone. Four fused rings, three of six and one of five, means steroid.\n\n**Rule to reuse:** **Steroid nucleus:** four fused rings in a 6-6-6-5 pattern, called A, B, C, D, usually with methyl groups at two ring junctions and an O on ring A.",
+    "exp": "1. The question fixes the class: a steroid. Look for the steroid ring pattern, not just lipid solubility.\n2. The steroid nucleus is four fused rings, three six-membered and one five-membered. Count the rings in each: steroid core, **6-6-6-5**, four fused rings; thyroxine, **2** benzene rings joined through an O, not fused; epinephrine, **1** benzene ring + amine; linoleic acid, **0** rings.\n3. Epinephrine is a catecholamine: one aromatic ring and an amine, water-soluble. That rules it out.\n4. Linoleic acid is a fatty acid, a long chain ending in COOH with no rings, and thyroxine has two separate rings linked by an ether O. That rules them out.\n5. Testosterone shows the 6-6-6-5 fused core, with a C=O on ring A and an OH on ring D.\n6. Answer: testosterone. Four fused rings, three of six and one of five, means steroid.\n\n**Rule to reuse:** **Steroid nucleus:** four fused rings in a 6-6-6-5 pattern, called A, B, C, D, usually with methyl groups at two ring junctions and an O on ring A.",
     "id": "cp_q6_sa5"
    },
    {
