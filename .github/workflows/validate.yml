@@ -31,6 +31,8 @@ jobs:
         run: node tools/test-daily-plan.cjs
       - name: Subject progression regression
         run: node tools/test-study-path.cjs
+      - name: Quiz review, timer and score
+        run: node tools/test-quiz-review.cjs
       - name: Security and reliability regression
         run: node tools/test-audit.cjs
       - name: Editorial quality and progress compatibility
