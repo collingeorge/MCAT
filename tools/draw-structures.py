@@ -1273,6 +1273,12 @@ add('cpt-2-methylbutan-2-ol', 'CCC(C)(C)O', formula='C5H12O', centers=0)
 add('cpt-z-3-bromopent-2-ene', 'C/C=C(\\Br)CC', formula='C5H9Br', ez='Z')
 # cpt-pe4-17a: methanol.
 add('cpt-methanol', 'CO', formula='CH4O')
+# cpt-pe4-17a choices: the four vent-air compounds the passage names, plus dimethylamine with its N–H highlighted.
+add('cpt-dimethylamine', 'CNC', formula='C2H7N')
+add('cpt-dimethylamine-nh-hl', 'C[NH:1]C', formula='C2H7N', hl=[1])
+add('cpt-acetaldehyde', 'CC=O', formula='C2H4O')
+add('cpt-hydrogen-sulfide', 'S', formula='H2S')
+add('cpt-propane', 'CCC', formula='C3H8')
 # cpt-pe4-25a: a ketone with a ring, an outside C=C and two nitriles (9 π bonds).
 add('cpt-benzoyl-methylene-malononitrile', 'O=C(C=C(C#N)C#N)c1ccccc1', formula='C11H6N2O')
 # cpt-pe4-29a: the amino ester with its nitrogen highlighted.
