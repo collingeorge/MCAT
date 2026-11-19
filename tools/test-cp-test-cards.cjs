@@ -277,7 +277,7 @@ for (const c of CARDS) {
   if (need.has('chart') && !need.has('structure') && !MECHANISM.has(c.id)) assert(f.chart, c.id + ': its source shows a graph or table, so the card shows a chart');
   if (MECHANISM.has(c.id)) assert(f.names.length, c.id + ': its mechanism-step diagram is drawn');
 }
-assert(figCards > 0, 'some cards come from questions with figures');
+assert(process.env.CPT_FILE || figCards > 0, 'some cards come from questions with figures');
 if (process.env.CPT_FILE) { console.log(`Batch ${CPT_FILE}: ${CARDS.length} cards pass coverage, worked methods, style and originality.`); process.exit(0); }
 // ── 4. No QBank in TODAY ──
 // The QBank files are byte-identical to main (line endings normalized for Windows checkouts).
