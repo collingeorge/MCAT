@@ -132,8 +132,7 @@ for (const c of CARDS) {
   // sentence that holds the clue (its hl is in the passage).
   if (c.passage !== undefined) {
     const n = sentences(c.passage); assert(typeof c.passage === 'string' && n >= 3 && n <= 10 && c.passage.length <= 1500, id + ': passage is 3–10 sentences, ≤ 1500 characters (' + n + ', ' + String(c.passage).length + ')');
-    // (Until the shared passages are merged, these run on a writer's batch only.)
-    if (process.env.CPT_FILE) {
+    {
     assert(c.twinOf.every(t => passageOf(t) === c.pid), id + ': pid "' + c.pid + '" is the AAMC passage of its twin(s) ' + c.twinOf.map(passageOf).join(', '));
     const p = SHARED.get(c.pid); if (p === undefined) SHARED.set(c.pid, c.passage); else assert.equal(c.passage, p, id + ': the cards of ' + c.pid + ' share one twin passage');
     const s0 = c.how && c.how.steps && c.how.steps[0];
@@ -271,10 +270,13 @@ for (const c of CARDS) for (const s of new Set([...c.from.map(r => r.split('#')[
 }
 // A card practices the quiz question that twins the same source, never its answer: its key is not the quiz
 // question's correct choice. (Shared stem wording is expected: the card asks the same thing the same way.)
-const QUIZ_BY_TWIN = new Map();
+const QUIZ_BY_TWIN = new Map(); const QUIZ_FAILS = [];
 for (const h of POOL) for (const [p, q] of [...h.passages.flatMap(p => p.questions.map(q => [p, q])), ...h.standalones.map(q => [null, q])]) (QUIZ_BY_TWIN.get(q.twin) || QUIZ_BY_TWIN.set(q.twin, []).get(q.twin)).push({ p, q });
 for (const c of CARDS) for (const t of c.twinOf || []) for (const { p, q } of QUIZ_BY_TWIN.get(t) || []) {
-  assert.notEqual(keyNorm(c.choices[c.ans]), keyNorm(q.choices[q.ans]), c.id + ': its key is the key of the quiz question twinning ' + t);
+  const ka = keyWords(c.choices[c.ans]), kb = keyWords(String(q.choices[q.ans]).split(/,? since |,? because |, which /)[0]);
+  const [sh, lo] = ka.length <= kb.length ? [ka, kb] : [kb, ka];
+  if (process.env.CPT_LIST_QUIZ && (keyNorm(c.choices[c.ans]) === keyNorm(q.choices[q.ans]) || (sh.length && sh.length <= 3 && sh.every(w => lo.includes(w))))) { console.log('QUIZKEY', c.id, '|', c.choices[c.ans], '|', q.choices[q.ans]); continue; }
+  assert(!(keyNorm(c.choices[c.ans]) === keyNorm(q.choices[q.ans]) || (sh.length && sh.length <= 3 && sh.every(w => lo.includes(w)))), c.id + ': its key "' + c.choices[c.ans] + '" means the same as the key of the quiz question twinning ' + t + ' ("' + q.choices[q.ans] + '")');
 }
 
 // Cards look like the test: a card whose source question shows a figure carries one of the same kind, drawn for its
@@ -420,7 +422,10 @@ assert(frontSeen > 0, 'the flashcards built from a missed twin led their categor
   assert.deepEqual(Object.keys(JSON.parse(run('JSON.stringify(masteryCatRank(masteryPlanNow()))'))), expect, 'category rank: weak by % right, untested by AAMC weight, then the strong 5D');
   for (const fn of ['startMasteryFlashcards(true)', 'startMasteryGuided(true)']) {
     run(fn);
-    const cats = JSON.parse(run('JSON.stringify(quiz.items.map(v => v.q.aamc))')), runs = cats.filter((c, i) => !i || cats[i - 1] !== c);
+    // A passage's cards run back to back (one shared twin passage): the run counts once, under its weakest category.
+    const items = JSON.parse(run('JSON.stringify(quiz.items.map(v => ({ c: v.q.aamc, pid: v.q.pid || null })))')), cats = [];
+    items.forEach((x, i) => { if (x.pid && i && items[i - 1].pid === x.pid) { const k = cats.length - 1; if (expect.indexOf(x.c) < expect.indexOf(cats[k])) cats[k] = x.c; } else cats.push(x.c); });
+    const runs = cats.filter((c, i) => !i || cats[i - 1] !== c);
     assert.deepEqual(runs, expect.filter(c => cats.includes(c)), fn + ': one run per category, weakest first (' + runs.join(' ') + ')');
     assert.equal(cats[0], '4A', fn + ': the day opens with 4A cards');
     run('goHome()');
