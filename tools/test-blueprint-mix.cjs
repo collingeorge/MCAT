@@ -66,7 +66,7 @@ const planOf = (m, day = '2026-11-16', sizes = { guided: 266 }) => call('mastery
 const STEPS = ['flashcards', 'guided'];
 { const p = planOf({ tests: [diag({ '5B': { c: 1, t: 3 }, '4C': { c: 2, t: 5 }, '5D': { c: 6, t: 14 }, '4E': { c: 8, t: 8 }, passage: { c: 0, t: 9 } })] });
   assert.equal(p.split, 'exact'); assert.deepEqual(p.weakT, ['5B', '4C'], '5B 33% and 4C 40% are the weakest');
-  assert.deepEqual(p.steps.map(s => s.id), ['diagnostic', 'flashcards', 'guided', 'test'], 'exactly 3 daily steps');
+  assert.deepEqual(p.steps.map(s => s.id), ['diagnostic', 'rules', 'flashcards', 'guided', 'test'], 'exactly 3 daily steps');
   for (const id of STEPS) {
     const st = p.steps.find(s => s.id === id);
     assert.deepEqual(st.topics.filter(t => t.weak).map(t => t.code + '+' + t.extra), ['4C+0', '5B+0'], id + ': weak marked, 0 extra');
@@ -88,7 +88,7 @@ const STEPS = ['flashcards', 'guided'];
   assert.equal(s.reduce((n, t) => n + t.need, 0), 10, 'a pool smaller than the count caps the day at the pool');
   // On TODAY: the plan takes each category's pool and shows the shortfall on the step.
   const p = planOf({ tests: [diag({ '5C': { c: 0, t: 2 }, '4A': { c: 1, t: 3 } })] }, '2026-11-16', { guided: 266, flashCats: { ...big, '5C': 1 }, guidedCats: { ...big, '4A': 1 } });
-  const f = p.steps[1], g = p.steps[2];
+  const f = p.steps.find(s => s.id === 'flashcards'), g = p.steps.find(s => s.id === 'guided');
   assert.deepEqual([f.count, g.count], [50, 50]);
   assert.deepEqual(f.topics.find(t => t.code === '5C'), { ...f.topics.find(t => t.code === '5C'), need: 1, short: L50['5C'] - 1, to: ['5D'] });
   assert.equal(f.topics.find(t => t.code === '5D').need, L50['5D'] + L50['5C'] - 1); assert.equal(g.topics.find(t => t.code === '4A').short, L50['4A'] - 1);
@@ -192,32 +192,32 @@ if (STRICT) assert.equal(missing, 0, `STRICT_QUIZ_MIX: ${missing} of ${POOL.leng
 { const m = { tests: [diag({ '5A': { c: 2, t: 9 }, '4E': { c: 5, t: 9 } })], days: { '2026-11-16': { subj: 'cp', topics: ['5A', '4E', '4A', '4B', '4C'], flashT: { '5A': 10, '4E': 7 }, guidedT: { '4A': 3 }, prac: 12, pracT: { '5D': 12 }, pracD: { physics: 4 }, pracS: { 'SIRS 1': 5 }, pracX: { D: 2 } } } };
   let p = planOf(m);
   assert.equal(p.split, 'exact'); assert.deepEqual(p.topics, CATS, 'an old 5-topic row: the exact split today');
-  assert.deepEqual(p.steps.map(s => s.id), ['diagnostic', 'flashcards', 'guided', 'test'], 'no passage step from the old row');
+  assert.deepEqual(p.steps.map(s => s.id), ['diagnostic', 'rules', 'flashcards', 'guided', 'test'], 'no passage step from the old row');
   for (const id of STEPS) assert.deepEqual(byCode(p.steps.find(s => s.id === id).topics), L50, id + ': the AAMC split');
-  assert.deepEqual(p.steps[1].topics.filter(t => t.raw).map(t => t.code + ' ' + t.progress + '/' + t.need), ['4E 7/7', '5A 5/5'], 'counted answers carry over; 5A past its new count is done');
-  assert.equal(p.steps[1].extra, 5, '5A\'s 5 answers past its count show as extra');
-  assert.equal(p.steps[2].topics.find(t => t.code === '4A').progress, 2, 'guided 4A: 3 counted, done at 2');
+  assert.deepEqual(p.steps.find(s => s.id === 'flashcards').topics.filter(t => t.raw).map(t => t.code + ' ' + t.progress + '/' + t.need), ['4E 7/7', '5A 5/5'], 'counted answers carry over; 5A past its new count is done');
+  assert.equal(p.steps.find(s => s.id === 'flashcards').extra, 5, '5A\'s 5 answers past its count show as extra');
+  assert.equal(p.steps.find(s => s.id === 'guided').topics.find(t => t.code === '4A').progress, 2, 'guided 4A: 3 counted, done at 2');
   assert.deepEqual(p.steps.find(s => s.id === 'test').mix, call('masteryQuizTargets', 'cp'), 'the quiz shows its AAMC mix');
   // The case from the change request: 5 weak topics × 10 saved before the deploy, 1 card counted in 4B.
   p = planOf({ tests: m.tests, days: { '2026-11-16': { subj: 'cp', topics: ['4B', '5D', '4E', '5A', '5B'], flashT: { '4B': 1 } } } });
   assert.equal(p.split, 'exact');
-  assert.deepEqual(byCode(p.steps[1].topics), { '5D': 12, '5E': 8, '4E': 7, '5A': 5, '4D': 4, '4C': 4, '4B': 3, '5B': 3, '4A': 2, '5C': 2 }, 'flashcard needs: the AAMC split');
-  assert.equal(p.steps[1].topics.find(t => t.code === '4B').progress, 1, '4B progress 1');
+  assert.deepEqual(byCode(p.steps.find(s => s.id === 'flashcards').topics), { '5D': 12, '5E': 8, '4E': 7, '5A': 5, '4D': 4, '4C': 4, '4B': 3, '5B': 3, '4A': 2, '5C': 2 }, 'flashcard needs: the AAMC split');
+  assert.equal(p.steps.find(s => s.id === 'flashcards').topics.find(t => t.code === '4B').progress, 1, '4B progress 1');
   // The PR #60 shape, saved today: split 'blueprint' with its two weak categories. Exact today; weak marks kept.
   m.days['2026-11-17'] = { subj: 'cp', topics: ['5C', '4B', '5D', '5E', '4E', '5A', '4D', '4C', '5B', '4A'], split: 'blueprint', weakT: ['5C', '4B'], flashT: { '5C': 3 }, pracT: { '5C': 2 }, prac: 2, pracS: { 'SIRS 1': 2 } };
   m.tests.push({ ...diag({ '4D': { c: 0, t: 5 } }), day: '2026-11-17', kind: 'daily' });
   p = planOf(m, '2026-11-17');
   assert.equal(p.split, 'exact'); assert.deepEqual(p.weakT, ['5C', '4B'], 'a saved day keeps its weak categories as tests come in');
   for (const id of STEPS) { const st = p.steps.find(s => s.id === id); assert.deepEqual(byCode(st.topics), L50, id + ': no +5/+5 bonus, the AAMC split'); assert.equal(st.count, 50); }
-  assert.deepEqual(p.steps[1].topics.filter(t => t.weak).map(t => t.code), ['4B', '5C'], 'weak only marked');
-  assert.equal(p.steps[1].topics.find(t => t.code === '5C').progress, 2, '5C: 3 counted, done at its count of 2');
+  assert.deepEqual(p.steps.find(s => s.id === 'flashcards').topics.filter(t => t.weak).map(t => t.code), ['4B', '5C'], 'weak only marked');
+  assert.equal(p.steps.find(s => s.id === 'flashcards').topics.find(t => t.code === '5C').progress, 2, '5C: 3 counted, done at its count of 2');
   // An exact row keeps its weak marks (counts never depend on them).
   m.days['2026-11-18'] = { subj: 'cp', topics: CATS, split: 'exact', weakT: ['4D'], flashT: { '4D': 1 } };
   p = planOf(m, '2026-11-18');
-  assert.deepEqual(p.weakT, ['4D']); assert.deepEqual(byCode(p.steps[1].topics), L50); assert.equal(p.steps[1].topics.find(t => t.code === '4D').progress, 1);
+  assert.deepEqual(p.weakT, ['4D']); assert.deepEqual(byCode(p.steps.find(s => s.id === 'flashcards').topics), L50); assert.equal(p.steps.find(s => s.id === 'flashcards').topics.find(t => t.code === '4D').progress, 1);
   for (const bad of [{ subj: 'cp', topics: 'x', split: 'blueprint', weakT: 5 }, { subj: 'cp', split: 'blueprint', weakT: ['<b>', null] }, { subj: 'cp', split: 'exact', weakT: 'x' }, { subj: 'cp', topics: [], flashT: 'nope' }, { subj: 'cp', prac: '<b>', pracT: 7, pracD: null }, null]) {
     const q = planOf({ ...m, days: { '2026-11-17': bad } }, '2026-11-17');
-    assert.equal(q.split, 'exact'); assert.equal(q.steps[1].count, 50, 'malformed day row: ' + JSON.stringify(bad)); assert(q.weakT.every(c => CATS.includes(c))); }
+    assert.equal(q.split, 'exact'); assert.equal(q.steps.find(s => s.id === 'flashcards').count, 50, 'malformed day row: ' + JSON.stringify(bad)); assert(q.weakT.every(c => CATS.includes(c))); }
   // On load (TODAY, or the first answer of the day) a saved row is rewritten to split 'exact'.
   const mixed = src.slice(src.indexOf('function masteryDayRow'), src.indexOf('function masteryCategory'));
   assert(mixed.includes("if (row.split !== 'exact' && (MASTERY.blueprint[subj] || !Array.isArray(row.topics) || !row.topics.length))") && mixed.includes("Object.assign(row, { split: 'exact', weakT: p.weakT || [] })"), 'a saved row is rewritten to the exact split marker');

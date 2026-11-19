@@ -16,7 +16,7 @@
     // AAMC Prep tab menu and Rules & Passage Prep section
     'openAamc', 'openAamcView', 'startRulesQuiz', 'reviewRulesMissed',
     // recall quiz
-    'pick', 'revealChoices', 'showHint', 'teachStep', 'howStep', 'howToggle', 'howReplay', 'showLesson', 'ruleOutThree', 'toggleElimHow', 'showFast', 'setConfidence', 'setErrType', 'setPendingNote', 'setWrongAlternative', 'nextQ', 'endQuiz', 'flagCurrent',
+    'pick', 'revealChoices', 'showHint', 'teachStep', 'howStep', 'howToggle', 'howReplay', 'showLesson', 'ruleOutThree', 'toggleElimHow', 'showFast', 'startMasteryRules', 'setConfidence', 'setErrType', 'setPendingNote', 'setWrongAlternative', 'nextQ', 'endQuiz', 'flagCurrent',
     // passages and mini tests
     'startPassage', 'answerPassage', 'nextPassageQ', 'setPassageErr', 'setMiniReviewAlternative', 'leaveMiniForRecall',
     // full-length exams

@@ -872,6 +872,12 @@ mark.step-hl{background:#fde68a;color:inherit;padding:0 2px;border-radius:2px;an
 .elim-btn{margin-left:8px;background:#f0f9ff;border-color:#0369a1;color:#0c4a6e;font-weight:700;font-size:16px;padding:10px 16px}
 .elim-box{font-size:16px}
 .fast-btn{margin-left:8px;background:#fefce8;border-color:#a16207;color:#713f12;font-weight:700;font-size:16px;padding:10px 16px}
+.rules-card{margin:12px 0;padding:14px 16px;border:1px solid var(--border-med);background:var(--white)}
+.rules-front{font-size:17px;font-weight:700;margin-bottom:10px}
+.rules-back{font-size:17px;margin:8px 0 12px;padding:10px 12px;background:#f0fdf4;border-left:4px solid #15803d}
+.rules-sec{margin-top:10px;font-size:16px}
+.rules-sec ul{margin:4px 0 0 18px;padding:0}
+.rules-sec li{font-size:16px;margin:2px 0}
 .elim-how-btn{margin-left:8px;font-size:16px;padding:10px 12px}
 .elim-checks table{border-collapse:collapse;width:100%;margin-top:8px}
 .elim-checks td{font-size:16px;padding:6px 8px;border-top:1px solid var(--border-med);vertical-align:top}

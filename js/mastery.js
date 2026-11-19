@@ -2,8 +2,8 @@
 //   First: a diagnostic (a full section, scored 118–132, weak AAMC content categories shown; it can be retaken).
 //   Then every day, exactly 3 steps: 1 50 flashcards (C/P: the Practice Test flashcards of data/cp-test-cards.js, built
 //   from the C/P questions of Practice Exams 1, 3, 4, 5 and 6; no QBank card) → 2 50 guided Practice Exam cards with step-by-step
-//   lessons → 3 a 30-question quiz from data/cp-pool.js (half an AAMC section in exam order), unlocked once steps 1
-//   and 2 are done → done for the day at goal, otherwise a follow-up on the quiz's misses and weak categories with
+//   lessons → 3 a 30-question quiz from data/cp-pool.js (half an AAMC section in exam order), unlocked once the flashcards
+//   are done (guided cards recommended, not required) → done for the day at goal, otherwise a follow-up on the quiz's misses and weak categories with
 //   flashcards and guided cards.
 //   C/P follows the AAMC blueprint (MASTERY.blueprint) exactly: each step's count is split 100% over all 10 content
 //   categories by how often AAMC tests each one (masteryBlueprintSplit: largest remainder, ties to the heavier
@@ -25,6 +25,7 @@ const MASTERY = {
   order: ['cp', 'bb', 'ps'],   // MCAT sections (CARS is reading and reasoning: passages, not flashcards)
   topicsPerDay: 5,      // content categories a day, for sections without a blueprint (and days saved before it)
   perDay: [50, 30, 20], // flashcards, and Practice Exam cards, per day (the student picks; 50 by default)
+  rulesPerDay: 10,      // C/P: rule cards in the daily rules warm-up, required before the flashcards
   // Each section's AAMC content categories (the exam's own outline).
   topics: {
     cp: ['4A', '4B', '4C', '4D', '4E', '5A', '5B', '5C', '5D', '5E'],
@@ -71,7 +72,10 @@ function masteryNormalize(raw) {
   const perDay = MASTERY.perDay.includes(m.perDay) ? m.perDay : MASTERY.perDay[0];
   // Daily quiz sets already taken, most recent last ({id, day}), so the next quiz picks one not seen yet.
   const usedSets = (Array.isArray(m.usedSets) ? m.usedSets : []).filter(u => u && typeof u.id === 'string' && typeof u.day === 'string').slice(-60);
-  return { goal, tests, days, passed, current, perDay, usedSets };
+  // Rule cards of the rules warm-up: {id: {d: last day seen, ok: last marked "Got it"}} (synced text: checked).
+  const rules = Object.fromEntries(Object.entries(m.rules && typeof m.rules === 'object' && !Array.isArray(m.rules) ? m.rules : {})
+    .filter(([id, r]) => /^r-[a-z0-9-]+$/.test(id) && r && typeof r.d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(r.d) && typeof r.ok === 'boolean').map(([id, r]) => [id, { d: r.d, ok: r.ok }]));
+  return { goal, tests, days, passed, current, perDay, usedSets, rules };
 }
 // Current section: the one the student picked, else the first not yet mastered (in path order).
 function masterySubject(m, today) {
@@ -422,6 +426,9 @@ function masteryPlan(raw, today, sizes = {}) {
   const guidedCount = sum(guidedT, 'need'), lessons = Math.min(guidedCount, Number(row.lessonsN) || 0);
   Object.assign(out, { topics, perDay: m.perDay, split, weakT });
   out.steps.push({ id: 'diagnostic', done: true, result: lastDiag, old: masteryOldDiag(lastDiag) });
+  // C/P: the rules warm-up comes first (the rules sheet and today's rule cards, data/cp-rules.js); the flashcards
+  // wait for it. Progress is the rule cards marked "Got it" today.
+  if (subj === 'cp') { const ok = new Set(Array.isArray(row.rulesOk) ? row.rulesOk : []).size; out.steps.push({ id: 'rules', count: MASTERY.rulesPerDay, progress: Math.min(ok, MASTERY.rulesPerDay), done: ok >= MASTERY.rulesPerDay }); }
   out.steps.push({ id: 'flashcards', topics: flashT, count: sum(flashT, 'need'), progress: sum(flashT), extra: sum(flashT, 'raw') - sum(flashT), done: flashT.every(t => t.progress >= t.need) });
   if (guidedN > 0) out.steps.push({ id: 'guided', topics: guidedT, count: guidedCount, progress: sum(guidedT), extra: sum(guidedT, 'raw') - sum(guidedT), lessons, lessonCount: guidedCount,
     done: guidedT.every(t => t.progress >= t.need) && lessons >= guidedCount });
@@ -506,6 +513,16 @@ function masteryNoteAnswer(q, right) {
   const day = quiz.masteryDay || localDay(), m = masteryLoad(), subj = masterySubject(m, day);
   if (!subj) return;
   const id = q.baseId || q.id, row = masteryDayRow(m, subj, day);
+  // A rule card of the warm-up: its first answer today marks it done for the day and is remembered (right or not:
+  // a missed rule card comes back first next time).
+  if (quiz.mastery === 'rules') {
+    if (quiz.masteryCounted && quiz.masteryCounted.has(id)) return;
+    if (quiz.masteryCounted) quiz.masteryCounted.add(id);
+    m.rules = m.rules && typeof m.rules === 'object' ? m.rules : {};
+    m.rules[id] = { d: day, ok: !!right };
+    row.rulesOk = [...new Set([...(row.rulesOk || []), id])];
+    masterySave(m); return;
+  }
   let changed = false;
   // Only the first answer to a card in a session counts: re-asked misses and "unsure" cards are practice, not
   // new cards toward the 50.
@@ -631,12 +648,56 @@ function startMasteryGuided(more) {
 function startMasteryFlashcards(more) {
   if (!masteryFlashReady(masteryPlanNow().subj)) { withBank('cpt', () => startMasteryFlashcards(more)); return; }
   const plan = masteryPlanNow();
+  // The rules warm-up comes first (C/P): the day's flashcards wait until it is done.
+  if (!more && !masteryRulesDone(plan)) { masteryNotice('Do today’s rules warm-up first: the rules sheet and ' + MASTERY.rulesPerDay + ' rule cards.'); return; }
   // C/P: Practice Test flashcards only (other sections: QBank cards), in today's content categories.
   masteryBegin(plan, plan.steps.find(s => s.id === 'flashcards'), masteryFlashPool(plan.subj), masteryCategory, 'flashcards', 'flashcards', more);
 }
-// Step 3, the daily quiz, unlocks once steps 1 and 2 (flashcards, guided cards with their lessons) are done.
+// ── Rules warm-up (C/P): the rules sheet, then today's rule cards ──
+// Each rule card (data/cp-rules.js) is a short multiple-choice problem that applies one rule; its three wrong
+// choices are the traps that rule kills, and the rule is the explanation after answering. Today's cards: the ones
+// missed last time first, then cards never seen, then the longest unseen (saved per card in m.rules {id: {d, ok}}).
+// The step is done when today's cards are all answered; the flashcards wait for it.
+// TODAY loads the rules sheet as soon as the warm-up step is shown, so it can be read before starting.
+let masteryRulesLoading = false;
+function masteryRulesLoad() {
+  if (masteryRulesLoading || typeof ensureBank !== 'function' || typeof bankReady !== 'function' || bankReady('cpt')) return;
+  masteryRulesLoading = true;
+  ensureBank('cpt').then(() => { if (typeof renderDailyPlan === 'function') renderDailyPlan(); }).catch(() => {}).finally(() => { masteryRulesLoading = false; });
+}
+function masteryRulesDone(plan) { const st = plan && plan.steps.find(s => s.id === 'rules'); return !st || st.done; }
+function masteryRulesPick(m, n) {
+  const seen = (m.rules && typeof m.rules === 'object') ? m.rules : {};
+  const rank = c => { const r = seen[c.id]; return !r ? [1, ''] : r.ok === false ? [0, r.d || ''] : [2, r.d || '']; };
+  return (typeof CP_RULES !== 'undefined' ? CP_RULES.cards : []).map((c, i) => [rank(c), i, c]).sort((a, b) => a[0][0] - b[0][0] || (a[0][1] < b[0][1] ? -1 : a[0][1] > b[0][1] ? 1 : 0) || a[1] - b[1]).slice(0, n).map(x => x[2].id);
+}
+// A rule card as a quiz question (built once per card; the rule is its explanation).
+const RULEQ_BY_ID = new Map();
+function masteryRuleQ(id) {
+  if (RULEQ_BY_ID.has(id)) return RULEQ_BY_ID.get(id);
+  const c = typeof CP_RULES !== 'undefined' && CP_RULES.cards.find(x => x.id === id);
+  if (!c) return null;
+  const sec = CP_RULES.sheet.find(x => x.id === c.sheet), q = { id: c.id, subj: 'cp_test', key: 'cp_test|Rules warm-up', s: 'Rules warm-up · ' + (sec ? sec.title : ''), q: c.q, choices: c.choices, ans: c.ans, exp: '**Rule:** ' + c.rule };
+  RULEQ_BY_ID.set(id, q); return q;
+}
+function startMasteryRules() {
+  if (!bankReady('cpt')) { withBank('cpt', () => startMasteryRules()); return; }
+  const plan = masteryPlanNow(); if (!plan.subj) return;
+  const m = masteryLoad(), row = masteryDayRow(m, plan.subj);
+  if (!Array.isArray(row.rulesIds) || !row.rulesIds.length) { row.rulesIds = masteryRulesPick(m, MASTERY.rulesPerDay); masterySave(m); }
+  const done = new Set(row.rulesOk || []), list = row.rulesIds.filter(id => !done.has(id)).map(masteryRuleQ).filter(Boolean);
+  if (!list.length) { masteryNotice('Today’s rule cards are done.'); return; }
+  masteryStartQuiz(list, 'C/P · Rules warm-up', 'rules');
+}
+// The rules sheet: the six checks and six shortcut moves, then the C/P rules by topic.
+function masteryRulesSheetHtml() {
+  const sections = typeof CP_RULES !== 'undefined' ? CP_RULES.sheet : [];
+  return (typeof elimChecksHtml === 'function' ? elimChecksHtml() : '') + (typeof fastKindsHtml === 'function' ? fastKindsHtml() : '') +
+    sections.map(sec => '<div class="rules-sec"><b>' + esc(sec.title) + '</b><ul>' + sec.items.map(it => '<li>' + fmt(it) + '</li>').join('') + '</ul></div>').join('');
+}
+// The daily quiz unlocks once today's flashcards are done; the guided cards are recommended but not required.
 function masteryQuizUnlocked(plan) {
-  return plan.status === 'study' && plan.steps.filter(s => s.id === 'flashcards' || s.id === 'guided').every(s => s.done);
+  return plan.status === 'study' && plan.steps.filter(s => s.id === 'flashcards').every(s => s.done);
 }
 // Diagnostic / end-of-day test: 2 passages from the section's main disciplines (unattempted first) + discrete
 // questions spread over its disciplines in the exam's proportions, from the
@@ -647,8 +708,8 @@ function startMasteryTest(kind) {
   if (!bankReady('fl')) { withBank('fl', () => startMasteryTest(kind)); return; }
   const plan = masteryPlanNow();
   if (!plan.subj) return;
-  // The daily quiz (step 3) unlocks once today's flashcards and guided cards (steps 1 and 2) are done.
-  if (kind !== 'diagnostic' && !masteryQuizUnlocked(plan)) { masteryNotice('The quiz unlocks once today’s flashcards and guided cards are done.'); return; }
+  // The daily quiz unlocks once today's flashcards are done (guided cards optional).
+  if (kind !== 'diagnostic' && !masteryQuizUnlocked(plan)) { masteryNotice('The quiz unlocks once today’s flashcards are done.'); return; }
   const subj = plan.subj;
   // C/P: the Chem/Phys Diagnostic (data/cp-diagnostic.js) and the daily half-section pool (data/cp-pool.js):
   // original passages written to the AAMC C/P blueprint, in the exam's order of passages and stand-alones.
@@ -815,10 +876,13 @@ function masteryCard() {
     let n = 0;
     // The 3 daily steps are numbered 1–3; the one-time diagnostic and the after-quiz follow-up are not.
     body = '<ol class="today-steps">' + plan.steps.map(s => {
-      const num = ['flashcards', 'guided', 'test'].includes(s.id) ? String(++n) : '•';
+      const num = ['rules', 'flashcards', 'guided', 'test'].includes(s.id) ? String(++n) : '•';
       let title = '', detail = '', button = '', count = '', time = '';
       if (s.id === 'diagnostic') { title = 'Diagnostic'; count = '<b>' + s.result.scaled + '</b> (' + s.result.correct + '/' + s.result.total + ') · ' + shortDay(s.result.day); detail = (s.old ? '<b>Earlier version</b> of the diagnostic. Retake the new ' + MASTERY.diagSize + '-question diagnostic for a fresh start. ' : 'Done. ') + 'Retaking it runs the full section again; your newest result sets the weak topics.'; button = btn('Retake diagnostic', "startMasteryTest('diagnostic')", s.old); }
-      if (s.id === 'flashcards') { title = 'Flashcards'; count = s.progress + ' / ' + s.count; detail = cp ? (typeof elimChecksHtml === 'function' ? '<details class="elim-today" open><summary><b>✂ Rule out 3: the 6 checks · ⚡ the 6 shortcuts</b></summary>' + elimChecksHtml() + (typeof fastKindsHtml === 'function' ? fastKindsHtml() : '') + '</details>' : '') + '<b>' + s.count + ' flashcards built from ' + fromPE + '.</b> Each card teaches the method behind those questions, with “💡 Help me / Show me how”. ' + bpNote + (bp ? targets(s.topics, 'cards') : topicList(byRank(s.topics))) : bp ? 'AAMC QBank cards only, in the AAMC mix of disciplines across the day. ' + bpNote + targets(s.topics, 'cards') : 'AAMC QBank cards only, weakest topics first, spread over today’s content categories.' + topicList(s.topics); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 0.6)); button = s.done ? more('startMasteryFlashcards(true)', s) : btn(s.progress ? 'Continue' : 'Start', 'startMasteryFlashcards()'); }
+      if (s.id === 'rules') { title = 'Rules warm-up'; count = s.progress + ' / ' + s.count; detail = 'Before the flashcards: read the rules sheet (the 6 checks to rule out 3, the 6 shortcut moves and the C/P rules by topic), then ' + s.count + ' rule cards: short problems where one rule gives the answer and the 3 wrong choices are the traps it kills. A missed rule card comes back first next time. The flashcards unlock when today’s rule cards are done.' +
+          '<details class="elim-today rules-sheet"' + (s.done ? '' : ' open') + '><summary><b>📋 Rules sheet</b></summary>' + (typeof CP_RULES !== 'undefined' ? masteryRulesSheetHtml() : (masteryRulesLoad(), '<p class="muted-note">Loading the rules sheet…</p>')) + '</details>';
+        time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 0.5) + 2); button = s.done ? '' : btn(s.progress ? 'Continue' : 'Start', 'startMasteryRules()'); }
+      if (s.id === 'flashcards') { title = 'Flashcards'; count = s.progress + ' / ' + s.count; detail = cp ? '<b>' + s.count + ' flashcards built from ' + fromPE + '.</b> Each card teaches the method behind those questions, with “💡 Help me / Show me how”. ' + bpNote + (bp ? targets(s.topics, 'cards') : topicList(byRank(s.topics))) : bp ? 'AAMC QBank cards only, in the AAMC mix of disciplines across the day. ' + bpNote + targets(s.topics, 'cards') : 'AAMC QBank cards only, weakest topics first, spread over today’s content categories.' + topicList(s.topics); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 0.6)); button = s.done ? more('startMasteryFlashcards(true)', s) : masteryRulesDone(plan) ? btn(s.progress ? 'Continue' : 'Start', 'startMasteryFlashcards()') : '<p class="muted-note">Unlocks when the rules warm-up is done.</p>'; }
       if (s.id === 'guided') { title = 'Guided Practice Exam cards with walkthroughs'; count = s.progress + ' / ' + s.count + ' cards · ' + s.lessons + ' / ' + s.lessonCount + ' lessons'; detail = (cp ? s.count + ' Practice Exam cards: ' + fromPE + ', as the test asks them. ' : '') + (bp ? 'Each card opens its step-by-step lesson: step through it, answer, then watch the walkthrough. ' + bpNote + targets(s.topics, 'cards') : 'Weakest topics first. Each card opens its step-by-step lesson: step through it, answer, then watch the walkthrough.' + topicList(byRank(s.topics))); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 1.2 + (s.lessonCount - s.lessons) * 2)); button = s.done ? more('startMasteryGuided(true)', s) : btn(s.progress || s.lessons ? 'Continue' : 'Start', 'startMasteryGuided()'); }
       if (s.id === 'followup') {
         const ws = s.weak.map(c => esc(c) + ' ' + esc(AAMC_CAT_LABEL(c))).join(' · ');
@@ -827,7 +891,7 @@ function masteryCard() {
       }
       if (s.id === 'test') { title = '30-question quiz'; detail = s.done ? 'Today: <b>' + s.result.scaled + '</b> (' + s.result.correct + '/' + s.result.total + '). Tomorrow’s weak topics are updated.' : MASTERY.testSize + ' exam-style questions (passages and single questions' + (cp ? ', original, written to the AAMC C/P blueprint' : '') + ') at exam pace, to see your progress toward ' + plan.goal + '.';
         // The quiz's fixed AAMC mix by category; once taken, right / asked in each.
-        if (s.mix) { const r = s.done && s.result.cats ? s.result.cats : null; detail += (r ? ' Right by content category:' : ' The AAMC mix by content category:') + '<div class="mastery-path mastery-mix">' + Object.entries(s.mix.cats).map(([c, n]) => chip(c, r ? (r[c] ? r[c].c + '/' + r[c].t + ' right' : '–') : '× ' + n, false, AAMC_CAT_LABEL(c), false)).join('') + '</div>'; } time = s.done ? '' : mins(Math.round(MASTERY.testSize * MASTERY.secondsPerItem / 60)); if (!s.done) button = masteryQuizUnlocked(plan) ? btn('Start quiz', "startMasteryTest('daily')") : '<p class="muted-note">Unlocks when steps 1 and 2 are done.</p>'; }
+        if (s.mix) { const r = s.done && s.result.cats ? s.result.cats : null; detail += (r ? ' Right by content category:' : ' The AAMC mix by content category:') + '<div class="mastery-path mastery-mix">' + Object.entries(s.mix.cats).map(([c, n]) => chip(c, r ? (r[c] ? r[c].c + '/' + r[c].t + ' right' : '–') : '× ' + n, false, AAMC_CAT_LABEL(c), false)).join('') + '</div>'; } time = s.done ? '' : mins(Math.round(MASTERY.testSize * MASTERY.secondsPerItem / 60)); if (!s.done) button = masteryQuizUnlocked(plan) ? btn('Start quiz', "startMasteryTest('daily')") : '<p class="muted-note">Unlocks when the flashcards are done.</p>'; }
       return '<li class="today-step' + (s.done ? ' done' : '') + '"><span class="today-num" aria-hidden="true">' + (s.done ? '✓' : num) + '</span><div class="today-body"><div class="today-title"><b>' + title + '</b>' + (count ? ' <span class="today-count">' + count + '</span>' : '') + time + '</div><div class="today-detail">' + detail + '</div>' + button + '</div></li>';
     }).join('') + '</ol>';
   }

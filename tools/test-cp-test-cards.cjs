@@ -297,8 +297,27 @@ const app = vm.createContext({ console: { log() {}, warn() {}, error() {} }, Dat
 const run = code => vm.runInContext(code, app);
 for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(root + '/js/app.js', 'utf8'))[1])()).flat()) run(fs.readFileSync(root + '/' + f, 'utf8'));
 for (const [, file] of fs.readFileSync(root + '/index.html', 'utf8').matchAll(/<script src="([^"?]+)/g)) if (!/account|cloud-config|pages/.test(file)) run(fs.readFileSync(root + '/' + file, 'utf8'));
-assert.deepEqual(JSON.parse(run("JSON.stringify(BANKS.cpt)")), ['data/cp-test-cards.js'], 'loaded on demand (BANKS.cpt)');
-assert(fs.readFileSync(root + '/sw.js', 'utf8').includes("'data/cp-test-cards.js'"), 'precached by the service worker');
+assert.deepEqual(JSON.parse(run("JSON.stringify(BANKS.cpt)")), ['data/cp-test-cards.js', 'data/cp-rules.js'], 'loaded on demand (BANKS.cpt), with the rules sheet');
+assert(['data/cp-test-cards.js', 'data/cp-rules.js'].every(f => fs.readFileSync(root + '/sw.js', 'utf8').includes("'" + f + "'")), 'precached by the service worker');
+// The rules sheet and rule cards (data/cp-rules.js): sections of one-line rules; rule cards with a short front and
+// back, each tied to its section and to deck cards that use the rule; ids unique.
+{ const R = JSON.parse(run('JSON.stringify(CP_RULES)')), deck = new Set(CARDS.map(c => c.id)), secs = new Set(R.sheet.map(x => x.id));
+  assert(R.sheet.length >= 8 && R.sheet.every(x => x.id && x.title && Array.isArray(x.items) && x.items.length >= 2 && x.items.every(t => typeof t === 'string' && t.trim() && t.length <= 200)), 'rules sheet: sections of one-line rules');
+  assert.equal(secs.size, R.sheet.length, 'rules sheet: unique section ids');
+  assert(R.cards.length >= 50, 'at least 50 rule cards: ' + R.cards.length);
+  assert.equal(new Set(R.cards.map(c => c.id)).size, R.cards.length, 'rule cards: unique ids');
+  // Each rule card is a short multiple-choice problem that applies its rule: 4 different choices (the 3 wrong ones are
+  // the traps the rule kills), one key, and the rule as its explanation.
+  for (const c of R.cards) {
+    assert(/^r-[a-z0-9-]+$/.test(c.id) && secs.has(c.sheet), c.id + ': id and section');
+    assert(typeof c.q === 'string' && c.q.trim() && c.q.length <= 200, c.id + ': a short problem (≤ 200 characters)');
+    assert(Array.isArray(c.choices) && c.choices.length === 4 && new Set(c.choices).size === 4 && c.choices.every(x => typeof x === 'string' && x.trim()), c.id + ': 4 different choices');
+    assert(Number.isInteger(c.ans) && c.ans >= 0 && c.ans < 4, c.id + ': one key');
+    assert(typeof c.rule === 'string' && c.rule.trim() && c.rule.length <= 240, c.id + ': the rule, shown after answering (≤ 240 characters)');
+    assert(c.front === undefined && c.back === undefined, c.id + ': no flip-card fields');
+    assert(Array.isArray(c.cards) && c.cards.length >= 1 && c.cards.every(id => deck.has(id)), c.id + ': tied to deck cards that use the rule');
+  }
+  for (const sec of R.sheet) assert(R.cards.some(c => c.sheet === sec.id), sec.id + ': the section has rule cards'); }
 assert.equal(run("masteryFlashPool('cp').length"), CARDS.length, 'the C/P flashcard pool is the Practice Test flashcards');
 assert(run("masteryFlashPool('cp').every(q => CPTQ_BY_ID.has(q.id) && !AQB_BY_ID.has(q.id) && !FLQ_BY_ID.has(q.id))"), 'no QBank or Practice Exam card in the flashcard pool');
 assert(run("masteryPracticePool('cp').every(q => /^pe\\d-cp:/.test(q.src))") && run("masteryPracticePool('cp').length") === 295, 'guided pool: the 295 Practice Exam 1/3/4/5/6 cards, no Sample Test card');
@@ -370,9 +389,40 @@ assert(frontSeen > 0, 'the flashcards built from a missed twin led their categor
     assert(r.withMiss.includes('bio-missed') && r.withMiss.length === 5, 'a missed biology card gets a slot in a 5-card drill: ' + r.withMiss.join(' '));
     assert(!r.noMiss.some(id => id.startsWith('bio')), 'without the miss, the discipline mix gives biology no slot: ' + r.noMiss.join(' '));
     assert(r.withMiss.filter(id => id !== 'bio-missed').every(id => /^[pc]/.test(id)), 'the mix fills the other slots'); }
+  // The rules warm-up is step 1 and the flashcards wait for it: "Start" on the flashcards before it is done starts
+  // nothing. The warm-up runs today's 10 rule cards as multiple-choice questions with the rule as the explanation;
+  // answering them all finishes it, a missed card comes back first next time, and then the flashcards start.
+  { run('goHome(); true');
+    const plan0 = JSON.parse(run("JSON.stringify(masteryPlanNow().steps.map(s => s.id))"));
+    assert.equal(plan0[1], 'rules', 'C/P: the rules warm-up is the first daily step (after the diagnostic): ' + plan0.join(' '));
+    assert.equal(plan0[2], 'flashcards', 'then the flashcards');
+    assert(/Unlocks when the rules warm-up is done/.test(run('masteryCard()')), 'the flashcard step shows it is locked');
+    run('startMasteryFlashcards()');
+    assert.notEqual(run('quiz.mastery'), 'flashcards', 'the flashcards wait for the rules warm-up');
+    run('startMasteryRules()');
+    assert.equal(run('quiz.mastery'), 'rules', 'the warm-up runs as a quiz');
+    assert.equal(run('quiz.items.length'), 10, "today's 10 rule cards");
+    assert(run('quiz.items.every(v => CP_RULES.cards.some(c => c.id === v.q.id && c.q === v.q.q && /^\\*\\*Rule:\\*\\* /.test(v.q.exp)))'), 'each is a rule card, its rule as the explanation');
+    const first = run('quiz.items[0].q.id');
+    run('pick((quiz.items[0].ans + 1) % 4)');   // a wrong answer
+    assert(run('/Rule:/.test(document.getElementById("exp-area").innerHTML)'), 'the rule shows after answering');
+    for (let i = 1; i < 10; i++) { run('quiz.idx = ' + i + '; quiz.answered = false; renderQuizQuestion(); true'); run('pick(quiz.items[' + i + '].ans)'); }
+    assert(run('masteryRulesDone(masteryPlanNow())'), 'answering every rule card finishes the warm-up');
+    assert.equal(run("masteryPlanNow().steps.find(s => s.id === 'rules').progress"), 10, '10 rule cards a day');
+    const saved = JSON.parse(run('JSON.stringify(masteryLoad().rules)'));
+    assert(saved[first] && saved[first].ok === false && Object.keys(saved).length === 10, 'each card remembers its result');
+    assert.equal(JSON.parse(run('JSON.stringify(masteryRulesPick(masteryLoad(), 1))'))[0], first, 'the missed rule card comes back first');
+    run('goHome()'); run('startMasteryFlashcards()');
+    assert.equal(run('quiz.mastery'), 'flashcards', 'then the flashcards start');
+    run('goHome()');
+    const pick = JSON.parse(run(`(() => { const m = { rules: { [CP_RULES.cards[5].id]: { d: '2026-01-01', ok: false }, [CP_RULES.cards[0].id]: { d: '2026-01-02', ok: true } } }; return JSON.stringify(masteryRulesPick(m, 3)); })()`));
+    const ids = JSON.parse(run('JSON.stringify(CP_RULES.cards.map(c => c.id))'));
+    assert.deepEqual(pick, [ids[5], ids[1], ids[2]], 'missed rule cards first, then new ones'); }
   // The TODAY card describes the C/P steps as they are now: no QBank anywhere.
   assert(!/QBank/i.test(html), 'TODAY never says QBank for C/P');
-  { const f = html.slice(html.indexOf('<b>Flashcards')); assert(/Rule out 3: the 6 checks/.test(f.slice(0, f.indexOf('</li>'))) && ['Impossible', 'Units / ×10', 'Backwards', 'Skipped step', 'Copied number', 'Wrong fact'].every(k => f.includes(k)), 'the six checks sit at the top of the C/P flashcard step'); }
+  { const f = html.slice(html.indexOf('<b>Rules warm-up')), step = f.slice(0, f.indexOf('</li>'));
+    assert(/Rules sheet/.test(step) && ['Impossible', 'Units / ×10', 'Backwards', 'Skipped step', 'Copied number', 'Wrong fact', 'Units first', 'Rearrange', 'Anchor fact'].every(k => step.includes(k)), 'the rules sheet (the six checks, the six shortcut moves) sits in the rules warm-up step');
+    assert(html.indexOf('<b>Rules warm-up') < html.indexOf('<b>Flashcards'), 'the rules warm-up comes before the flashcards'); }
   assert(html.includes('flashcards built from the C/P questions of AAMC Practice Exams 1, 3, 4, 5 and 6') && html.includes('Help me / Show me how') && html.includes('Split exactly like the exam') && html.includes('Weakest categories first'), 'step 1 says what it does now');
 }
 // A full day: on a fresh day the flashcard step plans exactly 50 at the AAMC split, with no shortfall moved between
