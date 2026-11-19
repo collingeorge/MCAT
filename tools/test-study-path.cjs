@@ -103,16 +103,16 @@ assert.equal(run('masteryLoad().days[localDay()].prac'), undefined, 'passage ans
 // ── Regressions from the code review ──
 // 1.1: every card done but lessons short → "Continue" opens today's cards whose lesson isn't finished.
 { const d = run('localDay()'), pool = JSON.parse(run('JSON.stringify(masteryPracticePool("cp").map(q=>q.id))'));
-  run(`(() => { const m = masteryLoad(); const row = masteryDayRow(m, 'cp'); const t = row.topics; row.guidedT = Object.fromEntries(masteryPlanNow().steps.find(s=>s.id==='guided').topics.map(x => [x.code, x.need])); row.lessonsN = 40;
-    row.guidedIds = ${JSON.stringify(pool.slice(0, 50))}; row.lessonIds = ${JSON.stringify(pool.slice(0, 40))}; masterySave(m); })()`);
+  run(`(() => { const m = masteryLoad(); const row = masteryDayRow(m, 'cp'); const t = row.topics; row.guidedT = Object.fromEntries(masteryPlanNow().steps.find(s=>s.id==='guided').topics.map(x => [x.code, x.need])); row.lessonsN = 10;
+    row.guidedIds = ${JSON.stringify(pool.slice(0, 20))}; row.lessonIds = ${JSON.stringify(pool.slice(0, 10))}; masterySave(m); })()`);
   let g = JSON.parse(run('JSON.stringify(masteryPlanNow().steps.find(s=>s.id==="guided"))'));
-  assert(!g.done && g.progress === 50 && g.lessons === 40, 'stuck state: 50/50 cards, 40/50 lessons');
+  assert(!g.done && g.progress === 20 && g.lessons === 10, 'stuck state: 20/20 cards, 10/20 lessons (C/P: up to 20 guided cards a day)');
   run('startMasteryGuided()');
   assert.equal(run('quiz.mastery'), 'lessons'); assert.equal(run('quiz.items.length'), 10, 'the 10 cards whose lesson is unfinished');
-  assert(run(`quiz.items.every(v => ${JSON.stringify(pool.slice(40, 50))}.includes(v.q.id))`));
+  assert(run(`quiz.items.every(v => ${JSON.stringify(pool.slice(10, 20))}.includes(v.q.id))`));
   run('while (quiz.items[quiz.idx].teachCur < teachOf(quiz.items[quiz.idx].q).length) teachStep(1); pick(quiz.items[0].ans)');
   g = JSON.parse(run('JSON.stringify(masteryPlanNow().steps.find(s=>s.id==="guided"))'));
-  assert.equal(g.lessons, 41, 'finishing a lesson counts'); assert.equal(g.progress, 50, 'finishing lessons adds no cards');
+  assert.equal(g.lessons, 11, 'finishing a lesson counts'); assert.equal(g.progress, 20, 'finishing lessons adds no cards');
   run('teachStep(0)'); // replaying a lesson on the same card never counts twice
   run('goHome()');
   // A step with nothing to start shows a message instead of doing nothing.

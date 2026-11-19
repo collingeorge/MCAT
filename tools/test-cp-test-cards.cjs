@@ -63,8 +63,14 @@ const sentences = t => String(t).replace(/\b(e\.g|i\.e|vs|approx|ca)\./g, '$1').
 // its "Needs" items; once all 295 are written, every spec item must have a card.
 // The exams written so far: every exam any card comes from; all 59 of each one's questions must map to a card.
 // 250 cards for the Practice Exams, plus the cards that twin the daily quiz's Sample Test and QBank-pack questions.
-const DECK_MAX = 350;
-const DECK_TARGET = { '5D': 60, '5E': 38, '4E': 32, '5A': 23, '4D': 20, '4C': 20, '4B': 17, '5B': 15, '4A': 13, '5C': 12 };
+// One card per method (core methods may keep a passage and a discrete card); the user allowed 255 (2026-11-19): three
+// categories (4A, 5C, 5B) can't reach target without merging different methods.
+const DECK_MAX = 255;
+const METHOD_FREQ = Object.fromEntries(require('./method-freq.json').methods.map(m => [m.name, m.freq]));
+// The user's per-category targets for the 250-card deck (2026-11-19).
+const DECK_TARGET = { '5D': 59, '5E': 40, '4E': 31, '5A': 23, '4D': 21, '4C': 19, '4B': 19, '5B': 16, '4A': 12, '5C': 10 };
+// Over target where only merging different methods would get there (the user allowed 255).
+const DECK_OVER = { '4A': 2, '5C': 2, '5B': 1 };
 assert.equal(Object.values(DECK_TARGET).reduce((a, b) => a + b, 0), 250, 'the category targets add up to the 250-card Practice Exam budget');
 assert(CARDS.length <= DECK_MAX, `the deck is ${CARDS.length} cards; the budget is ${DECK_MAX}`);
 const EXAMS_WRITTEN = [...new Set(CARDS.flatMap(c => (Array.isArray(c.from) ? c.from : []).map(r => String(r).split('-')[0])))];
@@ -124,21 +130,25 @@ function checkElim3(q, id) {
 }
 for (const c of CARDS) {
   const id = c.id;
-  assert(typeof id === 'string' && /^cpt-(pe[13456]|st)-\d{2}[a-z]$/.test(id), 'id format: ' + id);
+  assert(typeof id === 'string' && /^cpt-pe[13456]-\d{2}[a-z]$/.test(id), 'id format (Practice Exam cards only, no cpt-st-*): ' + id);
+  // What the MCAT tests most gets repeated: method (the reusable move), freq (exams whose questions use it, 1–5) and
+  // tier (core ≥ 3, common 2, rare 1), from tools/method-freq.json.
+  assert(typeof c.method === 'string' && METHOD_FREQ[c.method] === c.freq && c.tier === (c.freq >= 3 ? 'core' : c.freq === 2 ? 'common' : 'rare'), id + ': method, freq and tier from tools/method-freq.json (' + c.method + ', ' + c.freq + ', ' + c.tier + ')');
   const st = /^cpt-st-/.test(id);
   assert(!ids.has(id), 'unique id: ' + id); ids.add(id);
   assert(typeof c.s === 'string' && c.s.trim(), id + ': topic tag s');
   assert(Array.isArray(c.from) && (c.from.length >= 1 || st) && new Set(c.from).size === c.from.length, id + ': from is a list of distinct sources');
   // Same ask, same setup: twinOf names the question(s) it mirrors; a passage question's card has a 3–6 sentence passage.
   assert(Array.isArray(c.twinOf) && c.twinOf.length >= 1 && c.twinOf.every(t => SRC.has(t) && (PE_RE.test(t) || QUIZ_EXTRA.includes(t))), id + ': twinOf names Practice Exam or quiz-twin questions');
-  for (const t of c.twinOf) assert.equal(!!c.passage, isPassageQ(t), id + ': ' + t + ' is a ' + (isPassageQ(t) ? 'passage' : 'stand-alone') + ' question, so the card ' + (isPassageQ(t) ? 'has' : 'has no') + ' passage');
+  // The setup follows the card's own question (twinOf[0]); twins merged into it (same method) are covered, not mirrored.
+  for (const t of c.twinOf.slice(0, 1)) assert.equal(!!c.passage, isPassageQ(t), id + ': ' + t + ' is a ' + (isPassageQ(t) ? 'passage' : 'stand-alone') + ' question, so the card ' + (isPassageQ(t) ? 'has' : 'has no') + ' passage');
   // Teach for the passage: the cards whose twins sit in one AAMC passage share one twin passage (`pid` names that AAMC
   // passage; the same text on each), which combines that passage's topics; the lesson's first step points at the
   // sentence that holds the clue (its hl is in the passage).
   if (c.passage !== undefined) {
     const n = sentences(c.passage); assert(typeof c.passage === 'string' && n >= 3 && n <= 10 && c.passage.length <= 1500, id + ': passage is 3–10 sentences, ≤ 1500 characters (' + n + ', ' + String(c.passage).length + ')');
     {
-    assert(c.twinOf.every(t => passageOf(t) === c.pid), id + ': pid "' + c.pid + '" is the AAMC passage of its twin(s) ' + c.twinOf.map(passageOf).join(', '));
+    assert.equal(passageOf(c.twinOf[0]), c.pid, id + ': pid "' + c.pid + '" is the AAMC passage of its own question ' + c.twinOf[0]);
     const p = SHARED.get(c.pid); if (p === undefined) SHARED.set(c.pid, c.passage); else assert.equal(c.passage, p, id + ': the cards of ' + c.pid + ' share one twin passage');
     const s0 = c.how && c.how.steps && c.how.steps[0];
     assert(s0 && typeof s0.hl === 'string' && c.passage.includes(s0.hl) && /sentence/i.test(s0.text), id + ': the lesson\'s first step names the passage sentence that holds the clue (text says "sentence", hl is in the passage)');
@@ -230,7 +240,16 @@ const keyNorm = t => String(t).toLowerCase().replace(/[₀₁₂₃₄₅₆₇�
   .replace(/\bd2sp3\b/g, 'sp3d2').replace(/\bdsp3\b/g, 'sp3d').replace(/^(a|an|the) /, '').replace(/ (group|point|bond|bonding)s?$/, '');
 const keyWords = t => keyNorm(t).split(' ').filter(w => w && !KEY_STOP.has(w));
 const lessonText = c => { const h = c.how || {}; return [c.fast && c.fast.how, h.ask, h.know, h.trap, ...(h.steps || []).flatMap(st => [st.text, ...(st.calc || [])]), ...(c.teach || []).flatMap(t => [t.text, ...(t.calc || []), ...(t.marks || []).map(m => m.note)])].filter(Boolean).join(' \n '); };
-for (const c of CARDS) for (const s of new Set([...c.from.map(r => r.split('#')[0]), ...(c.twinOf || [])])) {
+// A merged card is checked against its own questions; the questions it took over in the merge (mergedSrcs: same
+// method, other cards' questions) only for the key (below), never for wording it was not written from.
+const ownSrcs = c => [...new Set([...c.from.map(r => r.split('#')[0]), ...(c.twinOf || [])])].filter(s => !(c.mergedSrcs || []).includes(s));
+for (const c of CARDS) {
+  assert(!c.mergedSrcs || (Array.isArray(c.mergedSrcs) && Array.isArray(c.mergedFrom) && c.mergedSrcs.every(s => c.twinOf.includes(s) || c.from.some(r => r.split('#')[0] === s))), c.id + ': mergedSrcs are among its from and twinOf');
+  for (const s of c.mergedSrcs || []) { const src = SRC.get(s), ka = keyWords(c.choices[c.ans]), kb = keyWords(String(src.choices[src.ans]).split(/,(?!\d)|;| since | because | which /)[0]);
+    const [sh, lo] = ka.length <= kb.length ? [ka, kb] : [kb, ka];
+    assert(!(keyNorm(c.choices[c.ans]) === keyNorm(String(src.choices[src.ans]).split(/,(?!\d)|;| since | because | which /)[0]) || (sh.length && sh.length <= 3 && sh.every(w => lo.includes(w)))), c.id + ': key "' + c.choices[c.ans] + '" means the same as the key of merged question ' + s); }
+}
+for (const c of CARDS) for (const s of ownSrcs(c)) {
   const src = SRC.get(s), srcNums = dataNums(src.q + ' ' + src.choices.join(' '));
   const shared = [...dataNums((c.passage || '') + ' ' + c.q + ' ' + c.choices.join(' '))].filter(n => srcNums.has(n));
   assert.deepEqual(shared, [], c.id + ': shares no data number with ' + s);
@@ -296,7 +315,7 @@ const cardFigs = c => { const steps = [...((c.how && c.how.steps) || []), ...(c.
   return { names: [c.fig, c.choiceFigs, ...steps.map(st => st.fig)].flat().filter(x => x != null), chart: !!(c.chart || steps.some(st => st.chart)) }; };
 let figCards = 0;
 for (const c of CARDS) {
-  const need = new Set([...c.from.map(r => r.split('#')[0]), ...(c.twinOf || [])].flatMap(r => [...srcKinds(SRC.get(r))])), f = cardFigs(c);
+  const need = new Set(ownSrcs(c).flatMap(r => [...srcKinds(SRC.get(r))])), f = cardFigs(c);
   for (const n of f.names) assert(typeof n === 'string' && STRUCT[n], c.id + ': figure "' + n + '" is drawn in data/structures.js');
   if (!need.size) continue;
   figCards++;
@@ -393,8 +412,9 @@ for (let day = 0; day < 200; day++) {
   // right first, then untested ones by AAMC weight); within a category the missed twin's cards, then test order
   // (PE1, PE3, PE4, PE5, PE6, then question number, then item).
   const inOrder = `(() => { const plan = masteryPlanNow(), f = masteryTwinFront(plan), rank = masteryCatRank(plan), it = quiz.items.map(v => v.q);
-    const key = q => [rank[q.aamc] ?? 99, masteryIsFront(q, f) ? 0 : 1, ...masteryTestKey(q)];
-    const cmp = (a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2] || a[3] - b[3] || a[4] - b[4] || (a[5] < b[5] ? -1 : a[5] > b[5] ? 1 : 0);
+    // Within a category: the missed twins first, then core, then common, then rare cards; then test order.
+    const key = q => [rank[q.aamc] ?? 99, masteryIsFront(q, f) ? 0 : 1, masteryIsFront(q, f) ? 0 : masteryTierN(q), ...masteryTestKey(q)];
+    const cmp = (a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2] || a[3] - b[3] || a[4] - b[4] || a[5] - b[5] || (a[6] < b[6] ? -1 : a[6] > b[6] ? 1 : 0);
     // Cards sharing a twin passage (pid) run back to back in question order; each such run sorts by its earliest card.
     const units = []; for (const q of it) { const u = units.at(-1); if (q.pid && u && u.pid === q.pid) u.qs.push(q); else units.push({ pid: q.pid, qs: [q] }); }
     const pids = units.filter(u => u.pid).map(u => u.pid); if (new Set(pids).size !== pids.length) return false;
@@ -416,6 +436,35 @@ for (let day = 0; day < 200; day++) {
   run('goHome()');
 }
 assert(frontSeen > 0, 'the flashcards built from a missed twin led their category on some days');
+// What the MCAT tests most gets repeated; rare things are asked once. A rare card, once shown, never comes back (not
+// even as a miss or due); a common card at most MASTERY.commonShows times; a core card stays in the pool (spaced review
+// and misses bring it back). The guided step holds 20 cards or fewer, the twins of the last quiz's misses first.
+{ const ids3 = JSON.parse(run(`JSON.stringify(['rare', 'common', 'core'].map(t => CPTQ.find(q => q.tier === t).id))`));
+  const [rare, common, core] = ids3, old = Date.now() - 30 * 86400000;
+  run(`store.set(KEYS.mem, { '${rare}': { S: 0.2, D: 5, last: ${old}, seen: 1, right: 0, lapses: 1 }, '${common}': { S: 0.2, D: 5, last: ${old}, seen: ${run('MASTERY.commonShows')}, right: 1, lapses: 0 }, '${core}': { S: 0.2, D: 5, last: ${old}, seen: 5, right: 2, lapses: 3 } })`);
+  const pool = new Set(JSON.parse(run("JSON.stringify(masteryFlashPool('cp').map(q => q.id))")));
+  assert(!pool.has(rare), 'a rare card, once shown, is never scheduled again, even after a miss');
+  assert(!pool.has(common), 'a common card is shown at most ' + run('MASTERY.commonShows') + ' times (the first pass and 2 reviews)');
+  assert(pool.has(core), 'a core card stays in the pool: missed and due, it comes back');
+  run(`(() => { const m = masteryLoad(), row = masteryDayRow(m, 'cp'); row.misses = ['${rare}', '${core}']; masterySave(m); })()`);
+  const rank = run(`(() => { const p = masteryPlanNow(), m = masteryLoad(); const r = masteryTierOf(m, p, masteryDayRow(m, 'cp')); return JSON.stringify([r(CPTQ_BY_ID.get('${rare}')), r(CPTQ_BY_ID.get('${core}')), r.isMissed(CPTQ_BY_ID.get('${rare}'))]); })()`);
+  const [rr, rc, rm] = JSON.parse(rank);
+  assert(rr >= 1 && rc < 1 && rm === false, 'a missed rare card never ranks as missed or due; a missed core card does');
+  assert.deepEqual(JSON.parse(run("JSON.stringify(['core','common','rare'].map(t => masteryTierN({ tier: t })))")), [0, 1, 2], 'core, then common, then rare');
+  // Guided: up to 20, the twins of the last quiz's misses first.
+  run(`store.set(KEYS.mem, {}); store.set(KEYS.subjectPath, { tests: [{ subj: 'cp', day: '${today}', t: 1, kind: 'diagnostic', correct: 30, total: 59, pct: 51, scaled: 122, version: 'cp_diag2', cats: { '5D': { c: 2, t: 14 } } },
+    { subj: 'cp', day: '${today}', t: 2, kind: 'daily', correct: 15, total: 30, pct: 50, scaled: 122, version: 'cp_half_1', cats: { '4E': { c: 0, t: 2 } }, missIds: [], twinMisses: ['pe3-cp:11'] }] })`);
+  const g = JSON.parse(run('JSON.stringify(masteryPlanNow().steps.find(s => s.id === "guided"))'));
+  assert(g.count <= 20 && g.count === Math.min(20, run('masteryLoad().perDay')), 'the guided step has 20 cards or fewer (' + g.count + ')');
+  run('startMasteryGuided(true)');
+  const gl = JSON.parse(run('JSON.stringify(quiz.items.map(v => v.q.src))'));
+  assert(gl.length <= 20 && gl.includes('pe3-cp:11'), 'the guided set (' + gl.length + ') holds the missed question\'s twin');
+  const cat = run("FLQ.find(q => q.src === 'pe3-cp:11').aamc"), first = gl.findIndex(x => run(`FLQ.find(q => q.src === '${x}').aamc`) === cat);
+  assert.equal(gl[first], 'pe3-cp:11', 'within its category, the missed question\'s twin comes first');
+  run('goHome()');
+  run(`store.set(KEYS.mem, { [FLQ.find(q => q.src === '${run("CPTQ.find(q => q.tier === 'rare' && /^pe/.test(q.twinOf[0])).twinOf[0]")}').id]: { S: 1, D: 5, last: ${old}, seen: 1, right: 1, lapses: 0 } })`);
+  assert(!run(`(() => { const mem = loadMem(); return masteryPracticePool('cp').filter(q => masteryTierOk(q, mem)).some(q => q.src === '${run("CPTQ.find(q => q.tier === 'rare' && /^pe/.test(q.twinOf[0])).twinOf[0]")}'); })()`), 'a rare guided card is shown once in total');
+  run('store.set(KEYS.mem, {})'); }
 // The latest test has 4A < 5A < 4D < 5E (all weak): both steps open with 4A cards, then 5A, 4D, 5E, then the
 // untested categories by AAMC weight; TODAY lists each step's category chips in that order.
 { run(`store.set(KEYS.mem, {}); store.set(KEYS.subjectPath, { tests: [{ subj: 'cp', day: '${today}', t: 1, kind: 'diagnostic', correct: 30, total: 59, pct: 51, scaled: 122, version: 'cp_diag2',
@@ -520,7 +569,7 @@ if (TABLE) {
 assert.deepEqual(short, [], 'every category has its 50-card daily count');
 // The category balance is checked on the Practice Exam cards (the quiz-twin cards follow the quiz's own mix).
 const perCatPE = CARDS.filter(c => !/^cpt-st-/.test(c.id)).reduce((o, c) => (o[c.aamc] = (o[c.aamc] || 0) + 1, o), {}), nPE = Object.values(perCatPE).reduce((a, b) => a + b, 0);
-if (ALL_BUILT) for (const [c, n] of Object.entries(DECK_TARGET)) { const t = n * nPE / 250; assert(Math.abs((perCatPE[c] || 0) - t) <= 3, `category ${c}: ${perCatPE[c] || 0} cards, target ${t.toFixed(1)} ± 3`); }
+if (ALL_BUILT) for (const [c, n] of Object.entries(DECK_TARGET)) { const k = perCatPE[c] || 0; assert(k >= n - 1 && k <= n + Math.max(1, DECK_OVER[c] || 0), `category ${c}: ${k} cards, target ${n} ± 1${DECK_OVER[c] ? ' (allowed +' + DECK_OVER[c] + ')' : ''}`); }
 console.log(`Practice Test flashcards passed: ${CARDS.length}/${DECK_MAX} cards covering ${covered}/${PE.size} Practice Exam C/P questions and ${SPEC.items.length - missingItems.length}/${SPEC.items.length} spec items` +
   `; stems median ${sm} words, choices median ${cm} / p90 ${c90}; how/teach valid; original against their sources; figures like their sources'; 200 simulated days with no QBank or Sample Test card in TODAY's flashcard or guided steps, each step weakest category first, then test order; QBank files identical to main.` +
   (short.length ? ` Short of the 50-card split: ${short.join(', ')}.` : ''));

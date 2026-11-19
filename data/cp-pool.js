@@ -108,7 +108,7 @@ const CP_POOL = [
      "4A"
     ],
     "title": "Testing an Electric Airport Shuttle",
-    "passage": "Engineers tested a small electric shuttle, designed to carry passengers between airport terminals, on a straight, level test track before approving it for service. Each phase was repeated five times, and the mean values are reported. Each run had three phases: a cruise at constant speed, a pass by a trackside signal, and a stop in a braking section. Before each run, a 300-mF capacitor that powers the shuttle's door actuators is charged from the shuttle's 12.0-V battery, whose internal resistance is 0.15 Ω.\n\nDuring the cruise phase, the 500-kg shuttle travels at a constant 12 m/s. Force sensors show that air drag and rolling friction together exert 750 N opposing the motion. Midway along the track, a stationary warning bell beside the rails rings at a steady frequency f, and a microphone riding in the shuttle records the tone as the shuttle approaches the bell and then moves away from it. Sound travels at 343 m/s in the air around the track.\n\nThe shuttle carried no passengers during these runs. At the end of the track, the motors are switched off and the shuttle enters a hydraulic braking section. The track there is still level, and rolling friction in this section is negligible compared with the braking force. The speed of the shuttle in the braking section, recorded once per second, is shown in Figure 1.",
+    "passage": "Engineers tested a small electric shuttle, designed to carry passengers between airport terminals, on a straight, level test track before approving it for service. Each phase was repeated five times, and the mean values are reported. Each run had three phases: a cruise at constant speed, a pass by a trackside signal, and a stop in a braking section. Before each run, a 300-mF capacitor that powers the shuttle's door actuators is charged from the shuttle's 12.0-V battery, whose internal resistance is 0.15 Ω.\n\nDuring the cruise phase, the 500-kg shuttle travels at a constant 12 m/s. Force sensors show that air drag and rolling friction together exert 750 N opposing the motion. Midway along the track, a stationary warning bell beside the rails rings at a steady frequency f, and a microphone riding in the shuttle records the tone as the shuttle approaches the bell and then moves away from it. Sound travels at 343 m/s in the air around the track.\n\nThe shuttle carried no passengers during these runs. At the end of the track, the motors are switched off and the shuttle enters a hydraulic braking section. The track there is still level, and rolling friction in this section is negligible compared with the braking force. The speed of the shuttle in the braking section, recorded once per second, is shown in Figure 1. The trackside signal shows a red lamp of wavelength 660 nm when the track ahead is occupied and a blue lamp of wavelength 440 nm when it is clear.",
     "figure": {
      "type": "line",
      "caption": "Figure 1 Speed of the shuttle in the braking section",
@@ -208,19 +208,19 @@ const CP_POOL = [
       "id": "p_cpq1_2_q3"
      },
      {
-      "q": "According to Figure 1, how does the braking force on the shuttle behave?",
+      "q": "Compared with a photon from the signal's red lamp, a photon from its blue lamp has:",
       "choices": [
-       "Constant in size",
-       "Increasing with time",
-       "Linear in time",
-       "Proportional to speed"
+       "1.5 times the energy and 1.5 times the frequency.",
+       "1.5 times the energy and 0.67 times the frequency.",
+       "0.67 times the energy and 1.5 times the frequency.",
+       "0.67 times the energy and 0.67 times the frequency."
       ],
-      "ans": 3,
-      "cat": "4A",
+      "ans": 0,
+      "cat": "4D",
       "skill": "SIRS 4",
       "diff": "X",
-      "twin": "pe3-cp:8",
-      "exp": "1. The track is level, the motors are off and friction is negligible, so the brake is the only horizontal force and sets the slope of Figure 1.\n2. Read the speed at each second: 0 → 1 s: 12 → 7.2, lost **4.8 m/s**; 1 → 2 s: 7.2 → 4.3, lost **2.9 m/s**; 2 → 3 s: 4.3 → 2.6, lost **1.7 m/s**. The fraction lost is the same, **0.40**, each second (4.8/12 = 0.40, 2.9/7.2 ≈ 0.40, 1.7/4.3 ≈ 0.40).\n3. The amount lost shrinks each second, so the force is not constant, and it does not grow in proportion to time.\n4. Compare force with speed using F = ma: 0–1 s: F = 500 × 4.8 = **2400 N**, average v = 9.6 m/s; 1–2 s: F = 500 × 2.9 = **1450 N**, average v ≈ 5.8 m/s; F ÷ v = 2400/9.6 = 250 and 1450/5.8 ≈ **250** → F ∝ v.\n5. A flatter curve means a smaller slope and a smaller force, not a larger one, so the force is not increasing with time.\n6. Answer: proportional to speed. Equal fractions lost per equal time mean F ∝ v; equal amounts lost would mean a constant F.\n\n**Rule to reuse:** on a speed–time graph, slope = acceleration ∝ force. Equal amounts lost per second → constant force; equal fractions lost → force ∝ speed (drag-like).",
+      "twin": "pe5-cp:54",
+      "exp": "1. Photon energy and frequency both scale as 1/λ: **E = hf = hc/λ**, so E and f always change by the same factor.\n2. Wavelength ratio, red ÷ blue: 660 nm ÷ 440 nm = **1.5**. The blue photon has the shorter wavelength, so it has the larger energy and frequency.\n3. Blue ÷ red: E and f are each **1.5 times** as large.\n4. \"0.67 times the energy and 0.67 times the frequency\" treats E and f as proportional to λ. The two mixed choices split E and f, which is impossible because E = hf ties them together.\n5. Answer: 1.5 times the energy and 1.5 times the frequency.\n\n**Rule to reuse:** E ∝ f ∝ 1/λ. Find the wavelength ratio, then flip it for both energy and frequency.",
       "id": "p_cpq1_2_q4"
      }
     ]
@@ -920,10 +920,11 @@ const CP_POOL = [
     "cats": [
      "4B",
      "4E",
-     "4A"
+     "4A",
+     "4D"
     ],
     "title": "Pressure and Radiation in Eye Care",
-    "passage": "The fluid inside the eye is held at an intraocular pressure (IOP), reported as a gauge pressure: the amount by which it exceeds atmospheric pressure. Normal IOP is about 10–21 mmHg. Blood flowing to the retina and optic nerve must push against this pressure, so clinicians estimate the mean ocular perfusion pressure (OPP) from the mean arterial pressure (MAP) measured at the arm:\n\nOPP = (2/3)MAP − IOP\n\nThe factor 2/3 corrects for the height of the eye above the heart. An OPP that stays below about 50 mmHg is linked to optic nerve damage in glaucoma, so lowering IOP with eye drops or surgery is the main treatment.\n\nTumors inside the eye are often treated with a small gold plaque that holds seeds of iodine-125 and is sewn to the outside of the eyeball. ¹²⁵I decays by electron capture and emits low-energy photons that are absorbed within a few centimeters of tissue, so the tumor receives a large dose while distant tissue is spared. Because the seeds lose activity, the time the plaque stays in place is set from the activity on the day of surgery. Figure 1 shows the activity of one batch of seeds, measured at intervals after calibration.\n\nSmall tumors can instead be heated with an infrared laser aimed through the pupil. The beam is focused to a spot a few millimeters across and delivers a steady power for a few minutes, raising the temperature of the tumor by about 10 °C.",
+    "passage": "The fluid inside the eye is held at an intraocular pressure (IOP), reported as a gauge pressure: the amount by which it exceeds atmospheric pressure. Normal IOP is about 10–21 mmHg. Blood flowing to the retina and optic nerve must push against this pressure, so clinicians estimate the mean ocular perfusion pressure (OPP) from the mean arterial pressure (MAP) measured at the arm:\n\nOPP = (2/3)MAP − IOP\n\nThe factor 2/3 corrects for the height of the eye above the heart. An OPP that stays below about 50 mmHg is linked to optic nerve damage in glaucoma, so lowering IOP with eye drops or surgery is the main treatment.\n\nTumors inside the eye are often treated with a small gold plaque that holds seeds of iodine-125 and is sewn to the outside of the eyeball. ¹²⁵I decays by electron capture and emits low-energy photons that are absorbed within a few centimeters of tissue, so the tumor receives a large dose while distant tissue is spared. Because the seeds lose activity, the time the plaque stays in place is set from the activity on the day of surgery. Figure 1 shows the activity of one batch of seeds, measured at intervals after calibration.\n\nSmall tumors can instead be heated with an infrared laser aimed through the pupil. The beam is focused to a spot a few millimeters across and delivers a steady power for a few minutes, raising the temperature of the tumor by about 10 °C. The laser emits light of wavelength 810 nm. Some clinics instead use a 1064-nm laser run at the same steady power.",
     "figure": {
      "type": "line",
      "caption": "Figure 1 Activity of a batch of ¹²⁵I seeds after calibration",
@@ -1036,19 +1037,19 @@ const CP_POOL = [
       "id": "p_cpq2_2_q3"
      },
      {
-      "q": "During a 2.5-min treatment, the laser delivers a steady 0.60 W through a 3.0-mm spot. How much energy does the beam deliver to the tissue?",
+      "q": "Compared with the 810-nm laser, the 1064-nm laser delivers:",
       "choices": [
-       "1.5 J",
-       "36 J",
-       "90 J",
-       "270 J"
+       "a smaller photon count each second, with bigger photons.",
+       "a smaller photon count each second, with smaller photons.",
+       "a larger photon count each second, with smaller photons.",
+       "a larger photon count each second, with bigger photons."
       ],
       "ans": 2,
-      "cat": "4A",
+      "cat": "4D",
       "skill": "SIRS 2",
       "diff": "D",
-      "twin": "pe1-cp:21",
-      "exp": "1. Energy from power: W = P × t. Power in watts is joules per second, so time must be in seconds.\n2. Convert time: t = 2.5 min × 60 s/min = **150 s**.\n3. Multiply: W = 0.60 J/s × 150 s = **90 J**.\n4. The spot size is a distractor: it is not part of the energy equation. Multiplying by 3.0 too gives 270 J; using minutes instead of seconds gives 0.60 × 2.5 = 1.5 J; using 1 minute (60 s) instead of 2.5 minutes gives 36 J.\n5. Answer: 90 J.\n\n**Rule to reuse:** work = power × time, with power in watts (J/s) and time in **seconds**. Ignore numbers that don't belong to the equation.",
+      "twin": "pe1-cp:16",
+      "exp": "1. Beam power = (energy per photon) × (photons per second). The two lasers are set to the same power.\n2. Energy per photon depends only on wavelength: **E = hc/λ**. The 1064-nm wavelength is longer, so each photon carries **less energy**.\n3. To keep the same power with smaller photons, the 1064-nm laser must emit **more photons per second**.\n4. \"Bigger photons\" choices reverse E = hc/λ. \"A smaller count, with smaller photons\" would lower the power, which contradicts the equal setting.\n5. Answer: a larger photon count each second, with smaller photons.\n\n**Rule to reuse:** power = photon energy × photon rate. Wavelength fixes the photon energy; at fixed power, smaller photons mean more of them each second.",
       "id": "p_cpq2_2_q4"
      }
     ]
@@ -2464,20 +2465,20 @@ const CP_POOL = [
     "id": "cp_q3_sa3"
    },
    {
-    "q": "A 15 N force and a 9 N force pull on the same small object, and the angle between their directions may take any value up to 180°. Which resultant magnitude is NOT possible?",
+    "q": "A capsule endoscope's camera lens is mounted 2.0 cm from its image sensor. What lens power brings a polyp 10 cm from the lens into sharp focus on the sensor?",
     "choices": [
-     "4 N",
-     "6 N",
-     "17.5 N",
-     "24 N"
+     "+0.60 D",
+     "+10 D",
+     "+40 D",
+     "+60 D"
     ],
-    "ans": 0,
-    "cat": "4A",
+    "ans": 3,
+    "cat": "4D",
     "skill": "SIRS 2",
     "diff": "D",
     "subj": "physics",
-    "twin": "pe4-cp:12",
-    "exp": "1. Translate: the angle can vary, so find the full range of possible resultants; anything outside it is impossible.\n2. Extremes: parallel forces add, opposite forces subtract: max (θ = 0°): 15 + 9 = **24 N**; min (θ = 180°): 15 − 9 = **6 N**. Both are possible.\n3. Check a middle case: perpendicular forces combine by Pythagoras: R = √(15² + 9²) = √(225 + 81) = √306 ≈ **17.5 N**, also possible.\n4. The resultant shrinks smoothly from 24 N to 6 N as the angle opens; it never goes below 6 N.\n5. Answer: 4 N is below the 6 N minimum, so it is NOT possible.\n\n**Rule to reuse:** two forces A and B combine to anything between |A − B| (opposite) and A + B (same way); at 90° use √(A² + B²).",
+    "twin": "pe1-cp:11",
+    "exp": "1. Lens power in diopters is **P = 1/f with f in meters**, so convert both distances first: o = **0.10 m**, i = **0.020 m**.\n2. Thin lens: 1/f = 1/0.10 + 1/0.020 = 10 + 50 = **60 m⁻¹**, so P = **+60 D**. The sharp image forms on the sensor, a real image, so the lens is converging (positive).\n3. \"+0.60 D\" uses centimeters (1/10 + 1/2 = 0.60 cm⁻¹). \"+10 D\" uses only the object distance. \"+40 D\" subtracts the terms instead of adding them.\n4. Answer: +60 D.\n\n**Rule to reuse:** P = 1/o + 1/i with distances in meters; a real image on a screen or sensor needs a positive (converging) lens.",
     "id": "cp_q3_sa4"
    },
    {
@@ -3325,20 +3326,20 @@ const CP_POOL = [
     "id": "cp_q4_sa6"
    },
    {
-    "q": "In a model of stage rigging, a 3.0 kg sandbag and a 7.0 kg sandbag are tied to the two ends of a light rope draped over a frictionless, massless pulley. With g = 10 m/s², how large is their acceleration once they are released from rest?",
+    "q": "A jeweler holds a gemstone 4.0 cm from a converging magnifier whose focal length is 5.0 cm. How many times taller than the gem is its image, and how is the image oriented?",
     "choices": [
-     "3.0 m/s²",
-     "4.0 m/s²",
-     "5.7 m/s²",
-     "10 m/s²"
+     "0.20, upright",
+     "0.56, inverted",
+     "5.0, inverted",
+     "5.0, upright"
     ],
-    "ans": 1,
-    "cat": "4A",
+    "ans": 3,
+    "cat": "4D",
     "skill": "SIRS 2",
     "diff": "X",
     "subj": "physics",
-    "twin": "pe5-cp:47",
-    "exp": "1. Treat both sandbags and the rope as one system: the heavy side falls, the light side rises, and both have the same |a|.\n2. The net external force is the difference of the weights; tension is internal and cancels: F_net = (7.0 − 3.0) × 10 = **40 N**.\n3. Divide by the total mass that accelerates: m_total = 7.0 + 3.0 = **10 kg**; a = 40 ÷ 10 = **4.0 m/s²**.\n4. The sandbags gain speed more slowly than free fall, because the light bag's weight opposes the motion, so \"10 m/s²\" is out.\n5. \"5.7 m/s²\" divides by only the 7.0 kg bag (40 ÷ 7.0); \"3.0 m/s²\" is 10 × 3.0 ÷ 10. Answer: 4.0 m/s².\n\n**Rule to reuse:** pulley with two hanging masses → a = (heavy − light) × g ÷ (heavy + light). Pull = difference of weights; mass moved = sum.",
+    "twin": "pe1-cp:45",
+    "exp": "1. Find the image distance: 1/i = 1/f − 1/o = 1/5.0 − 1/4.0 = (4 − 5)/20 = −1/20, so **i = −20 cm**. The negative sign means a virtual image on the gem's side of the lens.\n2. Magnification: m = −i/o = −(−20)/4.0 = **+5.0**. The size is 5.0 times the gem's, and the positive sign means **upright**.\n3. \"5.0, inverted\" drops the sign of i. \"0.20, upright\" divides o by i. \"0.56, inverted\" adds 1/f and 1/o (i ≈ 2.2 cm).\n4. Answer: 5.0, upright. An object inside the focal length of a converging lens always gives an enlarged, upright, virtual image.\n\n**Rule to reuse:** object inside f → i negative → m positive and greater than 1: a magnifier's image is virtual, upright and enlarged.",
     "id": "cp_q4_sa7"
    },
    {
@@ -3603,10 +3604,11 @@ const CP_POOL = [
     "cats": [
      "4A",
      "4C",
-     "5A"
+     "5A",
+     "4D"
     ],
     "title": "An Automated Workstation for DNA Gel Analysis",
-    "passage": "In an automated workstation for DNA analysis, a carriage carrying a pipette head runs along a level rail between a sample rack and an agarose gel. For each transfer, a motor starts the carriage from rest, brings it to a cruising speed, and then brakes it to a stop above the gel, and a position sensor logs where the carriage is once every second. The same motor profile is used for every transfer, so the log from one transfer is used to tune the speed and braking of all of them.\n\nThe gel is cast and run in TBE buffer at pH 8.3 and 25 °C. Samples are loaded into wells at the negative electrode, and a DNA ladder of known fragment lengths is run in a neighboring lane. In one run, the ladder bands of 200, 400, 600, 1000, 1500 and 3000 bp traveled 6.0, 4.6, 3.8, 2.9, 2.2 and 1.2 cm from the wells, respectively. After the run, the gel is stained so that each band can be located and its distance measured.\n\nBefore loading, each sample is mixed with a loading buffer that must hold pH 7.4. The buffer is made from a weak acid, HB, and its conjugate base, B⁻. To find the pKa of HB, a technician titrated 40.0 mL of 0.050 M HB with 0.10 M NaOH at 25 °C and recorded the pH after each addition (Figure 1).",
+    "passage": "In an automated workstation for DNA analysis, a carriage carrying a pipette head runs along a level rail between a sample rack and an agarose gel. For each transfer, a motor starts the carriage from rest, brings it to a cruising speed, and then brakes it to a stop above the gel, and a position sensor logs where the carriage is once every second. The same motor profile is used for every transfer, so the log from one transfer is used to tune the speed and braking of all of them.\n\nThe gel is cast and run in TBE buffer at pH 8.3 and 25 °C. Samples are loaded into wells at the negative electrode, and a DNA ladder of known fragment lengths is run in a neighboring lane. In one run, the ladder bands of 200, 400, 600, 1000, 1500 and 3000 bp traveled 6.0, 4.6, 3.8, 2.9, 2.2 and 1.2 cm from the wells, respectively. After the run, the gel is stained so that each band can be located and its distance measured.\n\nBefore loading, each sample is mixed with a loading buffer that must hold pH 7.4. The buffer is made from a weak acid, HB, and its conjugate base, B⁻. To find the pKa of HB, a technician titrated 40.0 mL of 0.050 M HB with 0.10 M NaOH at 25 °C and recorded the pH after each addition (Figure 1). To locate the bands, the stain is excited with 480-nm blue light, and it then emits 600-nm orange light. Both wavelengths are measured in air, where all colors of light travel at essentially the same speed c.",
     "figure": {
      "type": "line",
      "caption": "Figure 1 Titration of 40.0 mL of 0.050 M HB with 0.10 M NaOH",
@@ -3702,19 +3704,19 @@ const CP_POOL = [
     },
     "questions": [
      {
-      "q": "In one transfer, the carriage leaves rest at t = 10 s. At t = 10, 11, 12, 13, 14, 15, 16, 17 and 18 s it is at 0, 1, 4, 9, 15, 21, 27, 31.5 and 33 cm. In which interval is no net force acting on it?",
+      "q": "Compared with the frequency of the excitation light, the frequency of the light emitted by the stained bands is:",
       "choices": [
-       "10 to 13 s",
-       "13 to 16 s",
-       "16 to 18 s",
-       "10 to 16 s"
+       "0.64 times as high.",
+       "0.80 times as high.",
+       "1.25 times as high.",
+       "1.56 times as high."
       ],
       "ans": 1,
-      "cat": "4A",
+      "cat": "4D",
       "skill": "SIRS 1",
       "diff": "D",
-      "twin": "pe6-cp:5",
-      "exp": "1. Zero net force means zero acceleration: look for the stretch where the slope of position against time, the velocity, stays the same.\n2. Between 13 and 16 s the carriage moves the same distance every second (9 → 15 → 21 → 27 cm). Its slope: (27 − 9) cm ÷ (16 − 13) s = **6 cm/s**, the same every second.\n3. From 10 to 13 s the gaps grow, 1 cm, then 3 cm, then 5 cm: the carriage speeds up, so a net force acts and \"10 to 13 s\" is out.\n4. From 16 to 18 s the gaps shrink, 4.5 cm then 1.5 cm: the carriage slows, so a net force acts again. \"10 to 16 s\" includes the speeding-up stretch from 10 to 13 s, so it is out too.\n5. Answer: 13 to 16 s. On a position–time record, equal steps in equal times mean constant velocity and zero net force.\n\n**Rule to reuse:** on a position–time graph, a straight slanted line = constant velocity = zero net force. A curve bending = speed changing = net force.",
+      "twin": "pe5-cp:53",
+      "exp": "1. In air, light of every color travels at the same speed c, and **c = fλ**, so frequency is inversely proportional to wavelength.\n2. Wavelength ratio, emitted ÷ excitation: 600 nm ÷ 480 nm = **1.25**. The emitted light has the longer wavelength.\n3. Frequency ratio is the inverse: f(emitted) ÷ f(excitation) = 1 ÷ 1.25 = **0.80**.\n4. \"1.25 times\" treats f as proportional to λ. \"0.64\" and \"1.56\" square the ratio, as if f depended on 1/λ² or λ².\n5. Answer: 0.80 times as high.\n\n**Rule to reuse:** at a fixed wave speed, f ∝ 1/λ. A longer wavelength by some factor means a lower frequency by the same factor.",
       "id": "p_cpq5_3_q1"
      },
      {
@@ -4495,10 +4497,11 @@ const CP_POOL = [
     "topic": "C/P",
     "cats": [
      "4A",
-     "4C"
+     "4C",
+     "4D"
     ],
     "title": "A Cordless Electric Nail Driver",
-    "passage": "Cordless nail drivers store energy from a rechargeable battery and release it in a fraction of a second. In one design, an 18-V lithium-ion battery pack labeled 2.5 A·h charges a 250-μF capacitor to 600 V through a voltage-boosting circuit. When the trigger is pulled, the capacitor discharges through a motor that drives a steel piston against the head of the nail. The piston then returns to its starting position and the capacitor recharges, ready for the next nail.\n\nEngineers characterized the tool in several bench tests. In a low-power test firing, a high-speed camera tracked a lighter 80-g test piston; its speed rose from 150 cm/s to 450 cm/s in 0.020 s, and the net force on it was nearly constant during that time. To give users a sense of scale, the engineers also compared the energy stored in the charged capacitor with the energy needed to lift familiar objects.\n\nThe control circuit board is mounted inside a closed aluminum housing. On job sites, the tool is often used near generators and heavy cables, where strong external electric fields can be present, but sensitive parts on the board must be kept free of such fields. The engineers modeled the housing as a hollow conductor that has reached electrostatic equilibrium in a uniform external field of 3.0 × 10³ N/C.",
+    "passage": "Cordless nail drivers store energy from a rechargeable battery and release it in a fraction of a second. In one design, an 18-V lithium-ion battery pack labeled 2.5 A·h charges a 250-μF capacitor to 600 V through a voltage-boosting circuit. When the trigger is pulled, the capacitor discharges through a motor that drives a steel piston against the head of the nail. The piston then returns to its starting position and the capacitor recharges, ready for the next nail.\n\nEngineers characterized the tool in several bench tests. In a low-power test firing, a high-speed camera tracked a lighter 80-g test piston; its speed rose from 150 cm/s to 450 cm/s in 0.020 s, and the net force on it was nearly constant during that time. To give users a sense of scale, the engineers also compared the energy stored in the charged capacitor with the energy needed to lift familiar objects.\n\nThe control circuit board is mounted inside a closed aluminum housing. On job sites, the tool is often used near generators and heavy cables, where strong external electric fields can be present, but sensitive parts on the board must be kept free of such fields. The engineers modeled the housing as a hollow conductor that has reached electrostatic equilibrium in a uniform external field of 3.0 × 10³ N/C. A red laser diode on the tool's nose projects an alignment line, emitting 650-nm light, which travels at 3.0 × 10⁸ m/s in air. The beam leaves the tool through a thin fluoropolymer window whose index of refraction is 1.3.",
     "questions": [
      {
       "q": "Taking g ≈ 10 m/s², the energy stored in the charged capacitor equals the energy needed to raise a 1.5-kg toolbox through what height?",
@@ -4533,19 +4536,19 @@ const CP_POOL = [
       "id": "p_cpq6_3_q2"
      },
      {
-      "q": "What average net force acted on the test piston during the low-power test firing?",
+      "q": "What frequency and wavelength does the guide beam have while it crosses the window?",
       "choices": [
-       "12 N",
-       "18 N",
-       "1,200 N",
-       "12,000 N"
+       "350 THz and 500 nm",
+       "350 THz and 650 nm",
+       "460 THz and 500 nm",
+       "460 THz and 845 nm"
       ],
-      "ans": 0,
-      "cat": "4A",
+      "ans": 2,
+      "cat": "4D",
       "skill": "SIRS 2",
       "diff": "X",
-      "twin": "pe4-cp:55",
-      "exp": "1. Translate: use the change in velocity over time to find the acceleration, then F = ma.\n2. Convert to SI units: m = 80 g = **0.080 kg**; Δv = 450 − 150 = 300 cm/s = **3.0 m/s**.\n3. Acceleration is the slope of the v–t graph: a = Δv/Δt = 3.0 ÷ 0.020 = **150 m/s²**.\n4. Apply Newton's second law: F = ma = 0.080 kg × 150 m/s² = **12 N**. \"1,200 N\" keeps the speeds in cm/s (a = 15,000), \"12,000 N\" keeps the mass in grams (80 × 150), and \"18 N\" uses the final speed instead of the change (4.5 ÷ 0.020 = 225; 0.080 × 225 = 18).\n5. Answer: 12 N.\n\n**Rule to reuse:** a = (final − initial speed) ÷ time; F = ma. Convert g → kg and cm → m before multiplying.",
+      "twin": "pe5-cp:55",
+      "exp": "1. Frequency comes from the source: f = c/λ = (3.0 × 10⁸ m/s) ÷ (6.5 × 10⁻⁷ m) ≈ 4.6 × 10¹⁴ Hz = **460 THz**. It **does not change** when the light enters the window.\n2. In the window the speed drops to c/n, and with f fixed, the wavelength drops by the same factor: λ = 650 nm ÷ 1.3 = **500 nm**.\n3. \"350 THz\" choices wrongly divide the frequency by n; \"650 nm\" also keeps the air wavelength. \"845 nm\" multiplies by n, but a slower wave has a shorter wavelength.\n4. Answer: 460 THz and 500 nm.\n\n**Rule to reuse:** at a boundary, frequency stays the same; speed and wavelength both divide by n.",
       "id": "p_cpq6_3_q3"
      },
      {

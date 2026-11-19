@@ -1,0 +1,785 @@
+{
+ "_note": "Methods the C/P questions of AAMC Practice Exams 1, 3, 4, 5 and 6 test (names only, no AAMC text). freq: exams whose questions use the method (1–5); questions: how many of the 295. Tier: core freq ≥ 3, common 2, rare 1.",
+ "methods": [
+  {
+   "name": "amino acid side-chain classes",
+   "freq": 5,
+   "questions": 9
+  },
+  {
+   "name": "photon energy E = hf = hc/λ",
+   "freq": 5,
+   "questions": 8
+  },
+  {
+   "name": "moles from molarity × volume",
+   "freq": 4,
+   "questions": 8
+  },
+  {
+   "name": "[H⁺]/[OH⁻] from pH (10^−pH, ΔpH factor)",
+   "freq": 4,
+   "questions": 4
+  },
+  {
+   "name": "experimental evidence logic",
+   "freq": 4,
+   "questions": 4
+  },
+  {
+   "name": "radioactive decay A/Z changes",
+   "freq": 3,
+   "questions": 5
+  },
+  {
+   "name": "continuity Q = Av",
+   "freq": 3,
+   "questions": 4
+  },
+  {
+   "name": "data table/graph interpretation",
+   "freq": 3,
+   "questions": 4
+  },
+  {
+   "name": "energy diagram Ea and ΔH",
+   "freq": 3,
+   "questions": 4
+  },
+  {
+   "name": "ideal gas law PV = nRT",
+   "freq": 3,
+   "questions": 4
+  },
+  {
+   "name": "ionization state at pH (pH vs pKa)",
+   "freq": 3,
+   "questions": 4
+  },
+  {
+   "name": "half-life decay",
+   "freq": 3,
+   "questions": 3
+  },
+  {
+   "name": "heat q = mcΔT vs q = mL",
+   "freq": 3,
+   "questions": 3
+  },
+  {
+   "name": "Henderson–Hasselbalch ratio",
+   "freq": 3,
+   "questions": 3
+  },
+  {
+   "name": "identify functional group",
+   "freq": 3,
+   "questions": 3
+  },
+  {
+   "name": "molar volume 22.4 L at STP",
+   "freq": 3,
+   "questions": 3
+  },
+  {
+   "name": "protein charge vs pI (ion exchange)",
+   "freq": 3,
+   "questions": 3
+  },
+  {
+   "name": "use a given formula",
+   "freq": 3,
+   "questions": 3
+  },
+  {
+   "name": "ΔG = ΔH − TΔS sign reasoning",
+   "freq": 3,
+   "questions": 3
+  },
+  {
+   "name": "solubility: like dissolves like",
+   "freq": 2,
+   "questions": 4
+  },
+  {
+   "name": "capacitor charge Q = CV",
+   "freq": 2,
+   "questions": 3
+  },
+  {
+   "name": "catalytic residue roles (nucleophile/acid/base)",
+   "freq": 2,
+   "questions": 3
+  },
+  {
+   "name": "cofactor structures (FAD, NAD, heme)",
+   "freq": 2,
+   "questions": 3
+  },
+  {
+   "name": "E°cell from reduction potentials",
+   "freq": 2,
+   "questions": 3
+  },
+  {
+   "name": "gel electrophoresis reading",
+   "freq": 2,
+   "questions": 3
+  },
+  {
+   "name": "hybridization from electron domains",
+   "freq": 2,
+   "questions": 3
+  },
+  {
+   "name": "hydrolysis products",
+   "freq": 2,
+   "questions": 3
+  },
+  {
+   "name": "ionization-energy jump → group/charge",
+   "freq": 2,
+   "questions": 3
+  },
+  {
+   "name": "nucleon counting (A = Z + N)",
+   "freq": 2,
+   "questions": 3
+  },
+  {
+   "name": "redox from oxidation-state change",
+   "freq": 2,
+   "questions": 3
+  },
+  {
+   "name": "wave speed v = fλ",
+   "freq": 2,
+   "questions": 3
+  },
+  {
+   "name": "amino acid side-chain structures",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "amphipathic lipid structures",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "balance an equation (atoms & charge)",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "base pairing rules (Chargaff, H-bonds)",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "boiling point / volatility order",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "buoyancy / floating",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "carbocation rearrangement",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "carbonyl reduction to alcohol",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "catalyst lowers Ea, not ΔG/K",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "charge Q = It (amp-hours)",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "chirality centers",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "chromatography type by binding interaction",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "denaturation exposes buried residues",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "disulfide bonds (Cys oxidation)",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "electron configuration",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "hydrostatic pressure P = ρgh",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "K/Ksp expression (solids excluded)",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "Ka·Kb = Kw (pKa + pKb = 14)",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "kcat/KM catalytic efficiency",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "Le Châtelier shift",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "Lineweaver–Burk inhibitor type",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "metal ion coordination",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "molar mass bookkeeping",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "motion graph slopes",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "net reaction from mechanism steps",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "nucleotide components",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "peptide bond = amide + water",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "periodic trends (IE, EA)",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "phase diagram transitions",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "phosphorylatable residues (Ser/Thr/Tyr)",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "pulse period and frequency",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "salt naming from neutralization",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "side-chain functional group reactivity",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "steroid 6-6-6-5 skeleton",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "uniform field between plates (E = V/d)",
+   "freq": 2,
+   "questions": 2
+  },
+  {
+   "name": "aldol reaction product",
+   "freq": 1,
+   "questions": 3
+  },
+  {
+   "name": "Beer–Lambert A = εbc",
+   "freq": 1,
+   "questions": 3
+  },
+  {
+   "name": "Ohm's law V = IR",
+   "freq": 1,
+   "questions": 3
+  },
+  {
+   "name": "catalyst phase and regeneration",
+   "freq": 1,
+   "questions": 2
+  },
+  {
+   "name": "common-ion effect",
+   "freq": 1,
+   "questions": 2
+  },
+  {
+   "name": "electrolyte vs metallic conduction",
+   "freq": 1,
+   "questions": 2
+  },
+  {
+   "name": "enzyme class from reaction",
+   "freq": 1,
+   "questions": 2
+  },
+  {
+   "name": "glycosidic bonds (α-1,4 / α-1,6)",
+   "freq": 1,
+   "questions": 2
+  },
+  {
+   "name": "phosphate label tracking (kinase/phosphatase)",
+   "freq": 1,
+   "questions": 2
+  },
+  {
+   "name": "standard curve + dilution factor",
+   "freq": 1,
+   "questions": 2
+  },
+  {
+   "name": "thin lens equation",
+   "freq": 1,
+   "questions": 2
+  },
+  {
+   "name": "ΔG° = −RT ln K",
+   "freq": 1,
+   "questions": 2
+  },
+  {
+   "name": "σ/π bond counting",
+   "freq": 1,
+   "questions": 2
+  },
+  {
+   "name": "½CV² capacitor energy",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "¹H NMR splitting and integration",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "action potential ion phases",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "alcohol oxidation (1°/2°/3°)",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "allosteric regulation conditions",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "amino acid titration order",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "Atwood machine acceleration",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "average vs peak power of pulses",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "chemiosmotic coupling",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "choosing an analytical technique",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "chromatography polarity order",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "color vision needs multiple pigments",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "curvature, focal length and lens power",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "cyclohexane chair equatorial preference",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "diffraction vs refraction",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "dimensional analysis of units",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "Doppler shift direction",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "E = 0 inside a conductor",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "E1 alcohol dehydration",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "enantiomer properties",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "energy = power × time",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "exchangeable H in isotope labels",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "Faraday: moles from charge",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "Fischer esterification oxygen origin",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "fluorescence energy (Stokes shift)",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "free amine as nucleophile",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "fusion Coulomb barrier",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "H-atom abstraction → radical",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "H-bond donor vs acceptor",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "heart wall thickness vs pressure",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "heat of combustion → stability",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "Hill coefficient cooperativity",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "IC50/Ki from inhibition curve",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "ideal gas assumptions",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "impulse F = mΔv/Δt",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "index of refraction n = c/v",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "intermolecular force types",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "IR O–H / C=O peaks",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "IUPAC alkene naming (E/Z)",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "kinematics x = ½at²",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "Lewis structure and formal charge",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "limiting reagent",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "mass percent composition",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "metric prefix conversion",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "Michaelis–Menten assumptions",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "mole fraction from coefficients",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "molecular formula from structure",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "molecular polarity from shape",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "nucleobase tautomers",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "parallel-plate capacitance factors",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "pathway inhibition target",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "peptide sequencing from fragments",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "ping-pong vs sequential binding",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "polyprotic Ka order",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "Pourbaix diagram reading",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "power P = Fv",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "pressure P = F/A",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "pressure units mmHg ↔ atm",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "proportionality test from data",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "rate comparison from rate constants",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "resistivity = 1/conductivity",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "Rf from TLC distances",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "SN2 inversion of stereocenter",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "SN2 steric rate order",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "solid types (covalent network)",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "sugar carbon numbering",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "surface area raises rate",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "temperature to kelvin",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "thermodynamic vs kinetic product",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "unfolding curve cooperativity",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "unpaired electrons and spin",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "vector sum magnitude range",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "Vmax and KM from rate curves",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "VSEPR geometry",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "wave in new medium (f constant)",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "weak base [OH⁻] ≈ √(KbC)",
+   "freq": 1,
+   "questions": 1
+  },
+  {
+   "name": "work = area under F–x",
+   "freq": 1,
+   "questions": 1
+  }
+ ]
+}

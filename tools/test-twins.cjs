@@ -34,7 +34,7 @@ for (const set of S.SETS) {
   for (const r of rows) { const x = S.cards[r.twin]; assert(x, set.id + ': twin ' + r.twin + ' resolves'); assert.equal(r.aamc, x.card.aamc, r.twin + ': category'); assert.equal(r.disc, x.card.disc, r.twin + ': discipline'); }
   for (const p of m.passages) {
     const c = S.prim.find(c => c.key === p.cluster);
-    assert(c && p.rows.every(r => c.ids.includes(r.twin)), set.id + ': every question of ' + p.cluster + ' twins a card of that AAMC passage');
+    assert(c && p.rows.every(r => c.ids.includes(r.twin) || r.twin === S.OUTSIDE_TWINS[set.id]), set.id + ': every question of ' + p.cluster + ' twins a card of that AAMC passage (or is the set\'s one added 4D question)');
   }
   assert.deepEqual(m.passages.map(p => p.rows.length).sort(), [...set.sizes].sort(), set.id + ': passage sizes');
   // Layout: walk the AAMC order with the passages in map order.

@@ -40,7 +40,8 @@ assert.deepEqual(lr(50), { '5D': 12, '5E': 8, '4E': 7, '5A': 5, '4D': 4, '4C': 4
 assert.deepEqual(needs(p.steps.find(s => s.id === 'flashcards')), lr(50)); assert.equal(p.steps.find(s => s.id === 'flashcards').count, 50);
 assert.deepEqual(p.steps.find(s => s.id === 'flashcards').topics.filter(t => t.weak).map(t => t.code + '+' + t.extra), ['4E+0', '5A+0'], 'weak: marked, 0 extra');
 assert(p.steps.find(s => s.id === 'flashcards').topics.every(t => t.extra === 0 && t.need === t.base), '0 extra on every category');
-assert.equal(p.steps.find(s => s.id === 'guided').count, 50); assert.equal(p.steps.find(s => s.id === 'guided').lessonCount, 50); assert.deepEqual(needs(p.steps.find(s => s.id === 'guided')), needs(p.steps.find(s => s.id === 'flashcards')));
+// C/P guided cards: up to MASTERY.guidedPerDay (20) a day, split by the same weights.
+assert.equal(p.steps.find(s => s.id === 'guided').count, 20); assert.equal(p.steps.find(s => s.id === 'guided').lessonCount, 20); assert.deepEqual(needs(p.steps.find(s => s.id === 'guided')), lr(20));
 // A smaller daily size (30 or 20) splits the same way; anything else falls back to 50.
 for (const n of [30, 20]) { const t = plan({ ...m, perDay: n }, '2026-11-16').steps.find(s => s.id === 'flashcards');
   assert.equal(t.count, n); assert.deepEqual(needs(t), lr(n), n + ' by weight'); }
@@ -58,23 +59,23 @@ p = plan(m, '2026-11-16', { guided: 354, passages: 144 });
 assert.equal(p.split, 'exact'); assert.deepEqual(p.topics, ['5D', '5E', '4E', '5A', '4D', '4C', '4B', '5B', '4A', '5C']);
 assert.deepEqual(ids(p), ['diagnostic', 'rules', 'flashcards', 'guided', 'test'], 'exactly 3 daily steps; no passage step whatever the pool');
 { const fl = p.steps.find(s => s.id === 'flashcards'), gd = p.steps.find(s => s.id === 'guided');
-  assert.deepEqual(needs(fl), lr(50)); assert.deepEqual(needs(gd), lr(50));
+  assert.deepEqual(needs(fl), lr(50)); assert.deepEqual(needs(gd), lr(20));
   const prog = st => Object.fromEntries(st.topics.map(t => [t.code, t.progress]));
   assert.deepEqual(prog(fl), { '5D': 0, '5E': 0, '4E': 7, '5A': 5, '4D': 4, '4C': 4, '4B': 3, '5B': 0, '4A': 0, '5C': 0 }, 'counted answers carry over, capped at the new count');
   assert.equal(fl.progress, 23); assert.equal(fl.extra, 27, 'answers past a category\'s new count show as extra'); assert(!fl.done && !gd.done); }
-m.days['2026-11-16'].flashT = { ...lr(50) }; m.days['2026-11-16'].guidedT = { ...lr(50), '4D': 3 };
+m.days['2026-11-16'].flashT = { ...lr(50) }; m.days['2026-11-16'].guidedT = { ...lr(20), '4D': lr(20)['4D'] - 1 };
 p = plan(m, '2026-11-16');
 assert(p.steps.find(s => s.id === 'flashcards').done && !p.steps.find(s => s.id === 'guided').done, 'one Practice Exam card short in 4D');
 m.days['2026-11-16'].guidedT['4C'] = 20;
 p = plan(m, '2026-11-16');
 assert(!p.steps.find(s => s.id === 'guided').done, 'extra cards in one category do not count for another');
-assert.equal(p.steps.find(s => s.id === 'guided').extra, 16, 'cards beyond the set show as extra');
-m.days['2026-11-16'].guidedT['4D'] = 4;
+assert.equal(p.steps.find(s => s.id === 'guided').extra, 20 - lr(20)['4C'], 'cards beyond the set show as extra');
+m.days['2026-11-16'].guidedT['4D'] = lr(20)['4D'];
 p = plan(m, '2026-11-16');
 assert(p.steps.find(s => s.id === 'guided').done && !p.steps.find(s => s.id === 'test').done);
-m.days['2026-11-16'].lessonsN = 49;
+m.days['2026-11-16'].lessonsN = 19;
 assert(!plan(m, '2026-11-16').steps.find(s => s.id === 'guided').done, 'every card needs its lesson');
-m.days['2026-11-16'].lessonsN = 50;
+m.days['2026-11-16'].lessonsN = 20;
 // A row saved with split 'blueprint' (+20% on its two weak categories) is exact today too; its weak marks stay.
 { const mb = { ...m, days: { '2026-11-16': { subj: 'cp', topics: ['4B', '5C', '5D'], split: 'blueprint', weakT: ['4B', '5C'], flashT: { '4B': 8 } } } };
   const pb = plan(mb, '2026-11-16'), fl = pb.steps.find(s => s.id === 'flashcards');
@@ -176,7 +177,7 @@ assert(src.includes("version: mini.setId || 'cards'") && src.includes('<b>earlie
 assert(src.includes("btn('Retake diagnostic', \"startMasteryTest('diagnostic')\", s.old)"), 'step 1 offers the retake (the main button while the old diagnostic is current)');
 assert(src.includes('function startMasteryFollowup(kind)') && fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'startMasteryFollowup'"), 'after-quiz practice wired and allowlisted');
 // C/P flashcards are the Practice Test flashcards only (data/cp-test-cards.js); other sections keep the QBank cards.
-assert(src.includes("if (s !== 'cp') return masteryExamPool(s);") && src.includes('return CPTQ.filter(q => cats.has(masteryCategory(q)));') && !/QB\.filter|AQB/.test(src.slice(src.indexOf('function masteryFlashPool'), src.indexOf('const masteryFlashReady'))), 'C/P flashcards are Practice Test flashcards only; no QBank card');
+assert(src.includes("if (s !== 'cp') return masteryExamPool(s);") && src.includes('return CPTQ.filter(q => cats.has(masteryCategory(q)) && masteryTierOk(q, mem));') && !/QB\.filter|AQB/.test(src.slice(src.indexOf('function masteryFlashPool'), src.indexOf('const masteryFlashReady'))), 'C/P flashcards are Practice Test flashcards only; no QBank card');
 assert(src.includes("FLQ.filter(q => MASTERY_PE.test(q.src))") && src.includes('const MASTERY_PE = /^pe\\d-cp:/;'), 'guided cards are Practice Exam 1/3/4/5/6 cards only (no Sample Test)');
 // Regression (review 2.3): the streak counts daily quizzes on consecutive calendar days only.
 { const d = (day, kind, scaled) => test('cp', day, kind, scaled);
@@ -201,4 +202,4 @@ const names = [...block.matchAll(/^\s*([A-Za-z]+)\s*:/gm)].map(x => x[1]), value
 assert.equal(new Set(names).size, names.length, 'no duplicate KEYS names: ' + names.filter((n, i) => names.indexOf(n) !== i));
 assert.equal(new Set(values).size, values.length, 'no two KEYS share a storage key: ' + values.filter((n, i) => values.indexOf(n) !== i));
 assert(app.includes("subjectPath: 'mcat2_subject_path'") && app.includes('KEYS.studyPath, KEYS.subjectPath,'), 'own key, included in reset');
-console.log('Section mastery passed: C/P → B/B → P/S, each with its AAMC outline; diagnostic first, then the same day: 50 Practice Test flashcards → 50 guided Practice Exam cards → 30-question quiz (unlocked by the first two) → done at goal or practice the weak spots compared with the last; goal 128/129 on 2 separate days moves to the next subject and its diagnostic; manual subject choice; corrupt data tolerated.');
+console.log('Section mastery passed: C/P → B/B → P/S, each with its AAMC outline; diagnostic first, then the same day: 50 Practice Test flashcards → up to 20 guided Practice Exam cards → 30-question quiz (unlocked by the first two) → done at goal or practice the weak spots compared with the last; goal 128/129 on 2 separate days moves to the next subject and its diagnostic; manual subject choice; corrupt data tolerated.');

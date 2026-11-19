@@ -1,7 +1,7 @@
 // Section Mastery path: one MCAT section at a time, as the exam tests it: C/P first, then B/B, then P/S.
 //   First: a diagnostic (a full section, scored 118–132, weak AAMC content categories shown; it can be retaken).
 //   Then every day, exactly 3 steps: 1 50 flashcards (C/P: the Practice Test flashcards of data/cp-test-cards.js, built
-//   from the C/P questions of Practice Exams 1, 3, 4, 5 and 6; no QBank card) → 2 50 guided Practice Exam cards with step-by-step
+//   from the C/P questions of Practice Exams 1, 3, 4, 5 and 6; no QBank card) → 2 up to 20 guided Practice Exam cards (quiz-miss twins first, then core methods) with step-by-step
 //   lessons → 3 a 30-question quiz from data/cp-pool.js (half an AAMC section in exam order), unlocked once the flashcards
 //   are done (guided cards recommended, not required) → done for the day at goal, otherwise a follow-up on the quiz's misses and weak categories with
 //   flashcards and guided cards.
@@ -26,6 +26,9 @@ const MASTERY = {
   topicsPerDay: 5,      // content categories a day, for sections without a blueprint (and days saved before it)
   perDay: [50, 30, 20], // flashcards, and Practice Exam cards, per day (the student picks; 50 by default)
   rulesPerDay: 10,      // C/P: rule cards in the daily rules warm-up, required before the flashcards
+  quizCats: { '5D': 7, '5E': 5, '4E': 4, '5A': 3, '4D': 3, '4C': 2, '4B': 2, '5B': 2, '4A': 1, '5C': 1 },   // C/P quiz, per 30
+  guidedPerDay: 20,     // C/P: guided Practice Exam cards a day (misses first, then core methods in weak categories)
+  commonShows: 3,       // a common-tier card: the first pass and at most 2 reviews (a miss counts as one)
   // Each section's AAMC content categories (the exam's own outline).
   topics: {
     cp: ['4A', '4B', '4C', '4D', '4E', '5A', '5B', '5C', '5D', '5E'],
@@ -168,6 +171,8 @@ function masteryBlueprintSplit(n, weights, weak = [], caps = null, oldBonus = fa
 function masteryQuizTargets(subj, n = MASTERY.testSize) {
   if (!MASTERY.blueprint[subj]) return null;
   const part = key => { const w = masteryWeights(subj, key), s = masteryApportion(w, n); return Object.fromEntries(w.map(([k], i) => [k, s[i]])); };
+  // C/P's 30-question quiz: the user's per-30 mix (2026-11-19; 4D 3, 4A 1); other sizes by weight.
+  if (subj === 'cp' && n === 30) return { cats: { ...MASTERY.quizCats }, discs: part('discs') };
   return { cats: part('cats'), discs: part('discs') };
 }
 // Checks a quiz's questions [{cat, disc}] against that mix: each category exactly; each discipline within ±1 (one
@@ -307,8 +312,8 @@ function masteryCatRank(plan) {
 // missed questions (tierOf -1), then missed and due cards (0), then the rest; each group in test order.
 function masteryDayOrder(list, catOf, rank, tierOf) {
   const big = Object.keys(rank).length, cr = q => { const c = catOf(q); return c in rank ? rank[c] : big; };
-  const tb = q => { const t = tierOf ? tierOf(q) : 1; return t < 0 ? 0 : t === 0 ? 1 : 2; };
-  return masteryGroupPassages(masteryTestOrder(list).map((q, i) => [cr(q), tb(q), i, q]).sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]).map(x => x[3]));
+  const tb = q => { const t = tierOf ? tierOf(q) : 1; return t < 0 ? 0 : t < 1 ? 1 : 2; };
+  return masteryGroupPassages(masteryTestOrder(list).map((q, i) => [cr(q), Math.min(tb(q), 1), tb(q) === 0 ? 0 : masteryTierN(q), tb(q), i, q]).sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2] || a[3] - b[3] || a[4] - b[4]).map(x => x[5]));
 }
 // Cards that share one twin passage (the same `pid`: one AAMC passage) run back to back, the way the test shows a
 // passage's questions: each group moves up to where its first card stands, in the passage's question order.
@@ -340,17 +345,40 @@ function masteryIsFront(q, front) {
 // 3 the rest.
 // A front card (masteryIsFront: the twin of a question missed on the latest diagnostic or quiz, or a Practice Test
 // flashcard built from that twin) comes before all of them (-1): it takes one of its own category's slots, so the day's counts don't change.
+// A card's tier (core / common / rare: how many AAMC exams use its method, tools/method-freq.json): a Practice Test
+// flashcard carries it; a guided Practice Exam card takes it from the flashcard that covers its question.
+let masteryGuidedTiers = null;
+function masteryTier(q) {
+  if (!q) return 'core';
+  if (q.tier) return q.tier;
+  if (q.src && typeof CPTQ !== 'undefined' && CPTQ.length) {
+    if (!masteryGuidedTiers || masteryGuidedTiers.n !== CPTQ.length) { masteryGuidedTiers = new Map(); masteryGuidedTiers.n = CPTQ.length;
+      for (const c of CPTQ) for (const t of c.twinOf || []) { const o = masteryGuidedTiers.get(t); if (!o || masteryTierN({ tier: c.tier }) < masteryTierN({ tier: o })) masteryGuidedTiers.set(t, c.tier); } }
+    return masteryGuidedTiers.get(q.src) || 'core';
+  }
+  return 'core';
+}
+function masteryTierN(q) { const t = q && (q.tier || (q.src ? masteryTier(q) : 'core')); return t === 'rare' ? 2 : t === 'common' ? 1 : 0; }
+// Still to be shown: a rare card once in total, a common card up to MASTERY.commonShows times (the first pass and 2
+// reviews; a miss counts as one), a core card always (spaced review as usual). mem: the saved memory by card id.
+function masteryTierOk(q, mem) {
+  const t = masteryTier(q), r = mem && (mem[q.baseId || q.id] || mem[q.id]), seen = (r && r.seen) || 0;
+  return t === 'rare' ? seen === 0 : t === 'common' ? seen < MASTERY.commonShows : true;
+}
 function masteryTierRank(o = {}) {
   const missed = o.missed || new Set(), due = o.due || (() => false), acc = o.acc || (() => null), front = o.front || new Set();
+  // What the MCAT tests most gets repeated: a rare card never comes back as missed or due; within each rank, core
+  // cards are taken before common ones and common before rare (masteryTierN, a small offset inside the rank).
   const rank = q => {
     if (masteryIsFront(q, front)) return -1;
-    if (missed.has(q.baseId || q.id) || missed.has(q.id) || due(q)) return 0;
+    const tn = masteryTierN(q) / 10;
+    if (masteryTier(q) !== 'rare' && (missed.has(q.baseId || q.id) || missed.has(q.id) || due(q))) return tn;
     const a = acc(q);
-    return Number.isFinite(a) && a < MASTERY.weakBelow / 100 ? 1 + a : 3;
+    return (Number.isFinite(a) && a < MASTERY.weakBelow / 100 ? 1 + a : 3) + tn;
   };
   // Missed cards (a missed question's twin, or a card missed today or on the latest test; not merely due ones): they
   // always get a slot first (masteryTopicSet), before the discipline mix fills the rest.
-  rank.isMissed = q => masteryIsFront(q, front) || missed.has(q.baseId || q.id) || missed.has(q.id);
+  rank.isMissed = q => masteryIsFront(q, front) || (masteryTier(q) !== 'rare' && (missed.has(q.baseId || q.id) || missed.has(q.id)));
   return rank;
 }
 // Builds today's set for one step: for each category, the cards it still needs. Cards not seen today come first,
@@ -434,7 +462,9 @@ function masteryPlan(raw, today, sizes = {}) {
   const weakT = split === 'topics' ? [] : (Array.isArray(row.weakT) ? row.weakT
     : masteryWeak(latest).filter(w => w.pct < MASTERY.weakBelow).map(w => w.code)).filter(c => list.includes(c)).slice(0, 2);
   const topics = split === 'exact' ? cw.map(([c]) => c) : legacy ? row.topics : masteryTopics(m, subj, today, latest);
-  const flashN = m.perDay, guidedN = Number.isFinite(sizes.guided) ? Math.min(m.perDay, sizes.guided) : m.perDay;
+  // C/P: up to MASTERY.guidedPerDay guided cards a day (all 295 stay in the data; "Another set" reaches the rest).
+  const guidedCap = subj === 'cp' ? Math.min(m.perDay, MASTERY.guidedPerDay) : m.perDay;
+  const flashN = m.perDay, guidedN = Number.isFinite(sizes.guided) ? Math.min(guidedCap, sizes.guided) : guidedCap;
   const got = (key, code) => Number((row[key] || {})[code]) || 0;
   const tally = (key, total, caps) => (split !== 'topics'
     ? masteryBlueprintSplit(total, cw, weakT, caps && typeof caps === 'object' ? caps : null).map(t => ({ ...t, progress: Math.min(t.need, got(key, t.code)), raw: got(key, t.code) }))
@@ -497,8 +527,8 @@ const MASTERY_QUIZ_TWIN = /^(sample-cp|aamc-phys-qpack):/;   // the Practice Exa
 function masteryFlashPool(s) {
   if (s !== 'cp') return masteryExamPool(s);
   if (!bankReady('cpt')) return [];
-  const cats = new Set(MASTERY.topics.cp);
-  return CPTQ.filter(q => cats.has(masteryCategory(q)));
+  const cats = new Set(MASTERY.topics.cp), mem = typeof loadMem === 'function' ? loadMem() : {};
+  return CPTQ.filter(q => cats.has(masteryCategory(q)) && masteryTierOk(q, mem));
 }
 const masteryFlashReady = s => s !== 'cp' || bankReady('cpt');
 // Practice Exam cards: the C/P cards of Practice Exams 1, 3, 4, 5 and 6 (the Sample Test cards stay out of TODAY).
@@ -648,8 +678,12 @@ function masteryStartQuiz(list, label, mode) {
 // some lessons are not, the step continues with today's cards whose lesson wasn't finished.
 function startMasteryGuided(more) {
   if (!bankReady('fl')) { withBank('fl', () => startMasteryGuided(more)); return; }
+  // The guided cards' tiers come from the flashcards that cover their questions.
+  if (masteryPlanNow().subj === 'cp' && !bankReady('cpt')) { withBank('cpt', () => startMasteryGuided(more)); return; }
   const plan = masteryPlanNow();
-  const pool = masteryPracticePool(plan.subj);
+  // A rare guided card is shown once in total; a common one up to MASTERY.commonShows times.
+  const mem = typeof loadMem === 'function' ? loadMem() : {};
+  const pool = masteryPracticePool(plan.subj).filter(q => masteryTierOk(q, mem));
   if (!pool.length) { startMasteryFlashcards(more); return; }
   const step = plan.steps.find(s => s.id === 'guided');
   if (!more && step && !step.done && step.topics.every(t => t.progress >= t.need) && step.lessons < step.lessonCount) {
@@ -705,7 +739,8 @@ function startMasteryRules() {
   if (!bankReady('cpt')) { withBank('cpt', () => startMasteryRules()); return; }
   const plan = masteryPlanNow(); if (!plan.subj) return;
   const m = masteryLoad(), row = masteryDayRow(m, plan.subj);
-  if (!Array.isArray(row.rulesIds) || !row.rulesIds.length) { row.rulesIds = masteryRulesPick(m, MASTERY.rulesPerDay); masterySave(m); }
+  // (Picked only once the rule cards are loaded: an empty pick would read as "done".)
+  if (!Array.isArray(row.rulesIds) || !row.rulesIds.length) { const ids = masteryRulesPick(m, MASTERY.rulesPerDay); if (ids.length) { row.rulesIds = ids; masterySave(m); } else { masteryNotice('The rule cards are still loading. Try again in a moment.'); return; } }
   const done = new Set(row.rulesOk || []), list = row.rulesIds.filter(id => !done.has(id)).map(masteryRuleQ).filter(Boolean);
   if (!list.length) { masteryNotice('Today’s rule cards are done.'); return; }
   masteryStartQuiz(list, 'C/P · Rules warm-up', 'rules');
@@ -847,7 +882,7 @@ function masteryResultHtml(test, prev, m) {
   const verdict = passedNow ? '<p class="today-alldone">✓ ' + esc(masteryName(test.subj)) + ' mastered: ' + goal + '+ on ' + MASTERY.passDays + ' days in a row. ' + (nextSubj ? 'Tomorrow starts ' + esc(masteryName(nextSubj)) + ' with its diagnostic.' : 'Every section in the path is mastered.') + '</p>'
     : test.kind === 'diagnostic' && prev ? '<p>Diagnostic retaken. Your daily plan now aims at the weak topics below.</p>'
     : test.kind === 'diagnostic' ? '<p>Your daily plan now follows the AAMC mix and, within each content category, aims at the weak topics below first: flashcards and Practice Exam cards, then the quiz.</p>'
-    : test.scaled >= goal ? '<p>At goal today. One more day at ' + goal + '+ moves you to the next section.</p>' : '<p>Next: review the missed questions below, then practice the weakest topics from TODAY. Tomorrow: 50 flashcards and 50 Practice Exam cards in the AAMC mix, your missed and weakest cards first within each category, then another quiz.</p>';
+    : test.scaled >= goal ? '<p>At goal today. One more day at ' + goal + '+ moves you to the next section.</p>' : '<p>Next: review the missed questions below, then practice the weakest topics from TODAY. Tomorrow: 50 flashcards and up to 20 guided Practice Exam cards in the AAMC mix, the twins of today’s misses first, then core methods in your weak categories, then another quiz.</p>';
   const rows = weak.map(w => '<tr' + (w.pct < MASTERY.weakBelow ? ' class="mastery-weak"' : '') + '><td>' + esc(w.code) + '</td><td>' + esc(AAMC_CAT_LABEL(w.code)) + '</td><td>' + w.c + '/' + w.t + '</td><td>' + w.pct + '%</td></tr>').join('');
   const part = test.parts || (test.cats.passage ? { passage: test.cats.passage } : {});
   const SKILL = { 'SIRS 1': 'Knowledge of scientific concepts', 'SIRS 2': 'Scientific reasoning and problem-solving', 'SIRS 3': 'Reasoning about research design', 'SIRS 4': 'Data-based and statistical reasoning' };
@@ -906,7 +941,7 @@ function masteryCard() {
           '<details class="elim-today rules-sheet"' + (s.done ? '' : ' open') + '><summary><b>📋 Rules sheet</b></summary>' + (typeof CP_RULES !== 'undefined' ? masteryRulesSheetHtml() : (masteryRulesLoad(), '<p class="muted-note">Loading the rules sheet…</p>')) + '</details>';
         time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 0.5) + 2); button = s.done ? '' : btn(s.progress ? 'Continue' : 'Start', 'startMasteryRules()'); }
       if (s.id === 'flashcards') { title = 'Flashcards'; count = s.progress + ' / ' + s.count; detail = cp ? '<b>' + s.count + ' flashcards built from ' + fromPE + '.</b> Each card teaches the method behind those questions, with “💡 Help me / Show me how”. ' + bpNote + (bp ? targets(s.topics, 'cards') : topicList(byRank(s.topics))) : bp ? 'AAMC QBank cards only, in the AAMC mix of disciplines across the day. ' + bpNote + targets(s.topics, 'cards') : 'AAMC QBank cards only, weakest topics first, spread over today’s content categories.' + topicList(s.topics); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 0.6)); button = s.done ? more('startMasteryFlashcards(true)', s) : masteryRulesDone(plan) ? btn(s.progress ? 'Continue' : 'Start', 'startMasteryFlashcards()') : '<p class="muted-note">Unlocks when the rules warm-up is done.</p>'; }
-      if (s.id === 'guided') { title = 'Guided Practice Exam cards with walkthroughs'; count = s.progress + ' / ' + s.count + ' cards · ' + s.lessons + ' / ' + s.lessonCount + ' lessons'; detail = (cp ? s.count + ' Practice Exam cards: ' + fromPE + ', as the test asks them. ' : '') + (bp ? 'Each card opens its step-by-step lesson: step through it, answer, then watch the walkthrough. ' + bpNote + targets(s.topics, 'cards') : 'Weakest topics first. Each card opens its step-by-step lesson: step through it, answer, then watch the walkthrough.' + topicList(byRank(s.topics))); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 1.2 + (s.lessonCount - s.lessons) * 2)); button = s.done ? more('startMasteryGuided(true)', s) : btn(s.progress || s.lessons ? 'Continue' : 'Start', 'startMasteryGuided()'); }
+      if (s.id === 'guided') { title = 'Guided Practice Exam cards with walkthroughs'; count = s.progress + ' / ' + s.count + ' cards · ' + s.lessons + ' / ' + s.lessonCount + ' lessons'; detail = (cp ? s.count + ' Practice Exam cards: ' + fromPE + ', as the test asks them: the twins of your last quiz’s misses first, then core methods (asked on 3+ exams) in your weak categories; rare ones only once. ' : '') + (bp ? 'Each card opens its step-by-step lesson: step through it, answer, then watch the walkthrough. ' + bpNote + targets(s.topics, 'cards') : 'Weakest topics first. Each card opens its step-by-step lesson: step through it, answer, then watch the walkthrough.' + topicList(byRank(s.topics))); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 1.2 + (s.lessonCount - s.lessons) * 2)); button = s.done ? more('startMasteryGuided(true)', s) : btn(s.progress || s.lessons ? 'Continue' : 'Start', 'startMasteryGuided()'); }
       if (s.id === 'followup') {
         const ws = s.weak.map(c => esc(c) + ' ' + esc(AAMC_CAT_LABEL(c))).join(' · ');
         if (s.atGoal) { title = 'Done for today'; detail = 'You reached ' + plan.goal + ' on today’s quiz. Anything more is optional.' + (ws ? ' Weakest on the quiz: ' + ws + '.' : ''); button = ws ? btn('Optional: flashcards on the weak spots', 'startMasteryFollowup(\'flashcards\')', false) + ' ' + btn('Optional: guided cards on the weak spots', 'startMasteryFollowup(\'guided\')', false) : ''; }

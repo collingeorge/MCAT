@@ -30,8 +30,8 @@ The first card on the home page is the day's routine, one MCAT section at a time
 
 First, once per section: the **diagnostic**, a full C/P section (59 questions, 95 minutes, exam order). Retake it any time. Then every day, exactly three steps:
 
-1. **50 flashcards**: AAMC QBank cards only, split exactly by AAMC content-category weight (5D 12, 5E 8, 4E 7, 5A 5, 4D 4, 4C 4, 4B 3, 5B 3, 4A 2, 5C 2), in the AAMC discipline mix over the whole day.
-2. **50 guided Practice Exam cards**, each with its step-by-step lesson, in the same exact split.
+1. **50 Practice Test flashcards** from a 255-card deck, one card per method the C/P questions of Practice Exams 1, 3, 4, 5 and 6 test, split exactly by AAMC content-category weight (5D 12, 5E 8, 4E 7, 5A 5, 4D 4, 4C 4, 4B 3, 5B 3, 4A 2, 5C 2). What the MCAT tests most gets repeated: a core method (on 3+ exams) comes back on spaced review and after a miss, a common one (2 exams) at most twice more, and a rare one (1 exam) is shown once.
+2. **Up to 20 guided Practice Exam cards**, each with its step-by-step lesson: the twins of the last quiz's misses first, then core methods in weak categories (a rare method's card is shown once).
 3. **30-question quiz** from the six daily sets: half a C/P section in exam order, unseen sets first. It unlocks when the flashcards are done; the guided cards are recommended but not required.
 
 After the quiz: **done for today** at the goal (128 by default), otherwise **work on what you missed**: flashcards and guided cards on the quiz's weak categories, missed and due cards first.
