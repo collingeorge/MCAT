@@ -1630,7 +1630,9 @@ function isLessonCard(q) { return typeof isCpt === 'function' && isCpt(q) && !!h
 // A card with Rule out 3 opens its lesson with it: the three quick eliminations and the 3-second rule, then the method.
 function elimStep(q) { return [...elimOnlyStep(q), ...(fastOf(q) ? [{ text: '**⚡ Shortcut · ' + fastLabel(q.fast) + '.** ' + q.fast.how }] : [])]; }
 function elimOnlyStep(q) { return elimOf(q) ? [{ text: '**Rule out 3 first.** Three choices fall to the six quick checks before any full working.', strike: q.elim.map(e => q.choices[e.c]), calc: [...q.elim.map(e => '✗ ' + q.choices[e.c] + ' · ' + elimLabel(e) + e.why), '3-second rule: ' + q.rule] }] : []; }
-function lessonSteps(q) { const rule = teachOf(q).at(-1); return [...elimStep(q), ...howSteps(howOf(q)), { text: rule.text, rule: true }]; }
+// A passage card starts where a passage question starts: the sentence that holds the clue (how.steps[0]), then Rule out 3.
+function lessonSteps(q) { const rule = teachOf(q).at(-1), hs = howSteps(howOf(q)), lead = q.passage && hs.length ? hs.splice(0, 1) : [];
+  return [...lead, ...elimStep(q), ...hs, { text: rule.text, rule: true }]; }
 // A guided Practice Exam card's walkthrough also opens with Rule out 3 when the card has it.
 function stepperSteps() { return stepper.lesson ? lessonSteps(stepper.q) : [...elimStep(stepper.q), ...howSteps(howOf(stepper.q))]; }
 function lessonPlayerHtml() {

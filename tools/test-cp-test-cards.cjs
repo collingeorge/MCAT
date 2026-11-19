@@ -56,6 +56,8 @@ const QUIZ_TWINS = [...new Set(POOL.flatMap(h => [...h.passages.flatMap(p => p.q
 const SRC = new Map([...FL.map(q => [q.src, q]), ...data.QB_AAMC_PHYS.filter(q => QUIZ_TWINS.includes(q.src)).map(q => [q.src, q])]);
 const QUIZ_EXTRA = QUIZ_TWINS.filter(t => !PE_RE.test(t));
 assert(QUIZ_EXTRA.every(t => SRC.has(t)), 'every quiz twin has its source card');
+// The AAMC passage a question belongs to (its range in twin-clusters.json): "pe1-cp:P3" for Practice Exam 1's third.
+const passageOf = src => { const [e, n] = String(src).split(':'); const i = CLUSTERS[e] ? CLUSTERS[e].passages.findIndex(([a, b]) => +n >= a && +n <= b) : -1; return i < 0 ? null : e + ':P' + (i + 1); };
 const sentences = t => String(t).replace(/\b(e\.g|i\.e|vs|approx|ca)\./g, '$1').split(/(?<=[.!?])\s+(?=[A-Z(\d])/).filter(x => x.trim()).length;
 // The questions written so far: every question any card comes from. Each of them must have a card for every one of
 // its "Needs" items; once all 295 are written, every spec item must have a card.
@@ -74,6 +76,7 @@ const ALL_BUILT = BUILT.length === PE.size;
 // ── 1. Coverage and worked methods ──
 const strip = t => String(t == null ? '' : t).replace(/<[^>]+>/g, ' ').replace(/\*\*/g, '');
 const words = t => strip(t).trim().split(/\s+/).filter(Boolean).length;
+const SHARED = new Map();
 const ids = new Set(), stems = new Map(), bySrc = new Map([...PE.keys()].map(s => [s, []])), byItem = new Map(SPEC.items.map(it => [it.ref, []]));
 // Rule out 3 (flashcards and guided cards): exactly three entries {c, tag, why}, one per wrong choice, never the key;
 // tag is one of the six checks and the entries run in check order; each why ≤ 160 characters; a rule ≤ 200
@@ -124,7 +127,12 @@ for (const c of CARDS) {
   // Same ask, same setup: twinOf names the question(s) it mirrors; a passage question's card has a 3–6 sentence passage.
   assert(Array.isArray(c.twinOf) && c.twinOf.length >= 1 && c.twinOf.every(t => SRC.has(t) && (PE_RE.test(t) || QUIZ_EXTRA.includes(t))), id + ': twinOf names Practice Exam or quiz-twin questions');
   for (const t of c.twinOf) assert.equal(!!c.passage, isPassageQ(t), id + ': ' + t + ' is a ' + (isPassageQ(t) ? 'passage' : 'stand-alone') + ' question, so the card ' + (isPassageQ(t) ? 'has' : 'has no') + ' passage');
-  if (c.passage !== undefined) { const n = sentences(c.passage); assert(typeof c.passage === 'string' && n >= 3 && n <= 6 && c.passage.length <= 900, id + ': passage is 3–6 sentences, ≤ 900 characters (' + n + ', ' + String(c.passage).length + ')'); }
+  // Teach for the passage: the cards whose twins sit in one AAMC passage share one twin passage (`pid` names that AAMC
+  // passage; the same text on each), which combines that passage's topics; the lesson's first step points at the
+  // sentence that holds the clue (its hl is in the passage).
+  if (c.passage !== undefined) {
+    const n = sentences(c.passage); assert(typeof c.passage === 'string' && n >= 3 && n <= 10 && c.passage.length <= 1500, id + ': passage is 3–10 sentences, ≤ 1500 characters (' + n + ', ' + String(c.passage).length + ')');
+  }
   // Each source names a spec item, "peX-cp:Q#n": the card teaches item n of that question's "Needs" list.
   for (const ref of c.from) {
     assert(ITEMS.has(ref), id + ': from "' + ref + '" is an item of a spec question (peX-cp:Q#n)');
@@ -375,13 +383,19 @@ for (let day = 0; day < 200; day++) {
   const inOrder = `(() => { const plan = masteryPlanNow(), f = masteryTwinFront(plan), rank = masteryCatRank(plan), it = quiz.items.map(v => v.q);
     const key = q => [rank[q.aamc] ?? 99, masteryIsFront(q, f) ? 0 : 1, ...masteryTestKey(q)];
     const cmp = (a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2] || a[3] - b[3] || a[4] - b[4] || (a[5] < b[5] ? -1 : a[5] > b[5] ? 1 : 0);
-    return it.every((q, i) => !i || cmp(key(it[i - 1]), key(q)) <= 0); })()`;
+    // Cards sharing a twin passage (pid) run back to back in question order; each such run sorts by its earliest card.
+    const units = []; for (const q of it) { const u = units.at(-1); if (q.pid && u && u.pid === q.pid) u.qs.push(q); else units.push({ pid: q.pid, qs: [q] }); }
+    const pids = units.filter(u => u.pid).map(u => u.pid); if (new Set(pids).size !== pids.length) return false;
+    const qn = q => masteryTestKey({ twinOf: q.twinOf })[1];
+    if (!units.every(u => u.qs.every((q, i) => !i || qn(u.qs[i - 1]) <= qn(q)))) return false;
+    const uk = units.map(u => u.qs.map(key).sort(cmp)[0]);
+    return uk.every((k, i) => !i || cmp(uk[i - 1], k) <= 0); })()`;
   run('startMasteryFlashcards(true)');
   const flash = JSON.parse(run('JSON.stringify(quiz.items.map(v => ({ id: v.q.id, from: v.q.from || [] })))'));
   assert(flash.length > 0 && flash.every(x => ids.has(x.id)), 'day ' + day + ': flashcards are Practice Test flashcards only');
   assert(run('quiz.items.every(v => !AQB_BY_ID.has(v.q.id) && !(v.q.src && /^sample-cp:/.test(v.q.src)))'), 'day ' + day + ': no QBank or Sample Test card among the flashcards');
   if (run(`(() => { const f = masteryTwinFront(masteryPlanNow()), it = quiz.items.map(v => v.q), i = it.findIndex(q => masteryIsFront(q, f)); return i >= 0 && (i === 0 || it[i - 1].aamc !== it[i].aamc); })()`)) frontSeen++;
-  assert(run(inOrder), 'day ' + day + ': the flashcards run weakest category first; in each, the missed twin\'s cards, then test order');
+  assert(run(inOrder), 'day ' + day + ': the flashcards run weakest category first; in each, the missed twin\'s cards, then test order; a passage\'s cards back to back');
   run('goHome()');
   run('startMasteryGuided(true)');
   const guided = JSON.parse(run('JSON.stringify(quiz.items.map(v => v.q.src || ""))'));

@@ -308,7 +308,23 @@ function masteryCatRank(plan) {
 function masteryDayOrder(list, catOf, rank, tierOf) {
   const big = Object.keys(rank).length, cr = q => { const c = catOf(q); return c in rank ? rank[c] : big; };
   const tb = q => { const t = tierOf ? tierOf(q) : 1; return t < 0 ? 0 : t === 0 ? 1 : 2; };
-  return masteryTestOrder(list).map((q, i) => [cr(q), tb(q), i, q]).sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]).map(x => x[3]);
+  return masteryGroupPassages(masteryTestOrder(list).map((q, i) => [cr(q), tb(q), i, q]).sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]).map(x => x[3]));
+}
+// Cards that share one twin passage (the same `pid`: one AAMC passage) run back to back, the way the test shows a
+// passage's questions: each group moves up to where its first card stands, in the passage's question order.
+function masteryGroupPassages(list) {
+  const groups = new Map();
+  for (const q of list) if (q && q.pid) (groups.get(q.pid) || groups.set(q.pid, []).get(q.pid)).push(q);
+  if (!groups.size) return list;
+  const qn = q => { const k = masteryTestKey({ twinOf: q.twinOf }); return k ? k[1] : 0; };
+  const out = [], done = new Set();
+  for (const q of list) {
+    if (!q || !q.pid) { out.push(q); continue; }
+    if (done.has(q.pid)) continue;
+    done.add(q.pid);
+    out.push(...groups.get(q.pid).map((x, i) => [qn(x), i, x]).sort((a, b) => a[0] - b[0] || a[1] - b[1]).map(x => x[2]));
+  }
+  return out;
 }
 // A card is a front card when its own src is in the set (a Practice Exam card) or, for a Practice Test flashcard
 // (data/cp-test-cards.js, its subj 'cp_test'), when its `from` names one (an item of it: 'pe1-cp:4#2' names pe1-cp:4).
