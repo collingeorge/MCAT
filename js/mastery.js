@@ -72,7 +72,10 @@ function masteryNormalize(raw) {
   const perDay = MASTERY.perDay.includes(m.perDay) ? m.perDay : MASTERY.perDay[0];
   // Daily quiz sets already taken, most recent last ({id, day}), so the next quiz picks one not seen yet.
   const usedSets = (Array.isArray(m.usedSets) ? m.usedSets : []).filter(u => u && typeof u.id === 'string' && typeof u.day === 'string').slice(-60);
-  return { goal, tests, days, passed, current, perDay, usedSets };
+  // Rule cards of the rules warm-up: {id: {d: last day seen, ok: last marked "Got it"}} (synced text: checked).
+  const rules = Object.fromEntries(Object.entries(m.rules && typeof m.rules === 'object' && !Array.isArray(m.rules) ? m.rules : {})
+    .filter(([id, r]) => /^r-[a-z0-9-]+$/.test(id) && r && typeof r.d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(r.d) && typeof r.ok === 'boolean').map(([id, r]) => [id, { d: r.d, ok: r.ok }]));
+  return { goal, tests, days, passed, current, perDay, usedSets, rules };
 }
 // Current section: the one the student picked, else the first not yet mastered (in path order).
 function masterySubject(m, today) {

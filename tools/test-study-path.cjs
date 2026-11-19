@@ -31,7 +31,7 @@ assert.equal(typeof ctx.questionForms, 'function'); assert.equal(run('questionFo
 const today = run('localDay()');
 run(`store.set(KEYS.subjectPath, { tests: [{ subj: 'cp', day: '${today}', t: 1, kind: 'diagnostic', correct: 30, total: 59, pct: 51, scaled: 122, version: 'cp_diag', cats: { '5D': { c: 2, t: 14 }, '4E': { c: 4, t: 8 }, '5A': { c: 5, t: 6 } } }] })`);
 let plan = JSON.parse(run('JSON.stringify(masteryPlanNow())'));
-assert.deepEqual(plan.steps.map(s => s.id), ['diagnostic', 'flashcards', 'guided', 'test'], 'after the diagnostic: exactly 3 daily steps');
+assert.deepEqual(plan.steps.map(s => s.id), ['diagnostic', 'rules', 'flashcards', 'guided', 'test'], 'after the diagnostic: exactly 3 daily steps');
 run('renderHome()'); assert.doesNotMatch(el('today-plan').innerHTML, /Passage questions|startMasteryPassages/, 'no passage step on TODAY');
 assert.match(el('today-plan').innerHTML, /Unlocks when steps 1 and 2 are done/); assert.doesNotMatch(el('today-plan').innerHTML, /startMasteryTest\('daily'\)/, 'the quiz is locked');
 // Exact split: every step shows its per-category targets as chips at the AAMC weight; the two weak categories are
@@ -54,13 +54,13 @@ run(`(() => { const m = masteryLoad(); masteryDayRow(m, 'cp').misses = ['${tier0
   store.set(KEYS.stats, { '${weakKey}': { c: 1, t: 5 }, ${JSON.stringify(keys5D.find(k => k !== weakKey))}: { c: 5, t: 5 } }); })()`);
 assert.equal(run(`retrievability(loadMem()['${tier0[2]}']) < TARGET_RETENTION`), true, 'the card is due');
 // Flashcards: Practice Test flashcards only, each category's target count, no card twice.
-run('startMasteryFlashcards()');
+run("(() => { const m = masteryLoad(), r = masteryDayRow(m, masteryPlanNow().subj); r.rulesOk = ['r-a','r-b','r-c','r-d','r-e','r-f','r-g','r-h','r-i','r-j']; masterySave(m); })(); startMasteryFlashcards()");
 { const ids = JSON.parse(run('JSON.stringify(quiz.items.map(v => v.q.id))')), bio = ids.filter(id => p5D.some(q => q.id === id));
   assert(tier0.every(id => ids.includes(id)), 'missed today, missed on the latest test and due: all picked first in 5D');
   assert.equal(bio.filter(id => !tier0.includes(id)).filter(id => weakIds.includes(id)).length, Math.min(weakIds.length, bio.length - 3), 'then every card of the weakest sub-topic (20%)'); }
 assert(run('quiz.items.length') === 50 && run('quiz.items.every(v=>CPTQ_BY_ID.has(v.q.id))'), '50 Practice Test flashcards');
 assert.deepEqual(JSON.parse(run("JSON.stringify(quiz.items.reduce((o,v)=>{const c=quiz.topicOf[v.q.id]; o[c]=(o[c]||0)+1; return o;},{}))")),
-  Object.fromEntries(plan.steps[1].topics.filter(t => t.need).map(t => [t.code, t.need])), 'each category gets its AAMC target, weak or not');
+  Object.fromEntries(plan.steps.find(s => s.id === 'flashcards').topics.filter(t => t.need).map(t => [t.code, t.need])), 'each category gets its AAMC target, weak or not');
 assert(run('quiz.items.every(v=>masteryCategory(v.q)===quiz.topicOf[v.q.id])'), 'every card is from the category it counts for');
 assert.equal(run('new Set(quiz.items.map(v=>v.q.id)).size'), 50, 'no card twice');
 run('goHome()');
@@ -117,11 +117,11 @@ assert.equal(run('masteryLoad().days[localDay()].prac'), undefined, 'passage ans
   run('goHome()');
   // A step with nothing to start shows a message instead of doing nothing.
   run(`(() => { const m = masteryLoad(); const row = masteryDayRow(m, 'cp'); row.flashT = Object.fromEntries(masteryPlanNow().steps.find(s=>s.id==='flashcards').topics.map(x => [x.code, x.need])); masterySave(m); })()`);
-  el('page-notice').hidden = true; run('startMasteryFlashcards()');
+  el('page-notice').hidden = true; run("(() => { const m = masteryLoad(), r = masteryDayRow(m, masteryPlanNow().subj); r.rulesOk = ['r-a','r-b','r-c','r-d','r-e','r-f','r-g','r-h','r-i','r-j']; masterySave(m); })(); startMasteryFlashcards()");
   assert.equal(el('page-notice').hidden, false); assert.match(el('page-notice').textContent, /done for today/); }
 // 2.2: only the first answer to a card in a session counts toward the step.
 { run(`(() => { const m = masteryLoad(); const row = masteryDayRow(m, 'cp'); row.flashT = {}; masterySave(m); })()`);
-  run('startMasteryFlashcards()'); const q0 = 'quiz.items[0].q';
+  run("(() => { const m = masteryLoad(), r = masteryDayRow(m, masteryPlanNow().subj); r.rulesOk = ['r-a','r-b','r-c','r-d','r-e','r-f','r-g','r-h','r-i','r-j']; masterySave(m); })(); startMasteryFlashcards()"); const q0 = 'quiz.items[0].q';
   const before = run('Object.values(masteryLoad().days[localDay()].flashT||{}).reduce((a,b)=>a+b,0)');
   run(`masteryNoteAnswer(${q0}, false); masteryNoteAnswer(${q0}, true); masteryNoteAnswer(${q0}, true)`);
   assert.equal(run('Object.values(masteryLoad().days[localDay()].flashT||{}).reduce((a,b)=>a+b,0)') - before, 1, 're-asked card counted once');

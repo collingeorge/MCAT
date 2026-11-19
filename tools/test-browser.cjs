@@ -80,7 +80,7 @@ async function main() {
   // 50 guided Practice Exam cards, the quiz, which stays locked until steps 1 and 2 are done.
   await evaluate('goHome()');
   assert.deepEqual(await evaluate('[...document.querySelectorAll("#today-plan .today-step .today-title > b")].map(b=>b.textContent)'),['Diagnostic','Flashcards','Guided Practice Exam cards with walkthroughs','30-question quiz']);
-  assert.deepEqual(await evaluate('[...document.querySelectorAll("#today-plan .today-step .today-num")].map(n=>n.textContent)'),['✓','1','2','3']);
+  assert.deepEqual(await evaluate('[...document.querySelectorAll("#today-plan .today-step .today-num")].map(n=>n.textContent)'),['✓','1','2','3','4']);
   assert.equal(await evaluate('document.querySelector("#today-plan [data-click=\'startMasteryPassages()\']")'),null,'no passage step');
   assert.equal(await evaluate('[...document.querySelectorAll("#today-plan [data-click]")].some(b=>b.dataset.click.includes("daily"))'),false,'the quiz is locked');
   assert(await evaluate('document.querySelector("#today-plan").textContent.includes("Unlocks when steps 1 and 2 are done")'));
