@@ -248,7 +248,7 @@ async function main() {
   assert.equal(await evaluate('!!document.querySelector("#show-how-btn") && !document.querySelector("#lesson-slot .lesson-box")'),true,'right answer: the lesson waits behind "Show me how"');
   await evaluate('document.querySelector("#show-how-btn").click()');
   assert.match(await evaluate('document.querySelector("#lesson-slot .lesson-title").textContent'),/step 1 of/,'"Show me how" replays the lesson');
-  // "💡 Help me / Show me how" is there at any time, on every flashcard and every guided card: before answering (it
+  // "💡 Show me how" is there at any time, on every flashcard and every guided card: before answering (it
   // opens the lesson and answering still works), after a right answer and after a wrong one (it opens the solution).
   const helpBtn='(document.querySelector("#hint-btn")?.textContent||"")';
   for(const [label,start,ready,opened] of [
@@ -256,52 +256,46 @@ async function main() {
    ['guided card','startMasteryGuided(true);true','quiz.mastery==="guided" && !!document.querySelector("#cb-0")','!!document.querySelector("#how-box")']]){
    for(const right of [true,false]){
     await evaluate(leave+start); await until(ready);
-    assert.match(await evaluate(helpBtn),/Help me \/ Show me how/,label+': the button is there before answering');
+    assert.match(await evaluate(helpBtn),/Show me how/,label+': the button is there before answering');
     await evaluate('document.querySelector("#hint-btn").click()');
     assert.equal(await evaluate('!!document.querySelector("#hint-area .teach-box")'),true,label+': before answering it opens the lesson');
-    assert.match(await evaluate(helpBtn),/Help me \/ Show me how/,label+': the button stays while the lesson is open');
+    assert.match(await evaluate(helpBtn),/Show me how/,label+': the button stays while the lesson is open');
     await evaluate('document.querySelector("#cb-"+(('+(right?'0':'1')+'+quiz.items[quiz.idx].ans)%4)).click()');
     assert.equal(await evaluate('quiz.answered && quiz.results.length===1'),true,label+': answering still works after opening the lesson');
-    assert.match(await evaluate(helpBtn),/Help me \/ Show me how/,label+': the button is there after a '+(right?'right':'wrong')+' answer');
+    assert.match(await evaluate(helpBtn),/Show me how/,label+': the button is there after a '+(right?'right':'wrong')+' answer');
     await evaluate('document.querySelector("#lesson-slot")&&(document.querySelector("#lesson-slot").innerHTML="");document.querySelector("#how-box")?.remove();document.querySelector("#hint-btn").click()');
     assert.equal(await evaluate(opened),true,label+': after a '+(right?'right':'wrong')+' answer it opens the worked solution');
    }
   }
-  // "✂ Rule out 3" sits beside Help on every flashcard and guided card. Before answering it crosses out exactly the three
-  // wrong choices, writes each one's check and reason under it (16 px or more), shows the 3-second rule once below the
-  // choices, never marks the choice that is left, and opens the six checks the first time; answering still works, and
-  // the buttons stay after the answer. The guided walkthrough opens with Rule out 3.
-  await evaluate('localStorage.removeItem("mcat2_elim_how_seen");true');
-  for(const [kind,start] of [['flashcards','startMasteryFlashcards(true)'],['guided','startMasteryGuided(true)']]){
-  await evaluate(leave+start+';true'); await until('quiz.mastery==="'+kind+'" && !!document.querySelector("#cb-0")');
-  assert.match(await evaluate('document.querySelector("#elim-btn")?.textContent||""'),/Rule out 3/,kind+' · the Rule out 3 button is there before answering');
-  assert.match(await evaluate('document.querySelector("#elim-how-btn")?.textContent||""'),/How\?/,kind+' · a "How?" link sits beside it');
+  // "✂ Rule out" (the six glance rules): the toolbar has exactly two buttons, ✂ Rule out and 💡 Show me how. Before
+  // answering it strikes the choices the card's rules cut, shows one line per rule (its name, then the letters), and
+  // nothing else (no reasons, tables, How?, shortcut or 3-second rule); the choice left is not marked; the answer tap
+  // still works. "Tap an answer to go on" sits under the choices, then a large "Next card →"; the lesson's buttons are
+  // "◀ Step" / "Step ▶".
+  for(const [kind,pick] of [['flashcard','CPTQ.find(q=>q.cut&&q.cut.reduce((n,e)=>n+e.c.length,0)>=2&&q.teach)'],['guided card','FLQ.find(q=>q.cut&&q.cut.reduce((n,e)=>n+e.c.length,0)>=2&&q.teach)']]){
+  await evaluate(leave+"withBank('fl',()=>withBank('cpt',()=>{window.__c="+pick+";beginQuiz([window.__c],'Rule out test')}));true"); await until('!!window.__c&&!!document.querySelector("#cb-0")');
+  const bar=JSON.parse(await evaluate('JSON.stringify([...document.querySelectorAll("#hint-area > button")].map(b=>b.textContent.trim()))'));
+  assert.deepEqual(bar,['💡 Show me how','✂ Rule out'],kind+' · the toolbar has two buttons: '+JSON.stringify(bar));
+  assert.match(await evaluate('document.querySelector("#choices-area + #go-on")?.textContent||""'),/Tap an answer to go on/,kind+' · "Tap an answer to go on" under the choices');
   await evaluate('document.querySelector("#elim-btn").click()');
-  const elim=JSON.parse(await evaluate('JSON.stringify((()=>{const v=quiz.items[quiz.idx],btns=[...document.querySelectorAll("#choices-area .choice-btn")],out=btns.filter(b=>b.classList.contains("elim-out")),key=document.querySelector("#cb-"+v.ans);return{answered:quiz.answered,n:out.length,key:out.includes(key),keyClass:key.className,whys:out.map(b=>{const w=b.querySelector(".elim-why");return w?[w.textContent.trim(),parseFloat(getComputedStyle(w).fontSize)]:["",0]}),rule:document.querySelector("#elim-rule")?.textContent||"",ruleAfter:!!document.querySelector("#choices-area + #elim-rule"),ruleN:document.querySelectorAll("#elim-rule").length,how:!!document.querySelector("#elim-how .elim-checks"),btn:parseFloat(getComputedStyle(document.querySelector("#elim-btn")).fontSize)}})())'));
-  assert.equal(elim.answered,false,kind+' · Rule out 3 works before answering');
-  assert.equal(elim.n,3,kind+' · Rule out 3 crosses out exactly three choices');
-  assert.equal(elim.key,false,kind+' · Rule out 3 never crosses out the key');
-  assert.equal(elim.keyClass.trim(),'choice-btn',kind+' · the choice that is left is not highlighted or marked');
-  for(const [t,px] of elim.whys){assert.match(t,/^(🚫 Impossible|📏 Units \/ ×10|↕️ Backwards|✂️ Skipped step|📋 Copied number|🧠 Wrong fact): \S/,kind+' · each reason starts with its check ('+t.slice(0,40)+')');assert(px>=16,'reason text is at least 16 px ('+px+')');}
-  assert(elim.btn>=16,kind+' · the Rule out 3 button text is at least 16 px');
-  assert.match(elim.rule,/3-second rule/,kind+' · the 3-second rule is shown');
-  assert(elim.ruleAfter&&elim.ruleN===1,kind+' · once, below the choices');
-  if(kind==='flashcards')assert.equal(elim.how,true,'the six checks open by themselves the first time');
-  else assert.equal(elim.how,false,'after the first time, the six checks open only on "How?"');
-  await evaluate('document.querySelector("#elim-how-btn").click()');
-  assert.equal(await evaluate('!!document.querySelector("#elim-how .elim-checks")'),kind!=='flashcards',kind+' · "How?" toggles the six checks');
-  // ⚡ Shortcut: its own button; it shows the card's shortcut below the choices and the card still waits for the tap.
-  assert.match(await evaluate('document.querySelector("#fast-btn")?.textContent||""'),/Shortcut/,kind+' · the Shortcut button is there');
-  await evaluate('document.querySelector("#fast-btn").click()');
-  assert.match(await evaluate('document.querySelector("#fast-box")?.textContent||""'),/⚡ Shortcut · \S/,kind+' · the shortcut is shown, with its kind');
-  assert.equal(await evaluate('quiz.answered'),false,kind+' · the card still waits for the answer');
-  assert(parseFloat(await evaluate('getComputedStyle(document.querySelector("#fast-box")).fontSize'))>=16,kind+' · shortcut text is at least 16 px');
+  const r=JSON.parse(await evaluate('JSON.stringify((()=>{const v=quiz.items[quiz.idx],btns=[...document.querySelectorAll("#choices-area .choice-btn")],out=btns.filter(b=>b.classList.contains("elim-out")),key=document.querySelector("#cb-"+v.ans);return{answered:quiz.answered,n:out.length,want:v.q.cut.reduce((n,e)=>n+e.c.length,0),key:out.includes(key),keyClass:key.className,whys:document.querySelectorAll(".elim-why").length,lines:[...document.querySelectorAll("#elim-rule .cut-line")].map(l=>l.textContent.trim()),rules:v.q.cut.length,px:parseFloat(getComputedStyle(document.querySelector("#elim-rule .cut-line")).fontSize),extra:!!document.querySelector("#elim-how,#fast-btn,#fast-box,#elim-how-btn"),ruleText:/3-second|Impossible|Shortcut/.test(document.querySelector("#elim-rule").textContent)}})())'));
+  assert.equal(r.answered,false,kind+' · Rule out works before answering');
+  assert.equal(r.n,r.want,kind+' · it strikes exactly the cut choices');
+  assert.equal(r.key,false,kind+' · never the key'); assert.equal(r.keyClass.trim(),'choice-btn',kind+' · the choice left is not marked');
+  assert.equal(r.lines.length,r.rules,kind+' · one line per rule used');
+  for(const l of r.lines)assert.match(l,/^(Opposites|Match the passage|Way off in size|Starting number|Solid, catalyst or pure liquid|Formula has ½) → ✂ [A-D](, [A-D])*$/,kind+' · a rule line: '+l);
+  assert(!r.whys&&!r.extra&&!r.ruleText,kind+' · only the rule lines: no reasons, tables, How?, shortcut or 3-second rule');
+  assert(r.px>=16,kind+' · rule lines at least 16 px');
   await evaluate('document.querySelector("#cb-"+quiz.items[quiz.idx].ans).click()');
-  assert.equal(await evaluate('quiz.answered && quiz.results.length===1 && quiz.results[0].right && !!document.querySelector("#elim-btn") && !!document.querySelector("#hint-btn")'),true,kind+' · the answer tap is accepted; Rule out 3 and Help stay after answering');
-  if(kind==='guided'){await evaluate('document.querySelector("#lesson-slot")&&(document.querySelector("#lesson-slot").innerHTML="");document.querySelector("#how-box")?.remove();document.querySelector("#hint-btn").click()');
-   assert.match(await evaluate('document.querySelector("#how-box .how-step.current .step-text, #lesson-slot .lesson-box")?.textContent||""'),/Rule out 3 first/,'guided · the walkthrough opens with Rule out 3');}
+  assert.equal(await evaluate('quiz.answered&&quiz.results.length===1&&quiz.results[0].right'),true,kind+' · the answer tap is accepted');
+  const nx=JSON.parse(await evaluate('JSON.stringify({t:document.querySelector("#go-on #next-card-btn")?.textContent||"",px:parseFloat(getComputedStyle(document.querySelector("#go-on #next-card-btn")).fontSize)})'));
+  assert(/See results →|Next card →/.test(nx.t)&&nx.px>=18,kind+' · a large "Next card →" under the choices ('+nx.t+', '+nx.px+' px)');
+  await evaluate('document.querySelector("#hint-btn").click()');
+  await until('!!document.querySelector("#how-next,#how-play")||!!document.querySelector(".step-controls")');
+  const steps=await evaluate('[...document.querySelectorAll(".step-controls button")].map(b=>b.textContent.trim()).join("|")');
+  assert(/Step ▶/.test(steps)&&/◀ Step/.test(steps)&&!/Next ▶|◀ Back/.test(steps),kind+' · the lesson buttons read ◀ Step / Step ▶ ('+steps+')');
   }
-  console.log('Rule out 3 (flashcards and guided cards): three choices crossed out with their checks before answering; the key never, and never marked; the rule once below the choices; the six checks on first use');
+  console.log('✂ Rule out (flashcards and guided cards): two toolbar buttons; strikes only the cut choices with one rule line each, never the key; "Tap an answer to go on", then a large "Next card →"; lesson buttons ◀ Step / Step ▶');
   // Same ask, same setup: a flashcard that twins a passage question shows its short twin passage above the stem (16 px
   // or more), and a lesson step that quotes the passage lights that text up in it.
   { const id=await evaluate('CPTQ.find(q=>q.passage&&q.teach.some(t=>(t.marks||[]).some(m=>q.passage.includes(m.t)))).id');

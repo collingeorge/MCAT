@@ -967,3 +967,12 @@ mark.step-hl{background:#fde68a;color:inherit;padding:0 2px;border-radius:2px;an
 @media(max-width:660px){.chart-figure{overflow-x:auto;-webkit-overflow-scrolling:touch}.chart-figure .chart{width:560px;max-width:none}}
 /* Form controls (the runner-up menu, notes, settings) keep the same 16 px floor. */
 select,input,textarea{font-size:16px}
+/* ✂ Rule out (glance rules): one line per rule under the choices; "Tap an answer to go on" / "Next card →" */
+.cut-lines{margin:10px 0 4px;padding:10px 12px;border-left:4px solid var(--navy);background:var(--blue-light);font-size:16px}
+.cut-line{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:16px;line-height:1.7}
+.cut-rule{display:inline-block;min-width:13em}
+.glance-rules{margin:6px 0 10px 1.2em;padding:0;font-size:16px}
+.glance-rules li{margin:4px 0}
+.rules-more summary{cursor:pointer;font-weight:700;margin:8px 0}
+.go-on{margin:10px 0;font-size:16px;color:var(--muted)}
+.go-on .next-card-btn{width:100%;font-size:20px;padding:14px 18px}

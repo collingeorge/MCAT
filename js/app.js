@@ -267,7 +267,7 @@ function buildCpt() {
 // tools/test-pages.cjs checks them against the data.
 // ASSET_V: the deploy's version (sw.js CACHE), added to every script the app loads on demand so the browser's HTTP
 // cache never serves one from an earlier deploy. Written by tools/generate-pages.cjs; do not edit by hand.
-const ASSET_V = '?v=mcat-v2.86-cp-same-ask-2026-11-19';
+const ASSET_V = '?v=mcat-v2.87-glance-rules-2026-11-19';
 const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'], cpt: ['data/cp-test-cards.js', 'data/cp-rules.js'] };
 const BANK_COUNTS = { fl: 354, flCp: 295, flTests: 6 };
 const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined', cpt: () => typeof CP_TEST_CARDS !== 'undefined' };
@@ -1415,6 +1415,7 @@ function renderQuizQuestion() {
     </div>
     ${howOf(q) ? `<div id="hint-area">${hintArea(view)}</div>` : ''}
     <div class="choices" id="choices-area" role="group" aria-label="Answer choices">${choicesOrPrompt(view)}</div>
+    <div id="go-on" class="go-on">Tap an answer to go on</div>
     <div id="exp-area"></div>
     <div id="nxt-area"></div>`;
   if ($('reveal-btn')) $('reveal-btn').focus({ preventScroll: true });
@@ -1441,64 +1442,75 @@ function hintArea(view) {
   if (!h) return '';
   // A card with a graph in the question teaches how to read it, on the graph itself, before you answer.
   // The walkthrough can be opened at any time: the button stays above the lesson and restarts it at step 1.
-  if (teachOf(view.q)) return helpButton('teachStep(0)') + elimButton(view) + elimHowHtml(view) + (view.teachCur ? teachHtml(view) : '');
+  if (teachOf(view.q)) return helpButton('teachStep(0)') + elimButton(view) + (view.teachCur ? teachHtml(view) : '');
   const shown = (level >= 1 ? `<p><b>What it's asking:</b> ${fmt(h.ask)}</p>` : '') + (level >= 2 ? `<div><b>What you need to know:</b>${paragraphs(h.know)}</div>` : '');
   const label = level === 0 ? 'Show me how to start' : level === 1 ? 'Show what I need to know' : '';
-  return `${shown ? `<div class="how-hint" role="status">${shown}</div>` : ''}${label ? `<button class="micro-btn how-btn" id="hint-btn" data-click="showHint()">💡 ${label}</button>` : ''}${elimButton(view)}${elimHowHtml(view)}`;
+  return `${shown ? `<div class="how-hint" role="status">${shown}</div>` : ''}${label ? `<button class="micro-btn how-btn" id="hint-btn" data-click="showHint()">💡 ${label}</button>` : ''}${elimButton(view)}`;
 }
 // "💡 Help me / Show me how": on every card with a lesson, before answering, while thinking and after answering (right
 // or wrong). Before answering it opens the lesson on the question (teachStep); afterwards it opens the worked solution
 // (showLesson). Opening it never blocks answering.
-function helpButton(action) { return `<button class="micro-btn how-btn teach-btn" id="hint-btn" data-click="${action}">💡 Help me / Show me how</button>`; }
-// ── "✂ Rule out 3": kill all three wrong answers in a few seconds, then pick the one left yourself ──
-// Every C/P flashcard and guided Practice Exam card names its three wrong choices (q.elim: [{c: index in q.choices,
-// tag, why}], in check order) and a reusable "3-second rule" (q.rule). Each reason is one of six checks, the same on
-// every card (ELIM_CHECKS), so the student learns six checks, not 245 tricks. The button sits beside Help at any time,
-// before or after answering: it crosses out the three choices with their reasons and shows the rule below the choices.
-// It never names, marks or moves the choice that is left: the student still taps the answer. The lesson opens with the
-// same step. "How?" opens the six checks (automatically the first time the button is used).
-const ELIM_CHECKS = [
-  { tag: 'impossible', icon: '🚫', name: 'Impossible', ask: 'Does it break a rule of nature?', ex: 'Rf above 1; efficiency above 100%; a negative mass; a base with pH below 7' },
-  { tag: 'units', icon: '📏', name: 'Units / ×10', ask: 'Is it off by a factor of 10, 100 or 1,000?', ex: 'g vs kg; mL vs L; ms vs s; J vs kJ; μ vs m' },
-  { tag: 'backwards', icon: '↕️', name: 'Backwards', ask: 'Is the direction flipped?', ex: 'a sign flipped; a ratio upside down; oxidation vs reduction; anode vs cathode' },
-  { tag: 'skipped', icon: '✂️', name: 'Skipped step', ask: 'Is a step of the work missing?', ex: 'a forgotten ×2 or ½; not squaring; not subtracting the start value' },
-  { tag: 'copied', icon: '📋', name: 'Copied number', ask: 'Is it a number from the question, used with no work?', ex: 'the raw reading; the given mass, unchanged' },
-  { tag: 'fact', icon: '🧠', name: 'Wrong fact', ask: 'Does a definition or rule rule it out?', ex: 'a C=O with no N attached can’t be an amide' },
+function helpButton(action) { return `<button class="micro-btn how-btn teach-btn" id="hint-btn" data-click="${action}">💡 Show me how</button>`; }
+// ── "✂ Rule out": cut 2 or 3 choices at a glance, with no math and no writing ──
+// One tiny set of rules on every card (GLANCE_RULES, never more). Each C/P flashcard and guided Practice Exam card
+// lists the cuts its rules honestly make (q.cut: [{r: 1–6, c: [indexes in q.choices]}]; the key is never cut, each
+// choice at most once; a card may have none). Tapping ✂ Rule out strikes those choices and shows one line per rule
+// used, its short name and the letters it cuts. Nothing else: the choice left is not marked and the card waits.
+const GLANCE_RULES = [
+  { r: 1, name: 'Opposites', full: 'Opposites? Answer is one of them.', ex: 'agonist / antagonist, Q > K / Q < K, gains / loses' },
+  { r: 2, name: 'Match the passage', full: 'Match the passage’s direction.', ex: 'blocks → anti-, inhibits, decreases; removes Ca²⁺ → solid forms' },
+  { r: 3, name: 'Way off in size', full: 'Way off in size? Cut it.', ex: 'one choice ×1000 or ÷1000 from the rest' },
+  { r: 4, name: 'Starting number', full: 'Starting number? Cut it.', ex: 'if something changed, the answer isn’t the number given in the question' },
+  { r: 5, name: 'Solid, catalyst or pure liquid', full: 'Solid, catalyst or pure liquid? No change.', ex: 'K, partial pressures and equilibrium stay the same' },
+  { r: 6, name: 'Formula has ½', full: 'Formula has ½? Take the smaller twin.', ex: 'two choices differ by exactly ×2' },
 ];
-const ELIM_CHECK = Object.fromEntries(ELIM_CHECKS.map(k => [k.tag, k]));
-function elimOf(q) { return q && !q.variant && !q.baseId && Array.isArray(q.elim) && q.elim.length === 3 && q.rule ? q.elim : null; }
-function elimLabel(e) { const k = ELIM_CHECK[e.tag]; return k ? k.icon + ' ' + k.name + ': ' : ''; }
-// The six checks, in plain words, one example each (also at the top of TODAY's C/P flashcard step).
-function elimChecksHtml() {
-  return `<div class="elim-checks"><p><b>Rule out 3: scan the four choices with these checks, top to bottom, and stop when three are gone.</b> With a number in the question, make a 1-second estimate first (round everything to 1 digit).</p><table><tbody>${ELIM_CHECKS.map((k, i) => `<tr><td>${i + 1}. ${k.icon} <b>${k.name}</b></td><td>${esc(k.ask)} <span class="elim-ex">e.g. ${esc(k.ex)}</span></td></tr>`).join('')}</tbody></table></div>`;
+const GLANCE = Object.fromEntries(GLANCE_RULES.map(g => [g.r, g]));
+function cutOf(q) { return q && !q.variant && !q.baseId && Array.isArray(q.cut) ? q.cut.filter(e => e && GLANCE[e.r] && Array.isArray(e.c) && e.c.length) : null; }
+// The six rules, one example each: the 📋 Rules sheet.
+function glanceRulesHtml() {
+  return `<ol class="glance-rules">${GLANCE_RULES.map(g => `<li><b>${esc(g.full)}</b> <span class="elim-ex">(${esc(g.ex)})</span></li>`).join('')}</ol>`;
 }
-function elimButton(view) { return elimOf(view.q) ? `<button class="micro-btn how-btn elim-btn" id="elim-btn" data-click="ruleOutThree()" aria-pressed="${!!view.elimShown}">✂ Rule out 3</button><button class="micro-btn elim-how-btn" id="elim-how-btn" data-click="toggleElimHow()" aria-expanded="${!!view.elimHow}">How?</button>${fastButton(view)}` : fastButton(view); }
-function elimHowHtml(view) { return elimOf(view.q) && view.elimHow ? `<div class="how-hint elim-box" id="elim-how">${elimChecksHtml()}${fastKindsHtml()}</div>` : ''; }
-// Crosses out the three choices on the answer buttons (by text: a session may show the choices in another order) and
-// writes the rule once below the choices. The choice that is left is not touched.
+// The earlier six checks (kept only for the Rules sheet's "More").
+const ELIM_CHECKS = [
+  { icon: '🚫', name: 'Impossible', ask: 'Does it break a rule of nature?', ex: 'Rf above 1; efficiency above 100%; a negative mass; a base with pH below 7' },
+  { icon: '📏', name: 'Units / ×10', ask: 'Is it off by a factor of 10, 100 or 1,000?', ex: 'g vs kg; mL vs L; ms vs s; J vs kJ; μ vs m' },
+  { icon: '↕️', name: 'Backwards', ask: 'Is the direction flipped?', ex: 'a sign flipped; a ratio upside down; oxidation vs reduction; anode vs cathode' },
+  { icon: '✂️', name: 'Skipped step', ask: 'Is a step of the work missing?', ex: 'a forgotten ×2 or ½; not squaring; not subtracting the start value' },
+  { icon: '📋', name: 'Copied number', ask: 'Is it a number from the question, used with no work?', ex: 'the raw reading; the given mass, unchanged' },
+  { icon: '🧠', name: 'Wrong fact', ask: 'Does a definition or rule rule it out?', ex: 'a C=O with no N attached can’t be an amide' },
+];
+function elimChecksHtml() {
+  return `<div class="elim-checks"><p><b>Six checks (worked elimination).</b></p><table><tbody>${ELIM_CHECKS.map((k, i) => `<tr><td>${i + 1}. ${k.icon} <b>${k.name}</b></td><td>${esc(k.ask)} <span class="elim-ex">e.g. ${esc(k.ex)}</span></td></tr>`).join('')}</tbody></table></div>`;
+}
+function elimButton(view) { return cutOf(view.q) ? `<button class="micro-btn how-btn elim-btn" id="elim-btn" data-click="ruleOut()" aria-pressed="${!!view.elimShown}">✂ Rule out</button>` : ''; }
+function elimHowHtml() { return ''; }
+// Strikes the cut choices on the answer buttons (by text: a session may show them in another order) and writes one
+// line per rule below the choices, with the letters as shown. The choice that is left is not touched.
 function applyElim(view, prefix = 'cb') {
-  if (!view || !view.elimShown || !elimOf(view.q) || typeof $ !== 'function') return;
-  for (const e of view.q.elim) {
-    const i = view.choices.indexOf(view.q.choices[e.c]), b = i < 0 ? null : $(prefix + '-' + i);
-    if (!b || !b.classList) continue;
-    b.classList.add('elim-out');
-    if (b.querySelector && !b.querySelector('.elim-why')) b.insertAdjacentHTML('beforeend', `<span class="elim-why">${elimLabel(e)}${fmt(e.why)}</span>`);
+  if (!view || !view.elimShown || !cutOf(view.q) || typeof $ !== 'function') return;
+  const cut = cutOf(view.q), lines = [];
+  for (const e of cut) {
+    const letters = [];
+    for (const c of e.c) {
+      const i = view.choices.indexOf(view.q.choices[c]), b = i < 0 ? null : $(prefix + '-' + i);
+      if (i >= 0) letters.push(i);
+      if (b && b.classList) b.classList.add('elim-out');
+    }
+    letters.sort((a, b) => a - b);
+    lines.push(`<div class="cut-line"><span class="cut-rule">${esc(GLANCE[e.r].name)}</span> → ✂ ${letters.map(i => 'ABCD'[i]).join(', ')}</div>`);
   }
   const area = $('choices-area');
-  if (area && area.insertAdjacentHTML && !$('elim-rule')) area.insertAdjacentHTML('afterend', `<div class="how-hint elim-box" id="elim-rule" role="status"><b>⏱ 3-second rule:</b> ${fmt(view.q.rule)}</div>`);
+  if (area && area.insertAdjacentHTML && !$('elim-rule')) area.insertAdjacentHTML('afterend', `<div class="cut-lines" id="elim-rule" role="status">${lines.join('') || '<div class="cut-line">No glance rule cuts here.</div>'}</div>`);
 }
-function elimHintRefresh(view) { if ($('hint-area')) $('hint-area').innerHTML = quiz.answered ? helpButton('showLesson()') + elimButton(view) + elimHowHtml(view) : hintArea(view); }
-function ruleOutThree() {
+function elimHintRefresh(view) { if ($('hint-area')) $('hint-area').innerHTML = quiz.answered ? helpButton('showLesson()') + elimButton(view) : hintArea(view); }
+function ruleOut() {
   const view = quiz.items[quiz.idx];
-  if (!view || !elimOf(view.q)) return;
+  if (!view || !cutOf(view.q)) return;
   if (!$('cb-0')) revealChoices();
   view.elimShown = true;
-  // The six checks open by themselves the first time; after that only on "How?".
-  try { if (!localStorage.getItem('mcat2_elim_how_seen')) { view.elimHow = true; localStorage.setItem('mcat2_elim_how_seen', '1'); } } catch (e) {}
   elimHintRefresh(view);
   applyElim(view);
 }
-function toggleElimHow() { const view = quiz.items[quiz.idx]; if (!view) return; view.elimHow = !view.elimHow; elimHintRefresh(view); }
 // ── "⚡ Shortcut": the fastest repeatable route to the answer ──
 // Every card also carries one shortcut (q.fast: {kind, how}) of six kinds, the same on every card (FAST_KINDS), so
 // the student learns six moves, not 540 tricks. Unlike Rule out 3 it may lead straight to the answer, so it stays
@@ -1517,20 +1529,6 @@ function fastLabel(f) { const k = FAST_KIND[f.kind]; return k.icon + ' ' + k.nam
 function fastKindsHtml() {
   return `<div class="elim-checks"><p><b>⚡ Shortcut: the fastest route to the answer.</b> Every card uses one of these six moves.</p><table><tbody>${FAST_KINDS.map((k, i) => `<tr><td>${i + 1}. ${k.icon} <b>${k.name}</b></td><td>${esc(k.ask)} <span class="elim-ex">e.g. ${esc(k.ex)}</span></td></tr>`).join('')}</tbody></table></div>`;
 }
-function fastButton(view) { return fastOf(view.q) ? `<button class="micro-btn how-btn fast-btn" id="fast-btn" data-click="showFast()" aria-pressed="${!!view.fastShown}">⚡ Shortcut</button>` : ''; }
-function applyFast(view) {
-  if (!view || !view.fastShown || !fastOf(view.q) || typeof $ !== 'function' || $('fast-box')) return;
-  const after = $('elim-rule') || $('choices-area');
-  if (after && after.insertAdjacentHTML) after.insertAdjacentHTML('afterend', `<div class="how-hint elim-box fast-box" id="fast-box" role="status"><b>⚡ Shortcut · ${fastLabel(view.q.fast)}:</b> ${fmt(view.q.fast.how)}</div>`);
-}
-function showFast() {
-  const view = quiz.items[quiz.idx];
-  if (!view || !fastOf(view.q)) return;
-  if (!$('cb-0')) revealChoices();
-  view.fastShown = true;
-  elimHintRefresh(view);
-  applyFast(view);
-}
 // ── "Teach me this graph": steps that label and measure the question's own graph before answering ──
 function teachOf(q) { return q && !q.variant && !q.baseId && Array.isArray(q.teach) && q.teach.length ? q.teach : null; }
 function teachHtml(view) {
@@ -1541,8 +1539,8 @@ function teachHtml(view) {
     (Array.isArray(st.calc) && st.calc.length ? `<div class="step-calc">${st.calc.map((ln, k) => `<div class="calc-line calc-d${Math.min(k, 7)}">${fmt(ln)}</div>`).join('')}</div>` : '');
   return `<div class="how-hint teach-box" role="status"><div class="how-title">Step by step · ${i} of ${t.length}</div><p>${fmt(st.text)}</p>${inBox}
     <div class="step-progress" aria-hidden="true"><div class="step-progress-fill" data-css="width:${Math.round(i / t.length * 100)}%"></div></div>
-    <div class="step-controls"><button class="micro-btn" data-click="teachStep(-1)"${i <= 1 ? ' disabled' : ''}>◀ Back</button>
-    ${i < t.length ? `<button class="micro-btn step-next" id="teach-next" data-click="teachStep(1)">Next ▶</button>` : `<button class="micro-btn" data-click="teachStep(0)">↺ Start over</button><span class="step-count">Now answer the question.</span>`}</div></div>`;
+    <div class="step-controls"><button class="micro-btn" data-click="teachStep(-1)"${i <= 1 ? ' disabled' : ''}>◀ Step</button>
+    ${i < t.length ? `<button class="micro-btn step-next" id="teach-next" data-click="teachStep(1)">Step ▶</button>` : `<button class="micro-btn" data-click="teachStep(0)">↺ Start over</button><span class="step-count">Now answer the question.</span>`}</div></div>`;
 }
 function teachStep(delta) {
   const view = quiz.items[quiz.idx], t = view && teachOf(view.q);
@@ -1629,7 +1627,7 @@ function stepVisual(st, ctx) {
 function isLessonCard(q) { return typeof isCpt === 'function' && isCpt(q) && !!howOf(q) && !!teachOf(q); }
 // A card with Rule out 3 opens its lesson with it: the three quick eliminations and the 3-second rule, then the method.
 function elimStep(q) { return [...elimOnlyStep(q), ...(fastOf(q) ? [{ text: '**⚡ Shortcut · ' + fastLabel(q.fast) + '.** ' + q.fast.how }] : [])]; }
-function elimOnlyStep(q) { return elimOf(q) ? [{ text: '**Rule out 3 first.** Three choices fall to the six quick checks before any full working.', strike: q.elim.map(e => q.choices[e.c]), calc: [...q.elim.map(e => '✗ ' + q.choices[e.c] + ' · ' + elimLabel(e) + e.why), '3-second rule: ' + q.rule] }] : []; }
+function elimOnlyStep(q) { const cut = cutOf(q); return cut && cut.length ? [{ text: '**Rule out at a glance.** No math, no writing: the glance rules cut these.', strike: cut.flatMap(e => e.c.map(c => q.choices[c])), calc: cut.map(e => GLANCE[e.r].name + ' → ✂ ' + e.c.map(c => q.choices[c]).join(' · ')) }] : []; }
 // A passage card starts where a passage question starts: the sentence that holds the clue (how.steps[0]), then Rule out 3.
 function lessonSteps(q) { const rule = teachOf(q).at(-1), hs = howSteps(howOf(q)), lead = q.passage && hs.length ? hs.splice(0, 1) : [];
   return [...lead, ...elimStep(q), ...hs, { text: rule.text, rule: true }]; }
@@ -1642,8 +1640,8 @@ function lessonPlayerHtml() {
     ${cur >= n && h.trap ? `<p class="how-trap"><b>The trap:</b> ${fmt(h.trap)}</p>` : ''}
     <div class="step-progress" aria-hidden="true"><div class="step-progress-fill" data-css="width:${Math.round(cur / n * 100)}%"></div></div>
     <div class="step-controls">
-      <button class="micro-btn" data-click="howStep(-1)"${cur <= 1 ? ' disabled' : ''}>◀ Back</button>
-      ${cur < n ? `<button class="micro-btn step-next" id="how-next" data-click="howStep(1)">Next ▶</button>` : `<button class="micro-btn" data-click="howReplay()">↺ Start over</button>`}
+      <button class="micro-btn" data-click="howStep(-1)"${cur <= 1 ? ' disabled' : ''}>◀ Step</button>
+      ${cur < n ? `<button class="micro-btn step-next" id="how-next" data-click="howStep(1)">Step ▶</button>` : `<button class="micro-btn" data-click="howReplay()">↺ Start over</button>`}
     </div>`;
 }
 function lessonBox(q, ctx) {
@@ -1673,10 +1671,10 @@ function howPlayerHtml() {
     ${cur >= n && h.trap ? `<p class="how-trap"><b>4. The trap:</b> ${fmt(h.trap)}</p>` : ''}
     <div class="step-progress" aria-hidden="true"><div class="step-progress-fill${stepper.playing && cur < n ? ' running' : ''}" data-css="width:${Math.round(cur / n * 100)}%"></div></div>
     <div class="step-controls">
-      <button class="micro-btn" data-click="howStep(-1)"${cur <= 1 ? ' disabled' : ''}>◀ Back</button>
+      <button class="micro-btn" data-click="howStep(-1)"${cur <= 1 ? ' disabled' : ''}>◀ Step</button>
       ${cur < n ? `<button class="micro-btn step-play" id="how-play" data-click="howToggle()">${stepper.playing ? '❚❚ Pause' : '▶ Play'}</button>` : `<button class="micro-btn step-play" data-click="howReplay()">↺ Replay</button>`}
       <span class="step-count">Step ${cur} of ${n}</span>
-      ${cur < n ? `<button class="micro-btn step-next" id="how-next" data-click="howStep(1)">Next ▶</button><button class="micro-btn" data-click="howStep(99)">Show all</button>` : ''}
+      ${cur < n ? `<button class="micro-btn step-next" id="how-next" data-click="howStep(1)">Step ▶</button><button class="micro-btn" data-click="howStep(99)">Show all</button>` : ''}
     </div>`;
 }
 // Highlights the live passage, question and figure for the current step.
@@ -1762,7 +1760,7 @@ function revealChoices() {
   view.revealed = true;
   view.revealedAt = Date.now();
   $('choices-area').innerHTML = choiceButtons(view.choices, 'pick', { view });
-  applyElim(view); applyFast(view);
+  applyElim(view);
 }
 function flagCurrent() {
   const q = quiz.items[quiz.idx].q;
@@ -1804,11 +1802,13 @@ function finishPick(chosen, other = null, answerMs = null) {
       : howBox(view.q, { ctx: { mode: 'recall', view, prefix: 'cb', figure: view.q.chart || null } }));
   if (isLessonCard(view.q) && right) stepper = null;
   // The help button stays after the answer: it opens the worked solution from step 1.
-  if ($('hint-area')) $('hint-area').innerHTML = howOf(view.q) ? helpButton('showLesson()') + elimButton(view) + elimHowHtml(view) : '';
+  if ($('hint-area')) $('hint-area').innerHTML = howOf(view.q) ? helpButton('showLesson()') + elimButton(view) : '';
   // A hinted answer was not pure recall: it starts as Unsure so the card comes back (you can change it)
   if (view.hint) quiz.pending.conf = 'unsure';
   if (howOf(view.q)) applyStepContext();
   renderNextArea();
+  // A large "Next card →" right under the choices, so the way on is never the lesson's step button.
+  if ($('go-on')) $('go-on').innerHTML = `<button class="next-btn next-card-btn" id="next-card-btn" data-click="nextQ()">${quiz.idx + 1 >= quiz.items.length && !quiz.adaptive ? 'See results →' : 'Next card →'}</button>`;
   $('next-btn').focus({ preventScroll: true });
   // Bring the guided walkthrough into view as it starts playing.
   const hb = $('how-box'); if (hb && hb.scrollIntoView) hb.scrollIntoView({ behavior: 'smooth', block: 'start' });
