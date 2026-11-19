@@ -472,7 +472,7 @@ const CP_POOL =
      "4E"
     ],
     "title": "Attaching a Fluorescent Dye to Enzyme K",
-    "passage": "Fluorescent labels are widely used because they let changes in protein shape be followed in real time. To follow conformational changes of Enzyme K, a 50-kDa enzyme, by fluorescence, researchers attached a dye through an iodoacetamide group, which at pH 7.5 alkylates only sulfhydryl (–SH) groups. Enzyme K has a single such side chain. The protein (2.0 mL of a 6.0 mg/mL solution) was mixed with excess dye in a labeling buffer of 0.200 M Tris (molar mass 121.1 g/mol) and kept for 2 h at 4°C.\n\nThe product was analyzed by native gel electrophoresis, which separates proteins by charge as well as by size. Because the dye carries two negative charges, labeled Enzyme K migrates farther toward the positive electrode than unlabeled Enzyme K. An unlabeled control sample was run in lane 1 and the labeling product in lane 2. The gel was first viewed under UV light and then stained for protein, and the bands are summarized in Table 1. Gels were run in duplicate, and the duplicate gels gave identical bands.\n\nLabeling efficiency matters because unlabeled molecules are invisible in fluorescence experiments, while free dye raises the background signal. Finally, the specific activity of the protein in the labeling product (activity per milligram of Enzyme K) was found to equal that of unlabeled Enzyme K within experimental error.",
+    "passage": "Fluorescent labels are widely used because they let changes in protein shape be followed in real time. To follow conformational changes of Enzyme K, a 50-kDa enzyme, by fluorescence, researchers attached a dye through a triazolinedione group, which at pH 7.5 adds only to the electron-rich ring of phenol (aryl –OH) side chains. Enzyme K has a single such side chain. The protein (2.0 mL of a 6.0 mg/mL solution) was mixed with excess dye in a labeling buffer of 0.200 M Tris (molar mass 121.1 g/mol) and kept for 2 h at 4°C.\n\nThe product was analyzed by native gel electrophoresis, which separates proteins by charge as well as by size. Because the dye carries two negative charges, labeled Enzyme K migrates farther toward the positive electrode than unlabeled Enzyme K. An unlabeled control sample was run in lane 1 and the labeling product in lane 2. The gel was first viewed under UV light and then stained for protein, and the bands are summarized in Table 1. Gels were run in duplicate, and the duplicate gels gave identical bands.\n\nLabeling efficiency matters because unlabeled molecules are invisible in fluorescence experiments, while free dye raises the background signal. Finally, the specific activity of the protein in the labeling product (activity per milligram of Enzyme K) was found to equal that of unlabeled Enzyme K within experimental error.",
     "figure": {
      "caption": "Table 1 Native gel of the labeling reaction",
      "columns": [
@@ -526,20 +526,20 @@ const CP_POOL =
       "id": "p_cpq1_5_q1"
      },
      {
-      "q": "Which amino acid side chain of Enzyme K does the iodoacetamide group of the dye modify?",
+      "q": "Which amino acid side chain of Enzyme K does the triazolinedione group of the dye modify?",
       "choices": [
        "Cys, –CH₂SH",
        "Met, –CH₂CH₂SCH₃",
        "Thr, –CH(OH)CH₃",
        "Tyr, –CH₂C₆H₄OH"
       ],
-      "ans": 0,
+      "ans": 3,
       "cat": "5D",
       "skill": "SIRS 1",
       "diff": "E",
       "subj": "organic_chem",
       "twin": "pe6-cp:34",
-      "exp": "1. The reagent needs an S–H: a sulfur bonded to hydrogen.\n2. Find the atom at the end of each side chain and what it is bonded to: Cys: –CH₂–**S–H**; Met: –CH₂CH₂–**S–CH₃**, no H on S; Thr: –CH(**O–H**)CH₃; Tyr: –CH₂–C₆H₄–**O–H**.\n3. Methionine has sulfur, but it is a thioether with no H on S.\n4. Threonine and tyrosine have O–H groups, not S–H.\n5. Answer: Cys, –CH₂SH. S with an H = thiol = cysteine; S between two carbons = methionine.\n\n**Rule to reuse:** **Thiol:** R–S–H. **Thioether (sulfide):** R–S–R, no H on S. **Alcohol:** R–O–H. **Primary amine:** R–NH₂.",
+      "exp": "1. The reagent needs a phenol: an –OH bonded directly to an aromatic ring.\n2. Find the atom at the end of each side chain and what it is bonded to: Cys: –CH₂–**S–H**; Met: –CH₂CH₂–**S–CH₃**; Thr: –CH(**O–H**)CH₃, an OH on an sp³ carbon; Tyr: –CH₂–C₆H₄–**O–H**, an OH on a benzene ring.\n3. Cysteine and methionine have sulfur and no ring, so they are out.\n4. Threonine has an O–H, but it is an alcohol: no aromatic ring for the reagent to add to.\n5. Answer: Tyr, –CH₂C₆H₄OH. OH on a benzene ring = phenol = tyrosine; OH on an sp³ carbon = alcohol (Ser, Thr).\n\n**Rule to reuse:** **Phenol:** Ar–O–H (tyrosine). **Alcohol:** R–O–H (serine, threonine). **Thiol:** R–S–H (cysteine). **Thioether:** R–S–R (methionine).",
       "id": "p_cpq1_5_q2"
      },
      {
@@ -577,7 +577,7 @@ const CP_POOL =
       "id": "p_cpq1_5_q4"
      },
      {
-      "q": "Because labeling did not change the specific activity of Enzyme K, which best describes the location of its labeled cysteine?",
+      "q": "Because labeling did not change the specific activity of Enzyme K, which best describes the location of its labeled tyrosine?",
       "choices": [
        "Within the catalytic pocket",
        "In the nonpolar interior of the fold",
@@ -589,7 +589,7 @@ const CP_POOL =
       "skill": "SIRS 1",
       "diff": "M",
       "twin": "pe6-cp:37",
-      "exp": "1. Two clues: the dye reagent is dissolved in water, and the labeled enzyme keeps its full specific activity.\n2. The dye attaches to the cysteine thiol, and a bulky dye there would block anything nearby.\n3. Full activity rules out a label within the catalytic pocket.\n4. A water-soluble reagent reaches exposed residues first; the nonpolar interior of the fold and a docking site covered by a partner protein are hidden from solvent.\n5. Answer: solvent-exposed, distant from the catalytic pocket, where the dye can reach the cysteine without disturbing catalysis.\n\n**Rule to reuse:** a reagent in water labels exposed surface residues; if activity is unchanged, the label is away from the active site.",
+      "exp": "1. Two clues: the dye reagent is dissolved in water, and the labeled enzyme keeps its full specific activity.\n2. The dye attaches to the tyrosine ring, and a bulky dye there would block anything nearby.\n3. Full activity rules out a label within the catalytic pocket.\n4. A water-soluble reagent reaches exposed residues first; the nonpolar interior of the fold and a docking site covered by a partner protein are hidden from solvent.\n5. Answer: solvent-exposed, distant from the catalytic pocket, where the dye can reach the tyrosine without disturbing catalysis.\n\n**Rule to reuse:** a reagent in water labels exposed surface residues; if activity is unchanged, the label is away from the active site.",
       "id": "p_cpq1_5_q5"
      }
     ]
