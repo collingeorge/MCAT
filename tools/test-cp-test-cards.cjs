@@ -80,7 +80,7 @@ const BUILT = process.env.CPT_FILE ? [...new Set(CARDS.flatMap(c => (c.from || [
 const ALL_BUILT = BUILT.length === PE.size;
 
 // ── 1. Coverage and worked methods ──
-const strip = t => String(t == null ? '' : t).replace(/<[^>]+>/g, ' ').replace(/\*\*/g, '');
+const strip = t => String(t == null ? '' : t).replace(/<\/?[a-z][a-z0-9]*(?:\s[^<>]*)?\/?>/gi, ' ').replace(/\*\*/g, '');
 const words = t => strip(t).trim().split(/\s+/).filter(Boolean).length;
 const SHARED = new Map();
 const ids = new Set(), stems = new Map(), bySrc = new Map([...PE.keys()].map(s => [s, []])), byItem = new Map(SPEC.items.map(it => [it.ref, []]));
@@ -90,7 +90,7 @@ const ids = new Set(), stems = new Map(), bySrc = new Map([...PE.keys()].map(s =
 // choice) its number (whole numbers 0–10 aside; a power of ten such as 10³ is read as 10^3, not 103).
 const ELIM_TAGS = ['impossible', 'units', 'backwards', 'skipped', 'copied', 'fact'];
 const GIVE_SUB = { '₀': '0', '₁': '1', '₂': '2', '₃': '3', '₄': '4', '₅': '5', '₆': '6', '₇': '7', '₈': '8', '₉': '9', '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9', '⁻': '-', '⁺': '+' };
-const giveNorm = t => String(t).replace(/<[^>]+>|\*\*/g, '').replace(/10([⁻⁺]?[⁰¹²³⁴-⁹]+)/g, (m, e) => '10^(' + e + ')').replace(/[₀-₉⁰¹²³⁴-⁹⁺⁻]/g, ch => GIVE_SUB[ch] || ch).toLowerCase().replace(/\s+/g, ' ').replace(/[.;:,]+$/, '').trim();
+const giveNorm = t => String(t).replace(/<\/?[a-z][a-z0-9]*(?:\s[^<>]*)?\/?>|\*\*/gi, '').replace(/10([⁻⁺]?[⁰¹²³⁴-⁹]+)/g, (m, e) => '10^(' + e + ')').replace(/[₀-₉⁰¹²³⁴-⁹⁺⁻]/g, ch => GIVE_SUB[ch] || ch).toLowerCase().replace(/\s+/g, ' ').replace(/[.;:,]+$/, '').trim();
 const giveNums = t => (giveNorm(t).replace(/(\d),(\d{3})/g, '$1$2').match(/\d+(?:\.\d+)?/g) || []).map(Number).filter(n => !(Number.isInteger(n) && n <= 10));
 function giveAway(key, text) {
   const k = giveNorm(key), t = giveNorm(text);
@@ -165,7 +165,7 @@ for (const c of CARDS) {
   if (c.from.length) assert(c.from.some(ref => { const q = SPEC.bySrc.get(ref.split('#')[0]); return q.aamc === c.aamc && q.disc === c.disc && q.skill === c.skill; }), id + ': aamc, disc and skill come from a source question\'s spec line');
   else assert(DECK_TARGET[c.aamc] && typeof c.disc === 'string' && /^SIRS [1-4]$/.test(c.skill), id + ': labels');
   assert(typeof c.q === 'string' && c.q.trim() && Array.isArray(c.choices) && c.choices.length === 4, id + ': stem and 4 choices');
-  assert.equal(new Set(c.choices.map(norm)).size, 4, id + ': distinct choices');
+  assert.equal(new Set(c.choices.map(require('./twin-checks.cjs').cnorm)).size, 4, id + ': distinct choices (math symbols count)');
   assert(Number.isInteger(c.ans) && c.ans >= 0 && c.ans < 4, id + ': ans');
   assert(typeof c.exp === 'string' && c.exp.length >= 40, id + ': explanation');
   const k = norm(c.q); assert(!stems.has(k), id + ': duplicate stem of ' + stems.get(k)); stems.set(k, id);
@@ -236,7 +236,8 @@ const LOCANT = /\b\d+(?:,\d+)*-(?=[\p{L}(])|(?<=[\p{L})])-\d+(?:,\d+)*\b/gu;   /
 const dataNums = t => numsOf(strip(t).replace(LOCANT, ' ').replace(/(×\s*)?\b10(?=[⁻⁰¹²³⁴⁵⁶⁷⁸⁹])/g, ' '));
 const KEY_SUB = { '₀': '0', '₁': '1', '₂': '2', '₃': '3', '₄': '4', '₅': '5', '₆': '6', '₇': '7', '₈': '8', '₉': '9', '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9', '⁺': '+', '⁻': '-' };
 const KEY_STOP = new Set('a an the of to in on at by for from with and or but so as is are was were be it its this that since because which than then into their they both each only'.split(' '));
-const keyNorm = t => String(t).toLowerCase().replace(/[₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]/g, ch => KEY_SUB[ch]).replace(/[^a-z0-9+\-. ]+/g, ' ').replace(/\s+/g, ' ').trim()
+const GREEK = { 'σ': ' sigma ', 'π': ' pi ', 'α': ' alpha ', 'β': ' beta ', 'γ': ' gamma ', 'δ': ' delta ', 'λ': ' lambda ', 'μ': ' mu ' };
+const keyNorm = t => String(t).toLowerCase().replace(/[σπαβγδλμ]/g, ch => GREEK[ch]).replace(/[₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]/g, ch => KEY_SUB[ch]).replace(/[^a-z0-9+\-. ]+/g, ' ').replace(/\s+/g, ' ').trim()
   .replace(/\bd2sp3\b/g, 'sp3d2').replace(/\bdsp3\b/g, 'sp3d').replace(/^(a|an|the) /, '').replace(/ (group|point|bond|bonding)s?$/, '');
 const keyWords = t => keyNorm(t).split(' ').filter(w => w && !KEY_STOP.has(w));
 const lessonText = c => { const h = c.how || {}; return [c.fast && c.fast.how, h.ask, h.know, h.trap, ...(h.steps || []).flatMap(st => [st.text, ...(st.calc || [])]), ...(c.teach || []).flatMap(t => [t.text, ...(t.calc || []), ...(t.marks || []).map(m => m.note)])].filter(Boolean).join(' \n '); };
