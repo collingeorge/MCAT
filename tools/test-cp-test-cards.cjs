@@ -457,9 +457,11 @@ assert(frontSeen > 0, 'the flashcards built from a missed twin led their categor
     const plan0 = JSON.parse(run("JSON.stringify(masteryPlanNow().steps.map(s => s.id))"));
     assert.equal(plan0[1], 'rules', 'C/P: the rules warm-up is the first daily step (after the diagnostic): ' + plan0.join(' '));
     assert.equal(plan0[2], 'flashcards', 'then the flashcards');
-    assert(/Unlocks when the rules warm-up is done/.test(run('masteryCard()')), 'the flashcard step shows it is locked');
+    // Nothing locks (the user, 2026-11-20): the warm-up is suggested first, but the flashcards start any time.
+    assert(!/Unlocks when/.test(run('masteryCard()')), 'nothing on TODAY is locked');
     run('startMasteryFlashcards()');
-    assert.notEqual(run('quiz.mastery'), 'flashcards', 'the flashcards wait for the rules warm-up');
+    assert.equal(run('quiz.mastery'), 'flashcards', 'the flashcards start before the rules warm-up');
+    run('goHome()');
     run('startMasteryRules()');
     assert.equal(run('quiz.mastery'), 'rules', 'the warm-up runs as a quiz');
     assert.equal(run('quiz.items.length'), 10, "today's 10 rule cards");
