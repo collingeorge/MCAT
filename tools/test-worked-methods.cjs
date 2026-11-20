@@ -40,7 +40,9 @@ for (const q of FL) {
   assert(GLOSS_OK.has(q.src) || q.choices.every(c => !/\([^()]*\s[^()]*\)/.test(c)), q.src + ': no parenthetical hint in choices');
   assert(!/\b(RATIO|MUST)\b/.test(q.q), q.src + ': no capitalized cue words beyond NOT/EXCEPT');
   // Two added cards were reworded after they shipped (2026-11-15: pH 7 → pH 8, 1:20 → 20-fold); they keep the stem they shipped with.
-  if (isAdded(q) && !REWORDED_ADDED.has(q.src)) assert.equal(q.idStem, undefined, q.src + ': a new card has no earlier stem');
+  // 2026-11-19: the Practice Exam gap cards were reworded to their AAMC question's wording; each keeps the stem it shipped
+  // with as idStem, so its progress carries over. Sample Test cards are unchanged and still have none.
+  if (isAdded(q) && !REWORDED_ADDED.has(q.src)) assert(/^sample-cp:/.test(q.src) ? q.idStem === undefined : (q.idStem === undefined || (typeof q.idStem === 'string' && q.idStem !== q.q)), q.src + ': a new card keeps no earlier stem, or the stem it shipped with');
   else assert(typeof q.idStem === 'string' && q.idStem !== q.q, q.src + ': original stem kept as idStem');
 }
 assert(source.includes("let id = 'fl-' + hashId(q.s + '|' + (q.idStem || q.q));"), 'FL ids use idStem');
@@ -274,7 +276,7 @@ assert.match(ann, /class="ch-axis-hl"/); assert.match(ann, /class="ch-shade"/); 
 assert.match(ann, />peak</); assert.doesNotMatch(ann, />missing</, 'labels only on plotted points');
 assert.equal((ann.match(/class="ch-span"/g) || []).length, 2); assert.match(ann, /text-anchor="end">drop</);
 assert.doesNotMatch(vm.runInContext("figureHtml(fig, { labels: [{ series: 'A', x: 7, text: '<img src=x>' }] })", ctx), /<img/, 'annotation text escaped');
-assert.match(box, /<strong>q = m × L<\/strong>/, 'bold markdown is formatted');
+assert.match(box, /<strong>Q = mL<\/strong>/, 'bold markdown is formatted');
 // Escaping: authored text cannot inject markup.
 ctx.evil = { how: { ask: '<img src=x>', know: '<script>', steps: ['<i>'], trap: '"x"' } };
 const evil = vm.runInContext('howBox(evil)', ctx);

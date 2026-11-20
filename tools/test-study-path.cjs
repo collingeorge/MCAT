@@ -45,10 +45,11 @@ assert.match(el('hero-badge').textContent, /QBank cards · 354 Practice Exam car
 
 // Weakness picks, never counts: within 5D (a weak category), a card missed today, one missed on the latest test
 // and one due for review come first, then the weakest sub-topic's cards (by saved accuracy), then the rest.
-const p5D = JSON.parse(run("JSON.stringify(masteryFlashPool('cp').filter(q => masteryCategory(q) === '5D' && disciplineOfRecall(q) === 'biochemistry').map(q => ({ id: q.id, key: q.key })))"));
+const p5D = JSON.parse(run("JSON.stringify(masteryFlashPool('cp').filter(q => masteryCategory(q) === '5D' && disciplineOfRecall(q) === 'biochemistry').map(q => ({ id: q.id, key: q.key, tier: q.tier })))"));
 const keys5D = [...new Set(p5D.map(q => q.key))], weakKey = keys5D.find(k => p5D.filter(q => q.key === k).length >= 2 && p5D.filter(q => q.key === k).length <= 4);
 assert(weakKey, 'a small 5D biochemistry sub-topic to mark weak');
-const tier0 = p5D.filter(q => q.key !== weakKey).slice(-3).map(q => q.id), weakIds = p5D.filter(q => q.key === weakKey).map(q => q.id);
+// A rare card, once shown, never comes back (not even as a miss or due), so the three picks are core or common cards.
+const tier0 = p5D.filter(q => q.key !== weakKey && q.tier !== 'rare').slice(-3).map(q => q.id), weakIds = p5D.filter(q => q.key === weakKey).map(q => q.id);
 run(`(() => { const m = masteryLoad(); masteryDayRow(m, 'cp').misses = ['${tier0[0]}']; m.tests[m.tests.length - 1].missIds = ['${tier0[1]}']; masterySave(m);
   store.set(KEYS.mem, { '${tier0[2]}': { S: 1, D: 5, last: Date.now() - 10 * DAY, seen: 1, right: 0, lapses: 1 } });
   store.set(KEYS.stats, { '${weakKey}': { c: 1, t: 5 }, ${JSON.stringify(keys5D.find(k => k !== weakKey))}: { c: 5, t: 5 } }); })()`);
@@ -82,7 +83,7 @@ assert.equal(run('masteryLoad().days[localDay()].prac'), undefined, 'passage ans
 // After the quiz (below goal): the follow-up reviews the quiz's misses and weak categories with flashcards (and
 // guided cards, below); the quiz's missed card comes first; never practice passages.
 // (A biology card, 2% of the AAMC discipline mix, gets no slot in a 5-card drill, so the missed card is a physics one.)
-{ const miss = run("masteryFlashPool('cp').filter(q => masteryCategory(q) === '4C' && q.disc === 'physics').at(-1).id");
+{ const miss = run("masteryFlashPool('cp').filter(q => masteryCategory(q) === '4C' && q.disc === 'physics' && q.tier !== 'rare').at(-1).id");
   run(`(() => { const m = masteryLoad(); m.tests.push({ subj: 'cp', day: localDay(), t: 2, kind: 'daily', correct: 12, total: 30, pct: 40, scaled: 120, version: 'cp_half_1', cats: { '4C': { c: 0, t: 3 } }, missIds: ['${miss}'] }); masterySave(m); })()`);
   run('renderHome()'); const html = el('today-plan').innerHTML;
   assert.match(html, /startMasteryFollowup\('flashcards'\)/); assert.match(html, /startMasteryFollowup\('guided'\)/); assert.doesNotMatch(html, /startMasteryFollowup\('passages'\)|Practice passages/);

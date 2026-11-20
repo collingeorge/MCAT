@@ -7,7 +7,7 @@ const S = require('./twin-sources.cjs');
 const BLOCKLIST = {
   'Hall effect': /hall effect/i, 'electromagnetic induction': /faraday.s law|induced emf|electromagnetic induction|lenz/i,
   transistor: /transistor/i, 'Diels–Alder': /diels/i, Wittig: /wittig/i, 'Friedel–Crafts': /friedel/i, ozonolysis: /ozonolys/i,
-  'uncertainty principle': /heisenberg|uncertainty principle/i, 'de Broglie wavelength': /de broglie/i, 'Compton scattering': /compton/i,
+  'de Broglie wavelength': /de broglie/i, 'Compton scattering': /compton/i,
   'X-ray diffraction': /x-ray (crystallograph|diffraction)|bragg/i, 'thin-film interference': /thin.film/i, 'moment of inertia': /moment of inertia/i,
   'escape velocity': /escape velocity/i, 'Kepler’s laws': /kepler/i, 'Poiseuille’s law': /poiseuille/i, 'Gibbs–Helmholtz': /gibbs.helmholtz/i,
   'Nernst equation': /nernst/i, 'Raoult’s law': /raoult/i, 'EDTA titration': /\bedta\b|complexometric/i, 'Biot–Savart / μ₀': /μ₀|biot.savart/i,
@@ -53,12 +53,11 @@ const LABEL = /^(?:(?:[ivx]+|[a-d])(?:\s*(?:,|and|or|&)\s*(?:[ivx]+|[a-d]))*(?:\
 // A copied full choice set: every choice of one is a choice of the other (normalized, math kept), unless the set is
 // only labels.
 const copiedChoices = (a, b) => a.length === b.length && !a.every(x => LABEL.test(String(x).trim())) && a.every(x => b.some(y => cnorm(x) === cnorm(y)));
+// The user (2026-11-19): a quiz question uses its AAMC question's exact wording and choices, with only names and
+// numbers changed, so it may share the stem pattern and closed choice sets with the card it twins. Only the
+// untaught-topic check remains. ("uncertainty principle" left the blocklist: AAMC uses it as a distractor.)
 function twinProblems(q, p, card) {
-  const out = [], cardNums = dataOnly(numsOf(card.q + ' ' + card.choices.join(' ')));
-  for (const ch of [q.q, ...q.choices]) { const shared = [...dataOnly(numsOf(ch))].filter(n => cardNums.has(n)); if (shared.length) out.push(`"${ch.slice(0, 60)}" repeats the card's data number ${shared.join(', ')}`); }
-  if (copiedChoices(q.choices, card.choices)) out.push('copies the card\'s full choice set');
-  if (copiedStem(q.q, card.q)) out.push('copies the card\'s full stem');
-  if (p) { const cg = grams(card.q + ' ' + (card.exp || ''), 6), shared = [...grams(p.passage, 6)].filter(g => cg.has(g)); if (shared.length) out.push('the passage shares a 6-word run with the card: "' + shared[0] + '" (passage text stays original)'); }
+  const out = [];
   const text = [q.q, ...q.choices, q.exp, p ? p.passage + ' ' + (p.title || '') : ''].join(' ');
   for (const [topic, re] of Object.entries(BLOCKLIST)) if (re.test(text)) out.push('uses untaught topic: ' + topic);
   return out;

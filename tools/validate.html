@@ -65,7 +65,7 @@
     if (norm.some(c => !c)) err(where, 'empty choice');
     if (new Set(norm).size !== norm.length) err(where, `duplicate choices — ${short(q.q)}`);
     q.choices.forEach(c => { if (PLACEHOLDER.test(String(c).trim())) err(where, `placeholder choice "${c}"`); });
-    if (/both [a-d] and [a-d]|all of the above|none of the above/i.test(q.choices.join(' | '))) warn(where, 'combination/"all of the above" style choice');
+    if (!opts.aamc && /both [a-d] and [a-d]|all of the above|none of the above/i.test(q.choices.join(' | '))) warn(where, 'combination/"all of the above" style choice');
     const exp = String(q.exp || '');
     if (exp.length < 40) warn(where, `very short explanation — ${short(q.q)}`);
     if (/^the correct answer is/i.test(exp)) warn(where, 'explanation starts with "The correct answer is"');
@@ -78,9 +78,11 @@
     const lens = q.choices.map(c => String(c).length);
     const others = lens.filter((_, i) => i !== q.ans);
     const meanOther = others.reduce((a, b) => a + b, 0) / others.length;
-    if (lens[q.ans] > 20 && lens[q.ans] > 1.8 * meanOther && !AS_SUPPLIED.has(q.src)) warn(where, `key is ${(lens[q.ans] / meanOther).toFixed(1)}× longer than distractors — ${short(q.q)}`);
+    if (!opts.aamc && lens[q.ans] > 20 && lens[q.ans] > 1.8 * meanOther && !AS_SUPPLIED.has(q.src)) warn(where, `key is ${(lens[q.ans] / meanOther).toFixed(1)}× longer than distractors — ${short(q.q)}`);
     const key = String(q.choices[q.ans]);
-    if (opts.cloze && q.ans !== undefined) {
+    // AAMC-mirrored cards and quizzes (opts.aamc) keep AAMC's own choices, so its key-length, capitalization and
+    // key-in-stem patterns are not clues we added.
+    if (opts.cloze && !opts.aamc && q.ans !== undefined) {
       const alphabetic = q.choices.every(c => /^[A-Za-z]/.test(String(c)));
       const caps = q.choices.map(c => /^[A-Z]/.test(String(c)));
       if (alphabetic && caps.filter(Boolean).length === 1 && caps[q.ans]) warn(where, `key is the only capitalized choice — ${short(q.q)}`);
@@ -118,13 +120,14 @@
     if (/\[IMAGE/i.test(q.q + q.exp + q.choices.join(' '))) err(`${name}[${i}]`, 'leftover [IMAGE] placeholder');
   }));
   const rows = [];
-  const stems = new Map();
   for (const [name, arr] of Object.entries(banks)) {
+    // Duplicate stems within one deck (a flashcard and its Guided card may share AAMC's stem pattern).
+    const stems = new Map();
     const ansDist = [0, 0, 0, 0];
     arr.forEach((q, i) => {
       if (!q.s) err(`${name}[${i}]`, 'missing s: tag');
       if (q.idStem !== undefined && (typeof q.idStem !== 'string' || !q.idStem.trim())) err(`${name}[${i}]`, 'idStem must be a nonempty legacy stem');
-      checkQuestion(`${name}[${i}]`, q, { cloze: true });
+      checkQuestion(`${name}[${i}]`, q, { cloze: true, aamc: name === 'QB_AAMC_FL' || name === 'CP_TEST_CARDS' });
       ansDist[q.ans] = (ansDist[q.ans] || 0) + 1;
       // A structure card's stem includes its drawing: the same words over a different structure is a different question.
       const k = String(q.q).trim().toLowerCase() + (q.fig == null ? '' : ' [fig:' + [].concat(q.fig).join(',') + ']');
@@ -199,7 +202,7 @@
       if (!SKILLS.has(q.skill)) err(where, `skill must be SIRS 1–4 (got "${q.skill}")`);
       if (!CP_CATS.has(q.cat)) err(where, `C/P category must be 4A–5E (got "${q.cat}")`);
       if (!DISCS.has(q.subj || subj)) err(where, `unknown discipline "${q.subj || subj}"`);
-      checkQuestion(where, q);
+      checkQuestion(where, q, { aamc: true });
     });
     passageRows.push([set.id, set.passages.reduce((n, p) => n + p.questions.length, 0) + set.standalones.length, '—']);
   });
