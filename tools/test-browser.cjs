@@ -272,7 +272,9 @@ async function main() {
   // nothing else (no reasons, tables, How?, shortcut or 3-second rule); the choice left is not marked; the answer tap
   // still works. "Tap an answer to go on" sits under the choices, then a large "Next card →"; the lesson's buttons are
   // "◀ Step" / "Step ▶".
-  for(const [kind,pick] of [['flashcard','CPTQ.find(q=>q.cut&&q.cut.reduce((n,e)=>n+e.c.length,0)>=2&&q.teach)'],['guided card','FLQ.find(q=>q.cut&&q.cut.reduce((n,e)=>n+e.c.length,0)>=2&&q.teach)']]){
+  // The C/P cards no longer carry cuts (the user, 2026-11-19: no slogan kill facts), so the Rule out UI is checked on a copy
+  // of a real card given two glance-rule cuts.
+  for(const [kind,pick] of [['flashcard','(()=>{const q=CPTQ.find(q=>q.teach&&q.how);const w=[0,1,2,3].filter(i=>i!==q.ans);return Object.assign({},q,{cut:[{r:1,c:[w[0]]},{r:2,c:[w[1]]}]});})()'],['guided card','(()=>{const q=FLQ.find(q=>q.teach&&q.how);const w=[0,1,2,3].filter(i=>i!==q.ans);return Object.assign({},q,{cut:[{r:1,c:[w[0]]},{r:2,c:[w[1]]}]});})()']]){
   await evaluate(leave+"withBank('fl',()=>withBank('cpt',()=>{window.__c="+pick+";beginQuiz([window.__c],'Rule out test')}));true"); await until('!!window.__c&&!!document.querySelector("#cb-0")');
   const bar=JSON.parse(await evaluate('JSON.stringify([...document.querySelectorAll("#hint-area > button")].map(b=>b.textContent.trim()))'));
   assert.deepEqual(bar,['💡 Show me how','✂ Rule out'],kind+' · the toolbar has two buttons: '+JSON.stringify(bar));
