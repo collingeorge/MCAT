@@ -170,7 +170,7 @@ assert(fs.readFileSync(root + '/sw.js', 'utf8').includes("'js/mastery.js'"), 'ca
   assert.equal(f.id, 'followup'); assert(!f.atGoal && !('passages' in f), 'below goal: no passage practice'); }
 assert(src.includes("btn('Flashcards on these topics', 'startMasteryFollowup(\\'flashcards\\')')") && src.includes("btn('Guided cards on these topics', 'startMasteryFollowup(\\'guided\\')', false)"), 'the follow-up offers flashcards and guided cards');
 assert(!/startMasteryPassages|masteryNextPractice|masteryNotePractice|masteryPassagePool|masteryPassageRank|startMasteryFollowup\('passages'\)/.test(src + actions + app), 'the passage step and its practice are gone');
-assert(src.includes("if (kind !== 'diagnostic' && !masteryQuizUnlocked(plan))") && src.includes("function masteryQuizUnlocked(plan) {\n  return plan.status === 'study';\n}"), 'the quiz is open any time after the diagnostic');
+assert(src.includes("if (kind !== 'diagnostic' && !masteryQuizUnlocked(plan))") && /function masteryQuizUnlocked\(plan\) \{\s*return plan\.status === 'study';\s*\}/.test(src), 'the quiz is open any time after the diagnostic');
 assert(!src.includes('Unlocks when'), 'TODAY locks nothing');
 // Results saved before the Chem/Phys Diagnostic existed (no version) are labeled as the old diagnostic.
 assert(src.includes("version: mini.setId || 'cards'") && src.includes('<b>earlier version</b> of the diagnostic'), 'old diagnostic labeled');
