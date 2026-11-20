@@ -276,7 +276,7 @@ assert.match(ann, /class="ch-axis-hl"/); assert.match(ann, /class="ch-shade"/); 
 assert.match(ann, />peak</); assert.doesNotMatch(ann, />missing</, 'labels only on plotted points');
 assert.equal((ann.match(/class="ch-span"/g) || []).length, 2); assert.match(ann, /text-anchor="end">drop</);
 assert.doesNotMatch(vm.runInContext("figureHtml(fig, { labels: [{ series: 'A', x: 7, text: '<img src=x>' }] })", ctx), /<img/, 'annotation text escaped');
-assert.match(box, /<strong>q = m × L<\/strong>/, 'bold markdown is formatted');
+assert.match(box, /<strong>Q = mL<\/strong>/, 'bold markdown is formatted');
 // Escaping: authored text cannot inject markup.
 ctx.evil = { how: { ask: '<img src=x>', know: '<script>', steps: ['<i>'], trap: '"x"' } };
 const evil = vm.runInContext('howBox(evil)', ctx);
