@@ -476,6 +476,17 @@ assert(frontSeen > 0, 'the flashcards built from a missed twin led their categor
     run('goHome()'); run('startMasteryFlashcards()');
     assert.equal(run('quiz.mastery'), 'flashcards', 'then the flashcards start');
     run('goHome()');
+    // No daily limit (the user, 2026-11-20): once today's 10 are done, "Another set" runs 10 more rule cards not yet done
+    // today, and every one of them counts toward today.
+    assert(/startMasteryRules\(true\)/.test(run('masteryCard()')), 'the rules step offers another set once today\'s cards are done');
+    const firstSet = JSON.parse(run('JSON.stringify(masteryDayRow(masteryLoad(), "cp").rulesOk)'));
+    run('startMasteryRules(true)');
+    assert.equal(run('quiz.mastery'), 'rules', 'another set runs as a rules quiz');
+    assert.equal(run('quiz.items.length'), 10, 'another 10 rule cards');
+    assert(JSON.parse(run('JSON.stringify(quiz.items.map(v => v.q.id))')).every(id => !firstSet.includes(id)), 'none of them repeats a card done today');
+    run('pick(quiz.items[0].ans)');
+    assert.equal(JSON.parse(run('JSON.stringify(masteryPlanNow().steps.find(s => s.id === "rules"))')).extra, 1, 'each extra rule card counts toward today');
+    run('goHome()');
     const pick = JSON.parse(run(`(() => { const m = { rules: { [CP_RULES.cards[5].id]: { d: '2026-01-01', ok: false }, [CP_RULES.cards[0].id]: { d: '2026-01-02', ok: true } } }; return JSON.stringify(masteryRulesPick(m, 3)); })()`));
     const ids = JSON.parse(run('JSON.stringify(CP_RULES.cards.map(c => c.id))'));
     assert.deepEqual(pick, [ids[5], ids[1], ids[2]], 'missed rule cards first, then new ones'); }
