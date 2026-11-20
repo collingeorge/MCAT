@@ -1,7 +1,7 @@
 // TODAY's 3 daily steps, run in the real app code: TODAY is the only C/P path (no passage step; the Passages tab
 // and its C/P practice passages were removed); flashcards split exactly by AAMC weight, weak categories
-// changing which cards (missed and due first, then weak sub-topics), never how many; the quiz unlocks once
-// the flashcards are done (guided cards optional); the post-quiz follow-up reviews the quiz's misses and weak categories with
+// changing which cards (missed and due first, then weak sub-topics), never how many; nothing locks: the
+// flashcards are the quiz's goal, and every step runs again as another set; the post-quiz follow-up reviews the quiz's misses and weak categories with
 // flashcards and guided cards, never passages. (This file once tested the recall subject path, removed with the
 // recall decks, and then TODAY's passage step, removed in favor of the 3-step day.)
 const assert = require('node:assert/strict');
@@ -33,7 +33,7 @@ run(`store.set(KEYS.subjectPath, { tests: [{ subj: 'cp', day: '${today}', t: 1, 
 let plan = JSON.parse(run('JSON.stringify(masteryPlanNow())'));
 assert.deepEqual(plan.steps.map(s => s.id), ['diagnostic', 'rules', 'flashcards', 'guided', 'test'], 'after the diagnostic: exactly 3 daily steps');
 run('renderHome()'); assert.doesNotMatch(el('today-plan').innerHTML, /Passage questions|startMasteryPassages/, 'no passage step on TODAY');
-assert.match(el('today-plan').innerHTML, /Unlocks when the flashcards are done/); assert.doesNotMatch(el('today-plan').innerHTML, /startMasteryTest\('daily'\)/, 'the quiz is locked');
+assert.doesNotMatch(el('today-plan').innerHTML, /Unlocks when/, 'nothing on TODAY is locked'); assert.match(el('today-plan').innerHTML, /startMasteryTest\('daily'\)/, 'the quiz is open before the flashcards');
 // Exact split: every step shows its per-category targets as chips at the AAMC weight; the two weak categories are
 // marked "weak" with the same counts (5D 12 of 50, as with no weak category); no "+ extra".
 assert.equal(plan.split, 'exact'); assert.deepEqual(plan.weakT, ['5D', '4E']);
@@ -67,12 +67,12 @@ assert.equal(run('new Set(quiz.items.map(v=>v.q.id)).size'), 50, 'no card twice'
 run('goHome()');
 
 run("store.set(KEYS.mem, {}); store.set(KEYS.stats, {})");
-// The quiz unlocks once the flashcards are done (guided cards optional): starting it early shows a message instead.
+// Nothing locks: the quiz starts before the flashcards are done (they are its goal, not a lock).
 el('page-notice').hidden = true; run("startMasteryTest('daily')");
-assert.equal(el('page-notice').hidden, false); assert.match(el('page-notice').textContent, /quiz unlocks once/); assert.notEqual(run('pq.mini && pq.mini.mastery'), 'daily');
+assert.equal(run('pq.mini && pq.mini.mastery'), 'daily', 'the quiz starts early'); run('stopPassageTimer(); pq.mini = null; goHome()');
 run(`(() => { const m = masteryLoad(), row = masteryDayRow(m, 'cp'), p = masteryPlanNow(m);
   row.flashT = Object.fromEntries(p.steps.find(s => s.id === 'flashcards').topics.map(t => [t.code, t.need])); masterySave(m); })()`);
-run('renderHome()'); assert.match(el('today-plan').innerHTML, /startMasteryTest\('daily'\)/, 'unlocked once the flashcards are done, guided cards not required');
+run('renderHome()'); assert.match(el('today-plan').innerHTML, /startMasteryTest\('daily'\)/, 'the quiz button shows once the flashcards are done too');
 assert.equal(run("masteryPlanNow().steps.find(s => s.id === 'guided').done"), false, 'guided cards still open');
 run("startMasteryTest('daily')"); assert.equal(run('pq.mini.mastery'), 'daily'); run('stopPassageTimer(); pq.mini = null; goHome()');
 run(`(() => { const m = masteryLoad(), row = masteryDayRow(m, 'cp'); row.flashT = {}; row.guidedT = {}; row.lessonsN = 0; masterySave(m); })()`);
@@ -127,10 +127,10 @@ assert.equal(run('masteryLoad().days[localDay()].prac'), undefined, 'passage ans
   assert.equal(run('masteryPlanNow().steps.find(s=>s.id==="guided").extra'), 20, 'the second set counts beyond the set');
   { const html = el('today-plan').innerHTML, gi = html.indexOf('Guided Practice Exam cards'), gs = html.slice(gi, html.indexOf('</li>', gi));
     assert.match(gs, /\+20 more done today, beyond the set\./); assert.match(gs, /startMasteryGuided\(\)">Continue</); }
-  // A step with nothing to start shows a message instead of doing nothing.
+  // A step already done today starts another set (nothing locks).
   run(`(() => { const m = masteryLoad(); const row = masteryDayRow(m, 'cp'); row.flashT = Object.fromEntries(masteryPlanNow().steps.find(s=>s.id==='flashcards').topics.map(x => [x.code, x.need])); masterySave(m); })()`);
   el('page-notice').hidden = true; run("(() => { const m = masteryLoad(), r = masteryDayRow(m, masteryPlanNow().subj); r.rulesOk = ['r-a','r-b','r-c','r-d','r-e','r-f','r-g','r-h','r-i','r-j']; masterySave(m); })(); startMasteryFlashcards()");
-  assert.equal(el('page-notice').hidden, false); assert.match(el('page-notice').textContent, /done for today/); }
+  assert.equal(run('quiz.mastery'), 'flashcards', 'a done step starts another set'); assert.doesNotMatch(el('page-notice').hidden ? '' : el('page-notice').textContent, /done for today/); run('goHome()'); }
 // 2.2: only the first answer to a card in a session counts toward the step.
 { run(`(() => { const m = masteryLoad(); const row = masteryDayRow(m, 'cp'); row.flashT = {}; masterySave(m); })()`);
   run("(() => { const m = masteryLoad(), r = masteryDayRow(m, masteryPlanNow().subj); r.rulesOk = ['r-a','r-b','r-c','r-d','r-e','r-f','r-g','r-h','r-i','r-j']; masterySave(m); })(); startMasteryFlashcards()"); const q0 = 'quiz.items[0].q';
@@ -165,4 +165,4 @@ assert.equal(run('masteryLoad().days[localDay()].prac'), undefined, 'passage ans
   const old = JSON.parse(run(`JSON.stringify(masteryLoad().days['2026-01-01'])`));
   assert(!old.seen && !old.guidedIds && !old.lessonIds && !old.pracUsed && old.flashT['5D'] === 3, 'lists dropped, counts kept');
   assert(Array.isArray(JSON.parse(run('JSON.stringify(masteryLoad().days[localDay()].seen)'))), 'today keeps its lists'); }
-console.log('TODAY steps passed: 3 daily steps after the diagnostic (no passage step); the Passages tab and C/P practice passages are gone; Practice Test flashcards only (no QBank) in the exact AAMC split, missed, due and weak sub-topics first; the quiz unlocks after flashcards and guided cards; the follow-up uses flashcards and guided cards on the quiz misses and weak categories; lessons, first-answer counting, midnight and synced-list regressions.');
+console.log('TODAY steps passed: 3 daily steps after the diagnostic (no passage step); the Passages tab and C/P practice passages are gone; Practice Test flashcards only (no QBank) in the exact AAMC split, missed, due and weak sub-topics first; nothing locks (the quiz and every step run any time, as many sets as wanted); the follow-up uses flashcards and guided cards on the quiz misses and weak categories; lessons, first-answer counting, midnight and synced-list regressions.');
