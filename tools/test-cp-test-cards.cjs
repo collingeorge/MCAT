@@ -457,9 +457,11 @@ assert(frontSeen > 0, 'the flashcards built from a missed twin led their categor
     const plan0 = JSON.parse(run("JSON.stringify(masteryPlanNow().steps.map(s => s.id))"));
     assert.equal(plan0[1], 'rules', 'C/P: the rules warm-up is the first daily step (after the diagnostic): ' + plan0.join(' '));
     assert.equal(plan0[2], 'flashcards', 'then the flashcards');
-    assert(/Unlocks when the rules warm-up is done/.test(run('masteryCard()')), 'the flashcard step shows it is locked');
+    // Nothing locks (the user, 2026-11-20): the warm-up is suggested first, but the flashcards start any time.
+    assert(!/Unlocks when/.test(run('masteryCard()')), 'nothing on TODAY is locked');
     run('startMasteryFlashcards()');
-    assert.notEqual(run('quiz.mastery'), 'flashcards', 'the flashcards wait for the rules warm-up');
+    assert.equal(run('quiz.mastery'), 'flashcards', 'the flashcards start before the rules warm-up');
+    run('goHome()');
     run('startMasteryRules()');
     assert.equal(run('quiz.mastery'), 'rules', 'the warm-up runs as a quiz');
     assert.equal(run('quiz.items.length'), 10, "today's 10 rule cards");
@@ -475,6 +477,17 @@ assert(frontSeen > 0, 'the flashcards built from a missed twin led their categor
     assert.equal(JSON.parse(run('JSON.stringify(masteryRulesPick(masteryLoad(), 1))'))[0], first, 'the missed rule card comes back first');
     run('goHome()'); run('startMasteryFlashcards()');
     assert.equal(run('quiz.mastery'), 'flashcards', 'then the flashcards start');
+    run('goHome()');
+    // No daily limit (the user, 2026-11-20): once today's 10 are done, "Another set" runs 10 more rule cards not yet done
+    // today, and every one of them counts toward today.
+    assert(/startMasteryRules\(true\)/.test(run('masteryCard()')), 'the rules step offers another set once today\'s cards are done');
+    const firstSet = JSON.parse(run('JSON.stringify(masteryDayRow(masteryLoad(), "cp").rulesOk)'));
+    run('startMasteryRules(true)');
+    assert.equal(run('quiz.mastery'), 'rules', 'another set runs as a rules quiz');
+    assert.equal(run('quiz.items.length'), 10, 'another 10 rule cards');
+    assert(JSON.parse(run('JSON.stringify(quiz.items.map(v => v.q.id))')).every(id => !firstSet.includes(id)), 'none of them repeats a card done today');
+    run('pick(quiz.items[0].ans)');
+    assert.equal(JSON.parse(run('JSON.stringify(masteryPlanNow().steps.find(s => s.id === "rules"))')).extra, 1, 'each extra rule card counts toward today');
     run('goHome()');
     const pick = JSON.parse(run(`(() => { const m = { rules: { [CP_RULES.cards[5].id]: { d: '2026-01-01', ok: false }, [CP_RULES.cards[0].id]: { d: '2026-01-02', ok: true } } }; return JSON.stringify(masteryRulesPick(m, 3)); })()`));
     const ids = JSON.parse(run('JSON.stringify(CP_RULES.cards.map(c => c.id))'));

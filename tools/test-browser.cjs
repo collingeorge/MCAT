@@ -84,15 +84,15 @@ async function main() {
   assert.equal(await evaluate('document.querySelector("#today-plan [data-click=\'startMasteryPassages()\']")'),null,'no passage step');
   // The rules warm-up: its Start button runs today's rule cards as multiple-choice questions; the rule shows after
   // answering, at 16 px or more.
-  assert(await evaluate('document.querySelector("#today-plan").textContent.includes("Unlocks when the rules warm-up is done")'),'the flashcards wait for the rules warm-up');
+  assert(!(await evaluate('document.querySelector("#today-plan").textContent.includes("Unlocks when")')),'nothing on TODAY is locked');
+  assert(await evaluate('!!document.querySelector("#today-plan [data-click=\'startMasteryFlashcards()\']")'),'the flashcards can start before the rules warm-up');
   await evaluate('document.querySelector("#today-plan [data-click=\'startMasteryRules()\']").click()');
   await until('quiz.mastery==="rules" && !!document.querySelector("#cb-0")');
   assert.equal(await evaluate('document.querySelectorAll("#choices-area .choice-btn").length'),4,'a rule card has 4 choices');
   await evaluate('document.querySelector("#cb-"+quiz.items[0].ans).click()');
   assert.match(await evaluate('document.querySelector("#exp-area").textContent'),/Rule:/,'the rule shows after answering');
   await evaluate('goHome()');
-  assert.equal(await evaluate('[...document.querySelectorAll("#today-plan [data-click]")].some(b=>b.dataset.click.includes("daily"))'),false,'the quiz is locked');
-  assert(await evaluate('document.querySelector("#today-plan").textContent.includes("Unlocks when the flashcards are done")'));
+  assert.equal(await evaluate('[...document.querySelectorAll("#today-plan [data-click]")].some(b=>b.dataset.click.includes("daily"))'),true,'the quiz is open any time');
   await evaluate('goHome();showPlan()');
   await evaluate('document.querySelector("#plan-date").value=localDay(new Date(Date.now()+60*DAY));savePlan()');
   assert(await evaluate('const probe=document.createElement("div");probe.innerHTML=fmt("<img src=x onerror=alert(1)>");probe.querySelector("img")===null'));
