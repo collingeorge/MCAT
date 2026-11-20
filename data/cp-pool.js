@@ -981,7 +981,7 @@ const CP_POOL = [
           "5B"
         ],
         "title": "Two Routes to Compounds A and B",
-        "passage": "Compound A, an oil, and Compound B (mp 71–73°C) may be prepared by the two methods shown in Figures 1 and 2.\n\nFigure 1 shows the first method. When 2-(4-methylphenyl)oxirane (Compound C) is allowed to drip slowly into a solution of 4-methylphenylmagnesium bromide (\"normal addition\"), the major product is Compound A, 2,2-bis(4-methylphenyl)ethanol. However, when the Grignard solution is allowed to drip slowly into a solution of Compound C (\"inverse addition\"), the major product is Compound B, 1,2-bis(4-methylphenyl)ethanol.\n\nFigure 2 shows the second method. The matching aldehyde or ketone is reduced by sodium borohydride: the ketone 1,2-bis(4-methylphenyl)ethanone (Compound D) gives Compound B, and the aldehyde 2,2-bis(4-methylphenyl)acetaldehyde (Compound E) gives Compound A.",
+        "passage": "Compound A, an oil, and Compound B (mp 71–73°C) may be prepared by the two methods shown in Figures 1 and 2.\n\nFigure 1 shows the first method. When 2-(4-methylphenyl)oxirane (Compound C) is allowed to drip slowly into a solution of 4-methylphenylmagnesium bromide (\"normal addition\"), the major product is Compound A, 2,2-bis(4-methylphenyl)ethanol. However, when the Grignard solution is allowed to drip slowly into a solution of Compound C (\"inverse addition\"), the major product is Compound B, 1,2-bis(4-methylphenyl)ethanol.\n\nFigure 2 shows the second method. The matching aldehyde or ketone is reduced by sodium borohydride: the ketone 1,2-bis(4-methylphenyl)ethanone (Compound D) gives Compound B, and the aldehyde 2,2-bis(4-methylphenyl)acetaldehyde (Compound E) gives Compound A.\n\nCompound A is a primary alcohol and Compound B is a secondary alcohol. Both have the formula C₁₆H₁₈O and a molar mass of 226 g/mol, and their ¹H NMR spectra differ in the signals of the protons on the carbons next to the hydroxyl group.",
         "figure": {
           "caption": "Figure 1 Products of Compound C with 4-methylphenylmagnesium bromide",
           "columns": [
@@ -2312,7 +2312,7 @@ const CP_POOL = [
           "4E"
         ],
         "title": "Methylamine and the Crushed-Can Demonstration",
-        "passage": "A teacher carried out the following demonstration for a chemistry class. Eight grams of methylammonium chloride (CH₃NH₃Cl) and 8 g of strontium hydroxide (Sr(OH)₂) were placed in a side-arm flask. The flask was stoppered and warmed. Methylamine (CH₃NH₂) gas formed by the reaction in Equation 1.\n\n2CH₃NH₃Cl(s) + Sr(OH)₂(s) → 2CH₃NH₂(g) + 2H₂O(l) + SrCl₂(aq)   (Equation 1)\n\nThe CH₃NH₂ gas was led through a rubber tube into a dry, upright 16-oz aluminum drink can, filling it by upward displacement of air. The can was then sealed with plastic film and set, sealed side down, in a shallow tray holding about 2 cm of water. When the film was removed, the CH₃NH₂ dissolved rapidly in the water, and atmospheric pressure crushed the can.",
+        "passage": "A teacher carried out the following demonstration for a chemistry class. Eight grams of methylammonium chloride (CH₃NH₃Cl) and 8 g of strontium hydroxide (Sr(OH)₂) were placed in a side-arm flask. The flask was stoppered and warmed. Methylamine (CH₃NH₂) gas formed by the reaction in Equation 1.\n\n2CH₃NH₃Cl(s) + Sr(OH)₂(s) → 2CH₃NH₂(g) + 2H₂O(l) + SrCl₂(aq)   (Equation 1)\n\nThe CH₃NH₂ gas was led through a rubber tube into a dry, upright 16-oz aluminum drink can, filling it by upward displacement of air. The can was then sealed with plastic film and set, sealed side down, in a shallow tray holding about 2 cm of water. When the film was removed, the CH₃NH₂ dissolved rapidly in the water, and atmospheric pressure crushed the can. Like ammonia, methylamine is very soluble in water, and its molecules can both donate and accept hydrogen bonds. The can collapses because the gas dissolves faster than air can leak back in, so the pressure inside drops sharply.",
         "questions": [
           {
             "q": "The intermolecular forces that exist among the molecules of CH₃NH₂ gas are:",
@@ -2605,15 +2605,15 @@ const CP_POOL = [
             "choices": [
               "4.1 V",
               "0.3 V",
-              "–1.2 V",
-              "–2.9 V"
+              "−1.2 V",
+              "−2.9 V"
             ],
             "ans": 3,
             "cat": "4C",
             "skill": "SIRS 2",
             "diff": "D",
             "twin": "pe6-cp:41",
-            "exp": "1. E°cell = E°cathode – E°anode; the passage gives E°cell = 4.1 V.\n2. E°anode = 1.2 – 4.1 = –2.9 V.\n3. Answer: –2.9 V.\n\n**Rule to reuse:** E°anode = E°cathode – E°cell.",
+            "exp": "1. E°cell = E°cathode – E°anode; the passage gives E°cell = 4.1 V.\n2. E°anode = 1.2 – 4.1 = −2.9 V.\n3. Answer: −2.9 V.\n\n**Rule to reuse:** E°anode = E°cathode – E°cell.",
             "id": "p_cpq4_5_q3"
           },
           {
@@ -2994,9 +2994,9 @@ const CP_POOL = [
             "q": "Which structural change to Compound A would make it more water soluble?",
             "choices": [
               "Replacing benzene CH with N in the ring",
-              "Replacing C=O with C=CH₂",
-              "Replacing N–N=N with CH–CH=CH",
-              "Replacing NH with NCH₃"
+              "Replacing the C=O group with C=CH₂",
+              "Replacing the N–N=N group with CH–CH=CH",
+              "Replacing the ring NH with NCH₃"
             ],
             "ans": 0,
             "cat": "5B",
@@ -3267,7 +3267,7 @@ const CP_POOL = [
           {
             "q": "Which structure represents a component of the SBP cofactor?",
             "choices": [
-              "A porphyrin ring of four linked pyrroles",
+              "A porphyrin (tetrapyrrole) ring",
               "A flavin (isoalloxazine) ring",
               "A nicotinamide ring",
               "A pyridoxal ring"
@@ -3319,7 +3319,7 @@ const CP_POOL = [
         "id": "cp_q5_sa1"
       },
       {
-        "q": "Radioactive tritium (³H) labeled adenine has been used to measure the rate of biochemical processes that involve its binding or incorporation. In the adenine shown, hydrogen I is bonded to C8, hydrogen II to N9, and hydrogens III and IV to the 6-amino N. Given that water is the solvent for this type of experiment, what is the best site for tritium labeling?",
+        "q": "Tritium (³H)-labeled adenine is used to measure the rates of processes that bind or incorporate it. In adenine, hydrogen I is on C8, hydrogen II on N9, and hydrogens III and IV on the 6-amino N. With water as the solvent, what is the best site for tritium labeling?",
         "choices": [
           "I",
           "II",
@@ -3736,7 +3736,7 @@ const CP_POOL = [
             "id": "p_cpq6_4_q2"
           },
           {
-            "q": "4-Hydroxydecanoic acid (Compound 2, Reaction 3) is expected to display prominent absorption in which region(s) of its infrared spectrum? I. 3200–3500 cm⁻¹ II. 1700–1750 cm⁻¹ III. 1580–1610 cm⁻¹",
+            "q": "Consider three infrared regions: I. 3200–3500 cm⁻¹; II. 1700–1750 cm⁻¹; III. 1580–1610 cm⁻¹. 4-Hydroxydecanoic acid (Compound 2, Reaction 3) is expected to display prominent absorption in which region(s)?",
             "choices": [
               "II only",
               "I and II only",
