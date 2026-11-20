@@ -2,8 +2,8 @@
 //   First: a diagnostic (a full section, scored 118–132, weak AAMC content categories shown; it can be retaken).
 //   Then every day, exactly 3 steps: 1 50 flashcards (C/P: the Practice Test flashcards of data/cp-test-cards.js, built
 //   from the C/P questions of Practice Exams 1, 3, 4, 5 and 6; no QBank card) → 2 up to 20 guided Practice Exam cards (quiz-miss twins first, then core methods) with step-by-step
-//   lessons → 3 a 30-question quiz from data/cp-pool.js (half an AAMC section in exam order), unlocked once the flashcards
-//   are done (guided cards recommended, not required) → done for the day at goal, otherwise a follow-up on the quiz's misses and weak categories with
+//   lessons → 3 a 30-question quiz from data/cp-pool.js (half an AAMC section in exam order), open any time
+//   (the flashcards are its goal; every step runs again as another set) → done for the day at goal, otherwise a follow-up on the quiz's misses and weak categories with
 //   flashcards and guided cards.
 //   C/P follows the AAMC blueprint (MASTERY.blueprint) exactly: each step's count is split 100% over all 10 content
 //   categories by how often AAMC tests each one (masteryBlueprintSplit: largest remainder, ties to the heavier
@@ -783,7 +783,6 @@ function masteryRulesSheetHtml() {
     '<details class="rules-more"><summary>More</summary>' + (typeof elimChecksHtml === 'function' ? elimChecksHtml() : '') + (typeof fastKindsHtml === 'function' ? fastKindsHtml() : '') +
     sections.map(sec => '<div class="rules-sec"><b>' + esc(sec.title) + '</b><ul>' + sec.items.map(it => '<li>' + fmt(it) + '</li>').join('') + '</ul></div>').join('') + '</details>';
 }
-// The daily quiz unlocks once today's flashcards are done; the guided cards are recommended but not required.
 // The daily quiz is open any time after the diagnostic: the flashcards are its goal, not a lock.
 function masteryQuizUnlocked(plan) {
   return plan.status === 'study';
