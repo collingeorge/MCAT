@@ -497,7 +497,7 @@ function masteryPlan(raw, today, sizes = {}) {
   out.steps.push({ id: 'diagnostic', done: true, result: lastDiag, old: masteryOldDiag(lastDiag) });
   // C/P: the rules warm-up comes first (the rules sheet and today's rule cards, data/cp-rules.js); the flashcards
   // wait for it. Progress is the rule cards marked "Got it" today.
-  if (subj === 'cp') { const ok = new Set(Array.isArray(row.rulesOk) ? row.rulesOk : []).size; out.steps.push({ id: 'rules', count: MASTERY.rulesPerDay, progress: Math.min(ok, MASTERY.rulesPerDay), done: ok >= MASTERY.rulesPerDay }); }
+  if (subj === 'cp') { const ok = new Set(Array.isArray(row.rulesOk) ? row.rulesOk : []).size; out.steps.push({ id: 'rules', count: MASTERY.rulesPerDay, progress: Math.min(ok, MASTERY.rulesPerDay), done: ok >= MASTERY.rulesPerDay, extra: Math.max(0, ok - MASTERY.rulesPerDay) }); }
   out.steps.push({ id: 'flashcards', topics: flashT, count: sum(flashT, 'need'), progress: sum(flashT), extra: sum(flashT, 'raw') - sum(flashT), done: flashT.every(t => t.progress >= t.need) });
   if (guidedN > 0) out.steps.push({ id: 'guided', topics: guidedT, count: guidedCount, progress: sum(guidedT), extra: sum(guidedT, 'raw') - sum(guidedT), lessons, lessonCount: guidedCount,
     done: guidedT.every(t => t.progress >= t.need) && lessons >= guidedCount });
@@ -757,13 +757,21 @@ function masteryRuleQ(id) {
   const sec = CP_RULES.sheet.find(x => x.id === c.sheet), q = { id: c.id, subj: 'cp_test', key: 'cp_test|Rules warm-up', s: 'Rules warm-up · ' + (sec ? sec.title : ''), q: c.q, choices: c.choices, ans: c.ans, exp: '**Rule:** ' + c.rule };
   RULEQ_BY_ID.set(id, q); return q;
 }
-function startMasteryRules() {
-  if (!bankReady('cpt')) { withBank('cpt', () => startMasteryRules()); return; }
+// more: "Another set" once today's cards are done (no daily limit): the next rule cards not yet done today, missed ones first.
+function startMasteryRules(more) {
+  if (!bankReady('cpt')) { withBank('cpt', () => startMasteryRules(more)); return; }
   const plan = masteryPlanNow(); if (!plan.subj) return;
   const m = masteryLoad(), row = masteryDayRow(m, plan.subj);
   // (Picked only once the rule cards are loaded: an empty pick would read as "done".)
   if (!Array.isArray(row.rulesIds) || !row.rulesIds.length) { const ids = masteryRulesPick(m, MASTERY.rulesPerDay); if (ids.length) { row.rulesIds = ids; masterySave(m); } else { masteryNotice('The rule cards are still loading. Try again in a moment.'); return; } }
-  const done = new Set(row.rulesOk || []), list = row.rulesIds.filter(id => !done.has(id)).map(masteryRuleQ).filter(Boolean);
+  const done = new Set(row.rulesOk || []);
+  let left = row.rulesIds.filter(id => !done.has(id));
+  if (!left.length && more) {
+    const all = masteryRulesPick(m, CP_RULES.cards.length), fresh = all.filter(id => !done.has(id) && !row.rulesIds.includes(id));
+    left = (fresh.length ? fresh : all).slice(0, MASTERY.rulesPerDay);
+    row.rulesIds = [...row.rulesIds, ...left.filter(id => !row.rulesIds.includes(id))]; masterySave(m);
+  }
+  const list = left.map(masteryRuleQ).filter(Boolean);
   if (!list.length) { masteryNotice('Today’s rule cards are done.'); return; }
   masteryStartQuiz(list, 'C/P · Rules warm-up', 'rules');
 }
@@ -1065,9 +1073,9 @@ function masteryCard() {
       const num = ['rules', 'flashcards', 'guided', 'test'].includes(s.id) ? String(++n) : '•';
       let title = '', detail = '', button = '', count = '', time = '';
       if (s.id === 'diagnostic') { title = 'Diagnostic'; count = '<b>' + s.result.scaled + '</b> (' + s.result.correct + '/' + s.result.total + ') · ' + shortDay(s.result.day); detail = (s.old ? '<b>Earlier version</b> of the diagnostic. Retake the new ' + MASTERY.diagSize + '-question diagnostic for a fresh start. ' : 'Done. ') + 'Retaking it runs the full section again; your newest result sets the weak topics.'; button = btn('Retake diagnostic', "startMasteryTest('diagnostic')", s.old); }
-      if (s.id === 'rules') { title = 'Rules warm-up'; count = s.progress + ' / ' + s.count; detail = 'Before the flashcards: read the rules sheet (the 6 checks to rule out 3, the 6 shortcut moves and the C/P rules by topic), then ' + s.count + ' rule cards: short problems where one rule gives the answer and the 3 wrong choices are the traps it kills. A missed rule card comes back first next time. The flashcards unlock when today’s rule cards are done.' +
+      if (s.id === 'rules') { title = 'Rules warm-up'; count = s.progress + ' / ' + s.count; detail = 'Before the flashcards: read the rules sheet (the 6 checks to rule out 3, the 6 shortcut moves and the C/P rules by topic), then ' + s.count + ' rule cards: short problems where one rule gives the answer and the 3 wrong choices are the traps it kills. A missed rule card comes back first next time. The flashcards unlock when today’s rule cards are done; after that, do as many more sets as you like.' +
           '<details class="elim-today rules-sheet"' + (s.done ? '' : ' open') + '><summary><b>📋 Rules sheet</b></summary>' + (typeof CP_RULES !== 'undefined' ? masteryRulesSheetHtml() : (masteryRulesLoad(), '<p class="muted-note">Loading the rules sheet…</p>')) + '</details>';
-        time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 0.5) + 2); button = s.done ? '' : btn(s.progress ? 'Continue' : 'Start', 'startMasteryRules()'); }
+        time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 0.5) + 2); button = s.done ? more('startMasteryRules(true)', s) : btn(s.progress ? 'Continue' : 'Start', 'startMasteryRules()'); }
       if (s.id === 'flashcards') { title = 'Flashcards'; count = s.progress + ' / ' + s.count; detail = cp ? '<b>' + s.count + ' flashcards built from ' + fromPE + '.</b> Each card teaches the method behind those questions, with “💡 Help me / Show me how”. ' + bpNote + (bp ? targets(s.topics, 'cards') : topicList(byRank(s.topics))) : bp ? 'AAMC QBank cards only, in the AAMC mix of disciplines across the day. ' + bpNote + targets(s.topics, 'cards') : 'AAMC QBank cards only, weakest topics first, spread over today’s content categories.' + topicList(s.topics); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 0.6)); button = s.done ? more('startMasteryFlashcards(true)', s) : masteryRulesDone(plan) ? btn(s.progress ? 'Continue' : 'Start', 'startMasteryFlashcards()') : '<p class="muted-note">Unlocks when the rules warm-up is done.</p>'; }
       if (s.id === 'guided') { title = 'Guided Practice Exam cards with walkthroughs'; count = s.progress + ' / ' + s.count + ' cards · ' + s.lessons + ' / ' + s.lessonCount + ' lessons'; detail = (cp ? s.count + ' Practice Exam cards: ' + fromPE + ', as the test asks them: the twins of your last quiz’s misses first, then core methods (asked on 3+ exams) in your weak categories; rare ones only once. ' : '') + (bp ? 'Each card opens its step-by-step lesson: step through it, answer, then watch the walkthrough. ' + bpNote + targets(s.topics, 'cards') : 'Weakest topics first. Each card opens its step-by-step lesson: step through it, answer, then watch the walkthrough.' + topicList(byRank(s.topics))); time = s.done ? '' : mins(Math.ceil((s.count - s.progress) * 1.2 + (s.lessonCount - s.lessons) * 2)); button = s.done ? more('startMasteryGuided(true)', s) : s.count && s.progress >= s.count ? btn('Continue', 'startMasteryGuided()') + more('startMasteryGuided(true)', s) : btn(s.progress || s.lessons ? 'Continue' : 'Start', 'startMasteryGuided()'); }
       if (s.id === 'followup') {
