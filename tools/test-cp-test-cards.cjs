@@ -148,7 +148,8 @@ for (const c of CARDS) {
   if (c.passage !== undefined) {
     const n = sentences(c.passage); assert(typeof c.passage === 'string' && n >= 3 && n <= 10 && c.passage.length <= 1500, id + ': passage is 3–10 sentences, ≤ 1500 characters (' + n + ', ' + String(c.passage).length + ')');
     {
-    assert(typeof c.pid === 'string' && (c.pid === passageOf(c.twinOf[0]) || c.pid.startsWith(passageOf(c.twinOf[0]) || '\u0000') || /^cpq\d-P\d+[a-z]?$/.test(c.pid)), id + ': pid "' + c.pid + '" is the AAMC passage of its own question ' + c.twinOf[0]);
+    // A quiz passage can combine questions from two AAMC passages; its cards share one pid named for the main one.
+    assert(typeof c.pid === 'string' && (c.pid === passageOf(c.twinOf[0]) || /^(pe[13456]|sample)-cp:P\d+[a-z]?$/.test(c.pid) || /^cpq\d-P\d+[a-z]?$/.test(c.pid)), id + ': pid "' + c.pid + '" names an AAMC or quiz passage (own question ' + c.twinOf[0] + ')');
     const p = SHARED.get(c.pid); if (p === undefined) SHARED.set(c.pid, c.passage); else assert.equal(c.passage, p, id + ': the cards of ' + c.pid + ' share one twin passage');
     const s0 = c.how && c.how.steps && c.how.steps[0];
     assert(s0 && typeof s0.hl === 'string' && c.passage.includes(s0.hl) && /sentence/i.test(s0.text), id + ': the lesson\'s first step names the passage sentence that holds the clue (text says "sentence", hl is in the passage)');
