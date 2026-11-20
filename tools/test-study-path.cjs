@@ -83,7 +83,7 @@ assert.equal(run('masteryLoad().days[localDay()].prac'), undefined, 'passage ans
 // After the quiz (below goal): the follow-up reviews the quiz's misses and weak categories with flashcards (and
 // guided cards, below); the quiz's missed card comes first; never practice passages.
 // (A biology card, 2% of the AAMC discipline mix, gets no slot in a 5-card drill, so the missed card is a physics one.)
-{ const miss = run("masteryFlashPool('cp').filter(q => masteryCategory(q) === '4C' && q.disc === 'physics').at(-1).id");
+{ const miss = run("masteryFlashPool('cp').filter(q => masteryCategory(q) === '4C' && q.disc === 'physics' && q.tier !== 'rare').at(-1).id");
   run(`(() => { const m = masteryLoad(); m.tests.push({ subj: 'cp', day: localDay(), t: 2, kind: 'daily', correct: 12, total: 30, pct: 40, scaled: 120, version: 'cp_half_1', cats: { '4C': { c: 0, t: 3 } }, missIds: ['${miss}'] }); masterySave(m); })()`);
   run('renderHome()'); const html = el('today-plan').innerHTML;
   assert.match(html, /startMasteryFollowup\('flashcards'\)/); assert.match(html, /startMasteryFollowup\('guided'\)/); assert.doesNotMatch(html, /startMasteryFollowup\('passages'\)|Practice passages/);
