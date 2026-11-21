@@ -1491,7 +1491,7 @@ function cutOf(q) { return q && !q.variant && !q.baseId && Array.isArray(q.cut) 
 function cutName(e) { return GLANCE[e.r] ? GLANCE[e.r].name : e.f; }
 // The six rules, one example each: the 📋 Rules sheet.
 function glanceRulesHtml() {
-  return `<ol class="glance-rules">${GLANCE_RULES.map(g => `<li><b>${esc(g.full)}</b> <span class="elim-ex">(${esc(g.ex)})</span></li>`).join('')}</ol>` + sizeAnchorsHtml();
+  return `<ol class="glance-rules">${GLANCE_RULES.map(g => `<li><b>${esc(g.full)}</b> <span class="elim-ex">(${esc(g.ex)})</span></li>`).join('')}</ol>`;
 }
 // The earlier six checks (kept only for the Rules sheet's "More").
 const ELIM_CHECKS = [
