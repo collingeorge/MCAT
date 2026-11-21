@@ -267,7 +267,7 @@ function buildCpt() {
 // tools/test-pages.cjs checks them against the data.
 // ASSET_V: the deploy's version (sw.js CACHE), added to every script the app loads on demand so the browser's HTTP
 // cache never serves one from an earlier deploy. Written by tools/generate-pages.cjs; do not edit by hand.
-const ASSET_V = '?v=mcat-v3.05-size-anchors-2026-11-20';
+const ASSET_V = '?v=mcat-v3.06-periodic-table-2026-11-20';
 const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'], cpt: ['data/cp-test-cards.js', 'data/cp-rules.js'] };
 const BANK_COUNTS = { fl: 354, flCp: 295, flTests: 6 };
 const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined', cpt: () => typeof CP_TEST_CARDS !== 'undefined' && typeof CP_RULES !== 'undefined' };   // both files of BANKS.cpt (the rules warm-up needs CP_RULES)
@@ -3233,3 +3233,59 @@ function setExamReviewAlternative(si,qi,value) {
   recordFinalTwo(view,chosen,other,'exam:'+attempt.date+':'+si+':'+qi);
   $('alternative-feedback-exam-other-'+si+'-'+qi).innerHTML=finalTwoFeedback(view,chosen,other);
 }
+// ── ⚛ Periodic table (the user, 2026-11-20): the MCAT gives one in every science section, so it is one tap away
+// on every page (flashcards, guided cards, quizzes, tests). Symbol and atomic mass by atomic number; (mass number)
+// for elements with no stable isotope.
+const PERIODIC = ('H 1.0|He 4.0|Li 6.9|Be 9.0|B 10.8|C 12.0|N 14.0|O 16.0|F 19.0|Ne 20.2|Na 23.0|Mg 24.3|Al 27.0|Si 28.1|P 31.0|S 32.1|Cl 35.5|Ar 39.9|' +
+  'K 39.1|Ca 40.1|Sc 45.0|Ti 47.9|V 50.9|Cr 52.0|Mn 54.9|Fe 55.8|Co 58.9|Ni 58.7|Cu 63.5|Zn 65.4|Ga 69.7|Ge 72.6|As 74.9|Se 79.0|Br 79.9|Kr 83.8|' +
+  'Rb 85.5|Sr 87.6|Y 88.9|Zr 91.2|Nb 92.9|Mo 95.9|Tc (98)|Ru 101.1|Rh 102.9|Pd 106.4|Ag 107.9|Cd 112.4|In 114.8|Sn 118.7|Sb 121.8|Te 127.6|I 126.9|Xe 131.3|' +
+  'Cs 132.9|Ba 137.3|La 138.9|Ce 140.1|Pr 140.9|Nd 144.2|Pm (145)|Sm 150.4|Eu 152.0|Gd 157.3|Tb 158.9|Dy 162.5|Ho 164.9|Er 167.3|Tm 168.9|Yb 173.0|Lu 175.0|' +
+  'Hf 178.5|Ta 180.9|W 183.8|Re 186.2|Os 190.2|Ir 192.2|Pt 195.1|Au 197.0|Hg 200.6|Tl 204.4|Pb 207.2|Bi 209.0|Po (209)|At (210)|Rn (222)|' +
+  'Fr (223)|Ra (226)|Ac (227)|Th 232.0|Pa 231.0|U 238.0|Np (237)|Pu (244)|Am (243)|Cm (247)|Bk (247)|Cf (251)|Es (252)|Fm (257)|Md (258)|No (259)|Lr (262)|' +
+  'Rf (267)|Db (268)|Sg (269)|Bh (270)|Hs (277)|Mt (278)|Ds (281)|Rg (282)|Cn (285)|Nh (286)|Fl (289)|Mc (290)|Lv (293)|Ts (294)|Og (294)').split('|');
+// [row, column] of atomic number z: rows 1–7 are the periods; rows 8 and 9 hold the lanthanides (Ce–Lu) and actinides (Th–Lr).
+function ptablePos(z) {
+  if (z === 1) return [1, 1];
+  if (z === 2) return [1, 18];
+  if (z <= 4) return [2, z - 2];
+  if (z <= 10) return [2, z + 8];
+  if (z <= 12) return [3, z - 10];
+  if (z <= 18) return [3, z];
+  if (z <= 36) return [4, z - 18];
+  if (z <= 54) return [5, z - 36];
+  if (z <= 57) return [6, z - 54];
+  if (z <= 71) return [8, z - 54];
+  if (z <= 86) return [6, z - 68];
+  if (z <= 89) return [7, z - 86];
+  if (z <= 103) return [9, z - 86];
+  return [7, z - 100];
+}
+function periodicTableHtml() {
+  const grid = Array.from({ length: 9 }, () => Array(18).fill(0));
+  for (let z = 1; z <= PERIODIC.length; z++) { const [r, col] = ptablePos(z); grid[r - 1][col - 1] = z; }
+  const td = z => {
+    if (!z) return '<td class="pt-gap"></td>';
+    const [sym, mass] = PERIODIC[z - 1].split(' ');
+    return '<td class="pt-el"><span class="pt-z">' + z + '</span><b class="pt-sym">' + sym + '</b><span class="pt-m">' + mass + '</span></td>';
+  };
+  return '<table class="ptable">' + grid.map((row, i) => '<tr' + (i === 7 ? ' class="pt-f-first"' : '') + '>' + row.map(td).join('') + '</tr>').join('') + '</table>';
+}
+function togglePeriodicTable(force) {
+  const m = typeof document !== 'undefined' && document.getElementById ? document.getElementById('ptable-modal') : null;
+  if (!m) return;
+  const open = typeof force === 'boolean' ? force : !!m.hidden;
+  if (open && !m.dataset.built) { const w = m.querySelector('.pt-wrap'); if (w) w.innerHTML = periodicTableHtml(); m.dataset.built = '1'; }
+  m.hidden = !open;
+}
+(function mountPeriodicTable() {
+  const mount = () => {
+    const b = typeof document !== 'undefined' ? document.body : null;
+    if (!b || typeof b.insertAdjacentHTML !== 'function' || (document.getElementById && document.getElementById('ptable-modal'))) return;
+    b.insertAdjacentHTML('beforeend', '<button type="button" class="ptable-fab" data-click="togglePeriodicTable()" aria-label="Open the periodic table">⚛ Periodic table</button>' +
+      '<div id="ptable-modal" class="ptable-modal" hidden role="dialog" aria-label="Periodic table"><div class="pt-box"><div class="pt-head"><b>Periodic Table of the Elements</b>' +
+      '<button type="button" class="pt-close" data-click="togglePeriodicTable()">✕ Close</button></div><div class="pt-wrap"></div></div></div>');
+    if (document.addEventListener) document.addEventListener('keydown', e => { if (e.key === 'Escape') togglePeriodicTable(false); });
+  };
+  if (typeof document === 'undefined') return;
+  if (document.readyState === 'loading' && document.addEventListener) document.addEventListener('DOMContentLoaded', mount); else mount();
+})();
