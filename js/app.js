@@ -267,7 +267,7 @@ function buildCpt() {
 // tools/test-pages.cjs checks them against the data.
 // ASSET_V: the deploy's version (sw.js CACHE), added to every script the app loads on demand so the browser's HTTP
 // cache never serves one from an earlier deploy. Written by tools/generate-pages.cjs; do not edit by hand.
-const ASSET_V = '?v=mcat-v3.04-guided-rule-out-2026-11-20';
+const ASSET_V = '?v=mcat-v3.05-size-anchors-2026-11-20';
 const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'], cpt: ['data/cp-test-cards.js', 'data/cp-rules.js'] };
 const BANK_COUNTS = { fl: 354, flCp: 295, flTests: 6 };
 const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined', cpt: () => typeof CP_TEST_CARDS !== 'undefined' && typeof CP_RULES !== 'undefined' };   // both files of BANKS.cpt (the rules warm-up needs CP_RULES)
@@ -504,6 +504,10 @@ const ERROR_TYPES = [
   ['reasoning', 'Passage interpretation'],
   ['calculation', 'Calculation slip'],
   ['time', 'Rushed / ran out of time'],
+  // The three 50/50 traps (the user, 2026-11-20): down to two choices, the wrong one won.
+  ['extra', 'Used an extra number'],
+  ['unit', 'Unit slip'],
+  ['doubt', 'Talked myself out of it'],
 ];
 function logError(entry) {
   const log = store.get(KEYS.errors, []);
@@ -1464,6 +1468,22 @@ const GLANCE_RULES = [
   { r: 5, name: 'Solid, catalyst or pure liquid', full: 'Solid, catalyst or pure liquid? No change.', ex: 'K, partial pressures and equilibrium stay the same' },
   { r: 6, name: 'Formula has ½', full: 'Formula has ½? Take the smaller twin.', ex: 'two choices differ by exactly ×2' },
 ];
+// Size anchors (the user, 2026-11-20): everyday feels for each unit, so "Way off in size" works without exact math.
+const SIZE_ANCHORS = [
+  ['1 N', 'the weight of an apple (about 100 g)'],
+  ['1 J', 'lifting an apple 1 m'],
+  ['1 W', '1 J each second; a person at rest is about 100 W'],
+  ['1 atm', 'about 10 m of water, or 760 mmHg'],
+  ['1 mol of gas', '22.4 L at STP (a beach ball)'],
+  ['1 L of water', '1 kg'],
+  ['Visible light', '400–700 nm, about 2–3 eV per photon'],
+  ['Body temperature', '37 °C = 310 K'],
+];
+// Down to two choices after Rule out: the one question that settles most 50/50s.
+const TIE_BREAKER = 'Down to two? Pick the one that answers exactly what is asked: no extra number, no extra step, the asked unit.';
+function sizeAnchorsHtml() {
+  return `<div class="size-anchors"><p><b>Size anchors: is the answer the right size?</b></p><ul>${SIZE_ANCHORS.map(([u, f]) => `<li><b>${esc(u)}</b> ≈ ${esc(f)}</li>`).join('')}</ul><p><b>${esc(TIE_BREAKER)}</b></p></div>`;
+}
 const GLANCE = Object.fromEntries(GLANCE_RULES.map(g => [g.r, g]));
 // A cut is a glance rule ({r: 1–6, c}) or "one fact you know" ({f: a plain fact of 6 words or fewer, c}); both show
 // as one line: the rule's name or the fact, then the letters it cuts.
@@ -1503,8 +1523,11 @@ function applyElim(view, prefix = 'cb') {
     letters.sort((a, b) => a - b);
     lines.push(`<div class="cut-line${GLANCE[e.r] ? '' : ' cut-fact'}"><span class="cut-rule">${fmt(cutName(e))}</span> → ✂ ${letters.map(i => 'ABCD'[i]).join(', ')}</div>`);
   }
+  // Two choices left: add the tie-breaker (its own class, so it is not counted as a rule line).
+  const struck = new Set(cut.flatMap(e => e.c));
+  const tie = view.q.choices.length - struck.size === 2 ? `<div class="tie-line">${esc(TIE_BREAKER)}</div>` : '';
   const area = $('choices-area');
-  if (area && area.insertAdjacentHTML && !$('elim-rule')) area.insertAdjacentHTML('afterend', `<div class="cut-lines" id="elim-rule" role="status">${lines.join('') || ''}</div>`);
+  if (area && area.insertAdjacentHTML && !$('elim-rule')) area.insertAdjacentHTML('afterend', `<div class="cut-lines" id="elim-rule" role="status">${lines.join('') || ''}${tie}</div>`);
 }
 function elimHintRefresh(view) { if ($('hint-area')) $('hint-area').innerHTML = quiz.answered ? helpButton('showLesson()') + elimButton(view) : hintArea(view); }
 function ruleOut() {
@@ -2137,6 +2160,9 @@ const ERROR_ADVICE = {
   confused: 'Mix-ups between similar terms. Write a short "X vs. Y" comparison for each pair below.',
   misread: 'Reading errors. Before answering, restate what is asked: watch for NOT/EXCEPT, units, and the direction of a change (increase vs. decrease).',
   calculation: 'Calculation slips. The MCAT has no calculator: write units, round early, estimate the answer\'s size first, and practice timed math drills.',
+  extra: 'Extra-number traps. The wrong finalist uses a given the question does not need (a voltage, a half value). Ask: does my answer need that number?',
+  unit: 'Unit slips. Before picking, check the asked unit: g vs kg, mL vs L, hr vs s, mM vs M.',
+  doubt: 'Second-guessing. When two survive, pick the one that answers exactly what is asked; do not switch without a reason from the stem.',
   time: 'Pacing. Practice timed sets and aim for about 95 seconds per passage question. Skip and mark hard items instead of stalling.',
 };
 function mistakeCard() {
