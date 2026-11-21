@@ -779,7 +779,7 @@ function startMasteryRules(more) {
 // and the C/P rules by topic folded under "More".
 function masteryRulesSheetHtml() {
   const sections = typeof CP_RULES !== 'undefined' ? CP_RULES.sheet : [];
-  return (typeof glanceRulesHtml === 'function' ? glanceRulesHtml() : '') +
+  return (typeof glanceRulesHtml === 'function' ? glanceRulesHtml() : '') + (typeof sizeAnchorsHtml === 'function' ? sizeAnchorsHtml() : '') +
     '<details class="rules-more"><summary>More</summary>' + (typeof elimChecksHtml === 'function' ? elimChecksHtml() : '') + (typeof fastKindsHtml === 'function' ? fastKindsHtml() : '') +
     sections.map(sec => '<div class="rules-sec"><b>' + esc(sec.title) + '</b><ul>' + sec.items.map(it => '<li>' + fmt(it) + '</li>').join('') + '</ul></div>').join('') + '</details>';
 }
