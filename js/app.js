@@ -1468,12 +1468,6 @@ const GLANCE_RULES = [
   { r: 5, name: 'Solid, catalyst or pure liquid', full: 'Solid, catalyst or pure liquid? No change.', ex: 'K, partial pressures and equilibrium stay the same' },
   { r: 6, name: 'Formula has ½', full: 'Formula has ½? Take the smaller twin.', ex: 'two choices differ by exactly ×2' },
 ];
-const GLANCE = Object.fromEntries(GLANCE_RULES.map(g => [g.r, g]));
-// A cut is a glance rule ({r: 1–6, c}) or "one fact you know" ({f: a plain fact of 6 words or fewer, c}); both show
-// as one line: the rule's name or the fact, then the letters it cuts.
-function cutOf(q) { return q && !q.variant && !q.baseId && Array.isArray(q.cut) ? q.cut.filter(e => e && (GLANCE[e.r] || (typeof e.f === 'string' && e.f.trim())) && Array.isArray(e.c) && e.c.length) : null; }
-function cutName(e) { return GLANCE[e.r] ? GLANCE[e.r].name : e.f; }
-// The six rules, one example each: the 📋 Rules sheet.
 // Size anchors (the user, 2026-11-20): everyday feels for each unit, so "Way off in size" works without exact math.
 const SIZE_ANCHORS = [
   ['1 N', 'the weight of an apple (about 100 g)'],
@@ -1490,6 +1484,12 @@ const TIE_BREAKER = 'Down to two? Pick the one that answers exactly what is aske
 function sizeAnchorsHtml() {
   return `<div class="size-anchors"><p><b>Size anchors: is the answer the right size?</b></p><ul>${SIZE_ANCHORS.map(([u, f]) => `<li><b>${esc(u)}</b> ≈ ${esc(f)}</li>`).join('')}</ul><p><b>${esc(TIE_BREAKER)}</b></p></div>`;
 }
+const GLANCE = Object.fromEntries(GLANCE_RULES.map(g => [g.r, g]));
+// A cut is a glance rule ({r: 1–6, c}) or "one fact you know" ({f: a plain fact of 6 words or fewer, c}); both show
+// as one line: the rule's name or the fact, then the letters it cuts.
+function cutOf(q) { return q && !q.variant && !q.baseId && Array.isArray(q.cut) ? q.cut.filter(e => e && (GLANCE[e.r] || (typeof e.f === 'string' && e.f.trim())) && Array.isArray(e.c) && e.c.length) : null; }
+function cutName(e) { return GLANCE[e.r] ? GLANCE[e.r].name : e.f; }
+// The six rules, one example each: the 📋 Rules sheet.
 function glanceRulesHtml() {
   return `<ol class="glance-rules">${GLANCE_RULES.map(g => `<li><b>${esc(g.full)}</b> <span class="elim-ex">(${esc(g.ex)})</span></li>`).join('')}</ol>` + sizeAnchorsHtml();
 }
