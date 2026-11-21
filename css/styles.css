@@ -986,3 +986,17 @@ select,input,textarea{font-size:16px}
 .times-up{font-size:22px;font-weight:700;color:var(--red);text-align:center;padding:14px;margin:0 0 10px;border:2px solid var(--red);background:var(--white)}
 .time-notice{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:60;background:var(--navy);color:var(--white);font-size:18px;font-weight:700;padding:10px 18px;border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
 .time-notice[hidden]{display:none}
+/* ⚛ Periodic table: a fixed button on every page and a scrollable table (all text 16 px or more). */
+.ptable-fab{position:fixed;right:12px;bottom:12px;z-index:55;font-size:16px;font-weight:700;padding:10px 14px;border-radius:24px;border:1px solid var(--border-med);background:var(--navy);color:var(--white);box-shadow:0 4px 14px rgba(0,0,0,.18);cursor:pointer}
+.ptable-modal{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:12px}
+.ptable-modal[hidden]{display:none}
+.pt-box{background:var(--surface);color:var(--text);border-radius:8px;max-width:100%;max-height:100%;display:flex;flex-direction:column;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.pt-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;font-size:18px;border-bottom:1px solid var(--border)}
+.pt-close{font-size:16px;padding:8px 12px;border-radius:6px;border:1px solid var(--border-med);background:var(--bg);color:var(--text);cursor:pointer}
+.pt-wrap{overflow:auto;padding:10px}
+.ptable{border-collapse:separate;border-spacing:2px}
+.ptable td{width:60px;min-width:60px;height:64px;padding:2px;text-align:center;vertical-align:middle}
+.ptable .pt-el{border:1px solid var(--border-med);border-radius:4px;background:var(--bg)}
+.ptable .pt-z,.ptable .pt-m{display:block;font-size:16px;line-height:1.1;color:var(--text-body)}
+.ptable .pt-sym{display:block;font-size:20px;line-height:1.2;color:var(--text)}
+.ptable tr.pt-f-first td{padding-top:14px}
