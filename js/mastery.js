@@ -852,14 +852,32 @@ function masteryRunSet(subj, kind, set) {
   if (!items.length) return;
   const passages = set.passages;
   stopQuizTimer(); stopPassageTimer();
-  Object.assign(pq, { mini: { subj, items, passages, firstExposures: Object.fromEntries(passages.map(p => [p.id, beginPassageExposure(p)])), completed: false, mastery: kind === 'diagnostic' ? 'diagnostic' : 'daily', setId: set.id, day: localDay() },
+  Object.assign(pq, { mini: { subj, items, passages, firstExposures: Object.fromEntries(passages.map(p => [p.id, beginPassageExposure(p)])), completed: false, mastery: kind === 'diagnostic' ? 'diagnostic' : kind === 'section' ? 'section' : 'daily', setId: set.id, day: localDay() },
     p: { id: 'mastery_' + subj, title: set.title },
     idx: 0, views: items.map(x => x.view), results: [], answered: false, completed: false, startedAt: Date.now(), qStart: Date.now(),
     targetMs: (set.timeMin ? set.timeMin * 60 : items.length * MASTERY.secondsPerItem) * 1000, errPending: null, warned: {}, hiddenAt: null });
+  if (set.untimed) pq.mini.untimed = true;
   show('screen-passage');
   renderPassageQuestion();
   pq.timer = setInterval(updatePassageTimer, 1000);
   updatePassageTimer();
+}
+// Untimed C/P practice sections (the user, 2026-11-22): a full 59-question section (10 passages + 15 stand-alones,
+// the exam's layout) built from two daily half-sections, with no timer, for working every question through. It does
+// not count toward the goal: an untimed score is not an exam score.
+function masteryCpSection(n) {
+  if (typeof CP_POOL === 'undefined') return null;
+  const a = CP_POOL[2 * n - 2], b = CP_POOL[2 * n - 1];
+  if (!a || !b) return null;
+  const order = [...a.order, ...b.order], last = order.length - 1;
+  if (typeof order[last] === 'number') order[last] -= 1;
+  return { title: 'C/P Practice Section ' + n + ' (untimed)', untimed: true, order, passages: [...a.passages, ...b.passages], standalones: [...a.standalones, ...b.standalones] };
+}
+function startCpSection(n) {
+  if (!bankReady('cp')) { withBank('cp', () => startCpSection(n)); return; }
+  if (!bankReady('fl')) { withBank('fl', () => startCpSection(n)); return; }
+  const set = masteryCpSection(Number(n));
+  if (set) masteryRunSet('cp', 'section', set);
 }
 // Exam-style discrete questions in the section: the AAMC-style question bank, by discipline and content category.
 // Kept per section until the bank changes size (TODAY counts each category's cards on every plan).
@@ -905,7 +923,8 @@ function masteryFinishTest(mini, results) {
     answered, ...(Object.keys(notReached).length ? { notReached } : {}), ...(mini.setId ? { setId: mini.setId, answers } : {}), ...(mini.timedOut ? { timedOut: true } : {}) };
   const before = masteryLoad();
   const prevTest = before.tests.filter(t => t.subj === test.subj).at(-1) || null;
-  const after = masteryApplyTest(before, test);
+  // An untimed practice section is kept apart: it never moves the goal, the weak topics or the next section.
+  const after = test.kind === 'section' ? Object.assign(before, { sections: [...(before.sections || []), { day: test.day, t: test.t, correct, total, scaled: test.scaled }].slice(-30) }) : masteryApplyTest(before, test);
   if (mini.setId && mini.mastery === 'daily') after.usedSets = [...(after.usedSets || []), { id: mini.setId, day: test.day }].slice(-60);
   masterySave(after);
   return masteryResultHtml(test, prevTest, after);
@@ -917,7 +936,7 @@ function masteryResultHtml(test, prev, m) {
   const trend = change == null ? '' : change > 0 ? '<b class="mastery-up">▲ Improved by ' + change + '</b> from ' + prev.scaled : change < 0 ? '<b class="mastery-down">▼ Down ' + (-change) + '</b> from ' + prev.scaled : 'Same as last time (' + prev.scaled + ')';
   const passedNow = m.passed[test.subj] === test.day;
   const nextSubj = MASTERY.order.find(s => !m.passed[s]);
-  const verdict = passedNow ? '<p class="today-alldone">✓ ' + esc(masteryName(test.subj)) + ' mastered: ' + goal + '+ on ' + MASTERY.passDays + ' days in a row. ' + (nextSubj ? 'Tomorrow starts ' + esc(masteryName(nextSubj)) + ' with its diagnostic.' : 'Every section in the path is mastered.') + '</p>'
+  const verdict = test.kind === 'section' ? '<p>Untimed practice section: it does not count toward your goal. Go through every missed question below.</p>' : passedNow ? '<p class="today-alldone">✓ ' + esc(masteryName(test.subj)) + ' mastered: ' + goal + '+ on ' + MASTERY.passDays + ' days in a row. ' + (nextSubj ? 'Tomorrow starts ' + esc(masteryName(nextSubj)) + ' with its diagnostic.' : 'Every section in the path is mastered.') + '</p>'
     : test.kind === 'diagnostic' && prev ? '<p>Diagnostic retaken. Your daily plan now aims at the weak topics below.</p>'
     : test.kind === 'diagnostic' ? '<p>Your daily plan now follows the AAMC mix and, within each content category, aims at the weak topics below first: flashcards and Practice Exam cards, then the quiz.</p>'
     : test.scaled >= goal ? '<p>At goal today. One more day at ' + goal + '+ moves you to the next section.</p>' : '<p>Next: review the missed questions below, then practice the weakest topics from TODAY. Tomorrow: 50 flashcards and up to 20 guided Practice Exam cards in the AAMC mix, the twins of today’s misses first, then core methods in your weak categories, then another quiz.</p>';
@@ -1090,5 +1109,7 @@ function masteryCard() {
   }
   const mastered = plan.masteredToday ? '<p class="today-alldone">✓ ' + name(plan.subj) + ' reached goal on ' + MASTERY.passDays + ' days in a row. The next section starts tomorrow.</p>' : '';
   const controls = '<details class="mastery-settings"><summary>Path settings</summary><label>Goal <select data-change="setMasteryGoal(this.value)">' + MASTERY.goals.map(g => '<option value="' + g + '"' + (g === plan.goal ? ' selected' : '') + '>' + g + '</option>').join('') + '</select></label> <label>Cards a day <select data-change="setMasteryPerDay(this.value)">' + MASTERY.perDay.map(n => '<option value="' + n + '"' + (n === plan.perDay ? ' selected' : '') + '>' + n + ' + ' + n + '</option>').join('') + '</select></label> <label>Study this section now <select data-change="setMasterySubject(this.value)"><option value="">Next in path</option>' + MASTERY.order.map(s => '<option value="' + s + '"' + (s === plan.subj && masteryLoad().current === s ? ' selected' : '') + '>' + name(s) + '</option>').join('') + '</select></label></details>';
-  return head + latest + weak + mastered + body + masteryPastHtml(masteryLoad()) + controls;
+  // Untimed full C/P sections (59 questions, no timer), for working every question through.
+  const sections = plan.subj === 'cp' && plan.status === 'study' ? '<div class="today-sections"><b>Untimed practice sections</b> <span class="muted-note">59 questions each, in the exam’s layout, no timer; not counted toward the goal.</span><div>' + [1, 2, 3].map(k => btn('Section ' + k, 'startCpSection(' + k + ')', false)).join(' ') + '</div></div>' : '';
+  return head + latest + weak + mastered + body + sections + masteryPastHtml(masteryLoad()) + controls;
 }
