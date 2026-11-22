@@ -267,7 +267,7 @@ function buildCpt() {
 // tools/test-pages.cjs checks them against the data.
 // ASSET_V: the deploy's version (sw.js CACHE), added to every script the app loads on demand so the browser's HTTP
 // cache never serves one from an earlier deploy. Written by tools/generate-pages.cjs; do not edit by hand.
-const ASSET_V = '?v=mcat-v3.06-periodic-table-2026-11-20';
+const ASSET_V = '?v=mcat-v3.07-untimed-sections-2026-11-22';
 const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'], cpt: ['data/cp-test-cards.js', 'data/cp-rules.js'] };
 const BANK_COUNTS = { fl: 354, flCp: 295, flTests: 6 };
 const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined', cpt: () => typeof CP_TEST_CARDS !== 'undefined' && typeof CP_RULES !== 'undefined' };   // both files of BANKS.cpt (the rules warm-up needs CP_RULES)
@@ -2363,6 +2363,8 @@ function updatePassageTimer() {
   if (!el || activeScreen !== 'screen-passage') { stopPassageTimer(); return; }
   if (pq.mini && pq.hiddenAt) return;   // paused while the app is hidden
   const used = Date.now() - pq.startedAt;
+  // Untimed practice section: the clock only shows the time used; it never ends the test.
+  if (pq.mini && pq.mini.untimed) { el.textContent = fmtTime(used) + ' · untimed'; el.title = 'Untimed practice section'; el.className = 'qm-timer'; return; }
   if (pq.mini && !pq.mini.completed && used >= pq.targetMs) { pq.mini.timedOut = true; miniTimeUp(el); return; }
   // A timed quiz or diagnostic counts down (time left), with a notice at 10, 5 and 1 minute left.
   if (pq.mini && pq.mini.mastery) {
