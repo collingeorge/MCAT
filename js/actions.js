@@ -12,7 +12,7 @@
     // Full-Length Prep tab
     'setFlCount', 'setFlTest', 'flSelectAll', 'reviewFlMissed',
     // Subject Mastery path
-    'startMasteryGuided', 'startMasteryFlashcards', 'retryStructs', 'startMasteryFollowup', 'startMasteryTest', 'studyTwinCard', 'setMasteryGoal', 'setMasteryPerDay', 'setMasterySubject', 'masteryReview',
+    'startMasteryGuided', 'startMasteryFlashcards', 'retryStructs', 'startMasteryFollowup', 'startMasteryTest', 'startCpSection', 'studyTwinCard', 'setMasteryGoal', 'setMasteryPerDay', 'setMasterySubject', 'masteryReview',
     // AAMC Prep tab menu and Rules & Passage Prep section
     'openAamc', 'openAamcView', 'startRulesQuiz', 'reviewRulesMissed',
     // recall quiz
