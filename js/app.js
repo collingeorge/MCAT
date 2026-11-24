@@ -176,6 +176,7 @@ const KEYS = {
   daily: 'mcat2_daily',              // { 'YYYY-MM-DD': answers }
   fluency: 'mcat2_fluency',          // { discipline: [ms of recent correct recall answers] }
   scoreHistory: 'mcat2_score_history',
+  cpSection: 'mcat2_cp_section',     // untimed C/P section in progress: { n, day, idx, elapsed, answers: [{c, o, ms}] }
 };
 
 // ════════════════════════════════════════════════════════════════
@@ -267,7 +268,7 @@ function buildCpt() {
 // tools/test-pages.cjs checks them against the data.
 // ASSET_V: the deploy's version (sw.js CACHE), added to every script the app loads on demand so the browser's HTTP
 // cache never serves one from an earlier deploy. Written by tools/generate-pages.cjs; do not edit by hand.
-const ASSET_V = '?v=mcat-v3.07-untimed-sections-2026-11-22';
+const ASSET_V = '?v=mcat-v3.08-section-pause-2026-11-24';
 const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'], cpt: ['data/cp-test-cards.js', 'data/cp-rules.js'] };
 const BANK_COUNTS = { fl: 354, flCp: 295, flTests: 6 };
 const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined', cpt: () => typeof CP_TEST_CARDS !== 'undefined' && typeof CP_RULES !== 'undefined' };   // both files of BANKS.cpt (the rules warm-up needs CP_RULES)
@@ -2325,7 +2326,7 @@ function showProgress() {
 function resetProgress() {
   if (!confirm('Erase recall stats, memory history, flags, passage scores, estimates and exam history for the active study profile? If signed in, this cleared copy will replace your cloud study progress when synced. This cannot be undone.')) return;
   window.McatAccount?.clearBackup();
-  [STUDY_TIMER_KEY, KEYS.retention, KEYS.exposures, KEYS.passageEvidence, KEYS.official, KEYS.recallDays, KEYS.dailyPlan, KEYS.externalPassages, KEYS.plannedPassages, KEYS.diagnostic, KEYS.fluency, KEYS.studyPath, KEYS.subjectPath, KEYS.finalTwo, KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory].forEach(k => store.del(k));
+  [STUDY_TIMER_KEY, KEYS.retention, KEYS.exposures, KEYS.passageEvidence, KEYS.official, KEYS.recallDays, KEYS.dailyPlan, KEYS.externalPassages, KEYS.plannedPassages, KEYS.diagnostic, KEYS.fluency, KEYS.studyPath, KEYS.subjectPath, KEYS.finalTwo, KEYS.stats, KEYS.srs, KEYS.mem, KEYS.mastery, KEYS.recent, KEYS.errors, KEYS.calib, KEYS.daily, KEYS.flags, KEYS.passages, KEYS.examHistory, KEYS.evidence, KEYS.scoreHistory, KEYS.cpSection].forEach(k => store.del(k));
   FULL_EXAMS.forEach(e => { store.del(KEYS.examProgress(e.id)); store.del(KEYS.examLast(e.id)); });
   visibleStudyTimer = null;
   goHome();
@@ -2594,14 +2595,15 @@ function renderPassageQuestion() {
   // Practice Exam questions can show a molecule, answer-choice drawings or a graph: load the drawings once.
   if (typeof STRUCT_SVG === 'undefined' && needsStructs(view.q)) ensureStructs().then(() => { if (activeScreen === 'screen-passage' && pq.views[pq.idx] === view && !pq.answered) renderPassageQuestion(); }).catch(() => {});
   $('pp-question-box').innerHTML = `
-    <div class="question-box"><div class="q-toolbar"><span class="q-tag">Question ${pq.idx + 1} of ${tot}${view.q.skill ? ` · ${esc(SKILL_LABEL[view.q.skill] || view.q.skill)}` : ''}</span></div>
+    <div class="question-box"><div class="q-toolbar"><span class="q-tag">Question ${pq.idx + 1} of ${tot}${view.q.skill ? ` · ${esc(SKILL_LABEL[view.q.skill] || view.q.skill)}` : ''}</span>${pq.mini && pq.mini.sectionN ? '<button class="micro-btn q-pause" data-click="pauseCpSection()" title="Saves your answers and place; resume from TODAY">⏸ Pause &amp; exit</button>' : ''}</div>
       <div class="question-text">${fmt(view.q.q)}</div>${stemFigs(view.q)}${view.q.chart ? figureHtml(view.q.chart) : ''}</div>
     <div class="choices">${choiceButtons(view.choices, 'answerPassage', { prefix: 'pc', view })}</div>
     <div id="pp-exp"></div><div id="pp-next"></div>`;
 }
 function finishPassageAnswer(chosen, other = null, answerMs = null) {
   if (pq.mini) {
-    if (Date.now() - pq.startedAt >= pq.targetMs) { pq.mini.timedOut = true; miniTimeUp($('pp-timer')); return; }
+    // An untimed section never ends on the clock.
+    if (!pq.mini.untimed && Date.now() - pq.startedAt >= pq.targetMs) { pq.mini.timedOut = true; miniTimeUp($('pp-timer')); return; }
     miniAnswer(chosen, other, answerMs ?? (Date.now() - pq.qStart)); return;
   }
   if (pq.answered) return;
@@ -2644,6 +2646,7 @@ function nextPassageQ() {
   flushPassageErr();
   if (pq.idx + 1 >= pq.views.length) { showPassageResults(); return; }
   pq.idx++;
+  if (pq.mini && typeof masterySaveSection === 'function') masterySaveSection();
   renderPassageQuestion();
   $('pp-question-box').scrollIntoView({ block: 'start', behavior: 'smooth' });
 }
