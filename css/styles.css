@@ -705,6 +705,7 @@ table.aamc tr.gap td{opacity:.65}
 .data-figure th{background:var(--blue-light);color:var(--navy);font-weight:700}
 .data-figure td:first-child,.data-figure th:first-child{text-align:left}
 .data-figure figcaption{font-size:16px;color:var(--slate);margin-top:6px;line-height:1.5}
+.fig-img{display:block;max-width:100%;height:auto;background:#fff;border:1px solid var(--border-med);border-radius:6px}
 .speed-bar{height:5px;background:var(--border);margin:-4px 0 12px}
 .speed-fill{height:100%;width:100%;background:var(--green);transition:width .2s linear}
 .speed-fill.low{background:var(--red)}
