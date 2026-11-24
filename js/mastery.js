@@ -920,6 +920,31 @@ function startCpSection(n, fresh) {
   if (fresh) store.del(KEYS.cpSection);
   masteryRunSet('cp', 'section', set, saved);
 }
+// Rules sheet for each untimed section (the user, 2026-11-24: "none of the notes answered anything"): the method
+// behind every question in the section, one line each (the question's own "Rule to reuse", the same method as the
+// studied card it twins), grouped by AAMC content category, to read before starting. Repeated lines show once.
+function masterySectionRules(n) {
+  const set = masteryCpSection(Number(n));
+  if (!set) return [];
+  const byCat = new Map();
+  for (const it of masterySetItems(set)) {
+    const q = it.view.q, m = /\*\*Rule to reuse:\*\*\s*([^\n]+)/.exec(String(q.exp || ''));
+    if (!m) continue;
+    const cat = q.cat || (it.passage && it.passage.cats && it.passage.cats[0]) || 'other', rule = m[1].trim().replace(/^./, c => c.toUpperCase());
+    const list = byCat.get(cat) || [];
+    if (!list.includes(rule)) list.push(rule);
+    byCat.set(cat, list);
+  }
+  return [...byCat].sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)).map(([cat, rules]) => ({ cat, rules }));
+}
+// TODAY: one fold-out per section. The sheet needs the section pool, which is not loaded at startup: a button loads it.
+function masterySectionRulesBlock() {
+  if (typeof bankReady !== 'function' || !bankReady('cp')) return '<button class="micro-btn today-start" data-click="loadSectionRules()">📋 Section rules sheets</button>';
+  return [1, 2, 3].map(k => { const groups = masterySectionRules(k); if (!groups.length) return '';
+    return '<details class="elim-today rules-sheet"><summary><b>📋 Section ' + k + ' rules</b> · read before you start</summary>' +
+      groups.map(g => '<div class="rules-sec"><b>' + esc(g.cat) + ' · ' + esc(AAMC_CAT_LABEL(g.cat)) + '</b><ul>' + g.rules.map(r => '<li>' + fmt(r) + '</li>').join('') + '</ul></div>').join('') + '</details>'; }).join('');
+}
+function loadSectionRules() { withBank('cp', () => { if (typeof renderDailyPlan === 'function') renderDailyPlan(); }); }
 // Exam-style discrete questions in the section: the AAMC-style question bank, by discipline and content category.
 // Kept per section until the bank changes size (TODAY counts each category's cards on every plan).
 const masteryExamPools = new Map();
@@ -1153,6 +1178,6 @@ function masteryCard() {
   const mastered = plan.masteredToday ? '<p class="today-alldone">✓ ' + name(plan.subj) + ' reached goal on ' + MASTERY.passDays + ' days in a row. The next section starts tomorrow.</p>' : '';
   const controls = '<details class="mastery-settings"><summary>Path settings</summary><label>Goal <select data-change="setMasteryGoal(this.value)">' + MASTERY.goals.map(g => '<option value="' + g + '"' + (g === plan.goal ? ' selected' : '') + '>' + g + '</option>').join('') + '</select></label> <label>Cards a day <select data-change="setMasteryPerDay(this.value)">' + MASTERY.perDay.map(n => '<option value="' + n + '"' + (n === plan.perDay ? ' selected' : '') + '>' + n + ' + ' + n + '</option>').join('') + '</select></label> <label>Study this section now <select data-change="setMasterySubject(this.value)"><option value="">Next in path</option>' + MASTERY.order.map(s => '<option value="' + s + '"' + (s === plan.subj && masteryLoad().current === s ? ' selected' : '') + '>' + name(s) + '</option>').join('') + '</select></label></details>';
   // Untimed full C/P sections (59 questions, no timer), for working every question through.
-  const sections = plan.subj === 'cp' && plan.status === 'study' ? '<div class="today-sections"><b>Untimed practice sections</b> <span class="muted-note">59 questions each, in the exam’s layout, no timer; not counted toward the goal.</span><div>' + [1, 2, 3].map(k => { const s = masterySavedSection(k); return s ? btn('Resume Section ' + k + ' at Q' + (Math.min(s.idx, 58) + 1), 'startCpSection(' + k + ')', false) + ' ' + btn('Restart Section ' + k, 'startCpSection(' + k + ',true)', false) : btn('Section ' + k, 'startCpSection(' + k + ')', false); }).join(' ') + '</div></div>' : '';
+  const sections = plan.subj === 'cp' && plan.status === 'study' ? '<div class="today-sections"><b>Untimed practice sections</b> <span class="muted-note">59 questions each, in the exam’s layout, no timer; not counted toward the goal.</span><div>' + [1, 2, 3].map(k => { const s = masterySavedSection(k); return s ? btn('Resume Section ' + k + ' at Q' + (Math.min(s.idx, 58) + 1), 'startCpSection(' + k + ')', false) + ' ' + btn('Restart Section ' + k, 'startCpSection(' + k + ',true)', false) : btn('Section ' + k, 'startCpSection(' + k + ')', false); }).join(' ') + '</div>' + masterySectionRulesBlock() + '</div>' : '';
   return head + latest + weak + mastered + body + sections + masteryPastHtml(masteryLoad()) + controls;
 }
