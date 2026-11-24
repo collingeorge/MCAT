@@ -847,7 +847,8 @@ function masterySetItems(set) {
   }
   return items;
 }
-function masteryRunSet(subj, kind, set) {
+// saved (an untimed section only): the answers and place from masterySavedSection, to resume.
+function masteryRunSet(subj, kind, set, saved) {
   const items = masterySetItems(set);
   if (!items.length) return;
   const passages = set.passages;
@@ -857,8 +858,21 @@ function masteryRunSet(subj, kind, set) {
     idx: 0, views: items.map(x => x.view), results: [], answered: false, completed: false, startedAt: Date.now(), qStart: Date.now(),
     targetMs: (set.timeMin ? set.timeMin * 60 : items.length * MASTERY.secondsPerItem) * 1000, errPending: null, warned: {}, hiddenAt: null });
   if (set.untimed) pq.mini.untimed = true;
+  if (set.sectionN) pq.mini.sectionN = set.sectionN;
+  let pending = null;
+  if (saved && set.sectionN) {
+    const answers = saved.answers.slice(0, pq.views.length);
+    pq.results = answers.map((a, i) => { const v = pq.views[i], c = a.c == null ? null : v.order.indexOf(a.c), o = a.o == null ? null : v.order.indexOf(a.o);
+      return { view: v, chosen: c < 0 ? null : c, other: o < 0 ? null : o, right: c === v.ans, ms: a.ms || 0 }; });
+    pq.idx = Math.min(Math.max(0, saved.idx | 0), pq.views.length - 1, pq.results.length);
+    // The question on screen was answered but Next was not pressed: show it answered again.
+    if (pq.results.length > pq.idx) { pending = pq.results[pq.idx]; pq.results = pq.results.slice(0, pq.idx); }
+    pq.startedAt = Date.now() - (saved.elapsed || 0);
+    if (saved.day) pq.mini.day = saved.day;
+  }
   show('screen-passage');
   renderPassageQuestion();
+  if (pending && pending.chosen != null) miniAnswer(pending.chosen, pending.other, pending.ms);
   pq.timer = setInterval(updatePassageTimer, 1000);
   updatePassageTimer();
 }
@@ -873,11 +887,38 @@ function masteryCpSection(n) {
   if (typeof order[last] === 'number') order[last] -= 1;
   return { title: 'C/P Practice Section ' + n + ' (untimed)', untimed: true, order, passages: [...a.passages, ...b.passages], standalones: [...a.standalones, ...b.standalones] };
 }
-function startCpSection(n) {
-  if (!bankReady('cp')) { withBank('cp', () => startCpSection(n)); return; }
-  if (!bankReady('fl')) { withBank('fl', () => startCpSection(n)); return; }
+// A section in progress is saved after every answer and every Next (KEYS.cpSection), so Pause & exit, a reload or a
+// closed tab resumes it at the same question. Answers are kept as the question's own choice index (the screen
+// shuffles the choices again on resume). One section is saved at a time.
+function masterySavedSection(n) {
+  const s = store.get(KEYS.cpSection, null);
+  return s && (n == null || s.n === Number(n)) && Array.isArray(s.answers) ? s : null;
+}
+function masterySaveSection() {
+  const mini = pq.mini;
+  if (!mini || !mini.sectionN || mini.completed) return;
+  store.set(KEYS.cpSection, { n: mini.sectionN, day: mini.day, idx: pq.idx, elapsed: Math.max(0, (pq.hiddenAt || Date.now()) - pq.startedAt),
+    answers: pq.results.map(r => ({ c: r.chosen == null ? null : r.view.order[r.chosen], o: r.other == null ? null : r.view.order[r.other], ms: Math.round(r.ms || 0) })) });
+}
+// Pause & exit: the clock stops, the place is saved, and TODAY shows "Resume" for this section.
+function pauseCpSection() {
+  if (!pq.mini || !pq.mini.sectionN || pq.mini.completed) return;
+  masterySaveSection();
+  stopPassageTimer();
+  pq.mini.completed = true;   // this copy is closed; the saved one resumes
+  setTimeout(() => window.McatAccount?.flush?.(), 0);
+  if (typeof document !== 'undefined' && document.body) document.body.classList.remove('exam-mode');
+  goHome();
+}
+function startCpSection(n, fresh) {
+  if (!bankReady('cp')) { withBank('cp', () => startCpSection(n, fresh)); return; }
+  if (!bankReady('fl')) { withBank('fl', () => startCpSection(n, fresh)); return; }
   const set = masteryCpSection(Number(n));
-  if (set) masteryRunSet('cp', 'section', set);
+  if (!set) return;
+  set.sectionN = Number(n);
+  const saved = fresh ? null : masterySavedSection(n);
+  if (fresh) store.del(KEYS.cpSection);
+  masteryRunSet('cp', 'section', set, saved);
 }
 // Exam-style discrete questions in the section: the AAMC-style question bank, by discipline and content category.
 // Kept per section until the bank changes size (TODAY counts each category's cards on every plan).
@@ -948,7 +989,7 @@ function masteryResultHtml(test, prev, m) {
     (skillRows ? '<div class="section-label">Scientific skills (data-based passages)</div><table class="data-table mastery-topics"><thead><tr><th>Skill</th><th></th><th>Right</th><th>%</th></tr></thead><tbody>' + skillRows + '</tbody></table>' : '');
   const nr = test.notReached ? Object.entries(test.notReached).map(([c, n]) => esc(c) + ' ' + n).join(' · ') : '';
   return (test.timedOut ? '<div class="times-up" role="alert">⏰ Time’s up</div>' : '') +
-    '<div class="results-hero"><div class="r-label">' + esc(masteryName(test.subj)) + (test.kind === 'diagnostic' ? ' diagnostic' : ' end-of-day test') + '</div><div class="score-pct">' + test.scaled + '</div><div class="score-sub">' + masteryAnsweredLine(test) + ' · goal ' + goal + (trend ? ' · ' + trend : '') + '</div></div>' +
+    '<div class="results-hero"><div class="r-label">' + esc(masteryName(test.subj)) + (test.kind === 'diagnostic' ? ' diagnostic' : test.kind === 'section' ? ' practice section (untimed)' : ' end-of-day test') + '</div><div class="score-pct">' + test.scaled + '</div><div class="score-sub">' + masteryAnsweredLine(test) + ' · goal ' + goal + (trend ? ' · ' + trend : '') + '</div></div>' +
     '<div class="results-card">' + masteryPacingNote(test) + verdict + '<div class="section-label">Topics, weakest first</div><table class="data-table mastery-topics"><thead><tr><th>AAMC</th><th>Topic</th><th>Right</th><th>%</th></tr></thead><tbody>' + rows + '</tbody></table>' + (nr ? '<p class="muted-note">Not reached (not counted toward weak topics): ' + nr + '.</p>' : '') + pass +
     '<p class="muted-note">Scaled from % correct with the app’s raw-to-scaled table: an estimate for tracking progress, not an AAMC score.</p><div class="btn-row"><button class="new-quiz-btn" data-click="goHome()">Back to TODAY</button></div></div>';
 }
@@ -963,6 +1004,8 @@ function masteryAnsweredLine(t) {
 function masteryPacingNote(t) {
   const n = Number.isInteger(t.answered) ? t.answered : t.total;
   if (n >= t.total) return '';
+  // An untimed section never runs out of time: unanswered questions were skipped, not cut off by the clock.
+  if (t.kind === 'section') return '<p class="mastery-pacing"><b>' + (t.total - n) + ' not answered.</b> Accuracy on what you answered: ' + (n ? Math.round(100 * t.correct / n) : 0) + '%.</p>';
   return '<p class="mastery-pacing"><b>You ran out of time.</b> Accuracy on what you answered: ' + (n ? Math.round(100 * t.correct / n) : 0) + '%. Next time, guess on any question you can’t finish; there’s no penalty.</p>';
 }
 // ── Past quizzes: every finished quiz and diagnostic can be reopened ──
@@ -1110,6 +1153,6 @@ function masteryCard() {
   const mastered = plan.masteredToday ? '<p class="today-alldone">✓ ' + name(plan.subj) + ' reached goal on ' + MASTERY.passDays + ' days in a row. The next section starts tomorrow.</p>' : '';
   const controls = '<details class="mastery-settings"><summary>Path settings</summary><label>Goal <select data-change="setMasteryGoal(this.value)">' + MASTERY.goals.map(g => '<option value="' + g + '"' + (g === plan.goal ? ' selected' : '') + '>' + g + '</option>').join('') + '</select></label> <label>Cards a day <select data-change="setMasteryPerDay(this.value)">' + MASTERY.perDay.map(n => '<option value="' + n + '"' + (n === plan.perDay ? ' selected' : '') + '>' + n + ' + ' + n + '</option>').join('') + '</select></label> <label>Study this section now <select data-change="setMasterySubject(this.value)"><option value="">Next in path</option>' + MASTERY.order.map(s => '<option value="' + s + '"' + (s === plan.subj && masteryLoad().current === s ? ' selected' : '') + '>' + name(s) + '</option>').join('') + '</select></label></details>';
   // Untimed full C/P sections (59 questions, no timer), for working every question through.
-  const sections = plan.subj === 'cp' && plan.status === 'study' ? '<div class="today-sections"><b>Untimed practice sections</b> <span class="muted-note">59 questions each, in the exam’s layout, no timer; not counted toward the goal.</span><div>' + [1, 2, 3].map(k => btn('Section ' + k, 'startCpSection(' + k + ')', false)).join(' ') + '</div></div>' : '';
+  const sections = plan.subj === 'cp' && plan.status === 'study' ? '<div class="today-sections"><b>Untimed practice sections</b> <span class="muted-note">59 questions each, in the exam’s layout, no timer; not counted toward the goal.</span><div>' + [1, 2, 3].map(k => { const s = masterySavedSection(k); return s ? btn('Resume Section ' + k + ' at Q' + (Math.min(s.idx, 58) + 1), 'startCpSection(' + k + ')', false) + ' ' + btn('Restart Section ' + k, 'startCpSection(' + k + ',true)', false) : btn('Section ' + k, 'startCpSection(' + k + ')', false); }).join(' ') + '</div></div>' : '';
   return head + latest + weak + mastered + body + sections + masteryPastHtml(masteryLoad()) + controls;
 }

@@ -1,12 +1,20 @@
 // Subject progression uses transparent study heuristics, not validated MCAT cutoffs.
+// Until Next is pressed, a new pick replaces the old one, and the picked choice is shown in blue.
 function miniAnswer(chosen, other, ms) {
-  if (pq.answered) return;
+  const view = pq.views[pq.idx], last = pq.results.at(-1);
+  if (pq.answered) {
+    if (!last || last.view !== view || pq.mini?.completed) return;
+    Object.assign(last, { chosen, other, right: chosen === view.ans });
+    miniMarkChoice(chosen); masterySaveSection(); return;
+  }
   pq.answered = true;
-  const view = pq.views[pq.idx];
   pq.results.push({ view, chosen, other, right: chosen === view.ans, ms });
-  view.choices.forEach((_, i) => { $('pc-' + i).disabled = true; });
+  miniMarkChoice(chosen); masterySaveSection();
   $('pp-next').innerHTML = '<p class="muted-note">Answer recorded. Feedback follows the complete mini test.</p><button class="next-btn" id="pp-next-btn" data-click="nextPassageQ()">' + (pq.idx + 1 === pq.views.length ? 'Finish mini test' : 'Next question →') + '</button>';
   $('pp-next-btn').focus({ preventScroll: true });
+}
+function miniMarkChoice(chosen) {
+  pq.views[pq.idx].choices.forEach((_, i) => { const b = $('pc-' + i); if (!b) return; b.classList.toggle('selected', i === chosen); b.setAttribute('aria-pressed', i === chosen ? 'true' : 'false'); });
 }
 function logStudyWork(subj, kind, correct, total) {
   const history = store.get(KEYS.studyPath, []);
@@ -18,7 +26,8 @@ function finishSubjectMini() {
   const mini = pq.mini;
   if (!mini || mini.completed) return;
   mini.completed = true;
-  stopPassageTimer(); 
+  if (mini.sectionN) store.del(KEYS.cpSection);   // a finished section no longer resumes
+  stopPassageTimer();
   if (typeof document !== 'undefined' && document.body) document.body.classList.remove('exam-mode');
   // A timed-out test includes all unattempted items as misses, once.
   for (let i = pq.results.length; i < pq.views.length; i++) pq.results.push({ view: pq.views[i], chosen: null, other: null, right: false, ms: 0 });

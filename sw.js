@@ -8,7 +8,7 @@
 //   matches the exact versioned URL.
 // - The drawings (data/structures.js) and the sign-in SDK are cached the first time they are used, not at install.
 // Bump CACHE when deploying, then run node tools/generate-pages.cjs.
-const CACHE = 'mcat-v3.07-untimed-sections-2026-11-22';
+const CACHE = 'mcat-v3.08-section-pause-2026-11-24';
 const V = '?v=' + CACHE;
 const NETWORK_TIMEOUT_MS = 4000, CACHED_TIMEOUT_MS = 1500;
 const SCRIPTS = [
