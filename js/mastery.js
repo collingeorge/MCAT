@@ -937,20 +937,14 @@ function masterySectionRules(n) {
   }
   return [...byCat].sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)).map(([cat, rules]) => ({ cat, rules }));
 }
-// TODAY: one fold-out per section. The sheet needs the section pool; TODAY loads it when shown.
-let masterySectionRulesLoading = false;
+// TODAY: one fold-out per section. The sheet needs the section pool, which is not loaded at startup: a button loads it.
 function masterySectionRulesBlock() {
-  if (typeof bankReady !== 'function' || !bankReady('cp')) {
-    if (!masterySectionRulesLoading && typeof ensureBank === 'function') {
-      masterySectionRulesLoading = true;
-      ensureBank('cp').then(() => { if (typeof renderDailyPlan === 'function') renderDailyPlan(); }).catch(() => {}).finally(() => { masterySectionRulesLoading = false; });
-    }
-    return '<p class="muted-note">Loading the section rules sheets…</p>';
-  }
+  if (typeof bankReady !== 'function' || !bankReady('cp')) return '<button class="micro-btn today-start" data-click="loadSectionRules()">📋 Section rules sheets</button>';
   return [1, 2, 3].map(k => { const groups = masterySectionRules(k); if (!groups.length) return '';
     return '<details class="elim-today rules-sheet"><summary><b>📋 Section ' + k + ' rules</b> · read before you start</summary>' +
       groups.map(g => '<div class="rules-sec"><b>' + esc(g.cat) + ' · ' + esc(AAMC_CAT_LABEL(g.cat)) + '</b><ul>' + g.rules.map(r => '<li>' + fmt(r) + '</li>').join('') + '</ul></div>').join('') + '</details>'; }).join('');
 }
+function loadSectionRules() { withBank('cp', () => { if (typeof renderDailyPlan === 'function') renderDailyPlan(); }); }
 // Exam-style discrete questions in the section: the AAMC-style question bank, by discipline and content category.
 // Kept per section until the bank changes size (TODAY counts each category's cards on every plan).
 const masteryExamPools = new Map();
