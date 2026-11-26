@@ -1101,7 +1101,7 @@ function masteryReview(tt, filter) {
     const q = it.view.q, a = by.get(String(q.id)), nr = !!a && a.chosen == null && !a.u, missed = !!a && !a.right && !nr && !a.u;
     if ((f === 'missed' && !missed) || (f === 'notreached' && !nr)) return '';
     n++;
-    const p = it.passage, head = p && p.id !== lastP ? '<details class="results-card"><summary>Passage: ' + esc(p.title) + '</summary>' + passageCard(p.topic || '', p.title, p.passage, p.figure, p.scheme) + '</details>' : '';
+    const p = it.passage, head = p && p.id !== lastP ? '<details class="results-card"><summary>Passage: ' + esc(p.title) + '</summary>' + passageCard(p.topic || '', p.title, p.passage, p.figure, p.scheme, p.figures) + '</details>' : '';
     if (p) lastP = p.id;
     return head + reviewItem({ stem: q.q, choices: q.choices, ans: q.ans, chosen: !a || a.u ? undefined : a.chosen, exp: q.exp, tag: 'Q' + (i + 1) + (nr ? ' · not reached' : ''), passageTitle: p && p.title, twin: q.twin, nullLabel: '— Not reached' });
   }).join('');

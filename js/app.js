@@ -268,7 +268,7 @@ function buildCpt() {
 // tools/test-pages.cjs checks them against the data.
 // ASSET_V: the deploy's version (sw.js CACHE), added to every script the app loads on demand so the browser's HTTP
 // cache never serves one from an earlier deploy. Written by tools/generate-pages.cjs; do not edit by hand.
-const ASSET_V = '?v=mcat-v3.10-starch-figure-2026-11-24';
+const ASSET_V = '?v=mcat-v3.11-figures-2026-11-24';
 const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'], cpt: ['data/cp-test-cards.js', 'data/cp-rules.js'] };
 const BANK_COUNTS = { fl: 354, flCp: 295, flTests: 6 };
 const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined', cpt: () => typeof CP_TEST_CARDS !== 'undefined' && typeof CP_RULES !== 'undefined' };   // both files of BANKS.cpt (the rules warm-up needs CP_RULES)
@@ -2405,7 +2405,8 @@ function miniVisibility() {
   if (pq.hiddenAt) { const gap = Date.now() - pq.hiddenAt; pq.startedAt += gap; pq.qStart += gap; pq.hiddenAt = null; updatePassageTimer(); }
 }
 if (typeof document !== 'undefined' && document.addEventListener) document.addEventListener('visibilitychange', miniVisibility);
-function passageCard(topic, title, text, figure, scheme) {
+// figures: more figures after `figure` (a passage can have several: tables, graphs and drawn diagrams).
+function passageCard(topic, title, text, figure, scheme, figures) {
   // Drawn structures and reaction schemes sit after the paragraph they belong to (row.after, 0-based over
   // blank-line-separated paragraphs; default: after the first).
   let body = paragraphs(text);
@@ -2418,7 +2419,7 @@ function passageCard(topic, title, text, figure, scheme) {
     ${topic ? `<div class="passage-topic">${esc(topic)}</div>` : ''}
     <div class="passage-title">${esc(title)}</div>
     <div class="passage-text">${body}</div>
-    ${figure ? figureHtml(figure) : ''}
+    ${figure ? figureHtml(figure) : ''}${Array.isArray(figures) ? figures.map(f => figureHtml(f)).join('') : ''}
   </div>`;
 }
 // One scheme row: structures with "+" and labeled reaction arrows between them, and a caption.
@@ -2438,7 +2439,7 @@ function fillPassageBox(p, force) {
   const box = $('pp-passage-box'); if (!box) return;
   const state = p.id + '|' + (typeof STRUCT_SVG !== 'undefined');
   if (!force && box.dataset && box.dataset.shown === state && box.innerHTML) return;
-  const html = () => passageCard(p.topic || '', p.title, p.passage, p.figure, p.scheme);
+  const html = () => passageCard(p.topic || '', p.title, p.passage, p.figure, p.scheme, p.figures);
   box.innerHTML = html();
   if (box.dataset) box.dataset.shown = state;
   if (passageNeedsStructs(p) && typeof STRUCT_SVG === 'undefined' && typeof ensureStructs === 'function') ensureStructs().then(() => { if ($('pp-passage-box') === box && box.isConnected !== false) { box.innerHTML = html(); if (box.dataset) box.dataset.shown = p.id + '|true'; } }).catch(() => {});
@@ -2494,7 +2495,8 @@ function lineChart(fig, ov) {
   const xT = chartTicks(fig.x).map(v => `<line class="ch-tick" x1="${sx(v).toFixed(1)}" x2="${sx(v).toFixed(1)}" y1="${bottom}" y2="${bottom + 5}"/><text class="ch-tl" x="${sx(v).toFixed(1)}" y="${bottom + 18}" text-anchor="middle">${chartNum(v)}</text>`).join('');
   const series = fig.series.map(s => { const P = [...s.points].sort((a, b) => a[0] - b[0]).map(([x, y]) => [sx(x), sy(y)]);
     const line = s.line === 'none' ? '' : `<path class="ch-line" d="${s.line === 'straight' ? 'M' + P.map(p => p.map(n => n.toFixed(1)).join(' ')).join(' L') : chartSmooth(P)}"/>`;
-    return `<g class="${cls(s)}">${line}${P.map(([x, y]) => chartMarker(s.marker, x, y)).join('')}</g>`; }).join('');
+    // marker 'none': a plain curve (an action potential, a fitted line, a pulse) with no point symbols.
+    return `<g class="${cls(s)}">${line}${s.marker === 'none' ? '' : P.map(([x, y]) => chartMarker(s.marker, x, y)).join('')}</g>`; }).join('');
   let over = '';
   if (ov) {
     if (ov.xLine != null) over += `<line class="ch-guide" x1="${sx(ov.xLine).toFixed(1)}" x2="${sx(ov.xLine).toFixed(1)}" y1="${C.T}" y2="${bottom}"/>`;
@@ -2505,7 +2507,7 @@ function lineChart(fig, ov) {
         <text class="ch-read" x="${(C.L + 6).toFixed(1)}" y="${(py - 6).toFixed(1)}">${chartNum(pt[1])}</text><text class="ch-read" x="${(px + 6).toFixed(1)}" y="${(bottom - 6).toFixed(1)}">${chartNum(pt[0])}</text>`; });
   }
   if (ov) over += chartAnnotations(fig, ov, sx, sy, bottom, W);
-  const leg = fig.series.map(s => ({ name: s.name, cls: cls(s), key: (x, y) => (s.line === 'none' ? '' : `<line class="ch-line" x1="${x - 8}" x2="${x + 8}" y1="${y}" y2="${y}"/>`) + chartMarker(s.marker, x, y) }));
+  const leg = fig.series.map(s => ({ name: s.name, cls: cls(s), key: (x, y) => (s.line === 'none' ? '' : `<line class="ch-line" x1="${x - 8}" x2="${x + 8}" y1="${y}" y2="${y}"/>`) + (s.marker === 'none' ? '' : chartMarker(s.marker, x, y)) }));
   const legTop = bottom + 68, H = legTop + Math.ceil(leg.length / 2) * 20;
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(fig.caption || 'Graph')}">${chartAxes(fig, sy, W, H, xT)}${series}${over}${chartLegend(leg, legTop, W)}</svg>`;
 }
@@ -2564,8 +2566,14 @@ function barChart(fig, ov) {
   const legTop = bottom + 68, H = legTop + Math.ceil(leg.length / 2) * 20;
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(fig.caption || 'Bar graph')}">${chartAxes(fig, sy, W, H, xT)}${bars}${k > 1 ? chartLegend(leg, legTop, W) : ''}</svg>`;
 }
-// Data tables and graphs for reasoning passages: {caption, columns, rows} or {type:'line'|'bar', …}
+// Data tables and graphs for reasoning passages: {caption, columns, rows}, {type:'line'|'bar', …} or {type:'svg', svg, alt}.
+// A drawn diagram (gel, circuit, sequence, apparatus) is a script-free SVG shown as an image, never inserted as markup.
 function figureHtml(fig, ov) {
+  if (fig && fig.type === 'svg') {
+    const s = fig.svg;
+    if (typeof s !== 'string' || !/^<svg[\s\S]*<\/svg>$/.test(s) || /<script|<foreignObject|\son\w+\s*=|javascript:|href=/i.test(s)) return '';
+    return `<figure class="data-figure svg-figure"><img class="fig-img" src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(s)}" alt="${esc(fig.alt || fig.caption || 'Figure')}">${fig.caption ? `<figcaption>${fmt(fig.caption)}</figcaption>` : ''}</figure>`;
+  }
   if (fig && (fig.type === 'line' || fig.type === 'bar') && Array.isArray(fig.series)) {
     return `<figure class="data-figure chart-figure">${fig.type === 'line' ? lineChart(fig, ov) : barChart(fig, ov)}${fig.caption ? `<figcaption>${fmt(fig.caption)}</figcaption>` : ''}</figure>`;
   }

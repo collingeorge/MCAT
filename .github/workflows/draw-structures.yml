@@ -1,0 +1,25 @@
+name: Draw structures
+# Regenerates data/structures.js from tools/draw-structures.py with RDKit and commits it to the chosen branch.
+# Run it by hand (Actions → Draw structures → Run workflow) on a feature branch after adding molecules to the script.
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  draw:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - name: Install RDKit
+        run: python3 -m pip install --user rdkit
+      - name: Draw and check every structure
+        run: python3 tools/draw-structures.py
+      - name: Commit data/structures.js if it changed
+        run: |
+          if git diff --quiet -- data/structures.js; then echo "data/structures.js is already current"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/structures.js
+          git commit -m "Regenerate data/structures.js with RDKit"
+          git push

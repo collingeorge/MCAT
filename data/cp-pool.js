@@ -18,6 +18,7 @@ const CP_POOL = [
     "passages": [
       {
         "id": "p_cpq1_1",
+        "figures": [{"type":"svg","caption":"Figure 1 The fibrinogen bond cleaved by thrombin","alt":"The sequence Val–Arg–Gly–Pro from N- to C-terminal side, with an arrow marking the Arg–Gly bond as the cleavage site.","svg":"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 150' width='560' height='150' font-family='sans-serif' font-size='20'><text x='265' y='22' text-anchor='middle' fill='#b45309'>Cleavage site</text><path d='M265 30V56M257 48L265 58L273 48' fill='none' stroke='#b45309' stroke-width='3'/><path d='M45 85H510' stroke='#333' stroke-width='3'/><path d='M265 66V104' stroke='#b45309' stroke-width='3' stroke-dasharray='5 4'/><g fill='#fff' stroke='#333' stroke-width='2'><rect x='60' y='65' width='80' height='40' rx='8'/><rect x='170' y='65' width='80' height='40' rx='8'/><rect x='280' y='65' width='80' height='40' rx='8'/><rect x='390' y='65' width='80' height='40' rx='8'/></g><g text-anchor='middle' fill='#111'><text x='25' y='92'>…</text><text x='100' y='92'>Val</text><text x='210' y='92'>Arg</text><text x='320' y='92'>Gly</text><text x='430' y='92'>Pro</text><text x='530' y='92'>…</text></g><text x='20' y='138' font-size='18' fill='#444'>N-terminal side</text><text x='540' y='138' font-size='18' fill='#444' text-anchor='end'>C-terminal side</text></svg>"}],
         "subj": "biochemistry",
         "type": "passage",
         "topic": "C/P",
@@ -414,6 +415,7 @@ const CP_POOL = [
       },
       {
         "id": "p_cpq1_5",
+        "figures": [{"caption":"Table 1 Native gel of the labeling reaction (protein stain and UV fluorescence)","columns":["Lane","Sample","Bands (protein stain)","Fluorescent under UV"],"rows":[["1","Enzyme before reaction","Upper band","None"],["2","Crude reaction mixture","Upper (unlabeled) and middle (labeled) bands, equal stain","Middle band and dye front"],["3","First band from chromatography","Upper band only","None"],["4","Second band from chromatography","Middle band only","Middle band"]]}],
         "subj": "biochemistry",
         "type": "passage",
         "topic": "C/P",
@@ -730,6 +732,7 @@ const CP_POOL = [
     "passages": [
       {
         "id": "p_cpq2_1",
+        "figures": [{"type":"svg","caption":"Figure 1 Circuit model of a short axon segment","alt":"Two rails of resistors stand for the fluid inside and outside the axon; each membrane patch joining them is a resistor Rm in parallel with a capacitor Cm.","svg":"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 300' width='560' height='300' font-family='sans-serif' font-size='20'><g fill='none' stroke='#222' stroke-width='2.5'><path d='M20 60H230l5-10 10 20 10-20 10 20 10-20 10 20 10-20 10 20 5-10H540'/><path d='M20 240H230l5-10 10 20 10-20 10 20 10-20 10 20 10-20 10 20 5-10H540'/><path d='M140 60V100M110 100H170M110 100V115l10 5-20 10 20 10-20 10 20 10-20 10 20 10-10 5V200M170 100V145M152 145H188M152 157H188M170 157V200M110 200H170M140 200V240'/><path d='M420 60V100M390 100H450M390 100V115l10 5-20 10 20 10-20 10 20 10-20 10 20 10-10 5V200M450 100V145M432 145H468M432 157H468M450 157V200M390 200H450M420 200V240'/></g><text x='20' y='34'>Inside the axon</text><text x='270' y='38' text-anchor='middle'>r<tspan dy='5' font-size='18'>in</tspan></text><text x='270' y='222' text-anchor='middle'>r<tspan dy='5' font-size='18'>out</tspan></text><text x='95' y='158' text-anchor='end'>R<tspan dy='5' font-size='18'>m</tspan></text><text x='196' y='158'>C<tspan dy='5' font-size='18'>m</tspan></text><text x='375' y='158' text-anchor='end'>R<tspan dy='5' font-size='18'>m</tspan></text><text x='476' y='158'>C<tspan dy='5' font-size='18'>m</tspan></text><text x='285' y='155' text-anchor='middle' fill='#555'>Membrane</text><text x='20' y='288'>Outside the axon (extracellular fluid)</text></svg>"},{"type":"line","caption":"Figure 2 A typical action potential","x":{"label":"Time (ms)","min":0,"max":1.2,"step":0.2},"y":{"label":"Membrane potential (mV)","min":-100,"max":60,"step":20},"series":[{"name":"Inside of axon","points":[[0,-80],[0.1,-80],[0.2,-60],[0.3,-5],[0.4,35],[0.5,15],[0.6,-35],[0.7,-68],[0.8,-78],[0.9,-80],[1.0,-80],[1.2,-80]],"marker":"none"}]}],
         "subj": "physics",
         "type": "passage",
         "topic": "C/P",
@@ -1071,6 +1074,7 @@ const CP_POOL = [
       },
       {
         "id": "p_cpq2_4",
+        "figures": [{"type":"svg","caption":"Figure 1 Metal-binding site of the thermophilic DNA polymerase","alt":"The side-chain carboxylates of Asp410 and Asp582 both bind a divalent metal ion M²⁺, which also contacts the phosphates of the incoming dNTP.","svg":"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 260' width='560' height='260' font-family='sans-serif' font-size='20'><text x='280' y='28' text-anchor='middle' font-weight='bold'>Polymerase active site</text><g fill='none' stroke='#555' stroke-width='2.5' stroke-dasharray='6 5'><path d='M200 95L252 132'/><path d='M360 95L308 132'/><path d='M280 184V205'/></g><g fill='#fff' stroke='#222' stroke-width='2'><rect x='20' y='60' width='180' height='44' rx='8'/><rect x='360' y='60' width='180' height='44' rx='8'/><rect x='130' y='205' width='300' height='44' rx='8'/></g><circle cx='280' cy='150' r='34' fill='#dbeafe' stroke='#1d4ed8' stroke-width='2.5'/><g text-anchor='middle'><text x='110' y='89'>Asp410–COO⁻</text><text x='450' y='89'>Asp582–COO⁻</text><text x='280' y='158' fill='#1d4ed8' font-weight='bold'>M²⁺</text><text x='280' y='234'>Incoming dNTP phosphates</text></g></svg>"},{"type":"svg","caption":"Figure 3 Primer–template substrate used in the assays","alt":"A ³⁵S-labeled primer paired to a template; the next template base is U (highlighted), opposite the open slot where dATP or dGTP is added.","svg":"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 180' width='560' height='180' font-family='sans-serif' font-size='22'><text x='414' y='34' text-anchor='middle' font-size='18' fill='#b45309'>dATP or dGTP</text><text x='20' y='78' font-size='18' fill='#444'>Primer</text><text x='20' y='158' font-size='18' fill='#444'>Template</text><text x='140' y='78' text-anchor='middle'>5′–³⁵S–</text><text y='78' text-anchor='middle' x='190 218 246 274 302 330 358 386'>GCTAGCAC</text><rect x='400' y='54' width='28' height='30' rx='4' fill='none' stroke='#b45309' stroke-width='2' stroke-dasharray='4 3'/><text x='414' y='78' text-anchor='middle' fill='#b45309'>?</text><path d='M190 88V134M218 88V134M246 88V134M274 88V134M302 88V134M330 88V134M358 88V134M386 88V134' stroke='#999' stroke-width='2'/><path d='M414 88V134' stroke='#b45309' stroke-width='2' stroke-dasharray='4 3'/><rect x='400' y='138' width='28' height='28' rx='4' fill='#fde68a' stroke='#b45309' stroke-width='2'/><text x='150' y='158' text-anchor='middle'>3′</text><text y='158' text-anchor='middle' x='190 218 246 274 302 330 358 386 414 442 470 498'>CGATCGTGUCAG</text><text x='530' y='158' text-anchor='middle'>5′</text></svg>"}],
         "subj": "biochemistry",
         "type": "passage",
         "topic": "C/P",
@@ -1598,6 +1602,7 @@ const CP_POOL = [
     "passages": [
       {
         "id": "p_cpq3_1",
+        "figures": [{"type":"line","caption":"Figure 2 Initial velocity of PtK-C versus pantetheine concentration","x":{"label":"[Pantetheine] (μM)","min":0,"max":200,"step":40},"y":{"label":"v_{0} (μM NADPH/min)","min":0,"max":12,"step":2},"series":[{"name":"Measured","marker":"circle","line":"none","points":[[10,2.5],[20,3.9],[40,6.1],[60,7.1],[80,8.1],[120,8.9],[160,9.7],[200,9.9]]},{"name":"Michaelis–Menten fit","points":[[0,0],[5,1.33],[10,2.4],[20,4.0],[40,6.0],[60,7.2],[80,8.0],[100,8.57],[120,9.0],[160,9.6],[200,10.0]],"marker":"none"}]}],
         "subj": "biochemistry",
         "type": "passage",
         "topic": "C/P",
@@ -1718,6 +1723,7 @@ const CP_POOL = [
             "diff": "E",
             "twin": "pe1-cp:49",
             "exp": "1. The disc's job is to decompose H₂O₂ on its surface.\n2. List its surface steps: H₂O₂ adsorbs → 2H₂O₂ → 2H₂O + O₂ → O₂ leaves.\n3. Making NO from N₂ and O₂ is not something the disc is used for; it makes a pollutant and needs no peroxide.\n4. Answer: Diagram: N₂ + O₂ → 2NO at the Pt surface.\n\n**Rule to reuse:** a catalyst's functions are the surface steps of the reaction it is there to speed; a reaction that makes something unwanted is not one.",
+            "choiceFigs": ["cp-pt-h2o2-adsorb", "cp-pt-h2o2-decomp", "cp-pt-no-form", "cp-pt-o2-leave"],
             "id": "p_cpq3_2_q2"
           },
           {
@@ -1756,6 +1762,7 @@ const CP_POOL = [
       },
       {
         "id": "p_cpq3_3",
+        "figures": [{"type":"svg","caption":"Figure 1 Components of the portable UV disinfection unit","alt":"A voltage source holds two parallel plate electrodes at +V and −V; gas between the plates emits UV light through a quartz window in the top plate toward a surface such as a bed rail.","svg":"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 260' width='560' height='260' font-family='sans-serif' font-size='20'><rect x='270' y='8' width='200' height='40' rx='6' fill='#f3f4f6' stroke='#222' stroke-width='2'/><text x='370' y='35' text-anchor='middle'>Surface (bed rail)</text><path d='M345 106V58M370 106V58M395 106V58M338 68L345 56L352 68M363 68L370 56L377 68M388 68L395 56L402 68' fill='none' stroke='#7c3aed' stroke-width='3'/><text x='412' y='92' fill='#7c3aed'>UV light</text><rect x='230' y='110' width='280' height='10' fill='#333'/><rect x='330' y='110' width='80' height='10' fill='#7fb3d5'/><text x='322' y='100' text-anchor='end' font-size='18' fill='#2b6c9e'>Quartz window</text><text x='370' y='168' text-anchor='middle'>Gas</text><rect x='230' y='200' width='280' height='10' fill='#333'/><rect x='20' y='115' width='130' height='80' rx='8' fill='#fff' stroke='#222' stroke-width='2'/><text x='85' y='150' text-anchor='middle'>Voltage</text><text x='85' y='175' text-anchor='middle'>source</text><path d='M150 135H200V115H230M150 175H200V205H230' fill='none' stroke='#222' stroke-width='2.5'/><text x='160' y='128' font-size='18'>+V</text><text x='160' y='198' font-size='18'>−V</text><text x='370' y='242' text-anchor='middle' font-size='18'>Parallel plate electrodes</text></svg>"},{"type":"line","caption":"Figure 2 Magnitude of the voltage between the plates over time","x":{"label":"Time (μs)","min":0,"max":100,"step":10},"y":{"label":"|V| (V)","min":0,"max":400,"step":100},"series":[{"name":"|V|","line":"straight","points":[[0,300],[35,300],[35,0],[50,0],[50,300],[85,300],[85,0],[100,0]],"marker":"none"}]}],
         "subj": "physics",
         "type": "passage",
         "topic": "C/P",
@@ -1972,6 +1979,7 @@ const CP_POOL = [
       },
       {
         "id": "p_cpq3_5",
+        "figures": [{"caption":"Table 1 Chemical denaturation midpoints (Cm)","columns":["Module","Cm at pH 3.0 (M)","Cm at pH 7.0 (M)"],"rows":[["CBM","1.62","2.31"],["CBM-2","2.28","2.26"],["CBM-3","2.20","2.33"]]}],
         "subj": "biochemistry",
         "type": "passage",
         "topic": "C/P",
@@ -2811,6 +2819,7 @@ const CP_POOL = [
     "passages": [
       {
         "id": "p_cpq5_1",
+        "figures": [{"type":"svg","caption":"Figure 1 The ¹⁸⁸W/¹⁸⁸Re generator","alt":"Saline enters the top of a glass tube, flows over an aluminum oxide column holding ¹⁸⁸W, and leaves at the bottom as eluate containing Na¹⁸⁸ReO₄.","svg":"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 360' width='560' height='360' font-family='sans-serif' font-size='20'><path d='M240 8V50M232 40L240 52L248 40' fill='none' stroke='#1d4ed8' stroke-width='3'/><text x='260' y='34'>Saline in</text><rect x='200' y='60' width='80' height='230' rx='10' fill='#f8fafc' stroke='#222' stroke-width='2.5'/><rect x='232' y='290' width='16' height='20' fill='#f8fafc' stroke='#222' stroke-width='2'/><rect x='206' y='130' width='68' height='110' fill='#d6c08a' stroke='#7a6a3a' stroke-width='2'/><path d='M274 185H310M200 95H172' stroke='#222' stroke-width='2'/><text x='316' y='180'>Al₂O₃ column</text><text x='316' y='206'>with ¹⁸⁸W bound</text><text x='166' y='101' text-anchor='end'>Glass tube</text><path d='M240 314V346M232 336L240 348L248 336' fill='none' stroke='#1d4ed8' stroke-width='3'/><text x='260' y='338'>Eluate out: Na¹⁸⁸ReO₄</text></svg>"}],
         "subj": "physics",
         "type": "passage",
         "topic": "C/P",
@@ -3031,6 +3040,7 @@ const CP_POOL = [
       },
       {
         "id": "p_cpq5_3",
+        "figures": [{"type":"line","caption":"Figure 1 Average displacement of the 12 DNA molecules (±1 SD)","x":{"label":"Time (s)","min":0,"max":20,"step":4},"y":{"label":"Displacement (μm)","min":0,"max":40,"step":10},"series":[{"name":"Mean","marker":"circle","points":[[0,0],[2,2],[4,5],[6,8.2],[8,11],[10,14.2],[12,17.1],[14,20],[16,23.2],[18,26],[20,29]]},{"name":"Mean + 1 SD","marker":"plus","line":"none","points":[[0,0],[2,2.8],[4,6.5],[6,10.2],[8,13.5],[10,17.2],[12,20.6],[14,24],[16,27.7],[18,31],[20,34.5]]},{"name":"Mean − 1 SD","marker":"plus","line":"none","points":[[0,0],[2,1.2],[4,3.5],[6,6.2],[8,8.5],[10,11.2],[12,13.6],[14,16],[16,18.7],[18,21],[20,23.5]]}]},{"type":"line","caption":"Figure 2 Average velocity of the DNA molecules (from Figure 1)","x":{"label":"Time (s)","min":0,"max":20,"step":4},"y":{"label":"Velocity (μm/s)","min":0,"max":2,"step":0.5},"series":[{"name":"Mean velocity","marker":"circle","line":"straight","points":[[0,0],[1,1.0],[3,1.5],[5,1.6],[7,1.4],[9,1.6],[11,1.45],[13,1.45],[15,1.6],[17,1.4],[19,1.5]]}]}],
         "subj": "physics",
         "type": "passage",
         "topic": "C/P",
@@ -3113,6 +3123,7 @@ const CP_POOL = [
       },
       {
         "id": "p_cpq5_4",
+        "figures": [{"type":"svg","caption":"Figure 2 Autoradiography of leaf-extract products","alt":"In both the ¹⁴C and ³³P images, the WT lane without α-amylase has a strong band and the SSKO lane a faint one; with α-amylase neither lane has a band.","svg":"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 300' width='560' height='300' font-family='sans-serif' font-size='18'><g font-size='20' font-weight='bold' text-anchor='middle'><text x='145' y='30'>¹⁴C image</text><text x='415' y='30'>³³P image</text></g><g fill='#eef0f2' stroke='#222' stroke-width='2'><rect x='20' y='45' width='250' height='150'/><rect x='290' y='45' width='250' height='150'/></g><g fill='none' stroke='#666' stroke-width='2'><rect x='32' y='52' width='40' height='8'/><rect x='94' y='52' width='40' height='8'/><rect x='156' y='52' width='40' height='8'/><rect x='218' y='52' width='40' height='8'/><rect x='302' y='52' width='40' height='8'/><rect x='364' y='52' width='40' height='8'/><rect x='426' y='52' width='40' height='8'/><rect x='488' y='52' width='40' height='8'/></g><g fill='#111'><rect x='30' y='105' width='44' height='14'/><rect x='92' y='105' width='44' height='14' fill-opacity='0.18'/><rect x='300' y='105' width='44' height='14'/><rect x='362' y='105' width='44' height='14' fill-opacity='0.18'/></g><g text-anchor='middle'><text x='52' y='222'>WT</text><text x='114' y='222'>SSKO</text><text x='176' y='222'>WT</text><text x='238' y='222'>SSKO</text><text x='322' y='222'>WT</text><text x='384' y='222'>SSKO</text><text x='446' y='222'>WT</text><text x='508' y='222'>SSKO</text><g font-size='22'><text x='52' y='252'>−</text><text x='114' y='252'>−</text><text x='176' y='252'>+</text><text x='238' y='252'>+</text><text x='322' y='252'>−</text><text x='384' y='252'>−</text><text x='446' y='252'>+</text><text x='508' y='252'>+</text></g><text x='280' y='288'>α-amylase: − without, + with</text></g></svg>"}],
         "subj": "biochemistry",
         "type": "passage",
         "topic": "C/P",
@@ -3459,6 +3470,7 @@ const CP_POOL = [
     "passages": [
       {
         "id": "p_cpq6_1",
+        "figures": [{"type":"bar","caption":"Figure 2 Arrestin binding to Opsin G Loop A variants: (A) phosphorylated (kinase + ATP); (B) kinase without ATP","x":{"label":"Opsin G variant (Loop A)"},"y":{"label":"Arrestin binding (% of WT)","min":0,"max":120,"step":20},"categories":["WT","R68A","K70A","R68A/K70A","D72A"],"series":[{"name":"(A) Kinase + ATP","values":[100,62,55,18,96],"errors":[6,5,6,3,7]},{"name":"(B) Kinase, no ATP","values":[15,12,10,8,14],"errors":[3,2,2,2,3]}]},{"type":"bar","caption":"Figure 3 Arrestin binding to Opsin G Loop B variants: (A) phosphorylated (kinase + ATP); (B) kinase without ATP","x":{"label":"Opsin G variant (Loop B)"},"y":{"label":"Arrestin binding (% of WT)","min":0,"max":120,"step":20},"categories":["WT","K231A","R234A","K231A/R234A","E239A"],"series":[{"name":"(A) Kinase + ATP","values":[100,88,41,30,102],"errors":[6,7,5,4,8]},{"name":"(B) Kinase, no ATP","values":[15,14,9,7,16],"errors":[3,3,2,2,3]}]}],
         "subj": "gen_chem",
         "type": "passage",
         "topic": "C/P",
@@ -3540,6 +3552,7 @@ const CP_POOL = [
       },
       {
         "id": "p_cpq6_2",
+        "figures": [{"caption":"Table 1 Standard reduction potentials at 25°C","columns":["Half-reaction","E° (V)"],"rows":[["Br₂ + 2e⁻ → 2Br⁻","+1.07"],["Co²⁺ + 2e⁻ → Co","−0.28"],["Cr²⁺ + 2e⁻ → Cr","−0.91"],["Mn²⁺ + 2e⁻ → Mn","−1.18"]]}],
         "subj": "gen_chem",
         "type": "passage",
         "topic": "C/P",
@@ -3697,6 +3710,7 @@ const CP_POOL = [
       },
       {
         "id": "p_cpq6_4",
+        "figures": [{"type":"svg","caption":"Figure 1 Three ways two acetyl units can be joined","alt":"Each acetyl unit has a methyl tail (CH₃) and a carbonyl head (C=O); head-to-tail joins C=O to CH₃, head-to-head joins C=O to C=O, and tail-to-tail joins CH₃ to CH₃.","svg":"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 260' width='560' height='260' font-family='sans-serif' font-size='20'><g stroke='#222' stroke-width='2'><g fill='#e5e7eb'><rect x='180' y='20' width='70' height='46'/><rect x='360' y='20' width='70' height='46'/><rect x='180' y='100' width='70' height='46'/><rect x='430' y='100' width='70' height='46'/><rect x='250' y='180' width='70' height='46'/><rect x='360' y='180' width='70' height='46'/></g><g fill='#fff'><rect x='250' y='20' width='70' height='46'/><rect x='430' y='20' width='70' height='46'/><rect x='250' y='100' width='70' height='46'/><rect x='360' y='100' width='70' height='46'/><rect x='180' y='180' width='70' height='46'/><rect x='430' y='180' width='70' height='46'/></g></g><path d='M320 43H360M320 123H360M320 203H360' stroke='#b45309' stroke-width='5'/><text x='10' y='50'>Head-to-tail</text><text x='10' y='130'>Head-to-head</text><text x='10' y='210'>Tail-to-tail</text><g text-anchor='middle'><text x='215' y='50'>CH₃</text><text x='285' y='50'>C=O</text><text x='395' y='50'>CH₃</text><text x='465' y='50'>C=O</text><text x='215' y='130'>CH₃</text><text x='285' y='130'>C=O</text><text x='395' y='130'>C=O</text><text x='465' y='130'>CH₃</text><text x='215' y='210'>C=O</text><text x='285' y='210'>CH₃</text><text x='395' y='210'>CH₃</text><text x='465' y='210'>C=O</text><text x='280' y='252' font-size='18' fill='#444'>C=O = head (carbonyl C); CH₃ = tail (methyl C)</text></g></svg>"}],
         "subj": "organic_chem",
         "type": "passage",
         "topic": "C/P",
@@ -3991,6 +4005,7 @@ const CP_POOL = [
         "subj": "physics",
         "twin": "pe4-cp:27",
         "exp": "1. Point A lies on the solid–gas line, where solid and gas coexist.\n2. Crossing that line goes straight from solid to gas: sublimation.\n3. Boiling points lie on the liquid–gas line, melting points on the solid–liquid line, and the critical point ends the liquid–gas line.\n**Rule to reuse:** name a point by the line it sits on: solid–gas = sublimation, solid–liquid = melting, liquid–gas = boiling.",
+        "chart": {"type":"svg","caption":"Phase diagram of compound X","alt":"Pressure–temperature phase diagram with solid, liquid and gas regions; point A lies on the line between the solid and gas regions, below the triple point.","svg":"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 370' width='560' height='370' font-family='sans-serif' font-size='20'><path d='M70 20V320H540' fill='none' stroke='#222' stroke-width='2.5'/><path d='M90 310Q170 290 230 220M230 220L265 30M230 220Q340 150 450 110' fill='none' stroke='#222' stroke-width='3'/><circle cx='230' cy='220' r='5' fill='#222'/><circle cx='450' cy='110' r='5' fill='#222'/><circle cx='165' cy='282.5' r='7' fill='#b45309'/><text x='158' y='268' text-anchor='end' fill='#b45309' font-weight='bold'>A</text><text x='140' y='150' text-anchor='middle'>Solid</text><text x='345' y='80' text-anchor='middle'>Liquid</text><text x='420' y='255' text-anchor='middle'>Gas</text><text x='305' y='355' text-anchor='middle'>Temperature</text><text x='34' y='175' text-anchor='middle' transform='rotate(-90 34 175)'>Pressure</text></svg>"},
         "id": "cp_q6_sa6"
       },
       {
