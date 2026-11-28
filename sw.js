@@ -8,13 +8,13 @@
 //   matches the exact versioned URL.
 // - The drawings (data/structures.js) and the sign-in SDK are cached the first time they are used, not at install.
 // Bump CACHE when deploying, then run node tools/generate-pages.cjs.
-const CACHE = 'mcat-v3.11-figures-2026-11-24';
+const CACHE = 'mcat-v3.12-bb-flashcards-2026-11-27';
 const V = '?v=' + CACHE;
 const NETWORK_TIMEOUT_MS = 4000, CACHED_TIMEOUT_MS = 1500;
 const SCRIPTS = [
   'js/pages.js', 'js/app.js', 'js/study-path.js', 'js/cloud-config.js', 'js/account.js', 'js/study-timer.js', 'js/learning-evidence.js', 'js/daily-plan.js', 'js/mastery.js', 'js/actions.js', 'js/data-css.js',
   'data/passages-cars.js', 'data/cp-diagnostic.js', 'data/cp-pool.js',
-  'data/qb-aamc-bio.js', 'data/qb-aamc-chem.js', 'data/qb-aamc-phys.js', 'data/qb-aamc-biochem.js', 'data/qb-aamc-iqb.js', 'data/qb-aamc-cars.js', 'data/qb-aamc-rules.js', 'data/qb-aamc-fl.js', 'data/cp-test-cards.js', 'data/cp-rules.js', 'data/aamc-prep.js',
+  'data/qb-aamc-bio.js', 'data/qb-aamc-chem.js', 'data/qb-aamc-phys.js', 'data/qb-aamc-biochem.js', 'data/qb-aamc-iqb.js', 'data/qb-aamc-cars.js', 'data/qb-aamc-rules.js', 'data/qb-aamc-fl.js', 'data/cp-test-cards.js', 'data/cp-rules.js', 'data/bb-test-cards.js', 'data/aamc-prep.js',
   'data/exam1.js', 'data/exam2-cp.js', 'data/exam2-bb.js', 'data/exam2-ps.js', 'data/exams.js',
 ];
 const ASSETS = [
