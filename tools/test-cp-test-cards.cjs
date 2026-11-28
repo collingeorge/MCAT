@@ -317,8 +317,8 @@ const app = vm.createContext({ console: { log() {}, warn() {}, error() {} }, Dat
 const run = code => vm.runInContext(code, app);
 for (const f of Object.values(new Function('return ' + /const BANKS = (\{[^\n]+\});/.exec(fs.readFileSync(root + '/js/app.js', 'utf8'))[1])()).flat()) run(fs.readFileSync(root + '/' + f, 'utf8'));
 for (const [, file] of fs.readFileSync(root + '/index.html', 'utf8').matchAll(/<script src="([^"?]+)/g)) if (!/account|cloud-config|pages/.test(file)) run(fs.readFileSync(root + '/' + file, 'utf8'));
-assert.deepEqual(JSON.parse(run("JSON.stringify(BANKS.cpt)")), ['data/cp-test-cards.js', 'data/cp-rules.js'], 'loaded on demand (BANKS.cpt), with the rules sheet');
-assert(['data/cp-test-cards.js', 'data/cp-rules.js'].every(f => fs.readFileSync(root + '/sw.js', 'utf8').includes("'" + f + "'")), 'precached by the service worker');
+assert.deepEqual(JSON.parse(run("JSON.stringify(BANKS.cpt)")), ['data/cp-test-cards.js', 'data/cp-rules.js', 'data/bb-test-cards.js'], 'loaded on demand (BANKS.cpt), with the rules sheet and the B/B cards');
+assert(['data/cp-test-cards.js', 'data/cp-rules.js', 'data/bb-test-cards.js'].every(f => fs.readFileSync(root + '/sw.js', 'utf8').includes("'" + f + "'")), 'precached by the service worker');
 // The rules sheet and rule cards (data/cp-rules.js): sections of one-line rules; rule cards with a short front and
 // back, each tied to its section and to deck cards that use the rule; ids unique.
 { const R = JSON.parse(run('JSON.stringify(CP_RULES)')), deck = new Set(CARDS.map(c => c.id)), secs = new Set(R.sheet.map(x => x.id));
@@ -341,7 +341,10 @@ assert(['data/cp-test-cards.js', 'data/cp-rules.js'].every(f => fs.readFileSync(
 assert.equal(run("masteryFlashPool('cp').length"), CARDS.length, 'the C/P flashcard pool is the Practice Test flashcards');
 assert(run("masteryFlashPool('cp').every(q => CPTQ_BY_ID.has(q.id) && !AQB_BY_ID.has(q.id) && !FLQ_BY_ID.has(q.id))"), 'no QBank or Practice Exam card in the flashcard pool');
 assert(run("masteryPracticePool('cp').every(q => /^pe\\d-cp:/.test(q.src))") && run("masteryPracticePool('cp').length") === 295, 'guided pool: the 295 Practice Exam 1/3/4/5/6 cards, no Sample Test card');
-assert(run("masteryFlashPool('bb').every(q => AQB_BY_ID.has(q.id))"), 'other sections keep their QBank flashcards');
+// B/B (2026-11-27): its own Practice Test flashcards (data/bb-test-cards.js) in the same bank, never QBank cards.
+assert(run("masteryFlashPool('bb').length > 0 && masteryFlashPool('bb').every(q => CPTQ_BY_ID.has(q.id) && /^bbt-/.test(q.id) && !AQB_BY_ID.has(q.id))"), 'B/B flashcards are the B/B Practice Test flashcards');
+assert(run("masteryFlashPool('cp').every(q => !/^bbt-/.test(q.id))"), 'no B/B card in the C/P pool');
+assert(run("masteryFlashPool('ps').every(q => AQB_BY_ID.has(q.id))"), 'P/S keeps its QBank flashcards until it is built');
 const sampleSrc = FL.find(q => /^sample-cp:/.test(q.src)).src, qbSrc = run('AQB_QBANK.find(q => q.src && /^[45][A-E]$/.test(q.aamc)).src');
 const peList = [...new Set(CARDS.flatMap(c => c.from.map(r => r.split('#')[0])))];
 const today = run('localDay()');

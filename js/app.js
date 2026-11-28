@@ -256,7 +256,8 @@ const CPTQ_BY_ID = new Map();
 SUBJECT_LABEL[CPT_SECTION.id] = CPT_SECTION.label;
 function buildCpt() {
   if (CPTQ.length || typeof CP_TEST_CARDS === 'undefined') return;
-  CP_TEST_CARDS.forEach(q => {
+  // B/B Practice Test flashcards (data/bb-test-cards.js) share the pool: TODAY picks each section's cards by AAMC category.
+  [...CP_TEST_CARDS, ...(typeof BB_TEST_CARDS !== 'undefined' ? BB_TEST_CARDS : [])].forEach(q => {
     Object.assign(q, { subj: CPT_SECTION.id, key: CPT_SECTION.id + '|' + q.s });
     CPTQ.push(q);
     CPTQ_BY_ID.set(q.id, q);
@@ -268,10 +269,10 @@ function buildCpt() {
 // tools/test-pages.cjs checks them against the data.
 // ASSET_V: the deploy's version (sw.js CACHE), added to every script the app loads on demand so the browser's HTTP
 // cache never serves one from an earlier deploy. Written by tools/generate-pages.cjs; do not edit by hand.
-const ASSET_V = '?v=mcat-v3.11-figures-2026-11-24';
-const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'], cpt: ['data/cp-test-cards.js', 'data/cp-rules.js'] };
+const ASSET_V = '?v=mcat-v3.12-bb-flashcards-2026-11-27';
+const BANKS = { fl: ['data/qb-aamc-fl.js'], cp: ['data/cp-diagnostic.js', 'data/cp-pool.js'], prep: ['data/aamc-prep.js'], cpt: ['data/cp-test-cards.js', 'data/cp-rules.js', 'data/bb-test-cards.js'] };
 const BANK_COUNTS = { fl: 354, flCp: 295, flTests: 6 };
-const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined', cpt: () => typeof CP_TEST_CARDS !== 'undefined' && typeof CP_RULES !== 'undefined' };   // both files of BANKS.cpt (the rules warm-up needs CP_RULES)
+const BANK_PRESENT = { fl: () => typeof QB_AAMC_FL !== 'undefined', cp: () => typeof CP_DIAG !== 'undefined' && typeof CP_POOL !== 'undefined', prep: () => typeof AAMC_PREP !== 'undefined', cpt: () => typeof CP_TEST_CARDS !== 'undefined' && typeof CP_RULES !== 'undefined' && typeof BB_TEST_CARDS !== 'undefined' };   // every file of BANKS.cpt (the rules warm-up needs CP_RULES; B/B cards ride in the same bank)
 const bankDone = Object.create(null), bankLoading = Object.create(null);
 function bankReady(name) {
   if (bankDone[name]) return true;

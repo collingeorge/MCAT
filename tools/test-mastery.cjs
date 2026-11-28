@@ -178,7 +178,7 @@ assert(src.includes("version: mini.setId || 'cards'") && src.includes('<b>earlie
 assert(src.includes("btn('Retake diagnostic', \"startMasteryTest('diagnostic')\", s.old)"), 'step 1 offers the retake (the main button while the old diagnostic is current)');
 assert(src.includes('function startMasteryFollowup(kind)') && fs.readFileSync(root + '/js/actions.js', 'utf8').includes("'startMasteryFollowup'"), 'after-quiz practice wired and allowlisted');
 // C/P flashcards are the Practice Test flashcards only (data/cp-test-cards.js); other sections keep the QBank cards.
-assert(src.includes("if (s !== 'cp') return masteryExamPool(s);") && src.includes('return CPTQ.filter(q => cats.has(masteryCategory(q)) && masteryTierOk(q, mem));') && !/QB\.filter|AQB/.test(src.slice(src.indexOf('function masteryFlashPool'), src.indexOf('const masteryFlashReady'))), 'C/P flashcards are Practice Test flashcards only; no QBank card');
+assert(src.includes("if (!MASTERY_TEST_CARDS.includes(s)) return masteryExamPool(s);") && src.includes("const MASTERY_TEST_CARDS = ['cp', 'bb'];") && src.includes('return CPTQ.filter(q => cats.has(masteryCategory(q)) && masteryTierOk(q, mem));') && !/QB\.filter|AQB/.test(src.slice(src.indexOf('function masteryFlashPool'), src.indexOf('const masteryFlashReady'))), 'C/P flashcards are Practice Test flashcards only; no QBank card');
 assert(src.includes("FLQ.filter(q => MASTERY_PE.test(q.src))") && src.includes('const MASTERY_PE = /^pe\\d-cp:/;'), 'guided cards are Practice Exam 1/3/4/5/6 cards only (no Sample Test)');
 // Regression (review 2.3): the streak counts daily quizzes on consecutive calendar days only.
 { const d = (day, kind, scaled) => test('cp', day, kind, scaled);
